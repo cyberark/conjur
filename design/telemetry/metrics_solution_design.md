@@ -340,7 +340,7 @@ This feature affects the **Conjur Open Source** component, which propagates to t
 
 ## Test Plan
   
-This feature can be unitThe components that constitute the implementation of metrics telemetry can be unit-tested. In unit tests we can compare, for any given action, the value registered by prometheus against the base truth. This validates how we are measuring.
+The components that constitute the implementation of metrics telemetry can be unit-tested. In unit tests we can compare, for any given action, the value registered by prometheus against the base truth. This validates how we are measuring.
 
 
 ### Test Environments
@@ -368,7 +368,7 @@ This feature has no special requirements in terms of environment, there the test
 
 | **Title** | **Given** | **When** | **Then** | **Comment** |
 |-----------|-----------|----------|----------|-------------|
-|    Register change in policy resources count       |    An API request is made that modifies policy resource count     |    Metrics are enabled      |   The current policy resource count should be reflected within the Prometheus store        |             |
+|    Register change in policy resources counts       |    An API request is made that modifies policy resources counts     |    Metrics are enabled      |   The current policy resource count should be reflected within the Prometheus store        |             |
 |    Register change in authenticator configuration        |    An API request is made that modifies authenticator configuration     |    Metrics are enabled      |   The authenticators count grouped by labels should be reflected within the Prometheus store        |             |
 |    Register metrics around HTTP requests        |    An API request is made    |    Metrics are enabled      |   The difference in the HTTP metrics stored in the Prometheus store before and after the request should reflect the API request     |    
 |    Ignore metrics when not enabled      |    Any API request that modifies values that are typically captured by metrics (policy resouce count, HTTP request metrics etc.)     |    Metrics are not enabled      |   The Prometheus store remains unchanged      |             |
@@ -457,17 +457,176 @@ Documentation for Conjur Metrics Telemetry will include:
 
 It is not intended to modify audit logs in any way.
 
+## Stories
+
+### Add the Prometheus scrape target endpoint to Conjur
+
+Expose GET /metrics endpoint
+
+In the [solution design](https://github.com/cyberark/conjur/blob/040f5041fadf085e47087e4ef8286bc66e72ec74/design/telemetry/metrics_solution_design.md#gathering-metrics-and-exposing-the-get-metrics-endpoint), we have decided to leverage the [Prometheus client gem](https://github.com/prometheus/client_ruby) for this implementation.
+
+We can crib from the hackathon work, here's a link to the diff https://github.com/cyberark/conjur/compare/2021-hackathon-mlee. The general idea is to add a route that responds with the serialized version of the Prometheus client store. 
+
+The Prometheus client gem provides a nice API for serializing metrics to the standard format `Prometheus::Client::Formats::Text.marshal(registry)`. It also provides a more comprehensive example of [an exporter Rack middleware](https://github.com/prometheus/client_ruby#rack-middleware) that exposes a scrape target endpoint, looking at the source for this rack middleware you'll notice that this uses `Prometheus::Client::Formats::Text.marshal` and is more [well-rounded in terms of negotiating content types](https://github.com/prometheus/client_ruby/blob/master/lib/prometheus/middleware/exporter.rb#L30).
+
+A/C
+- [ ] Create a Prometheus client store
+- [ ] Expose the Prometheus client store via the GET /metrics scrape target
+- [ ] Add test cases to ensure the scrape target works as expected
+
+### Add metrics collection to Conjur
+
+The solution design [speaks about using the pub/sub pattern](https://github.com/cyberark/conjur/blob/040f5041fadf085e47087e4ef8286bc66e72ec74/design/telemetry/metrics_solution_design.md#code-design-for-instrumentation) to decouple Conjur business logic from metrics collection logic. This issue is about setting up plumbing for metrics collection. In this case we are specifically interested in collecting for Prometheus but the idea is that we should be able to have non-Prometheus subscribers too. Here are define the Prometheus collector which holds the Prometheus client store, supported by a pub/sub mechanism which informs the collector through events about updates that should be to metrics. So there is
+1. Pub/sub mechanism based on `ActiveSupport::Notifications`. This should really be a separate entity that can be passed around/dep injected. This pub/sub mechanism is consumed by any entity (e.g. controllers/custom rack middleware) that wants to publish events that will result in metric updates
+2. The Prometheus client store that is the internal representation of the metrics gathered throughout the life of the Conjur server. This client store needs to be accessible to the scrape target endpoint!
+3. Subscribers on the collector side that (1) carry out any initialization, such as defining the metric and metric type on the store, logic for the metrics they cater to and (2) respond to metric-specific events and convert them into metric updates
+
+A/C
+- [ ] Documentation around adding a new metric subscriber
+- [ ] Add test cases to ensure that everything works 
+    - an end to end example of a metrics subscriber that defines some metrics and when events are dispatched this is reflected on the store
+    - a test case to ensure that the prometheus store linked to the collector is made available to the exporter
+
+### Metrics collection is configurable
+
+As an environment variable: 
+
+`CONJUR_TELEMETRY_ENABLED=true`
+
+In the conjur.conf configuration file: 
+
+`telemetry_enabled=true`
+
+As with all configurations, at this time, this must be set for every instance of the Conjur OSS Server.  It’s not replicated across instances.  After making one of the two changes above, simply apply the updated configuration using conjurctl configuration apply (or by restarting the Conjur processes). 
+
+At this point, Conjur will be collecting samples and tallying them in memory.  Also, the /metrics endpoint is enabled will no longer report a 404. 
+
+A/C
+- [ ] Telemetry is disabled by default
+- [ ] Telemetry can be enabled/disabled explicitly via configuration file (conjur.conf) or environment variable, see lib/conjur/conjur_config.rb. Variable takes precedence
+- [ ] No collection or exporting takes place while telemetry is disabled
+- [ ] There are test cases validating behaviors
+
+### Expose REST API metrics on Prometheus scrape target
+For this we need to register REST API metrics onto the Prometheus client store. Consult the [solution design](https://github.com/cyberark/conjur/blob/040f5041fadf085e47087e4ef8286bc66e72ec74/design/telemetry/metrics_solution_design.md#conjur-http-requests) for details around the metric metadata. The general idea is to 
+
+1. Collect the metrics through custom Rack middleware. The prometheus client gem provides an [example Rack middleware](https://github.com/prometheus/client_ruby/blob/master/lib/prometheus/middleware/collector.rb) for tracing HTTP requests. This idea was used in the hackathon and expanded upon in the POC for the soluition design, so for the implementation we can crib from `lib/prometheus/custom_collector.rb` in the [diff from the POC branch](https://github.com/cyberark/conjur/compare/metrics-poc-kt#diff-963b0f7173b1dd7863e1c623cccdc5e03fba88c1ca33e1d3730ae571da2913ce). 
+2. Publish an event (e.g. `request.conjur`) with enough data that the subscriber can use to make the metrics updates.
+3. The Prometheus subscriber for these metrics will interpret that event and make appropriate metric updates to the store. The act of adding the metrics onto the store, combined with the prior work to setup the Prometheus exporter should result in the metric being present in the scrape target endpoint `GET /metrics`.
+
+NOTE: In the Rack middleware we need to ensure that our measurements take into account all other Rack middleware applied to a request. This means the metrics collection Rack middleware must be [first in the list](https://blog.appoptics.com/monitoring-rails-get-hidden-metrics-rails-app/#:~:text=Note%20that%20the%C2%A0Librato%3A%3ARack%C2%A0middleware%20is%20the%20very%20first%20item%20in%20the%20list%2C%20while%20my%20Rails%20app%20is%20the%20last).
+
+A/C
+
+- [ ] REST API metrics are collected
+- [ ] REST API metrics are exposed on the scrape target
+- [ ] There are test cases validating this behavior end to end
+    + lightweight test: requests made on the REST API are reflected in the response of the scrape target endpoint
+    + pub/sub plumbing is unit tested so that when any relevant events are dispatched the expected changes are reflected on the store
+
+### Expose policy resource scount metrics on Prometheus scrape target
+
+NOTE: this is policy **resources**, NOT is policy roles!
+
+For this we need to register policy resources counts metrics onto the Prometheus client store. Consult the [solution design](https://github.com/cyberark/conjur/blob/metrics-solution-design/design/telemetry/metrics_solution_design.md#conjur-policy-resources) for the policy resource count metric definitions. The general idea is to 
+
+1. Publish an event (e.g. `conjur_policy_load`) the subscriber can use to make the metrics updates. In this case there really isn't any data for the event to pass along with the event since at policy load time we only know that the policy resouce count has potentially changed, and not what the changes were. This event is published on policy load, which we believes takes place exclusively at [load_policy](https://github.com/cyberark/conjur/blob/metrics-solution-design/app/controllers/policies_controller.rb#L50]) in the PolicyController.
+2. The Prometheus subscriber for these metrics will interpret that event and make appropriate metric updates to the store. In this case the subscriber is responsible for determining the latest policy resources counts by [querying the database](https://github.com/cyberark/conjur/blob/metrics-solution-design/design/telemetry/metrics_solution_design.md#conjur-policy-resources).
+
+  The act of adding the metrics onto the store, combined with the prior work to setup the Prometheus exporter should result in the metric being present in the scrape target endpoint `GET /metrics`.
+
+A/C
+
+- [ ] Policy resources counts metrics are collected
+- [ ] Policy resources counts are exposed on the scrape target
+- [ ] There are test cases validating this behavior end to end
+    + lightweight test: make policy updates by invoking the policy endpoints, and ensure that any changes are reflected in the response of the scrape target endpoint
+    + pub/sub plumbing is unit tested so that when policy is loaded (1) an event is dispatched, (2) an event dispatched results in the correct subscriber logic running, (3) the subsciber logic grabs the latest policy resources counts and writes them onto the Prometheus store
+
+### Expose policy roles counts metrics on Prometheus scrape target
+
+NOTE: this is policy roles, NOT policy resources!
+
+For this we need to register policy roles counts metrics onto the Prometheus client store. Consult the [solution design](https://github.com/cyberark/conjur/blob/metrics-solution-design/design/telemetry/metrics_solution_design.md#conjur-policy-resources) for the policy roles counts metric definitions. The general idea is to 
+
+1. Publish an event (e.g. `conjur_policy_load`) the subscriber can use to make the metrics updates. In this case there really isn't any data for the event to pass along with the event since at policy load time we only know that the policy resouce count has potentially changed, and not what the changes were. This event is published on policy load, which we believes takes place exclusively at [load_policy](https://github.com/cyberark/conjur/blob/metrics-solution-design/app/controllers/policies_controller.rb#L50]) in the PolicyController. NOTE that the method `load_policy` returns `created_roles`, perhaps this can be used to determine avoid unnecessarily querying the database for policy roles counts changes.
+2. The Prometheus subscriber for these metrics will interpret that event and make appropriate metric updates to the store. In this case the subscriber is responsible for determining the latest policy roles counts by [querying the database](https://github.com/cyberark/conjur/blob/metrics-solution-design/design/telemetry/metrics_solution_design.md#conjur-policy-resources).
+
+  The act of adding the metrics onto the store, combined with the prior work to setup the Prometheus exporter should result in the metric being present in the scrape target endpoint `GET /metrics`.
+
+A/C
+
+- [ ] Policy roles counts metrics are collected
+- [ ] Policy roles counts are exposed on the scrape target
+- [ ] There are test cases validating this behavior end to end
+    + lightweight test: make policy updates by invoking the policy endpoints, and ensure that any changes are reflected in the response of the scrape target endpoint
+    + pub/sub plumbing is unit tested so that when policy is loaded (1) an event is dispatched, (2) an event dispatched results in the correct subscriber logic running, (3) the subsciber logic grabs the latest policy roles counts and writes them onto the Prometheus store
+
+### Expose authenticators counts metrics on Prometheus scrape target
+
+For this we need to register authenticators counts metrics onto the Prometheus client store. Consult the [solution design](https://github.com/cyberark/conjur/blob/metrics-solution-design/design/telemetry/metrics_solution_design.md#conjur-authenticators) for the authenticators counts metric definitions. The general idea is to 
+
+1. Publish an event (e.g. `authenticator_update`) the subscriber can use to make the metrics updates. This event is published on authenticator configuration update, which we believe takes place exclusively at [update_config](https://github.com/cyberark/conjur/blob/master/app/controllers/authenticate_controller.rb#L65]) in the AuthenticateController.
+2. The Prometheus subscriber for these metrics will interpret that event and make appropriate metric updates to the store. In this case the subscriber is responsible for determining the latest authenticators counts by [querying the database](https://github.com/cyberark/conjur/blob/master/app/domain/authentication/installed_authenticators.rb#L23).
+
+  The act of adding the metrics onto the store, combined with the prior work to setup the Prometheus exporter should result in the metric being present in the scrape target endpoint `GET /metrics`.
+
+A/C
+
+- [ ] Authenticators counts metrics are collected
+- [ ] Authenticators counts are exposed on the scrape target
+- [ ] There are test cases validating this behavior end to end
+    + lightweight test: configure authenticators by invoking the authenticate endpoints, and ensure that any changes are reflected in the response of the scrape target endpoint
+    + pub/sub plumbing is unit tested so that when policy is loaded (1) an event is dispatched, (2) an event dispatched results in the correct subscriber logic running, (3) the subsciber logic grabs the latest authenticators counts and writes them onto the Prometheus store
+
+### Performance testing of Conjur metrics
+
+Performance testing to ensure that the overhead of adding metrics remains within acceptable bounds. Please consult the [design doc](https://github.com/cyberark/conjur/blob/metrics-solution-design/design/telemetry/metrics_solution_design.md#performance-tests) for details. The intention here is to create a performance baseline for Conjur then compare it with when the feature is complete.
+
+The load applied onto Conjur must be representative of "normal" operation. It must incorporate the typical activities such as authentication, secret retrieval, policy loading, authenticator configuration.
+
+For this task it will be important to collaborate with the Infrastructure team to get data points on what can be defined as "normal" operation. It's with looking at the load used in XA.
+
+A/C
+
++ A performance baseline has been established prior to adding Conjur metrics
++ A comparison is made between the performance baseline (with Conjur metrics) and with Conjur metrics
++ Negligible performance impact defined by Quality Architect and met by team testing
+
+### Documentation for Conjur metrics
+
+This documentation is for internal consumption. This story is used to hold the multiple documentation tasks
+
+A/C
+
++ Documentation containing high level overview of telemetry, metric definitions, and how to configure
++ Instructions/guidance for instrumenting additional Conjur metrics reviewed by a member of a different R&D team, as well as a security champion. 
++ Documented security guidance for data exposed through telemetry. This should likely include details about why we opted against basic auth for Prometheus, and how it's still possible to add that to the scrape target via load balancer.
++ Documentations + light POC for integrating Conjur Prometheus metrics with AWS CloudWatch, in collaboration with infrastructure team.
+
+### Quick-start for consuming Conjur metrics
+
+Short, simple instructions and scripts/containers for running Prometheus with Conjur OSS.
+
+A/C
+
++ Tooling of some kind (e.g. Bash script, Docker compose, etc) to launch Conjur OSS and Prometheus, with the latter configured to use the former. 
++ Metric and label standards and conventions are documented. 
++ README explaining how to use said tooling above. 
++ Stretch: tooling also include Grafana hooked up to Prometheus. 
+
 ## Open Questions
 [//]: # "Add any question that is still open. It makes it easier for the reader to have the open questions accumulated here instead of them being acattered along the doc"
 
-- Enabling/disabling telemetry is intended to not incur any downtime. Environment variables and file config able to accomodate this, while requiring restarts ?
+<!-- - Enabling/disabling telemetry is intended to not incur any downtime. Environment variables and file config able to accomodate this, while requiring restarts ? -->
 <!-- - Does the current implementation ensure that Conjur subprocesses (forks) provide a unified view of the metrics ? -->
-- re: Distributed counts. How are counts aggregated between different nodes ? This should be straightforward when querying from prometheus I think
-- re: Maintaining policy resource counts. We need to dive in and understand the feasibility of counting Conjur resources in a granular way that allows each data point to contain the kind label. The count for any given resource type can change only as a result of policy loading. This means that the count must be determined and stored on every policy load. There are some questions around this
-  1. Does the operation of policy loading alone give us the information about the counts ?
-  2. If not (1), then do we need to query the database separately to determine the counts ? If so, how costly is this, how bad can this get, and can it be justified ?
-  3. Is the approach resilient to parallel policy loads ?
-- re: Performance testing. For a fully loaded DB, how costly is a count query ? If expensive are there small changes that could make this cheaper, for example keeping a count on the database (perhaps via some stored procedure) ?
+<!-- - re: Distributed counts. How are counts aggregated between different nodes ? This should be straightforward when querying from prometheus I think -->
+<!-- - re: Maintaining policy resource counts. We need to dive in and understand the feasibility of counting Conjur resources in a granular way that allows each data point to contain the kind label. The count for any given resource type can change only as a result of policy loading. This means that the count must be determined and stored on every policy load. There are some questions around this -->
+  <!-- 1. Does the operation of policy loading alone give us the information about the counts ? -->
+  <!-- 2. If not (1), then do we need to query the database separately to determine the counts ? If so, how costly is this, how bad can this get, and can it be justified ? -->
+  <!-- 3. Is the approach resilient to parallel policy loads ? -->
+<!-- - re: Performance testing. For a fully loaded DB, how costly is a count query ? If expensive are there small changes that could make this cheaper, for example keeping a count on the database (perhaps via some stored procedure) ? -->
+
 
 ## Definition of Done
 
