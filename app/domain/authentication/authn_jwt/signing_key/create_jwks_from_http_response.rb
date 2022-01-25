@@ -10,19 +10,19 @@ module Authentication
         inputs: %i[http_response]
       ) do
         def call
-          validate_response_exists
-          validate_response_has_a_body
+          validate_response_success
           create_jwks_from_http_response
         end
 
         private
 
-        def validate_response_exists
-          raise Errors::Authentication::AuthnJwt::MissingHttpResponse if @http_response.blank?
-        end
-
-        def validate_response_has_a_body
-          raise Errors::Authentication::AuthnJwt::InvalidHttpResponseFormat unless @http_response.respond_to?(:body)
+        def validate_response_success
+          @http_response.value
+        rescue => e
+          raise Errors::Authentication::AuthnJwt::FailedToFetchJwksData.new(
+            @http_response.uri,
+            e.inspect
+          )
         end
 
         def create_jwks_from_http_response

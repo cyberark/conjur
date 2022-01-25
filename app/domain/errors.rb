@@ -443,19 +443,9 @@ module Errors
         code: "CONJ00093E"
       )
 
-      MissingHttpResponse = ::Util::TrackableErrorClass.new(
-        msg: "HTTP response is empty or not found.",
-        code: "CONJ00094E"
-      )
-
       MissingClaim = ::Util::TrackableErrorClass.new(
         msg: "Claim is empty or not found.",
         code: "CONJ00095E"
-      )
-
-      InvalidHttpResponseFormat = ::Util::TrackableErrorClass.new(
-        msg: "HTTP response format is invalid",
-        code: "CONJ00096E"
       )
 
       ServiceIdMissing = ::Util::TrackableErrorClass.new(
@@ -587,6 +577,11 @@ module Errors
       InvalidSigningKeySettings = ::Util::TrackableErrorClass.new(
         msg: "Invalid signing key settings: {0-validation-error}",
         code: "CONJ00122E"
+      )
+
+      FailedToFetchJwksData = ::Util::TrackableErrorClass.new(
+        msg: "Failed to fetch JWKS data from '{0-jwks-uri}' with error: {1-error}",
+        code: "CONJ00123E"
       )
     end
 
