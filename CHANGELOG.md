@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
-## [1.16.0] - 2022-01-19
+## [1.16.0] - 2022-01-25
 
 ### Added
 - Added the ability to fetch signing keys from JWKS endpoints that use a self-signed
@@ -32,6 +32,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   [#2450](https://github.com/cyberark/conjur/pull/2450)
   [#2447](https://github.com/cyberark/conjur/pull/2447)
   [#2437](https://github.com/cyberark/conjur/pull/2437))
+
+### Changed
+- Proper error message appears when JWT Authenticator gets HTTP code error
+  while trying to fetch JWKS data from `jwks-uri` [#2474](https://github.com/cyberark/conjur/pull/2474)
 
 ## [1.15.1] - 2022-01-12
 
@@ -67,7 +71,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Security
 - Bump gems related to openid_connect stack for improving the certificate
   validation procedure during the OIDC keys discovery process
-  [cyberark/ONYX-13304](https://ca-il-jira.il.cyber-ark.com:8443/browse/ONYX-13304)
+  [#2441](https://github.com/cyberark/conjur/pull/2441)
 
 ## [1.14.1] - 2021-11-05
 
