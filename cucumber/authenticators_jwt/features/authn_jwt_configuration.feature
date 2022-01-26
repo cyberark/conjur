@@ -1,3 +1,4 @@
+@authenticators_jwt
 Feature: JWT Authenticator - Configuration Check
 
   Tests to check failures because of misconfiguration of the JWT during runtime.
@@ -6,6 +7,7 @@ Feature: JWT Authenticator - Configuration Check
     Given I initialize remote JWKS endpoint with file "authn-jwt-configuration" and alg "RS256"
     And I have a "variable" resource called "test-variable"
 
+  @negative @acceptance
   Scenario: ONYX-8600: Webservice is missing in Authenticator policy
     Given I load a policy:
     """
@@ -46,6 +48,7 @@ Feature: JWT Authenticator - Configuration Check
     CONJ00005E Webservice 'authn-jwt/raw' not found
     """
 
+  @negative @acceptance
   Scenario: ONYX-8601: Webservice with read and no authenticate permission in authenticator policy
     Given I load a policy:
     """
@@ -88,6 +91,7 @@ Feature: JWT Authenticator - Configuration Check
     CONJ00006E 'host/myapp' does not have 'authenticate' privilege on cucumber:webservice:conjur/authn-jwt/raw
     """
 
+  @negative @acceptance
   Scenario: ONYX-8694: Both provider-uri and jwks-uri are configured
     Given I load a policy:
     """
@@ -138,6 +142,7 @@ Feature: JWT Authenticator - Configuration Check
     CONJ00122E Invalid signing key settings: jwks-uri and provider-uri cannot be defined simultaneously
     """
 
+  @negative @acceptance
   Scenario: ONYX-8826: provider-uri configured with correct value, jwks-uri configured with empty value, error
     Given I load a policy:
     """
@@ -188,6 +193,7 @@ Feature: JWT Authenticator - Configuration Check
     CONJ00122E Invalid signing key settings: jwks-uri and provider-uri cannot be defined simultaneously
     """
 
+  @negative @acceptance
   Scenario: ONYX-8698: jwks-uri configured but variable not set
     Given I load a policy:
     """
@@ -233,6 +239,7 @@ Feature: JWT Authenticator - Configuration Check
     CONJ00037E Missing value for resource: cucumber:variable:conjur/authn-jwt/raw/jwks-uri
     """
 
+  @negative @acceptance
   Scenario: ONYX-8697: provider-uri configured but variable not set
     Given I load a policy:
     """
@@ -278,6 +285,7 @@ Feature: JWT Authenticator - Configuration Check
     CONJ00037E Missing value for resource: cucumber:variable:conjur/authn-jwt/raw/provider-uri
     """
 
+  @negative @acceptance
   Scenario: ONYX-8696: None of provider-uri or jwks-uri are configured
     Given I load a policy:
     """
@@ -320,6 +328,7 @@ Feature: JWT Authenticator - Configuration Check
     CONJ00122E Invalid signing key settings: One of the following must be defined: jwks-uri, public-keys, or provider-uri
     """
 
+  @negative @acceptance
   Scenario: ONYX-8695: provider-uri configured with empty value, jwks-uri configured with correct value
     Given I load a policy:
     """
@@ -370,6 +379,7 @@ Feature: JWT Authenticator - Configuration Check
     CONJ00122E Invalid signing key settings: jwks-uri and provider-uri cannot be defined simultaneously
     """
 
+  @negative @acceptance
   Scenario: ONYX-8694: Both Token identity and host send in URL, error
     Given I load a policy:
     """
@@ -416,6 +426,7 @@ Feature: JWT Authenticator - Configuration Check
     Errors::Authentication::AuthnJwt::IdentityMisconfigured: CONJ00098E JWT identity configuration is invalid
     """
 
+  @negative @acceptance
   Scenario: ONYX-8602: Host in token not defined , and no host in URL, error
     Given I load a policy:
     """

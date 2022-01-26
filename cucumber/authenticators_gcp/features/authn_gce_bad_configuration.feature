@@ -1,4 +1,4 @@
-@gcp
+@authenticators_gcp
 Feature: GCP Authenticator - GCE flow, test malformed configuration
 
   In this feature we define a GCP authenticator with a malformed configuration.
@@ -9,6 +9,7 @@ Feature: GCP Authenticator - GCE flow, test malformed configuration
   Background:
     Given I obtain a valid GCE identity token
 
+  @negative @acceptance
   Scenario: Webservice is missing in policy gets denied
     Given I load a policy:
     """
@@ -29,6 +30,7 @@ Feature: GCP Authenticator - GCE flow, test malformed configuration
     CONJ00005E Webservice 'authn-gcp' not found
     """
 
+  @negative @acceptance
   Scenario: Webservice with read and no authenticate permission in policy is denied
     Given I load a policy:
     """

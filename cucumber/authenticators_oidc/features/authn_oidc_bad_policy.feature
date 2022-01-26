@@ -1,3 +1,4 @@
+@authenticators_oidc
 Feature: OIDC Authenticator - Bad authenticator configuration leads to an error
 
   In this feature we define an OIDC Authenticator with a configuration
@@ -5,6 +6,7 @@ Feature: OIDC Authenticator - Bad authenticator configuration leads to an error
   and log the relevant error for the user to re-configure the authenticator
   properly
 
+  @negative @acceptance
   Scenario: id-token-user-property variable missing in policy is denied
     Given I load a policy:
     """
@@ -42,6 +44,7 @@ Feature: OIDC Authenticator - Bad authenticator configuration leads to an error
     Errors::Conjur::RequiredResourceMissing
     """
 
+  @negative @acceptance
   Scenario: provider-uri variable missing in policy is denied
     Given I load a policy:
     """
@@ -78,7 +81,7 @@ Feature: OIDC Authenticator - Bad authenticator configuration leads to an error
     """
     Errors::Conjur::RequiredResourceMissing
     """
-
+  @negative @acceptance
   Scenario: webservice missing in policy is denied
     Given I load a policy:
     """
@@ -111,6 +114,7 @@ Feature: OIDC Authenticator - Bad authenticator configuration leads to an error
     Errors::Authentication::Security::WebserviceNotFound
     """
 
+  @negative @acceptance
   Scenario: webservice with read and no authenticate permission in policy is denied
     Given I load a policy:
     """
@@ -151,6 +155,7 @@ Feature: OIDC Authenticator - Bad authenticator configuration leads to an error
     Errors::Authentication::Security::RoleNotAuthorizedOnResource
     """
 
+  @negative @acceptance
   Scenario: An authenticator without a service id
     Given I load a policy:
     """

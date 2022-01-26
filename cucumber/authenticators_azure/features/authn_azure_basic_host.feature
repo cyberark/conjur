@@ -1,3 +1,4 @@
+@authenticators_azure
 Feature: Azure Authenticator - Hosts can authenticate with Azure authenticator
 
   In this feature we define an Azure authenticator in policy and perform authentication
@@ -30,6 +31,7 @@ Feature: Azure Authenticator - Hosts can authenticate with Azure authenticator
     And I set Azure annotations to host "test-app"
     And I grant group "conjur/authn-azure/prod/apps" to host "test-app"
 
+  @smoke
   Scenario: Hosts can authenticate with Azure authenticator and fetch secret
     Given I have a "variable" resource called "test-variable"
     And I permit host "test-app" to "execute" it
@@ -44,6 +46,7 @@ Feature: Azure Authenticator - Hosts can authenticate with Azure authenticator
     cucumber:host:test-app successfully authenticated with authenticator authn-azure service cucumber:webservice:conjur/authn-azure/prod
     """
 
+  @acceptance
   Scenario: A valid provider-uri without trailing slash works
     Given I have a "variable" resource called "test-variable"
     And I permit host "test-app" to "execute" it
@@ -54,6 +57,7 @@ Feature: Azure Authenticator - Hosts can authenticate with Azure authenticator
     Then host "test-app" has been authorized by Conjur
     And I successfully GET "/secrets/cucumber/variable/test-variable" with authorized user
 
+  @acceptance
   Scenario: Changing provider-uri dynamically reflects on the ID Provider endpoint
     Given I fetch a non-assigned-identity Azure access token from inside machine
     And I authenticate via Azure with token as host "test-app"
@@ -74,6 +78,7 @@ Feature: Azure Authenticator - Hosts can authenticate with Azure authenticator
     And I authenticate via Azure with token as host "test-app"
     And host "test-app" has been authorized by Conjur
 
+  @negative @acceptance
   Scenario: Missing Azure access token is a bad request
     Given I save my place in the log file
     When I authenticate via Azure with no token as host "test-app"
@@ -83,6 +88,7 @@ Feature: Azure Authenticator - Hosts can authenticate with Azure authenticator
     Errors::Authentication::RequestBody::MissingRequestParam
     """
 
+  @negative @acceptance
   Scenario: Empty Azure access token is a bad request
     Given I save my place in the log file
     When I authenticate via Azure with empty token as host "test-app"

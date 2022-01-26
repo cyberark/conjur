@@ -1,7 +1,9 @@
+@authenticators_config
 Feature: The list of available authentication providers is discoverable
   through the API.
 
   @sanity
+  @smoke
   Scenario: ONYX-12104 - Verify installed authenticators
     When I retrieve the list of authenticators
     Then there are exactly 8 installed authenticators
@@ -14,6 +16,7 @@ Feature: The list of available authentication providers is discoverable
     And the installed authenticators contains "authn-ldap"
     And the installed authenticators contains "authn-oidc"
 
+  @smoke
   Scenario: List authenticators
     Given I load a policy:
     """

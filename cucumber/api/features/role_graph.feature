@@ -1,3 +1,4 @@
+@api
 Feature: Retrieve the role graph for a given role
 
   The full graph of ancestor and descendent roles for a given
@@ -26,6 +27,7 @@ Feature: Retrieve the role graph for a given role
       member: !user alice
     """
 
+  @smoke
   Scenario: Retrieve role graph
     When I successfully GET "/roles/cucumber/group/internal?graph"
     Then the JSON should be:

@@ -1,8 +1,10 @@
+@policy
 Feature: Users and Hosts can be CIDR restricted
 
 Users and Hosts can be restricted to only allow authentication
 from a particular network, defined by a CIDR in the policy
 
+  @smoke
   Scenario: Loading users and hosts with CIDR restrictions
 
     Given I load a policy:
@@ -38,6 +40,7 @@ from a particular network, defined by a CIDR in the policy
        ["192.168.0.1/32", "192.168.1.10/32"]
     """
 
+  @negative @acceptance
   Scenario: Invalid CIDR restriction string
 
     When I load a policy:
@@ -51,6 +54,7 @@ from a particular network, defined by a CIDR in the policy
     And the error message includes "Invalid IP address or CIDR range 'an_invalid_cidr_string'"
 
 
+  @negative @acceptance
   Scenario: Domain name as CIDR restriction string
 
     When I load a policy:
@@ -63,6 +67,7 @@ from a particular network, defined by a CIDR in the policy
     And the error code is "validation_failed"
     And the error message includes "Invalid IP address or CIDR range 'dap.my-company.net'"
 
+  @negative @acceptance
   Scenario: Load policy with invalid CIDR (Bits to the right of the mask)
   Conjur strips the extra bits before storing the CIDR in the database.
 
@@ -76,6 +81,7 @@ from a particular network, defined by a CIDR in the policy
     And the error code is "validation_failed"
     And the error message includes "Invalid IP address or CIDR range '10.0.0.1/24': Value has bits set to right of mask. Did you mean '10.0.0.0/24'"
 
+  @acceptance
   Scenario: Change CIDR restriction value
     Given I load a policy:
     """

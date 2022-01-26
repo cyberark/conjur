@@ -1,6 +1,7 @@
-@gcp
+@authenticators_gcp
 Feature: GCP Authenticator - Status Check
 
+  @smoke
   Scenario: A properly configured GCP authenticator returns a successful response
     Given I load a policy:
     """

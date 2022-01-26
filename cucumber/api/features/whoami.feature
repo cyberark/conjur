@@ -1,5 +1,7 @@
+@api
 Feature: Who Am I
 
+  @acceptance
   Scenario: Audit entry
 
     Given I am a user named "alice"

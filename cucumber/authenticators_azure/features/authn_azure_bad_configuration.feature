@@ -1,3 +1,4 @@
+@authenticators_azure
 Feature: Azure Authenticator - Bad authenticator configuration leads to an error
 
   In this feature we define an Azure Authenticator with a configuration
@@ -5,6 +6,7 @@ Feature: Azure Authenticator - Bad authenticator configuration leads to an error
   and log the relevant error for the user to re-configure the authenticator
   properly
 
+  @negative @acceptance
   Scenario: provider-uri variable missing in policy is denied
     Given I load a policy:
     """
@@ -35,6 +37,7 @@ Feature: Azure Authenticator - Bad authenticator configuration leads to an error
 
   # TODO: add this test when issue #1085 is done
   @skip
+  @negative @acceptance
   Scenario: provider-uri variable without value is denied
     Given I load a policy:
     """
@@ -66,6 +69,7 @@ Feature: Azure Authenticator - Bad authenticator configuration leads to an error
     Errors::Conjur::RequiredSecretMissing
     """
 
+  @negative @acceptance
   Scenario: webservice missing in policy is denied
     Given I load a policy:
     """
@@ -92,6 +96,7 @@ Feature: Azure Authenticator - Bad authenticator configuration leads to an error
     Errors::Authentication::Security::WebserviceNotFound
     """
 
+  @negative @acceptance
   Scenario: Webservice with read and no authenticate permission in policy is denied
     Given I load a policy:
     """
@@ -124,6 +129,7 @@ Feature: Azure Authenticator - Bad authenticator configuration leads to an error
     Errors::Authentication::Security::RoleNotAuthorizedOnResource
     """
 
+  @negative @acceptance
   Scenario: Unauthorized is raised in case of an invalid ID Provider hostname
     Given I load a policy:
     """

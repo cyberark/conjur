@@ -1,5 +1,7 @@
+@policy
 Feature: Public keys can be associated with user records.
 
+  @smoke
   Scenario: Public keys can be managed through policy.
     Conjur can store public keys for each of your users. To store a public key, use the
     `public_keys` attribute on the `!user` record. When you load a user policy containing
@@ -29,6 +31,7 @@ Feature: Public keys can be associated with user records.
 
     """
 
+  @smoke
   Scenario: The latest public key version is the one provided by the pubkeys API.
     Public keys that you load in policies use the form:
     

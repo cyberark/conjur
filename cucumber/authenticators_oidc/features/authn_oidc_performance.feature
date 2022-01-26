@@ -1,3 +1,4 @@
+@authenticators_oidc
 Feature: OIDC Authenticator - Performance tests
 
   In this feature we test that OIDC Authenticator performance is meeting
@@ -37,11 +38,13 @@ Feature: OIDC Authenticator - Performance tests
     And I am the super-user
     And I successfully set OIDC variables
 
+  @performance
   Scenario: successful requests
     And I fetch an ID Token for username "alice" and password "alice"
     When I authenticate 1000 times in 10 threads via OIDC with id token
     Then The avg authentication request responds in less than 0.75 seconds
 
+  @performance
   Scenario: Unsuccessful requests with an invalid token
     When I authenticate 1000 times in 10 threads via OIDC with invalid id token
     Then The avg authentication request responds in less than 0.75 seconds

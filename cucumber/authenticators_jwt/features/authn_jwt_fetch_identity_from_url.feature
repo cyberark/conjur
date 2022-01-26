@@ -1,3 +1,4 @@
+@authenticators_jwt
 Feature: JWT Authenticator - Fetch identity from URL
 
   Tests for fetching identity from URL of the JWT authentication request.
@@ -60,6 +61,7 @@ Feature: JWT Authenticator - Fetch identity from URL
     And I initialize remote JWKS endpoint with file "identity-from-url" and alg "RS256"
     And I successfully set authn-jwt "jwks-uri" variable value to "http://jwks_py:8090/identity-from-url/RS256" in service "raw"
 
+  @acceptance
   Scenario: ONYX-9520: User send in URL, user not in root, 200 ok
     Given I have a "variable" resource called "test-variable"
     And I permit user "user_test_from_url@some_policy" to "execute" it
@@ -79,6 +81,7 @@ Feature: JWT Authenticator - Fetch identity from URL
     cucumber:user:user_test_from_url@some_policy successfully authenticated with authenticator authn-jwt service cucumber:webservice:conjur/authn-jwt/raw
     """
 
+  @acceptance
   Scenario: ONYX-9519: User send in URL, user in root, 200 ok
     Given I have a "variable" resource called "test-variable"
     And I permit user "user_test_from_url" to "execute" it
@@ -99,6 +102,7 @@ Feature: JWT Authenticator - Fetch identity from URL
     """
 
   @sanity
+  @acceptance
   Scenario: ONYX-9521: Host send in URL, host not in root, 200 ok
     Given I have a "variable" resource called "test-variable"
     And I permit host "some_policy/host_test_from_url" to "execute" it
@@ -118,6 +122,7 @@ Feature: JWT Authenticator - Fetch identity from URL
     cucumber:host:some_policy/host_test_from_url successfully authenticated with authenticator authn-jwt service cucumber:webservice:conjur/authn-jwt/raw
     """
 
+  @acceptance
   Scenario: ONYX-9518: Host send in URL, host in root, 200 ok
     Given I have a "variable" resource called "test-variable"
     And I permit host "myapp" to "execute" it
@@ -137,6 +142,7 @@ Feature: JWT Authenticator - Fetch identity from URL
     cucumber:host:myapp successfully authenticated with authenticator authn-jwt service cucumber:webservice:conjur/authn-jwt/raw
     """
 
+  @negative @acceptance
   Scenario: ONYX-8821: Host taken from URL but not defined in conjur, error
     Given I am using file "identity-from-url" and alg "RS256" for remotely issue token:
     """
@@ -152,6 +158,7 @@ Feature: JWT Authenticator - Fetch identity from URL
     CONJ00007E 'invalid_host' not found
     """
 
+  @acceptance
   Scenario: ONYX-9517: Host send in URL, host not in root, Identify-path with empty value is ignored, 200 ok
     Given I have a "variable" resource called "test-variable"
     And I permit host "some_policy/host_test_from_url" to "execute" it

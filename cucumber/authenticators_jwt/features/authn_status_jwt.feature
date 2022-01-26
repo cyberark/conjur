@@ -1,3 +1,4 @@
+@authenticators_jwt
 Feature: JWT Authenticator - Status Check
 
   Checks status API of JWT authenticator. Status API should return error on each case of misconfiguration in
@@ -7,6 +8,7 @@ Feature: JWT Authenticator - Status Check
     Given I initialize remote JWKS endpoint with file "authn-jwt-configuration" and alg "RS256"
 
   @sanity
+  @smoke
   Scenario: ONYX-9122: A valid JWT status request, 200 OK
     Given I load a policy:
     """
@@ -70,6 +72,7 @@ Feature: JWT Authenticator - Status Check
     And the HTTP response content type is "application/json"
     And the authenticator status check succeeds
 
+  @negative @acceptance
   Scenario: ONYX-9138: Signing key is not configured, 500 Error
     Given I load a policy:
     """
@@ -124,6 +127,7 @@ Feature: JWT Authenticator - Status Check
     Then the HTTP response status code is 500
     And the authenticator status check fails with error "CONJ00122E Invalid signing key settings: One of the following must be defined: jwks-uri, public-keys, or provider-uri"
 
+  @negative @acceptance
   Scenario: Signing key is configured with jwks-uri and provider-uri, 500 Error
     Given I load a policy:
     """
@@ -186,6 +190,7 @@ Feature: JWT Authenticator - Status Check
     Then the HTTP response status code is 500
     And the authenticator status check fails with error "CONJ00122E Invalid signing key settings: jwks-uri and provider-uri cannot be defined simultaneously"
 
+  @negative @acceptance
   Scenario: ONYX-9142: User doesn't have permissions on webservice, 403 Error
     Given I load a policy:
     """
@@ -235,6 +240,7 @@ Feature: JWT Authenticator - Status Check
     Then the HTTP response status code is 403
     And the authenticator status check fails with error "CONJ00006E 'alice' does not have 'read' privilege on cucumber:webservice:conjur/authn-jwt/raw/status"
 
+  @acceptance @acceptance
   Scenario: ONYX-9139: Non existing issuer, and existing Signing key, 200 OK
     Given I load a policy:
     """
@@ -290,6 +296,7 @@ Feature: JWT Authenticator - Status Check
     And the HTTP response content type is "application/json"
     And the authenticator status check succeeds
 
+  @negative @acceptance
   Scenario: ONYX-9140: Non existing issuer and Signing key, 500 Error
     Given I load a policy:
     """
@@ -340,6 +347,7 @@ Feature: JWT Authenticator - Status Check
     Then the HTTP response status code is 500
     And the authenticator status check fails with error "CONJ00122E Invalid signing key settings: One of the following must be defined: jwks-uri, public-keys, or provider-uri"
 
+  @negative @acceptance
   Scenario: ONYX-9141: Identity is configured but empty, 500 Error
     Given I load a policy:
     """
@@ -393,6 +401,7 @@ Feature: JWT Authenticator - Status Check
     Then the HTTP response status code is 500
     And the authenticator status check fails with error "CONJ00037E Missing value for resource: cucumber:variable:conjur/authn-jwt/raw/token-app-property"
 
+  @negative @acceptance
   Scenario: ONYX-9143: Status webservice does not exist, 500 Error
     Given I load a policy:
     """
@@ -437,6 +446,7 @@ Feature: JWT Authenticator - Status Check
     Then the HTTP response status code is 500
     And the authenticator status check fails with error "CONJ00005E Webservice 'authn-jwt/raw/status' not found"
 
+  @negative @acceptance
   Scenario: ONYX-9569: JWKS-uri is configured but empty, 500 Error
     Given I load a policy:
     """
@@ -490,6 +500,7 @@ Feature: JWT Authenticator - Status Check
     Then the HTTP response status code is 500
     And the authenticator status check fails with error "CONJ00037E Missing value for resource: cucumber:variable:conjur/authn-jwt/raw/jwks-uri"
 
+  @negative @acceptance
   Scenario: ONYX-9570: Provider-uri is configured but empty, 500 Error
     Given I load a policy:
     """
@@ -543,6 +554,7 @@ Feature: JWT Authenticator - Status Check
     Then the HTTP response status code is 500
     And the authenticator status check fails with error "CONJ00037E Missing value for resource: cucumber:variable:conjur/authn-jwt/raw/provider-uri"
 
+  @negative @acceptance
   Scenario: ONYX-9571: Provider-uri is configured with bad value, 500 Error
     Given I load a policy:
     """
@@ -597,6 +609,7 @@ Feature: JWT Authenticator - Status Check
     Then the HTTP response status code is 500
     And the authenticator status check fails with error "CONJ00011E Failed to discover Identity Provider"
 
+  @negative @acceptance
   Scenario: ONYX-9572: JWKS-uri is configured with bad value, 500 Error
     Given I load a policy:
     """
@@ -652,6 +665,7 @@ Feature: JWT Authenticator - Status Check
     And the authenticator status check fails with error "CONJ00087E Failed to fetch JWKS from 'unknow-host.com'"
 
   @sanity
+  @negative @acceptance
   Scenario: ONYX-9516: Identify-path is configured but empty, 500 Error
     Given I load a policy:
     """
@@ -710,6 +724,7 @@ Feature: JWT Authenticator - Status Check
     And the authenticator status check fails with error "CONJ00037E Missing value for resource: cucumber:variable:conjur/authn-jwt/raw/identity-path>"
 
   @sanity
+  @smoke
   Scenario: ONYX-9515: Valid status check, identify-path is configured with value, 200 OK
     Given I load a policy:
     """
@@ -778,6 +793,7 @@ Feature: JWT Authenticator - Status Check
     And the HTTP response content type is "application/json"
     And the authenticator status check succeeds
 
+  @acceptance
   Scenario: ONYX-10875: Status works fine with Enforced Claims and Aliases, 200 OK
     Given I load a policy:
     """
@@ -846,6 +862,7 @@ Feature: JWT Authenticator - Status Check
     And the HTTP response content type is "application/json"
     And the authenticator status check succeeds
 
+  @negative @acceptance
   Scenario: ONYX-11162: Audience is configured but empty, 500 Error
     Given I load a policy:
     """
@@ -903,6 +920,7 @@ Feature: JWT Authenticator - Status Check
     Then the HTTP response status code is 500
     And the authenticator status check fails with error "CONJ00037E Missing value for resource: cucumber:variable:conjur/authn-jwt/raw/audience>"
 
+  @negative @acceptance
   Scenario: ONYX-10875: claim-aliases configured but secret not populated, 500 Error
     Given I load a policy:
     """
@@ -965,6 +983,7 @@ Feature: JWT Authenticator - Status Check
     Then the HTTP response status code is 500
     And the authenticator status check fails with error "CONJ00037E Missing value for resource: cucumber:variable:conjur/authn-jwt/raw/claim-aliases>"
 
+  @negative @acceptance
   Scenario: ONYX-10876: enforced-claims configured but secret not populated, 500 Error
     Given I load a policy:
     """
@@ -1027,6 +1046,7 @@ Feature: JWT Authenticator - Status Check
     Then the HTTP response status code is 500
     And the authenticator status check fails with error "CONJ00037E Missing value for resource: cucumber:variable:conjur/authn-jwt/raw/enforced-claims>"
 
+  @negative @acceptance
   Scenario: ONYX-10960: enforced-claims configured with invalid value, 500 Error
     Given I load a policy:
     """
@@ -1090,6 +1110,7 @@ Feature: JWT Authenticator - Status Check
     Then the HTTP response status code is 500
     And the authenticator status check fails with error "does not match regular expression: '(?-mix:^[a-zA-Z|$|_][a-zA-Z|$|_|0-9|.]*(\/[a-zA-Z|$|_][a-zA-Z|$|_|0-9|.]*)*$)"
 
+  @negative @acceptance
   Scenario Outline: ONYX-10958: claim-aliases configured with invalid value, 500 Error
     Given I load a policy:
     """
@@ -1157,6 +1178,7 @@ Feature: JWT Authenticator - Status Check
       | SDsas213sda!!A!!$$@#$#:$@$@#sdasdasdq23asd32rdf  | does not match regular expression:                                      |
       | a/b:bbb                                          | Failed to parse claim aliases: the claim alias name 'a/b' contains '/'. |
 
+  @negative @acceptance
   Scenario: ONYX-13997:  Identity is configured not according format, 500 Error
     Given I load a policy:
     """

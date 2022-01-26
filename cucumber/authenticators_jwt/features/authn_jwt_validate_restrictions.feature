@@ -1,3 +1,4 @@
+@authenticators_jwt
 Feature: JWT Authenticator - Validate restrictions
 
   Tests to check that host annotations are validated correctly in jwt authenticator. Focusing on checking that only the vendor related annotations are being checked.
@@ -27,6 +28,7 @@ Feature: JWT Authenticator - Validate restrictions
     And I initialize remote JWKS endpoint with file "authn-jwt-validate-restrictions" and alg "RS256"
     And I successfully set authn-jwt "jwks-uri" variable value to "http://jwks_py:8090/authn-jwt-validate-restrictions/RS256" in service "raw"
 
+  @acceptance
   Scenario: ONYX-9069: Generals annotations with valid values, one annotation with valid service and valid value, one annotation with invalid service and valid value, 200 OK
     Given I have a "variable" resource called "test-variable"
     And I extend the policy with:
@@ -71,6 +73,7 @@ Feature: JWT Authenticator - Validate restrictions
     cucumber:host:myapp successfully authenticated with authenticator authn-jwt service cucumber:webservice:conjur/authn-jwt/raw
     """
 
+  @negative @acceptance
   Scenario: ONYX-9112: General annotation and without service specific annotations, 401 Error
     And I successfully set authn-jwt "token-app-property" variable to value "host"
     Given I extend the policy with:
@@ -101,6 +104,7 @@ Feature: JWT Authenticator - Validate restrictions
     CONJ00099E Role must have at least one relevant annotation
     """
 
+  @negative @acceptance
   Scenario: ONYX-9070: General annotations with valid values, annotation with correct service and valid value and annotation with correct service and wrong value, 401 Error
     And I successfully set authn-jwt "token-app-property" variable to value "host"
     Given I extend the policy with:
@@ -133,6 +137,7 @@ Feature: JWT Authenticator - Validate restrictions
     CONJ00049E Resource restriction 'ref' does not match with the corresponding value in the request
     """
 
+  @negative @acceptance
   Scenario: ONYX-9068: Host without annotations, 401 Error
     And I successfully set authn-jwt "token-app-property" variable to value "host"
     Given I extend the policy with:
@@ -160,6 +165,7 @@ Feature: JWT Authenticator - Validate restrictions
     CONJ00099E Role must have at least one relevant annotation
     """
 
+  @negative @acceptance
   Scenario: ONYX-8737: Validate multiple annotations with incorrect values but one, 401 Error
     And I successfully set authn-jwt "token-app-property" variable to value "host"
     Given I extend the policy with:
@@ -194,6 +200,7 @@ Feature: JWT Authenticator - Validate restrictions
     CONJ00049E Resource restriction
     """
 
+  @negative @acceptance
   Scenario: ONYX-8736: Validate multiple annotations with incorrect, 401 Error
     And I successfully set authn-jwt "token-app-property" variable to value "host"
     Given I extend the policy with:
@@ -226,6 +233,7 @@ Feature: JWT Authenticator - Validate restrictions
     CONJ00049E Resource restriction
     """
 
+  @negative @acceptance
   Scenario: ONYX-9113: Non existing field annotation, 401 Error
     And I successfully set authn-jwt "token-app-property" variable to value "host"
     Given I extend the policy with:
@@ -254,6 +262,7 @@ Feature: JWT Authenticator - Validate restrictions
     """
 
   @sanity
+  @negative @acceptance
   Scenario: ONYX-8734: Annotation with empty value
     Given I extend the policy with:
     """
@@ -283,6 +292,7 @@ Feature: JWT Authenticator - Validate restrictions
     """
 
   @sanity
+  @acceptance
   Scenario: ONYX-8735: Ignore invalid annotations
     Given I extend the policy with:
     """
@@ -328,6 +338,7 @@ Feature: JWT Authenticator - Validate restrictions
       |CONJ00030D Resource restrictions validated                           |
       |CONJ00103D 'validate_restrictions' passed successfully               |
 
+  @negative @acceptance
   Scenario: ONYX-13722: Annotation with invalid claim path format, 401 Error
     And I successfully set authn-jwt "token-app-property" variable to value "host"
     Given I extend the policy with:

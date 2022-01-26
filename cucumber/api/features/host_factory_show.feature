@@ -1,3 +1,4 @@
+@api
 @logged-in
 Feature: Display information about a host factory.
 
@@ -7,6 +8,7 @@ Feature: Display information about a host factory.
     And I permit user "alice" to "read" it
     And I login as "alice"
 
+  @acceptance
   Scenario: The host factory displays the normal resource fields, plus
     the list of layers and tokens. 
     
