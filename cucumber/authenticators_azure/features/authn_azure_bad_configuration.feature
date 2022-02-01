@@ -35,8 +35,6 @@ Feature: Azure Authenticator - Bad authenticator configuration leads to an error
     Errors::Conjur::RequiredResourceMissing
     """
 
-  # TODO: add this test when issue #1085 is done
-  @skip
   @negative @acceptance
   Scenario: provider-uri variable without value is denied
     Given I load a policy:
