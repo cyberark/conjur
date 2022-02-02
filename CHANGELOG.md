@@ -47,6 +47,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Fixed
 - IAM Authn bug fix - Take rexml gem to production configuration [#2493](https://github.com/cyberark/conjur/pull/2493)
+- Use entirety of configured Kubernetes endpoint URL in Kubernetes authenticator's
+  web socket client, instead of only host and port
+  [#2479](https://github.com/cyberark/conjur/pull/2479)
 
 ### Security
 - Updated Rails to 6.1.4.4 to resolve CVE-2021-44528 (Medium, Not Vulnerable)
