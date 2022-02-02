@@ -19,7 +19,7 @@ Feature: Exchange a role's password for its API key
     """
       <86>1 * * conjur * authn
       [subject@43868 role="cucumber:user:alice"]
-      [auth@43868 authenticator="authn" service="cucumber:webservice:conjur/authn" user="cucumber:user:alice"]
+      [auth@43868 user="cucumber:user:alice" authenticator="authn" service="cucumber:webservice:conjur/authn"]
       [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
       [action@43868 result="success" operation="login"]
       cucumber:user:alice successfully logged in with authenticator authn service cucumber:webservice:conjur/authn
@@ -36,7 +36,7 @@ Feature: Exchange a role's password for its API key
     """
       <86>1 * * conjur * authn
       [subject@43868 role="cucumber:host:app"]
-      [auth@43868 authenticator="authn" service="cucumber:webservice:conjur/authn" user="cucumber:host:app"]
+      [auth@43868 user="cucumber:host:app" authenticator="authn" service="cucumber:webservice:conjur/authn"]
       [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
       [action@43868 result="success" operation="login"]
       cucumber:host:app successfully logged in with authenticator authn service cucumber:webservice:conjur/authn
@@ -51,7 +51,7 @@ Feature: Exchange a role's password for its API key
     """
       <84>1 * * conjur * authn
       [subject@43868 role="cucumber:user:alice"]
-      [auth@43868 authenticator="authn" service="cucumber:webservice:conjur/authn" user="cucumber:user:alice"]
+      [auth@43868 user="cucumber:user:alice" authenticator="authn" service="cucumber:webservice:conjur/authn"]
       [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
       [action@43868 result="failure" operation="login"]
       cucumber:user:alice failed to login with authenticator authn service cucumber:webservice:conjur/authn: CONJ00002E Invalid credentials
@@ -66,7 +66,7 @@ Feature: Exchange a role's password for its API key
     """
       <84>1 * * conjur * authn
       [subject@43868 role="cucumber:host:app"]
-      [auth@43868 authenticator="authn" service="cucumber:webservice:conjur/authn" user="cucumber:host:app"]
+      [auth@43868 user="cucumber:host:app" authenticator="authn" service="cucumber:webservice:conjur/authn"]
       [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
       [action@43868 result="failure" operation="login"]
       cucumber:host:app failed to login with authenticator authn service cucumber:webservice:conjur/authn: CONJ00002E Invalid credentials
@@ -81,7 +81,7 @@ Feature: Exchange a role's password for its API key
     """
       <84>1 * * conjur * authn
       [subject@43868 role="cucumber:user:non-exist"]
-      [auth@43868 authenticator="authn" service="cucumber:webservice:conjur/authn" user="not-found"]
+      [auth@43868 user="not-found" authenticator="authn" service="cucumber:webservice:conjur/authn"]
       [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
       [action@43868 result="failure" operation="login"]
       cucumber:user:non-exist failed to login with authenticator authn service cucumber:webservice:conjur/authn: CONJ00007E 'non-exist' not found
@@ -106,7 +106,7 @@ Feature: Exchange a role's password for its API key
     """
       <84>1 * * conjur * authn
       [subject@43868 role="cucumber:host:non-exist"]
-      [auth@43868 authenticator="authn" service="cucumber:webservice:conjur/authn" user="not-found"]
+      [auth@43868 user="not-found" authenticator="authn" service="cucumber:webservice:conjur/authn"]
       [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
       [action@43868 result="failure" operation="login"]
       cucumber:host:non-exist failed to login with authenticator authn service cucumber:webservice:conjur/authn: CONJ00007E 'host/non-exist' not found
