@@ -50,6 +50,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Previously, a stale puma pid file would prevent the Conjur server from starting 
   successfully. Conjur now removes a stale pid file at startup, if it exists.
   [#2498](https://github.com/cyberark/conjur/pull/2498)
+- Use entirety of configured Kubernetes endpoint URL in Kubernetes authenticator's
+  web socket client, instead of only host and port
+  [#2479](https://github.com/cyberark/conjur/pull/2479)
 
 ### Security
 - Updated rails to 6.1.4.7 to resolve CVE-2022-21831 (not vulnerable)
