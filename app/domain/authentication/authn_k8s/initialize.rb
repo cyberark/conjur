@@ -10,10 +10,9 @@ module Authentication
       include ActiveModel::Validations
       attr_reader :service_account_token, :ca_certificate, :k8s_api_url, :json_data
 
-      def initialize(raw_post)
-        return if raw_post.empty?
-
-        @json_data = JSON.parse(raw_post)
+      def initialize(json_data)
+        @json_data = json_data
+        return if json_data.empty?
 
         @service_account_token = @json_data['service-account-token']
         @ca_certificate = @json_data['ca-cert']

@@ -39,10 +39,10 @@ module Authentication
         policy_loader: Policy::LoadPolicy.new,
         auth_data_class: Authentication::AuthnK8s::K8sAuthenticatorData
       },
-      inputs: %i[conjur_account service_id resource current_user client_ip raw_post]
+      inputs: %i[conjur_account service_id resource current_user client_ip request_data]
     ) do
       def call
-        auth_data = @auth_data_class.new(@raw_post)
+        auth_data = @auth_data_class.new(@request_data)
         raise ArgumentError, auth_data.errors.full_messages unless auth_data.valid?
 
         policy_details = initialize_auth_policy(

@@ -10,8 +10,8 @@ module Authentication
       include ActiveModel::Validations
       attr_reader :provider_uri, :json_data
 
-      def initialize(raw_post)
-        @json_data = JSON.parse(raw_post)
+      def initialize(json_data)
+        @json_data = json_data
 
         @provider_uri = @json_data['provider-uri']
       end

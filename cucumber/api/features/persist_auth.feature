@@ -3,6 +3,7 @@ Feature: initialize an authenticator through the api
   Background:
     Given I login as "admin"
 
+  @smoke @acceptance
   Scenario: I initialize a k8s authenticator with name test-service
     When I save my place in the audit log file for remote
     And I POST "/authn-k8s/test-service/cucumber"
@@ -46,6 +47,7 @@ Feature: initialize an authenticator through the api
       cucumber:user:admin added role cucumber:policy:conjur/authn-k8s/test-service
     """
 
+  @smoke @acceptance
   Scenario: I initialize an Azure authenticator with name test-azure-service
     When I save my place in the audit log file for remote
     And I POST "/authn-azure/test-azure-service/cucumber" with body:
@@ -84,6 +86,7 @@ Feature: initialize an authenticator through the api
       cucumber:user:admin added role cucumber:policy:conjur/authn-azure/test-azure-service
     """
 
+  @smoke @acceptance
   Scenario: I initialize an OIDC authenticator with name test-oidc-service
     When I save my place in the audit log file for remote
     And I POST "/authn-oidc/test-oidc-service/cucumber" with body:
@@ -124,8 +127,19 @@ Feature: initialize an authenticator through the api
       cucumber:user:admin added role cucumber:policy:conjur/authn-oidc/test-oidc-service
     """
 
+  @negative @acceptance
   Scenario: I attempt to initialize an authenticator as an unauthorized user
     When I create a new user "alice"
     And I login as "alice"
     And I POST "/authn-k8s/test/cucumber"
     Then the HTTP response status code is 403
+
+  @negative @acceptance
+  Scenario: I attempt to initialize an authenticator with bad request body
+    When I POST "/authn-oidc/test-oidc-service/cucumber" with body:
+    """
+    {
+      bad-json-syntax
+    }
+    """
+    Then the HTTP response status code is 422

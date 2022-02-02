@@ -23,7 +23,7 @@ RSpec.describe(Authentication::PersistAuth) do
     let(:auth_initializer) { double('AuthInitializer') }
     let(:auth_name) { "authn-k8s" }
     let(:policy_text) { "test policy text" }
-    let(:raw_post) { "some-post-data" }
+    let(:request_data) { {"some" => "hash data"} }
     let(:auth_data_class) { double(Authentication::AuthnK8s::K8sAuthenticatorData) }
     let(:loaded_policy_result) {
       {
@@ -45,7 +45,7 @@ RSpec.describe(Authentication::PersistAuth) do
         resource: resource,
         current_user: current_user,
         client_ip: client_ip,
-        raw_post: raw_post
+        request_data: request_data
       )
     }
 
@@ -53,7 +53,7 @@ RSpec.describe(Authentication::PersistAuth) do
       let(:auth_data) { create_auth_data(valid: true, auth_name: auth_name) }
 
       it("loads the rendered policy") do
-        expect(auth_data_class).to receive(:new).with(raw_post).and_return(auth_data)
+        expect(auth_data_class).to receive(:new).with(request_data).and_return(auth_data)
 
         expect(auth_initializer).to receive(:call).with(
           conjur_account: account,
@@ -85,7 +85,7 @@ RSpec.describe(Authentication::PersistAuth) do
       let(:auth_data) { create_auth_data(valid: false, auth_name: auth_name) }
 
       it("does not load the policy") do
-        expect(auth_data_class).to receive(:new).with(raw_post).and_return(auth_data)
+        expect(auth_data_class).to receive(:new).with(request_data).and_return(auth_data)
 
         expect(policy_loader).not_to receive(:call)
         expect{ initialize_auth }.to raise_error(ArgumentError)

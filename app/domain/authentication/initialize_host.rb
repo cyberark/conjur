@@ -9,8 +9,8 @@ module Authentication
     include ActiveModel::Validations
     attr_reader :id, :annotations
 
-    def initialize(raw_post, constraints: nil)
-      @json_data = JSON.parse(raw_post)
+    def initialize(json_data, constraints: nil)
+      @json_data = json_data
       @constraints = constraints
 
       @id = @json_data['id'] if @json_data.include?('id')

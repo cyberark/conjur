@@ -4,20 +4,18 @@ require 'spec_helper'
 
 RSpec.describe(Authentication::AuthHostDetails) do
   let(:id) { "host-id" }
-  let(:json_hash) { { id: id, annotations: annotations } }
-  let(:json_hash_no_annotations) { {id: id} }
-  let(:json_string) { JSON.generate(json_hash) }
-  let(:json_string_no_annotations) { JSON.generate(json_hash_no_annotations) }
+  let(:json_hash) { { "id" => id, "annotations" => annotations } }
+  let(:json_hash_no_annotations) { { "id" => id } }
 
   subject(:host_details) do
     Authentication::AuthHostDetails.new(
-      json_string, constraints: constraints
+      json_hash, constraints: constraints
     )
   end
 
   subject(:host_details_no_annotations) do
     Authentication::AuthHostDetails.new(
-      json_string_no_annotations, constraints: constraints
+      json_hash_no_annotations, constraints: constraints
     )
   end
 

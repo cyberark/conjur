@@ -44,8 +44,8 @@ module Authentication
   # Allows creation of AuthHostDetails class from an authenticator name
   class AuthHostDetailsFactory
     class << self
-      def new_from_authenticator(authenticator, raw_post)
-        Authentication::AuthHostDetails.new(raw_post, constraints: constraints(authenticator))
+      def new_from_authenticator(authenticator, json_data)
+        Authentication::AuthHostDetails.new(json_data, constraints: constraints(authenticator))
       end
 
       private
