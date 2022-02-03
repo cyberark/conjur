@@ -546,7 +546,7 @@ DEPENDENCIES
   websocket
 
 RUBY VERSION
-   ruby 3.0.2p107
+   ruby 3.0.0p0
 
 BUNDLED WITH
    2.2.31

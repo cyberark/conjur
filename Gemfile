@@ -9,7 +9,7 @@ git_source(:github) { |name| "https://github.com/#{name}.git" }
 # nicely with RVM and we should be explicit since Ruby is such a fundamental
 # part of a Rails project. The Ruby version is also locked in place by the
 # Docker base image so it won't be updated with fuzzy matching.
-ruby '3.0.2'
+ruby '3.0'
 #ruby-gemset=conjur
 
 gem 'base58'
@@ -108,6 +108,7 @@ group :development, :test do
   gem 'spring-commands-rspec'
   gem 'rexml', '~> 3.2.5'
   gem 'table_print'
+  gem 'webrick', '~> 1.7'
 end
 
 group :development do
@@ -121,5 +122,3 @@ end
 group :test do
   gem 'haikunator', '~> 1' # for generating random names in tests
 end
-
-gem "webrick", "~> 1.7"
