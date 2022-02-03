@@ -672,15 +672,15 @@ pipeline {
     }
 
     stage("Release Conjur images and packages") {
-      // when {
-      //   expression {
-      //     MODE == "RELEASE"
-      //   }
-      // }
+      when {
+         expression {
+           MODE == "RELEASE"
+         }
+      }
       steps {
         release { billOfMaterialsDirectory, assetDirectory ->
           // Publish docker images
-          // sh './publish-images.sh --edge --dockerhub'
+          sh './publish-images.sh --edge --dockerhub'
 
           // Create deb and rpm packages
           sh 'echo "CONJUR_VERSION=5" >> debify.env'
