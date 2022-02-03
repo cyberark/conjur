@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/conjurinc/debify.git
-  revision: fb7e41960557d6783f0f9cb585bd03d2903f6571
+  revision: 78816ab50b7d34d67dd7355115c06af5f14700d2
   branch: ruby-3.0.2-upgrade
   specs:
     conjur-debify (3.0.0)
