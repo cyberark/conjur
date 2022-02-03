@@ -1,15 +1,4 @@
 GIT
-  remote: https://github.com/conjurinc/debify.git
-  revision: 78816ab50b7d34d67dd7355115c06af5f14700d2
-  branch: ruby-3.0.2-upgrade
-  specs:
-    conjur-debify (3.0.0)
-      conjur-api (~> 5.3)
-      conjur-cli (~> 6)
-      docker-api (~> 2.0)
-      gli
-
-GIT
   remote: https://github.com/cyberark/conjur-rack.git
   revision: 587b95e24d820d2073bfce63ae9b0c64320beca6
   branch: bump-version-5
@@ -149,6 +138,11 @@ GEM
       netrc (~> 0.10)
       table_print (~> 1.5)
       xdg (= 2.2.3)
+    conjur-debify (0.0.1.pre.47)
+      conjur-api (~> 5.3)
+      conjur-cli (~> 6)
+      docker-api (~> 2.0)
+      gli
     conjur-rack-heartbeat (2.2.0)
       rack
     contracts (0.17)
@@ -490,7 +484,7 @@ DEPENDENCIES
   command_class
   conjur-api
   conjur-cli (~> 6.2.6)
-  conjur-debify!
+  conjur-debify (~> 0.0.1.pre.47)
   conjur-policy-parser!
   conjur-rack!
   conjur-rack-heartbeat

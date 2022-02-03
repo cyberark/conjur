@@ -86,7 +86,7 @@ group :development, :test do
   gem 'aruba'
   gem 'ci_reporter_rspec'
   gem 'conjur-cli', '~> 6.2.6'
-  gem 'conjur-debify', github: 'conjurinc/debify', branch: 'ruby-3.0.2-upgrade'
+  gem 'conjur-debify', '~> 0.0.1.pre.47'
   gem 'csr'
   gem 'cucumber', '~> 7.1'
   gem 'database_cleaner', '~> 1.8.4'
