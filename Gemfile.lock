@@ -1,16 +1,17 @@
 GIT
   remote: https://github.com/conjurinc/debify.git
-  revision: 00fae00a352233d3d04c9cc6b2c4d80170f89744
+  revision: fb7e41960557d6783f0f9cb585bd03d2903f6571
   branch: ruby-3.0.2-upgrade
   specs:
     conjur-debify (3.0.0)
-      conjur-api (~> 5.pre, >= 5.3.6)
+      conjur-api (~> 5.3)
+      conjur-cli (~> 6)
       docker-api (~> 2.0)
       gli
 
 GIT
   remote: https://github.com/cyberark/conjur-rack.git
-  revision: 8e732159107f1a4cb60aef56438c7bc521e373c4
+  revision: 587b95e24d820d2073bfce63ae9b0c64320beca6
   branch: bump-version-5
   specs:
     conjur-rack (5.0.0)
@@ -415,7 +416,7 @@ GEM
     ruby-next-core (0.14.1)
     ruby-progressbar (1.11.0)
     safe_yaml (1.0.5)
-    sequel (5.51.0)
+    sequel (5.53.0)
     sequel-pg_advisory_locking (1.0.1)
       sequel
     sequel-postgres-schemata (0.1.3)
