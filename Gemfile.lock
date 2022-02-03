@@ -240,7 +240,7 @@ GEM
     http-form_data (2.3.0)
     http-parser (1.2.3)
       ffi-compiler (>= 1.0, < 2.0)
-    i18n (1.9.1)
+    i18n (1.8.11)
       concurrent-ruby (~> 1.0)
     ice_nine (0.11.2)
     iso8601 (0.13.0)
@@ -487,14 +487,14 @@ DEPENDENCIES
   bcrypt
   ci_reporter_rspec
   command_class
-  conjur-api (~> 5.3.7)
+  conjur-api
   conjur-cli (~> 6.2.6)
   conjur-debify!
   conjur-policy-parser!
   conjur-rack!
   conjur-rack-heartbeat
   csr
-  cucumber (~> 7.1.0)
+  cucumber (~> 7.1)
   database_cleaner (~> 1.8.4)
   debase (~> 0.2.5.beta2)
   dry-struct
@@ -537,7 +537,7 @@ DEPENDENCIES
   rubocop (~> 0.58.0)
   rubocop-checkstyle_formatter
   ruby-debug-ide
-  sequel (~> 5.51.0)
+  sequel
   sequel-pg_advisory_locking
   sequel-postgres-schemata
   sequel-rails

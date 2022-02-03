@@ -24,7 +24,7 @@ gem 'rails'
 gem 'rake'
 
 gem 'pg'
-gem 'sequel', '~> 5.51.0'
+gem 'sequel'
 gem 'sequel-pg_advisory_locking'
 gem 'sequel-postgres-schemata', require: false
 gem 'sequel-rails'
@@ -43,7 +43,7 @@ gem "loofah", ">= 2.2.3"
 
 # Pinned to update for role member search, using ref so merging and removing
 # the branch doesn't immediately break this link
-gem 'conjur-api', '~> 5.3.7'
+gem 'conjur-api'
 gem 'conjur-policy-parser', path: 'gems/policy-parser'
 gem 'conjur-rack', github: 'cyberark/conjur-rack', branch: 'bump-version-5'
 gem 'conjur-rack-heartbeat'
@@ -88,7 +88,7 @@ group :development, :test do
   gem 'conjur-cli', '~> 6.2.6'
   gem 'conjur-debify', github: 'conjurinc/debify', branch: 'ruby-3.0.2-upgrade'
   gem 'csr'
-  gem 'cucumber', '~> 7.1.0'
+  gem 'cucumber', '~> 7.1'
   gem 'database_cleaner', '~> 1.8.4'
   gem 'debase', '~> 0.2.5.beta2'
   gem 'json_spec', '~> 1.1.5'
