@@ -33,9 +33,9 @@ gem 'activesupport'
 gem 'base32-crockford'
 gem 'bcrypt'
 gem 'gli', require: false
+gem 'httpclient', github: 'nahi/httpclient', branch: 'master'
 gem 'listen'
 gem 'slosilo', '~> 3.0.0'
-gem 'httpclient', github: 'nahi/httpclient', branch: 'master'
 
 # Explicitly required as there are vulnerabilities in older versions
 gem "ffi", ">= 1.9.24"
@@ -106,8 +106,8 @@ group :development, :test do
   gem 'spring'
   gem 'spring-commands-cucumber'
   gem 'spring-commands-rspec'
-  gem 'table_print'
   gem 'rexml', '~> 3.2.5'
+  gem 'table_print'
 end
 
 group :development do

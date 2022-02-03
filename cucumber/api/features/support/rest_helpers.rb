@@ -48,7 +48,7 @@ module RestHelpers
 
   def get_json(path, options = {})
     path = denormalize(path)
-    result = rest_resource(options)[path].get()
+    result = rest_resource(options)[path].get
     set_result(result)
   end
 

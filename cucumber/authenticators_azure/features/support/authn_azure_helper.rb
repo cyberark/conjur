@@ -4,6 +4,7 @@
 require 'cucumber/_authenticators_common/features/support/authenticator_helpers'
 
 module AuthnAzureHelper
+  # Utility methods for Azure authenticator
   include AuthenticatorHelpers
 
   SERVICE_ID = 'prod'
