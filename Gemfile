@@ -34,7 +34,7 @@ gem 'base32-crockford'
 gem 'bcrypt'
 gem 'gli', require: false
 gem 'listen'
-gem 'slosilo', github: 'cyberark/slosilo', branch: 'adjust-to-ruby-3'
+gem 'slosilo', '~> 3.0.0'
 gem 'httpclient', github: 'nahi/httpclient', branch: 'master'
 
 # Explicitly required as there are vulnerabilities in older versions
@@ -43,9 +43,9 @@ gem "loofah", ">= 2.2.3"
 
 # Pinned to update for role member search, using ref so merging and removing
 # the branch doesn't immediately break this link
-gem 'conjur-api', '~> 5.3.7.pre.168'
+gem 'conjur-api', '~> 5.3.7'
 gem 'conjur-policy-parser', path: 'gems/policy-parser'
-gem 'conjur-rack', '~> 4'
+gem 'conjur-rack', github: 'cyberark/conjur-rack', branch: 'bump-version-5'
 gem 'conjur-rack-heartbeat'
 gem 'rack-rewrite'
 
@@ -85,7 +85,7 @@ gem "anyway_config", "2.1.0"
 group :development, :test do
   gem 'aruba'
   gem 'ci_reporter_rspec'
-  gem 'conjur-cli', git: 'https://github.com/cyberark/conjur-cli.git', branch: 'bump-version-6.2.6'
+  gem 'conjur-cli', '~> 6.2.6'
   gem 'conjur-debify', github: 'conjurinc/debify', branch: 'ruby-3.0.2-upgrade'
   gem 'csr'
   gem 'cucumber', '~> 7.1.0'
