@@ -113,6 +113,7 @@ group :development, :test do
   gem 'spring-commands-cucumber'
   gem 'spring-commands-rspec'
   gem 'table_print'
+  gem 'prometheus-client'
 end
 
 group :development do
