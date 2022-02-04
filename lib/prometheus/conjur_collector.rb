@@ -22,7 +22,7 @@ module Prometheus
       def initialize(app, options = {})
         @app = app
         @registry = options[:registry] || Client.registry
-        @metrics_prefix = options[:metrics_prefix] || 'http_server'
+        @metrics_prefix = options[:metrics_prefix] || 'conjur_http_server'
 
         init_request_metrics
         init_exception_metrics
@@ -72,12 +72,12 @@ module Prometheus
         counter_labels = {
           code:   code,
           method: env['REQUEST_METHOD'].downcase,
-          path:   strip_ids_from_path(path),
+          path:   path,
         }
 
         duration_labels = {
           method: env['REQUEST_METHOD'].downcase,
-          path:   strip_ids_from_path(path),
+          path:   path,
         }
 
         @requests.increment(labels: counter_labels)
@@ -87,11 +87,6 @@ module Prometheus
         nil
       end
 
-      def strip_ids_from_path(path)
-        path
-          .gsub(%r{/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}(/|$)}, '/:uuid\\1')
-          .gsub(%r{/\d+(/|$)}, '/:id\\1')
-      end
     end
   end
 end
