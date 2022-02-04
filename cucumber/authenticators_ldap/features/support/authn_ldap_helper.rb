@@ -2,9 +2,9 @@
 
 require 'cucumber/_authenticators_common/features/support/authenticator_helpers'
 
-# Utility Module for LDAP authenticator
+# Utility methods for LDAP Authenticator
 module AuthnLdapHelper
-  # Utility methods for LDAP authenticator
+  # Utility methods for Authenticators
   include AuthenticatorHelpers
 
   def login_with_ldap(service_id:, account:, username:, password:)
