@@ -1,9 +1,8 @@
 # encoding: UTF-8
-
 require 'rack/test'
-require 'prometheus/middleware/collector'
+require ::File.expand_path('../../../../lib/prometheus/conjur_collector.rb', __FILE__)
 
-describe Prometheus::Middleware::Collector do
+describe Prometheus::Middleware::ConjurCollector do
   include Rack::Test::Methods
 
   # Reset the data store
@@ -33,7 +32,7 @@ describe Prometheus::Middleware::Collector do
   end
 
   it 'handles errors in the registry gracefully' do
-    counter = registry.get(:http_server_requests_total)
+    counter = registry.get(:conjur_http_server_requests_total)
     expect(counter).to receive(:increment).and_raise(dummy_error)
 
     get '/foo'
@@ -46,11 +45,11 @@ describe Prometheus::Middleware::Collector do
 
     get '/foo'
 
-    metric = :http_server_requests_total
+    metric = :conjur_http_server_requests_total
     labels = { method: 'get', path: '/foo', code: '200' }
     expect(registry.get(metric).get(labels: labels)).to eql(1.0)
 
-    metric = :http_server_request_duration_seconds
+    metric = :conjur_http_server_request_duration_seconds
     labels = { method: 'get', path: '/foo' }
     expect(registry.get(metric).get(labels: labels)).to include("0.1" => 0, "0.25" => 1)
   end
@@ -71,7 +70,7 @@ describe Prometheus::Middleware::Collector do
     it 'traces exceptions' do
       expect { get '/broken' }.to raise_error RuntimeError
 
-      metric = :http_server_exceptions_total
+      metric = :conjur_http_server_exceptions_total
       labels = { exception: 'RuntimeError' }
       expect(registry.get(metric).get(labels: labels)).to eql(1.0)
     end
