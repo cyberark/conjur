@@ -4,12 +4,12 @@
 
 require ::File.expand_path('../config/environment', __FILE__)
 
-require 'rack'
-require 'prometheus/middleware/collector'
-require 'prometheus/middleware/exporter'
+#require 'rack'
+require ::File.expand_path('../lib/prometheus/conjur_collector.rb', __FILE__)
+require ::File.expand_path('../lib/prometheus/conjur_exporter.rb', __FILE__)
 
-use Rack::Deflater
-use Prometheus::Middleware::Collector
-use Prometheus::Middleware::Exporter
+#use Rack::Deflater
+use Prometheus::Middleware::ConjurCollector
+use Prometheus::Middleware::ConjurExporter
 
 run Rails.application
