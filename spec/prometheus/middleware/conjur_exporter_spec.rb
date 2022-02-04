@@ -50,5 +50,77 @@ describe Prometheus::Middleware::ConjurExporter do
         expect(last_response.body).to eql(message)
       end
     end
+
+
+    context 'when client does not send a Accept header' do
+      include_examples 'ok', {}, text
+    end
+
+    context 'when client accpets any media type' do
+      include_examples 'ok', { 'HTTP_ACCEPT' => '*/*' }, text
+    end
+
+    context 'when client requests application/json' do
+      include_examples 'not acceptable', 'HTTP_ACCEPT' => 'application/json'
+    end
+
+    context 'when client requests text/plain' do
+      include_examples 'ok', { 'HTTP_ACCEPT' => 'text/plain' }, text
+    end
+
+    context 'when client uses different white spaces in Accept header' do
+      accept = 'text/plain;q=1.0  ; version=0.0.4'
+
+      include_examples 'ok', { 'HTTP_ACCEPT' => accept }, text
+    end
+
+    context 'when client does not include quality attribute' do
+      accept = 'application/json;q=0.5, text/plain'
+
+      include_examples 'ok', { 'HTTP_ACCEPT' => accept }, text
+    end
+
+    context 'when client accepts some unknown formats' do
+      accept = 'text/plain;q=0.3, proto/buf;q=0.7'
+
+      include_examples 'ok', { 'HTTP_ACCEPT' => accept }, text
+    end
+
+    context 'when client accepts only unknown formats' do
+      accept = 'fancy/woo;q=0.3, proto/buf;q=0.7'
+
+      include_examples 'not acceptable', 'HTTP_ACCEPT' => accept
+    end
+
+    context 'when client accepts unknown formats and wildcard' do
+      accept = 'fancy/woo;q=0.3, proto/buf;q=0.7, */*;q=0.1'
+
+      include_examples 'ok', { 'HTTP_ACCEPT' => accept }, text
+    end
+
+    context 'when a port is specified' do
+      let(:options) { { registry: registry, port: 9999 } }
+
+      context 'when a request is on the specified port' do
+        it 'responds with 200 OK' do
+          registry.counter(:foo, docstring: 'foo counter').increment(by: 9)
+
+          get 'http://example.org:9999/metrics', nil, {}
+
+          expect(last_response.status).to eql(200)
+          expect(last_response.header['Content-Type']).to eql(text::CONTENT_TYPE)
+          expect(last_response.body).to eql(text.marshal(registry))
+        end
+      end
+
+      context 'when a request is not on the specified port' do
+        it 'returns the app response' do
+          get 'http://example.org:8888/metrics', nil, {}
+
+          expect(last_response).to be_ok
+          expect(last_response.body).to eql('OK')
+        end
+      end
+    end
   end
 end
