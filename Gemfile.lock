@@ -87,8 +87,8 @@ GEM
     addressable (2.8.0)
       public_suffix (>= 2.0.2, < 5.0)
     aes_key_wrap (1.1.0)
-    anyway_config (2.1.0)
-      ruby-next-core (>= 0.11.0)
+    anyway_config (2.2.3)
+      ruby-next-core (>= 0.14.0)
     aruba (2.0.0)
       bundler (>= 1.17, < 3.0)
       childprocess (>= 2.0, < 5.0)
@@ -475,7 +475,7 @@ PLATFORMS
 
 DEPENDENCIES
   activesupport
-  anyway_config (= 2.1.0)
+  anyway_config
   aruba
   aws-sdk-iam
   base32-crockford

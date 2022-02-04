@@ -77,10 +77,7 @@ gem 'jwt', '2.2.2' # version frozen due to authn-jwt requirements
 # authn-oidc
 gem 'openid_connect'
 
-# Unpin version once this Github issue,
-# https://github.com/palkan/anyway_config/issues/82
-# is resolved
-gem "anyway_config", "2.1.0"
+gem "anyway_config"
 
 group :development, :test do
   gem 'aruba'
