@@ -13,7 +13,6 @@ require 'types'
 
 module Authentication
   class Webservice < ::Dry::Struct
-    constructor_type
 
     attribute :account,            ::Types::NonEmptyString
     attribute :authenticator_name, ::Types::NonEmptyString

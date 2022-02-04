@@ -673,9 +673,9 @@ pipeline {
 
     stage("Release Conjur images and packages") {
       when {
-         expression {
-           MODE == "RELEASE"
-         }
+        expression {
+          MODE == "RELEASE"
+        }
       }
       steps {
         release { billOfMaterialsDirectory, assetDirectory ->

@@ -32,6 +32,7 @@ COPY Gemfile \
      Gemfile.lock ./
 COPY gems/ gems/
 
+
 RUN bundle --without test development
 
 COPY . .
