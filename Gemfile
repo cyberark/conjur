@@ -99,6 +99,7 @@ group :development, :test do
   gem 'rails-controller-testing'
   gem 'rails_layout'
   gem 'rake_shared_context'
+  gem 'rexml', '~> 3.2'
   gem 'rspec'
   gem 'rspec-core'
   gem 'rspec-rails', '~> 5.0'
@@ -106,7 +107,6 @@ group :development, :test do
   gem 'spring'
   gem 'spring-commands-cucumber'
   gem 'spring-commands-rspec'
-  gem 'rexml', '~> 3.2'
   gem 'table_print'
   gem 'webrick', '~> 1.7'
 end

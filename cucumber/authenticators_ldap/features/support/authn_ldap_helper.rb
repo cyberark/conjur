@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-# Utility methods for LDAP authenticator
-#
 require 'cucumber/_authenticators_common/features/support/authenticator_helpers'
+
+# Utility Module for LDAP authenticator
 module AuthnLdapHelper
   # Utility methods for LDAP authenticator
   include AuthenticatorHelpers
