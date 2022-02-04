@@ -408,7 +408,7 @@ GEM
       rubocop (>= 0.35.1)
     ruby-debug-ide (0.7.3)
       rake (>= 0.8.1)
-    ruby-next-core (0.13.3)
+    ruby-next-core (0.14.0)
     ruby-progressbar (1.11.0)
     safe_yaml (1.0.5)
     sequel (5.51.0)
