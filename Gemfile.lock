@@ -410,7 +410,7 @@ GEM
     ruby-next-core (0.14.1)
     ruby-progressbar (1.11.0)
     safe_yaml (1.0.5)
-    sequel (5.53.0)
+    sequel (5.51.0)
     sequel-pg_advisory_locking (1.0.1)
       sequel
     sequel-postgres-schemata (0.1.3)
