@@ -99,14 +99,14 @@ GEM
     ast (2.4.2)
     attr_required (1.0.1)
     aws-eventstream (1.2.0)
-    aws-partitions (1.551.0)
-    aws-sdk-core (3.125.6)
+    aws-partitions (1.552.0)
+    aws-sdk-core (3.126.0)
       aws-eventstream (~> 1, >= 1.0.2)
       aws-partitions (~> 1, >= 1.525.0)
       aws-sigv4 (~> 1.1)
       jmespath (~> 1.0)
-    aws-sdk-iam (1.65.0)
-      aws-sdk-core (~> 3, >= 3.125.0)
+    aws-sdk-iam (1.66.0)
+      aws-sdk-core (~> 3, >= 3.126.0)
       aws-sigv4 (~> 1.1)
     aws-sigv4 (1.4.0)
       aws-eventstream (~> 1, >= 1.0.2)
@@ -214,7 +214,7 @@ GEM
       dry-logic (~> 1.0, >= 1.0.2)
     erubi (1.10.0)
     event_emitter (0.2.6)
-    excon (0.90.0)
+    excon (0.91.0)
     ffi (1.15.5)
     ffi-compiler (1.0.1)
       ffi (>= 1.0.0)
@@ -546,7 +546,7 @@ DEPENDENCIES
   websocket
 
 RUBY VERSION
-   ruby 3.0.0p0
+   ruby 3.0.2p107
 
 BUNDLED WITH
    2.2.31
