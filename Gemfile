@@ -105,6 +105,7 @@ group :development, :test do
   gem 'spring-commands-cucumber'
   gem 'spring-commands-rspec'
   gem 'table_print'
+  gem 'webrick', '~> 1.7'
 end
 
 group :development do
@@ -118,5 +119,3 @@ end
 group :test do
   gem 'haikunator', '~> 1' # for generating random names in tests
 end
-
-gem 'webrick', '~> 1.7'
