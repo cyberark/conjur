@@ -1,8 +1,7 @@
 # frozen_string_literal: true
 
 require 'jwt'
-# require 'cucumber/_authenticators_common/features/support/authenticator_helpers'
-
+require 'cucumber/_authenticators_common/features/support/authenticator_helpers'
 module AuthnGcpHelper
   include AuthenticatorHelpers
 
