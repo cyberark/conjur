@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'cucumber/_authenticators_common/features/support/authenticator_helpers'
+# require 'cucumber/_authenticators_common/features/support/authenticator_helpers'
 # Utility methods for OIDC authenticator
 module AuthnOidcHelper
   include AuthenticatorHelpers
