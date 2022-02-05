@@ -78,11 +78,12 @@ gem 'jwt', '2.2.2' # version frozen due to authn-jwt requirements
 gem 'openid_connect'
 
 gem "anyway_config"
+gem 'i18n', '~> 1.8.11'
 
 group :development, :test do
   gem 'aruba'
   gem 'ci_reporter_rspec'
-  gem 'conjur-cli', git: 'https://github.com/cyberark/conjur-cli.git', branch: 'temp-ruby-3'
+  gem 'conjur-cli', '~> 6.2.6'
   gem 'conjur-debify', '~> 0.0.1.pre.47' #temporary - official debify gem to be released
   gem 'csr'
   gem 'cucumber', '~> 7.1'

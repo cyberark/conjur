@@ -1,19 +1,4 @@
 GIT
-  remote: https://github.com/cyberark/conjur-cli.git
-  revision: 84f3c5577e799d7ee5d0812e5818f9c70b6b644c
-  branch: temp-ruby-3
-  specs:
-    conjur-cli (6.2.6)
-      activesupport (= 6.1.4.1)
-      conjur-api (~> 5.3)
-      deep_merge (~> 1.0)
-      gli (>= 2.8.0)
-      highline (~> 2.0)
-      netrc (~> 0.10)
-      table_print (~> 1.5)
-      xdg (= 2.2.3)
-
-GIT
   remote: https://github.com/cyberark/conjur-rack.git
   revision: 587b95e24d820d2073bfce63ae9b0c64320beca6
   branch: bump-version-5
@@ -144,6 +129,15 @@ GEM
       activesupport (>= 4.2)
       addressable (~> 2.0)
       rest-client
+    conjur-cli (6.2.6)
+      activesupport (~> 6.0)
+      conjur-api (~> 5.3)
+      deep_merge (~> 1.0)
+      gli (>= 2.8.0)
+      highline (~> 2.0)
+      netrc (~> 0.10)
+      table_print (~> 1.5)
+      xdg (= 2.2.3)
     conjur-debify (0.0.1.pre.47)
       conjur-api (~> 5.3)
       conjur-cli (~> 6)
@@ -490,7 +484,7 @@ DEPENDENCIES
   ci_reporter_rspec
   command_class
   conjur-api
-  conjur-cli!
+  conjur-cli (~> 6.2.6)
   conjur-debify (~> 0.0.1.pre.47)
   conjur-policy-parser!
   conjur-rack!
@@ -507,6 +501,7 @@ DEPENDENCIES
   haikunator (~> 1)
   http (~> 4.2.0)
   httpclient!
+  i18n (~> 1.8.11)
   iso8601
   jbuilder (~> 2.7.0)
   json_spec (~> 1.1)
