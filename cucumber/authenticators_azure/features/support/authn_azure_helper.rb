@@ -1,11 +1,7 @@
 # frozen_string_literal: true
 
-require 'cucumber/_authenticators_common/features/support/authenticator_helpers'
-
 # Utility methods for Azure Authenticator
 module AuthnAzureHelper
-  # Utility methods for Authenticators
-  include AuthenticatorHelpers
 
   SERVICE_ID = 'prod'
   ACCOUNT = 'cucumber'

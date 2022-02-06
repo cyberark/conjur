@@ -1,11 +1,7 @@
 # frozen_string_literal: true
 
-require 'cucumber/_authenticators_common/features/support/authenticator_helpers'
-
 # Utility methods for LDAP Authenticator
 module AuthnLdapHelper
-  # Utility methods for Authenticators
-  include AuthenticatorHelpers
 
   def login_with_ldap(service_id:, account:, username:, password:)
     path = "#{conjur_hostname}/authn-ldap/#{service_id}/#{account}/login"
