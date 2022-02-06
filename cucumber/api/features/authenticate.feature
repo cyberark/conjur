@@ -122,6 +122,18 @@ Feature: Exchange a role's API key for a signed authentication token
       cucumber:user:alice successfully authenticated with authenticator authn
     """
 
+  @acceptance
+  Scenario: Authenticating with no Content-Type header succeeds without writing API key to the logs
+    And I save my place in the log file
+    And I can authenticate Alice with no Content-Type header
+    Then Alice's API key does not appear in the log
+
+  @acceptance
+  Scenario: Authenticating with no Content-Type header succeeds without writing API key to the logs
+    And I save my place in the log file
+    And I can authenticate Alice when Content-Type header has value "application/x-www-form-urlencoded"
+    Then Alice's API key does not appear in the log
+
   @negative @acceptance
   Scenario: Attempting to use an invalid API key to authenticate result in 401 error
     Given I save my place in the audit log file for remote
