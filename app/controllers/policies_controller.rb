@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'method_source'
-
 class PoliciesController < RestController
   include FindResource
   include AuthorizeResource

@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [0.0.1] - 2022-02-04
 
 ### Changed
+
 - Upgrade to Ruby 3. [#2444](https://github.com/cyberark/conjur/pull/2444)
 
 ## [1.16.0] - 2022-01-25
