@@ -1,14 +1,4 @@
 GIT
-  remote: https://github.com/cyberark/conjur-rack.git
-  revision: 587b95e24d820d2073bfce63ae9b0c64320beca6
-  branch: bump-version-5
-  specs:
-    conjur-rack (5.0.0)
-      conjur-api (< 6)
-      rack (~> 2)
-      slosilo (~> 3.0)
-
-GIT
   remote: https://github.com/nahi/httpclient.git
   revision: 4658227a46f7caa633ef8036f073bbd1f0a955a2
   branch: master
@@ -143,6 +133,10 @@ GEM
       conjur-cli (~> 6)
       docker-api (~> 2.0)
       gli
+    conjur-rack (5.0.0)
+      conjur-api (< 6)
+      rack (~> 2)
+      slosilo (~> 3.0)
     conjur-rack-heartbeat (2.2.0)
       rack
     contracts (0.17)
@@ -487,10 +481,10 @@ DEPENDENCIES
   ci_reporter_rspec
   command_class
   conjur-api
-  conjur-cli (~> 6.2.6)
+  conjur-cli (~> 6.2)
   conjur-debify (~> 0.0.1.pre.47)
   conjur-policy-parser!
-  conjur-rack!
+  conjur-rack
   conjur-rack-heartbeat
   csr
   cucumber (~> 7.1)
@@ -518,7 +512,7 @@ DEPENDENCIES
   openid_connect
   parallel
   pg
-  pry-byebug (~> 3.9)
+  pry-byebug
   pry-rails
   puma (~> 5.5.1)
   rack (~> 2.2.3)
@@ -533,7 +527,7 @@ DEPENDENCIES
   rexml (~> 3.2)
   rspec
   rspec-core
-  rspec-rails (~> 5.0)
+  rspec-rails
   rubocop (~> 0.58.0)
   rubocop-checkstyle_formatter
   ruby-debug-ide
@@ -542,16 +536,13 @@ DEPENDENCIES
   sequel-postgres-schemata
   sequel-rails
   simplecov (= 0.14.1)
-  slosilo (~> 3.0.0)
+  slosilo (~> 3.0)
   spring
   spring-commands-cucumber
   spring-commands-rspec
   table_print
-  webrick (~> 1.7)
+  webrick
   websocket
-
-RUBY VERSION
-   ruby 3.0.2p107
 
 BUNDLED WITH
    2.2.31

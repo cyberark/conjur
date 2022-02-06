@@ -2,6 +2,9 @@
 
 source 'https://rubygems.org'
 
+# ruby=ruby-3.0
+# ruby-gemset=conjur
+
 # make sure to use tls for github
 git_source(:github) { |name| "https://github.com/#{name}.git" }
 
@@ -9,8 +12,6 @@ git_source(:github) { |name| "https://github.com/#{name}.git" }
 # nicely with RVM and we should be explicit since Ruby is such a fundamental
 # part of a Rails project. The Ruby version is also locked in place by the
 # Docker base image so it won't be updated with fuzzy matching.
-ruby '3.0.2'
-#ruby-gemset=conjur
 
 gem 'base58'
 gem 'command_class'
@@ -35,7 +36,7 @@ gem 'bcrypt'
 gem 'gli', require: false
 gem 'httpclient', github: 'nahi/httpclient', branch: 'master'
 gem 'listen'
-gem 'slosilo', '~> 3.0.0'
+gem 'slosilo', '~> 3.0'
 
 # Explicitly required as there are vulnerabilities in older versions
 gem "ffi", ">= 1.9.24"
@@ -45,7 +46,7 @@ gem "loofah", ">= 2.2.3"
 # the branch doesn't immediately break this link
 gem 'conjur-api'
 gem 'conjur-policy-parser', path: 'gems/policy-parser'
-gem 'conjur-rack', github: 'cyberark/conjur-rack', branch: 'bump-version-5'
+gem 'conjur-rack'
 gem 'conjur-rack-heartbeat'
 gem 'rack-rewrite'
 
@@ -83,7 +84,7 @@ gem 'i18n', '~> 1.8.11'
 group :development, :test do
   gem 'aruba'
   gem 'ci_reporter_rspec'
-  gem 'conjur-cli', '~> 6.2.6'
+  gem 'conjur-cli', '~> 6.2'
   gem 'conjur-debify', '~> 0.0.1.pre.47' #temporary - official debify gem to be released
   gem 'csr'
   gem 'cucumber', '~> 7.1'
@@ -92,7 +93,7 @@ group :development, :test do
   gem 'json_spec', '~> 1.1'
   gem 'net-ssh'
   gem 'parallel'
-  gem 'pry-byebug', '~> 3.9'
+  gem 'pry-byebug'
   gem 'pry-rails'
   gem 'rails-controller-testing'
   gem 'rails_layout'
@@ -100,13 +101,13 @@ group :development, :test do
   gem 'rexml', '~> 3.2'
   gem 'rspec'
   gem 'rspec-core'
-  gem 'rspec-rails', '~> 5.0'
+  gem 'rspec-rails'
   gem 'ruby-debug-ide'
   gem 'spring'
   gem 'spring-commands-cucumber'
   gem 'spring-commands-rspec'
   gem 'table_print'
-  gem 'webrick', '~> 1.7'
+  gem 'webrick'
 end
 
 group :development do
