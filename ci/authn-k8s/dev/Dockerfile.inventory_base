@@ -1,7 +1,9 @@
-FROM ruby:2.3
+FROM ruby:3.0
 
-RUN gem install -N activesupport --version 4.2.7.1
-RUN gem install -N conjur-api:"< 5.0" conjur-cli:"< 6.0" sinatra
+RUN gem install -N activesupport --version 6.1.4.4
+RUN gem install -N conjur-api --version 5.3.7
+RUN gem install -N conjur-cli --version 6.2.6
+RUN gem install -N sinatra
 
 COPY inventory.rb usr/src/inventory.rb
 
