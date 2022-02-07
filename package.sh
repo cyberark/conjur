@@ -8,7 +8,7 @@ chmod +x docker-debify
 docker run --rm \
   -v "$(pwd)":"$(pwd)" \
   --workdir "$(pwd)" \
-  cyberark/phusion-ruby-fips:latest \
+  registry2.itci.conjur.net/cyberark/phusion-ruby-fips:0.11-b201fa9 \
   sh -c "apt-get update -y && apt-get install -y git && bundle lock --update=conjur-api"
 
 # Create possum deb

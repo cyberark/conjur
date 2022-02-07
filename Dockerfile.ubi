@@ -1,5 +1,5 @@
 # Conjur Base Image (UBI)
-FROM cyberark/ubi-ruby-fips:latest
+FROM registry2.itci.conjur.net/cyberark/ubi-ruby-fips:ubi8-b201fa9
 
 EXPOSE 8080
 ARG VERSION

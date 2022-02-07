@@ -1,4 +1,4 @@
-FROM cyberark/ubuntu-ruby-fips:latest
+FROM registry2.itci.conjur.net/cyberark/ubuntu-ruby-fips:20.04-b201fa9
 
 ENV DEBIAN_FRONTEND=noninteractive \
     PORT=80 \
