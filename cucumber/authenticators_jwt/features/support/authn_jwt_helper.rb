@@ -1,10 +1,7 @@
 # frozen_string_literal: true
 
-require 'cucumber/authenticators_oidc/features/support/authn_oidc_helper'
-
 # Utility methods for JWT authenticator
 module AuthnJwtHelper
-  include AuthenticatorHelpers
 
   ACCOUNT = 'cucumber'
   DEFAULT_SERVICE_ID = 'raw'
