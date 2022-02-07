@@ -12,6 +12,7 @@
 # * +created_at+ a timestamp.
 # * +client_ip+ the IP address of the client that loaded the policy.
 # * +policy_text+ the text of the policy itself.
+# * +version+ the policy version
 # * +policy_sha256+ the SHA-256 of the policy in hex digest form.
 #
 # The policy text is parsed when the PolicyVersion is validated. Parse errors are placed onto the 
@@ -29,7 +30,7 @@ class PolicyVersion < Sequel::Model(:policy_versions)
   # The authenticated user who performs the policy load.
   many_to_one :role
 
-  one_to_many :policy_log, key: %i[policy_id version]
+  one_to_many :policy_log, key: [:policy_id, :version]
 
   attr_accessor :parse_error, :policy_filename, :delete_permitted
 
@@ -160,6 +161,10 @@ class PolicyVersion < Sequel::Model(:policy_versions)
     records.select do |r|
       r.delete_statement?
     end
+  end
+
+  def version
+    self[:version]
   end
 
   protected

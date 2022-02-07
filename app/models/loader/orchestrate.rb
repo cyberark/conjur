@@ -288,7 +288,7 @@ module Loader
             #{db.literal(primary_key_columns)},
             hstore(#{table}),
             #{db.literal(policy_id)},
-            #{db.literal(policy_version.version)},
+            #{db.literal(policy_version[:version])},
             'INSERT'
             )).*
           FROM

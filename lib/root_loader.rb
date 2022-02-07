@@ -38,7 +38,7 @@ class RootLoader
         $stderr.puts(
           JSON.pretty_generate(
             created_roles: created_roles,
-            version: policy.version
+            version: policy[:version]
           )
         )
 

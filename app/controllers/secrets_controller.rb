@@ -28,7 +28,7 @@ class SecretsController < RestController
     )
 
     Audit.logger.log(
-      Audit::Event::Update.new(update_info)
+      Audit::Event::Update.new(**update_info)
     )
   end
 
@@ -102,7 +102,7 @@ class SecretsController < RestController
     )
 
     Audit.logger.log(
-      Audit::Event::Fetch.new(fetch_info)
+      Audit::Event::Fetch.new(**fetch_info)
     )
   end
 
