@@ -14,7 +14,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency("activesupport", ">= 4.2")
   spec.add_dependency("safe_yaml")
 
-  spec.add_development_dependency("bundler", "~> 2.2.18")
+  spec.add_development_dependency("bundler", "~> 2.2.30")
   spec.add_development_dependency("ci_reporter_rspec")
   spec.add_development_dependency("deepsort")
   spec.add_development_dependency("pry")
