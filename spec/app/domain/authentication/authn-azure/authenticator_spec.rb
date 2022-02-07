@@ -68,8 +68,7 @@ RSpec.describe('Authentication::AuthnAzure::Authenticator') do
   #   )(   ) _ (  )__)     )(   )__) \__ \  )(  \__ \
   #  (__) (_) (_)(____)   (__) (____)(___/ (__) (___/
 
-  context "An Azure authenticator" do 
-    ``
+  context "An Azure authenticator" do
     context "that receives an authenticate request" do
       context "with a valid azure token" do
         context "with valid resource restrictions" do
