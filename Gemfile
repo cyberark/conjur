@@ -43,7 +43,7 @@ gem "loofah", ">= 2.2.3"
 
 # Pinned to update for role member search, using ref so merging and removing
 # the branch doesn't immediately break this link
-gem 'conjur-api'
+gem 'conjur-api', '~> 5.pre'
 gem 'conjur-policy-parser', path: 'gems/policy-parser'
 gem 'conjur-rack'
 gem 'conjur-rack-heartbeat'

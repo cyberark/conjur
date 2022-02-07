@@ -138,7 +138,7 @@ class Role < Sequel::Model
       .select(:role_memberships.*)
   end
 
-  def members_dataset(search_options = nil)
+  def members_dataset(search_options = {})
     memberships_dataset.search(**search_options)
       .select(:role_memberships.*)
   end

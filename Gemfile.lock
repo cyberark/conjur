@@ -108,7 +108,7 @@ GEM
     coderay (1.1.3)
     command_class (0.0.2)
     concurrent-ruby (1.1.9)
-    conjur-api (5.3.7)
+    conjur-api (5.3.8.pre.194)
       activesupport (>= 4.2)
       addressable (~> 2.0)
       rest-client
@@ -202,12 +202,12 @@ GEM
       dry-logic (~> 1.0, >= 1.0.2)
     erubi (1.10.0)
     event_emitter (0.2.6)
-    excon (0.89.0)
+    excon (0.91.0)
     ffi (1.15.4)
     ffi-compiler (1.0.1)
       ffi (>= 1.0.0)
       rake
-    gli (2.20.1)
+    gli (2.21.0)
     globalid (1.0.0)
       activesupport (>= 5.0)
     haikunator (1.1.1)
@@ -474,7 +474,7 @@ DEPENDENCIES
   bcrypt
   ci_reporter_rspec
   command_class
-  conjur-api
+  conjur-api (~> 5.pre)
   conjur-cli (~> 6.2)
   conjur-debify
   conjur-policy-parser!
