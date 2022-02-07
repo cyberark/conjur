@@ -23,6 +23,7 @@ engines/conjur_audit/spec/dummy/log
 data_key
 dhparam.pem
 *.deb
+*.rpm
 .byebug_history
 config/database.yml
 reports
