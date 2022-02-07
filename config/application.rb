@@ -39,7 +39,7 @@ module Conjur
     # config.i18n.default_locale = :de
 
     # Replace md5 with sha for FIPS compliance
-    config.active_support.use_sha1_digests = true
+    config.active_support.hash_digest_class = ::Digest::SHA1
 
     config.autoload_paths << Rails.root.join('lib')
 
