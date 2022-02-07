@@ -1,9 +1,7 @@
 # frozen_string_literal: true
 
 # Utility methods for OIDC authenticator
-
 module AuthnOidcHelper
-  include AuthenticatorHelpers
 
   SERVICE_ID = 'keycloak'
   ACCOUNT = 'cucumber'
