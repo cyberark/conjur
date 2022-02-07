@@ -54,6 +54,8 @@ HostBuilder = Struct.new(:account, :id, :owner, :layers, :options) do
     
     store_restricted_to
 
+    ActiveSupport::Notifications.instrument("host_factory_host_created.conjur", this: host)
+
     [ host, host.role.api_key ]    
   end
 end

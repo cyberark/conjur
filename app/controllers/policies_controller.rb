@@ -13,10 +13,13 @@
 module InstrumentPoliciesController
   private
 
-  def on_load_policy(policy)
-    super
+  def load_policy(action, loader_class, delete_permitted)
+    res = super
+    # duration also measured via the HTTP request collector
+    # duration = Benchmark.realtime { res = super }
 
-    ActiveSupport::Notifications.instrument("policy_loaded.conjur", this: policy)
+    ActiveSupport::Notifications.instrument("policy_loaded.conjur")
+    res
   end
 end
 
@@ -61,8 +64,8 @@ class PoliciesController < RestController
 
   private
 
-  def on_load_policy(policy)
-  end
+  # def on_load_policy(policy)
+  # end
 
   def load_policy(action, loader_class, delete_permitted)
     authorize(action)
@@ -72,7 +75,7 @@ class PoliciesController < RestController
     created_roles = perform(loaded_policy)
     audit_success(policy)
 
-    on_load_policy(policy)
+    # on_load_policy(policy)
 
     render(json: {
       created_roles: created_roles,
