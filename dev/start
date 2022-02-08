@@ -172,30 +172,9 @@ wait_for_conjur() {
       conjurctl role retrieve-key cucumber:user:admin | tr -d '\r'
   )
 
-  for i in {1..5}; do
-    sleep=10
-    echo "Try to login to conjur server:"
+  docker-compose exec -T conjur conjurctl wait
 
-    if ( 
-      # Use subshell to disable pipefail, since we expect grep failures here.
-      set +o pipefail
-      # We need 2>&1 because some versions docker-compose before 2 output to
-      # stdout, while 2 outputs to stderr.
-      docker-compose exec client \
-        conjur authn login -u admin -p "$api_key" 2>&1 | 
-        grep "Failed to open TCP connection"
-    )
-    then
-      echo "Conjur not ready yet. Sleep number $i for $sleep seconds."
-      sleep $sleep
-    else
-      echo "Conjur is up and ready."
-      return 0;
-    fi
-  done
-
-  echo "Conjur server failed to come up in time."
-  return 1
+  docker-compose exec client conjur authn login -u admin -p "$api_key"
 }
 
 configure_oidc_authenticators() {
