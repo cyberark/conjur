@@ -74,5 +74,10 @@ module Conjur
     # We create this in application.rb instead of an initializer so that it's
     # guaranteed to be available for other initializers to use.
     config.conjur_config = Conjur::ConjurConfig.new
+
+    # Logging
+    config.rails_semantic_logger.started    = true
+    config.rails_semantic_logger.processing = true
+    config.rails_semantic_logger.rendered   = true
   end
 end

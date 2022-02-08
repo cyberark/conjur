@@ -1,9 +1,8 @@
 # frozen_string_literal: true
-
 class PoliciesController < RestController
   include FindResource
   include AuthorizeResource
-  
+
   before_action :current_user
   before_action :find_or_create_root_policy
 
@@ -14,25 +13,21 @@ class PoliciesController < RestController
   set_default_content_type_for_path(%r{^/policies}, 'application/x-yaml')
 
   def put
-    load_policy(:update, Loader::ReplacePolicy, true)
+    authorize(:update)
+    load_policy(:replace)
   end
 
   def patch
-    load_policy(:update, Loader::ModifyPolicy, true)
+    authorize(:update)
+    load_policy(:modify)
   end
 
   def post
-    load_policy(:create, Loader::CreatePolicy, false)
+    authorize(:create)
+    load_policy(:create)
   end
 
   protected
-
-  # Returns newly created roles
-  def perform(policy_action)
-    policy_action.call
-    new_actor_roles = actor_roles(policy_action.new_roles)
-    create_roles(new_actor_roles)
-  end
 
   def find_or_create_root_policy
     Loader::Types.find_or_create_root_policy(account)
@@ -40,27 +35,20 @@ class PoliciesController < RestController
 
   private
 
-  def load_policy(action, loader_class, delete_permitted)
-    authorize(action)
+  def load_policy(action)
+    apply_policy_response = Conjur::ApplyPolicy.new(
+      current_user: current_user,
+      logger: logger
+    ).call(
+      policy: resource,
+      request_obj: request,
+      modification: action
+    )
 
-    policy = save_submitted_policy(delete_permitted: delete_permitted)
-    loaded_policy = loader_class.from_policy(policy)
-    created_roles = perform(loaded_policy)
-    audit_success(policy)
-
-    render(json: {
-      created_roles: created_roles,
-      version: policy.version
-    }, status: :created)
+    render(json: apply_policy_response, status: :created)
   rescue => e
     audit_failure(e, action)
     raise e
-  end
-
-  def audit_success(policy)
-    policy.policy_log.lazy.map(&:to_audit_event).each do |event|
-      Audit.logger.log(event)
-    end
   end
 
   def audit_failure(err, operation)
@@ -89,30 +77,5 @@ class PoliciesController < RestController
   # It's randomized to avoid request bunching.
   def retry_delay
     rand(1..8)
-  end
-
-  def save_submitted_policy(delete_permitted:)
-    policy_version = PolicyVersion.new(
-      role: current_user,
-      policy: resource,
-      policy_text: request.raw_post,
-      client_ip: request.ip
-    )
-    policy_version.delete_permitted = delete_permitted
-    policy_version.save
-  end
-
-  def actor_roles(roles)
-    roles.select do |role|
-      %w[user host].member?(role.kind)
-    end
-  end
-
-  def create_roles(actor_roles)
-    actor_roles.each_with_object({}) do |role, memo|
-      credentials = Credentials[role: role] || Credentials.create(role: role)
-      role_id = role.id
-      memo[role_id] = { id: role_id, api_key: credentials.api_key }
-    end
   end
 end
