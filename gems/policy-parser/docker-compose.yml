@@ -1,7 +1,7 @@
 version: "3"
 services:
   dev:
-    image: registry2.itci.conjur.net/cyberark/ubuntu-ruby-fips:20.04-b201fa9
+    image: cyberark/ubuntu-ruby-fips:2
     working_dir: /src
     volumes:
       - .:/src

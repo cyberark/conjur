@@ -1,4 +1,4 @@
-FROM registry2.itci.conjur.net/cyberark/ubuntu-ruby-fips:20.04-b201fa9
+FROM cyberark/ubuntu-ruby-fips:2
 
 RUN mkdir /src
 WORKDIR /src
