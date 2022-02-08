@@ -30,7 +30,7 @@ class PolicyVersion < Sequel::Model(:policy_versions)
   # The authenticated user who performs the policy load.
   many_to_one :role
 
-  one_to_many :policy_log, key: [:policy_id, :version]
+  one_to_many :policy_log, key: %i[policy_id version]
 
   attr_accessor :parse_error, :policy_filename, :delete_permitted
 

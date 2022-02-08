@@ -57,7 +57,7 @@ module RotatorHelpers
   # `PgRotatingPassword` is considered to be `nil`.
   #
   # This avoids possible race conditions with the actual rotation thread --
-  # its possible we could "reading" here at the same time the rotation process
+  # it's possible we could "reading" here at the same time the rotation process
   # has only "written" one of the two passwords that need to be kept in sync.
   #
   PgRotatingPassword ||= Struct.new(:var_name, :db_user, :variable_meth) do
