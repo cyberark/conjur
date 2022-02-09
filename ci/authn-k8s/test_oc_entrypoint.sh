@@ -22,8 +22,8 @@ function finish {
 
   sleep 5
 
-  #oc adm policy remove-scc-from-user anyuid -z default
-  #oc --ignore-not-found=true delete project $CONJUR_AUTHN_K8S_TEST_NAMESPACE
+  oc adm policy remove-scc-from-user anyuid -z default
+  oc --ignore-not-found=true delete project $CONJUR_AUTHN_K8S_TEST_NAMESPACE
 }
 
 export TEMPLATE_TAG="$PLATFORM."
@@ -63,14 +63,14 @@ function printLogs() {
       kubectl cp $pod_name:/src/authn-k8s/output output
 
       echo "Logs from Conjur Pod $pod_name:"
-      oc logs $pod_name >> "output/$PLATFORM-authn-k8s-logs.txt"
+      oc logs "$pod_name" >> "output/$PLATFORM-authn-k8s-logs.txt"
 
       # Rails.logger writes the logs to the environment log file
-      oc exec $pod_name -- bash -c "cat /opt/conjur-server/log/test.log" >> "output/$PLATFORM-authn-k8s-logs.txt"
+      oc exec "$pod_name" -- bash -c "cat /opt/conjur-server/log/test.log" >> "output/$PLATFORM-authn-k8s-logs.txt"
 
       echo "Printing Logs from Conjur to the console"
       echo "==========================="
-      #cat "output/$PLATFORM-authn-k8s-logs.txt"
+      cat "output/$PLATFORM-authn-k8s-logs.txt"
       echo "==========================="
     fi
   } || {
@@ -180,10 +180,6 @@ function loadConjurPolicies() {
   # init ca certs
   conjur_pod=$(retrieve_pod conjur-authn-k8s)
   oc exec $conjur_pod -- rake authn_k8s:ca_init["conjur/authn-k8s/minikube"]
-
-  # set test password value
-  #password=$(openssl rand -hex 12)
-  #conjurcmd conjur variable values add inventory-db/password $password
 }
 
 function launchInventoryServices() {
