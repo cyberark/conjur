@@ -134,12 +134,12 @@ class Role < Sequel::Model
   end
 
   def direct_memberships_dataset(search_options = {})
-    memberships_as_member_dataset.search(search_options)
+    memberships_as_member_dataset.search(**search_options)
       .select(:role_memberships.*)
   end
 
   def members_dataset(search_options = {})
-    memberships_dataset.search(search_options)
+    memberships_dataset.search(**search_options)
       .select(:role_memberships.*)
   end
 

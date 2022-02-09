@@ -1,9 +1,7 @@
 # frozen_string_literal: true
 
-# Utility methods for LDAP authenticator
-#
+# Utility methods for LDAP Authenticator
 module AuthnLdapHelper
-  include AuthenticatorHelpers
 
   def login_with_ldap(service_id:, account:, username:, password:)
     path = "#{conjur_hostname}/authn-ldap/#{service_id}/#{account}/login"

@@ -740,7 +740,7 @@ Feature: JWT Authenticator - Fetch signing key
     And I successfully set authn-jwt "issuer" variable to value "valid-issuer"
     When I GET "/authn-jwt/raw/cucumber/status"
     Then the HTTP response status code is 500
-    And the authenticator status check fails with error "CONJ00120E Failed to parse 'public-keys': Type can't be blank, Type '' is not a valid public-keys type. Valid types are: jwks, and Value can't be blank"
+    And the authenticator status check fails with error "CONJ00120E Failed to parse 'public-keys': Type can't be blank, Value can't be blank, and Type '' is not a valid public-keys type. Valid types are: jwks"
 
   @negative @acceptance
   Scenario: JWKS URI with bad value and no issuer - Status And Authentication return same error

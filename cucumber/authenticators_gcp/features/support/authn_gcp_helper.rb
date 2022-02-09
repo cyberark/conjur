@@ -3,7 +3,6 @@
 require 'jwt'
 
 module AuthnGcpHelper
-  include AuthenticatorHelpers
 
   ACCOUNT = 'cucumber'
 
