@@ -1,6 +1,6 @@
 # encoding: UTF-8
 require 'rack/test'
-require ::File.expand_path('../../../../lib/prometheus/conjur_exporter.rb', __FILE__)
+require ::File.expand_path('../../../../lib/monitoring/middleware/conjur_exporter.rb', __FILE__)
 
 describe Prometheus::Middleware::ConjurExporter do
   include Rack::Test::Methods
