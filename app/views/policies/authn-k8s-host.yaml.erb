@@ -4,7 +4,7 @@
   <% hosts.each do |host| %>
   - !host
     id: <%= host.id %>
-    <% unless host.annotations.nil? -%>
+    <% unless host.annotations.empty? -%>
     annotations:
     <% host.annotations.each do |annotation, value| -%>
       <%= annotation %>: <%= value %>
