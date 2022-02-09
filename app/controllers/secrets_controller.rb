@@ -72,6 +72,8 @@ class SecretsController < RestController
     end
 
     render(json: result)
+  rescue JSON::GeneratorError
+    raise Errors::Conjur::BadSecretEncoding, result
   rescue Encoding::UndefinedConversionError
     raise Errors::Conjur::BadSecretEncoding, result
   rescue Exceptions::RecordNotFound => e
