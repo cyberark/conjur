@@ -458,6 +458,68 @@ Rake tasks are easy to run from within the `conjur` server container:
   The next available error number is 63 ( CONJ00063E )
   ```
 
+### Kubernetes specific Cucumber tests
+
+Several cucumber tests are written to verify conjur works properly when 
+authenticating to Kubernetes.  These tests have hooks to run against both 
+Openshift and Google GKE.
+
+The cucumber tests are located under `cucumber/kubernetes/features` and can be
+run by going into the `ci/authn-k8s` directory and running:
+
+```shell
+$ summon -f [secrets.ocp.yml|secrets.yml] ./init_k8s.sh [openshift|gke]
+$ summon -f [secrets.ocp.yml|secrets.yml] ./test.sh [openshift|gke]
+```
+
+- `init_k8s.sh` - executes a simple login to Openshift or GKE to verify
+credentials as well as logging into the Docker Registry defined
+- `test.sh` - executes the tests against the defined platform
+
+#### Secrets file
+
+The secrets file used for summons needs to contain the following environment
+variables
+
+  - openshift
+    - `OPENSHIFT_USERNAME` - username of an account that can create 
+      namespaces, adjust cluster properties, etc
+    - `OPENSHIFT_PASSWORD` - password of the account
+    - `OPENSHIFT_URL` - the URL of the RedHat CRC cluster
+      - If running this locally - use `https://host.docker.internal:6443` so
+         the docker container can talk to the CRC containers
+    - `OPENSHIFT_TOKEN` - the login token of the above username/password
+      - only needed for local execution because the docker container 
+      executing the commands can't redirect for login
+      - obtained by running the following command locally after login -
+      `oc whoami -t`
+  - gke
+    - `GCLOUD_CLUSTER_NAME` - cluster name of the GKE environment in the cloud
+    - `GCLOUD_ZONE` - zone of the GKE environment in the cloud
+    - `GCLOUD_PROJECT_NAME` - project name of the GKE environment
+    - `GCLOUD_SERVICE_KEY` - service key of the GKE environment
+    
+#### Local Execution Prerequisites
+
+To execute the tests locally, a few things will have to be done:
+
+  - Openshift
+    - Download and install the RedHat Code Ready Container
+      - This contains all the necessary pieces to have a local version of
+        Openshift
+    - After install, copy down the kubeadmin username/password and update the
+      secrets.ocp.yml file with the password
+    - Execute `oc whoami -t` and update the token property
+  - GKE
+    - Work with infrastructure to obtain a GKE environment
+
+If the local revision of your files don't have a docker image built yet - build
+the docker images using the following command:
+
+```shell
+$ ./build_locally.sh <sni cert file>
+```
+
 ## Pull Request Workflow
 
 1. [Fork the project](https://help.github.com/en/github/getting-started-with-github/fork-a-repo)
