@@ -394,7 +394,7 @@ Feature: JWT Authenticator - Status Check
       - !user alice
     """
     And I am the super-user
-    And I successfully set authn-jwt jwks-uri variable with value of "myJWKs.json" endpoint
+    And I successfully set authn-jwt "jwks-uri" variable value to "http://jwks_py:8090/authn-jwt-configuration/RS256" in service "raw"
     And I login as "alice"
     And I save my place in the log file
     When I GET "/authn-jwt/raw/cucumber/status"
@@ -438,7 +438,7 @@ Feature: JWT Authenticator - Status Check
       - !user alice
     """
     And I am the super-user
-    And I successfully set authn-jwt jwks-uri variable with value of "myJWKs.json" endpoint
+    And I successfully set authn-jwt "jwks-uri" variable value to "http://jwks_py:8090/authn-jwt-configuration/RS256" in service "raw"
     And I successfully set authn-jwt "token-app-property" variable to value "user"
     And I login as "alice"
     And I save my place in the log file
@@ -715,7 +715,7 @@ Feature: JWT Authenticator - Status Check
       - !user alice
     """
     And I am the super-user
-    And I successfully set authn-jwt jwks-uri variable with value of "myJWKs.json" endpoint
+    And I successfully set authn-jwt "jwks-uri" variable value to "http://jwks_py:8090/authn-jwt-configuration/RS256" in service "raw"
     And I successfully set authn-jwt "token-app-property" variable to value "user"
     And I login as "alice"
     And I save my place in the log file
@@ -912,7 +912,7 @@ Feature: JWT Authenticator - Status Check
       - !user alice
     """
     And I am the super-user
-    And I successfully set authn-jwt jwks-uri variable with value of "myJWKs.json" endpoint
+    And I successfully set authn-jwt "jwks-uri" variable value to "http://jwks_py:8090/authn-jwt-configuration/RS256" in service "raw"
     And I successfully set authn-jwt "token-app-property" variable to value "user"
     And I login as "alice"
     And I save my place in the log file
@@ -975,7 +975,7 @@ Feature: JWT Authenticator - Status Check
       - !user alice
     """
     And I am the super-user
-    And I successfully set authn-jwt jwks-uri variable with value of "myJWKs.json" endpoint
+    And I successfully set authn-jwt "jwks-uri" variable value to "http://jwks_py:8090/authn-jwt-configuration/RS256" in service "raw"
     And I successfully set authn-jwt "token-app-property" variable to value "user"
     And I login as "alice"
     And I save my place in the log file
@@ -1038,7 +1038,7 @@ Feature: JWT Authenticator - Status Check
       - !user alice
     """
     And I am the super-user
-    And I successfully set authn-jwt jwks-uri variable with value of "myJWKs.json" endpoint
+    And I successfully set authn-jwt "jwks-uri" variable value to "http://jwks_py:8090/authn-jwt-configuration/RS256" in service "raw"
     And I successfully set authn-jwt "token-app-property" variable to value "user"
     And I login as "alice"
     And I save my place in the log file
@@ -1101,7 +1101,7 @@ Feature: JWT Authenticator - Status Check
       - !user alice
     """
     And I am the super-user
-    And I successfully set authn-jwt jwks-uri variable with value of "myJWKs.json" endpoint
+    And I successfully set authn-jwt "jwks-uri" variable value to "http://jwks_py:8090/authn-jwt-configuration/RS256" in service "raw"
     And I successfully set authn-jwt "token-app-property" variable to value "user"
     And I successfully set authn-jwt "enforced-claims" variable to value "$@$@#sda//sdasdq23asd32rdf"
     And I login as "alice"
@@ -1165,7 +1165,7 @@ Feature: JWT Authenticator - Status Check
       - !user alice
     """
     And I am the super-user
-    And I successfully set authn-jwt jwks-uri variable with value of "myJWKs.json" endpoint
+    And I successfully set authn-jwt "jwks-uri" variable value to "http://jwks_py:8090/authn-jwt-configuration/RS256" in service "raw"
     And I successfully set authn-jwt "token-app-property" variable to value "user"
     And I successfully set authn-jwt "claim-aliases" variable to value "<claim-aliases-value>"
     And I login as "alice"
