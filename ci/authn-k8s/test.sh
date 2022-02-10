@@ -57,6 +57,8 @@ function setupTestEnvironment() {
   export INVENTORY_TAG="${DOCKER_REGISTRY_PATH}/inventory:$CONJUR_AUTHN_K8S_TEST_NAMESPACE"
 
   export NGINX_TAG="${DOCKER_REGISTRY_PATH}/nginx:$CONJUR_AUTHN_K8S_TEST_NAMESPACE"
+  export TINYPROXY_TAG="${DOCKER_REGISTRY_PATH}/tinyproxy:$CONJUR_AUTHN_K8S_TEST_NAMESPACE"
+
 }
 
 function createNginxCert() {
@@ -119,6 +121,7 @@ function buildDockerImages() {
     dev
 
   docker build -t "$NGINX_TAG" -f dev/Dockerfile.nginx dev
+  docker build -t "$TINYPROXY_TAG" -f dev/Dockerfile.tinyproxy dev
 
   docker build --build-arg OPENSHIFT_CLI_URL="$OPENSHIFT_CLI_URL" \
     -t "$CONJUR_AUTHN_K8S_TESTER_TAG" -f dev/Dockerfile.test dev
@@ -165,6 +168,7 @@ function test_openshift() {
     -e INVENTORY_TAG \
     -e INVENTORY_BASE_TAG \
     -e NGINX_TAG \
+    -e TINYPROXY_TAG \
     -e CONJUR_AUTHN_K8S_TEST_NAMESPACE \
     -e PLATFORM \
     -e K8S_VERSION \

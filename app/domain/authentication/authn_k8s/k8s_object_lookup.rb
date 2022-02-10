@@ -59,7 +59,8 @@ module Authentication
           ssl_options: {
             cert_store: @cert_store,
             verify_ssl: OpenSSL::SSL::VERIFY_PEER
-          }
+          },
+          http_proxy_uri: ENV['https_proxy'] || ENV['http_proxy']
         }
       end
 
