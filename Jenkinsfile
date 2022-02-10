@@ -791,6 +791,11 @@ def runConjurTests(run_only_str) {
         sh 'cd ci/authn-k8s && summon ./test.sh gke'
       }
     ],
+    "Openshift": [
+      "Kubernetes 1.7 in Openshift - ${env.STAGE_NAME}": {
+        sh 'cd ci/authn-k8s && summon -f secrets.ocp.yml ./test.sh openshift'
+      }
+    ],
     "rspec_audit": [
       "Audit - ${env.STAGE_NAME}": {
         sh 'ci/test rspec_audit'
