@@ -75,6 +75,12 @@ REDHAT_IMAGE="scan.connect.redhat.com/ospid-9fb7aea1-0c01-4527-8def-242f3cde7dc6
 # Normalize version number in the case of '+' included
 VERSION="$(echo -n "${VERSION}" | tr "+" "_")"
 
+# Don't publish to DockerHub unless the build is in the main conjur repo
+if [[ "${JOB_NAME}" != cyberark--conjur/* ]];
+then
+  DOCKERHUB=false
+fi
+
 # Only push SHA images on internal
 if [[ "${PUBLISH_INTERNAL}" = true ]]; then
   echo "Pushing ${LOCAL_TAG} tagged images to registry.tld..."
