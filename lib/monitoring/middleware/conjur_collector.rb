@@ -14,25 +14,10 @@ module Prometheus
     # By default metrics are registered on the global registry. Set the
     # `:registry` option to use a custom registry.
     class ConjurCollector
-      attr_reader :app, :registry
+      attr_reader :app
 
       def initialize(app, options = {})
-        clear_data_store
-        configure_data_store
-
         @app = app
-        @registry = options[:registry] || Prometheus::Client.registry
-        @metrics_prefix = options[:metrics_prefix] || "conjur_http_server"
-        @request_metric = Monitoring::Metrics::RequestMetric.new(
-          metrics_prefix: @metrics_prefix,
-          registry: @registry)
-        @resource_metric = Monitoring::Metrics::ResourceMetric.new(
-          registry: @registry
-        )
-
-
-        define_metrics
-        init_metrics
       end
 
       def call(env) # :nodoc:
@@ -41,24 +26,14 @@ module Prometheus
 
       protected
 
-      # Add metrics to prometheus registry
-      def define_metrics
-        @request_metric.define_metrics
-        @resource_metric.define_metrics
-      end
-
-      def init_metrics
-        @request_metric.init_metrics
-        @resource_metric.init_metrics
-      end
-
+      # Trace HTTP requests
       def trace(env)
         response = nil
         duration = Benchmark.realtime { response = yield }
         record(env, response.first.to_s, duration)
         return response
       rescue => exception
-        puts "Trace exception:",exception
+        print "Instrumenting exception:",exception,"\n"
         # exceptions = @registry.get(:"#{@metrics_prefix}_exceptions_total")
         # exceptions.increment(labels: { exception: exception.class.name })
 
@@ -84,22 +59,6 @@ module Prometheus
 
       def strip_ids_from_path(path)
         path.gsub(%r{/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}(?=/|$)}, '/:uuid\\1').gsub(%r{/\d+(?=/|$)}, '/:id\\1')
-      end
-
-      def configure_data_store
-        ::Prometheus::Client.config.data_store = ::Prometheus::Client::DataStores::DirectFileStore.new(
-          dir: ENV['CONJUR_METRICS_DIR'] || '/tmp/prometheus'
-        )
-      end
-
-      def clear_data_store
-        Dir[File.join(metrics_dir_path, '*.bin')].each do |file_path|
-          File.unlink(file_path)
-        end
-      end
-
-      def metrics_dir_path
-        @metrics_dir_path ||= ENV['CONJUR_METRICS_DIR'] || '/tmp/prometheus'
       end
     end
   end
