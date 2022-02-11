@@ -8,7 +8,7 @@ module Monitoring
     #
     # The request counter metric is broken down by code, method and path.
     # The request duration metric is broken down by method and path.
-    class Endpoint
+    class RequestMetric
       def initialize(options = {})
         @metrics_prefix = options[:metrics_prefix] || 'conjur_http_server'
         @registry = options[:registry] || Prometheus::Client.registry

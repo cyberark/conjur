@@ -3,8 +3,8 @@
 require 'benchmark'
 require 'prometheus/client'
 require 'prometheus/client/data_stores/direct_file_store'
-require ::File.expand_path('../../metrics/endpoint.rb', __FILE__)
-require ::File.expand_path('../../metrics/resource_count.rb', __FILE__)
+require ::File.expand_path('../../metrics/request_metric.rb', __FILE__)
+require ::File.expand_path('../../metrics/resource_metric.rb', __FILE__)
 
 module Prometheus
   module Middleware
@@ -23,10 +23,10 @@ module Prometheus
         @app = app
         @registry = options[:registry] || Prometheus::Client.registry
         @metrics_prefix = options[:metrics_prefix] || "conjur_http_server"
-        @endpoint = Monitoring::Metrics::Endpoint.new(
+        @request_metric = Monitoring::Metrics::RequestMetric.new(
           metrics_prefix: @metrics_prefix,
           registry: @registry)
-        @resource_count = Monitoring::Metrics::ResourceCount.new(
+        @resource_metric = Monitoring::Metrics::ResourceMetric.new(
           registry: @registry
         )
 
@@ -43,13 +43,13 @@ module Prometheus
 
       # Add metrics to prometheus registry
       def define_metrics
-        @endpoint.define_metrics
-        @resource_count.define_metrics
+        @request_metric.define_metrics
+        @resource_metric.define_metrics
       end
 
       def init_metrics
-        @endpoint.init_metrics
-        @resource_count.init_metrics
+        @request_metric.init_metrics
+        @resource_metric.init_metrics
       end
 
       def trace(env)

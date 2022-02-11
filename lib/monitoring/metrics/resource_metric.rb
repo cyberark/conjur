@@ -2,7 +2,7 @@ require 'prometheus/client'
 
 module Monitoring
   module Metrics
-    class ResourceCount
+    class ResourceMetric
 
       def initialize(options = {})
         @registry = options[:registry] || Prometheus::Client.registry
