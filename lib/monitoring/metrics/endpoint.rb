@@ -11,18 +11,19 @@ module Monitoring
     class Endpoint
       def initialize(options = {})
         @metrics_prefix = options[:metrics_prefix] || 'conjur_http_server'
+        @registry = options[:registry] || Prometheus::Client.registry
       end
 
-      def define_metrics(registry)
-        registry.register(request_count)
-        registry.register(request_histogram)
-        registry.register(exception_count)
+      def define_metrics
+        @registry.register(request_count)
+        @registry.register(request_histogram)
+        @registry.register(exception_count)
       end
 
-      def init_metrics(registry)
+      def init_metrics
         ActiveSupport::Notifications.subscribe("request_exception.conjur") do |_, _, _, _, payload|
           puts "Incrementing exception", payload[:exception]
-          exceptions = registry.get(:"#{@metrics_prefix}_exceptions_total")
+          exceptions = @registry.get(:"#{@metrics_prefix}_exceptions_total")
           exceptions.increment(labels: { exception: payload[:exception].class.name })
         end
 
@@ -44,8 +45,8 @@ module Monitoring
             path:   path,
           }
 
-          registry.get(:"#{@metrics_prefix}_requests_total").increment(labels: counter_labels)
-          registry.get(:"#{@metrics_prefix}_request_duration_seconds").observe(duration, labels: duration_labels)
+          @registry.get(:"#{@metrics_prefix}_requests_total").increment(labels: counter_labels)
+          @registry.get(:"#{@metrics_prefix}_request_duration_seconds").observe(duration, labels: duration_labels)
         end
       end
 

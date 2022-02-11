@@ -3,9 +3,8 @@
 require 'benchmark'
 require 'prometheus/client'
 require 'prometheus/client/data_stores/direct_file_store'
-#require 'monitoring/metrics'
-#require_relative '../metrics/operations.rb'
 require ::File.expand_path('../../metrics/endpoint.rb', __FILE__)
+require ::File.expand_path('../../metrics/resource_count.rb', __FILE__)
 
 module Prometheus
   module Middleware
@@ -14,12 +13,6 @@ module Prometheus
     #
     # By default metrics are registered on the global registry. Set the
     # `:registry` option to use a custom registry.
-    #
-    # By default metrics all have the prefix "http_server". Set
-    # `:metrics_prefix` to something else if you like.
-    #
-    # The request counter metric is broken down by code, method and path.
-    # The request duration metric is broken down by method and path.
     class ConjurCollector
       attr_reader :app, :registry
 
@@ -28,8 +21,15 @@ module Prometheus
         configure_data_store
 
         @app = app
-        @registry = options[:registry] || Client.registry
-        @endpoint = Monitoring::Metrics::Endpoint.new(metrics_prefix: options[:metrics_prefix] || "conjur_http_server")
+        @registry = options[:registry] || Prometheus::Client.registry
+        @metrics_prefix = options[:metrics_prefix] || "conjur_http_server"
+        @endpoint = Monitoring::Metrics::Endpoint.new(
+          metrics_prefix: @metrics_prefix,
+          registry: @registry)
+        @resource_count = Monitoring::Metrics::ResourceCount.new(
+          registry: @registry
+        )
+
 
         define_metrics
         init_metrics
@@ -43,34 +43,13 @@ module Prometheus
 
       # Add metrics to prometheus registry
       def define_metrics
-
-        @endpoint.define_metrics(registry)
-
-        @registry.register(resource_count_gauge)
+        @endpoint.define_metrics
+        @resource_count.define_metrics
       end
 
       def init_metrics
-
-        @endpoint.init_metrics(registry)
-
-        # Set initial count metrics
-        puts "Setup endpoint subscribers"
-        update_resource_count_metric(@registry)
-
-        # Subscribe to Conjur ActiveSupport events for metric updates
-        ActiveSupport::Notifications.subscribe("policy_loaded.conjur") do
-          # Update the resource counts after policy loads
-          update_resource_count_metric(@registry)
-        end
-
-        ActiveSupport::Notifications.subscribe("host_factory_host_created.conjur") do
-          # Update the resource counts after host factories create a new host
-          update_resource_count_metric(@registry)
-        end
-
-        puts "Setup resource subscribers"
-
-        
+        @endpoint.init_metrics
+        @resource_count.init_metrics
       end
 
       def trace(env)
@@ -79,13 +58,14 @@ module Prometheus
         record(env, response.first.to_s, duration)
         return response
       rescue => exception
+        puts "Trace exception:",exception
         # exceptions = @registry.get(:"#{@metrics_prefix}_exceptions_total")
         # exceptions.increment(labels: { exception: exception.class.name })
 
-        puts "Trace exception:",exception
         ActiveSupport::Notifications.instrument("request_exception.conjur", 
           exception: exception
         )
+
         raise
       end
 
@@ -104,32 +84,6 @@ module Prometheus
 
       def strip_ids_from_path(path)
         path.gsub(%r{/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}(?=/|$)}, '/:uuid\\1').gsub(%r{/\d+(?=/|$)}, '/:id\\1')
-      end
-
-      def resource_count_gauge
-        ::Prometheus::Client::Gauge.new(
-          :conjur_resource_count,
-          docstring: 'Number of resources in Conjur database',
-          labels: [:kind, :component],
-          preset_labels: { component: "conjur" },
-          store_settings: {
-            aggregation: :most_recent
-          }
-        )
-      end
-
-      def update_resource_count_metric(registry)
-        resource_count_gauge = registry.get(:conjur_resource_count)
-
-        kind = ::Sequel.function(:kind, :resource_id)
-        Resource.group_and_count(kind).each do |record|
-          resource_count_gauge.set(
-            record[:count],
-            labels: {
-              kind: record[:kind]
-            }
-          )
-        end
       end
 
       def configure_data_store
