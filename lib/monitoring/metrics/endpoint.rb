@@ -13,28 +13,17 @@ module Monitoring
         @metrics_prefix = options[:metrics_prefix] || 'conjur_http_server'
       end
 
-      def define_metric(registry)
-        @requests = registry.counter(
-          :"#{@metrics_prefix}_requests_total",
-          docstring:
-            'The total number of HTTP requests handled by the Rack application.',
-          labels: %i[code operation]
-        )
-        @durations = registry.histogram(
-          :"#{@metrics_prefix}_request_duration_seconds",
-          docstring: 'The HTTP response duration of the Rack application.',
-          labels: %i[operation]
-        )
-        @exceptions = registry.counter(
-          :"#{@metrics_prefix}_exceptions_total",
-          docstring: 'The total number of exceptions raised by the Rack application.',
-          labels: [:exception]
-        )
+      def define_metrics(registry)
+        registry.register(request_count)
+        registry.register(request_histogram)
+        registry.register(exception_count)
       end
 
-      def init_metric(registry)
+      def init_metrics(registry)
         ActiveSupport::Notifications.subscribe("request_exception.conjur") do |_, _, _, _, payload|
-          @exceptions.increment(labels: { exception: exception.class.name })
+          puts "Incrementing exception", payload[:exception]
+          exceptions = registry.get(:"#{@metrics_prefix}_exceptions_total")
+          exceptions.increment(labels: { exception: payload[:exception].class.name })
         end
 
         ActiveSupport::Notifications.subscribe("request.conjur") do |_, _, _, _, payload|
@@ -43,32 +32,45 @@ module Monitoring
           path = payload[:path]
           duration = payload[:duration]
 
-          operation = find_operation(method, path)
 
           counter_labels = {
-            code: code,
-            operation: operation,
+            code:   code,
+            method: method,
+            path:   path,
           }
-
+  
           duration_labels = {
-            operation: operation,
+            method: method,
+            path:   path,
           }
 
-          @requests.increment(labels: counter_labels)
-          @durations.observe(duration, labels: duration_labels)
+          registry.get(:"#{@metrics_prefix}_requests_total").increment(labels: counter_labels)
+          registry.get(:"#{@metrics_prefix}_request_duration_seconds").observe(duration, labels: duration_labels)
         end
       end
 
-      private
+      def request_count
+        Prometheus::Client::Counter.new(
+          :"#{@metrics_prefix}_requests_total",
+          docstring: 'The total number of HTTP requests handled by the Rack application.',
+          labels: %i[code method path]
+        )
+      end
 
-      def find_operation(method, path)
-        OPERATIONS.each do |op|
-          if op[:method] == method && op[:pattern].match?(path)
-            return op[:operation]
-          end
-        end
+      def request_histogram
+        Prometheus::Client::Histogram.new(
+          :"#{@metrics_prefix}_request_duration_seconds",
+          docstring: 'The HTTP response duration of the Rack application.',
+          labels: %i[method path]
+        )
+      end
 
-        return "unknown (#{method} #{path})"
+      def exception_count
+        Prometheus::Client::Counter.new(
+          :"#{@metrics_prefix}_exceptions_total",
+          docstring: 'The total number of exceptions raised by the Rack application.',
+            labels: [:exception]
+        )
       end
     end
   end

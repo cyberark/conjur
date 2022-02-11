@@ -3,8 +3,9 @@
 require 'benchmark'
 require 'prometheus/client'
 require 'prometheus/client/data_stores/direct_file_store'
+#require 'monitoring/metrics'
 #require_relative '../metrics/operations.rb'
-#require ::File.expand_path('../../metrics/operations.rb', __FILE__)
+require ::File.expand_path('../../metrics/endpoint.rb', __FILE__)
 
 module Prometheus
   module Middleware
@@ -28,7 +29,7 @@ module Prometheus
 
         @app = app
         @registry = options[:registry] || Client.registry
-        @metrics_prefix = options[:metrics_prefix] || 'conjur_http_server'
+        @endpoint = Monitoring::Metrics::Endpoint.new(metrics_prefix: options[:metrics_prefix] || "conjur_http_server")
 
         define_metrics
         init_metrics
@@ -42,86 +43,15 @@ module Prometheus
 
       # Add metrics to prometheus registry
       def define_metrics
-        # @requests = @registry.counter(
-        #   :"#{@metrics_prefix}_requests_total",
-        #   docstring:
-        #     'The total number of HTTP requests handled by the Rack application.',
-        #   labels: %i[code method path]
-        # )
-        # @durations = @registry.histogram(
-        #   :"#{@metrics_prefix}_request_duration_seconds",
-        #   docstring: 'The HTTP response duration of the Rack application.',
-        #   labels: %i[method path]
-        # )
-        # @exceptions = @registry.counter(
-        #   :"#{@metrics_prefix}_exceptions_total",
-        #   docstring: 'The total number of exceptions raised by the Rack application.',
-        #   labels: [:exception]
-        # )
 
-        @registry.register(request_count)
-        @registry.register(request_histogram)
-        @registry.register(exception_count)
+        @endpoint.define_metrics(registry)
+
         @registry.register(resource_count_gauge)
       end
 
-      def request_count
-        Prometheus::Client::Counter.new(
-          :"#{@metrics_prefix}_requests_total",
-          docstring: 'The total number of HTTP requests handled by the Rack application.',
-          labels: %i[code method path]
-        )
-      end
-
-      def request_histogram
-        Prometheus::Client::Histogram.new(
-          :"#{@metrics_prefix}_request_duration_seconds",
-          docstring: 'The HTTP response duration of the Rack application.',
-          labels: %i[method path]
-        )
-      end
-
-      def exception_count
-        Prometheus::Client::Counter.new(
-          :"#{@metrics_prefix}_exceptions_total",
-          docstring: 'The total number of exceptions raised by the Rack application.',
-            labels: [:exception]
-        )
-      end
-
-      # Subscribe to events for metrics collection
       def init_metrics
-        puts "Initializing"
-        ActiveSupport::Notifications.subscribe("request_exception.conjur") do |_, _, _, _, payload|
-          puts "Incrementing exception", payload[:exception]
-          exceptions = @registry.get(:"#{@metrics_prefix}_exceptions_total")
-          exceptions.increment(labels: { exception: payload[:exception].class.name })
-        end
 
-        ActiveSupport::Notifications.subscribe("request.conjur") do |_, _, _, _, payload|
-          method = payload[:method]
-          code = payload[:code]
-          path = payload[:path]
-          duration = payload[:duration]
-
-
-          counter_labels = {
-            code:   code,
-            method: method,
-            path:   path,
-          }
-  
-          duration_labels = {
-            method: method,
-            path:   path,
-          }
-
-          puts "Incrementing requests"
-          @registry.get(:"#{@metrics_prefix}_requests_total").increment(labels: counter_labels)
-          puts "Incrementing durations"
-          @registry.get(:"#{@metrics_prefix}_request_duration_seconds").observe(duration, labels: duration_labels)
-          puts "Incremented!"
-        end
+        @endpoint.init_metrics(registry)
 
         # Set initial count metrics
         puts "Setup endpoint subscribers"
@@ -149,13 +79,13 @@ module Prometheus
         record(env, response.first.to_s, duration)
         return response
       rescue => exception
-        exceptions = @registry.get(:"#{@metrics_prefix}_exceptions_total")
-        exceptions.increment(labels: { exception: exception.class.name })
+        # exceptions = @registry.get(:"#{@metrics_prefix}_exceptions_total")
+        # exceptions.increment(labels: { exception: exception.class.name })
 
-        # puts "Trace exception:",exception
-        # ActiveSupport::Notifications.instrument("request_exception.conjur", 
-        #   exception: exception
-        # )
+        puts "Trace exception:",exception
+        ActiveSupport::Notifications.instrument("request_exception.conjur", 
+          exception: exception
+        )
         raise
       end
 
