@@ -47,8 +47,12 @@ Rails.application.routes.draw do
 
         post '/authn-k8s/:service_id/inject_client_cert' => 'authenticate#k8s_inject_client_cert'
 
-        post '/:authenticator/:service_id/:account' => 'authenticators#persist_auth'
-        post '/:authenticator/:service_id/:account/host' => 'authenticators#persist_auth_host'
+        constraints authenticator: /authn-azure|authn-k8s|authn-oidc/ do
+          post '/:authenticator/:service_id/:account' => 'authenticators#persist_auth'
+          post '/:authenticator/:service_id/:account/host' => 'authenticators#persist_auth_host'
+        end
+
+        post '/authn-gcp/:account' => 'authenticators#persist_gcp_auth'
       end
 
       get     "/roles/:account/:kind/*identifier" => "roles#graph", :constraints => QueryParameterActionRecognizer.new("graph")

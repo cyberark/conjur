@@ -143,3 +143,35 @@ Feature: initialize an authenticator through the api
     }
     """
     Then the HTTP response status code is 422
+
+  @smoke @acceptance
+  Scenario: I initialize an GCP authenticator
+    When I save my place in the audit log file for remote
+    And I POST "/authn-gcp/cucumber"
+    Then the HTTP response status code is 201
+    And the HTTP response content type is "text/yaml"
+    And the YAML result is:
+    """
+    - !policy
+      id: conjur/authn-gcp/authenticator
+      body:
+      - !webservice
+
+      - !layer users
+
+      - !permit
+        resource: !webservice
+        privilege: [ read, authenticate ]
+        role: !layer users
+
+    """
+    And there is an audit record matching:
+    """
+      <85>1 * * conjur * policy
+      [auth@43868 user="cucumber:user:admin"]
+      [subject@43868 role="cucumber:policy:conjur/authn-gcp/authenticator"]
+      [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
+      [action@43868 result="success" operation="add"]
+      [policy@43868 id="cucumber:policy:root" version="1"]
+      cucumber:user:admin added role cucumber:policy:conjur/authn-gcp/authenticator
+    """

@@ -38,6 +38,19 @@ class AuthenticatorsController < RestController
     render(body: loaded_policy, content_type: "text/yaml", status: :created)
   end
 
+  def persist_gcp_auth
+    raise UnprocessableEntity, "GCP authenticatior takes no arguments" unless @request_data.empty?
+    loaded_policy = Authentication::PersistAuthFactory.new_from_authenticator("authn-gcp").(
+      conjur_account: params[:account],
+      service_id: "authenticator",
+      resource: find_or_create_root_policy,
+      current_user: current_user,
+      client_ip: request.ip,
+      request_data: {}
+    )
+    render(body: loaded_policy, content_type: "text/yaml", status: :created)
+  end
+
   protected
 
   def find_or_create_root_policy

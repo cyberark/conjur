@@ -21,6 +21,8 @@ module Authentication
           Authentication::AuthnAzure::AzureAuthenticatorData
         when "authn-oidc"
           Authentication::AuthnOidc::OidcAuthenticatorData
+        when "authn-gcp"
+          Authentication::AuthnGcp::GcpAuthenticatorData
         else
           raise ArgumentError, format("Not implemented for authenticator %s", authenticator)
         end
@@ -33,6 +35,8 @@ module Authentication
         when "authn-azure"
           Authentication::Default::InitializeDefaultAuth
         when "authn-oidc"
+          Authentication::Default::InitializeDefaultAuth
+        when "authn-gcp"
           Authentication::Default::InitializeDefaultAuth
         else
           raise ArgumentError, format("Not implemented for authenticator %s", authenticator)

@@ -1,0 +1,11 @@
+- !policy
+  id: conjur/authn-gcp/<%= service_id %>
+  body:
+  - !webservice
+
+  - !layer users
+
+  - !permit
+    resource: !webservice
+    privilege: [ read, authenticate ]
+    role: !layer users
