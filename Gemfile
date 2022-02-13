@@ -19,9 +19,9 @@ gem 'http', '~> 4.2.0'
 gem 'iso8601'
 gem 'jbuilder', '~> 2.7.0'
 gem 'nokogiri', '>= 1.8.2'
-gem 'puma', '~> 5.5.1'
-gem 'rack', '~> 2.2.3'
-gem 'rails', '~> 6.1'
+gem 'puma', '~> 5.5', '>= 5.6.2'
+gem 'rack', '~> 2.2'
+gem 'rails', '~> 6.1', '>= 6.1.4.6'
 gem 'rake'
 
 gem 'pg'
@@ -30,7 +30,7 @@ gem 'sequel-pg_advisory_locking'
 gem 'sequel-postgres-schemata', require: false
 gem 'sequel-rails'
 
-gem 'activesupport', '~> 6.1'
+gem 'activesupport', '~> 6.1', '>= 6.1.4.6'
 gem 'base32-crockford'
 gem 'bcrypt'
 gem 'gli', require: false
