@@ -9,9 +9,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
+## [1.17.2] - 2022-02-13
+
 ### Security
 - Updated Rails to 6.1.4.4 to resolve CVE-2021-44528 (Medium, Not Vulnerable)
   [cyberark/conjur#2486](https://github.com/cyberark/conjur/pull/2486)
+- Updated Rails to 6.1.4.6 to resolve CVE-2022-23633
+  Updated Puma to 5.6.2 to resolve CVE-2022-23634
+  [cyberark/conjur#2492](https://github.com/cyberark/conjur/pull/2492)  
 
 ## [1.17.1] - 2022-02-09
 
