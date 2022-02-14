@@ -35,6 +35,7 @@ gem 'base32-crockford'
 gem 'bcrypt'
 gem 'gli', require: false
 gem 'listen'
+gem 'rexml', '~> 3.2'
 gem 'slosilo', '~> 3.0'
 
 # Explicitly required as there are vulnerabilities in older versions
@@ -97,7 +98,6 @@ group :development, :test do
   gem 'rails-controller-testing'
   gem 'rails_layout'
   gem 'rake_shared_context'
-  gem 'rexml', '~> 3.2'
   gem 'rspec'
   gem 'rspec-core'
   gem 'rspec-rails'
