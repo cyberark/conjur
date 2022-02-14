@@ -46,6 +46,13 @@ function initialize_gke() {
 
 function initialize_oc() {
   # setup kubectl, oc and docker
-  oc login $OPENSHIFT_URL --username=$OPENSHIFT_USERNAME --password=$OPENSHIFT_PASSWORD --insecure-skip-tls-verify=true
-  docker login -u _ -p $(oc whoami -t) $OPENSHIFT_REGISTRY_URL
+  url=$OPENSHIFT_URL
+
+  if [ -z "$OPENSHIFT_TOKEN" ]; then
+    oc login "$url" --username="$OPENSHIFT_USERNAME" --password="$OPENSHIFT_PASSWORD" --insecure-skip-tls-verify=true
+  else
+    oc login "$url" --token="$OPENSHIFT_TOKEN" --insecure-skip-tls-verify=true
+  fi
+
+  docker login -u _ -p "$(oc whoami -t)" "$OPENSHIFT_REGISTRY_URL"
 }

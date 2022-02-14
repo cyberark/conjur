@@ -13,6 +13,10 @@ class PolicyLog < Sequel::Model(:policy_log)
     )
   end
 
+  def version
+    self[:version]
+  end
+
   def operation
     {
       'INSERT' => :add,

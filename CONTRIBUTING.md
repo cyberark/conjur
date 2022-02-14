@@ -51,12 +51,15 @@ required to deploy Conjur but they will let you develop using a standardized,
 expertly configured environment.
 
 1. [git][get-git] to manage source code
-1. [Docker][get-docker] to manage dependencies and runtime environments
-1. [Docker Compose][get-docker-compose] to orchestrate Docker environments
+2. [Docker][get-docker] to manage dependencies and runtime environments
+3. [Docker Compose][get-docker-compose] to orchestrate Docker environments
+4. [Ruby version 3 or higher installed][install-ruby-3] - native installation or using [RVM][install-rvm].
 
 [get-docker]: https://docs.docker.com/engine/installation
 [get-git]: https://git-scm.com/downloads
 [get-docker-compose]: https://docs.docker.com/compose/install
+[install-ruby-3]: https://www.ruby-lang.org/en/documentation/installation/
+[install-rvm]: https://rvm.io/rvm/install
 
 ### Prevent Secret Leaks
 Pushing to github is a form of publication, especially when using a public repo. It is a good idea to use a hook to check for secrets before pushing code.
@@ -132,7 +135,7 @@ To use it:
    allow you to work in the debugger without the server timing out. To do so,
    run the following command instead of `conjurctl server`:
    - `pry.byebug`: `rails server -b 0.0.0.0 webrick`
-   - RubyMine and VS Code IDE, make sure you are in `/src/conjur-server` and run the following command: `rdebug-ide --port 1234 --dispatcher-port 26162 --host 0.0.0.0 -- bin/rails s -b 0.0.0.0 webrick`
+   - RubyMine and VS Code IDE, make sure you are in `/src/conjur-server` and run the following command: `rdebug-ide --port 1234 --dispatcher-port 26162 --host 0.0.0.0 -- bin/rails s -b 0.0.0.0 -u webrick`
       - Now that the server is listening, debug the code via [RubyMine's](#rubymine-ide-debugging) or [VC Code's](#visual-studio-code-ide-debugging) debuggers.
 
 1. Cleanup
@@ -457,6 +460,68 @@ Rake tasks are easy to run from within the `conjur` server container:
   ```sh-session
   The next available error number is 63 ( CONJ00063E )
   ```
+
+### Kubernetes specific Cucumber tests
+
+Several cucumber tests are written to verify conjur works properly when 
+authenticating to Kubernetes.  These tests have hooks to run against both 
+Openshift and Google GKE.
+
+The cucumber tests are located under `cucumber/kubernetes/features` and can be
+run by going into the `ci/authn-k8s` directory and running:
+
+```shell
+$ summon -f [secrets.ocp.yml|secrets.yml] ./init_k8s.sh [openshift|gke]
+$ summon -f [secrets.ocp.yml|secrets.yml] ./test.sh [openshift|gke]
+```
+
+- `init_k8s.sh` - executes a simple login to Openshift or GKE to verify
+credentials as well as logging into the Docker Registry defined
+- `test.sh` - executes the tests against the defined platform
+
+#### Secrets file
+
+The secrets file used for summons needs to contain the following environment
+variables
+
+  - openshift
+    - `OPENSHIFT_USERNAME` - username of an account that can create 
+      namespaces, adjust cluster properties, etc
+    - `OPENSHIFT_PASSWORD` - password of the account
+    - `OPENSHIFT_URL` - the URL of the RedHat CRC cluster
+      - If running this locally - use `https://host.docker.internal:6443` so
+         the docker container can talk to the CRC containers
+    - `OPENSHIFT_TOKEN` - the login token of the above username/password
+      - only needed for local execution because the docker container 
+      executing the commands can't redirect for login
+      - obtained by running the following command locally after login -
+      `oc whoami -t`
+  - gke
+    - `GCLOUD_CLUSTER_NAME` - cluster name of the GKE environment in the cloud
+    - `GCLOUD_ZONE` - zone of the GKE environment in the cloud
+    - `GCLOUD_PROJECT_NAME` - project name of the GKE environment
+    - `GCLOUD_SERVICE_KEY` - service key of the GKE environment
+    
+#### Local Execution Prerequisites
+
+To execute the tests locally, a few things will have to be done:
+
+  - Openshift
+    - Download and install the RedHat Code Ready Container
+      - This contains all the necessary pieces to have a local version of
+        Openshift
+    - After install, copy down the kubeadmin username/password and update the
+      secrets.ocp.yml file with the password
+    - Execute `oc whoami -t` and update the token property
+  - GKE
+    - Work with infrastructure to obtain a GKE environment
+
+If the local revision of your files don't have a docker image built yet - build
+the docker images using the following command:
+
+```shell
+$ ./build_locally.sh <sni cert file>
+```
 
 ## Pull Request Workflow
 

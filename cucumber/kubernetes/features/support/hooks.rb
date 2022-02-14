@@ -3,7 +3,7 @@ Before('@skip') do
 end
 
 Before('@k8s_skip') do
-  skip_this_scenario if ENV['PLATFORM'] == 'kubernetes'
+  skip_this_scenario if ENV['PLATFORM'] == 'kubernetes' || ENV['PLATFORM'] == 'openshift'
 end
 
 Before do

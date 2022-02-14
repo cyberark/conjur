@@ -25,6 +25,10 @@ module Authentication
         @cert_store = OpenSSL::X509::Store.new
         @cert_store.set_default_paths
         ::Conjur::CertUtils.add_chained_cert(@cert_store, ca_cert)
+
+        return unless ENV.key?('SSL_CERT_DIRECTORY')
+
+        load_additional_certs(ENV['SSL_CERT_DIRECTORY'])
       end
 
       def bearer_token
@@ -55,7 +59,8 @@ module Authentication
           ssl_options: {
             cert_store: @cert_store,
             verify_ssl: OpenSSL::SSL::VERIFY_PEER
-          }
+          },
+          http_proxy_uri: ENV['https_proxy'] || ENV['http_proxy']
         }
       end
 
@@ -183,6 +188,7 @@ module Authentication
           KubeClientFactory.client(
             api: 'apis/apps.openshift.io', version: 'v1', host_url: api_url,
             options: options
+
           )
         ]
       end
@@ -194,6 +200,16 @@ module Authentication
           yield
         rescue KubeException
           raise unless $!.error_code == 404
+        end
+      end
+
+      def load_additional_certs(ssl_cert_directory)
+        # allows us to add additional CA certs for things like SNI certs
+        if Dir.exist?("#{ssl_cert_directory}/ca")
+          Dir["#{ssl_cert_directory}/ca/*"].each do |file_name|
+            ::Conjur::CertUtils.add_chained_cert(@cert_store, File.read(file_name)) if
+              File.exist?(file_name)
+          end
         end
       end
     end

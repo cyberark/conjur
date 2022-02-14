@@ -50,7 +50,7 @@ class PoliciesController < RestController
 
     render(json: {
       created_roles: created_roles,
-      version: policy.version
+      version: policy[:version]
     }, status: :created)
   rescue => e
     audit_failure(e, action)

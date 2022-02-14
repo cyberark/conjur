@@ -24,17 +24,17 @@ module Authentication
 
     def webservice
       @webservice ||= ::Authentication::Webservice.new(
-        account: @account,
-        authenticator_name: @authenticator_name,
-        service_id: @service_id
+        account: account,
+        authenticator_name: authenticator_name,
+        service_id: service_id
       )
     end
 
     # :reek:NilCheck
     def role
-      return nil if @username.nil?
+      return nil if username.nil?
 
-      ::Role.by_login(@username, account: @account)
+      ::Role.by_login(username, account: account)
     end
   end
 end
