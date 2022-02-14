@@ -80,8 +80,8 @@ describe Prometheus::Middleware::ConjurCollector do
     metric = :conjur_http_server_requests_total
     labels = { method: 'GET', path: '/foo/:id/bars', code: '200' }
     val = registry.get(metric).get(labels: labels)
-    puts Prometheus::Client::Formats::Text.marshal(registry)
-    print "# of occurences =", val,"\n"
+    #puts Prometheus::Client::Formats::Text.marshal(registry)
+    print labels," # of occurences = ", val,"\n"
     expect(val).to eql(1.0)
 
     metric = :conjur_http_server_request_duration_seconds
@@ -97,8 +97,8 @@ describe Prometheus::Middleware::ConjurCollector do
     metric = :conjur_http_server_requests_total
     labels = { method: 'GET', path: '/foo/:uuid/bars', code: '200' }
     val = registry.get(metric).get(labels: labels)
-    puts Prometheus::Client::Formats::Text.marshal(registry)
-    print "# of occurences =", val,"\n"
+    #puts Prometheus::Client::Formats::Text.marshal(registry)
+    print labels," # of occurences = ", val,"\n"
     expect(val).to eql(1.0)
 
     metric = :conjur_http_server_request_duration_seconds
@@ -115,8 +115,8 @@ describe Prometheus::Middleware::ConjurCollector do
     metric = :conjur_http_server_requests_total
     labels = { method: 'GET', path: '/foo/:id/:id', code: '200' }
     val = registry.get(metric).get(labels: labels)
-    puts Prometheus::Client::Formats::Text.marshal(registry)
-    print "# of occurences =", val,"\n"
+    #puts Prometheus::Client::Formats::Text.marshal(registry)
+    print labels," # of occurences = ", val,"\n"
     expect(val).to eql(1.0)
 
     metric = :conjur_http_server_request_duration_seconds
@@ -132,8 +132,8 @@ describe Prometheus::Middleware::ConjurCollector do
     metric = :conjur_http_server_requests_total
     labels = { method: 'GET', path: '/foo/:uuid/:uuid', code: '200' }
     val = registry.get(metric).get(labels: labels)
-    puts Prometheus::Client::Formats::Text.marshal(registry)
-    print "# of occurences =", val,"\n"
+    #puts Prometheus::Client::Formats::Text.marshal(registry)
+    print labels," # of occurences = ", val,"\n"
     expect(val).to eql(1.0)
 
     metric = :conjur_http_server_request_duration_seconds
@@ -145,16 +145,15 @@ describe Prometheus::Middleware::ConjurCollector do
   context 'when the app raises an exception' do
     let(:original_app) do
       lambda do |env|
-        puts "Raising an error"
         raise dummy_error if env['PATH_INFO'] == '/broken'
 
         [200, { 'Content-Type' => 'text/html' }, ['OK']]
       end
     end
 
-    # before do
-    #   get '/foo'
-    # end
+    before do
+      get '/foo'
+    end
 
     it 'traces exceptions' do
       expect { get '/broken' }.to raise_error RuntimeError

@@ -22,9 +22,12 @@ module Monitoring
 
       def init_metrics
         ActiveSupport::Notifications.subscribe("request_exception.conjur") do |_, _, _, _, payload|
-          print "Exception subscriber:", payload[:exception],"\n"
-          exceptions = @registry.get(:"#{@metrics_prefix}_exceptions_total")
-          exceptions.increment(labels: { exception: payload[:exception].class.name })
+          print "Exception subscriber invoked: ", payload[:exception],"\n"
+          exception_labels = { 
+            exception: payload[:exception].class.name 
+          }
+
+          @registry.get(:"#{@metrics_prefix}_exceptions_total").increment(labels: exception_labels)
         end
 
         ActiveSupport::Notifications.subscribe("request.conjur") do |_, _, _, _, payload|
