@@ -105,11 +105,13 @@ if [[ "${PUBLISH_EDGE}" = true ]]; then
 
   # Push image to internal registry
   tag_and_push "edge" "${LOCAL_IMAGE}" "registry.tld/${IMAGE_NAME}"
+  tag_and_push "edge" "${RH_LOCAL_IMAGE}" "registry.tld/conjur-ubi"
 
   # Publish release specific and edge tags to dockerhub
   if [[ "${DOCKERHUB}" = true ]]; then
     tag_and_push "${VERSION}" "${LOCAL_IMAGE}" "${IMAGE_NAME}"
     tag_and_push "edge" "${LOCAL_IMAGE}" "${IMAGE_NAME}"
+    tag_and_push "edge" "${RH_LOCAL_IMAGE}" "conjur-ubi"
   fi
 fi
 
