@@ -62,6 +62,8 @@ module Authentication
           nil
         when "authn-azure"
           Authentication::AuthnAzure::Restrictions::CONSTRAINTS
+        when "authn-gcp"
+          Authentication::AuthnGcp::Restrictions::CONSTRAINTS
         else
           raise ArgumentError, format("Not implemented for authenticator %s", authenticator)
         end

@@ -51,6 +51,20 @@ class AuthenticatorsController < RestController
     render(body: loaded_policy, content_type: "text/yaml", status: :created)
   end
 
+  def persist_gcp_auth_host
+    loaded_policy = Authentication::PersistAuthHost.new.(
+      conjur_account: params[:account],
+      service_id: "authenticator",
+      authenticator: "authn-gcp",
+      resource: find_or_create_root_policy,
+      current_user: current_user,
+      client_ip: request.ip,
+      host_data: host_details(authenticator: "authn-gcp")
+    )
+    render(body: loaded_policy, content_type: "text/yaml", status: :created)
+
+  end
+
   protected
 
   def find_or_create_root_policy
@@ -59,8 +73,8 @@ class AuthenticatorsController < RestController
 
   private
 
-  def host_details
-    Authentication::AuthHostDetailsFactory.new_from_authenticator(params[:authenticator], @request_data)
+  def host_details(authenticator: params[:authenticator])
+    Authentication::AuthHostDetailsFactory.new_from_authenticator(authenticator, @request_data)
   end
 
   def parse_request_body
