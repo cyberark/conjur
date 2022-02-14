@@ -111,7 +111,6 @@ if [[ "${PUBLISH_EDGE}" = true ]]; then
   if [[ "${DOCKERHUB}" = true ]]; then
     tag_and_push "${VERSION}" "${LOCAL_IMAGE}" "${IMAGE_NAME}"
     tag_and_push "edge" "${LOCAL_IMAGE}" "${IMAGE_NAME}"
-    tag_and_push "edge" "${RH_LOCAL_IMAGE}" "conjur-ubi"
   fi
 fi
 
