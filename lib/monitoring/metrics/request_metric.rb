@@ -21,6 +21,10 @@ module Monitoring
       end
 
       def init_metrics
+        # Have to reset subscribers otherwise rspec was capturing duplicate events
+        # due to init_metrics being called multiple times
+        reset_subscribers
+
         ActiveSupport::Notifications.subscribe("request_exception.conjur") do |_, _, _, _, payload|
           print "Exception subscriber invoked: ", payload[:exception],"\n"
           exception_labels = { 
@@ -75,6 +79,11 @@ module Monitoring
           docstring: 'The total number of exceptions raised by the Rack application.',
             labels: [:exception]
         )
+      end
+
+      def reset_subscribers
+        ActiveSupport::Notifications.unsubscribe("request_exception.conjur")
+        ActiveSupport::Notifications.unsubscribe("request.conjur")
       end
     end
   end

@@ -64,8 +64,6 @@ class PoliciesController < RestController
 
   private
 
-  # def on_load_policy(policy)
-  # end
 
   def load_policy(action, loader_class, delete_permitted)
     authorize(action)
@@ -75,7 +73,6 @@ class PoliciesController < RestController
     created_roles = perform(loaded_policy)
     audit_success(policy)
 
-    # on_load_policy(policy)
 
     render(json: {
       created_roles: created_roles,
