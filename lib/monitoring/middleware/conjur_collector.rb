@@ -1,8 +1,5 @@
-# encoding: UTF-8
-
 require 'benchmark'
 require ::File.expand_path('../../metrics.rb', __FILE__)
-
 
 module Prometheus
   module Middleware
@@ -14,7 +11,7 @@ module Prometheus
     class ConjurCollector
       attr_reader :app
 
-      def initialize(app, options = {})
+      def initialize(app)
         @app = app
       end
 
@@ -29,10 +26,10 @@ module Prometheus
         response = nil
         duration = Benchmark.realtime { response = yield }
         record(env, response.first.to_s, duration)
-
         return response
       rescue => exception
-        ActiveSupport::Notifications.instrument("request_exception.conjur", 
+        ActiveSupport::Notifications.instrument(
+          "request_exception.conjur", 
           exception: exception
         )
         raise
@@ -41,7 +38,8 @@ module Prometheus
       def record(env, code, duration)
         path = [env["SCRIPT_NAME"], env['PATH_INFO']].join
 
-        ActiveSupport::Notifications.instrument("request.conjur", 
+        ActiveSupport::Notifications.instrument(
+          "request.conjur", 
           code: code,
           method: env['REQUEST_METHOD'],
           path: strip_ids_from_path(path),
@@ -53,7 +51,9 @@ module Prometheus
       end
 
       def strip_ids_from_path(path)
-        path.gsub(%r{/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}(?=/|$)}, '/:uuid\\1').gsub(%r{/\d+(?=/|$)}, '/:id\\1')
+        path
+          .gsub(%r{/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}(?=/|$)}, '/:uuid\\1')
+          .gsub(%r{/\d+(?=/|$)}, '/:id\\1')
       end
     end
   end

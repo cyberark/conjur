@@ -1,4 +1,3 @@
-# encoding: UTF-8
 require 'spec_helper'
 require 'rack/test'
 require 'prometheus/client/formats/text'
@@ -14,5 +13,4 @@ describe Monitoring::Metrics do
 
     expect(gauge.get(labels: { bar: 'test' })).to eql(21.534)
   end
-
 end

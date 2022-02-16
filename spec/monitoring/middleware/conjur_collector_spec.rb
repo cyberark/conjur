@@ -1,10 +1,8 @@
-# encoding: UTF-8
 require 'spec_helper'
 require 'rack/test'
 require 'prometheus/client/formats/text'
 require ::File.expand_path('../../../../lib/monitoring/middleware/conjur_collector.rb', __FILE__)
 require ::File.expand_path('../../../../lib/monitoring/metrics.rb', __FILE__)
-
 
 describe Prometheus::Middleware::ConjurCollector do
   include Rack::Test::Methods
@@ -125,7 +123,6 @@ describe Prometheus::Middleware::ConjurCollector do
     metric = :conjur_http_server_request_duration_seconds
     labels = { method: 'GET', path: '/foo/:uuid/:uuid' }
     expect(registry.get(metric).get(labels: labels)).to include("0.1" => 0, "0.5" => 1)
-
   end
 
   context 'when the app raises an exception' do
@@ -142,7 +139,7 @@ describe Prometheus::Middleware::ConjurCollector do
     end
 
     it 'traces exceptions' do
-      expect { get '/broken' }.to raise_error RuntimeError
+      expect { get '/broken' }.to raise_error(RuntimeError)
 
       metric = :conjur_http_server_exceptions_total
       labels = { exception: 'RuntimeError' }
@@ -158,13 +155,13 @@ describe Prometheus::Middleware::ConjurCollector do
 
     it 'provides alternate metric names' do
       expect(
-        registry.get(:lolrus_requests_total),
+        registry.get(:lolrus_requests_total)
       ).to be_a(Prometheus::Client::Counter)
       expect(
-        registry.get(:lolrus_request_duration_seconds),
+        registry.get(:lolrus_request_duration_seconds)
       ).to be_a(Prometheus::Client::Histogram)
       expect(
-        registry.get(:lolrus_exceptions_total),
+        registry.get(:lolrus_exceptions_total)
       ).to be_a(Prometheus::Client::Counter)
     end
 
@@ -174,5 +171,4 @@ describe Prometheus::Middleware::ConjurCollector do
       expect(registry.get(:conjur_http_server_exceptions_total)).to be(nil)
     end
   end
-
 end

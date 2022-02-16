@@ -1,4 +1,3 @@
-# encoding: UTF-8
 require 'rack/test'
 require ::File.expand_path('../../../../lib/monitoring/middleware/conjur_exporter.rb', __FILE__)
 
@@ -55,7 +54,6 @@ describe Prometheus::Middleware::ConjurExporter do
         expect(last_response.body).to eql(message)
       end
     end
-
 
     context 'when client does not send a Accept header' do
       include_examples 'ok', {}, text

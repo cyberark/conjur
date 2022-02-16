@@ -41,12 +41,12 @@ module Monitoring
           counter_labels = {
             code:   code,
             method: method,
-            path:   path,
+            path:   path
           }
   
           duration_labels = {
             method: method,
-            path:   path,
+            path:   path
           }
 
           @registry.get(:"#{@metrics_prefix}_requests_total").increment(labels: counter_labels)
@@ -74,7 +74,7 @@ module Monitoring
         Prometheus::Client::Counter.new(
           :"#{@metrics_prefix}_exceptions_total",
           docstring: 'The total number of exceptions raised by the Rack application.',
-            labels: [:exception]
+          labels: [:exception]
         )
       end
 
