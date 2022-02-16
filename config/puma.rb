@@ -59,7 +59,7 @@ before_fork do
   Rails.logger.info(LogMessages::Conjur::FipsModeStatus.new(OpenSSL.fips_mode))
 
   # Initialize metrics and clean existing data before forking the worker processes
-  Monitoring::MetricsClient.new
+  Monitoring::Metrics.setup
 
 end
 

@@ -5,9 +5,14 @@ require ::File.expand_path('../../../../lib/monitoring/middleware/conjur_exporte
 describe Prometheus::Middleware::ConjurExporter do
   include Rack::Test::Methods
 
+  # Reset the data store
+  before do
+    Monitoring::Metrics.setup(registry: Prometheus::Client::Registry.new)
+  end
+
   let(:options) { { registry: registry } }
   let(:registry) do
-    Prometheus::Client::Registry.new
+    Monitoring::Metrics.registry
   end
 
   let(:app) do

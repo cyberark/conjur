@@ -1,5 +1,3 @@
-# encoding: UTF-8
-
 require 'prometheus/client'
 require 'prometheus/client/formats/text'
 
@@ -19,7 +17,6 @@ module Prometheus
 
       def initialize(app, options = {})
         @app = app
-        @registry = options[:registry] || Client.registry
         @path = options[:path] || '/metrics'
         @port = options[:port]
         @acceptable = build_dictionary(FORMATS, FALLBACK)
@@ -67,7 +64,7 @@ module Prometheus
         [
           200,
           { 'Content-Type' => format::CONTENT_TYPE },
-          [format.marshal(@registry)],
+          [format.marshal(Monitoring::Metrics.registry)]
         ]
       end
 
@@ -77,7 +74,7 @@ module Prometheus
         [
           406,
           { 'Content-Type' => 'text/plain' },
-          ["Supported media types: #{types.join(', ')}"],
+          ["Supported media types: #{types.join(', ')}"]
         ]
       end
 
