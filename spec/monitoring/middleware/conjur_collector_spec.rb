@@ -3,7 +3,7 @@ require 'spec_helper'
 require 'rack/test'
 require 'prometheus/client/formats/text'
 require ::File.expand_path('../../../../lib/monitoring/middleware/conjur_collector.rb', __FILE__)
-require ::File.expand_path('../../../../lib/monitoring/metrics_client.rb', __FILE__)
+require ::File.expand_path('../../../../lib/monitoring/metrics.rb', __FILE__)
 
 
 describe Prometheus::Middleware::ConjurCollector do
@@ -11,11 +11,11 @@ describe Prometheus::Middleware::ConjurCollector do
 
   # Reset the data store
   before do
-    @mc = Monitoring::MetricsClient.new(registry: Prometheus::Client::Registry.new)
+    Monitoring::Metrics.setup(registry: Prometheus::Client::Registry.new)
   end
 
   let(:registry) do
-    @mc.registry
+    Monitoring::Metrics.registry
   end
 
   let(:original_app) do
@@ -150,4 +150,29 @@ describe Prometheus::Middleware::ConjurCollector do
       expect(registry.get(metric).get(labels: labels)).to eql(1.0)
     end
   end
+
+  context 'when provided a custom metrics_prefix' do
+    before do
+      Monitoring::Metrics.setup(metrics_prefix: 'lolrus')
+    end
+
+    it 'provides alternate metric names' do
+      expect(
+        registry.get(:lolrus_requests_total),
+      ).to be_a(Prometheus::Client::Counter)
+      expect(
+        registry.get(:lolrus_request_duration_seconds),
+      ).to be_a(Prometheus::Client::Histogram)
+      expect(
+        registry.get(:lolrus_exceptions_total),
+      ).to be_a(Prometheus::Client::Counter)
+    end
+
+    it "doesn't register the default metrics" do
+      expect(registry.get(:conjur_http_server_requests_total)).to be(nil)
+      expect(registry.get(:conjur_http_server_request_duration_seconds)).to be(nil)
+      expect(registry.get(:conjur_http_server_exceptions_total)).to be(nil)
+    end
+  end
+
 end

@@ -1,7 +1,7 @@
 # encoding: UTF-8
 
 require 'benchmark'
-require ::File.expand_path('../../metrics_client.rb', __FILE__)
+require ::File.expand_path('../../metrics.rb', __FILE__)
 
 
 module Prometheus
@@ -30,20 +30,11 @@ module Prometheus
         duration = Benchmark.realtime { response = yield }
         record(env, response.first.to_s, duration)
 
-        # Testing error metric
-        # if env['PATH_INFO'] == '/testexception'
-        #   puts "Raising runtime error"
-        #   raise StandardError.new "This is an exception"
-        # end
-
         return response
       rescue => exception
-        print "Instrumenting exception: ",exception,"\n"
-
         ActiveSupport::Notifications.instrument("request_exception.conjur", 
           exception: exception
         )
-
         raise
       end
 

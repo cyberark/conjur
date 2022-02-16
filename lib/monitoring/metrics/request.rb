@@ -1,4 +1,3 @@
-require_relative './operations.rb'
 require 'prometheus/client'
 
 module Monitoring
@@ -8,7 +7,7 @@ module Monitoring
     #
     # The request counter metric is broken down by code, method and path.
     # The request duration metric is broken down by method and path.
-    class RequestMetric
+    class Request
       def initialize(options = {})
         @metrics_prefix = options[:metrics_prefix] || 'conjur_http_server'
         @registry = options[:registry] || Prometheus::Client.registry
@@ -22,11 +21,10 @@ module Monitoring
 
       def init_metrics
         # Have to reset subscribers otherwise rspec was capturing duplicate events
-        # due to init_metrics being called multiple times
+        # due to init_metrics being called between tests
         reset_subscribers
 
         ActiveSupport::Notifications.subscribe("request_exception.conjur") do |_, _, _, _, payload|
-          print "Exception subscriber invoked: ", payload[:exception],"\n"
           exception_labels = { 
             exception: payload[:exception].class.name 
           }
@@ -39,7 +37,6 @@ module Monitoring
           code = payload[:code]
           path = payload[:path]
           duration = payload[:duration]
-
 
           counter_labels = {
             code:   code,
