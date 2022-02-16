@@ -47,5 +47,44 @@ describe "conjurctl server" do
       expect(Slosilo["authn:demo"]).to be
       expect(Role["demo:user:admin"]).to be
     end
+
+    it "deletes an existing PID file on start up" do
+      pid_file_path = File.join(conjur_server_dir, 'tmp/pids/server.pid')
+
+      # Ensure the pid file exists before starting Conjur
+      FileUtils.mkdir_p(File.dirname(pid_file_path))
+      FileUtils.touch(pid_file_path)
+
+      # Start Conjur and wait for it to finish its initialization
+      output = with_background_process(
+        'conjurctl server --account demo'
+      ) do
+        wait_for_conjur
+      end
+
+      # Ensure that the Conjur output reports that the PID was removed
+      expect(output).to include(
+        "Removing existing PID file: #{pid_file_path}"
+      )
+    end
+
+    it "doesn't attempt to delete a non-existent PID file" do
+      pid_file_path = File.join(conjur_server_dir, 'tmp/pids/server.pid')
+
+      # Ensure the pid file doesn't exist before starting Conjur
+      File.delete(pid_file_path) if File.exist?(pid_file_path)
+
+      # Start Conjur and wait for it to finish its initialization
+      output = with_background_process(
+        'conjurctl server --account demo'
+      ) do
+        wait_for_conjur
+      end
+
+      # Ensure that the Conjur output doesn't report that the PID was removed
+      expect(output).not_to include(
+        "Removing existing PID file: #{pid_file_path}"
+      )
+    end
   end
 end

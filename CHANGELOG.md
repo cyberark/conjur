@@ -47,6 +47,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Fixed
 - IAM Authn bug fix - Take rexml gem to production configuration [#2493](https://github.com/cyberark/conjur/pull/2493)
+- Previously, a stale puma pid file would prevent the Conjur server from starting 
+  successfully. Conjur now removes a stale pid file at startup, if it exists.
+  [#2498](https://github.com/cyberark/conjur/pull/2498)
 
 ### Security
 - Updated nokogiri to 1.13.3 to resolve CVE-2022-23308 and CVE-2021-30560
