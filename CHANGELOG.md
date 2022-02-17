@@ -34,10 +34,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   [#2437](https://github.com/cyberark/conjur/pull/2437))
 - Added support for SNI certificates when talking to the Kubernetes API 
   server through the web socket client.
-  [ONYX-14386](https://ca-il-jira.il.cyber-ark.com:8443/browse/ONYX-14386)
+  [#2482](https://github.com/cyberark/conjur/pull/2482)
 - Added support for http(s)_proxy for Kubernetes client in Kubernetes
   authenticator
-  [ONYX-16433](https://ca-il-jira.il.cyber-ark.com:8443/browse/ONYX-16433)
+  [#2432](https://github.com/cyberark/conjur/pull/2432)
 
 ### Changed
 - Update to automated release process
@@ -97,10 +97,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Create default account when no account is specified in `conjurctl account create`.
   [cyberark/conjur#2388](https://github.com/cyberark/conjur/pull/2388)
 - JWT Authenticator supports nested claims in `token-app-property`, `enforced-claims`,
-  `claim-aliases` and role annotations. ([ONYX-11204](https://ca-il-jira.il.cyber-ark.com:8443/browse/ONYX-11204):
-  [#2397](https://github.com/cyberark/conjur/pull/2397),
-  [#2404](https://github.com/cyberark/conjur/pull/2404),
-  [#2403](https://github.com/cyberark/conjur/pull/2403))
+  `claim-aliases` and role annotations.
+  [#2397](https://github.com/cyberark/conjur/pull/2397)
+  [#2404](https://github.com/cyberark/conjur/pull/2404)
+  [#2403](https://github.com/cyberark/conjur/pull/2403)
 
 ### Changed
 - Changed claims mapping variable name ('mapping-claims' => 'claim-aliases').
@@ -114,7 +114,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   We were not vulnerable to this issue. [cyberark/conjur#2385](https://github.com/cyberark/conjur/pull/2385)
 - GCP Authenticator: When defining the host using the instance-name annotation,
   you now need to define at least one additional annotation.
-  [cyberark/ONYX-9442](https://ca-il-jira.il.cyber-ark.com:8443/browse/ONYX-9442)
+  [cyberark/conjur#2387](https://github.com/cyberark/conjur/pull/2387)
 - Updated nokogiri to 1.12.5 in both Gemfile.lock and docs/Gemfile.lock to resolve
   [CVE-2021-41098](https://github.com/advisories/GHSA-2rr5-8q37-2w7h)
   [cyberark/conjur#2376](https://github.com/cyberark/conjur/pull/2376)
