@@ -13,13 +13,13 @@ RSpec.describe('Authentication::AuthnJwt::SigningKey::PublicSigningKeys') do
        "Value not in valid JSON format"],
     "When public-keys value is an empty object":
       [{},
-       "Type can't be blank, Type '' is not a valid public-keys type. Valid types are: jwks, and Value can't be blank"],
+       "Type can't be blank, Value can't be blank, and Type '' is not a valid public-keys type. Valid types are: jwks"],
     "When public-keys does not contain needed fields":
       [{:key => "value", :key2 => { :key3 => "valve" }},
-       "Type can't be blank, Type '' is not a valid public-keys type. Valid types are: jwks, and Value can't be blank"],
+       "Type can't be blank, Value can't be blank, and Type '' is not a valid public-keys type. Valid types are: jwks"],
     "When public-keys type is empty and value is absent":
       [{:type => ""},
-       "Type can't be blank, Type '' is not a valid public-keys type. Valid types are: jwks, and Value can't be blank"],
+       "Type can't be blank, Value can't be blank, and Type '' is not a valid public-keys type. Valid types are: jwks"],
     "When public-keys type has wrong value and value is absent":
       [{:type => "yes"},
        "Value can't be blank and Type 'yes' is not a valid public-keys type. Valid types are: jwks"],

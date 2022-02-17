@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Conjur
-  # TrustedProxyFilter wraps the default Rack IP filtering. This allows
+  # IsIpTrusted wraps the default Rack IP filtering. This allows
   # the trusted proxies to be configured using the environment variable,
   # `TRUSTED_PROXIES`.
   #
@@ -9,7 +9,7 @@ module Conjur
   # addresses or IP address ranges using CIDR notation.
   #
   # Example: TRUSTED_PROXIES=4.4.4.4,192.168.100.0/24
-  class TrustedProxyFilter
+  class IsIpTrusted
     def initialize(config:, disable_cache: true)
       @config = config
       @disable_cache = disable_cache
@@ -47,8 +47,8 @@ module Conjur
 
       return [] unless trusted_proxies
 
-      Set.new(trusted_proxies).
-        map { |cidr| IPAddr.new(cidr.strip) }
+      Set.new(trusted_proxies)
+        .map { |cidr| IPAddr.new(cidr.strip) }
     end
   end
 end

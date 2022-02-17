@@ -28,7 +28,7 @@ class SecretsController < RestController
     )
 
     Audit.logger.log(
-      Audit::Event::Update.new(update_info)
+      Audit::Event::Update.new(**update_info)
     )
   end
 
@@ -72,6 +72,8 @@ class SecretsController < RestController
     end
 
     render(json: result)
+  rescue JSON::GeneratorError
+    raise Errors::Conjur::BadSecretEncoding, result
   rescue Encoding::UndefinedConversionError
     raise Errors::Conjur::BadSecretEncoding, result
   rescue Exceptions::RecordNotFound => e
@@ -102,7 +104,7 @@ class SecretsController < RestController
     )
 
     Audit.logger.log(
-      Audit::Event::Fetch.new(fetch_info)
+      Audit::Event::Fetch.new(**fetch_info)
     )
   end
 

@@ -1,4 +1,8 @@
 dev/interventions/*.gke.yml
-dev/tls/nginx.*
+dev/tls/*.key
+dev/tls/*.crt
 nginx.crt
 /output/
+dev/**/*.openshift.yml
+sni.crt
+sni.out

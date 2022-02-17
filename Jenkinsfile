@@ -375,6 +375,10 @@ pipeline {
 
               steps {
                 unstash 'version_info'
+                // Grant access to this Jenkins agent's IP to AWS security groups
+                // This is required for access to the internal docker registry
+                // from outside EC2.
+                grantIPAccess()
                 sh(
                   'summon -f ci/test_suites/authenticators_azure/secrets.yml ' +
                     'ci/test authenticators_azure'
@@ -392,6 +396,10 @@ pipeline {
                         cucumber_results*.json
                       '''
                     )
+                    // Remove this Agent's IP from IPManager's prefix list
+                    // There are a limited number of entries, so it remove it
+                    // rather than waiting for it to expire.
+                    removeIPAccess()
                 }
               }
             }

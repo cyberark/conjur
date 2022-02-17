@@ -136,7 +136,7 @@ Feature: Batch retrieval of secrets
     When I GET "/secrets?variable_ids=cucumber:variable:secret3"
     Then the HTTP response status code is 406
 
-  @negative @acceptance
+  @negative @smoke
   Scenario: Fails with 406 on retrieval of multiple secrets with improper header
     Given I create a binary secret value for resource "cucumber:variable:secret3"
     And I add the secret value "v2" to the resource "cucumber:variable:secret2"

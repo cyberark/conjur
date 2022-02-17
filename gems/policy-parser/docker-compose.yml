@@ -1,7 +1,7 @@
 version: "3"
 services:
   dev:
-    image: cyberark/ubuntu-ruby-fips:1.0.6
+    image: cyberark/ubuntu-ruby-fips:latest
     working_dir: /src
     volumes:
       - .:/src

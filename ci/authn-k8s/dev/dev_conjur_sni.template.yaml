@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: conjur-authn-k8s
+  labels:
+    app: conjur-authn-k8s
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: conjur-authn-k8s
+  template:
+    metadata:
+      labels:
+        app: conjur-authn-k8s
+    spec:
+      hostAliases:
+        - ip: {{ KUBERNETES_SERVICE_HOST }}
+          hostnames:
+            - "{{ KUBERNETES_API_FQDN }}"
+      containers:
+      - image: {{ CONJUR_AUTHN_K8S_TAG }}
+        imagePullPolicy: Always
+        name: conjur
+        command: ["conjurctl", "server"]
+        env:
+        - name: DATABASE_URL
+          value: postgres://postgres@postgres:5432/postgres
+        - name: CONJUR_ADMIN_PASSWORD
+          value: admin
+        - name: CONJUR_ACCOUNT
+          value: cucumber
+        - name: CONJUR_DATA_KEY
+          value: "{{ DATA_KEY }}"
+        - name: RAILS_ENV
+          value: test
+        # Enable coverage tracking.
+        - name: REQUIRE_SIMPLECOV
+          value: "true"
+        # Sleep after generating the coverage report to keep the pod alive
+        # so the report can be retrieved.
+        - name: SIMPLECOV_SLEEP
+          value: "true"
+        - name: WEB_CONCURRENCY
+          value: "0"
+        - name: RAILS_MAX_THREADS
+          value: "10"
+        - name: CONJUR_AUTHENTICATORS
+          value: authn-k8s/minikube
+        - name: KUBERNETES_SERVICE_HOST
+          value: {{ KUBERNETES_API_FQDN }}
+        - name: SSL_CERT_DIRECTORY
+          value: /opt/conjur/etc/ssl/
+        volumeMounts:
+          - mountPath: /run/authn-local
+            name: authn-local
+      volumes:
+        - name: authn-local
+          emptyDir:
+            medium: Memory

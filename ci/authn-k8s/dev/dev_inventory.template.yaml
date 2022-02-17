@@ -27,9 +27,9 @@ spec:
         app: inventory-deployment
     spec:
       containers:
-      - image: {{INVENTORY_TAG}}
+      - image: {{ INVENTORY_TAG }}
         name: inventory
         command: ["sleep", "infinity"]
-      - image: {{INVENTORY_TAG}}
+      - image: {{ INVENTORY_TAG }}
         name: authenticator
         command: ["sleep", "infinity"]

@@ -83,9 +83,9 @@ module Audit
       end
 
       def auth_stuctured_data
-        { authenticator: @authenticator_name }.tap do |sd|
+        { user: sanitized_role_id }.tap do |sd|
+          sd[:authenticator] = @authenticator_name
           sd[:service] = service_id if @service
-          sd[:user] = sanitized_role_id
         end
       end
 

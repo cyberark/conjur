@@ -20,9 +20,9 @@ module Authentication
     def status_webservice
       @status_webservice ||= ::Authentication::StatusWebservice.from_webservice(
         ::Authentication::Webservice.new(
-          account: @account,
-          authenticator_name: @authenticator_name,
-          service_id: @service_id
+          account: account,
+          authenticator_name: authenticator_name,
+          service_id: service_id
         )
       )
     end

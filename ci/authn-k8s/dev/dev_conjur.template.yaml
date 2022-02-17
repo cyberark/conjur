@@ -82,7 +82,7 @@ spec:
     spec:
       containers:
       - image: {{ CONJUR_AUTHN_K8S_TAG }}
-        imagePullPolicy: Always
+        imagePullPolicy: IfNotPresent
         name: conjur
         command: ["conjurctl", "server"]
         env:
@@ -135,7 +135,7 @@ spec:
     spec:
       containers:
       - image: {{ CONJUR_TEST_AUTHN_K8S_TAG }}
-        imagePullPolicy: Always
+        imagePullPolicy: IfNotPresent
         name: conjur
         command: ["sleep", "infinity"]
         env:
@@ -200,5 +200,5 @@ spec:
     spec:
       containers:
       - name: nginx
-        image: {{NGINX_TAG}}
-        imagePullPolicy: Always
+        image: {{ NGINX_TAG }}
+        imagePullPolicy: IfNotPresent
