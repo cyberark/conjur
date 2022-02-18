@@ -20,7 +20,7 @@ RSpec.describe(Authentication::PersistAuthFactory) do
   end
 
   context "Given we attempt to create from an unsupported authenticator" do
-    let(:authenticator) { "authn-iam" }
+    let(:authenticator) { "authn-jwt" }
 
     it "raises an ArgumentError" do
       expect{ subject }.to raise_error(ArgumentError)
@@ -91,7 +91,7 @@ RSpec.describe(Authentication::AuthHostDetailsFactory) do
   end
 
   context "Given we attempt to create from an unsupported authenticator" do
-    let(:authenticator) { "authn-iam" }
+    let(:authenticator) { "authn-jwt" }
     it "raises an argument error" do
       expect{ subject }.to raise_error(ArgumentError)
     end

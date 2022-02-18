@@ -378,3 +378,39 @@ Feature: Persist a authenticator host through the api
       [policy@43868 id="cucumber:policy:root" version="*"]
       cucumber:user:admin changed role cucumber:host:conjur/authn-gcp/authenticator/apps/test-host
     """
+
+  @acceptance
+  Scenario: I initialize an IAM authenticator host
+    When I persist an "authn-iam" authenticator with service id "test-service"
+    And I save my place in the audit log file for remote
+    And I POST "/authn-iam/test-service/cucumber/host" with body:
+    """
+    {
+      "id": "011915987442/MyApp"
+    }
+    """
+    Then the HTTP response status code is 201
+    And the YAML result is:
+    """
+    - !policy
+      id: conjur/authn-iam/test-service/apps
+      body:
+      - !host
+        id: 011915987442/MyApp
+
+    - !grant
+     role: !layer conjur/authn-iam/test-service/users
+     members:
+       - !host conjur/authn-iam/test-service/apps/011915987442/MyApp
+
+    """
+    And there is an audit record matching:
+    """
+      <85>1 * * conjur * policy
+      [auth@43868 user="cucumber:user:admin"]
+      [subject@43868 role="cucumber:host:conjur/authn-iam/test-service/apps/011915987442/MyApp"]
+      [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
+      [action@43868 result="success" operation="change"]
+      [policy@43868 id="cucumber:policy:root" version="*"]
+      cucumber:user:admin changed role cucumber:host:conjur/authn-iam/test-service/apps/011915987442/MyApp
+      """

@@ -23,6 +23,8 @@ module Authentication
           Authentication::AuthnOidc::OidcAuthenticatorData
         when "authn-gcp"
           Authentication::AuthnGcp::GcpAuthenticatorData
+        when "authn-iam"
+          Authentication::AuthnIam::IamAuthenticatorData
         else
           raise ArgumentError, format("Not implemented for authenticator %s", authenticator)
         end
@@ -37,6 +39,8 @@ module Authentication
         when "authn-oidc"
           Authentication::Default::InitializeDefaultAuth
         when "authn-gcp"
+          Authentication::Default::InitializeDefaultAuth
+        when "authn-iam"
           Authentication::Default::InitializeDefaultAuth
         else
           raise ArgumentError, format("Not implemented for authenticator %s", authenticator)
@@ -64,6 +68,8 @@ module Authentication
           Authentication::AuthnAzure::Restrictions::CONSTRAINTS
         when "authn-gcp"
           Authentication::AuthnGcp::Restrictions::CONSTRAINTS
+        when "authn-iam"
+          nil
         else
           raise ArgumentError, format("Not implemented for authenticator %s", authenticator)
         end
