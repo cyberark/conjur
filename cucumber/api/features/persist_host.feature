@@ -327,4 +327,54 @@ Feature: Persist a authenticator host through the api
       [action@43868 result="success" operation="change"]
       [policy@43868 id="cucumber:policy:root" version="*"]
       cucumber:user:admin changed role cucumber:host:conjur/authn-gcp/authenticator/apps/test-host
+      """
+
+
+  Scenario: I initialize an GCP authenticator host
+    When I persist an "authn-gcp" authenticator
+    And I save my place in the audit log file for remote
+    And I POST "/authn-gcp/cucumber/host" with body:
+    """
+    {
+      "id": "test-host",
+      "annotations": {
+        "authn-gcp/project-id": "some project"
+      }
+    }
+    """
+    And I POST "/authn-gcp/cucumber/host" with body:
+    """
+    {
+      "id": "test-host",
+      "annotations": {
+        "authn-gcp/project-id": "some project"
+      }
+    }
+    """
+    Then the HTTP response status code is 200
+    And the YAML result is:
+    """
+    - !policy
+      id: conjur/authn-gcp/authenticator/apps
+      body:
+      - !host
+        id: test-host
+        annotations:
+          authn-gcp/project-id: some project
+
+    - !grant
+     role: !layer conjur/authn-gcp/authenticator/users
+     members:
+       - !host conjur/authn-gcp/authenticator/apps/test-host
+
+    """
+    And there is an audit record matching:
+    """
+      <85>1 * * conjur * policy
+      [auth@43868 user="cucumber:user:admin"]
+      [subject@43868 role="cucumber:host:conjur/authn-gcp/authenticator/apps/test-host"]
+      [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
+      [action@43868 result="success" operation="change"]
+      [policy@43868 id="cucumber:policy:root" version="*"]
+      cucumber:user:admin changed role cucumber:host:conjur/authn-gcp/authenticator/apps/test-host
     """

@@ -61,7 +61,7 @@ module Authentication
       def call
         raise ArgumentError, @host_data.errors.full_messages unless @host_data.valid?
 
-        host_policy = initialize_host_policy(
+        initialize_host_policy(
           policy_loader: @policy_loader,
           resource: @resource,
           current_user: @current_user,
@@ -70,8 +70,6 @@ module Authentication
           authenticator: @authenticator,
           host_data: @host_data
         )
-
-        host_policy[:policy].values[:policy_text]
       end
 
       private

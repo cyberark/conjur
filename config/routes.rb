@@ -52,8 +52,8 @@ Rails.application.routes.draw do
           post '/:authenticator/:service_id/:account/host' => 'authenticators#persist_auth_host'
         end
 
-        post '/authn-gcp/:account' => 'authenticators#persist_gcp_auth'
-        post '/authn-gcp/:account/host' => 'authenticators#persist_gcp_auth_host'
+        post '/authn-gcp/:account' => 'authenticators#persist_gcp_auth', defaults: { authenticator: 'authn-gcp' }
+        post '/authn-gcp/:account/host' => 'authenticators#persist_gcp_auth_host', defaults: { authenticator: 'authn-gcp' }
       end
 
       get     "/roles/:account/:kind/*identifier" => "roles#graph", :constraints => QueryParameterActionRecognizer.new("graph")

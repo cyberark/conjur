@@ -55,7 +55,7 @@ module Authentication
 
         @auth_initializer.(conjur_account: @conjur_account, service_id: @service_id, auth_data: auth_data)
 
-        policy_details[:policy].values[:policy_text]
+        policy_details
       end
 
       private
