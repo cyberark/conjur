@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Fixed issue where an invalid content type sent by our .NET SDK was causing 
   Conjur to error - but this wasn't the case before the Ruby 3 upgrade
   [#2525](https://github.com/cyberark/conjur/pull/2525)
+- Verify non user or host resources do not have credentials.
 
 ## [1.17.2] - 2022-03-09
 
