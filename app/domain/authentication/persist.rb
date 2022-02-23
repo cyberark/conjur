@@ -63,7 +63,7 @@ module Authentication
       def auth_policy(auth_data:, service_id:)
         @auth_policy ||= ApplicationController.renderer.render(
           template: format("policies/%s", auth_data.auth_name),
-          locals: { service_id: service_id }
+          locals: { service_id: service_id, auth_data: auth_data }
         )
       end
 

@@ -25,6 +25,8 @@ module Authentication
           Authentication::AuthnGcp::GcpAuthenticatorData
         when "authn-iam"
           Authentication::AuthnIam::IamAuthenticatorData
+        when "authn-ldap"
+          Authentication::AuthnLdap::LdapAuthenticatorData
         else
           raise ArgumentError, format("Not implemented for authenticator %s", authenticator)
         end
@@ -41,6 +43,8 @@ module Authentication
         when "authn-gcp"
           Authentication::Default::InitializeDefaultAuth
         when "authn-iam"
+          Authentication::Default::InitializeDefaultAuth
+        when "authn-ldap"
           Authentication::Default::InitializeDefaultAuth
         else
           raise ArgumentError, format("Not implemented for authenticator %s", authenticator)
@@ -69,6 +73,8 @@ module Authentication
         when "authn-gcp"
           Authentication::AuthnGcp::Restrictions::CONSTRAINTS
         when "authn-iam"
+          nil
+        when "authn-ldap"
           nil
         else
           raise ArgumentError, format("Not implemented for authenticator %s", authenticator)

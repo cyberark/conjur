@@ -208,3 +208,49 @@ Feature: initialize an authenticator through the api
       [policy@43868 id="cucumber:policy:root" version="1"]
       cucumber:user:admin added role cucumber:policy:conjur/authn-iam/test-service
     """
+
+  @smoke @acceptance
+  Scenario: I initialize an LDAP authenticator
+    When I save my place in the audit log file for remote
+    And I POST "/authn-ldap/cucumber" with body:
+    """
+    {
+      "bind-password": "super-secret",
+      "tls-ca-cert": "-BEGIN CERTIFICATE-\nstuf\n-END CERTIFICATE-",
+      "annotations": {
+        "some": "values"
+      }
+    }
+    """
+    Then the HTTP response status code is 201
+    And the HTTP response content type is "text/yaml"
+    And the YAML result is:
+    """
+    - !policy
+      id: conjur/authn-ldap/authenticator
+      body:
+      - !webservice
+        annotations:
+          some: values
+
+      - !variable bind-password
+      - !variable tls-ca-cert
+
+      - !layer users
+
+      - !permit
+        resource: !webservice
+        privilege: [ read, authenticate ]
+        role: !layer users
+
+    """
+    And there is an audit record matching:
+    """
+      <85>1 * * conjur * policy
+      [auth@43868 user="cucumber:user:admin"]
+      [subject@43868 role="cucumber:policy:conjur/authn-ldap/authenticator"]
+      [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
+      [action@43868 result="success" operation="add"]
+      [policy@43868 id="cucumber:policy:root" version="1"]
+      cucumber:user:admin added role cucumber:policy:conjur/authn-ldap/authenticator
+    """
