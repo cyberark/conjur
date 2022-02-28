@@ -8,18 +8,20 @@ module Authentication
     # Performs additional setup for newly persisted authenticators
     class InitializeDefaultAuth
       extend CommandClass::Include
+      include AuthorizeResource
 
       command_class(
         dependencies: {
           secret: Secret
         },
-        inputs: %i[conjur_account service_id auth_data]
+        inputs: %i[conjur_account service_id auth_data current_user]
       ) do
         def call
           @auth_data&.json_data&.each do |key, value|
             policy_branch = format("conjur/%s/%s", @auth_data.auth_name, @service_id)
             variable_id = format("%s:variable:%s/%s", @conjur_account, policy_branch, key)
 
+            auth(@current_user, :update, Resource[variable_id])
             @secret.create(resource_id: variable_id, value: value)
           end
         end
@@ -53,7 +55,7 @@ module Authentication
           auth_policy: auth_policy(auth_data: auth_data, service_id: @service_id)
         )
 
-        @auth_initializer.(conjur_account: @conjur_account, service_id: @service_id, auth_data: auth_data)
+        @auth_initializer.(conjur_account: @conjur_account, service_id: @service_id, auth_data: auth_data, current_user: @current_user)
 
         policy_details
       end

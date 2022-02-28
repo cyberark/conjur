@@ -58,7 +58,8 @@ RSpec.describe(Authentication::PersistAuth) do
         expect(auth_initializer).to receive(:call).with(
           conjur_account: account,
           service_id: service_id,
-          auth_data: auth_data
+          auth_data: auth_data,
+          current_user: current_user
         )
 
         expect(policy_loader).to receive(:call).with(
@@ -73,11 +74,12 @@ RSpec.describe(Authentication::PersistAuth) do
         expect(ApplicationController.renderer).to receive(:render).with(
           template: "policies/" + auth_name,
           locals: {
-            service_id: service_id
+            service_id: service_id,
+            auth_data: auth_data
           }
         ).and_return(policy_text)
 
-        expect(initialize_auth).to eq(policy_text)
+        expect(initialize_auth).to eq(loaded_policy_result)
       end
     end
 

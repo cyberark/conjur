@@ -13,6 +13,7 @@ RSpec.describe(Authentication::AuthnK8s::InitializeK8sAuth) do
   let(:ca_repo) { double(Repos::ConjurCA).tap do |repo|
     expect(repo).to receive(:create).with(/#{account}:webservice:conjur\/#{auth_data.auth_name}\/#{service_id}/) unless auth_data.nil?
   end }
+  let(:current_user) { double("User") }
 
   subject do
     Authentication::AuthnK8s::InitializeK8sAuth.new(
@@ -21,7 +22,8 @@ RSpec.describe(Authentication::AuthnK8s::InitializeK8sAuth) do
     ).(
       conjur_account: account,
       service_id: service_id,
-      auth_data: auth_data
+      auth_data: auth_data,
+      current_user: current_user
     )
   end
 

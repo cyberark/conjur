@@ -22,6 +22,7 @@ shared_examples "auth initializer" do
       let(:json_data) { nil }
 
       it("doesn't load any secrets") do
+        allow(current_user).to receive(:allowed_to?).and_return(true)
         expect(secret).not_to receive(:create)
         expect{ subject }.not_to raise_error
       end
@@ -31,6 +32,7 @@ shared_examples "auth initializer" do
       let(:json_data) { {} }
 
       it("doesn't load any secrets") do
+        allow(current_user).to receive(:allowed_to?).and_return(true)
         expect(secret).not_to receive(:create)
         expect{ subject }.not_to raise_error
       end
@@ -42,6 +44,7 @@ shared_examples "auth initializer" do
       let(:json_data) { {variable_name => variable_value} }
 
       it("loads the correct secret") do
+        allow(current_user).to receive(:allowed_to?).and_return(true)
         expect(secret).to receive(:create).once.with(
           resource_id: variable_regex(variable_name),
           value: variable_value
@@ -56,6 +59,7 @@ shared_examples "auth initializer" do
       let(:json_data) { Hash[variable_names.zip(variable_values)] }
 
       it "loads each of the secrets" do
+        allow(current_user).to receive(:allowed_to?).and_return(true)
         variable_names.zip(variable_values).each do |name, value|
           expect(secret).to receive(:create).once.with(
             resource_id: variable_regex(name),

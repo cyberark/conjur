@@ -67,23 +67,28 @@ module Authentication
     # Performs setup for newly persisted k8s authenticators
     class InitializeK8sAuth
       extend CommandClass::Include
+      include AuthorizeResource
       
       command_class(
         dependencies: {
           conjur_ca_repo: Repos::ConjurCA,
           secret: Secret
         },
-        inputs: %i[conjur_account service_id auth_data]
+        inputs: %i[conjur_account service_id auth_data current_user]
       ) do
         def call
-          @conjur_ca_repo.create(format("%s:webservice:conjur/%s/%s", @conjur_account, @auth_data.auth_name, @service_id))
-
-          @auth_data.json_data&.each do |key, value|
+          loaded_secrets = @auth_data.json_data&.each do |key, value|
             policy_branch = format("conjur/%s/%s", @auth_data.auth_name, @service_id)
             variable_id = format("%s:variable:%s/kubernetes/%s", @conjur_account, policy_branch, key)
 
+            auth(@current_user, :update, Resource[variable_id])
             @secret.create(resource_id: variable_id, value: value)
           end
+
+          ca_repo_id = format("%s:webservice:conjur/%s/%s", @conjur_account, @auth_data.auth_name, @service_id)
+          auth(@current_user, :update, Resource[ca_repo_id])
+          @conjur_ca_repo.create(ca_repo_id)
+          loaded_secrets
         end
       end
     end
