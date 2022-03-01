@@ -203,7 +203,7 @@ module Loader
       def verify
         user_creation_allowed = ENV['CONJUR_ALLOW_USER_CREATION']
         if user_creation_allowed == 'false'
-          if (resourceid.include? "@")  # not under root
+          if resourceid.include? "@"  # not under root
             message = "User creation is disallowed - please address administator"
             raise Exceptions::InvalidPolicyObject.new(self.id, message: message)
           end
