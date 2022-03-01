@@ -201,15 +201,11 @@ module Loader
 
       # Below is a sample method verifying policy data validity
       def verify
-
-	userCreationAllowed = ENV['CONJUR_ALLOW_USER_CREATION']
-
-        if userCreationAllowed == 'false'
-          Rails.logger.info("Explicit user creation disallowed")
-          if resourceid.include? "@"  # not under root
-              Rails.logger.info("user = #{self.id} is not under root")
-              message = "User '#{self.id}' creation is disallowed - please address administator"
-              raise Exceptions::InvalidPolicyObject.new(self.id, message: message)
+        user_creation_allowed = ENV['CONJUR_ALLOW_USER_CREATION']
+        if user_creation_allowed == 'false'
+          if (resourceid.include? "@")  # not under root
+            message = "User creation is disallowed - please address administator"
+            raise Exceptions::InvalidPolicyObject.new(self.id, message: message)
           end
         end
 
