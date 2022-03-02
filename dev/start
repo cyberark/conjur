@@ -416,21 +416,10 @@ start_auth_services() {
   fi
 }
 
-create_ben() {
-  echo "Creating user ben"
-  docker-compose exec client \
-    conjur policy load root "/src/conjur-server/dev/files/policy_ofira_ben1.yml"
-  docker-compose exec client \
-    conjur policy load root "/src/conjur-server/dev/files/policy_pas_data.yml"
-  docker-compose exec client \
-    conjur policy load pas-data "/src/conjur-server/dev/files/policy_ofira_ben2.yml"
-}
-
 create_alice() {
   echo "Creating user alice"
   client_load_policy "/src/conjur-server/dev/files/policy.yml"
 
-  create_ben
 }
 
 kill_conjur() {
