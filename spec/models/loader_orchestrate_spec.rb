@@ -135,9 +135,19 @@ describe Loader::Orchestrate do
       verify_data 'base/empty.txt'
     end
     it "applies the policy update with non-root user" do
-      ENV['CONJUR_ALLOW_USER_CREATION'] = 'false'
-      replace_policy_with 'non_root_user.yml'
-      verify_data 'updated/simple.txt'
+      status='none'
+      begin
+        ENV['CONJUR_ALLOW_USER_CREATION'] = 'false'
+        replace_policy_with 'non_root_user.yml'
+        # verify_data 'updated/simple.txt'
+      rescue Exceptions::InvalidPolicyObject =>
+        status='failure'
+      else
+        status='sucess'
+      ensure
+        ENV['CONJUR_ALLOW_USER_CREATION'] = 'true'
+      end
+      expect(status).to eq('falure')
     end
   end
 end
