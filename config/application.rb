@@ -24,6 +24,12 @@ require 'conjur_audit'
 # Must require because lib folder hasn't been loaded yet
 require './lib/conjur/conjur_config'
 
+# Require prometheus dependencies and metrics module
+# so that a clean data store can be initialized
+# This should be done dynamically depending on whether
+# metrics are enabled in the future
+require './lib/monitoring/prometheus'
+
 module Conjur
   class Application < Rails::Application
     # Settings in config/environments/* take precedence over those specified here.
@@ -73,5 +79,8 @@ module Conjur
     config.anyway_config.future.unwrap_known_environments = true
 
     config.anyway_config.default_config_path = "/etc/conjur/config"
+
+    # Initialize metrics and clean existing data
+    Monitoring::Prometheus.setup
   end
 end
