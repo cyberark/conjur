@@ -18,7 +18,7 @@ fi
 # Minimal set of services.  We add to this list based on cmd line flags.
 services=(pg conjur client)
 
-# Authenticators to enable. 
+# Authenticators to enable.
 default_authenticators="authn,authn-k8s/test"
 enabled_authenticators="$default_authenticators"
 
@@ -72,6 +72,7 @@ main() {
   # Updates CONJUR_AUTHENTICATORS and restarts required services.
   start_auth_services
   create_alice
+
   kill_conjur # so dev's can restart it manually
   enter_container
 }
@@ -83,7 +84,7 @@ the Conjur container.  To start the application server, run:
     # conjurctl server
 
 Usage: start [options]
-    --authn-ldap    Starts OpenLDAP server and loads a demo policy to enable 
+    --authn-ldap    Starts OpenLDAP server and loads a demo policy to enable
                     authentication via:
                     'curl -X POST -d "alice" http://localhost:3000/authn-ldap/test/cucumber/alice/authenticate'
     --rotators      Starts a cucumber and test postgres container.
@@ -354,7 +355,7 @@ init_jwt() {
 
 init_oidc() {
   # ADFS and OKTA make no sense without OIDC.
-  if [[ $ENABLE_AUTHN_OIDC = false && 
+  if [[ $ENABLE_AUTHN_OIDC = false &&
     ($ENABLE_OIDC_ADFS = true || $ENABLE_OIDC_OKTA = true) ]]
   then
     echo "Error: --oidc-adfs and --oidc-okta both require --authn-oidc"
@@ -415,9 +416,21 @@ start_auth_services() {
   fi
 }
 
+create_ben() {
+  echo "Creating user ben"
+  docker-compose exec client \
+    conjur policy load root "/src/conjur-server/dev/files/policy_ofira_ben1.yml"
+  docker-compose exec client \
+    conjur policy load root "/src/conjur-server/dev/files/policy_pas_data.yml"
+  docker-compose exec client \
+    conjur policy load pas-data "/src/conjur-server/dev/files/policy_ofira_ben2.yml"
+}
+
 create_alice() {
   echo "Creating user alice"
   client_load_policy "/src/conjur-server/dev/files/policy.yml"
+
+  create_ben
 }
 
 kill_conjur() {
