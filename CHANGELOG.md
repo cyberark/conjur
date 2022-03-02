@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
-## [1.17.2] - 2022-02-13
+## [1.17.2] - 2022-03-01
 
 ### Added
 - Added the ability to fetch signing keys from JWKS endpoints that use a self-signed
@@ -52,6 +52,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   [#2479](https://github.com/cyberark/conjur/pull/2479)
 
 ### Security
+- Updated nokogiri to 1.13.3 to resolve CVE-2022-23308 and CVE-2021-30560
+  [cyberark/conjur#2504](https://github.com/cyberark/conjur/pull/2504)
 - Updated Rails to 6.1.4.4 to resolve CVE-2021-44528 (Medium, Not Vulnerable)
   [cyberark/conjur#2486](https://github.com/cyberark/conjur/pull/2486)
 - Updated Rails to 6.1.4.6 to resolve CVE-2022-23633
