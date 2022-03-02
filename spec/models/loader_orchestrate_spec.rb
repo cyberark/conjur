@@ -140,7 +140,7 @@ describe Loader::Orchestrate do
         ENV['CONJUR_ALLOW_USER_CREATION'] = 'false'
         replace_policy_with 'non_root_user.yml'
         # verify_data 'updated/simple.txt'
-      rescue Exceptions::InvalidPolicyObject =>
+      rescue Exceptions::InvalidPolicyObject => exc
         status='failure'
       ensure
         ENV['CONJUR_ALLOW_USER_CREATION'] = 'true'
