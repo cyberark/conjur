@@ -147,7 +147,7 @@ describe Loader::Orchestrate do
       ensure
         ENV['CONJUR_ALLOW_USER_CREATION'] = 'true'
       end
-      expect(status).to eq('falure')
+      expect(status).to eq('failure')
     end
   end
 end
