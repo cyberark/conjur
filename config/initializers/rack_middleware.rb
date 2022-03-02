@@ -27,6 +27,11 @@ Rails.application.configure do
   # to the start of the Rack middleware chain.
   config.middleware.insert_before(0, ::Rack::DefaultContentType)
 
+  # If using Prometheus telemetry, we want to ensure that the middleware
+  # which collects and exports metrics is loaded at the start of the 
+  # middleware chain to prevent any modifications to the incoming requests
+  config.middleware.insert_before(0, Monitoring::Middleware::PrometheusExporter, registry: Monitoring::Prometheus.registry, path: '/metrics')
+
   # Deleting the RemoteIp middleware means that `request.remote_ip` will
   # always be the same as `request.ip`. This ensure that the Conjur request log
   # (using `remote_ip`) and the audit log (using `ip`) will have the same value
