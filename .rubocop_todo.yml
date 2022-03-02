@@ -384,7 +384,7 @@ Lint/AssignmentInCondition:
     - 'bin/conjur-cli.rb'
     - 'config/initializers/audit_socket.rb'
     - 'config/initializers/authenticator.rb'
-    - 'cucumber/kubernetes/features/support/hooks.rb'
+    - 'cucumber/authenticators_k8s/features/support/hooks.rb'
     - 'lib/root_loader.rb'
 
 # Offense count: 4
@@ -445,7 +445,7 @@ Lint/ParenthesesAsGroupedExpression:
 # Cop supports --auto-correct.
 Lint/ScriptPermission:
   Exclude:
-    - 'ci/authn-k8s/dev/inventory.rb'
+    - 'ci/test_suites/authenticators_k8s/dev/inventory.rb'
 
 # Offense count: 6
 Lint/ShadowingOuterLocalVariable:
@@ -453,7 +453,7 @@ Lint/ShadowingOuterLocalVariable:
     - 'app/controllers/application_controller.rb'
     - 'app/domain/authentication/authn_k8s/authenticator.rb'
     - 'app/domain/authentication/authn_k8s/k8s_object_lookup.rb'
-    - 'cucumber/kubernetes/features/support/world.rb'
+    - 'cucumber/authenticators_k8s/features/support/world.rb'
     - 'spec/models/loader_orchestrate_spec.rb'
 
 # Offense count: 3
@@ -479,7 +479,7 @@ Lint/UnusedBlockArgument:
     - 'app/models/account.rb'
     - 'bin/conjur-cli.rb'
     - 'cucumber/api/features/support/hooks.rb'
-    - 'cucumber/kubernetes/features/step_definitions/login_steps.rb'
+    - 'cucumber/authenticators_k8s/features/step_definitions/login_steps.rb'
     - 'cucumber/policy/features/support/hooks.rb'
     - 'db/migrate/20180410092453_policy_log.rb'
     - 'lib/tasks/account.rake'
@@ -733,7 +733,7 @@ Style/EachWithObject:
 # Cop supports --auto-correct.
 Style/EmptyBlockParameter:
   Exclude:
-    - 'cucumber/kubernetes/features/step_definitions/login_steps.rb'
+    - 'cucumber/authenticators_k8s/features/step_definitions/login_steps.rb'
 
 # Offense count: 4
 # Cop supports --auto-correct.
@@ -1005,9 +1005,9 @@ Style/RedundantBegin:
     - 'app/controllers/concerns/assumed_role.rb'
     - 'app/controllers/concerns/current_user.rb'
     - 'app/domain/authentication/authn_k8s/k8s_object_lookup.rb'
-    - 'ci/authn-k8s/dev/inventory.rb'
+    - 'ci/test_suites/authenticators_k8s/dev/inventory.rb'
     - 'cucumber/api/features/support/rest_helpers.rb'
-    - 'cucumber/kubernetes/features/step_definitions/login_steps.rb'
+    - 'cucumber/authenticators_k8s/features/step_definitions/login_steps.rb'
     - 'cucumber/policy/features/support/policy_helpers.rb'
     - 'lib/tasks/account.rake'
     - 'lib/tasks/dev.rake'
@@ -1055,7 +1055,7 @@ Style/RegexpLiteral:
     - 'config/application.rb'
     - 'config/routes.rb'
     - 'cucumber/api/features/support/rest_helpers.rb'
-    - 'cucumber/kubernetes/features/support/world.rb'
+    - 'cucumber/authenticators_k8s/features/support/world.rb'
 
 # Offense count: 4
 # Cop supports --auto-correct.
@@ -1128,10 +1128,10 @@ Style/SpecialGlobalVars:
     - 'app/models/authn_local.rb'
     - 'app/models/policy_version.rb'
     - 'bin/conjur-cli.rb'
-    - 'ci/authn-k8s/dev/inventory.rb'
+    - 'ci/test_suites/authenticators_k8s/dev/inventory.rb'
     - 'cucumber/api/features/support/rest_helpers.rb'
-    - 'cucumber/kubernetes/features/step_definitions/authenticate_steps.rb'
-    - 'cucumber/kubernetes/features/step_definitions/login_steps.rb'
+    - 'cucumber/authenticators_k8s/features/step_definitions/authenticate_steps.rb'
+    - 'cucumber/authenticators_k8s/features/step_definitions/login_steps.rb'
     - 'spec/app/domain/authentication/webservice_spec.rb'
     - 'spec/models/account_spec.rb'
 
@@ -1141,8 +1141,8 @@ Style/StderrPuts:
   Exclude:
     - 'app/models/authn_local.rb'
     - 'app/models/policy_version.rb'
-    - 'ci/authn-k8s/dev/inventory.rb'
-    - 'cucumber/kubernetes/features/support/world.rb'
+    - 'ci/test_suites/authenticators_k8s/dev/inventory.rb'
+    - 'cucumber/authenticators_k8s/features/support/world.rb'
     - 'lib/root_loader.rb'
     - 'lib/tasks/account.rake'
     - 'lib/tasks/policy.rake'

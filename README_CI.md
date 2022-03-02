@@ -89,11 +89,7 @@ Our Jenkins infrastructure does not provide GKE agents because:
 > -- Matthew Brace
 
 This means that to test on GKE we must handle spinning up GKE hosts manually.
-The code that does this lives under `ci/authn-k8s`.
-
-This GKE tests' entrypoint -- `ci/authn-k8s/test.sh` -- is an exception to
-the normal pattern. It hasn't yet been refactored to fit the `ci/test`
-pattern, but should be.
+The code that does this lives under `ci/test_suites/authenticators_k8s`.
 
 ### `ci/submit_coverage`
 

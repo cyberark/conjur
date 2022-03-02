@@ -32,6 +32,9 @@ For general contribution and community guidelines, please see the [community rep
       - [Run all the cukes:](#run-all-the-cukes)
       - [Run just one feature:](#run-just-one-feature)
     - [Rake Tasks](#rake-tasks)
+    - [Kubernetes specific Cucumber tests](#kubernetes-specific-cucumber-tests)
+      - [Secrets file](#secrets-file)
+      - [Local Execution Prerequisites](#local-execution-prerequisites)
   - [Pull Request Workflow](#pull-request-workflow)
   - [Style guide](#style-guide)
   - [Changelog maintenance](#changelog-maintenance)
@@ -40,6 +43,7 @@ For general contribution and community guidelines, please see the [community rep
     - [Update the version and changelog](#update-the-version-and-changelog)
     - [Tag the version](#tag-the-version)
     - [Add a new GitHub release](#add-a-new-github-release)
+    - [Publishing images](#publishing-images)
 
 <small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
 
@@ -334,7 +338,7 @@ Conjur has `rspec` and `cucumber` tests, and an automated CI Pipeline.
 Note on performance testing: set `WEB_CONCURRENCY: 0` - this configuration is
 useful for recording accurate coverage data that can be used in
 the[ci/docker-compose.yml](ci/docker-compose.yml) and
-[conjur/ci/authn-k8s/dev/dev_conjur.template.yaml](conjur/ci/authn-k8s/dev/dev_conjur.template.yaml).
+[conjur/ci/test_suites/authenticators_k8s/dev/dev_conjur.template.yaml](conjur/ci/test_suites/authenticators_k8s/dev/dev_conjur.template.yaml).
 This isn't a realistic configuration and should not be used for benchmarking.
 
 ### CI Pipeline
@@ -463,16 +467,17 @@ Rake tasks are easy to run from within the `conjur` server container:
 
 ### Kubernetes specific Cucumber tests
 
-Several cucumber tests are written to verify conjur works properly when 
-authenticating to Kubernetes.  These tests have hooks to run against both 
+Several cucumber tests are written to verify conjur works properly when
+authenticating to Kubernetes.  These tests have hooks to run against both
 Openshift and Google GKE.
 
-The cucumber tests are located under `cucumber/kubernetes/features` and can be
-run by going into the `ci/authn-k8s` directory and running:
+The cucumber tests are located under `cucumber/authenticators_k8s/features`
+and can be run by going into the `ci/test_suites/authenticators_k8s`
+directory and running:
 
 ```shell
 $ summon -f [secrets.ocp.yml|secrets.yml] ./init_k8s.sh [openshift|gke]
-$ summon -f [secrets.ocp.yml|secrets.yml] ./test.sh [openshift|gke]
+$ summon -f [secrets.ocp.yml|secrets.yml] ./entrypoint.sh [openshift|gke]
 ```
 
 - `init_k8s.sh` - executes a simple login to Openshift or GKE to verify
@@ -485,14 +490,14 @@ The secrets file used for summons needs to contain the following environment
 variables
 
   - openshift
-    - `OPENSHIFT_USERNAME` - username of an account that can create 
+    - `OPENSHIFT_USERNAME` - username of an account that can create
       namespaces, adjust cluster properties, etc
     - `OPENSHIFT_PASSWORD` - password of the account
     - `OPENSHIFT_URL` - the URL of the RedHat CRC cluster
       - If running this locally - use `https://host.docker.internal:6443` so
          the docker container can talk to the CRC containers
     - `OPENSHIFT_TOKEN` - the login token of the above username/password
-      - only needed for local execution because the docker container 
+      - only needed for local execution because the docker container
       executing the commands can't redirect for login
       - obtained by running the following command locally after login -
       `oc whoami -t`
@@ -501,7 +506,7 @@ variables
     - `GCLOUD_ZONE` - zone of the GKE environment in the cloud
     - `GCLOUD_PROJECT_NAME` - project name of the GKE environment
     - `GCLOUD_SERVICE_KEY` - service key of the GKE environment
-    
+
 #### Local Execution Prerequisites
 
 To execute the tests locally, a few things will have to be done:

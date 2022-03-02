@@ -14,7 +14,7 @@ set -eux
 BIN="cc-test-reporter"
 DIR="coverage"
 REPORT="$DIR/.resultset.json"
-GKE_DIR="ci/authn-k8s/output"
+GKE_DIR="ci/test_suites/authenticators_k8s/output"
 GKE_REPORT="$GKE_DIR/simplecov-resultset-authnk8s-gke.json"
 
 ensure_report_exists() {

@@ -290,11 +290,11 @@ function run_cucumber() {
     PLATFORM=openshift \
     --no-color --format pretty --format junit \
     --out /opt/conjur-server/output \
-    -r ./cucumber/kubernetes/features/step_definitions/ \
-    -r ./cucumber/kubernetes/features/support/world.rb \
-    -r ./cucumber/kubernetes/features/support/hooks.rb \
-    -r ./cucumber/kubernetes/features/support/conjur_token.rb \
-    --tags $tags ./cucumber/kubernetes/features" | cucumbercmd -i bash || true
+    -r ./cucumber/authenticators_k8s/features/step_definitions/ \
+    -r ./cucumber/authenticators_k8s/features/support/world.rb \
+    -r ./cucumber/authenticators_k8s/features/support/hooks.rb \
+    -r ./cucumber/authenticators_k8s/features/support/conjur_token.rb \
+    --tags $tags ./cucumber/authenticators_k8s/features" | cucumbercmd -i bash || true
 }
 
 main
