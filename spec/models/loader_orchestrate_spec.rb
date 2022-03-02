@@ -110,7 +110,7 @@ describe Loader::Orchestrate do
         replace_policy_with 'extended.yml'
         verify_data 'updated/extended.txt'
       end
-      it "removed records are kept" do 
+      it "removed records are kept" do
         modify_policy_with 'simple.yml'
         modify_policy_with 'extended.yml'
         verify_data 'updated/extended_without_deletion.txt'
@@ -125,6 +125,26 @@ describe Loader::Orchestrate do
         replace_policy_with 'extended.yml'
         verify_data 'updated/extended_simple_base.txt'
       end
+    end
+  end
+
+  context "with non-root user policy" do
+    let(:base_policy_path) { 'empty.yml' }
+    it "loads the minimal policy" do
+      expect(resource_policy).to be
+      verify_data 'base/empty.txt'
+    end
+    it "applies the policy update with non-root user" do
+      status='sucess'
+      begin
+        ENV['CONJUR_ALLOW_USER_CREATION'] = 'false'
+        replace_policy_with 'non_root_user.yml'
+      rescue Exceptions::InvalidPolicyObject => exc
+        status='failure'
+      ensure
+        ENV['CONJUR_ALLOW_USER_CREATION'] = 'true'
+      end
+      expect(status).to eq('failure')
     end
   end
 end
