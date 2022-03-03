@@ -43,6 +43,7 @@ services:
       # TODO: Where should we be running rspec tests from, ideally?
       # See https://github.com/DatabaseCleaner/database_cleaner#safeguards
       DATABASE_CLEANER_ALLOW_REMOTE_DATABASE_URL: "true"
+      CONJUR_ALLOW_USER_CREATION: false
       BUNDLE_GEMFILE: /src/conjur-server/Gemfile
     cap_add:
       - SYSLOG
