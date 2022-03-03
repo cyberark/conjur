@@ -201,7 +201,7 @@ module Loader
 
       # Below is a sample method verifying policy data validity
       def verify
-        user_creation_allowed = ENV['CONJUR_ALLOW_USER_CREATION']
+        user_creation_allowed = ENV.fetch('CONJUR_ALLOW_USER_CREATION', 'true').downcase
         if user_creation_allowed == 'false' && resourceid.include?('@')  # not under root
           message = "User creation is disallowed - please address administator"
           raise Exceptions::InvalidPolicyObject.new(self.id, message: message)
