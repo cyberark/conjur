@@ -8,10 +8,7 @@ describe User, :type => :model do
     it "creation disallowed" do
       begin
         ENV['CONJUR_ALLOW_USER_CREATION'] = 'false'
-        user = User.new
-        user.owner = 'pas-data';
-        user.id = 'myuser1'
-        user.verify()
+        User.create(role_id: 'myuser1', resourceid: "myuser1@pas-data").verify()
       rescue Exceptions::InvalidPolicyObject => exc
         status='failure'
       ensure
