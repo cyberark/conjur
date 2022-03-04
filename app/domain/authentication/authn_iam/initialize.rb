@@ -21,6 +21,11 @@ module Authentication
       def json_parameters
         [  ]
       end
+
+      validates(
+        :json_data,
+        json: true
+      )
     end
 
   end

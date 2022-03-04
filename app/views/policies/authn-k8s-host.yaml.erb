@@ -14,7 +14,7 @@
 
 <% hosts.each do |host| -%>
 - !grant
- role: !layer conjur/<%= authenticator %>/<%= service_id %>/users
- members:
-   - !host conjur/<%= authenticator %>/<%= service_id %>/apps/<%= host.id %>
+  role: !layer conjur/<%= authenticator %>/<%= service_id %>/users
+  members:
+    - !host conjur/<%= authenticator %>/<%= service_id %>/apps/<%= host.id %>
 <% end %>
