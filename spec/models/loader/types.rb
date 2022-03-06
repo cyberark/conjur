@@ -6,7 +6,6 @@ describe Loader::Types do
       Loader::Types::User.new(
         id: 'alice')
     end
-
     it "should not allow user creation not under root" do
       ENV['CONJUR_ALLOW_USER_CREATION'] = 'false'
       user = new_user()
@@ -20,7 +19,6 @@ describe Loader::Types do
       end
       expect(status).to eq('failure')
     end
-
     it "should allow user creation not under root" do
       ENV['CONJUR_ALLOW_USER_CREATION'] = 'true'
       user = new_user()

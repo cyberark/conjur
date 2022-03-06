@@ -197,9 +197,9 @@ module Loader
     end
 
     class User < Record
-      def_delegators :@policy_object, :public_keys, :account, :role_kind, :uidnumber, :restricted_to#, :@res_id
+      def_delegators :@policy_object, :public_keys, :account, :role_kind, :uidnumber, :restricted_to
 
-      def check_user_creation_allowed(res_id: )
+      def check_user_creation_allowed(res_id:)
         user_creation_allowed = ENV.fetch('CONJUR_ALLOW_USER_CREATION', 'true').downcase
         if user_creation_allowed == 'false' && res_id.include?('@')  # not under root
           message = "User creation is disallowed - please address administator"
@@ -241,7 +241,6 @@ module Loader
           (::Resource[resourceid] || ::Resource.create(resource_id: resourceid, owner_id: find_ownerid)).tap do |resource|
             handle_public_key(resource.id, public_key)
           end
-          #@res_id = resourceid
         end
 
         handle_restricted_to(self.roleid, restricted_to)
