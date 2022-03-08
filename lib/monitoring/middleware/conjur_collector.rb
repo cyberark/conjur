@@ -11,7 +11,7 @@ module Monitoring
         @registry = options[:registry]
         @pubsub = options[:pubsub]
 
-        init_metrics
+        init_test_metric
       end
 
       def call(env)
@@ -20,46 +20,22 @@ module Monitoring
 
       protected
 
-      def init_metrics
-        requests = @registry.counter(
-          :"conjur_http_server_requests_total",
-          docstring: 'The total number of HTTP requests handled by the Rack application',
-          labels: %i[code method path]
-        )
-        PubSub.subscribe("conjur_http_server_requests_total") do
-          guage = @registry.gauge(
-            :duration_test,
+      def init_test_metric
+        # Initializing a metric here as proof-of-concept.
+        # The subscribed code block is given a payload that can include
+        # general info about a given request - path, code, request duration.
+        PubSub.unsubscribe("collector_test_metric")
+        @registry.counter(
+            :collector_test_metric,
             docstring: '...',
-            labels: [:test_label]
-          )
-          gauge.set(21212, labels: { test_label: 'total metric test' })
-          
+            labels: %i[code path]
+        )
+        PubSub.subscribe("collector_test_metric") do |payload|
           labels = {
             code: payload[:code],
-            method: payload[:method],
-            path: payload[:path]
+            path: payload[:path],
           }
-          requests.increment(labels: labels)
-        end
-
-        durations = @registry.histogram(
-          :"conjur_http_server_request_duration_seconds",
-          docstring: 'The HTTP response duration of the Rack application',
-          labels: %i[path method]
-        )
-        PubSub.subscribe("conjur_http_server_request_duration_seconds") do
-          guage = @registry.gauge(
-            :duration_test,
-            docstring: '...',
-            labels: [:test_label]
-          )
-          gauge.set(10101, labels: { test_label: 'duration metric test' })
-
-          labels = {
-            method: payload[:method],
-            path: payload[:path]
-          }
-          durations.observe(payload[:duration], labels: labels)
+          @registry.get(:collector_test_metric).increment(labels: labels)
         end
       end
 
@@ -68,25 +44,17 @@ module Monitoring
         duration = Benchmark.realtime { response = yield }
         record(env, response.first.to_s, duration)
         return response
-      rescue => exception
-        PubSub.publish('conjur_request_exception', exception: exception)
-        raise
+      rescue
+        nil
       end
 
       def record(env, code, duration)
+        # Publish global events based on code, path, and request duration.
         path = [env["SCRIPT_NAME"], env["PATH_INFO"]].join
-
         PubSub.publish(
-          "conjur_http_server_requests_total",
+          "collector_test_metric",
           code: code,
-          path: path,
-          method: env['REQUEST_METHOD']
-        )
-        PubSub.publish(
-          "conjur_http_server_request_duration_seconds",
-          duration: duration,
-          path: path,
-          method: env['REQUEST_METHOD']
+          path: path
         )
       rescue
         nil

@@ -30,6 +30,7 @@ Rails.application.configure do
   # If using Prometheus telemetry, we want to ensure that the middleware
   # which collects and exports metrics is loaded at the start of the 
   # middleware chain to prevent any modifications to the incoming requests
+  config.middleware.insert_before(0, Monitoring::Middleware::ConjurCollector, registry: Monitoring::Prometheus.registry, pubsub: Monitoring::PubSub)
   config.middleware.insert_before(0, Monitoring::Middleware::PrometheusExporter, registry: Monitoring::Prometheus.registry, path: '/metrics')
 
   # Deleting the RemoteIp middleware means that `request.remote_ip` will
