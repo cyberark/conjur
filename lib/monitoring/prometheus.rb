@@ -1,5 +1,6 @@
 require 'prometheus/client'
 require 'prometheus/client/data_stores/direct_file_store'
+require 'monitoring/pub_sub'
 
 module Monitoring
   module Prometheus
@@ -9,10 +10,16 @@ module Monitoring
       @registry = options[:registry] || ::Prometheus::Client::Registry.new
       @metrics_prefix = options[:metrics_prefix] || "conjur_http_server"
       @metrics_dir_path = ENV['CONJUR_METRICS_DIR'] || '/tmp/prometheus'
+      @pubsub = options[:pubsub] || PubSub.instance
+
+      # Array of objects representing different metrics.
+      # Each objects needs a .setup method, responsible for registering metrics
+      # and subscribing to Pub/Sub events.
+      @metrics = options[:metrics] || []
 
       clear_data_store
       configure_data_store
-      init_metrics
+      setup_metrics
     end
 
     def registry
@@ -37,10 +44,10 @@ module Monitoring
       )
     end
 
-    def init_metrics
-      # Test a random gauge metric
-      gauge = registry.gauge(:test_gauge, docstring: '...', labels: [:test_label])
-      gauge.set(1234.567, labels: { test_label: 'gauge metric test' })
+    def setup_metrics
+      @metrics.each do |metric|
+        metric.setup(@registry, @pubsub)
+      end
     end
 
   end
