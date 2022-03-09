@@ -4,11 +4,11 @@
 #
 # You should, instead, insure that it's mounted it into the container
 # you're using for testing.
-# 
+#
 cucumber
 
-# Make an exception for kubernetes, though
-!cucumber/kubernetes/features
+# Make an exception for authenticators_k8s, though
+!cucumber/authenticators_k8s/features
 
 *.deb
 .git
