@@ -82,4 +82,75 @@ def access_token_for(user, account: 'rspec')
   "Token token=\"#{Base64.strict_encode64(bearer_token.to_json)}\""
 end
 
+def with_background_process(cmd, &block)
+  puts("Running: #{cmd}")
+  Open3.popen2e(
+    cmd,
+    pgroup: true
+  ) do |stdin, stdout_and_err, wait_thr|
+    # We don't need to interact with stdin for the background process,
+    # so close that stream immediately.
+    stdin.close_write
+
+    # Read the output of the background process in a thread to run
+    # the given block in parallel.
+    out_reader = Thread.new do
+      output = StringIO.new
+
+      loop do
+        ready = IO.select(
+          [stdout_and_err], # Watch for reading
+          [], # Not watching any files for writing
+          [], # Not watching any files for exceptions
+          # When the background process is killed, it doesn't end the
+          # the output stream, so we need a timeout here to recognize the
+          # stream has closed:
+          1 # 1 second timeout
+        )
+
+        # If the stream has closed, break the read loop.
+        break if stdout_and_err.closed?
+
+        # If we've reached the end of the stream, break the read loop.
+        break if stdout_and_err.eof?
+
+        # If this was the result of a IO#select timeout, enter the select
+        # loop again.
+        next unless ready
+
+        # Read the next available output on the stream
+        output << stdout_and_err.read_nonblock(1024)
+      end
+
+      # Return the collected output as the result of the read thread
+      output.string
+    end
+
+    # Call the given block
+    block.call
+
+    # Kill the background process and any children processes
+    pgid = Process.getpgid(wait_thr.pid)
+    Process.kill("-TERM", pgid) if wait_thr.alive?
+
+    # Wait for the background process to end
+    wait_thr.value
+
+    # Close the output thread
+    stdout_and_err.close
+
+    # Wait for the result from the reader thread
+    out_reader.value
+  end
+end
+
+def conjur_server_dir
+  # Get the path to conjurctl
+  conjurctl_path = `readlink -f $(which conjurctl)`
+  
+  # Navigate from its directory (/bin) to the root Conjur server directory
+  Pathname.new(File.join(File.dirname(conjurctl_path), '..')).cleanpath
+end
+
+
 require 'stringio'
