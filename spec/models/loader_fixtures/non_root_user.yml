@@ -1,4 +1,0 @@
-- !policy
-  id: users-tree
-  body:
-    - !user ben_1

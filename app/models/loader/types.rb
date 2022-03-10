@@ -202,7 +202,7 @@ module Loader
       def check_user_creation_allowed(res_id:)
         user_creation_allowed = ENV.fetch('CONJUR_ALLOW_USER_CREATION', 'true').downcase
         if user_creation_allowed == 'false' && res_id.include?('@')  # not under root
-          message = "User creation is disallowed - please address administator"
+          message = "User creation through policy is disabled."
           raise Exceptions::InvalidPolicyObject.new(res_id, message: message)
         end
       end

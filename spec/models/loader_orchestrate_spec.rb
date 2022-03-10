@@ -128,23 +128,4 @@ describe Loader::Orchestrate do
     end
   end
 
-  context "with non-root user policy" do
-    let(:base_policy_path) { 'empty.yml' }
-    it "loads the minimal policy" do
-      expect(resource_policy).to be
-      verify_data 'base/empty.txt'
-    end
-    it "applies the policy update with non-root user" do
-      status='sucess'
-      begin
-        ENV['CONJUR_ALLOW_USER_CREATION'] = 'false'
-        replace_policy_with 'non_root_user.yml'
-      rescue Exceptions::InvalidPolicyObject => exc
-        status='failure'
-      ensure
-        ENV['CONJUR_ALLOW_USER_CREATION'] = 'true'
-      end
-      expect(status).to eq('failure')
-    end
-  end
 end
