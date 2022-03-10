@@ -26,8 +26,8 @@ module Authentication
                                 uri.port || (uri.scheme == 'wss' ? 443 : 80))
         if %w[https wss].include?(uri.scheme)
           ctx = OpenSSL::SSL::SSLContext.new
-          ssl_version = options[:ssl_version] || 'SSLv23'
-          ctx.ssl_version = ssl_version
+          ssl_version = options[:ssl_version]
+          ctx.ssl_version = ssl_version if ssl_version
           ctx.verify_mode = options[:verify_mode] || OpenSSL::SSL::VERIFY_NONE # use VERIFY_PEER for verification
           cert_store = options[:cert_store]
           unless cert_store
@@ -36,12 +36,25 @@ module Authentication
           end
           ctx.cert_store = cert_store
 
-          @socket = ::OpenSSL::SSL::SSLSocket.new(@socket, ctx)
-          # support SNI, see https://www.cloudflare.com/en-gb/learning/ssl/what-is-sni/
-          if ssl_version != 'SSLv23'
-            @socket.hostname = options[:hostname] || uri.host
+          case uri.host
+          when Resolv::IPv4::Regex, Resolv::IPv6::Regex
+            # don't set SNI, as IP addresses in SNI is not valid
+            # per RFC 6066, section 3.
+  
+            # Avoid openssl warning
+            ctx.verify_hostname = false
+          else
+            ssl_host_address =  options[:hostname] || uri.host 
           end
+
+          @socket = ::OpenSSL::SSL::SSLSocket.new(@socket, ctx)
+
+          # support SNI, see https://www.cloudflare.com/en-gb/learning/ssl/what-is-sni/
+          @socket.hostname = ssl_host_address if ssl_host_address
+
           @socket.connect
+
+          # TODO: it's good that we are now doing this but should we explicitly call this out?
           @socket.post_connection_check(@socket.hostname) if @socket.hostname
         end
         @handshake = ::WebSocket::Handshake::Client.new(url: url, headers: options[:headers])
