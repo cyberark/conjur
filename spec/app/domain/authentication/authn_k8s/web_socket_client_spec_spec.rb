@@ -9,7 +9,7 @@ class TestServer
 
   def initialize(port)
     @port = port
-    @server = TCPServer.open("127.0.0.1", port)
+    @server = TCPServer.open("localhost", port)
   end
 
   def add_old_ssl(host)
@@ -27,6 +27,14 @@ class TestServer
     testing_com_cert = build_cert("testing.com")
     another_site_com_cert = build_cert("another-site.com")
     ssl_context = OpenSSL::SSL::SSLContext.new
+
+    # Default context when there is no SNI (for example connection via IP or no servername is sent)
+    ssl_context.verify_mode = OpenSSL::SSL::VERIFY_PEER
+    ssl_context.ssl_version = :TLSv1
+    ssl_context.key = OpenSSL::PKey::RSA.new(@ca.key)
+    ssl_context.cert = OpenSSL::X509::Certificate.new(another_site_com_cert)
+
+    # Create context depending on SNI
     ssl_context.servername_cb = proc { |ssl_socket, hostname|
       new_context = OpenSSL::SSL::SSLContext.new
       new_context.verify_mode = OpenSSL::SSL::VERIFY_PEER
@@ -46,11 +54,11 @@ class TestServer
   end
 
   def add_websocket
-    @handshake = WebSocket::Handshake::Server.new(host: "127.0.0.1", port: @port)
+    @handshake = WebSocket::Handshake::Server.new(host: "localhost", port: @port)
   end
 
   def add_bad_websocket
-    @handshake = WebSocket::Handshake::Server.new(host: "127.0.0.1", port: @port)
+    @handshake = WebSocket::Handshake::Server.new(host: "localhost", port: @port)
     @bad_handshake = true
   end
 
@@ -128,7 +136,7 @@ describe 'Authentication::AuthnK8s::WebSocketClient' do
     end
 
     it 'fails to connect - no web socket server' do
-      client = Authentication::AuthnK8s::WebSocketClient.connect("http://127.0.0.1")
+      client = Authentication::AuthnK8s::WebSocketClient.connect("http://localhost")
       expect(client.open?).to be_falsey
     end
   end
@@ -146,7 +154,7 @@ describe 'Authentication::AuthnK8s::WebSocketClient' do
     it 'connects with no options' do
       @test_server.add_websocket
       @test_server.run
-      client = Authentication::AuthnK8s::WebSocketClient.connect("ws://127.0.0.1")
+      client = Authentication::AuthnK8s::WebSocketClient.connect("ws://localhost")
       sleep(1)
       expect(@test_server.handshake).to be_truthy
       expect(@test_server.handshake.finished?).to be_truthy
@@ -155,10 +163,10 @@ describe 'Authentication::AuthnK8s::WebSocketClient' do
       client.close
     end
 
-    it 'connects with options' do
+    it 'connects with options' do # because the options are ignored!
       @test_server.add_websocket
       @test_server.run
-      client = Authentication::AuthnK8s::WebSocketClient.connect("ws://127.0.0.1",
+      client = Authentication::AuthnK8s::WebSocketClient.connect("ws://localhost",
                                                                  verify_mode: OpenSSL::SSL::VERIFY_PEER,
                                                                  hostname: "testing.com")
       sleep(1)
@@ -169,10 +177,10 @@ describe 'Authentication::AuthnK8s::WebSocketClient' do
       client.close
     end
 
-    it 'does not connect with a bad handshake' do
+    it 'does not connect with a bad handshake' do # bad handshake means failure always
       @test_server.add_bad_websocket
       @test_server.run
-      client = Authentication::AuthnK8s::WebSocketClient.connect("ws://127.0.0.1")
+      client = Authentication::AuthnK8s::WebSocketClient.connect("ws://localhost")
       sleep(1)
       expect(client.open?).to be_falsey
       client.close
@@ -182,7 +190,7 @@ describe 'Authentication::AuthnK8s::WebSocketClient' do
   context 'server running - with old security' do
     before(:example) do
       @test_server = TestServer.new(443)
-      @test_server.add_old_ssl("127.0.0.1")
+      @test_server.add_old_ssl("localhost")
     end
 
     after(:example) do
@@ -190,10 +198,10 @@ describe 'Authentication::AuthnK8s::WebSocketClient' do
       @test_server = nil
     end
 
-    it 'does not connect with a bad handshake' do
+    it 'does not connect with a bad handshake' do # bad handshake means failure always
       @test_server.add_bad_websocket
       @test_server.run
-      client = Authentication::AuthnK8s::WebSocketClient.connect("wss://127.0.0.1")
+      client = Authentication::AuthnK8s::WebSocketClient.connect("wss://localhost")
       sleep(1)
       expect(@test_server.handshake).to be_truthy
       expect(@test_server.handshake.valid?).to be_truthy
@@ -202,25 +210,26 @@ describe 'Authentication::AuthnK8s::WebSocketClient' do
       client.close
     end
 
-    it 'connects properly without options' do
+    it 'connects properly without options' do # uses defaults which include no TLS verification
       @test_server.add_websocket
       @test_server.run
-      client = Authentication::AuthnK8s::WebSocketClient.connect("wss://127.0.0.1")
+      client = Authentication::AuthnK8s::WebSocketClient.connect("wss://localhost")
       sleep(1)
       expect(@test_server.handshake).to be_truthy
       expect(client.open?).to be_truthy
       client.close
     end
 
-    it 'connects properly with options' do
+    it 'connects properly with options' do # verification and cert_store. without the cert_store there is failure
       @test_server.add_websocket
       @test_server.run
       cert_store = OpenSSL::X509::Store.new
       cert_store.add_cert(@test_server.ca.cert)
-      client = Authentication::AuthnK8s::WebSocketClient.connect("wss://127.0.0.1",
-                                                                 ssl_version: :SSLv23,
+      client = Authentication::AuthnK8s::WebSocketClient.connect("wss://localhost",
+                                                                #  ssl_version: :SSLv23,
                                                                  cert_store: cert_store,
-                                                                 verify_mode: OpenSSL::SSL::VERIFY_PEER)
+                                                                 verify_mode: OpenSSL::SSL::VERIFY_PEER
+                                                                )
       sleep(1)
       expect(@test_server.handshake).to be_truthy
       expect(@test_server.handshake.valid?).to be_truthy
@@ -229,29 +238,56 @@ describe 'Authentication::AuthnK8s::WebSocketClient' do
       client.close
     end
 
-    it 'connects properly with hostname' do
+    it 'fails when cert is not in cert_store' do # 
+      @test_server.add_websocket
+      @test_server.run
+
+      expect { 
+        Authentication::AuthnK8s::WebSocketClient.connect("wss://localhost",
+          verify_mode: OpenSSL::SSL::VERIFY_PEER
+        )
+      }.to raise_error(OpenSSL::SSL::SSLError, nil) {
+        |error| expect(error.message).to eq("SSL_connect returned=1 errno=0 state=error: certificate verify failed (unable to get local issuer certificate)")
+      }
+    end
+
+    it 'connects properly on hostname match' do # verifies hostname
       @test_server.add_websocket
       @test_server.run
       cert_store = OpenSSL::X509::Store.new
       cert_store.add_cert(@test_server.ca.cert)
-      client = Authentication::AuthnK8s::WebSocketClient.connect("wss://127.0.0.1",
-                                                                 ssl_version: :SSLv23,
+      client = Authentication::AuthnK8s::WebSocketClient.connect("wss://localhost",
                                                                  cert_store: cert_store,
                                                                  verify_mode: OpenSSL::SSL::VERIFY_PEER,
-                                                                 hostname: "127.0.0.1")
+                                                                 hostname: "localhost")
       sleep(1)
       expect(@test_server.handshake).to be_truthy
       expect(@test_server.handshake.valid?).to be_truthy
       expect(@test_server.handshake.finished?).to be_truthy
       expect(client.open?).to be_truthy
       client.close
+    end
+
+    it 'fails on hostname mismatch' do # verifies hostname
+      @test_server.add_websocket
+      @test_server.run
+      cert_store = OpenSSL::X509::Store.new
+      cert_store.add_cert(@test_server.ca.cert)
+      expect { 
+        Authentication::AuthnK8s::WebSocketClient.connect("wss://localhost",
+          cert_store: cert_store,
+          verify_mode: OpenSSL::SSL::VERIFY_PEER,
+          hostname: "localxhost")
+      }.to raise_error(OpenSSL::SSL::SSLError, nil) {
+        |error| expect(error.message).to eq("hostname \"localxhost\" does not match the server certificate")
+      }
     end
   end
 
   context 'server running - with tls security - no SNI' do
     before(:example) do
       @test_server = TestServer.new(443)
-      @test_server.add_tls_without_sni("127.0.0.1")
+      @test_server.add_tls_without_sni("localhost")
     end
 
     after(:example) do
@@ -262,7 +298,7 @@ describe 'Authentication::AuthnK8s::WebSocketClient' do
     it 'does not connect with a bad handshake' do
       @test_server.add_bad_websocket
       @test_server.run
-      client = Authentication::AuthnK8s::WebSocketClient.connect("wss://127.0.0.1")
+      client = Authentication::AuthnK8s::WebSocketClient.connect("wss://localhost")
       sleep(1)
       expect(@test_server.handshake).to be_truthy
       expect(@test_server.handshake.valid?).to be_truthy
@@ -274,7 +310,7 @@ describe 'Authentication::AuthnK8s::WebSocketClient' do
     it 'connects properly without options' do
       @test_server.add_websocket
       @test_server.run
-      client = Authentication::AuthnK8s::WebSocketClient.connect("wss://127.0.0.1")
+      client = Authentication::AuthnK8s::WebSocketClient.connect("wss://localhost")
       sleep(1)
       expect(@test_server.handshake).to be_truthy
       expect(client.open?).to be_truthy
@@ -286,8 +322,8 @@ describe 'Authentication::AuthnK8s::WebSocketClient' do
       @test_server.run
       cert_store = OpenSSL::X509::Store.new
       cert_store.add_cert(@test_server.ca.cert)
-      client = Authentication::AuthnK8s::WebSocketClient.connect("wss://127.0.0.1",
-                                                                 ssl_version: :TLSv1,
+      client = Authentication::AuthnK8s::WebSocketClient.connect("wss://localhost",
+                                                                #  ssl_version: :TLSv1,
                                                                  cert_store: cert_store,
                                                                  verify_mode: OpenSSL::SSL::VERIFY_PEER)
       sleep(1)
@@ -303,11 +339,11 @@ describe 'Authentication::AuthnK8s::WebSocketClient' do
       @test_server.run
       cert_store = OpenSSL::X509::Store.new
       cert_store.add_cert(@test_server.ca.cert)
-      client = Authentication::AuthnK8s::WebSocketClient.connect("wss://127.0.0.1",
-                                                                 ssl_version: :TLSv1,
+      client = Authentication::AuthnK8s::WebSocketClient.connect("wss://localhost",
+                                                                #  ssl_version: :TLSv1,
                                                                  cert_store: cert_store,
                                                                  verify_mode: OpenSSL::SSL::VERIFY_PEER,
-                                                                 hostname: "127.0.0.1")
+                                                                 hostname: "localhost")
       sleep(1)
       expect(@test_server.handshake).to be_truthy
       expect(@test_server.handshake.valid?).to be_truthy
@@ -321,8 +357,8 @@ describe 'Authentication::AuthnK8s::WebSocketClient' do
       @test_server.run
       cert_store = OpenSSL::X509::Store.new
       cert_store.add_cert(@test_server.ca.cert)
-      expect { Authentication::AuthnK8s::WebSocketClient.connect("wss://127.0.0.1",
-                                                                 ssl_version: :TLSv1,
+      expect { Authentication::AuthnK8s::WebSocketClient.connect("wss://localhost",
+                                                                #  ssl_version: :TLSv1,
                                                                  cert_store: cert_store,
                                                                  verify_mode: OpenSSL::SSL::VERIFY_PEER,
                                                                  hostname: "bad.com")
@@ -348,7 +384,7 @@ describe 'Authentication::AuthnK8s::WebSocketClient' do
       @test_server.run
       cert_store = OpenSSL::X509::Store.new
       cert_store.add_cert(@test_server.ca.cert)
-      client = Authentication::AuthnK8s::WebSocketClient.connect("wss://127.0.0.1",
+      client = Authentication::AuthnK8s::WebSocketClient.connect("wss://localhost",
                                                                  ssl_version: :TLSv1,
                                                                  cert_store: cert_store,
                                                                  verify_mode: OpenSSL::SSL::VERIFY_PEER,
@@ -361,26 +397,26 @@ describe 'Authentication::AuthnK8s::WebSocketClient' do
       client.close
     end
 
-    it 'does not connect properly without options' do
+    it 'does not connect properly without options, no cert available for "localhost"' do
       @test_server.add_websocket
       @test_server.run
-      expect { Authentication::AuthnK8s::WebSocketClient.connect("wss://127.0.0.1")
+      expect { Authentication::AuthnK8s::WebSocketClient.connect("wss://localhost")
       }.to raise_error(OpenSSL::SSL::SSLError, nil) {
-        |error| expect(error.message).to eq("SSL_connect returned=1 errno=0 state=SSLv2/v3 read server hello A: sslv3 alert handshake failure")
+        |error| expect(error.message).to eq("hostname \"localhost\" does not match the server certificate")
       }
     end
 
-    it 'does not connect properly missing the hostname and no cert available for "127.0.0.1"' do
+    it 'does not connect properly missing the hostname and no cert available for "localhost"' do
       @test_server.add_websocket
       @test_server.run
       cert_store = OpenSSL::X509::Store.new
       cert_store.add_cert(@test_server.ca.cert)
-      expect { client = Authentication::AuthnK8s::WebSocketClient.connect("wss://127.0.0.1",
-                                                                          ssl_version: :TLSv1,
+      expect { client = Authentication::AuthnK8s::WebSocketClient.connect("wss://localhost",
+                                                                          # ssl_version: :TLSv1,
                                                                           cert_store: cert_store,
                                                                           verify_mode: OpenSSL::SSL::VERIFY_PEER)
       }.to raise_error(OpenSSL::SSL::SSLError, nil) {
-        |error| expect(error.message).to eq("hostname \"127.0.0.1\" does not match the server certificate")
+        |error| expect(error.message).to eq("hostname \"localhost\" does not match the server certificate")
       }
     end
 
@@ -389,7 +425,7 @@ describe 'Authentication::AuthnK8s::WebSocketClient' do
       @test_server.run
       cert_store = OpenSSL::X509::Store.new
       cert_store.add_cert(@test_server.ca.cert)
-      client = Authentication::AuthnK8s::WebSocketClient.connect("wss://127.0.0.1",
+      client = Authentication::AuthnK8s::WebSocketClient.connect("wss://localhost",
                                                                  ssl_version: :TLSv1,
                                                                  cert_store: cert_store,
                                                                  verify_mode: OpenSSL::SSL::VERIFY_PEER,
@@ -407,7 +443,7 @@ describe 'Authentication::AuthnK8s::WebSocketClient' do
       @test_server.run
       cert_store = OpenSSL::X509::Store.new
       cert_store.add_cert(@test_server.ca.cert)
-      client = Authentication::AuthnK8s::WebSocketClient.connect("wss://127.0.0.1",
+      client = Authentication::AuthnK8s::WebSocketClient.connect("wss://localhost",
                                                                  ssl_version: :TLSv1,
                                                                  cert_store: cert_store,
                                                                  verify_mode: OpenSSL::SSL::VERIFY_PEER,
@@ -420,12 +456,13 @@ describe 'Authentication::AuthnK8s::WebSocketClient' do
       client.close
     end
 
-    it 'does not connect properly with bad hostname' do
+    it 'fails verification on hostname mismatch' do # this is when a hostname has no associated certificate so the default is used. the default doesn't have this hostname
+      # a case could be done for when the hostname results in the default cert but passes verification too. this proves that SNI fallsback to the default
       @test_server.add_websocket
       @test_server.run
       cert_store = OpenSSL::X509::Store.new
       cert_store.add_cert(@test_server.ca.cert)
-      expect { Authentication::AuthnK8s::WebSocketClient.connect("wss://127.0.0.1",
+      expect { Authentication::AuthnK8s::WebSocketClient.connect("wss://localhost",
                                                                  ssl_version: :TLSv1,
                                                                  cert_store: cert_store,
                                                                  verify_mode: OpenSSL::SSL::VERIFY_PEER,
@@ -434,5 +471,28 @@ describe 'Authentication::AuthnK8s::WebSocketClient' do
         |error| expect(error.message).to eq("hostname \"bad.com\" does not match the server certificate")
       }
     end
+
+    it 'not hostname verification for IP' do # this is when a hostname has no associated certificate so the default is used. the default doesn't have this hostname
+      # a case could be done for when the hostname results in the default cert but passes verification too. this proves that SNI fallsback to the default
+      @test_server.add_websocket
+      @test_server.run
+      cert_store = OpenSSL::X509::Store.new
+      cert_store.add_cert(@test_server.ca.cert)
+      client = Authentication::AuthnK8s::WebSocketClient.connect("wss://127.0.0.1",
+                                                                 cert_store: cert_store,
+                                                                 verify_mode: OpenSSL::SSL::VERIFY_PEER,
+                                                                 hostname: "bad.com")
+      sleep(1)
+      expect(@test_server.handshake).to be_truthy
+      expect(@test_server.handshake.valid?).to be_truthy
+      expect(@test_server.handshake.finished?).to be_truthy
+      expect(client.open?).to be_truthy
+      client.close
+    end
   end
 end
+
+
+#  TODO: it feels like we're not testing the right thing here. THink about what the uni tests ought to really test!
+
+#  TODO: add test cases for equivalence classes for params. hostname verificaton fails or succeeds, hostname is ip, cert store is set etc.
