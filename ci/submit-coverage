@@ -83,6 +83,7 @@ echo "Coverage reports prepared, submitting to CodeClimate."
 # vars GIT_COMMIT, GIT_BRANCH & TRID are set by ccCoverage.dockerPrep
 "./$BIN" after-build \
     --coverage-input-type "simplecov" \
-    --id "$TRID"
+    --id "$TRID" \
+    --debug
 
 echo "Successfully Reported Coverage Data"

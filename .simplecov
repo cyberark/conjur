@@ -3,6 +3,8 @@ SimpleCov.start('rails') do
   coverage_dir File.join(ENV['REPORT_ROOT'] || __dir__, 'coverage')
   merge_timeout 7200 # Set largest gap between resultsets of 30 minutes
   # any custom configs like groups and filters can be here at a central place
+  enable_coverage :branch
+  primary_coverage :branch
 end
 
 SimpleCov.at_exit do

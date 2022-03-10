@@ -612,6 +612,8 @@ pipeline {
             // Make files available for download.
             archiveFiles('container_logs/*/*')
             archiveFiles('coverage/.resultset*.json')
+            archiveFiles('coverage/coverage.json')
+            archiveFiles('coverage/codeclimate.json')
             archiveFiles(
               'ci/test_suites/authenticators_k8s/output/simplecov-resultset-authnk8s-gke.json'
             )
