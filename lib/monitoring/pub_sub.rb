@@ -1,22 +1,33 @@
+require 'singleton'
+require 'active_support/notifications'
+
 module Monitoring
-    # Module PubSub wraps ActiveSupport::Notifications, providing PubSub
-    # plumbing to custom Controllers or Collectors.
-    module PubSub
+  # PubSub and PubSubBase wrap ActiveSupport::Notifications, providing pub/sub
+  # plumbing to custom controllers and collectors.
 
-    extend self
+  class PubSubBase
+    attr_reader :options
 
-    def publish(name, payload = {}, &block)
-      ActiveSupport::Notifications.instrument(name, payload, &block)
+    def initialize(notifications = ActiveSupport::Notifications)
+      @notifications = notifications
+    end
+
+    def publish(name, payload = {})
+      @notifications.instrument(name, payload)
     end
 
     def subscribe(name)
-      ActiveSupport::Notifications.subscribe(name) do |_, _, _, _, payload|
+      @notifications.subscribe(name) do |_, _, _, _, payload|
         yield payload
       end
     end
 
     def unsubscribe(name)
-      ActiveSupport::Notifications.unsubscribe(name)
+      @notifications.unsubscribe(name)
     end
+  end
+
+  class PubSub < PubSubBase
+    include Singleton
   end
 end

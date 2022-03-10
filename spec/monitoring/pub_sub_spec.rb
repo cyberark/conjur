@@ -1,49 +1,59 @@
 require 'rack/test'
 require 'spec_helper'
 require 'monitoring/pub_sub'
-require 'monitoring/prometheus'
 
 describe Monitoring::PubSub do
   include Rack::Test::Methods
 
-  before do
-    # Set up global Prometheus registry
-    Monitoring::Prometheus::setup(registry: Prometheus::Client::Registry.new)
-    counter = Monitoring::Prometheus.registry.counter(
-      :test_metric,
-      docstring: '...',
-      labels: [:path, :code]
-    )
+  let(:name) { "test_metric" }
+  let(:test_payload) { { code: 200, path: "/foo/path", duration: 1.0 } }
 
-    # Subscribe code blocks to events
-    Monitoring::PubSub.subscribe('end_to_end_metric') do
-      counter.increment(labels: { path: '/test/path', code: 200 })
-      counter.increment(labels: { path: '/test/path', code: 500 })
+  context 'when using mocked ActiveSupport::Notifications' do
+    let(:mock_notifications) { double("Mock ActiveSupport::Notifications") }
+    let(:pubsub) { Monitoring::PubSubBase.new(mock_notifications) }
+
+    it 'publishes named events with a given payload' do
+      expect(mock_notifications).to receive(:instrument).with(name, test_payload)
+
+      pubsub.publish(name, test_payload)
     end
-    Monitoring::PubSub.subscribe('payload_metric') do |payload|
-      path = payload[:path]
-      code = payload[:code]
-      counter.increment(labels: { path: path, code: code })
+
+    it 'subscribes blocks to named events which operate on a payload' do
+      expect(mock_notifications).to receive(:subscribe)
+        .with(name)
+        .and_yield(nil, nil, nil, nil, test_payload)
+
+      to_update = nil
+      pubsub.subscribe(name) do |payload|
+        to_update = payload
+      end
+
+      expect(to_update).to eql(test_payload)
     end
-  end
 
-  context 'when an event is published' do
-    it 'executes the subscribed code block, and updates metrics in the registry' do
-      Monitoring::PubSub.publish('end_to_end_metric')
+    it 'unsubscribes blocks from named events' do
+      expect(mock_notifications).to receive(:unsubscribe).with(name)
 
-      counter = Monitoring::Prometheus.registry.get(:test_metric)
-      expect(counter.get(labels: { path: '/test/path', code: 200 })).to eql(1.0)
-      expect(counter.get(labels: { path: '/test/path', code: 500 })).to eql(1.0)
-    end
-  end
-
-  context 'when an event with a payload is published' do
-    it 'executes the subscribed code block and processes the payload' do
-      Monitoring::PubSub.publish('payload_metric', path: '/payload/path', code: 401)
-
-      counter = Monitoring::Prometheus.registry.get(:test_metric)
-      expect(counter.get(labels: { path: '/payload/path', code: 401 })).to eql(1.0)
+      pubsub.unsubscribe(name)
     end
   end
 
+  context 'when using ActiveSupport::Notifications end-to-end' do
+    let(:pubsub) { Monitoring::PubSubBase.new }
+
+    it 'subscribes to, publishes, and unsubscribes from events' do
+      publish_counter = 0
+      pubsub.subscribe(name) do |payload|
+        publish_counter += 1
+      end
+
+      expect(publish_counter).to eql(0)
+      pubsub.publish(name)
+      expect(publish_counter).to eql(1)
+
+      pubsub.unsubscribe(name)
+      pubsub.publish(name)
+      expect(publish_counter).to eql(1)
+    end
+  end
 end
