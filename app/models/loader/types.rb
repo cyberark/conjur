@@ -201,7 +201,7 @@ module Loader
 
       def check_user_creation_allowed(resource_id:)
         return if not resource_id.include?('@') # if under root
-        if ENV['CONJUR_ALLOW_USER_CREATION'] == 'false'
+        if ENV['CONJUR_USERS_IN_ROOT_POLICY_ONLY'] == 'true'
           message = "User creation through policy is disabled."
           raise Exceptions::InvalidPolicyObject.new(resource_id, message: message)
         end
