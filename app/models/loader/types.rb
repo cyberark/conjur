@@ -200,7 +200,8 @@ module Loader
       def_delegators :@policy_object, :public_keys, :account, :role_kind, :uidnumber, :restricted_to
 
       def check_user_creation_allowed(resource_id:)
-        return if not resource_id.include?('@') # if under root
+        return unless resource_id.include?('@') # if under root
+
         if ENV['CONJUR_USERS_IN_ROOT_POLICY_ONLY'] == 'true'
           message = "User creation through policy is disabled."
           raise Exceptions::InvalidPolicyObject.new(resource_id, message: message)
