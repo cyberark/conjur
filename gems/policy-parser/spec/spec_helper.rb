@@ -7,6 +7,8 @@ SimpleCov.formatter = SimpleCov::Formatter::CoberturaFormatter
 SimpleCov.start do
   add_filter '/spec/'
   add_filter '/features/'
+  enable_coverage :branch
+  primary_coverage :branch
 end
 
 $LOAD_PATH.unshift(File.expand_path('../../lib', __FILE__))

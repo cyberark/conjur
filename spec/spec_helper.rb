@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# This allows to you reference some global variables such as `$?` using less 
+# This allows to you reference some global variables such as `$?` using less
 # cryptic names like `$CHILD_STATUS`
 require 'English'
 
@@ -8,7 +8,10 @@ require 'simplecov'
 
 SimpleCov.command_name("SimpleCov #{rand(1000000)}")
 SimpleCov.merge_timeout(7200)
-SimpleCov.start
+SimpleCov.start do
+  enable_coverage :branch
+  primary_coverage :branch
+end
 
 # This file is copied to spec/ when you run 'rails generate rspec:install'
 ENV["RAILS_ENV"] ||= 'test'
@@ -70,7 +73,7 @@ def secret_logged?(secret)
 
   # Remaining possibilities are 0 and 1, secret found or not found.
   exit_status == 0
-  
+
 end
 
 # Creates valid access token for the given username.
@@ -147,7 +150,7 @@ end
 def conjur_server_dir
   # Get the path to conjurctl
   conjurctl_path = `readlink -f $(which conjurctl)`
-  
+
   # Navigate from its directory (/bin) to the root Conjur server directory
   Pathname.new(File.join(File.dirname(conjurctl_path), '..')).cleanpath
 end
