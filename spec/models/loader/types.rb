@@ -1,29 +1,55 @@
 require 'spec_helper'
 
-describe Loader::Types do
+describe Loader::Types::User do
+  let(:user) do
+    user = Conjur::PolicyParser::Types::User.new
+    user.id = resource_id
+    user.account = 'default'
+    Loader::Types.wrap(user, self)
+  end
 
-  let(:new_user) {  Loader::Types::User.new(id: 'alice') }
-
-  describe '.check_user_creation_allowed' do
-    context "when the different values for CONJUR_USERS_IN_ROOT_POLICY_ONLY environment variable are provided" do
-
-      it "should not allow user creation not under root" do
+  describe '.verify' do
+    context 'when CONJUR_USERS_IN_ROOT_POLICY_ONLY is true' do
+      before do
         allow(ENV).to receive(:[]).with('CONJUR_USERS_IN_ROOT_POLICY_ONLY').and_return('true')
-        user = new_user()
-        expect { new_user.check_user_creation_allowed(resource_id: 'alice@my_sub_tree') }.to raise_error(Exceptions::InvalidPolicyObject)
       end
-      it "should allow user creation not under root" do
+
+      context 'when the user is loaded in the "my_sub_tree" policy' do
+        let(:resource_id) { 'alice@my_sub_tree' }
+        it { expect { user.verify }.to raise_error(Exceptions::InvalidPolicyObject) }
+      end
+
+      context 'when the user is loaded in the "root" policy' do
+        let(:resource_id) { 'alice' }
+        it { expect { user.verify }.to_not raise_error }
+      end
+    end
+    context 'when CONJUR_USERS_IN_ROOT_POLICY_ONLY is false' do
+      before do
         allow(ENV).to receive(:[]).with('CONJUR_USERS_IN_ROOT_POLICY_ONLY').and_return('false')
-        user = new_user()
-        new_user.check_user_creation_allowed(resource_id: 'alice@my_sub_tree')
       end
-      it "should allow user creation under root" do
-        allow(ENV).to receive(:[]).with('CONJUR_USERS_IN_ROOT_POLICY_ONLY').and_return('true')
-        user = new_user()
-        new_user.check_user_creation_allowed(resource_id: 'alice')
+
+      context 'when the user is loaded in the "my_sub_tree" policy' do
+        let(:resource_id) { 'alice@my_sub_tree' }
+        it { expect { user.verify }.to_not raise_error }
+      end
+
+      context 'when the user is loaded in the "root" policy' do
+        let(:resource_id) { 'alice' }
+        it { expect { user.verify }.to_not raise_error }
       end
     end
 
-  end
+    context 'when CONJUR_USERS_IN_ROOT_POLICY_ONLY is not set' do
+      context 'when the user is loaded in the "my_sub_tree" policy' do
+        let(:resource_id) { 'alice@my_sub_tree' }
+        it { expect { user.verify }.to_not raise_error }
+      end
 
+      context 'when the user is loaded in the "root" policy' do
+        let(:resource_id) { 'alice' }
+        it { expect { user.verify }.to_not raise_error }
+      end
+    end
+  end
 end
