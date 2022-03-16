@@ -9,6 +9,7 @@
 
 require 'json'
 require 'simplecov'
+require "simplecov_json_formatter"
 
 # Override at_exit callback as we don't want this program to hang forever
 # (.simplecov adds infinite sleep to keep containers alive after writing the
@@ -28,27 +29,23 @@ end
 # Use the first argument so the user can specify the approprite dir
 SimpleCov.root(ARGV[0])
 
-# Set the merge timeout so that older reports in the same file don't get
-# dropped when merging.
-SimpleCov.merge_timeout(1800)
-
 # Read the result file, path passed in as second arg.
 jsonraw = File.open(ARGV[1]).read
 
 # Parse JSON to create ruby object
 jsonobj = JSON.parse(jsonraw)
 
-# Create result object for each subresult
-resultobjs = jsonobj.keys.map do |key|
-  SimpleCov::Result.from_hash(key => jsonobj[key])
-end
-
 # Merge the sub-results.
 # This is actually the second merge (ci/submit-coverage uses jq to merge
 # multiple result files together, this merges separate sub reports within the
 # one json structure.)
-mergedresult = SimpleCov::ResultMerger.merge_results(*resultobjs)
+commandnames, mergedcoverage = SimpleCov::ResultMerger.merge_valid_results(jsonobj, ignore_timeout: true)
+mergedresult = SimpleCov::ResultMerger.create_result(commandnames, mergedcoverage)
 
-# Format the result using the html formatter
-formatter = SimpleCov::Formatter::HTMLFormatter.new
-formatter.format(mergedresult)
+# Format the result using the HTML formatter
+htmlformatter = SimpleCov::Formatter::HTMLFormatter.new
+htmlformatter.format(mergedresult)
+
+# Format the result using the JSON formatter for CodeClimate
+jsonformatter = SimpleCov::Formatter::JSONFormatter.new
+jsonformatter.format(mergedresult)

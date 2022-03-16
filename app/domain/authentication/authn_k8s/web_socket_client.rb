@@ -37,6 +37,7 @@ module Authentication
           ctx.cert_store = cert_store
 
           @socket = ::OpenSSL::SSL::SSLSocket.new(@socket, ctx)
+          # support SNI, see https://www.cloudflare.com/en-gb/learning/ssl/what-is-sni/
           if ssl_version != 'SSLv23'
             @socket.hostname = options[:hostname] || uri.host
           end

@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
-## [1.17.2] - 2022-03-01
+## [1.17.2] - 2022-03-09
 
 ### Added
 - Added the ability to fetch signing keys from JWKS endpoints that use a self-signed
@@ -50,8 +50,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Previously, a stale puma pid file would prevent the Conjur server from starting 
   successfully. Conjur now removes a stale pid file at startup, if it exists.
   [#2498](https://github.com/cyberark/conjur/pull/2498)
+- Use entirety of configured Kubernetes endpoint URL in Kubernetes authenticator's
+  web socket client, instead of only host and port
+  [#2479](https://github.com/cyberark/conjur/pull/2479)
 
 ### Security
+- Updated rails to 6.1.4.7 to resolve CVE-2022-21831 (not vulnerable)
+  [cyberark/conjur#2513](https://github.com/cyberark/conjur/pull/2513)
 - Updated nokogiri to 1.13.3 to resolve CVE-2022-23308 and CVE-2021-30560
   [cyberark/conjur#2504](https://github.com/cyberark/conjur/pull/2504)
 - Updated Rails to 6.1.4.4 to resolve CVE-2021-44528 (Medium, Not Vulnerable)

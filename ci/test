@@ -19,12 +19,12 @@
 #
 # •  "test" is run from the "ci" folder.  So if your
 #    test uses helper scripts, you can source or execute them like:
-#    
-#        source "./test_suites/my_new_test/some_helper.sh" 
+#
+#        source "./test_suites/my_new_test/some_helper.sh"
 #
 # •  If you are running a cucumber test, you'll want to source:
-#    
-#        source "./shared.sh" 
+#
+#        source "./shared.sh"
 #
 #    which defines a helper function "_run_cucumber_tests". See the
 #    function definition or existing "test_suites/**/test" files for example
@@ -58,6 +58,7 @@ SUBCOMMANDS
     authenticators_azure   - Runs Cucumber Azure Authenticator features
     authenticators_config  - Runs Cucumber Authenticator configuration features
     authenticators_gcp     - Runs Cucumber GCP Authenticator features
+    authenticators_k8s     - Runs Cucumber K8s Authenticator features
     authenticators_ldap    - Runs Cucumber LDAP Authenticator features
     authenticators_oidc    - Runs Cucumber OIDC Authenticator features
     authenticators_jwt     - Runs Cucumber JWT Authenticator features

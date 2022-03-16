@@ -20,7 +20,7 @@ docker run \
     --workdir "${REPO_ROOT}/ci/coverage-report-generator" \
     "${IMAGE}" \
     bash -cex "
-      gem install bundler -v $BUNDLER_VERSION
+      gem install bundler -v ${BUNDLER_VERSION}
       bundle config set path 'gems'
       bundle install
       bundle exec ./generate_report.rb '${REPO_ROOT}' '${REPORT_FILE}'"

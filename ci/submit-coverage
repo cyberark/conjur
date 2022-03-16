@@ -14,7 +14,7 @@ set -eux
 BIN="cc-test-reporter"
 DIR="coverage"
 REPORT="$DIR/.resultset.json"
-GKE_DIR="ci/authn-k8s/output"
+GKE_DIR="ci/test_suites/authenticators_k8s/output"
 GKE_REPORT="$GKE_DIR/simplecov-resultset-authnk8s-gke.json"
 
 ensure_report_exists() {
@@ -83,6 +83,7 @@ echo "Coverage reports prepared, submitting to CodeClimate."
 # vars GIT_COMMIT, GIT_BRANCH & TRID are set by ccCoverage.dockerPrep
 "./$BIN" after-build \
     --coverage-input-type "simplecov" \
-    --id "$TRID"
+    --id "$TRID" \
+    --debug
 
 echo "Successfully Reported Coverage Data"

@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+set -e
+
+pushd ./test_suites/authenticators_k8s
+  summon ./entrypoint.sh gke
+popd
