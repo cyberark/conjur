@@ -199,7 +199,7 @@ module Loader
     class User < Record
       def_delegators :@policy_object, :public_keys, :account, :role_kind, :uidnumber, :restricted_to
 
-      # Below is a sample method verifying policy data validity
+      #  Below is a sample method verifying policy data validity
       def verify
         # if self.uidnumber == 8
         #  message = "User '#{self.id}' has wrong params"
