@@ -55,11 +55,13 @@ describe Monitoring::Prometheus do
       @mock_pubsub = double("Mock Monitoring::PubSub")
     end
 
-    let(:prometheus_setup) { Monitoring::Prometheus.setup(
+    def prometheus_setup
+      Monitoring::Prometheus.setup(
         registry: @registry,
         metrics: [ @metric_obj ],
-        pubsub: @mock_pubsub)
-    }
+        pubsub: @mock_pubsub
+      )
+    end
 
     it 'calls .setup for the metric class' do
       expect(@metric_obj).to receive(:setup).with(@registry, @mock_pubsub)

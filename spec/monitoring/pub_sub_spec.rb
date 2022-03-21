@@ -5,55 +5,43 @@ require 'monitoring/pub_sub'
 describe Monitoring::PubSub do
   include Rack::Test::Methods
 
-  let(:name) { "test_metric" }
-  let(:test_payload) { { code: 200, path: "/foo/path", duration: 1.0 } }
+  let(:pubsub) { Monitoring::PubSub.instance }
 
-  context 'when using mocked ActiveSupport::Notifications' do
-    let(:mock_notifications) { double("Mock ActiveSupport::Notifications") }
-    let(:pubsub) { Monitoring::PubSubBase.new(mock_notifications) }
+  it 'unsubscribes blocks from a named event' do
+    expect { |block|
+      # Assert that each #subscribe call produces a
+      # unique subscriber to event "A".
+      a_sub_1 = pubsub.subscribe("A", &block)
+      a_sub_2 = pubsub.subscribe("A", &block)
+      expect(a_sub_1).not_to equal(a_sub_2)
 
-    it 'publishes named events with a given payload' do
-      expect(mock_notifications).to receive(:instrument).with(name, test_payload)
+      pubsub.subscribe("B", &block)
 
-      pubsub.publish(name, test_payload)
-    end
+      # Arg {e:1} will be yielded twice, once by each
+      # unique subscriber to event "A".
+      pubsub.publish("A", {e:1})
+      pubsub.publish("B", {e:2})
 
-    it 'subscribes blocks to named events which operate on a payload' do
-      expect(mock_notifications).to receive(:subscribe)
-        .with(name)
-        .and_yield(nil, nil, nil, nil, test_payload)
-
-      to_update = nil
-      pubsub.subscribe(name) do |payload|
-        to_update = payload
-      end
-
-      expect(to_update).to eql(test_payload)
-    end
-
-    it 'unsubscribes blocks from named events' do
-      expect(mock_notifications).to receive(:unsubscribe).with(name)
-
-      pubsub.unsubscribe(name)
-    end
+      pubsub.unsubscribe("A")
+      pubsub.publish("A", {e:3})
+      pubsub.publish("B", {e:4})
+    }
+    .to yield_successive_args({e:1}, {e:1}, {e:2}, {e:4})
   end
 
-  context 'when using ActiveSupport::Notifications end-to-end' do
-    let(:pubsub) { Monitoring::PubSubBase.new }
+  it 'receives only subscribed events, in order published' do
+    expect { |block|
+      names = [ "A", "B", "C" ]
+      names.each { |name|
+        pubsub.subscribe(name, &block)
+      }
 
-    it 'subscribes to, publishes, and unsubscribes from events' do
-      publish_counter = 0
-      pubsub.subscribe(name) do |payload|
-        publish_counter += 1
-      end
-
-      expect(publish_counter).to eql(0)
-      pubsub.publish(name)
-      expect(publish_counter).to eql(1)
-
-      pubsub.unsubscribe(name)
-      pubsub.publish(name)
-      expect(publish_counter).to eql(1)
-    end
+      pubsub.publish("B", {e:1})
+      pubsub.publish("C", {e:2})
+      pubsub.publish("D", {e:3})
+      pubsub.publish("A", {e:4})
+    }
+    .to yield_successive_args({e:1}, {e:2}, {e:4})
   end
+
 end
