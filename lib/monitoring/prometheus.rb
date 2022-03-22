@@ -1,6 +1,6 @@
 require 'prometheus/client'
 require 'prometheus/client/data_stores/direct_file_store'
-require 'monitoring/pub_sub'
+require_relative './pub_sub'
 
 module Monitoring
   module Prometheus

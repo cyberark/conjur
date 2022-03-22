@@ -1,6 +1,5 @@
 require 'rack/test'
-require 'monitoring/middleware/prometheus_exporter'
-require 'monitoring/prometheus'
+require 'spec_helper'
 
 describe Monitoring::Middleware::PrometheusExporter do
   include Rack::Test::Methods
