@@ -1,6 +1,5 @@
 require 'rack/test'
 require 'spec_helper'
-require 'monitoring/pub_sub'
 
 describe Monitoring::PubSub do
   include Rack::Test::Methods
