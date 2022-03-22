@@ -1,7 +1,5 @@
 require 'rack/test'
 require 'prometheus/client/formats/text'
-require 'monitoring/prometheus'
-require 'monitoring/pub_sub'
 
 class SampleMetric
   def setup(registry, pubsub)
