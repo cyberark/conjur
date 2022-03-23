@@ -1,9 +1,6 @@
-require 'rack/test'
 require 'spec_helper'
 
 describe Monitoring::PubSub do
-  include Rack::Test::Methods
-
   let(:pubsub) { Monitoring::PubSub.instance }
 
   it 'unsubscribes blocks from a named event' do
