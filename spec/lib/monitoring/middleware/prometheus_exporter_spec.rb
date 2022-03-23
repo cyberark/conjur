@@ -1,4 +1,3 @@
-require 'rack/test'
 require 'spec_helper'
 
 describe Monitoring::Middleware::PrometheusExporter do
