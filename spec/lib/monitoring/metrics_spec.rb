@@ -1,6 +1,5 @@
-require 'rack/test'
-require 'prometheus/client/formats/text'
 require 'spec_helper'
+require 'prometheus/client/formats/text'
 
 class SampleMetric
   def setup(registry, pubsub)
@@ -18,8 +17,6 @@ class SampleMetric
 end
 
 describe Monitoring::Prometheus do
-  include Rack::Test::Methods
-
   let(:registry) {
     Monitoring::Prometheus.setup
     Monitoring::Prometheus.registry
