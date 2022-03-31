@@ -1,3 +1,13 @@
+# CVE-2022-0778
+#
+# In order to support FIPS with OpenSSL we are required to use OpenSSL version
+# 1.0.2 until OpenSSL supports the FIPS module in newer versions. The latest
+# available version to us is 1.0.2zd, which includes this fix. Trivy does not
+# recognize 1.0.2zd as a valid fixed version, hence the need for this ignore.
+#
+# Performed by @samirshetty, approved by @andytinkham
+CVE-2022-0778
+
 # NULL pointer deref. OpenSSL 1.0.2 is not impacted
 CVE-2021-3449
 
