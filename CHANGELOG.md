@@ -62,8 +62,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Updated Rails to 6.1.4.4 to resolve CVE-2021-44528 (Medium, Not Vulnerable)
   [cyberark/conjur#2486](https://github.com/cyberark/conjur/pull/2486)
 - Updated Rails to 6.1.4.6 to resolve CVE-2022-23633
-  Updated Puma to 5.6.2 to resolve CVE-2022-23634
+- Updated Puma to 5.6.2 to resolve CVE-2022-23634
   [cyberark/conjur#2492](https://github.com/cyberark/conjur/pull/2492)  
+- Updated Puma to 5.6.4 to resolve CVE-2022-24790
+  [cyberark/conjur#2534](https://github.com/cyberark/conjur/pull/2534)
 
 ## [1.15.0] - 2021-12-21
 
