@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# Loads a policy into the database, by operating on a PolicyVersion which has already been created with the policy id, 
+#  Loads a policy into the database, by operating on a PolicyVersion which has already been created with the policy id, 
 # policy text, the authenticated user, and the policy owner. The PolicyVersion also parses the policy
 # and checks it for syntax errors, before this code is invoked.
 #
