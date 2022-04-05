@@ -1,7 +1,9 @@
 ## This code is based on github.com/shokai/websocket-client-simple (MIT License)
 
-require "event_emitter"
+require 'event_emitter'
 require 'websocket'
+require 'resolv'
+require 'openssl'
 
 # Utility class for processing WebSocket messages.
 module Authentication
@@ -17,6 +19,7 @@ module Authentication
         client
       end
 
+      # connect provides options :hostname, :headers, :ssl_version, :cert_store, :verify_mode
       def connect(url, options = {})
         return if @socket
 
@@ -26,23 +29,40 @@ module Authentication
                                 uri.port || (uri.scheme == 'wss' ? 443 : 80))
         if %w[https wss].include?(uri.scheme)
           ctx = OpenSSL::SSL::SSLContext.new
-          ssl_version = options[:ssl_version] || 'SSLv23'
-          ctx.ssl_version = ssl_version
-          ctx.verify_mode = options[:verify_mode] || OpenSSL::SSL::VERIFY_NONE # use VERIFY_PEER for verification
+          ssl_version = options[:ssl_version]
+          ctx.ssl_version = ssl_version if ssl_version
+          ctx.verify_mode = options[:verify_mode] || OpenSSL::SSL::VERIFY_PEER # use VERIFY_PEER for verification
           cert_store = options[:cert_store]
+
           unless cert_store
             cert_store = OpenSSL::X509::Store.new
             cert_store.set_default_paths
           end
           ctx.cert_store = cert_store
 
-          @socket = ::OpenSSL::SSL::SSLSocket.new(@socket, ctx)
-          # support SNI, see https://www.cloudflare.com/en-gb/learning/ssl/what-is-sni/
-          if ssl_version != 'SSLv23'
-            @socket.hostname = options[:hostname] || uri.host
+          use_sni = false
+          ssl_host_address =  options[:hostname] || uri.host # use the param :hostname or default to the host of the url argument
+
+          case uri.host
+          when Resolv::IPv4::Regex, Resolv::IPv6::Regex
+            # don't set SNI, as IP addresses in SNI is not valid
+            # per RFC 6066, section 3.
+  
+            # Avoid openssl warning
+            ctx.verify_hostname = false
+          else
+            use_sni = true
           end
+
+          @socket = ::OpenSSL::SSL::SSLSocket.new(@socket, ctx)
+
+          # support SNI, see https://www.cloudflare.com/en-gb/learning/ssl/what-is-sni/
+          @socket.hostname = ssl_host_address if use_sni
+
           @socket.connect
-          @socket.post_connection_check(@socket.hostname) if @socket.hostname
+
+          # mandatory hostname verification applicable to both hostnames and IP addresses
+          @socket.post_connection_check(ssl_host_address)
         end
         @handshake = ::WebSocket::Handshake::Client.new(url: url, headers: options[:headers])
         @handshaked = false
@@ -68,6 +88,8 @@ module Authentication
                 end
               else
                 @handshake << recv_data
+
+                # completed handshake
                 if @handshake.finished?
                   @handshaked = true
                   emit(:open)
