@@ -47,7 +47,6 @@ module Authentication
           ws_exec_url,
           {
             headers: headers,
-            verify_mode: OpenSSL::SSL::VERIFY_PEER,
             cert_store: @k8s_object_lookup.cert_store
           }
         )
