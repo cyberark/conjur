@@ -11,13 +11,19 @@ module Commands
         connect_database: ConnectDatabase.new
       },
 
-      inputs: %i[]
+      inputs: %i[
+        preview
+      ]
     ) do
       def call
         # Ensure the database is available
         @connect_database.call
 
-        system("rake db:migrate") || exit(($CHILD_STATUS.exitstatus))
+        if @preview
+          system("rake db:migrate-preview") || exit(($CHILD_STATUS.exitstatus))
+        else
+          system("rake db:migrate") || exit(($CHILD_STATUS.exitstatus))
+        end
       end
     end
   end
