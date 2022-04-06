@@ -35,6 +35,38 @@ module Errors
       msg: "Variable {0-variable-id} is empty or not found.",
       code: "CONJ00076E"
     )
+
+    KeyRotationNotApplicable = ::Util::TrackableErrorClass.new(
+      msg: "Resource '{0-role_to_rotate}' is not applicable for key rotation",
+      code: "CONJ00120E"
+    )
+
+    ApiKeyNotFound = ::Util::TrackableErrorClass.new(
+      msg: "Role '{0-role}' API key not found",
+      code: "CONJ00121E"
+    )
+
+    RequestedResourceNotFound = ::Util::TrackableErrorClass.new(
+      msg: "Resource '{0-resource}' requested by role '{1-role}' not found",
+      code: "CONJ00123E"
+    )
+  end
+
+  module Authorization
+    ResourceNotVisibleToRole = ::Util::TrackableErrorClass.new(
+      msg: "The requested resource '{0-resource}' is not visible to Role '{1-role}'",
+      code: "CONJ00125E"
+    )
+
+    AccessToResourceIsForbiddenForRole = ::Util::TrackableErrorClass.new(
+      msg: "Role '{0-role}' does not have permissions to access the requested resource '{1-resource}'",
+      code: "CONJ00122E"
+    )
+
+    InsufficientResourcePrivileges = ::Util::TrackableErrorClass.new(
+      msg: "Role '{0-role}' has insufficient privileges over the resource '{1-resource}'",
+      code: "CONJ00124E"
+    )
   end
 
   module Authentication
@@ -62,6 +94,16 @@ module Errors
     AdminAuthenticationDenied = ::Util::TrackableErrorClass.new(
       msg: "Admin user is not allowed to authenticate with {0-authenticate-name}",
       code: "CONJ00017E"
+    )
+
+    RoleHasNoCredentials = ::Util::TrackableErrorClass.new(
+      msg: "Role '{0-role}' has no credentials",
+      code: "CONJ00120E"
+    )
+
+    RoleNotApplicableForKeyRotation = ::Util::TrackableErrorClass.new(
+      msg: "Role '{0-role}' is not applicable for key rotation",
+      code: "CONJ00126E"
     )
 
     module AuthenticatorClass
@@ -112,7 +154,6 @@ module Errors
         msg: "Account '{0-account-name}' is not defined in Conjur",
         code: "CONJ00008E"
       )
-
     end
 
     module RequestBody
