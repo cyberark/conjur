@@ -16,6 +16,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   Conjur to error - but this wasn't the case before the Ruby 3 upgrade
   [#2525](https://github.com/cyberark/conjur/pull/2525)
 
+### Security
+- Updated KubeClient to 4.9.3 to resolve CVE-2022-0759
+  [cyberark/conjur#2527](https://github.com/cyberark/conjur/pull/2527)
+
 ## [1.17.2] - 2022-03-09
 
 ### Added
