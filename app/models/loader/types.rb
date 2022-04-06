@@ -201,7 +201,7 @@ module Loader
 
       # Below is a sample method verifying policy data validity
       def verify
-        # if self.uidnumber == 8
+        #  if self.uidnumber == 8
         #  message = "User '#{self.id}' has wrong params"
         #  raise Exceptions::InvalidPolicyObject.new(self.id, message: message)
         # end
