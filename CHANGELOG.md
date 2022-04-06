@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
+## [1.17.3] - 2022-04-04
+
+### Changed
+- Fixed issue where an invalid content type sent by our .NET SDK was causing 
+  Conjur to error - but this wasn't the case before the Ruby 3 upgrade
+  [#2525](https://github.com/cyberark/conjur/pull/2525)
+
 ## [1.17.2] - 2022-03-09
 
 ### Added
