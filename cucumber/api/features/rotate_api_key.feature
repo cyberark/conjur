@@ -357,7 +357,7 @@ Feature: Rotate the API key of a role
   Scenario: A Host without update privilege CANNOT rotate Bob's API key with an access token
     Given I login as "host/unprivileged_host"
     When I PUT "/authn/cucumber/api_key?role=user:bob"
-    Then the HTTP response status code is 401
+    Then the HTTP response status code is 404
 
   @negative @acceptance
   Scenario: A Host without update privilege CANNOT rotate a user's API key with their own API key
