@@ -40,6 +40,11 @@ services:
       RAILS_ENV:
       CONJUR_LOG_LEVEL: debug
       AUDIT_DATABASE_URL:
+      FEATURE_TRACING:
+      OTEL_PROPAGATORS: jaeger
+      OTEL_TRACES_EXPORTER: jaeger
+      OTEL_RESOURCE_ATTRIBUTES: service.name=Conjur
+      OTEL_EXPORTER_JAEGER_ENDPOINT: http://jaeger:14268/api/traces
       # TODO: Where should we be running rspec tests from, ideally?
       # See https://github.com/DatabaseCleaner/database_cleaner#safeguards
       DATABASE_CLEANER_ALLOW_REMOTE_DATABASE_URL: "true"
@@ -59,6 +64,7 @@ services:
     # TODO: authenticators_oidc/test has a dep on this
     - ../ci/oauth/keycloak:/oauth/keycloak/scripts
     - jwks-volume:/var/jwks
+    - ./files/conjur.yml:/etc/conjur/config/conjur.yml
     links:
     - pg:pg
     - ldap-server
@@ -178,6 +184,14 @@ services:
     volumes:
       - ../ci/jwt/:/usr/src/jwks/
 
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    ports:
+      - "6831:6831/udp"
+      - "16686:16686"
+      - "14268:14268"
+
 volumes:
   authn-local:
   jwks-volume:
+  conjur-config:

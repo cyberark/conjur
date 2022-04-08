@@ -36,6 +36,7 @@ ENABLE_OIDC_ADFS=false
 ENABLE_OIDC_OKTA=false
 ENABLE_ROTATORS=false
 ENABLE_AUDIT=false
+ENABLE_TRACING=false
 
 main() {
   unset COMPOSE_PROJECT_NAME
@@ -51,6 +52,7 @@ main() {
 
   init_data_key
   init_audit_service
+  init_tracing
 
   # Install gems, create DB, and create cucumber account.
   docker-compose up -d --no-deps "${services[@]}"
@@ -106,6 +108,8 @@ Usage: start [options]
 
     --audit         Starts with the audit engine and database enabled
 
+    --tracing       Starts with tracing enabled and a Jaeger container running
+
     -h, --help      Shows this help message.
 EOF
   exit
@@ -124,6 +128,7 @@ parse_options() {
       --oidc-okta ) ENABLE_OIDC_OKTA=true ; shift ;;
       --rotators ) ENABLE_ROTATORS=true ; shift ;;
       --audit ) ENABLE_AUDIT=true ; shift ;;
+      --tracing ) ENABLE_TRACING=true ; shift ;;
       -h | --help ) print_help ; shift ;;
        * )
          if [ -z "$1" ]; then
@@ -260,6 +265,13 @@ init_audit_service() {
   if [[ $ENABLE_AUDIT == true ]]; then
     services+=(audit)
     export AUDIT_DATABASE_URL=postgres://postgres@audit
+  fi
+}
+
+init_tracing() {
+  if [[ $ENABLE_TRACING == true ]]; then
+    export FEATURE_TRACING=true
+    docker-compose up -d --no-deps jaeger
   fi
 }
 
