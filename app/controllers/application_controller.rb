@@ -8,7 +8,7 @@ class ApplicationController < ActionController::API
   around_action :trace
   def trace
     tracer = Rails.application.config.tracer
-    tracer.in_span(params[:action]) do |span|
+    tracer.in_span(request.env['PATH_INFO']) do |span|
       yield
     end
   end
