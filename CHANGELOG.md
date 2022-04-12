@@ -14,6 +14,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 - Fixed promotion behavior
 
+### Security
+- Updated nokogiri to 1.13.4 to resolve CVE-2022-24836
+  [cyberark/conjur#2534](https://github.com/cyberark/conjur/pull/2534)
+
 ## [1.17.3] - 2022-04-04
 
 ### Changed
