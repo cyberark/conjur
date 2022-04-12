@@ -39,6 +39,7 @@ module Conjur
       authn_api_key_default: true,
       authenticators: [],
       extensions: [],
+      telemetry_enabled: false,
       slosilo_rotation_interval: 24,  # Sloislo rotation should be every 24 hours
       tenant_id: @tenant_id,
       tenant_name: @tenant_name,
@@ -93,6 +94,7 @@ module Conjur
 
       invalid << "trusted_proxies" unless trusted_proxies_valid?
       invalid << "authenticators" unless authenticators_valid?
+      invalid << "telemetry_enabled" unless telemetry_enabled_valid?
 
       unless invalid.empty?
         msg = "Invalid values for configured attributes: #{invalid.join(',')}"
@@ -269,6 +271,10 @@ module Conjur
       end
     rescue
       false
+    end
+
+    def telemetry_enabled_valid?
+      [true, false].include? telemetry_enabled
     end
   end
 end
