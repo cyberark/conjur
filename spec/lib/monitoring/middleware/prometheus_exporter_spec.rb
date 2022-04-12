@@ -1,7 +1,7 @@
 require 'spec_helper'
+require 'monitoring/middleware/prometheus_exporter'
 
 describe Monitoring::Middleware::PrometheusExporter do
-  include Rack::Test::Methods
 
   # Reset the data store
   before do
@@ -16,17 +16,21 @@ describe Monitoring::Middleware::PrometheusExporter do
 
   let(:options) { { registry: registry, path: path} }
 
+  let(:env) { Rack::MockRequest.env_for }
+
   let(:app) do
-    app = ->(_) { [200, { 'Content-Type' => 'text/html' }, ['OK']] }
-    described_class.new(app, **options)
+    app = ->(env) { [200, { 'Content-Type' => 'text/html' }, ['OK']] }
   end
+
+  subject { described_class.new(app, **options) }
 
   context 'when requesting app endpoints' do
     it 'returns the app response' do
-      get '/foo'
+      env['PATH_INFO'] = "/foo"
+      status, _headers, _response = subject.call(env)
 
-      expect(last_response).to be_ok
-      expect(last_response.body).to eql('OK')
+      expect(status).to eql(200)
+      expect(_response.first).to eql('OK')
     end
   end
 
@@ -36,12 +40,16 @@ describe Monitoring::Middleware::PrometheusExporter do
     shared_examples 'ok' do |headers, fmt|
       it "responds with 200 OK and Content-Type #{fmt::CONTENT_TYPE}" do
         registry.counter(:foo, docstring: 'foo counter').increment(by: 9)
+        
+        env['PATH_INFO'] = path
+        env['HTTP_ACCEPT'] = headers.values[0] if headers.values[0]
 
-        get '/metrics', nil, headers
+        status, _headers, _response = subject.call(env)
 
-        expect(last_response.status).to eql(200)
-        expect(last_response.header['Content-Type']).to eql(fmt::CONTENT_TYPE)
-        expect(last_response.body).to eql(fmt.marshal(registry))
+        expect(status).to eql(200)
+        expect(_headers['Content-Type']).to eql(fmt::CONTENT_TYPE)
+        expect(_response.first).to eql(fmt.marshal(registry))
+
       end
     end
 
@@ -49,11 +57,14 @@ describe Monitoring::Middleware::PrometheusExporter do
       it 'responds with 406 Not Acceptable' do
         message = 'Supported media types: text/plain'
 
-        get '/metrics', nil, headers
+        env['PATH_INFO'] = path
+        env['HTTP_ACCEPT'] = headers.values[0] if headers.values[0]
 
-        expect(last_response.status).to eql(406)
-        expect(last_response.header['Content-Type']).to eql('text/plain')
-        expect(last_response.body).to eql(message)
+        status, _headers, _response = subject.call(env)
+
+        expect(status).to eql(406)
+        expect(_headers['Content-Type']).to eql('text/plain')
+        expect(_response.first).to eql(message)
       end
     end
 
