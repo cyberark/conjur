@@ -23,7 +23,8 @@ module Conjur
     attr_config(
       # Read TRUSTED_PROXIES before default to maintain backwards compatibility
       trusted_proxies: (ENV['TRUSTED_PROXIES'] || []),
-      authenticators: []
+      authenticators: [],
+      telemetry_enabled: false
     )
 
     def initialize(*args)
@@ -57,6 +58,7 @@ module Conjur
 
       invalid << "trusted_proxies" unless trusted_proxies_valid?
       invalid << "authenticators" unless authenticators_valid?
+      invalid << "telemetry_enabled" unless telemetry_enabled_valid?
 
       unless invalid.empty?
         msg = "Invalid values for configured attributes: #{invalid.join(',')}"
@@ -115,6 +117,10 @@ module Conjur
       end
     rescue
       false
+    end
+
+    def telemetry_enabled_valid?
+      [true, false].include? telemetry_enabled
     end
   end
 end
