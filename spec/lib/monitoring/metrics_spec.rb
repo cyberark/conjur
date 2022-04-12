@@ -1,5 +1,5 @@
-require 'spec_helper'
 require 'prometheus/client/formats/text'
+require 'monitoring/prometheus'
 
 class SampleMetric
   def setup(registry, pubsub)

@@ -38,7 +38,8 @@ module Conjur
       host_authorization_token_ttl: 480, # The default TTL of Host is 8 minutes
       authn_api_key_default: true,
       authenticators: [],
-      extensions: []
+      extensions: [],
+      telemetry_enabled: false
     )
 
     def initialize(
@@ -85,6 +86,7 @@ module Conjur
 
       invalid << "trusted_proxies" unless trusted_proxies_valid?
       invalid << "authenticators" unless authenticators_valid?
+      invalid << "telemetry_enabled" unless telemetry_enabled_valid?
 
       unless invalid.empty?
         msg = "Invalid values for configured attributes: #{invalid.join(',')}"
@@ -229,6 +231,10 @@ module Conjur
       end
     rescue
       false
+    end
+
+    def telemetry_enabled_valid?
+      [true, false].include? telemetry_enabled
     end
   end
 end
