@@ -3,7 +3,10 @@
 require 'simplecov'
 SimpleCov.command_name("SimpleCov #{rand(1000000)}")
 SimpleCov.merge_timeout(1800)
-SimpleCov.start
+SimpleCov.start do
+  enable_coverage :branch
+  primary_coverage :branch
+end
 
 require 'db_helper'
 

@@ -44,17 +44,16 @@ module Authentication
 
       def ws_client
         @ws_client ||= @websocket_client.connect(
-          server_url,
+          ws_exec_url,
           {
             headers: headers,
-            verify_mode: OpenSSL::SSL::VERIFY_PEER,
             cert_store: @k8s_object_lookup.cert_store
           }
         )
       end
 
       def ws_client_event_handler
-        @close_event_queue       = Queue.new
+        @close_event_queue = Queue.new
         @ws_client_event_handler ||= @ws_client_event_handler_class.new(
           close_event_queue: @close_event_queue,
           ws_client: ws_client,
@@ -72,14 +71,14 @@ module Authentication
         # the curly brackets it will look for such a member in the websocket_client
         # class
         ws_client_event_handler = @ws_client_event_handler
-        main_thread_tags        = @logger.formatter.current_tags
-        logger                  = @logger
+        main_thread_tags = @logger.formatter.current_tags
+        logger = @logger
 
         ws_client.on(:open) do
           # Add log tags (origin, thread id, etc.) to sub-thread as they are not
           # passed automatically. We append the sub-thread id to the main one so
           # we can easily know the flow from the logs and connect between the threads
-          tid             = syscall(186)
+          tid = syscall(186)
           sub_thread_tags = main_thread_tags.map do |x|
             x.start_with?("tid=") ? "#{x}=>#{tid}" : x
           end
@@ -112,19 +111,25 @@ module Authentication
         )
       end
 
-      def server_url
-        api_uri  = kube_client.api_endpoint
-        base_url = "wss://#{api_uri.host}:#{api_uri.port}"
-        path     = "/api/v1/namespaces/#{@pod_namespace}/pods/#{@pod_name}/exec"
+      def ws_exec_url
+        api_uri = kube_client.api_endpoint.clone # contains /api path prefix
+        api_uri.scheme = "wss"
 
-        base_query_string_parts = %W[container=#{CGI.escape(@container)} stderr=true stdout=true]
-        stdin_part              = @stdin ? ['stdin=true'] : []
-        cmds_part               = @cmds.map { |cmd| "command=#{CGI.escape(cmd)}" }
-        query_string            = (
-        base_query_string_parts + stdin_part + cmds_part
-      ).join("&")
+        # append pod exec path
+        api_uri.path += "/v1/namespaces/#{@pod_namespace}/pods/#{@pod_name}/exec"
 
-        "#{base_url}#{path}?#{query_string}"
+        # populate query params
+        api_uri.query = ws_exec_query_params(String(api_uri.query))
+
+        api_uri.to_s
+      end
+
+      def ws_exec_query_params query
+        base_query_string_parts = [["container", @container], ["stderr", "true"], ["stdout", "true"]]
+        stdin_part = @stdin ? [['stdin', 'true']] : []
+        cmds_part = @cmds.map { |cmd| ["command", cmd] }
+        query_ar = URI.decode_www_form(query) + base_query_string_parts + stdin_part + cmds_part
+        URI.encode_www_form(query_ar)
       end
 
       def headers

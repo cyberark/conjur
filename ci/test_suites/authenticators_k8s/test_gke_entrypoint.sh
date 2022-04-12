@@ -14,7 +14,7 @@ set -o pipefail
 #    INVENTORY_BASE_TAG
 #    LOCAL_DEV_VOLUME
 #
-# PWD = /src (which is mapped via docker volume to ${WORKSPACE}/ci/authn-k8s)
+# PWD = /src (which is mapped via docker volume to ${WORKSPACE}/ci/test_suites/authenticators_k8s)
 
 LOCAL_DEV_VOLUME=$(cat <<- ENDOFLINE
 emptyDir: {}
@@ -68,16 +68,16 @@ function finish {
     if [[ "$conjur_pod_name" != "" ]]; then
       echo "Retrieving cucumber reports"
       kubectl cp \
-        "$cucumber_pod_name:/opt/conjur-server/cucumber/kubernetes/cucumber_results.json" \
-        "/cucumber/kubernetes/cucumber_results.json"
+        "$cucumber_pod_name:/opt/conjur-server/cucumber/authenticators_k8s/cucumber_results.json" \
+        "/cucumber/authenticators_k8s/cucumber_results.json"
 
       kubectl cp \
-        "$cucumber_pod_name:/opt/conjur-server/cucumber/kubernetes/cucumber_results.html" \
-        "/cucumber/kubernetes/cucumber_results.html"
+        "$cucumber_pod_name:/opt/conjur-server/cucumber/authenticators_k8s/cucumber_results.html" \
+        "/cucumber/authenticators_k8s/cucumber_results.html"
 
       kubectl cp \
-        "$cucumber_pod_name:/opt/conjur-server/cucumber/kubernetes/features/reports" \
-        "/cucumber/kubernetes/features/reports"
+        "$cucumber_pod_name:/opt/conjur-server/cucumber/authenticators_k8s/features/reports" \
+        "/cucumber/authenticators_k8s/features/reports"
     fi
   } || {
     echo "Results could not be extracted from $cucumber_pod_name"
@@ -301,14 +301,14 @@ function run_cucumber() {
     K8S_VERSION=1.7 \
     PLATFORM=kubernetes \
     --no-color --format pretty --strict \
-    --format json --out \"./cucumber/kubernetes/cucumber_results.json\" \
-    --format html --out \"./cucumber/kubernetes/cucumber_results.html\" \
-    --format junit --out \"./cucumber/kubernetes/features/reports\" \
-    -r ./cucumber/kubernetes/features/step_definitions/ \
-    -r ./cucumber/kubernetes/features/support/world.rb \
-    -r ./cucumber/kubernetes/features/support/hooks.rb \
-    -r ./cucumber/kubernetes/features/support/conjur_token.rb \
-    --tags $tags ./cucumber/kubernetes/features" | cucumbercmd -i bash || true
+    --format json --out \"./cucumber/authenticators_k8s/cucumber_results.json\" \
+    --format html --out \"./cucumber/authenticators_k8s/cucumber_results.html\" \
+    --format junit --out \"./cucumber/authenticators_k8s/features/reports\" \
+    -r ./cucumber/authenticators_k8s/features/step_definitions/ \
+    -r ./cucumber/authenticators_k8s/features/support/world.rb \
+    -r ./cucumber/authenticators_k8s/features/support/hooks.rb \
+    -r ./cucumber/authenticators_k8s/features/support/conjur_token.rb \
+    --tags $tags ./cucumber/authenticators_k8s/features" | cucumbercmd -i bash || true
 }
 
 main

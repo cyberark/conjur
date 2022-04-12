@@ -38,7 +38,7 @@ These are defined in runConjurTests, and also include the one-offs
     policy
     api
     rotators
-    kubernetes
+    authenticators_k8s
     rspec_audit
     policy_parser
     azure_authenticator
@@ -612,8 +612,10 @@ pipeline {
             // Make files available for download.
             archiveFiles('container_logs/*/*')
             archiveFiles('coverage/.resultset*.json')
+            archiveFiles('coverage/coverage.json')
+            archiveFiles('coverage/codeclimate.json')
             archiveFiles(
-              'ci/authn-k8s/output/simplecov-resultset-authnk8s-gke.json'
+              'ci/test_suites/authenticators_k8s/output/simplecov-resultset-authnk8s-gke.json'
             )
             archiveFiles('cucumber/*/*.*')
 
@@ -629,7 +631,7 @@ pipeline {
                 authenticators_jwt/cucumber_results.html,
                 authenticators_gcp/cucumber_results.html,
                 authenticators_status/cucumber_results.html,
-                kubernetes/cucumber_results.html,
+                authenticators_k8s/cucumber_results.html,
                 policy/cucumber_results.html,
                 rotators/cucumber_results.html
               ''',
@@ -764,6 +766,11 @@ def runConjurTests(run_only_str) {
         sh 'ci/test authenticators_status'
       }
     ],
+    "authenticators_k8s": [
+      "K8s Authenticator - ${env.STAGE_NAME}": {
+        sh 'ci/test authenticators_k8s'
+      }
+    ],
     "authenticators_ldap": [
       "LDAP Authenticator - ${env.STAGE_NAME}": {
         sh 'ci/test authenticators_ldap'
@@ -792,11 +799,6 @@ def runConjurTests(run_only_str) {
     "rotators": [
       "Rotators - ${env.STAGE_NAME}": {
         sh 'ci/test rotators'
-      }
-    ],
-    "kubernetes": [
-      "Kubernetes 1.7 in GKE - ${env.STAGE_NAME}": {
-        sh 'cd ci/authn-k8s && summon ./test.sh gke'
       }
     ],
     "rspec_audit": [

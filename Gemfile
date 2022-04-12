@@ -19,7 +19,7 @@ gem 'http', '~> 4.2.0'
 gem 'iso8601'
 gem 'jbuilder', '~> 2.7.0'
 gem 'nokogiri', '>= 1.8.2'
-gem 'puma', '~> 5.5', '>= 5.6.2'
+gem 'puma', '~> 5.6'
 gem 'rack', '~> 2.2'
 gem 'rails', '~> 6.1', '>= 6.1.4.6'
 gem 'rake'
@@ -53,9 +53,7 @@ gem 'rack-rewrite'
 # Putting this here currently confuses debify, so instead load it in
 # application.rb gem 'conjur_audit', path: 'engines/conjur_audit'
 
-# This old version is required to work with CC
-# See: https://github.com/codeclimate/test-reporter/issues/418
-gem 'simplecov', '0.14.1', require: false
+gem 'simplecov', '0.21.2', require: false
 
 gem 'dry-struct'
 gem 'dry-types'

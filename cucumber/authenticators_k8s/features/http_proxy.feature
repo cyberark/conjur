@@ -4,7 +4,7 @@ Feature: A permitted Conjur host can authenticate with a valid resource restrict
 
   #  This test executes an authentication against k8s through an http proxy
   #  and is executed after standing up the
-  #  ci/authn-k8s/dev/dev_conjur_http_proxy.template.yaml file in the k8s
+  #  ci/test_suites/authenticators_k8s/dev/dev_conjur_http_proxy.template.yaml file in the k8s
   #  environment to ensure the proxy and env variable are available
   @http_proxy
   Scenario: Authenticate as a Pod.

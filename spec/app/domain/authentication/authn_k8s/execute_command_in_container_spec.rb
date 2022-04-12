@@ -89,12 +89,7 @@ RSpec.describe('Authentication::AuthnK8s::ExecuteCommandInContainer') do
   end
 
   let(:kube_client_api_endpoint) do
-    double('kube_client_api_endpoint').tap do |kube_client_api_endpoint|
-      allow(kube_client_api_endpoint).to receive(:host)
-        .and_return("host")
-      allow(kube_client_api_endpoint).to receive(:port)
-        .and_return("port")
-    end
+    URI.parse("https://path/to/api/endpoint")
   end
 
   let(:kube_client) do
@@ -169,6 +164,65 @@ RSpec.describe('Authentication::AuthnK8s::ExecuteCommandInContainer') do
   end
 
   context "Calling ExecuteCommandInContainer" do
+    context "converts endpoint for websocket client" do
+      let(:kube_client_api_endpoint) do
+        raise "@kube_client_api_endpoint not defined" unless @kube_client_api_endpoint
+
+        URI.parse(@kube_client_api_endpoint)
+      end
+
+      let(:ws_client) do 
+        ws_client = WsClientMock.new(handshake_error: nil)
+        
+        thread = subject_in_thread(
+          ws_client: ws_client,
+          timeout: 1,
+          body: body,
+          stdin: true
+        )
+
+        ws_client.trigger_open
+        ws_client.trigger_message(message)
+        ws_client.trigger_close
+        thread.join
+        thread[:output]
+
+        ws_client
+      end
+
+      it "retains subpath" do
+        @kube_client_api_endpoint = "https://path/to"
+
+        expect(ws_client.connect_args[0]).to eq(
+          "wss://path/to/v1/namespaces/PodNamespace/pods/PodName/exec?container=Container&stderr=true&stdout=true&stdin=true&command=command1&command=command2"
+        )
+      end
+
+      it "retains port" do
+        @kube_client_api_endpoint = "https://path/to:5432"
+
+        expect(ws_client.connect_args[0]).to eq(
+          "wss://path/to:5432/v1/namespaces/PodNamespace/pods/PodName/exec?container=Container&stderr=true&stdout=true&stdin=true&command=command1&command=command2"
+        )
+      end
+
+      it "retains query params" do
+        @kube_client_api_endpoint = "https://path/to?meow=moo"
+
+        expect(ws_client.connect_args[0]).to eq(
+          "wss://path/to/v1/namespaces/PodNamespace/pods/PodName/exec?meow=moo&container=Container&stderr=true&stdout=true&stdin=true&command=command1&command=command2"
+        )
+      end
+
+      it "retains everything" do
+        @kube_client_api_endpoint = "https://path/to:5342?meow=moo"
+
+        expect(ws_client.connect_args[0]).to eq(
+          "wss://path/to:5342/v1/namespaces/PodNamespace/pods/PodName/exec?meow=moo&container=Container&stderr=true&stdout=true&stdin=true&command=command1&command=command2"
+        )
+      end
+    end
+
     context "when the ws_client has no handshake error" do
       context "with stdin" do
         ws_client = WsClientMock.new(handshake_error: nil)
