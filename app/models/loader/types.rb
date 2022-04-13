@@ -20,7 +20,7 @@ module Loader
         ::Role["#{account}:user:admin"] || raise(Exceptions::RecordNotFound, "#{account}:user:admin")
       end
 
-      #  Wraps a policy object with a corresponding +Loader::Types+ object.
+      # Wraps a policy object with a corresponding +Loader::Types+ object.
       #
       # +external_handler+ should provide the methods +policy_id+, +handle_password+,
       # +handle_public_key+. This argument is optional if the policy will not use
