@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
+## [1.17.6] - 2022-04-07
+
+### Changed
+- Adding option to allow user creation only under root policy
+
+### Security
+- Solution for integration with Identity
+  [cyberark/conjur#2537](https://github.com/cyberark/conjur/pull/2537)
+
 ## [1.17.5] - 2022-04-07
 
 ### Changed
