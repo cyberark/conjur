@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [1.17.6] - 2022-04-07
 
 ### Changed
-- Adding option to allow user creation only under root policy
+- Adds `CONJUR_USERS_IN_ROOT_POLICY_ONLY` environment variable to prevent users from being created outside the root policy.
 
 ### Security
 - Solution for integration with Identity
