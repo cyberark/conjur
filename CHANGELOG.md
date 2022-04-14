@@ -14,10 +14,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 - Adds `CONJUR_USERS_IN_ROOT_POLICY_ONLY` environment variable to prevent users from being created outside the root policy.
 
-### Security
-- Solution for integration with Identity
-  [cyberark/conjur#2537](https://github.com/cyberark/conjur/pull/2537)
-
 ## [1.17.5] - 2022-04-07
 
 ### Changed
