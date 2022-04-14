@@ -36,6 +36,7 @@ ENABLE_OIDC_ADFS=false
 ENABLE_OIDC_OKTA=false
 ENABLE_ROTATORS=false
 ENABLE_AUDIT=false
+ENABLE_METRICS=false
 
 main() {
   unset COMPOSE_PROJECT_NAME
@@ -68,6 +69,7 @@ main() {
   init_jwt
   init_oidc
   init_rotators
+  init_metrics
 
   # Updates CONJUR_AUTHENTICATORS and restarts required services.
   start_auth_services
@@ -106,6 +108,8 @@ Usage: start [options]
 
     --audit         Starts with the audit engine and database enabled
 
+    --metrics       Starts with the prometheus telemetry features enabled
+
     -h, --help      Shows this help message.
 EOF
   exit
@@ -124,6 +128,7 @@ parse_options() {
       --oidc-okta ) ENABLE_OIDC_OKTA=true ; shift ;;
       --rotators ) ENABLE_ROTATORS=true ; shift ;;
       --audit ) ENABLE_AUDIT=true ; shift ;;
+      --metrics ) ENABLE_METRICS=true ; shift ;;
       -h | --help ) print_help ; shift ;;
        * )
          if [ -z "$1" ]; then
@@ -399,6 +404,13 @@ init_iam() {
   docker-compose exec conjur \
     conjurctl policy load cucumber \
     "/src/conjur-server/dev/files/authn-iam/policy.yml"
+}
+
+init_metrics() {
+  if [[ $ENABLE_METRICS != true ]]; then
+    return
+  fi
+  env_args+=(-e "CONJUR_TELEMETRY_ENABLED=true")
 }
 
 start_auth_services() {

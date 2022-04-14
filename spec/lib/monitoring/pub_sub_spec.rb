@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'monitoring/pub_sub'
 
 describe Monitoring::PubSub do
   let(:pubsub) { Monitoring::PubSub.instance }
