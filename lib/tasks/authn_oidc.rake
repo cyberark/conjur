@@ -9,9 +9,9 @@ namespace :oidc do
   def authenticator
     ::Authentication::AuthnOidc2::Callback.new(
       config: {
-        issuer_uri: 'https://dev-92899796.okta.com/oauth2/default',
-        client_id: '0oa3w3xig6rHiu9yT5d7',
-        client_secret: 'xUJKcusQXhWrq_ufsxTQBdNKtJHdKCNoyGLrL_Xk',
+        issuer_uri: ENV['OIDC_ISSUER_URI'],
+        client_id: ENV['OIDC_CLIENT_ID'],
+        client_secret: ENV['OIDC_CLIENT_SECRET'],
         redirect_uri: 'http://localhost:3000/authn-oidc/okta/cucumber/callback',
         claim_mapping: 'preferred_username'
       },
@@ -39,9 +39,9 @@ namespace :oidc do
     authenticator.create(
       authenticator: Authenticator::Repository::Schema::Oidc.new(
         service_id: "test-oidc-#{SecureRandom.hex(3)}",
-        provider_uri: 'https://dev-92899796.okta.com/oauth2/default',
-        client_id: '0oa3w3xig6rHiu9yT5d7',
-        client_secret: 'xUJKcusQXhWrq_ufsxTQBdNKtJHdKCNoyGLrL_Xk',
+        provider_uri: ENV['OIDC_ISSUER_URI'],
+        client_id: ENV['OIDC_CLIENT_ID'],
+        client_secret: ENV['OIDC_CLIENT_SECRET'],
         claim_mapping: 'preferred_username'
       )
     )
@@ -56,9 +56,9 @@ namespace :oidc do
     authenticator.update(
       authenticator: Authenticator::Repository::Schema::Oidc.new(
         service_id: 'test-oidc-1',
-        provider_uri: 'https://dev-92899796.okta.com/oauth2/default',
-        client_id: '0oa3w3xig6rHiu9yT5d7',
-        client_secret: 'xUJKcusQXhWrq_ufsxTQBdNKtJHdKCNoyGLrL_Xk',
+        provider_uri: ENV['OIDC_ISSUER_URI'],
+        client_id: ENV['OIDC_CLIENT_ID'],
+        client_secret: ENV['OIDC_CLIENT_SECRET'],
         claim_mapping: 'preferred_username'
       )
     )

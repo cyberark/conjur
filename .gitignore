@@ -71,3 +71,5 @@ gems/*/Gemfile.lock
 conjur_git_commit
 
 VERSION
+
+.env

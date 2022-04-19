@@ -178,6 +178,10 @@ GEM
       multi_json
     domain_name (0.5.20190701)
       unf (>= 0.0.5, < 1.0.0)
+    dotenv (2.7.6)
+    dotenv-rails (2.7.6)
+      dotenv (= 2.7.6)
+      railties (>= 3.2)
     dry-configurable (0.13.0)
       concurrent-ruby (~> 1.0)
       dry-core (~> 0.6)
@@ -484,6 +488,7 @@ DEPENDENCIES
   cucumber (~> 7.1)
   database_cleaner (~> 1.8)
   debase (~> 0.2.5.beta2)
+  dotenv-rails
   dry-struct
   dry-types
   event_emitter
@@ -538,4 +543,4 @@ DEPENDENCIES
   websocket
 
 BUNDLED WITH
-   2.2.31
+   2.2.33
