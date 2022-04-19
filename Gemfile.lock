@@ -308,7 +308,6 @@ GEM
       httpclient
       json-jwt (>= 1.11.0)
       rack (>= 2.1.0)
-    rack-rewrite (1.5.1)
     rack-test (1.1.0)
       rack (>= 1.0, < 3)
     rails (6.1.4.7)
@@ -509,7 +508,6 @@ DEPENDENCIES
   pry-rails
   puma (~> 5.6)
   rack (~> 2.2)
-  rack-rewrite
   rails (~> 6.1, >= 6.1.4.6)
   rails-controller-testing
   rails_12factor
@@ -538,4 +536,4 @@ DEPENDENCIES
   websocket
 
 BUNDLED WITH
-   2.2.31
+   2.2.33
