@@ -44,7 +44,7 @@ services:
       RAILS_ENV:
       REQUIRE_SIMPLECOV: "true"
       CONJUR_LOG_LEVEL: debug
-      CONJUR_AUTHENTICATORS: authn-ldap/test,authn-ldap/secure,authn-oidc/keycloak,authn-oidc,authn-k8s/test,authn-azure/prod,authn-gcp,authn-jwt/raw,authn-jwt/keycloak
+      CONJUR_AUTHENTICATORS: authn-ldap/test,authn-ldap/secure,authn-oidc/keycloak,authn-oidc,authn-k8s/test,authn-azure/prod,authn-gcp,authn-jwt/raw,authn-jwt/keycloak,authn-oidc/keycloak2
       LDAP_URI: ldap://ldap-server:389
       LDAP_BASE: dc=conjur,dc=net
       LDAP_FILTER: '(uid=%s)'
@@ -130,7 +130,7 @@ services:
       - KEYCLOAK_NON_CONJUR_APP_USER_EMAIL=not_in_conjur
       - DB_VENDOR=H2
       - KEYCLOAK_CLIENT_ID=conjurClient
-      - KEYCLOAK_REDIRECT_URI=http://locallhost.com/
+      - KEYCLOAK_REDIRECT_URI=http://conjur:3000/authn-oidc/keycloak2/cucumber/authenticate
       - KEYCLOAK_CLIENT_SECRET=1234
       - KEYCLOAK_SCOPE=openid
     volumes:

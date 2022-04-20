@@ -132,7 +132,7 @@ services:
       - KEYCLOAK_NON_CONJUR_APP_USER_EMAIL=not_in_conjur
       - DB_VENDOR=H2
       - KEYCLOAK_CLIENT_ID=conjurClient
-      - KEYCLOAK_REDIRECT_URI=http://locallhost.com/
+      - KEYCLOAK_REDIRECT_URI=http://conjur:3000/authn-oidc/keycloak2/cucumber/authenticate
       - KEYCLOAK_CLIENT_SECRET=1234
       - KEYCLOAK_SCOPE=openid
     ports:

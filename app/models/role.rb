@@ -57,6 +57,14 @@ class Role < Sequel::Model
       tokens.join(":")
     end
 
+    def from_username(account, login)
+      tokens = login.split('/', 2)
+      tokens.unshift('user') if tokens.length == 1
+      tokens.unshift(account)
+
+      self[role_id: tokens.join(":")]
+    end
+
     def username_from_roleid(roleid)
       _, kind, id = roleid.split(":", 3)
       return id if kind == 'user'
