@@ -199,9 +199,9 @@ module Loader
     class User < Record
       def_delegators :@policy_object, :public_keys, :account, :role_kind, :uidnumber, :restricted_to
 
-      def check_user_creation_allowed(resource_id:)
-        return unless Conjur::Rack.user.login != 'admin'
-        if ENV['CONJUR_USERS_IN_ROOT_POLICY_ONLY'] == 'true'
+      def check_user_creation_allowed(resource_id:, user_id:)
+        return unless user_id != 'admin'
+        if ENV['CONJUR_USERS_BY_ADMIN_ONLY'] == 'true'
           message = "User creation through policy is disabled."
           raise Exceptions::InvalidPolicyObject.new(resource_id, message: message)
         end
@@ -209,7 +209,7 @@ module Loader
 
       # Below is a sample method verifying policy data validity
       def verify
-        check_user_creation_allowed(resource_id: resourceid)
+        check_user_creation_allowed(resource_id: resourceid, user_id: Conjur::Rack.user.login)
 
         # if self.uidnumber == 8
         #  message = "User '#{self.id}' has wrong params"
