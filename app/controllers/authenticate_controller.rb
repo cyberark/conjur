@@ -113,21 +113,20 @@ class AuthenticateController < ApplicationController
 
   # Update the input to have the username from the token and authenticate
   def authenticate_oidc
-    params[:authenticator] = "authn-oidc"
-    input = Authentication::AuthnOidc::UpdateInputWithUsernameFromIdToken.new.(
-      authenticator_input: authenticator_input
+    auth_token = Authentication::Handler::OidcAuthenticationHandler.authenticate(
+      service_id: params[:service_id],
+      account: params[:account],
+      parameters: {
+        state: params[:state],
+        client_ip: request.ip,
+        credentials: request.body.read,
+        code: params[:code]
+      }
     )
-    # We don't audit success here as the authentication process is not done
+
+    render_authn_token(auth_token)
   rescue => e
-    # At this point authenticator_input.username is always empty (e.g. cucumber:user:USERNAME_MISSING)
-    log_audit_failure(
-      authn_params: authenticator_input,
-      audit_event_class: Audit::Event::Authn::Authenticate,
-      error: e
-    )
     handle_authentication_error(e)
-  else
-    authenticate(input)
   end
 
   def authenticate_gcp
