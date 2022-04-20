@@ -24,6 +24,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   Gemfile.lock and in docs/Gemfile.lock)
   [cyberark/conjur#2558](https://github.com/cyberark/conjur/pull/2558)
 
+### Added
+- Adding new OIDC authenticator to handle third party auth flows
+  [cyberark/conjur#2534](https://github.com/cyberark/conjur/pull/2544)
+
 ## [1.17.6] - 2022-04-07
 
 ### Changed
@@ -868,7 +872,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - The first tagged version.
 
-[Unreleased]: https://github.com/cyberark/conjur/compare/v1.17.5...HEAD
+[Unreleased]: https://github.com/cyberark/conjur/compare/v1.17.7...HEAD
+[1.17.7]: https://github.com/cyberark/conjur/compare/v1.17.6...v1.17.7
+[1.17.6]: https://github.com/cyberark/conjur/compare/v1.17.5...v1.17.6
 [1.17.5]: https://github.com/cyberark/conjur/compare/v1.17.3...v1.17.5
 [1.17.3]: https://github.com/cyberark/conjur/compare/v1.16.0...v1.17.3
 [1.16.0]: https://github.com/cyberark/conjur/compare/v1.15.0...v1.16.0
