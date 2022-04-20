@@ -1,11 +1,12 @@
 module Authenticator
   class OidcAuthenticator < Authenticator
-    attr_reader :name, :provider_uri, :client_id, :client_secret,
-                :claim_mapping, :state, :nonce
+    attr_reader :name, :provider_uri, :response_type, :client_id,
+                :client_secret, :claim_mapping, :state, :nonce, :redirect_uri
 
-    def initialize(account:, service_id:, required_payload_parameters:, name:,
-                   provider_uri:, response_type:, client_id:, client_secret:,
-                   claim_mapping:, state:, nonce:, redirect_uri:)
+    def initialize(account:, service_id:, required_payload_parameters: nil,
+                   name: nil, provider_uri: nil, response_type: nil,
+                   client_id: nil, client_secret: nil, claim_mapping: nil,
+                   state: nil, nonce: nil, redirect_uri: nil)
       super(
         account: account,
         service_id: service_id,

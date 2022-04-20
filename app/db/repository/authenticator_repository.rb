@@ -1,10 +1,8 @@
 module DB
   module Repository
     class AuthenticatorRepository
-      def initialize(resource_repository: ::Resource, secret_repository:
-            ::Secret)
+      def initialize(resource_repository: ::Resource)
         @resource_repository = resource_repository
-        @secret_repository = secret_repository
       end
 
       def find(type:, account:, service_id:)
@@ -14,20 +12,18 @@ module DB
           service_id: service_id
         )
 
-        variable_ids = @resource_repository.where(
+        variables = @resource_repository.where(
           Sequel.like(
             :resource_id,
             "#{account}:variable:conjur/authn-#{type}/#{service_id}/%"
           )
-        ).map(:resource_id)
-        variables = @resource_repository.where(
-          resource_id: variable_ids
         ).eager(:secrets).all
 
         args_list = {}.tap do |args|
           args[:account] = account
           args[:service_id] = service_id
           variables.each do |variable|
+            next unless variable.secret
             args[variable.resource_id.split('/')[-1].underscore.to_sym] = variable.secret.value
           end
         end
@@ -36,8 +32,7 @@ module DB
       end
 
       def exists?(type:, account:, service_id:)
-        return @resource_repository
-                 .exists?("#{account}:webservice:conjur/authn-#{type}/#{service_id}")
+        return @resource_repository["#{account}:webservice:conjur/authn-#{type}/#{service_id}"].exists?
       end
     end
   end
