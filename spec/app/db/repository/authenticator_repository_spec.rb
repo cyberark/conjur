@@ -3,131 +3,67 @@
 require 'spec_helper'
 
 RSpec.describe('DB::Repository::AuthenticatorRepository') do
+  let(:repo) { DB::Repository::AuthenticatorRepository.new() }
 
   describe('exists method') do
     context "with missing parameters" do
-      before do
-        @resource = double("::Resource")
-        allow(@resource).to receive(:[]).and_return(@resource)
-        allow(@resource).to receive(:exists?).and_return(false)
-      end
-
       it "returns false with no parameters" do
-        expect(@resource).to receive(:[]).with(":webservice:conjur/authn-/")
-
-        repo = DB::Repository::AuthenticatorRepository.new(
-          resource_repository: @resource
-        )
         expect(repo.exists?(type: nil, account: nil, service_id: nil)).to eq (false)
       end
 
       it "returns false with no type parameter" do
-        expect(@resource).to receive(:[]).with("rspec:webservice:conjur/authn-/abc123")
-
-        repo = DB::Repository::AuthenticatorRepository.new(
-          resource_repository: @resource
-        )
-        expect(
-          repo.exists?(type: nil, account: "rspec", service_id: "abc123")
-        ).to eq(false)
+        expect(repo.exists?(type: nil, account: "rspec", service_id: "abc123")).to eq(false)
       end
 
       it "returns false with no account parameter" do
-        expect(@resource).to receive(:[]).with(":webservice:conjur/authn-oidc/abc123")
-
-        repo = DB::Repository::AuthenticatorRepository.new(
-          resource_repository: @resource
-        )
-        expect(
-          repo.exists?(type: "oidc", account: nil, service_id: "abc123")
-        ).to eq(false)
+        expect(repo.exists?(type: "oidc", account: nil, service_id: "abc123")).to eq(false)
       end
 
       it "returns false with no service_id parameter" do
-        expect(@resource).to receive(:[]).with("rspec:webservice:conjur/authn-oidc/")
-
-        repo = DB::Repository::AuthenticatorRepository.new(
-          resource_repository: @resource
-        )
-        expect(
-          repo.exists?(type: "oidc", account: "rspec", service_id: nil)
-        ).to eq(false)
+        expect(repo.exists?(type: "oidc", account: "rspec", service_id: nil)).to eq(false)
       end
     end
 
     context "all params" do
-      before do
-        @resource = double("::Resource")
-      end
-
       it "returns false if the resource doesn't exist" do
-        allow(@resource).to receive(:[]).and_return(@resource)
-        allow(@resource).to receive(:exists?).and_return(false)
-        expect(@resource).to receive(:[]).with("rspec:webservice:conjur/authn-oidc/abc123")
-
-        repo = DB::Repository::AuthenticatorRepository.new(
-          resource_repository: @resource
-        )
-        expect(
-          repo.exists?(type: "oidc", account: "rspec", service_id: "abc123")
-        ).to eq(false)
+        expect(repo.exists?(type: "oidc", account: "rspec", service_id: "abc123")).to eq(false)
       end
 
       it "returns true if the resource does exist" do
-        allow(@resource).to receive(:[]).and_return(@resource)
-        allow(@resource).to receive(:exists?).and_return(true)
-        expect(@resource).to receive(:[]).with("rspec:webservice:conjur/authn-oidc/abc123")
-
-        repo = DB::Repository::AuthenticatorRepository.new(
-          resource_repository: @resource
+        ::Role.create(
+          role_id: "rspec:policy:conjur/authn-oidc/abc123"
         )
-        expect(
-          repo.exists?(type: "oidc", account: "rspec", service_id: "abc123")
-        ).to eq(true)
+        ::Resource.create(
+          resource_id: "rspec:webservice:conjur/authn-oidc/abc123",
+          owner_id: "rspec:policy:conjur/authn-oidc/abc123"
+        )
+        expect(repo.exists?(type: "oidc", account: "rspec", service_id: "abc123")).to eq(true)
       end
     end
   end
 
   describe("find") do
     context "missing parameters" do
-      before do
-        @resource = double("::Resource")
-        allow(@resource).to receive(:[]).and_return(@resource)
-        allow(@resource).to receive(:exists?).and_return(false)
-      end
-
       it "returns nil with no parameters" do
-        repo = DB::Repository::AuthenticatorRepository.new(
-          resource_repository: @resource
-        )
         expect(repo.find(type: nil, account: nil, service_id: nil)).to be_nil
       end
 
       it "returns nil with no type parameter" do
-        repo = DB::Repository::AuthenticatorRepository.new(
-          resource_repository: @resource
-        )
-        expect(
-          repo.find(type: nil, account: "rspec", service_id: "abc123")
-        ).to be_nil
+        expect(repo.find(type: nil, account: "rspec", service_id: "abc123")).to be_nil
       end
 
       it "returns nil with no account parameter" do
-        repo = DB::Repository::AuthenticatorRepository.new(
-          resource_repository: @resource
-        )
-        expect(
-          repo.find(type: "oidc", account: nil, service_id: "abc123")
-        ).to be_nil
+        expect(repo.find(type: "oidc", account: nil, service_id: "abc123")).to be_nil
       end
 
       it "returns nil with no service_id parameter" do
-        repo = DB::Repository::AuthenticatorRepository.new(
-          resource_repository: @resource
-        )
-        expect(
-          repo.find(type: "oidc", account: "rspec", service_id: nil)
-        ).to be_nil
+        expect(repo.find(type: "oidc", account: "rspec", service_id: nil)).to be_nil
+      end
+    end
+
+    context "no variables are set" do
+      it "returns nil when the authenticator doesn't exist" do
+        expect(repo.find(type: "oidc", account: "rspec", service_id: "abc123")).to be_nil
       end
     end
 
@@ -140,11 +76,10 @@ RSpec.describe('DB::Repository::AuthenticatorRepository') do
           resource_id: "rspec:webservice:conjur/authn-oidc/abc123",
           owner_id: "rspec:policy:conjur/authn-oidc/abc123"
         )
-        @repo = DB::Repository::AuthenticatorRepository.new()
       end
 
       it "returns an authenticator with no variables set" do
-        authenticator = @repo.find(type: "oidc", account: "rspec", service_id: "abc123")
+        authenticator = repo.find(type: "oidc", account: "rspec", service_id: "abc123")
         expect(authenticator).to be_truthy
         expect(authenticator.class.to_s).to eq("Authenticator::OidcAuthenticator")
         expect(authenticator.account).to eq("rspec")
@@ -183,11 +118,10 @@ RSpec.describe('DB::Repository::AuthenticatorRepository') do
             owner_id: "rspec:webservice:conjur/authn-oidc/abc123"
           )
         end
-        @repo = DB::Repository::AuthenticatorRepository.new()
       end
 
       it "returns an authenticator with no variables set" do
-        authenticator = @repo.find(type: "oidc", account: "rspec", service_id: "abc123")
+        authenticator = repo.find(type: "oidc", account: "rspec", service_id: "abc123")
         expect(authenticator).to be_truthy
         expect(authenticator.class.to_s).to eq("Authenticator::OidcAuthenticator")
         expect(authenticator.account).to eq("rspec")
@@ -231,11 +165,10 @@ RSpec.describe('DB::Repository::AuthenticatorRepository') do
             value: "#{variable}abc123"
           )
         end
-        @repo = DB::Repository::AuthenticatorRepository.new()
       end
 
       it "returns an authenticator with all properties set" do
-        authenticator = @repo.find(type: "oidc", account: "rspec", service_id: "abc123")
+        authenticator = repo.find(type: "oidc", account: "rspec", service_id: "abc123")
         expect(authenticator).to be_truthy
         expect(authenticator.class.to_s).to eq("Authenticator::OidcAuthenticator")
         expect(authenticator.account).to eq("rspec")

@@ -1,6 +1,25 @@
+require 'openid_connect'
+
 module Authentication
   module Handler
     class OidcAuthenticationHandler < AuthenticationHandler
+      def initialize(
+        authenticator_repository: ::DB::Repository::AuthenticatorRepository.new,
+        token_factory: TokenFactory.new,
+        role_repository_class: ::Role,
+        resource_repository_class: ::Resource,
+        oidc_util: nil
+      )
+        super(
+          authenticator_repository: authenticator_repository,
+          token_factory: token_factory,
+          role_repository_class: role_repository_class,
+          resource_repository_class: resource_repository_class
+        )
+
+        @oidc_util = oidc_util
+      end
+
       def generate_login_url(authenticator)
         params = {
           client_id: authenticator.client_id,
@@ -10,30 +29,28 @@ module Authentication
           nonce: authenticator.nonce,
         }.map { |key, value| "#{key}=#{value}" }.join("&")
 
-        return "#{discovery_information.authorization_endpoint}?#{params}"
+        return "#{oidc_util(authenticator).discovery_information.authorization_endpoint}?#{params}"
 
       end
 
       protected
 
-      def validate_payload_is_valid(authenticator, payload)
-        super.validate_payload_is_valid(authenticator, payload)
+      def validate_parameters_are_valid(authenticator, parameters)
+        super(authenticator, parameters)
 
-        raise "State Mismatch" unless payload[:state] == authenticator.state
+        raise "State Mismatch" unless parameters[:state] == authenticator.state
       end
 
-      def extract_identity(authenticator, payload)
-        client.authorization_code = params[:code]
-        id_token = client.access_token!(
+      def extract_identity(authenticator, params)
+        oidc_util = oidc_util(authenticator)
+
+        oidc_util.client.authorization_code = params[:code]
+        id_token = oidc_util.client.access_token!(
           scope: true,
           client_auth_method: :basic
         ).id_token
 
-        decoded_id_token = ::OpenIDConnect::ResponseObject::IdToken.decode(
-          id_token,
-          discovery_information.jwks
-        )
-
+        decoded_id_token = oidc_util.decode_token(id_token)
         decoded_id_token.verify!(
           issuer: authenticator.provider_uri,
           client_id: authenticator.client_id,
@@ -47,30 +64,8 @@ module Authentication
         return 'oidc'
       end
 
-      def discovery_information(authenticator, provider_uri)
-        Rails.cache.fetch("#{authenticator.account}/#{authenticator.service_id}/provider_uri",
-                          expires_in: 5.min) do
-          ::OpenIDConnect::Discovery::Provider::Config.discover!(provider_uri)
-        end
-      end
-
-      def client(authenticator)
-        @client ||= begin
-          issuer_uri = URI(authenticator.provider_uri)
-          ::OpenIDConnect::Client.new(
-            identifier: authenticator.client_id,
-            secret: authenticator.client_secret,
-            redirect_uri: authenticator.redirect_uri,
-            scheme: issuer_uri.scheme,
-            host: issuer_uri.host,
-            port: issuer_uri.port,
-            authorization_endpoint: URI(discovery_information.authorization_endpoint).path,
-            token_endpoint: URI(discovery_information.token_endpoint).path,
-            userinfo_endpoint: URI(discovery_information.userinfo_endpoint).path,
-            jwks_uri: URI(discovery_information.jwks_uri).path,
-            end_session_endpoint: URI(discovery_information.end_session_endpoint).path
-          )
-        end
+      def oidc_util(authenticator)
+        @oidc_util ||= Authentication::Util::OidcUtil.new(authenticator: authenticator)
       end
     end
   end

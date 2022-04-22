@@ -25,9 +25,17 @@ module Authenticator
     end
 
     def is_valid?
-      return super.is_valid? && @name && @provider_uri && @response_type &&
+      return super && @name && @provider_uri && @response_type &&
         @client_id && @client_secret && @claim_mapping && @state && @nonce &&
         @redirect_uri
+    end
+
+    def authenticator_name
+      return self.service_id ? "authn-oidc/#{self.service_id}" : "authn-oidc"
+    end
+
+    def resource_id
+      return self.service_id ? "#{account}/webservice/authn-oidc/#{self.service_id}" : "#{account}/webservice/authn-oidc"
     end
   end
 end

@@ -32,7 +32,7 @@ module DB
       end
 
       def exists?(type:, account:, service_id:)
-        return @resource_repository["#{account}:webservice:conjur/authn-#{type}/#{service_id}"].exists?
+        return @resource_repository.with_pk("#{account}:webservice:conjur/authn-#{type}/#{service_id}") != nil
       end
     end
   end

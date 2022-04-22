@@ -1,12 +1,19 @@
 module Authentication
   module Handler
     class AuthenticationHandler
-      def initialize(authenticator_repository: ::DB::Repository::AuthenticatorRepository.new, token_factory: TokenFactory.new)
+      def initialize(
+        authenticator_repository: ::DB::Repository::AuthenticatorRepository.new,
+        token_factory: TokenFactory.new,
+        role_repository_class: ::Role,
+        resource_repository_class: ::Resource
+      )
         @authenticator_repository = authenticator_repository
         @token_factory = token_factory
+        @role_repository_class = role_repository_class
+        @resource_repository_class = resource_repository_class
       end
 
-      def authenticate(account, service_id, parameters)
+      def authenticate(account:, service_id:, parameters:)
         validate_account_exists(account)
         authenticator = @authenticator_repository.find(
           type: type,
@@ -17,13 +24,12 @@ module Authentication
         validate_authenticator(authenticator)
         validate_parameters_are_valid(authenticator, parameters)
 
-        conjur_role = fetch_conjur_role(
-          authenticator.account,
-          extract_identity(authenticator, parameters)
-        )
+        username = extract_identity(authenticator, parameters)
+        conjur_role = fetch_conjur_role(authenticator.account, username)
+        raise Errors::Authentication::Security::RoleNotFound, username unless conjur_role
         validate_identity_can_use_authenticator?(authenticator, conjur_role)
 
-        validate_client_ip(parameters['client_ip'], conjur_role)
+        validate_client_ip(parameters[:client_ip], conjur_role)
 
         return generate_token(account, conjur_role)
       end
@@ -50,8 +56,7 @@ module Authentication
       def validate_parameters_are_valid(authenticator, parameters)
         return unless authenticator.required_payload_parameters
         authenticator.required_payload_parameters.each do |param|
-          raise "Required parameter #{param} is missing from parameters" unless
-            parameters[param]
+          raise "Required parameter #{param} is missing from parameters" unless parameters[param]
         end
       end
 
@@ -74,9 +79,9 @@ module Authentication
           role.identifier,
           identity_required_privilege,
           authenticator.resource_id
-        ) unless user_role.allowed_to?(
+        ) unless role&.allowed_to?(
           identity_required_privilege,
-           ::Resource[authenticator.resource_id]
+          @resource_repository_class[authenticator.resource_id]
         )
       end
 
@@ -92,17 +97,15 @@ module Authentication
       end
 
       def fetch_conjur_role(account, identity)
-        return ::Role[::Role.roleid_from_username(account, identity)]
+        return @role_repository_class.from_username(account, identity)
       end
 
       def validate_account_exists(account)
-        raise Errors::Authentication::Security::AccountNotDefined, account unless ::Role.exists?["#{account}:user:admin"]
+        raise Errors::Authentication::Security::AccountNotDefined, account unless @role_repository_class.with_pk("#{account}:user:admin") != nil
       end
 
       def validate_authenticator(authenticator)
-        raise Errors::Authentication::AuthenticatorNotSupported unless authenticator &&
-          authenticator.is_valid? &&
-          is_enabled?(authenticator)
+        raise Errors::Authentication::AuthenticatorNotSupported, authenticator&.authenticator_name unless authenticator&.is_valid? && is_enabled?(authenticator)
       end
 
       def is_enabled?(authenticator)
