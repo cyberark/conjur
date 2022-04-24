@@ -418,20 +418,6 @@ start_auth_services() {
 create_alice() {
   echo "Creating user alice"
   client_load_policy "/src/conjur-server/dev/files/policy.yml"
-
-  create_jason
-
-  create_ben_1
-}
-
-create_jason() {
-  echo "Creating user jason"
-  client_load_policy "/src/conjur-server/dev/files/policy_jason.yml"
-}
-
-create_ben_1() {
-  echo "Creating user ben1"
-  client_load_policy "/src/conjur-server/dev/files/policy_ofira_ben1.yml"
 }
 
 kill_conjur() {
