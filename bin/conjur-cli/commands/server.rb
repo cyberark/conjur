@@ -24,7 +24,9 @@ module Commands
     def call
       # Ensure the database is available
       # and the schema is up-to-date
-      @migrate_database.call
+      @migrate_database.call(
+        preview: false
+      )
 
       # Create and bootstrap the initial
       # Conjur account and policy

@@ -9,6 +9,32 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
+## [1.17.6] - 2022-04-07
+
+### Changed
+- Adds `CONJUR_USERS_IN_ROOT_POLICY_ONLY` environment variable to prevent users from being created outside the root policy.
+
+## [1.17.5] - 2022-04-07
+
+### Changed
+- Fixed promotion behavior
+
+### Security
+- Updated nokogiri to 1.13.4 to resolve CVE-2022-24836
+  [cyberark/conjur#2534](https://github.com/cyberark/conjur/pull/2534)
+
+## [1.17.3] - 2022-04-04
+
+### Changed
+- Fixed issue where an invalid content type sent by our .NET SDK was causing
+  Conjur to error - but this wasn't the case before the Ruby 3 upgrade
+  [#2525](https://github.com/cyberark/conjur/pull/2525)
+- Verify non user or host resources do not have credentials.
+
+### Security
+- Updated KubeClient to 4.9.3 to resolve CVE-2022-0759
+  [cyberark/conjur#2527](https://github.com/cyberark/conjur/pull/2527)
+
 ## [1.17.2] - 2022-03-09
 
 ### Added
@@ -32,7 +58,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   [#2450](https://github.com/cyberark/conjur/pull/2450)
   [#2447](https://github.com/cyberark/conjur/pull/2447)
   [#2437](https://github.com/cyberark/conjur/pull/2437))
-- Added support for SNI certificates when talking to the Kubernetes API 
+- Added support for SNI certificates when talking to the Kubernetes API
   server through the web socket client.
   [#2482](https://github.com/cyberark/conjur/pull/2482)
 - Added support for http(s)_proxy for Kubernetes client in Kubernetes
@@ -47,7 +73,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Fixed
 - IAM Authn bug fix - Take rexml gem to production configuration [#2493](https://github.com/cyberark/conjur/pull/2493)
-- Previously, a stale puma pid file would prevent the Conjur server from starting 
+- Previously, a stale puma pid file would prevent the Conjur server from starting
   successfully. Conjur now removes a stale pid file at startup, if it exists.
   [#2498](https://github.com/cyberark/conjur/pull/2498)
 - Use entirety of configured Kubernetes endpoint URL in Kubernetes authenticator's
@@ -63,7 +89,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   [cyberark/conjur#2486](https://github.com/cyberark/conjur/pull/2486)
 - Updated Rails to 6.1.4.6 to resolve CVE-2022-23633
 - Updated Puma to 5.6.2 to resolve CVE-2022-23634
-  [cyberark/conjur#2492](https://github.com/cyberark/conjur/pull/2492)  
+  [cyberark/conjur#2492](https://github.com/cyberark/conjur/pull/2492)
 - Updated Puma to 5.6.4 to resolve CVE-2022-24790
   [cyberark/conjur#2534](https://github.com/cyberark/conjur/pull/2534)
 
@@ -88,9 +114,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   [#2418](https://github.com/cyberark/conjur/pull/2418)
 
 ### Fixed
-- Return 401 instead of 500 for invalid basic auth header. 
+- Return 401 instead of 500 for invalid basic auth header.
   [#1990](https://github.com/cyberark/conjur/issues/1990)
-- Added check to stop hosts from setting passwords 
+- Added check to stop hosts from setting passwords
   [#1920](https://github/cyberark/conjur/issues/1920)
 
 ### Security
@@ -121,7 +147,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [1.13.2] - 2021-10-13
 
 ### Security
-- Updated puma to 5.5.1 to close 
+- Updated puma to 5.5.1 to close
   [GHSA-48w2-rm65-62xx](https://github.com/puma/puma/security/advisories/GHSA-48w2-rm65-62xx).
   We were not vulnerable to this issue. [cyberark/conjur#2385](https://github.com/cyberark/conjur/pull/2385)
 - GCP Authenticator: When defining the host using the instance-name annotation,
@@ -823,7 +849,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - The first tagged version.
 
-[Unreleased]: https://github.com/cyberark/conjur/compare/v1.16.0...HEAD
+[Unreleased]: https://github.com/cyberark/conjur/compare/v1.17.5...HEAD
+[1.17.5]: https://github.com/cyberark/conjur/compare/v1.17.3...v1.17.5
+[1.17.3]: https://github.com/cyberark/conjur/compare/v1.16.0...v1.17.3
 [1.16.0]: https://github.com/cyberark/conjur/compare/v1.15.0...v1.16.0
 [1.15.0]: https://github.com/cyberark/conjur/compare/v1.14.2...v1.15.0
 [1.14.2]: https://github.com/cyberark/conjur/compare/v1.14.1...v1.14.2

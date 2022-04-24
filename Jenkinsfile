@@ -58,8 +58,10 @@ properties([
 // Performs release promotion.  No other stages will be run
 if (params.MODE == "PROMOTE") {
   release.promote(params.VERSION_TO_PROMOTE) { sourceVersion, targetVersion, assetDirectory ->
-    sh "docker pull registry.tld/conjur:${sourceVersion}"
+    sh "docker pull registry.tld/cyberark/conjur:${sourceVersion}"
+    sh "docker tag registry.tld/cyberark/conjur:${sourceVersion} conjur:${sourceVersion}"
     sh "docker pull registry.tld/conjur-ubi:${sourceVersion}"
+    sh "docker tag registry.tld/conjur-ubi:${sourceVersion} conjur-ubi:${sourceVersion}"
     sh "summon -f ./secrets.yml ./publish-images.sh --promote --redhat --base-version=${sourceVersion} --version=${targetVersion}"
 
     // Trigger Conjurops build to push newly promoted releases of conjur to ConjurOps Staging

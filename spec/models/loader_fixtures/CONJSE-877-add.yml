@@ -1,0 +1,16 @@
+- !policy
+  id: myDemoApp
+  body:
+    - !user sasha
+    - !host app
+    - !variable secret
+    - !permit
+      role: [ !user sasha, !host app ]
+      privileges: [ read, execute ]
+      resources: !variable secret
+
+- !variable topSecret
+- !permit
+  role: [ !user sasha@myDemoApp, !host myDemoApp/app ]
+  privileges: [ read, execute ]
+  resources: !variable topSecret
