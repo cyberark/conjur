@@ -207,7 +207,7 @@ module Loader
         # end
       end
 
-      # Below is a sample method filling defaults for User entity in policy
+      #  Below is a sample method filling defaults for User entity in policy
       # def calculate_defaults!
       #  if self.uidnumber == nil
       #    self.annotations["conjur/uidnumber"] = 10
