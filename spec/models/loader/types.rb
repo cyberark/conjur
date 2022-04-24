@@ -14,14 +14,9 @@ describe Loader::Types::User do
         allow(ENV).to receive(:[]).with('CONJUR_USERS_BY_ADMIN_ONLY').and_return('true')
       end
 
-      context 'when the user is loaded be admin user' do
-        let(:resource_id) { 'alice' }
-        it { expect { user.check_user_creation_allowed(resource_id: 'alice', user_id: 'admin') }.to_not raise_error }
-      end
-
       context 'when the user is loaded by tina user' do
         let(:resource_id) { 'alice' }
-        it { expect { user.check_user_creation_allowed(resource_id: 'alice', user_id: 'tina') }.to raise_error(Exceptions::InvalidPolicyObject) }
+        it { expect { user.check_user_creation_allowed(resource_id: 'alice') }.to raise_error(Exceptions::InvalidPolicyObject) }
       end
     end
     context 'when CONJUR_USERS_BY_ADMIN_ONLY is false' do
@@ -31,24 +26,24 @@ describe Loader::Types::User do
 
       context 'when the user is loaded by admin user' do
         let(:resource_id) { 'alice' }
-        it { expect { user.check_user_creation_allowed(resource_id: 'alice', user_id: 'admin') }.to_not raise_error }
+        it { expect { user.check_user_creation_allowed(resource_id: 'alice') }.to_not raise_error }
       end
 
       context 'when the user is loaded by tina user' do
         let(:resource_id) { 'alice' }
-        it { expect { user.check_user_creation_allowed(resource_id: 'alice', user_id: 'tina') }.to_not raise_error }
+        it { expect { user.check_user_creation_allowed(resource_id: 'alice') }.to_not raise_error }
       end
     end
 
     context 'when CONJUR_USERS_BY_ADMIN_ONLY is not set' do
       context 'when the user is loaded by admin user' do
         let(:resource_id) { 'alice' }
-        it { expect { user.check_user_creation_allowed(resource_id: 'alice', user_id: 'admin') }.to_not raise_error }
+        it { expect { user.check_user_creation_allowed(resource_id: 'alice') }.to raise_error(Exceptions::InvalidPolicyObject) }
       end
 
       context 'when the user is loaded by tina user' do
         let(:resource_id) { 'alice' }
-        it { expect { user.check_user_creation_allowed(resource_id: 'alice', user_id: 'tina') }.to_not raise_error }
+        it { expect { user.check_user_creation_allowed(resource_id: 'alice') }.to raise_error(Exceptions::InvalidPolicyObject) }
       end
     end
   end
