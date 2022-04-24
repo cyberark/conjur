@@ -201,6 +201,7 @@ module Loader
 
       def check_user_creation_allowed(resource_id:, user_id:)
         return unless user_id != 'admin'
+        
         if ENV['CONJUR_USERS_BY_ADMIN_ONLY'] == 'true'
           message = "User creation through policy is disabled."
           raise Exceptions::InvalidPolicyObject.new(resource_id, message: message)
