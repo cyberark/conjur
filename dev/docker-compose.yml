@@ -39,6 +39,7 @@ services:
       CONJUR_DATA_KEY:
       RAILS_ENV:
       CONJUR_LOG_LEVEL: debug
+      CONJUR_USERS_BY_ADMIN_ONLY: "true"
       AUDIT_DATABASE_URL:
       # TODO: Where should we be running rspec tests from, ideally?
       # See https://github.com/DatabaseCleaner/database_cleaner#safeguards

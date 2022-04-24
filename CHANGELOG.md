@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [1.17.6] - 2022-04-07
 
 ### Changed
-- Adds `CONJUR_USERS_IN_ROOT_POLICY_ONLY` environment variable to prevent users from being created outside the root policy.
+- Adds `CONJUR_USERS_BY_ADMIN_ONLY` environment variable to prevent users from being created by any user or host except admin.
 
 ## [1.17.5] - 2022-04-07
 
