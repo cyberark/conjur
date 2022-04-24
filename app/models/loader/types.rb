@@ -209,9 +209,7 @@ module Loader
       # Below is a sample method verifying policy data validity
       def verify
 
-        if Conjur::Rack.user.login == 'admin'
-          check_user_creation_allowed(resource_id: resourceid, user_id: Conjur::Rack.user.login)
-        done
+        check_user_creation_allowed(resource_id: resourceid, user_id: Conjur::Rack.user.login) unless Conjur::Rack.user.login == 'admin'
 
         # if self.uidnumber == 8
         #  message = "User '#{self.id}' has wrong params"
