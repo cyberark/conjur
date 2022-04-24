@@ -25,7 +25,7 @@ module Authentication
       end
 
       def parameters
-        @json_data
+        @json_data.select {|key, value| key != 'service-id'}
       end
 
       validates(

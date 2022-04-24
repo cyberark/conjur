@@ -51,7 +51,7 @@ Rails.application.routes.draw do
         post '/authn-k8s/:service_id/inject_client_cert' => 'authenticate#k8s_inject_client_cert'
 
         constraints authenticator: /|authn-azure|authn-iam|authn-k8s|authn-ldap|authn-gcp|authn-oidc/ do
-          post '/:authenticator(/:service_id)/:account' => 'authenticators#persist_auth'
+          post '/:authenticator/:account' => 'authenticators#persist_auth'
         end
       end
 

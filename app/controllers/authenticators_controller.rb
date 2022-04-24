@@ -55,7 +55,7 @@ class AuthenticatorsController < RestController
 
   def service_id
     # Returns a default service id of "authenticator" if none is provided
-    @service_id ||= params.fetch(:service_id, "authenticator")
+    @service_id ||= @request_data.fetch("service-id", "authenticator")
   end
 
   def parse_request_body

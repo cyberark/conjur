@@ -6,9 +6,10 @@ Feature: initialize an authenticator through the api
   @smoke @acceptance
   Scenario: I initialize a k8s authenticator with name test-service
     When I save my place in the audit log file for remote
-    And I POST "/authn-k8s/test-service/cucumber" with body:
+    And I POST "/authn-k8s/cucumber" with body:
     """
     {
+      "service-id": "test-service",
       "service-account-token": "account",
       "ca-cert": "-BEGIN CERT-\ndata\n-END CERT-",
       "api-url": "http://api"
@@ -55,17 +56,19 @@ Feature: initialize an authenticator through the api
     """
 
   Scenario: I initialize a pre-existing k8s authenticator
-    When I POST "/authn-k8s/test-service/cucumber" with body:
+    When I POST "/authn-k8s/cucumber" with body:
     """
     {
+      "service-id": "test-service",
       "service-account-token": "account",
       "ca-cert": "-BEGIN CERT-\ndata\n-END CERT-",
       "api-url": "http://api"
     }
     """
-    And I POST "/authn-k8s/test-service/cucumber" with body:
+    And I POST "/authn-k8s/cucumber" with body:
     """
     {
+      "service-id": "test-service",
       "service-account-token": "account",
       "ca-cert": "-BEGIN CERT-\ndata\n-END CERT-",
       "api-url": "http://api"
@@ -103,24 +106,27 @@ Feature: initialize an authenticator through the api
 
   @negative @acceptance
   Scenario: I initialize a k8s authenticator with extra body parameters
-    When I POST "/authn-k8s/test-service/cucumber" with body:
+    When I POST "/authn-k8s/cucumber" with body:
     """
     {
+      "service-id": "test-service",
       "extra-param": "value"
     }
     """
     Then the HTTP response status code is 422
 
   Scenario: I initialize a pre-existing Azure authenticator
-    When I POST "/authn-azure/test-azure-service/cucumber" with body:
+    When I POST "/authn-azure/cucumber" with body:
     """
     {
+      "service-id": "test-azure-service",
       "provider-uri": "http://fake-url.com"
     }
     """
-    And I POST "/authn-azure/test-azure-service/cucumber" with body:
+    And I POST "/authn-azure/cucumber" with body:
     """
     {
+      "service-id": "test-azure-service",
       "provider-uri": "http://fake-url2.com"
     }
     """
@@ -146,9 +152,10 @@ Feature: initialize an authenticator through the api
 
   @negative
   Scenario: I initialize an Azure authenticator with extra body parameters
-    When I POST "/authn-azure/test-azure-service/cucumber" with body:
+    When I POST "/authn-azure/cucumber" with body:
     """
     {
+      "service-id": "test-azure-service",
       "provider-uri": "http://fake-url.com",
       "extra-param": "value"
     }
@@ -158,9 +165,10 @@ Feature: initialize an authenticator through the api
   @smoke @acceptance
   Scenario: I initialize an OIDC authenticator with name test-oidc-service
     When I save my place in the audit log file for remote
-    And I POST "/authn-oidc/test-oidc-service/cucumber" with body:
+    And I POST "/authn-oidc/cucumber" with body:
     """
     {
+      "service-id": "test-oidc-service",
       "provider-uri": "http://fake-url.com",
       "id-token-user-property": "fake-user"
     }
@@ -197,16 +205,18 @@ Feature: initialize an authenticator through the api
     """
 
   Scenario: I initialize a pre-existing OIDC authenticator
-    When I POST "/authn-oidc/test-oidc-service/cucumber" with body:
+    When I POST "/authn-oidc/cucumber" with body:
     """
     {
+      "service-id": "test-oidc-service",
       "provider-uri": "http://fake-url.com",
       "id-token-user-property": "fake-user"
     }
     """
-    And I POST "/authn-oidc/test-oidc-service/cucumber" with body:
+    And I POST "/authn-oidc/cucumber" with body:
     """
     {
+      "service-id": "test-oidc-service",
       "provider-uri": "http://fake-url.com",
       "id-token-user-property": "fake-user"
     }
@@ -234,9 +244,10 @@ Feature: initialize an authenticator through the api
 
   @negative
   Scenario: I initialize an OIDC authenticator with extra body parameters
-    When I POST "/authn-oidc/test-oidc-service/cucumber" with body:
+    When I POST "/authn-oidc/cucumber" with body:
     """
     {
+      "service-id": "test-oidc-service",
       "provider-uri": "http://fake-url.com",
       "id-token-user-property": "fake-user",
       "extra-param": "value
@@ -248,9 +259,10 @@ Feature: initialize an authenticator through the api
   Scenario: I attempt to initialize an authenticator as an unauthorized user
     When I create a new user "alice"
     And I login as "alice"
-    And I POST "/authn-k8s/test-service/cucumber" with body:
+    And I POST "/authn-k8s/cucumber" with body:
     """
     {
+      "service-id": "test-service",
       "service-account-token": "account",
       "ca-cert": "-BEGIN CERT-\ndata\n-END CERT-",
       "api-url": "http://api"
@@ -260,7 +272,7 @@ Feature: initialize an authenticator through the api
 
   @negative
   Scenario: I attempt to initialize an authenticator with bad request body
-    When I POST "/authn-k8s/test-service/cucumber" with body:
+    When I POST "/authn-k8s/cucumber" with body:
     """
     {
       bad-json-syntax
@@ -334,7 +346,12 @@ Feature: initialize an authenticator through the api
   @smoke @acceptance
   Scenario: I initialize an IAM authenticator
     When I save my place in the audit log file for remote
-    And I POST "/authn-iam/test-service/cucumber"
+    And I POST "/authn-iam/cucumber" with body:
+    """
+    {
+      "service-id": "test-service"
+    }
+    """
     Then the HTTP response status code is 201
     And the HTTP response content type is "text/yaml"
     And the YAML result is:
@@ -364,8 +381,18 @@ Feature: initialize an authenticator through the api
     """
 
   Scenario: I initialize a pre-existing IAM authenticator
-    When I POST "/authn-iam/test-service/cucumber"
-    And I POST "/authn-iam/test-service/cucumber"
+    When I POST "/authn-iam/cucumber" with body:
+    """
+    {
+      "service-id": "test-service"
+    }
+    """
+    And I POST "/authn-iam/cucumber" with body:
+    """
+    {
+      "service-id": "test-service"
+    }
+    """
     Then the HTTP response status code is 200
     And the HTTP response content type is "text/yaml"
     And the YAML result is:
@@ -386,9 +413,10 @@ Feature: initialize an authenticator through the api
 
   @negative
   Scenario: I initialize an IAM authenticator with extra params
-    When I POST "/authn-iam/test-service/cucumber" with body:
+    When I POST "/authn-iam/cucumber" with body:
     """
     {
+      "service-id": "test-service",
       "extra-param": "value"
     }
     """
