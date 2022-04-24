@@ -208,7 +208,6 @@ module Loader
 
       # Below is a sample method verifying policy data validity
       def verify
-
         check_user_creation_allowed(resource_id: resourceid) unless Conjur::Rack.user.login == 'admin'
 
         # if self.uidnumber == 8
