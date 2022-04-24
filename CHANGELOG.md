@@ -9,12 +9,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
-## [1.17.6] - 2022-04-07
+## [1.17.6] - 2022-04-24
 
 ### Changed
 - Adds `CONJUR_USERS_BY_ADMIN_ONLY` env var to prevent users from being created
   by anyone except admin.
-
 
 ## [1.17.5] - 2022-04-07
 
