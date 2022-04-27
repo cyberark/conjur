@@ -105,6 +105,8 @@ group :development, :test do
   gem 'spring-commands-rspec'
   gem 'table_print'
   gem 'webrick'
+  gem 'faye-websocket'
+  gem 'thin'
 end
 
 group :development do
