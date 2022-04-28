@@ -14,6 +14,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 - Adds `CONJUR_USERS_IN_ROOT_POLICY_ONLY` environment variable to prevent users from being created outside the root policy.
 
+### Security
+- Upgrade Rails to 6.12.5.1 to close CVE-2022-22577 and CVE-2022-27777
+  [cyberark/conjur#2553](https://github.com/cyberark/conjur/pull/2553)
+
 ## [1.17.5] - 2022-04-07
 
 ### Changed
