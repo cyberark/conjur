@@ -10,7 +10,7 @@ module Monitoring
     # under `/metrics`. Use the `:registry` and `:path` options to change the
     # defaults.
     class PrometheusExporter
-      attr_reader :app, :path, :registry
+      attr_reader :app
 
       FORMATS  = [::Prometheus::Client::Formats::Text].freeze
       FALLBACK = ::Prometheus::Client::Formats::Text
