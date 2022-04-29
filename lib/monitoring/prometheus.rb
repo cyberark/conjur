@@ -8,7 +8,6 @@ module Monitoring
 
     def setup(options = {})
       @registry = options[:registry] || ::Prometheus::Client::Registry.new
-      @metrics_prefix = options[:metrics_prefix] || "conjur_http_server"
       @metrics_dir_path = ENV['CONJUR_METRICS_DIR'] || '/tmp/prometheus'
       @pubsub = options[:pubsub] || PubSub.instance
 
@@ -24,10 +23,6 @@ module Monitoring
 
     def registry
       @registry
-    end
-
-    def metrics_prefix
-      @metrics_prefix
     end
 
     protected
