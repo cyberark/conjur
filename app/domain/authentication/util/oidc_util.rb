@@ -3,14 +3,21 @@ require 'openid_connect'
 module Authentication
   module Util
     class OidcUtil
-      def initialize(authenticator:)
+      def initialize(authenticator:, provider_discovery_config: ::OpenIDConnect::Discovery::Provider::Config)
         @authenticator = authenticator
+        @provider_discovery_config = provider_discovery_config
       end
 
       def discovery_information
-        Rails.cache.fetch("#{@authenticator.account}/#{@authenticator.service_id}/provider_uri",
-                          expires_in: 5.minutes) do
-          ::OpenIDConnect::Discovery::Provider::Config.discover!(@authenticator.provider_uri)
+        Rails.cache.fetch(
+          "#{@authenticator.account}/#{@authenticator.service_id}/#{URI::Parser.new.escape(@authenticator.provider_uri)}",
+          expires_in: 5.minutes
+        ) do
+          @provider_discovery_config.discover!(@authenticator.provider_uri)
+        rescue HTTPClient::ConnectTimeoutError, Errno::ETIMEDOUT => e
+          raise Errors::Authentication::OAuth::ProviderDiscoveryTimeout.new(@authenticator.provider_uri, e.inspect)
+        rescue => e
+          raise Errors::Authentication::OAuth::ProviderDiscoveryFailed.new(@authenticator.provider_uri, e.inspect)
         end
       end
 
