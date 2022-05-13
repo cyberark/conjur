@@ -9,6 +9,14 @@ Then(/^I can( not)? add a secret to ([\w_]+) resource "([^"]*)"$/) do |fail, _ki
 end
 
 # TODO: kind is now superfluous.  It is never used, since it's always "variable"
+Then(/^I can( not)? add a provider-url to ([\w_]+) resource "([^"]*)"$/) do |fail, _kind, id|
+  expected_status = fail ? 403 : 201
+  @oidc_provider_uri ||= validated_env_var('PROVIDER_URI')
+  resp = @client.add_secret(id: id, value: @oidc_provider_uri)
+  expect(resp.code).to eq(expected_status)
+end
+
+# TODO: kind is now superfluous.  It is never used, since it's always "variable"
 Then(/^I can( not)? fetch a secret from ([\w_]+) resource "([^"]*)"$/) do |fail, _kind, id|
   expected_status = fail ? 403 : 200
   resp = @client.fetch_secret(id: id)
