@@ -3,6 +3,60 @@
 class AuthenticateController < ApplicationController
   include BasicAuthenticator
   include AuthorizeResource
+  include CurrentUser
+  include FindResource
+  include AssumedRole
+
+  def list_authenticators
+    # Rails 5 requires parameters to be explicitly permitted before converting
+    # to Hash.  See: https://stackoverflow.com/a/46029524
+    allowed_params = %i[account service_id]
+
+    begin
+      scope =  authenticators(
+        assumed_role(query_role),
+        repo = DB::Repository::AuthenticatorRepository.new,
+        handler = Authentication::Handler::OidcAuthenticationHandler.new,
+        **options(allowed_params)
+      )
+    rescue ApplicationController::Forbidden
+      raise
+    rescue ArgumentError => e
+      raise ApplicationController::UnprocessableEntity, e.message
+    end
+
+    render(json: scope)
+  end
+
+  def authenticators(role, repo, handler, account:, service_id: nil)
+    unless service_id.present?
+      return repo.find_all(
+        account: account,
+        type: "oidc"
+      ).map do |authn|
+        {
+          name: authn.authenticator_name,
+          redirect_url: handler.generate_login_url(authn)
+        }
+      end
+    end
+
+    authn = repo.find(role: role, account: account, type: "oidc", service_id: service_id)
+    return {} unless authn
+
+    handler.generate_login_url(authn)
+  end
+
+  # The v5 API currently sends +acting_as+ when listing resources
+  # for a role other than the current user.
+  def query_role
+    params[:role].presence || params[:acting_as].presence
+  end
+
+  def options(allowed_params)
+    params.permit(*allowed_params)
+          .slice(*allowed_params).to_h.symbolize_keys
+  end
 
   def index
     authenticators = {
