@@ -91,6 +91,7 @@ services:
       - ./ldap-certs:/ldap-certs:ro
       - log-volume:/src/conjur-server/log
       - jwks-volume:/var/jwks
+      - ./oauth/keycloak:/oauth/keycloak/scripts
     links:
       - conjur
       - pg
