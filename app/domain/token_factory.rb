@@ -16,16 +16,19 @@ class TokenFactory < Dry::Struct
   end
 
   def signed_token(account:,
-                   username:,
-                   host_ttl: Rails.application.config.conjur_config.host_authorization_token_ttl,
-                   user_ttl: Rails.application.config.conjur_config.user_authorization_token_ttl)
-    offset = username.starts_with?('host/') ? host_ttl : user_ttl
-    exp_t = get_token_expiration(offset)
-    signing_key(account).issue_jwt(sub: username, exp: exp_t)
+                    username:,
+                    host_ttl: Rails.application.config.conjur_config.host_authorization_token_ttl,
+                    user_ttl: Rails.application.config.conjur_config.user_authorization_token_ttl)
+    signing_key(account).issue_jwt(
+      sub: username,
+      exp: Time.now + offset(
+        ttl: username.starts_with?('host/') ? host_ttl : user_ttl
+      )
+    )
   end
 
-  def get_token_expiration(offset)
-    offset < MAXIMUM_AUTHENTICATION_TOKEN_EXPIRATION ? Time.now + offset : Time.now + MAXIMUM_AUTHENTICATION_TOKEN_EXPIRATION
+  def offset(ttl:)
+    return ttl.to_i if ttl.to_i < MAXIMUM_AUTHENTICATION_TOKEN_EXPIRATION
+    MAXIMUM_AUTHENTICATION_TOKEN_EXPIRATION
   end
-
 end
