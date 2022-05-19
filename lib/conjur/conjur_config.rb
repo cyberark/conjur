@@ -23,6 +23,8 @@ module Conjur
     attr_config(
       # Read TRUSTED_PROXIES before default to maintain backwards compatibility
       trusted_proxies: (ENV['TRUSTED_PROXIES'] || []),
+      user_authorization_token_ttl: 480, # default is 8 minutes
+      hosts_authorization_token_ttl: 480, # default is 8 minutes
       authenticators: []
     )
 
