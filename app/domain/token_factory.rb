@@ -28,7 +28,7 @@ class TokenFactory < Dry::Struct
   end
 
   def offset(ttl:)
-    return ttl if ttl < MAXIMUM_AUTHENTICATION_TOKEN_EXPIRATION
+    return ttl.to_i if ttl.to_i < MAXIMUM_AUTHENTICATION_TOKEN_EXPIRATION
 
     MAXIMUM_AUTHENTICATION_TOKEN_EXPIRATION
   end
