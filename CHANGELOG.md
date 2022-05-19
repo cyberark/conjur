@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
+## [1.17.7] - 2022-04-17
+
+### Changed
+- Adding configuration for token TTL
+
 ## [1.17.6] - 2022-04-07
 
 ### Changed
