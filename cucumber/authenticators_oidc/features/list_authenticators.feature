@@ -34,7 +34,7 @@ Feature: A user can view the various authenticators they can use.
     """
 
     And I extend the policy with:
-    """
+   """
     - !policy
       id: conjur/authn-oidc/okta
       body:
@@ -60,6 +60,18 @@ Feature: A user can view the various authenticators they can use.
         privilege: [ read, authenticate ]
         resource: !webservice
     """
+
+    And I extend the policy with:
+    """
+    - !group secrets-fetchers
+
+    - !user alice
+
+    - !grant
+      role: !group secrets-fetchers
+      member: !user alice
+
+    """
     Then I can add a provider-url to variable resource "conjur/authn-oidc/oidceast/provider-uri"
     Then I can add a secret to variable resource "conjur/authn-oidc/oidceast/client-id"
     Then I can add a secret to variable resource "conjur/authn-oidc/oidceast/client-secret"
@@ -74,6 +86,9 @@ Feature: A user can view the various authenticators they can use.
     Then I can add a secret to variable resource "conjur/authn-oidc/okta/claim-mapping"
     Then I can add a secret to variable resource "conjur/authn-oidc/okta/nonce"
     Then I can add a secret to variable resource "conjur/authn-oidc/okta/state"
+    When I log in as user "admin"
     Then the list of authenticators contains the service-id "oidceast"
     And I can fetch the authenticator by its service-id "oidceast"
     And it will return an empty array for "oidcwest"
+    When I log in as user "alice"
+    Then it will return an empty array for "oidceast" since the user doesnt have authenticate permissions

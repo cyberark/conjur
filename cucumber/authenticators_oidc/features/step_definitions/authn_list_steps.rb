@@ -4,7 +4,6 @@ require 'cucumber/policy/features/support/client'
 require 'json'
 
 Then('the list of authenticators contains the service-id {string}') do |service_id|
-  puts "test"
   @client ||= Client.for("user", "admin")
   @result = @client.fetch_authenticators
   expect(@result.code).to eq(200)
@@ -24,6 +23,13 @@ end
 
 Then('it will return an empty array for {string}') do |service_id|
   @client ||= Client.for("user", "admin")
+  @result = @client.fetch_authenticator(id: service_id)
+  expect(@result.code).to eq(200)
+  expect(@result.body).to eq({})
+end
+
+Then('it will return an empty array for {string} since the user doesnt have authenticate permissions') do |service_id|
+  @client ||= Client.for("user", "alice")
   @result = @client.fetch_authenticator(id: service_id)
   expect(@result.code).to eq(200)
   expect(@result.body).to eq({})

@@ -75,6 +75,7 @@ authenticators_oidc: >
   -r cucumber/api/features/step_definitions/user_steps.rb
   -r cucumber/api/features/support/logs_helpers.rb
   -r cucumber/api/features/step_definitions/logs_steps.rb
+  -r cucumber/policy/features/step_definitions/login_steps.rb
   -r cucumber/api/features/support/authz_helpers.rb
   -r cucumber/api/features/step_definitions/authz_steps.rb
   -r cucumber/policy/features/support/policy_helpers.rb
