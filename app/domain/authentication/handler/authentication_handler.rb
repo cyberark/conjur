@@ -59,6 +59,13 @@ module Authentication
         return generate_login_url(authenticator)
       end
 
+      def can_use_authenticator?(authenticator, role)
+        role&.allowed_to?(
+          identity_required_privilege,
+          @resource_repository_class[resource_id: authenticator.resource_id]
+        )
+      end
+
       protected
 
       def generate_login_url(authenticator)
