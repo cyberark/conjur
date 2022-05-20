@@ -5,45 +5,70 @@ require 'spec_helper'
 describe TokenFactory  do
 
   before(:all) { Slosilo["authn:cucumber"] ||= Slosilo::Key.new }
+  let(:token_factory) { TokenFactory.new }
+  let(:ttl_limit) { 5 * 60 * 60 } # five hours
 
-  it "should generate a token for user with 8 minutes expiration" do
-      Rails.application.config.conjur_config.user_authorization_token_ttl = 8.minutes
-      Rails.application.config.conjur_config.host_authorization_token_ttl = 0
-      token_expiration = Time.now + 8.minutes
-      token_factory = TokenFactory.new
-      token = token_factory.signed_token(account: "cucumber", username: "myuser")
-      expect(token.claims[:exp]).to be >= token_expiration.to_i
-      expect(token.claims[:exp]).to be < (Time.now + 8.minutes + 1.seconds).to_i
+  describe '.offset' do
+    context 'when ttl exceeds maximum allowed' do
+      it 'returns maximum' do
+        expect(token_factory.offset(ttl: 6 * 60 * 60)).to eq(ttl_limit)
+      end
     end
-
-    it "should generate a token for host with 8 minutes expiration" do
-      Rails.application.config.conjur_config.user_authorization_token_ttl = 0
-      Rails.application.config.conjur_config.host_authorization_token_ttl = 8.minutes
-      token_expiration = Time.now + 8.minutes
-      token_factory = TokenFactory.new
-      token = token_factory.signed_token(account: "cucumber", username: "host/demo-host")
-      expect(token.claims[:exp]).to be >= token_expiration.to_i
-      expect(token.claims[:exp]).to be < (Time.now + 8.minutes + 1.seconds).to_i
+    context 'when ttl is less than maximum allowed' do
+      it 'returns ttl' do
+        offset = 4 * 60 * 60
+        expect(token_factory.offset(ttl: offset)).to eq(offset)
+      end
     end
-
-    it "should generate maximum token expiration for user" do
-      Rails.application.config.conjur_config.user_authorization_token_ttl = 6.hours
-      Rails.application.config.conjur_config.host_authorization_token_ttl = 0
-      token_expiration = Time.now + 5.hours
-      token_factory = TokenFactory.new
-      token = token_factory.signed_token(account: "cucumber", username: "myuser")
-      expect(token.claims[:exp]).to be >= token_expiration.to_i
-      expect(token.claims[:exp]).to be < (Time.now + 5.hours + 1.second).to_i
+    context 'when ttl is invalid' do
+      it 'returns zero' do
+        expect(token_factory.offset(ttl: 'foo')).to eq(0)
+      end
     end
+  end
 
-    it "should generate maximum token expiration for host" do
-      Rails.application.config.conjur_config.user_authorization_token_ttl = 0
-      Rails.application.config.conjur_config.host_authorization_token_ttl = 6.hours
-      token_expiration = Time.now + 5.hours
-      token_factory = TokenFactory.new
-      token = token_factory.signed_token(account: "cucumber", username: "host/demo-host")
-      expect(token.claims[:exp]).to be >= token_expiration.to_i
-      expect(token.claims[:exp]).to be < (Time.now + 5.hours + 1.second).to_i
+  describe '.signed_token' do
+    context 'with default settings' do
+      it 'uses the default user ttl' do
+        freeze_time do
+          token = token_factory.signed_token(account: "cucumber", username: "myuser")
+          expect(token.claims[:exp]).to eq((Time.now + 8 * 60).to_i)
+        end
+      end
+      it 'uses the default host ttl' do
+        freeze_time do
+          token = token_factory.signed_token(account: "cucumber", username: "host/myhost")
+          expect(token.claims[:exp]).to eq((Time.now + 8 * 60).to_i)
+        end
+      end
     end
-
+    context 'with custom settings' do
+      it 'uses the provided user ttl' do
+        freeze_time do
+          token = token_factory.signed_token(account: "cucumber", username: "myuser", user_ttl: 60)
+          expect(token.claims[:exp]).to eq((Time.now + 60).to_i)
+        end
+      end
+      it 'uses the provided host ttl' do
+        freeze_time do
+          token = token_factory.signed_token(account: "cucumber", username: "host/myhost", host_ttl: 30)
+          expect(token.claims[:exp]).to eq((Time.now + 30).to_i)
+        end
+      end
+    end
+    context 'when ttl exceeds limit' do
+      it 'uses the ttl limit for user' do
+        freeze_time do
+          token = token_factory.signed_token(account: "cucumber", username: "myuser", user_ttl: ttl_limit + 1)
+          expect(token.claims[:exp]).to eq((Time.now + ttl_limit).to_i)
+        end
+      end
+      it 'uses the ttl limit for host' do
+        freeze_time do
+          token = token_factory.signed_token(account: "cucumber", username: "host/myhost", host_ttl: ttl_limit + 1)
+          expect(token.claims[:exp]).to eq((Time.now + ttl_limit).to_i)
+        end
+      end
+    end
+  end
 end
