@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [1.17.7] - 2022-05-19
 
+### Changed
+- Added configuration for token TTL
+  [cyberark/conjur#2510](https://github.com/cyberark/conjur/pull/2510)
+
 ### Security
 - Update nokogiri to 1.13.6 to resolve un-numbered libxml CVEs (both in main
   Gemfile.lock and in docs/Gemfile.lock)
