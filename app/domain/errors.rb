@@ -330,6 +330,11 @@ module Errors
         code: "CONJ00043E"
       )
 
+      InvalidConfigPredence = ::Util::TrackableErrorClass.new(
+        msg: "Received invalid Kubernetes authenticator config-precedence: '{0}' ",
+        code: "CONJ00043E"
+      )
+
       NamespaceMismatch = ::Util::TrackableErrorClass.new(
         msg: "Namespace in SPIFFE ID '{0-spiffe-namespace}' must match namespace " \
             "implied by resource restriction: '{1-resource-restrictions-namespace}'",

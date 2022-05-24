@@ -9,6 +9,7 @@ module Authentication
     VARIABLE_BEARER_TOKEN ||= 'kubernetes/service-account-token'
     VARIABLE_CA_CERT ||= 'kubernetes/ca-cert'
     VARIABLE_API_URL ||= 'kubernetes/api-url'
+    VARIABLE_CONFIG_PRECEDENCE ||= 'kubernetes/config-precedence'
     SERVICEACCOUNT_DIR ||= '/var/run/secrets/kubernetes.io/serviceaccount'
     SERVICEACCOUNT_CA_PATH ||= File.join(SERVICEACCOUNT_DIR, 'ca.crt').freeze
     SERVICEACCOUNT_TOKEN_PATH ||= File.join(SERVICEACCOUNT_DIR, 'token').freeze
@@ -31,24 +32,46 @@ module Authentication
         load_additional_certs(ENV['SSL_CERT_DIRECTORY'])
       end
 
+      def api_url
+        return @api_url if defined?(@api_url)
+
+        local = ->(){
+          host = ENV['KUBERNETES_SERVICE_HOST']
+          port = ENV['KUBERNETES_SERVICE_PORT']
+
+          if host.present? && port.present?
+            "https://#{host}:#{port}"
+          end
+        }
+
+        @api_url = get_config_from_local_or_conjur(local, VARIABLE_API_URL)
+      end
+
       def bearer_token
-        @bearer_token ||= K8sContextValue.get(
-          @webservice,
+        @bearer_token ||= config_value_from_file_or_conjur(
           SERVICEACCOUNT_TOKEN_PATH,
           VARIABLE_BEARER_TOKEN
         )
       end
 
       def ca_cert
-        cert = K8sContextValue.get(
-          @webservice,
+        @cert ||= config_value_from_file_or_conjur(
           SERVICEACCOUNT_CA_PATH,
           VARIABLE_CA_CERT
         )
 
-        raise Errors::Authentication::AuthnK8s::MissingCertificate if cert.blank?
+        raise Errors::Authentication::AuthnK8s::MissingCertificate if @cert.blank?
 
-        cert
+        @cert
+      end
+
+      def config_precedence
+        return @config_precedence if defined?(@config_precedence)
+
+        @config_precedence = @webservice.variable(VARIABLE_CONFIG_PRECEDENCE).secret.value || "pod-local"
+        raise Errors::Authentication::AuthnK8s::InvalidConfigPredence, @config_precedence unless ["pod-local","conjur"].include?(@config_precedence)
+
+        @config_precedence
       end
 
       def options
@@ -62,17 +85,6 @@ module Authentication
           },
           http_proxy_uri: ENV['https_proxy'] || ENV['http_proxy']
         }
-      end
-
-      def api_url
-        host = ENV['KUBERNETES_SERVICE_HOST']
-        port = ENV['KUBERNETES_SERVICE_PORT']
-
-        if host.present? && port.present?
-          "https://#{host}:#{port}"
-        else
-          @webservice.variable(VARIABLE_API_URL).secret.value
-        end
       end
 
       # Gets the client object to the /api v1 endpoint.
@@ -135,6 +147,42 @@ module Authentication
       end
 
       protected
+
+      def config_value_from_file_or_conjur(file_path, conjur_variable_id)
+        from_file = ->(){ 
+          File.read(file_path) if File.exist?(file_path)
+        }
+
+        get_config_from_local_or_conjur(from_file, conjur_variable_id)
+      end
+
+      def get_config_from_local_or_conjur(from_local, conjur_variable_id)
+        from_conjur = ->(){ 
+          @webservice.variable(conjur_variable_id).secret.value
+        }
+
+        sources = []
+        if config_precedence == "pod-local"
+          sources = [from_local, from_conjur]
+        else
+          sources = [from_conjur, from_local]
+        end
+
+        get_config_value_from_sources(sources)
+      end
+
+      def get_config_value_from_sources(sources)
+        value = nil
+        for source in sources do
+          value = source.call()
+
+          if value != nil
+            break
+          end
+        end
+
+        value
+      end
 
       def invoke_k8s_method method_name, *arguments
         k8s_client_for_method(method_name).send(method_name, *arguments)
