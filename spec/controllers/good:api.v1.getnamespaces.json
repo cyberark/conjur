@@ -1,0 +1,89 @@
+{
+    "kind": "NamespaceList",
+    "apiVersion": "v1",
+    "metadata": {
+        "resourceVersion": "2445300"
+    },
+    "items": [
+        {
+            "metadata": {
+                "name": "default",
+                "uid": "da93666e-c98d-44eb-9b04-eb59f2ccc000",
+                "resourceVersion": "1254",
+                "creationTimestamp": "2022-05-12T13:54:02Z",
+                "labels": {
+                    "field.cattle.io/projectId": "p-q7s7z",
+                    "kubernetes.io/metadata.name": "default"
+                },
+                "annotations": {
+                    "cattle.io/status": "{\"Conditions\":[{\"Type\":\"ResourceQuotaInit\",\"Status\":\"True\",\"Message\":\"\",\"LastUpdateTime\":\"2022-05-12T13:55:26Z\"},{\"Type\":\"InitialRolesPopulated\",\"Status\":\"True\",\"Message\":\"\",\"LastUpdateTime\":\"2022-05-12T13:55:31Z\"}]}",
+                    "field.cattle.io/projectId": "c-4hbzx:p-q7s7z",
+                    "lifecycle.cattle.io/create.namespace-auth": "true"
+                },
+                "finalizers": [
+                    "controller.cattle.io/namespace-auth"
+                ],
+                "managedFields": [
+                    {
+                        "manager": "kube-apiserver",
+                        "operation": "Update",
+                        "apiVersion": "v1",
+                        "time": "2022-05-12T13:54:02Z",
+                        "fieldsType": "FieldsV1",
+                        "fieldsV1": {
+                            "f:metadata": {
+                                "f:labels": {
+                                    ".": {},
+                                    "f:kubernetes.io/metadata.name": {}
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "manager": "rancher",
+                        "operation": "Update",
+                        "apiVersion": "v1",
+                        "time": "2022-05-12T13:55:25Z",
+                        "fieldsType": "FieldsV1",
+                        "fieldsV1": {
+                            "f:metadata": {
+                                "f:annotations": {
+                                    ".": {},
+                                    "f:cattle.io/status": {},
+                                    "f:field.cattle.io/projectId": {},
+                                    "f:lifecycle.cattle.io/create.namespace-auth": {}
+                                },
+                                "f:finalizers": {
+                                    ".": {},
+                                    "v:\"controller.cattle.io/namespace-auth\"": {}
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "manager": "agent",
+                        "operation": "Update",
+                        "apiVersion": "v1",
+                        "time": "2022-05-12T13:55:49Z",
+                        "fieldsType": "FieldsV1",
+                        "fieldsV1": {
+                            "f:metadata": {
+                                "f:labels": {
+                                    "f:field.cattle.io/projectId": {}
+                                }
+                            }
+                        }
+                    }
+                ]
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        }
+    ]
+}
