@@ -113,6 +113,8 @@ group :development, :test do
   gem 'vcr'
   gem 'webmock'
   gem 'webrick'
+  gem 'faye-websocket'
+  gem 'thin'
 end
 
 group :development do
