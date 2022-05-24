@@ -24,6 +24,13 @@ module Authentication
         @logger.debug(LogMessages::Authentication::AuthnK8s::ValidatedK8sResource.new(type, name))
       end
 
+      def valid_namespace?(label_selector:)
+        namespaces = @k8s_object_lookup.namespace_by_label(namespace, label_selector)
+        unless namespaces.any?
+          raise Errors::Authentication::AuthnK8s::NamespaceLabelSelectorMismatch.new(namespace, label_selector)
+        end
+      end
+
       private
 
       def retrieve_k8s_resource(type, name)

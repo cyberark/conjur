@@ -264,6 +264,11 @@ module Errors
         code: "CONJ00026E"
       )
 
+      NamespaceLabelSelectorMismatch = ::Util::TrackableErrorClass.new(
+        msg: "Kubernetes namespace '{0-namespace}' does not match label-selector: {1-label-selector}",
+        code: "CONJ00026E"
+      )
+
       ContainerNotFound = ::Util::TrackableErrorClass.new(
         msg: "Container '{0}' was not found in the pod. Host id: {1}",
         code: "CONJ00028E"
@@ -662,6 +667,11 @@ module Errors
 
       RoleMissingRequiredConstraints = ::Util::TrackableErrorClass.new(
         msg: "Role must have at least one of the following constraints: {0-constraints}",
+        code: "CONJ00069E"
+      )
+
+      IllegalExclusiveRequiredCombination = ::Util::TrackableErrorClass.new(
+        msg: "Role must have only one of the following required constraints: {0-constraints}",
         code: "CONJ00069E"
       )
 
