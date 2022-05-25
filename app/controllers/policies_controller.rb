@@ -139,4 +139,8 @@ class PoliciesController < RestController
       memo[role_id] = { id: role_id, api_key: credentials.api_key }
     end
   end
+
+  def publish_event
+    Monitoring::PubSub.instance.publish('conjur.policy_loaded')
+  end
 end
