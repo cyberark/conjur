@@ -1,7 +1,8 @@
+require 'monitoring/pub_sub'
+
 if Rails.application.config.conjur_config.telemetry_enabled 
   require 'monitoring/prometheus'
   require 'monitoring/metrics'
-  require 'monitoring/pub_sub'
   # Require all defined metrics
   Dir.glob(Rails.root + 'lib/monitoring/metrics/*.rb', &method(:require))
 
@@ -9,7 +10,8 @@ if Rails.application.config.conjur_config.telemetry_enabled
   metrics = [
     Monitoring::Metrics::ApiRequestCounter.new,
     Monitoring::Metrics::ApiRequestHistogram.new,
-    Monitoring::Metrics::ApiExceptionCounter.new
+    Monitoring::Metrics::ApiExceptionCounter.new,
+    Monitoring::Metrics::PolicyResourceGauge.new
   ]
   Monitoring::Prometheus.setup(metrics: metrics)
 
