@@ -124,17 +124,17 @@ module Monitoring
       # PoliciesApi
       {
         method: "POST",
-        pattern: /^(\/policies)(\/[^\/]+){3}(\/.*)$/,
+        pattern: /^(\/policies)(\/[^\/]+){2,3}(\/.*)$/,
         operation: "loadPolicy"
       },
       {
         method: "PUT",
-        pattern: /^(\/policies)(\/[^\/]+){3}(\/.*)$/,
+        pattern: /^(\/policies)(\/[^\/]+){2,3}(\/.*)$/,
         operation: "replacePolicy"
       },
       {
         method: "PATCH",
-        pattern: /^(\/policies)(\/[^\/]+){3}(\/.*)$/,
+        pattern: /^(\/policies)(\/[^\/]+){2,3}(\/.*)$/,
         operation: "updatePolicy"
       },
 
