@@ -165,14 +165,6 @@ When(/^I authenticate via OIDC with empty id token$/) do
   )
 end
 
-When(/^I authenticate via OIDC V2 with empty code$/) do
-  authenticate_code_with_oidc(
-    service_id: "#{AuthnOidcHelper::SERVICE_ID}2",
-    account: AuthnOidcHelper::ACCOUNT,
-    code: "",
-    )
-end
-
 When(/^I authenticate (\d+) times? in (\d+) threads? via OIDC with( invalid)? id token$/) do |num_requests, num_threads, is_invalid|
   id_token = is_invalid ? invalid_id_token : parsed_id_token
 
