@@ -226,6 +226,16 @@ module Errors
         code: "CONJ00075E"
       )
 
+      StateMismatch = ::Util::TrackableErrorClass.new(
+        msg: "Conjur internal state doesn't match given state",
+        code: "CONJ00127E"
+      )
+
+      TokenVerificationFailed = ::Util::TrackableErrorClass.new(
+        msg: "Conjur internal state doesn't match given state",
+        code: "CONJ00127E"
+      )
+
     end
 
     module AuthnIam

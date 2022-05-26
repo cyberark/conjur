@@ -126,7 +126,7 @@ class AuthenticateController < ApplicationController
 
     render_authn_token(auth_token)
   rescue => e
-    handle_authentication_error(e)
+    handle_oidc_authentication_error(e)
   end
 
   def authenticate_gcp
@@ -284,6 +284,38 @@ class AuthenticateController < ApplicationController
     when Errors::Authentication::AuthnK8s::CSRMissingCNEntry,
       Errors::Authentication::AuthnK8s::CertMissingCNEntry
       raise ArgumentError
+
+    else
+      raise Unauthorized
+    end
+  end
+
+  def handle_oidc_authentication_error(err)
+    authentication_error = LogMessages::Authentication::AuthenticationError.new(err.inspect)
+    logger.warn(authentication_error)
+    log_backtrace(err)
+
+    case err
+    when Errors::Authentication::Security::RoleNotAuthorizedOnResource
+      raise Forbidden
+
+    when Errors::Authentication::RequestBody::MissingRequestParam,
+      Errors::Authentication::AuthnOidc::TokenVerificationFailed
+      raise BadRequest
+
+    when Errors::Conjur::RequestedResourceNotFound
+      raise RecordNotFound.new(err.message)
+
+    when Errors::Authentication::Jwt::TokenExpired
+      raise Unauthorized.new(err.message, true)
+
+    when Errors::Authentication::AuthnOidc::StateMismatch,
+      Errors::Authentication::Security::RoleNotFound
+      raise BadRequest
+
+    # Code value mismatch
+    when Rack::OAuth2::Client::Error
+      raise BadRequest
 
     else
       raise Unauthorized
