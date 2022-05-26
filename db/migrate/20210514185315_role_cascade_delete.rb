@@ -66,8 +66,8 @@ Sequel.migration do
   
       $stderr.puts(
         "Deleting #{latent_roles.count} " \
-        "role#{'s' if latent_credentials.count > 1} that no longer " \
-        "exist#{'s' if latent_credentials.count == 1} in policy:"
+        "role#{'s' if latent_roles.count > 1} that no longer " \
+        "exist#{'s' if latent_roles.count == 1} in policy:"
       )
   
       # Print the ID for deleted roles
