@@ -8,4 +8,9 @@ describe Monitoring::QueryHelper do
     expect(resource_counts).not_to be_empty
   end
 
+  it 'returns policy role counts' do
+    role_counts = queryhelper.policy_role_counts
+    expect(role_counts).not_to be_empty
+  end
+
 end
