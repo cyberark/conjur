@@ -42,7 +42,7 @@ module Authentication
       def validate_parameters_are_valid(authenticator, parameters)
         super(authenticator, parameters)
 
-        raise "State Mismatch" unless parameters[:state] == authenticator.state
+        raise Errors::Authentication::AuthnOidc::StateMismatch unless parameters[:state] == authenticator.state
       end
 
       def extract_identity(authenticator, params)
@@ -86,6 +86,9 @@ module Authentication
         )
 
         return decoded_id_token.raw_attributes.with_indifferent_access[authenticator.claim_mapping]
+
+      rescue OpenIDConnect::ValidationFailed => e
+        raise Errors::Authentication::AuthnOidc::TokenVerificationFailed, e.message
       end
     end
   end

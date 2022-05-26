@@ -27,6 +27,8 @@ module Authentication
           service_id: service_id
         )
 
+        raise Errors::Conjur::RequestedResourceNotFound, "Unable to find authenticator with account: #{account} and service-id: #{service_id}" unless authenticator != nil
+
         validate_authenticator(authenticator, service_id)
         validate_parameters_are_valid(authenticator, parameters)
 
