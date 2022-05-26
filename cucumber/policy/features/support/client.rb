@@ -109,6 +109,14 @@ class Client
     resource(uri("policies", "policy", id)).post(policy, auth_header)
   end
 
+  # Authenticator methods
+  #
+
+  # :reek:DataClump
+  def fetch_authenticators
+    resource(uri('authn-oidc', 'providers')).get(auth_header)
+  end
+
   # Resource methods
   #
   def fetch_resource(kind:, id:)
@@ -164,3 +172,4 @@ class Client
     )
   end
 end
+0
