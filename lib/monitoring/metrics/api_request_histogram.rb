@@ -1,7 +1,7 @@
 module Monitoring
   module Metrics
     class ApiRequestHistogram
-      attr_reader :registry, :pubsub, :metric_name, :docstring, :labels, :sub_event_name
+      attr_reader :registry, :pubsub, :metric_name, :docstring, :labels, :sub_event_name, :throttle
 
       def setup(registry, pubsub)
         @registry = registry
