@@ -22,14 +22,20 @@ module AuthnOidcHelper
   end
 
   def authenticate_code_with_oidc(service_id:, account:, code: url_oidc_code, state: url_oidc_state)
-    path = "#{create_auth_url(service_id: service_id, account: account, user_id: nil)}?code=#{code}&state=#{state}"
-    post(path, nil)
+    path = "#{create_auth_url(service_id: service_id, account: account, user_id: nil)}"
+    post(url_with_params(path: path, code: code, state: state), nil)
   end
 
   def create_auth_url(service_id:, account:, user_id:)
     service_id_part = service_id ? "/#{service_id}" : ""
     user_id_part = "/#{user_id}" unless user_id.nil? || user_id.empty?
-    return "#{conjur_hostname}/authn-oidc#{service_id_part}/#{account}#{user_id_part}/authenticate"
+    "#{conjur_hostname}/authn-oidc#{service_id_part}/#{account}#{user_id_part}/authenticate"
+  end
+
+  def url_with_params(path:, code: nil, state: nil)
+    return path unless code || state
+
+    "#{path}?code=#{code}&state=#{state}"
   end
 
   def create_oidc_secret(variable_name, value, service_id_suffix = "/keycloak")

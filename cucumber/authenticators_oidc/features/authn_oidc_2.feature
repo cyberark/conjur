@@ -118,7 +118,7 @@ Feature: OIDC Authenticator V2 - Users can authenticate with OIDC authenticator
     Given I fetch a code for username "not_in_conjur" and password "not_in_conjur"
     And I save my place in the log file
     When I authenticate via OIDC V2 with code
-    Then it is unauthorized
+    Then it is a bad request
     And The following appears in the log after my savepoint:
     """
     Errors::Authentication::Security::RoleNotFound
@@ -158,6 +158,7 @@ Feature: OIDC Authenticator V2 - Users can authenticate with OIDC authenticator
   @negative @acceptance
   Scenario: Missing code is a bad request
     Given I save my place in the log file
+    And I fetch a code for username "alice" and password "alice"
     When I authenticate via OIDC V2 with no code in the request
     Then it is a bad request
     And The following appears in the log after my savepoint:
@@ -172,7 +173,8 @@ Feature: OIDC Authenticator V2 - Users can authenticate with OIDC authenticator
   @negative @acceptance
   Scenario: Empty code is a bad request
     Given I save my place in the log file
-    When I authenticate via OIDC V2 with empty code
+    And I fetch a code for username "alice" and password "alice"
+    When I authenticate via OIDC V2 with code ""
     Then it is a bad request
     And The following appears in the log after my savepoint:
     """
@@ -181,6 +183,50 @@ Feature: OIDC Authenticator V2 - Users can authenticate with OIDC authenticator
     And The following appears in the audit log after my savepoint:
     """
     cucumber:user:USERNAME_MISSING failed to authenticate with authenticator authn-oidc service
+    """
+
+  @negative @acceptance
+  Scenario: Invalid code is a bad request
+    Given I save my place in the log file
+    And I fetch a code for username "alice" and password "alice"
+    When I authenticate via OIDC V2 with code "bad-code"
+    Then it is a bad request
+    And The following appears in the log after my savepoint:
+    """
+    Rack::OAuth2::Client::Error
+    """
+
+  @negative @acceptance
+  Scenario: Invalid state is a bad request
+    Given I save my place in the log file
+    And I fetch a code for username "alice" and password "alice"
+    When I authenticate via OIDC V2 with state "bad-state"
+    Then it is a bad request
+    And The following appears in the log after my savepoint:
+    """
+    Errors::Authentication::AuthnOidc::StateMismatch
+    """
+
+  @negative @acceptance
+  Scenario: Bad OIDC provider credentials
+    Given I save my place in the log file
+    And I fetch a code for username "alice" and password "notalice"
+    When I authenticate via OIDC V2 with code
+    Then it is a bad request
+    And The following appears in the log after my savepoint:
+    """
+    Errors::Authentication::RequestBody::MissingRequestParam
+    """
+
+  @negative @acceptance
+  Scenario: Non-Existent authenticator is not found
+    Given I save my place in the log file
+    And I fetch a code for username "alice" and password "alice"
+    When I authenticate via OIDC V2 with code and service-id "non-exist"
+    Then it is not found
+    And The following appears in the log after my savepoint:
+    """
+    Errors::Conjur::RequestedResourceNotFound: CONJ00123E Resource
     """
 
   @negative @acceptance
@@ -226,7 +272,7 @@ Feature: OIDC Authenticator V2 - Users can authenticate with OIDC authenticator
     And I fetch a code for username "alice" and password "alice"
     And I authenticate via OIDC V2 with code
     Then user "alice" has been authorized by Conjur
-#
+
   @negative @acceptance
   Scenario: Unauthenticated is raised in case of an invalid OIDC Provider hostname
     Given I fetch a code for username "alice" and password "alice"
