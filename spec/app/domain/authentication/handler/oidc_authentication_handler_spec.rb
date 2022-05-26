@@ -47,6 +47,7 @@ RSpec.describe('Authentication::Handler::OidcAuthenticationHandler') do
           allow(repo).to receive(:find).with(anything()).and_return(
             Authenticator::OidcAuthenticator.new(
               account: "rspec",
+              provider_uri: "http://test.com",
               service_id: "abc123"
             )
           )
