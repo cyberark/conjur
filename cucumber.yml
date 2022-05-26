@@ -12,6 +12,8 @@ api: >
   -r cucumber/_authenticators_common/features/step_definitions/authn_common_steps.rb
   -r cucumber/policy/features/step_definitions/error_steps.rb
   -r cucumber/policy/features/support/policy_helpers.rb
+  -r cucumber/policy/features/step_definitions/policy_steps.rb
+  -r cucumber/policy/features/step_definitions/secrets_steps.rb
   -r cucumber/api
   cucumber/api
 
@@ -73,10 +75,12 @@ authenticators_oidc: >
   -r cucumber/api/features/step_definitions/user_steps.rb
   -r cucumber/api/features/support/logs_helpers.rb
   -r cucumber/api/features/step_definitions/logs_steps.rb
+  -r cucumber/policy/features/step_definitions/login_steps.rb
   -r cucumber/api/features/support/authz_helpers.rb
   -r cucumber/api/features/step_definitions/authz_steps.rb
   -r cucumber/policy/features/support/policy_helpers.rb
   -r cucumber/policy/features/step_definitions/policy_steps.rb
+  -r cucumber/policy/features/step_definitions/secrets_steps.rb
   -r cucumber/_authenticators_common
   -r cucumber/authenticators_ldap/features/support/authn_ldap_helper.rb
   -r cucumber/authenticators_ldap/features/step_definitions/authn_ldap_steps.rb

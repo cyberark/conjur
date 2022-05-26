@@ -25,7 +25,11 @@ Before do
   
   Account.find_or_create_accounts_resource
   admin_role = Role.create(role_id: "cucumber:user:admin")
-  Credentials.new(role: admin_role).save(raise_on_save_failure: true)
+  creds = Credentials.new(role: admin_role)
+  # TODO: Replace this hack with a refactoring of policy/api/authenticators to share
+  # this code, and to it the api way (probably)
+  creds.password = 'SEcret12!!!!'
+  creds.save(raise_on_save_failure: true)
 
   # Save env to revert to it after the test
   @env = {}
