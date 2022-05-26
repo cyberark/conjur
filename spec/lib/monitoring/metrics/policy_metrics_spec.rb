@@ -7,8 +7,10 @@ describe 'policy metrics', type: :request  do
   before do
     pubsub.unsubscribe('conjur.policy_loaded')
     pubsub.unsubscribe('conjur.resource_count_update')
+    pubsub.unsubscribe('conjur.role_count_update')
 
     @resource_metric = Monitoring::Metrics::PolicyResourceGauge.new
+    @role_metric = Monitoring::Metrics::PolicyRoleGauge.new
 
     # Clear and setup the Prometheus client store
     Monitoring::Prometheus.setup(
@@ -25,7 +27,7 @@ describe 'policy metrics', type: :request  do
 
   let(:registry) { Monitoring::Prometheus.registry }
 
-  let(:metrics) { [ @resource_metric ] }
+  let(:metrics) { [ @resource_metric, @role_metric ] }
 
   let(:pubsub) { Monitoring::PubSub.instance }
 
@@ -48,6 +50,8 @@ describe 'policy metrics', type: :request  do
       expect(Monitoring::PubSub.instance).to receive(:publish).with(policy_load_event_name).and_call_original
 
       expect(Monitoring::PubSub.instance).to receive(:publish).with(@resource_metric.sub_event_name)
+      expect(Monitoring::PubSub.instance).to receive(:publish).with(@role_metric.sub_event_name)
+
       post(policies_url, env: headers_with_auth('[!variable test]'))
     end
 
@@ -55,6 +59,8 @@ describe 'policy metrics', type: :request  do
       expect(Monitoring::PubSub.instance).to receive(:publish).with(policy_load_event_name).and_call_original
 
       expect(Monitoring::PubSub.instance).to receive(:publish).with(@resource_metric.sub_event_name)
+      expect(Monitoring::PubSub.instance).to receive(:publish).with(@role_metric.sub_event_name)
+
       put(policies_url, env: headers_with_auth('[!variable test]'))
     end
 
@@ -62,19 +68,29 @@ describe 'policy metrics', type: :request  do
       expect(Monitoring::PubSub.instance).to receive(:publish).with(policy_load_event_name).and_call_original
 
       expect(Monitoring::PubSub.instance).to receive(:publish).with(@resource_metric.sub_event_name)
+      expect(Monitoring::PubSub.instance).to receive(:publish).with(@role_metric.sub_event_name)
+
       patch(policies_url, env: headers_with_auth('[!variable test]'))
     end
 
-    it 'calls update on the correct metric' do
+    it 'calls update on the correct metrics' do
       expect(@resource_metric).to receive(:update)
+      expect(@role_metric).to receive(:update)
+
       post(policies_url, env: headers_with_auth('[!variable test]'))
     end
 
     it 'updates the registry' do
-      post(policies_url, env: headers_with_auth('[!variable added]'))
+      resources_before = registry.get(:conjur_resource_count).get(labels: { kind: 'group' })
+      roles_before = registry.get(:conjur_role_count).get(labels: { kind: 'group' })
 
-      gauge_metric = registry.get(:conjur_resource_count)
-      expect(gauge_metric.get(labels: { kind: 'variable' })).to eql(1.0)
+      post(policies_url, env: headers_with_auth('[!group test]'))
+
+      resources_after = registry.get(:conjur_resource_count).get(labels: { kind: 'group' })
+      roles_after = registry.get(:conjur_role_count).get(labels: { kind: 'group' })
+
+      expect(resources_after - resources_before).to eql(1.0)
+      expect(roles_after - roles_before).to eql(1.0)
     end
 
   end
