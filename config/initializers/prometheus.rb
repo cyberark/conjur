@@ -11,7 +11,8 @@ if Rails.application.config.conjur_config.telemetry_enabled
     Monitoring::Metrics::ApiRequestCounter.new,
     Monitoring::Metrics::ApiRequestHistogram.new,
     Monitoring::Metrics::ApiExceptionCounter.new,
-    Monitoring::Metrics::PolicyResourceGauge.new
+    Monitoring::Metrics::PolicyResourceGauge.new,
+    Monitoring::Metrics::PolicyRoleGauge.new
   ]
   Monitoring::Prometheus.setup(metrics: metrics)
 
