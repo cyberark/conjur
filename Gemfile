@@ -53,8 +53,6 @@ gem 'rack-rewrite'
 # Putting this here currently confuses debify, so instead load it in
 # application.rb gem 'conjur_audit', path: 'engines/conjur_audit'
 
-gem 'simplecov', '0.21.2', require: false
-
 gem 'dry-struct'
 gem 'dry-types'
 gem 'net-ldap'
@@ -100,6 +98,7 @@ group :development, :test do
   gem 'rspec-core'
   gem 'rspec-rails'
   gem 'ruby-debug-ide'
+  gem 'simplecov', require: false
   gem 'spring'
   gem 'spring-commands-cucumber'
   gem 'spring-commands-rspec'
