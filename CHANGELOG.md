@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [1.17.7] - 2022-05-19
 
 ### Changed
+- Made simplecov a dev/test dependency
+  [cyberark/conjur#2564](https://github.com/cyberark/conjur/pull/2564)  
 - Added configuration for token TTL
   [cyberark/conjur#2510](https://github.com/cyberark/conjur/pull/2510)
 
