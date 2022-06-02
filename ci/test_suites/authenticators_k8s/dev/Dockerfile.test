@@ -1,4 +1,4 @@
-FROM google/cloud-sdk:241.0.0
+FROM google/cloud-sdk:388.0.0
 
 RUN mkdir -p /src
 WORKDIR /src
