@@ -35,7 +35,7 @@ services:
       POSTGRES_HOST_AUTH_METHOD: trust
 
   conjur:
-    image: "conjur:${TAG}"
+    image: "conjur-test:${TAG}"
     environment:
       DATABASE_URL: postgres://postgres@pg/postgres
       CONJUR_ADMIN_PASSWORD: ADmin123!!!!

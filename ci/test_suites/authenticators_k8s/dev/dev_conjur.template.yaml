@@ -81,7 +81,7 @@ spec:
         app: conjur-authn-k8s
     spec:
       containers:
-      - image: {{ CONJUR_AUTHN_K8S_TAG }}
+      - image: {{ CONJUR_TEST_AUTHN_K8S_TAG }}
         imagePullPolicy: IfNotPresent
         name: conjur
         command: ["conjurctl", "server"]

@@ -224,7 +224,7 @@ function runTests() {
 
   conjurcmd mkdir -p /opt/conjur-server/output
 
-  run_cucumber "~@skip --tags ~@k8s_skip --tags ~@sni_fails --tags ~@sni_success --tags ~@http_proxy"
+  run_cucumber "--tags 'not @skip' --tags 'not @k8s_skip' --tags 'not @sni_fails' --tags 'not @sni_success' --tags 'not @http_proxy'"
 
   printLogs
 
@@ -284,7 +284,7 @@ function run_conjur_master() {
 }
 
 function run_cucumber() {
-  tags=$1
+  cucumber_args=$1
   echo "./bin/cucumber \
     K8S_VERSION=$K8S_VERSION \
     PLATFORM=openshift \
@@ -294,7 +294,7 @@ function run_cucumber() {
     -r ./cucumber/authenticators_k8s/features/support/world.rb \
     -r ./cucumber/authenticators_k8s/features/support/hooks.rb \
     -r ./cucumber/authenticators_k8s/features/support/conjur_token.rb \
-    --tags $tags ./cucumber/authenticators_k8s/features" | cucumbercmd -i bash || true
+    $cucumber_args ./cucumber/authenticators_k8s/features" | cucumbercmd -i bash || true
 }
 
 main
