@@ -166,6 +166,7 @@ GEM
       cucumber-core (~> 10.1, >= 10.1.0)
       cucumber-cucumber-expressions (~> 14.0, >= 14.0.0)
       cucumber-messages (~> 17.1, >= 17.1.1)
+    daemons (1.4.1)
     database_cleaner (1.8.5)
     debase (0.2.5.beta2)
       debase-ruby_core_source (>= 0.10.12)
@@ -202,7 +203,11 @@ GEM
       dry-logic (~> 1.0, >= 1.0.2)
     erubi (1.10.0)
     event_emitter (0.2.6)
+    eventmachine (1.2.7)
     excon (0.91.0)
+    faye-websocket (0.11.1)
+      eventmachine (>= 0.12.0)
+      websocket-driver (>= 0.5.1)
     ffi (1.15.4)
     ffi-compiler (1.0.1)
       ffi (>= 1.0.0)
@@ -434,6 +439,10 @@ GEM
     sys-uname (1.2.2)
       ffi (~> 1.1)
     table_print (1.5.7)
+    thin (1.8.1)
+      daemons (~> 1.0, >= 1.0.9)
+      eventmachine (~> 1.0, >= 1.0.4)
+      rack (>= 1, < 3)
     thor (1.2.1)
     tzinfo (2.0.4)
       concurrent-ruby (~> 1.0)
@@ -485,6 +494,7 @@ DEPENDENCIES
   dry-struct
   dry-types
   event_emitter
+  faye-websocket
   ffi (>= 1.9.24)
   gli
   haikunator (~> 1)
@@ -532,6 +542,7 @@ DEPENDENCIES
   spring-commands-cucumber
   spring-commands-rspec
   table_print
+  thin
   webrick
   websocket
 
