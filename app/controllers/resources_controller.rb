@@ -5,11 +5,18 @@ class ResourcesController < RestController
   include AssumedRole
 
   def index
-    # Rails 5 requires parameters to be explicitly permitted before converting 
+    # Rails 5 requires parameters to be explicitly permitted before converting
     # to Hash.  See: https://stackoverflow.com/a/46029524
     allowed_params = %i[account kind limit offset search]
     options = params.permit(*allowed_params)
       .slice(*allowed_params).to_h.symbolize_keys
+
+    if Rails.application.config.conjur_config.max_resources_limit.positive?
+      options[:limit] = Rails.application.config.conjur_config.max_resources_limit.to_s unless options[:limit]
+
+      raise ApplicationController::UnprocessableEntity, "Limit param is more than #{Rails.application.config.conjur_config.max_resources_limit}" \
+      unless options[:limit].to_i<=Rails.application.config.conjur_config.max_resources_limit
+    end
 
     if params[:owner]
       ownerid = Role.make_full_id(params[:owner], account)
