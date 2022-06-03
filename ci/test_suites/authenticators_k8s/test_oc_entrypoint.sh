@@ -294,7 +294,7 @@ function run_cucumber() {
     -r ./cucumber/authenticators_k8s/features/support/world.rb \
     -r ./cucumber/authenticators_k8s/features/support/hooks.rb \
     -r ./cucumber/authenticators_k8s/features/support/conjur_token.rb \
-    $cucumber_args ./cucumber/authenticators_k8s/features" | cucumbercmd -i bash || true
+    $cucumber_args ./cucumber/authenticators_k8s/features" | cucumbercmd -i bash
 }
 
 main
