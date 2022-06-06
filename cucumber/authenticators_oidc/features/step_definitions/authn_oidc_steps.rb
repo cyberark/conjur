@@ -117,12 +117,35 @@ When(/^I authenticate via OIDC V2 with code and account "([^"]*)"$/) do |account
   )
 end
 
+When(/^I authenticate via OIDC V2 with code and service-id "([^"]*)"$/) do |service_id|
+  authenticate_code_with_oidc(
+    service_id: service_id,
+    account: AuthnOidcHelper::ACCOUNT
+  )
+end
+
 When(/^I authenticate via OIDC with no id token( and user id "([^"]*)" in the request)?$/) do |user_id|
   authenticate_id_token_with_oidc(
     service_id: AuthnOidcHelper::SERVICE_ID,
     account: AuthnOidcHelper::ACCOUNT,
     id_token: nil,
     user_id: user_id
+  )
+end
+
+When(/^I authenticate via OIDC V2 with code "([^"]*)"$/) do |code|
+  authenticate_code_with_oidc(
+    service_id: "#{AuthnOidcHelper::SERVICE_ID}2",
+    account: AuthnOidcHelper::ACCOUNT,
+    code: code,
+  )
+end
+
+When(/^I authenticate via OIDC V2 with state "([^"]*)"$/) do |state|
+  authenticate_code_with_oidc(
+    service_id: "#{AuthnOidcHelper::SERVICE_ID}2",
+    account: AuthnOidcHelper::ACCOUNT,
+    state: state,
   )
 end
 
@@ -140,14 +163,6 @@ When(/^I authenticate via OIDC with empty id token$/) do
     account: AuthnOidcHelper::ACCOUNT,
     id_token: ""
   )
-end
-
-When(/^I authenticate via OIDC V2 with empty code$/) do
-  authenticate_code_with_oidc(
-    service_id: "#{AuthnOidcHelper::SERVICE_ID}2",
-    account: AuthnOidcHelper::ACCOUNT,
-    code: "",
-    )
 end
 
 When(/^I authenticate (\d+) times? in (\d+) threads? via OIDC with( invalid)? id token$/) do |num_requests, num_threads, is_invalid|
