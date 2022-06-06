@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# This class smells of :reek:RepeatedConditional for the multiple calls
+#  This class smells of :reek:RepeatedConditional for the multiple calls
 # to `authentication.self?`
 class CredentialsController < ApplicationController
   include BasicAuthenticator
