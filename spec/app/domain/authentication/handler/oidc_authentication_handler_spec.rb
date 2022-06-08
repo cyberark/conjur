@@ -30,7 +30,7 @@ RSpec.describe('Authentication::Handler::OidcAuthenticationHandler') do
           handler.authenticate(account: "rspec", service_id: "abc123", parameters: {
             client_ip: "127.0.0.1"
           })
-        }.to raise_error(Errors::Authentication::AuthenticatorNotSupported)
+        }.to raise_error(Errors::Conjur::RequestedResourceNotFound)
       end
     end
 
@@ -47,7 +47,6 @@ RSpec.describe('Authentication::Handler::OidcAuthenticationHandler') do
           allow(repo).to receive(:find).with(anything()).and_return(
             Authenticator::OidcAuthenticator.new(
               account: "rspec",
-              provider_uri: "http://test.com",
               service_id: "abc123"
             )
           )
@@ -213,7 +212,7 @@ RSpec.describe('Authentication::Handler::OidcAuthenticationHandler') do
           expect {
             handler.authenticate(account: "rspec", service_id: "abc123",
                                  parameters: { state: "asdfab", code: "1244556", client_ip: "127.0.0.1" })
-          }.to raise_error("State Mismatch")
+          }.to raise_error(Errors::Authentication::AuthnOidc::StateMismatch)
         end
       end
 
