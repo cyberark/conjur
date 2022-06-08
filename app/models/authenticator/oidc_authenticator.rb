@@ -1,5 +1,5 @@
 module Authenticator
-  class OidcAuthenticator < Authenticator::Authenticator
+  class OidcAuthenticator < ::Authenticator::Authenticator
     AUTH_VERSION_1 = 'V1'
     AUTH_VERSION_2 = 'V2'
     attr_reader :name, :provider_uri, :response_type, :client_id,
