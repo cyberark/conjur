@@ -16,6 +16,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   [cyberark/conjur#2564](https://github.com/cyberark/conjur/pull/2564)  
 - Added configuration for token TTL
   [cyberark/conjur#2510](https://github.com/cyberark/conjur/pull/2510)
+- Added configuration for default value for maximum number of results return to `/resources` request
+  [cyberark/conjur#2510](https://github.com/cyberark/conjur/pull/2510)
 
 ### Security
 - Update rack to 2.2.3.1 to resolve CVE-2022-3023
