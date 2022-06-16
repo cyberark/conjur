@@ -11,6 +11,7 @@ Feature: A user can view the various authenticators they can use.
       id: conjur/authn-oidc/oidceast
       body:
       - !webservice
+      - !webservice status
 
       - !variable provider-uri
       - !variable client-id
@@ -39,6 +40,7 @@ Feature: A user can view the various authenticators they can use.
       id: conjur/authn-oidc/okta
       body:
       - !webservice
+      - !webservice status
 
       - !variable provider-uri
       - !variable name

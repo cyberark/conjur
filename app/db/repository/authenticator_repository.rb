@@ -6,12 +6,16 @@ module DB
       end
 
       def find_all(type:, account:)
-        @resource_repository.where(
+        @resource_repository.where{
           Sequel.like(
             :resource_id,
-            "#{account}:webservice:conjur/authn-#{type}%"
-          )
-        ).map do |webservice|
+            "#{account}:webservice:conjur/authn-#{type}/%"
+          ) &
+          Sequel.~(Sequel.like(
+            :resource_id,
+            "%/status"
+          ))
+        }.map do |webservice|
           load_authenticator(account: account, id: webservice.id.split(':').last, type: type)
         end
       end
@@ -37,7 +41,7 @@ module DB
       private
 
       def load_authenticator(type:, account:, id:)
-        service_id = id.split('/')[-1].underscore.to_sym
+        service_id = id.split('/')[2].underscore.to_sym
         variables = @resource_repository.where(
           Sequel.like(
             :resource_id,
@@ -47,7 +51,7 @@ module DB
 
         args_list = {}.tap do |args|
           args[:account] = account
-          args[:service_id] = id.split('/')[-1].underscore.to_sym.to_s
+          args[:service_id] = id.split('/')[2].underscore.to_sym.to_s
           variables.each do |variable|
             next unless variable.secret
 
