@@ -2,5 +2,5 @@
 set -e
 
 pushd ./test_suites/authenticators_k8s
-  summon ./entrypoint.sh gke
+  summon -e jenkins ./entrypoint.sh gke
 popd
