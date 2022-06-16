@@ -33,8 +33,7 @@ module Authentication
           redirect_uri: ERB::Util.url_encode(authenticator.redirect_uri)
         }.map { |key, value| "#{key}=#{value}" }.join("&")
 
-        return "#{oidc_util(authenticator).discovery_information.authorization_endpoint}?#{params}"
-
+        "#{oidc_util(authenticator).discovery_information.authorization_endpoint}?#{params}"
       end
 
       protected
@@ -52,11 +51,11 @@ module Authentication
           return v1_extract_identity(authenticator, oidc_util, params)
         end
 
-        return v2_extract_identity(authenticator, oidc_util, params)
+        v2_extract_identity(authenticator, oidc_util, params)
       end
 
       def type
-        return 'oidc'
+        'oidc'
       end
 
       def oidc_util(authenticator)
@@ -69,24 +68,26 @@ module Authentication
         id_token = Hash[URI.decode_www_form(params[:credentials])].fetch("id_token", "")
         raise Errors::Authentication::RequestBody::MissingRequestParam, "id_token" unless id_token && !id_token.strip.empty?
 
-        decoded_id_token = @json.decode(id_token, oidc_util.discovery_information.jwks)
-        decoded_id_token.verify!(oidc_util.discovery_information.jwks)
+        jwks = oidc_util.discovery_information.jwks
+        decoded_id_token = @json.decode(id_token, jwks)
+        decoded_id_token.verify!(jwks)
 
-        return decoded_id_token[authenticator.claim_mapping]
+        decoded_id_token[authenticator.claim_mapping]
       end
 
       def v2_extract_identity(authenticator, oidc_util, params)
-        oidc_util.client.authorization_code = params[:code]
-        id_token = oidc_util.client.access_token!(scope: true, client_auth_method: :basic, nonce: authenticator.nonce).id_token
+        oidc_client = oidc_util.client
+        oidc_client.authorization_code = params[:code]
+        nonce = authenticator.nonce
+        id_token = oidc_client.access_token!(scope: true, client_auth_method: :basic, nonce: nonce).id_token
         decoded_id_token = oidc_util.decode_token(id_token)
         decoded_id_token.verify!(
           issuer: authenticator.provider_uri,
           client_id: authenticator.client_id,
-          nonce: authenticator.nonce
+          nonce: nonce
         )
 
-        return decoded_id_token.raw_attributes.with_indifferent_access[authenticator.claim_mapping]
-
+        decoded_id_token.raw_attributes.with_indifferent_access[authenticator.claim_mapping]
       rescue OpenIDConnect::ValidationFailed => e
         raise Errors::Authentication::AuthnOidc::TokenVerificationFailed, e.message
       end
