@@ -29,7 +29,10 @@ Feature: OIDC Authenticator - Hosts can authenticate with OIDC authenticator
         privilege: [ read, authenticate ]
         resource: !webservice
 
-    - !user alice
+    - !user
+      id: alice
+      annotations:
+       authn-oidc/identity: alice.somebody@cyberark.com
 
     - !grant
       role: !group conjur/authn-oidc/keycloak/users
@@ -73,7 +76,10 @@ Feature: OIDC Authenticator - Hosts can authenticate with OIDC authenticator
   Scenario: Adding a group to keycloak/users group permits users to authenticate
     Given I extend the policy with:
     """
-    - !user bob
+    - !user
+      id: bob
+      annotations:
+       authn-oidc/identity: bob.somebody@cyberark.com
 
     - !group more-users
 
@@ -85,7 +91,7 @@ Feature: OIDC Authenticator - Hosts can authenticate with OIDC authenticator
       role: !group conjur/authn-oidc/keycloak/users
       member: !group more-users
     """
-    And I fetch an ID Token for username "bob" and password "bob"
+    And I fetch an ID Token for username "bob.somebody@cyberark.com" and password "bob"
     When I authenticate via OIDC with id token
     Then user "bob" has been authorized by Conjur
 
@@ -94,7 +100,7 @@ Feature: OIDC Authenticator - Hosts can authenticate with OIDC authenticator
     Given I fetch an ID Token for username "not_in_conjur" and password "not_in_conjur"
     And I save my place in the log file
     When I authenticate via OIDC with id token
-    Then it is unauthorized
+    Then it is a bad request
     And The following appears in the log after my savepoint:
     """
     Errors::Authentication::Security::RoleNotFound
@@ -108,9 +114,12 @@ Feature: OIDC Authenticator - Hosts can authenticate with OIDC authenticator
   Scenario: User that is not permitted to webservice in ID token is denied
     Given I extend the policy with:
     """
-    - !user bob
+    - !user
+      id: bob
+      annotations:
+       authn-oidc/identity: bob.somebody@cyberark.com
     """
-    And I fetch an ID Token for username "bob" and password "bob"
+    And I fetch an ID Token for username "bob.somebody@cyberark.com" and password "bob"
     And I save my place in the log file
     When I authenticate via OIDC with id token
     Then it is forbidden
@@ -225,9 +234,12 @@ Feature: OIDC Authenticator - Hosts can authenticate with OIDC authenticator
   Scenario: Authentication failure is written to the audit log
     Given I extend the policy with:
     """
-    - !user bob
+    - !user
+      id: bob
+      annotations:
+       authn-oidc/identity: bob.somebody@cyberark.com
     """
-    And I fetch an ID Token for username "bob" and password "bob"
+    And I fetch an ID Token for username "bob.somebody@cyberark.com" and password "bob"
     And I save my place in the audit log file
     When I authenticate via OIDC with id token
     Then it is forbidden

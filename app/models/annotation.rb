@@ -17,6 +17,12 @@ class Annotation < Sequel::Model
     end
   end
 
+  def self.find_annotation(account:, identifier:, name:, type:)
+    annotation = Annotation.where(Sequel.lit('resource_id like ?', "#{account}:#{type}:%"))
+    annotation = annotation.where(Sequel.lit('name = ?', name)) if name
+    annotation.where(Sequel.lit('value = ?', identifier)).first
+  end
+
   def validate
     super
     

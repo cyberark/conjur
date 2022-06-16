@@ -53,7 +53,10 @@ Feature: OIDC Authenticator V2 - Users can authenticate with OIDC authenticator
             privilege: [ read, authenticate ]
             resource: !webservice
 
-      - !user alice
+      - !user
+        id: alice
+        annotations:
+          authn-oidc/identity: alice.somebody@cyberark.com
 
       - !grant
         role: !group conjur/authn-oidc/keycloak2/users
@@ -97,7 +100,10 @@ Feature: OIDC Authenticator V2 - Users can authenticate with OIDC authenticator
   Scenario: Adding a group to keycloak2/users group permits users to authenticate
     Given I extend the policy with:
     """
-    - !user bob
+    - !user
+      id: bob
+      annotations:
+        authn-oidc/identity: bob.somebody@cyberark.com
 
     - !group more-users
 
@@ -109,7 +115,7 @@ Feature: OIDC Authenticator V2 - Users can authenticate with OIDC authenticator
       role: !group conjur/authn-oidc/keycloak2/users
       member: !group more-users
     """
-    And I fetch a code for username "bob" and password "bob"
+    And I fetch a code for username "bob.somebody@cyberark.com" and password "bob"
     When I authenticate via OIDC V2 with code
     Then user "bob" has been authorized by Conjur
 
@@ -132,9 +138,12 @@ Feature: OIDC Authenticator V2 - Users can authenticate with OIDC authenticator
   Scenario: User that is not permitted to webservice in claim mapping is denied
     Given I extend the policy with:
     """
-    - !user bob
+    - !user
+      id: bob
+      annotations:
+        authn-oidc/identity: bob.somebody@cyberark.com
     """
-    And I fetch a code for username "bob" and password "bob"
+    And I fetch a code for username "bob.somebody@cyberark.com" and password "bob"
     And I save my place in the log file
     When I authenticate via OIDC V2 with code
     Then it is forbidden
@@ -272,7 +281,6 @@ Feature: OIDC Authenticator V2 - Users can authenticate with OIDC authenticator
     And I fetch a code for username "alice" and password "alice"
     And I authenticate via OIDC V2 with code
     Then user "alice" has been authorized by Conjur
-
   @negative @acceptance
   Scenario: Unauthenticated is raised in case of an invalid OIDC Provider hostname
     Given I fetch a code for username "alice" and password "alice"
@@ -295,9 +303,12 @@ Feature: OIDC Authenticator V2 - Users can authenticate with OIDC authenticator
   Scenario: Authentication failure is written to the audit log
     Given I extend the policy with:
     """
-    - !user bob
+    - !user
+      id: bob
+      annotations:
+        authn-oidc/identity: bob.somebody@cyberark.com
     """
-    And I fetch a code for username "bob" and password "bob"
+    And I fetch a code for username "bob.somebody@cyberark.com" and password "bob"
     And I save my place in the audit log file
     When I authenticate via OIDC V2 with code
     Then it is forbidden

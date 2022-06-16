@@ -37,19 +37,24 @@ RSpec.describe('Authentication::Handler::OidcAuthenticationHandler') do
     context "authenticator exists" do
       context "but not valid" do
         it "will raise an error" do
+          endpoint =  double(authorization_endpoint: '"http://test"')
           role_cls = class_double("::Role")
+          oidc_util = double("Authentication::Util::OidcUtil")
           repo = double("DB::Repository::AuthenticatorRepository")
           handler = Authentication::Handler::OidcAuthenticationHandler.new(
             authenticator_repository: repo,
-            role_repository_class: role_cls
+            role_repository_class: role_cls,
+            oidc_util: oidc_util
           )
           allow(role_cls).to receive(:with_pk).and_return(::Role.new)
           allow(repo).to receive(:find).with(anything()).and_return(
             Authenticator::OidcAuthenticator.new(
               account: "rspec",
+              provider_uri: "http://test.com",
               service_id: "abc123"
             )
           )
+          allow(oidc_util).to receive(:discovery_information).and_return(endpoint)
           expect {
             handler.authenticate(account: "rspec", service_id: "abc123", parameters: {
               client_ip: "127.0.0.1"
@@ -359,10 +364,12 @@ RSpec.describe('Authentication::Handler::OidcAuthenticationHandler') do
         it "v2 - will raise an error" do
           role_cls = class_double("::Role")
           repo = double("DB::Repository::AuthenticatorRepository")
+          role_repo = double("DB::Repository::RoleRepository")
           oidc_util = double("Authentication::Util::OidcUtil")
           handler = Authentication::Handler::OidcAuthenticationHandler.new(
             authenticator_repository: repo,
             role_repository_class: role_cls,
+            role_repo: role_repo,
             oidc_util: oidc_util
           )
           oidc_client = double("::OpenIDConnect::Client")
@@ -399,7 +406,7 @@ RSpec.describe('Authentication::Handler::OidcAuthenticationHandler') do
           allow(oidc_util).to receive(:decode_token).with(anything()).and_return(jwt)
           allow(jwt).to receive(:verify!).with(anything())
           allow(jwt).to receive(:raw_attributes).and_return({username: "alice"})
-          allow(role_cls).to receive(:from_username).with(anything(), anything()).and_return(nil)
+          allow(handler).to receive(:fetch_conjur_role).and_return(nil)
           expect(oidc_client).to receive(:authorization_code=).with("1244556")
           expect {
             handler.authenticate(account: "rspec", service_id: "abc123",
@@ -414,10 +421,12 @@ RSpec.describe('Authentication::Handler::OidcAuthenticationHandler') do
           discovery_information = double("OpenIDConnect::Discovery::Provider::Config::Response")
           json = double("JSON::JWT")
           jws = double("JSON::JWS")
+          role_repo = double("DB::Repository::RoleRepository")
           handler = Authentication::Handler::OidcAuthenticationHandler.new(
             authenticator_repository: repo,
             role_repository_class: role_cls,
             oidc_util: oidc_util,
+            role_repo: role_repo,
             json: json
           )
 
@@ -437,7 +446,7 @@ RSpec.describe('Authentication::Handler::OidcAuthenticationHandler') do
               id_token_user_property: "username"
             )
           )
-          allow(role_cls).to receive(:from_username).with(anything(), anything()).and_return(nil)
+          allow(handler).to receive(:fetch_conjur_role).and_return(nil)
           expect {
             handler.authenticate(account: "rspec", service_id: "abc123", parameters: { credentials: "id_token=\"alice\"", client_ip: "127.0.0.1" })
           }.to raise_error(Errors::Authentication::Security::RoleNotFound)
@@ -449,11 +458,13 @@ RSpec.describe('Authentication::Handler::OidcAuthenticationHandler') do
           role_cls = class_double("::Role")
           resource_cls = class_double("::Resource")
           repo = double("DB::Repository::AuthenticatorRepository")
+          role_repo = double("DB::Repository::RoleRepository")
           oidc_util = double("Authentication::Util::OidcUtil")
           handler = Authentication::Handler::OidcAuthenticationHandler.new(
             authenticator_repository: repo,
             role_repository_class: role_cls,
             resource_repository_class: resource_cls,
+            role_repo: role_repo,
             oidc_util: oidc_util
           )
           oidc_client = double("::OpenIDConnect::Client")
@@ -491,10 +502,11 @@ RSpec.describe('Authentication::Handler::OidcAuthenticationHandler') do
           allow(oidc_util).to receive(:decode_token).with(anything()).and_return(jwt)
           allow(jwt).to receive(:verify!).with(anything())
           allow(jwt).to receive(:raw_attributes).and_return({username: "alice"})
-          allow(role_cls).to receive(:from_username).with(anything(), anything()).and_return(role)
+          allow(handler).to receive(:fetch_conjur_role).and_return(role)
           allow(role).to receive(:identifier).and_return("123")
           allow(resource_cls).to receive(:[]).with(resource_id: 'rspec:webservice:conjur/authn-oidc/abc123').and_return(resource)
           allow(role).to receive(:allowed_to?).with('authenticate', resource).and_return(false)
+          allow(handler).to receive(:parse_username).and_return("alice")
           expect(oidc_client).to receive(:authorization_code=).with("1244556")
           expect {
             handler.authenticate(account: "rspec", service_id: "abc123",
@@ -507,6 +519,7 @@ RSpec.describe('Authentication::Handler::OidcAuthenticationHandler') do
           resource_cls = class_double("::Resource")
           repo = double("DB::Repository::AuthenticatorRepository")
           oidc_util = double("Authentication::Util::OidcUtil")
+          role_repo = double("DB::Repository::RoleRepository")
           discovery_information = double("OpenIDConnect::Discovery::Provider::Config::Response")
           json = double("JSON::JWT")
           jws = double("JSON::JWS")
@@ -514,6 +527,7 @@ RSpec.describe('Authentication::Handler::OidcAuthenticationHandler') do
             authenticator_repository: repo,
             role_repository_class: role_cls,
             resource_repository_class: resource_cls,
+            role_repo: role_repo,
             oidc_util: oidc_util,
             json: json
           )
@@ -536,10 +550,11 @@ RSpec.describe('Authentication::Handler::OidcAuthenticationHandler') do
           allow(jws).to receive(:[]).with("username").and_return("alice")
           allow(discovery_information).to receive(:jwks).and_return("123")
           allow(oidc_util).to receive(:discovery_information).and_return(discovery_information)
-          allow(role_cls).to receive(:from_username).with(anything(), anything()).and_return(role)
+          allow(handler).to receive(:fetch_conjur_role).and_return(role)
           allow(role).to receive(:identifier).and_return("123")
           allow(resource_cls).to receive(:[]).with(resource_id: 'rspec:webservice:conjur/authn-oidc/abc123').and_return(resource)
           allow(role).to receive(:allowed_to?).with('authenticate', resource).and_return(false)
+          allow(handler).to receive(:parse_username).and_return("alice")
           expect {
             handler.authenticate(account: "rspec", service_id: "abc123", parameters: { credentials: "id_token=\"alice\"", client_ip: "127.0.0.1"})
           }.to raise_error(Errors::Authentication::Security::RoleNotAuthorizedOnResource)
@@ -552,9 +567,11 @@ RSpec.describe('Authentication::Handler::OidcAuthenticationHandler') do
           resource_cls = class_double("::Resource")
           repo = double("DB::Repository::AuthenticatorRepository")
           oidc_util = double("Authentication::Util::OidcUtil")
+          role_repo = double("DB::Repository::RoleRepository")
           handler = Authentication::Handler::OidcAuthenticationHandler.new(
             authenticator_repository: repo,
             role_repository_class: role_cls,
+            role_repo: role_repo,
             resource_repository_class: resource_cls,
             oidc_util: oidc_util
           )
@@ -593,12 +610,13 @@ RSpec.describe('Authentication::Handler::OidcAuthenticationHandler') do
           allow(oidc_util).to receive(:decode_token).with(anything()).and_return(jwt)
           allow(jwt).to receive(:verify!).with(anything())
           allow(jwt).to receive(:raw_attributes).and_return({username: "alice"})
-          allow(role_cls).to receive(:from_username).with(anything(), anything()).and_return(role)
+           allow(handler).to receive(:fetch_conjur_role).and_return(role)
           allow(role).to receive(:identifier).and_return("123")
           allow(resource_cls).to receive(:[]).with(resource_id: 'rspec:webservice:conjur/authn-oidc/abc123').and_return(resource)
           allow(role).to receive(:allowed_to?).with('authenticate', resource).and_return(true)
           allow(role).to receive(:valid_origin?).with("127.0.0.1").and_return(false)
           expect(oidc_client).to receive(:authorization_code=).with("1244556")
+          allow(handler).to receive(:parse_username).and_return("alice")
           expect {
             handler.authenticate(account: "rspec", service_id: "abc123",
                                  parameters: { state: "statei0o3n", code: "1244556", client_ip: "127.0.0.1" })
@@ -608,6 +626,7 @@ RSpec.describe('Authentication::Handler::OidcAuthenticationHandler') do
         it "v1 - will raise an error" do
           role_cls = class_double("::Role")
           resource_cls = class_double("::Resource")
+          role_repo = double("DB::Repository::RoleRepository")
           repo = double("DB::Repository::AuthenticatorRepository")
           oidc_util = double("Authentication::Util::OidcUtil")
           discovery_information = double("OpenIDConnect::Discovery::Provider::Config::Response")
@@ -618,6 +637,7 @@ RSpec.describe('Authentication::Handler::OidcAuthenticationHandler') do
             role_repository_class: role_cls,
             resource_repository_class: resource_cls,
             oidc_util: oidc_util,
+            role_repo: role_repo,
             json: json
           )
           role = double("::Role")
@@ -639,11 +659,12 @@ RSpec.describe('Authentication::Handler::OidcAuthenticationHandler') do
               id_token_user_property: "username"
             )
           )
-          allow(role_cls).to receive(:from_username).with(anything(), anything()).and_return(role)
+          allow(handler).to receive(:fetch_conjur_role).and_return(role)
           allow(role).to receive(:identifier).and_return("123")
           allow(resource_cls).to receive(:[]).with(resource_id: 'rspec:webservice:conjur/authn-oidc/abc123').and_return(resource)
           allow(role).to receive(:allowed_to?).with('authenticate', resource).and_return(true)
           allow(role).to receive(:valid_origin?).with("127.0.0.1").and_return(false)
+          allow(handler).to receive(:parse_username).and_return("alice")
           expect {
             handler.authenticate(account: "rspec", service_id: "abc123", parameters: { credentials: "id_token=\"alice\"", client_ip: "127.0.0.1" })
           }.to raise_error(Errors::Authentication::InvalidOrigin)
@@ -654,6 +675,7 @@ RSpec.describe('Authentication::Handler::OidcAuthenticationHandler') do
         it "v2 - will received a signed token" do
           role_cls = class_double("::Role")
           resource_cls = class_double("::Resource")
+          role_repo = double("DB::Repository::RoleRepository")
           repo = double("DB::Repository::AuthenticatorRepository")
           oidc_util = double("Authentication::Util::OidcUtil")
           token_factory = double("TokenFactory")
@@ -661,6 +683,7 @@ RSpec.describe('Authentication::Handler::OidcAuthenticationHandler') do
             authenticator_repository: repo,
             role_repository_class: role_cls,
             resource_repository_class: resource_cls,
+            role_repo: role_repo,
             oidc_util: oidc_util,
             token_factory: token_factory
           )
@@ -699,7 +722,7 @@ RSpec.describe('Authentication::Handler::OidcAuthenticationHandler') do
           allow(oidc_util).to receive(:decode_token).with(anything()).and_return(jwt)
           allow(jwt).to receive(:verify!).with(anything())
           allow(jwt).to receive(:raw_attributes).and_return(username: "alice")
-          allow(role_cls).to receive(:from_username).with(anything(), anything()).and_return(role)
+          allow(handler).to receive(:fetch_conjur_role).and_return(role)
           allow(role).to receive(:identifier).and_return("123")
           allow(resource_cls).to receive(:[]).with(resource_id: 'rspec:webservice:conjur/authn-oidc/abc123').and_return(resource)
           allow(role).to receive(:allowed_to?).with('authenticate', resource).and_return(true)
@@ -720,6 +743,7 @@ RSpec.describe('Authentication::Handler::OidcAuthenticationHandler') do
           repo = double("DB::Repository::AuthenticatorRepository")
           oidc_util = double("Authentication::Util::OidcUtil")
           token_factory = double("TokenFactory")
+          role_repo = double("DB::Repository::RoleRepository")
           discovery_information = double("OpenIDConnect::Discovery::Provider::Config::Response")
           json = double("JSON::JWT")
           jws = double("JSON::JWS")
@@ -727,6 +751,7 @@ RSpec.describe('Authentication::Handler::OidcAuthenticationHandler') do
             authenticator_repository: repo,
             role_repository_class: role_cls,
             resource_repository_class: resource_cls,
+            role_repo: role_repo,
             oidc_util: oidc_util,
             token_factory: token_factory,
             json: json
@@ -750,7 +775,7 @@ RSpec.describe('Authentication::Handler::OidcAuthenticationHandler') do
               id_token_user_property: "username"
             )
           )
-          allow(role_cls).to receive(:from_username).with(anything(), anything()).and_return(role)
+          allow(handler).to receive(:fetch_conjur_role).and_return(role)
           allow(role).to receive(:identifier).and_return("123")
           allow(resource_cls).to receive(:[]).with(resource_id: 'rspec:webservice:conjur/authn-oidc/abc123').and_return(resource)
           allow(role).to receive(:allowed_to?).with('authenticate', resource).and_return(true)
