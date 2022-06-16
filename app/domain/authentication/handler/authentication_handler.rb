@@ -5,12 +5,14 @@ module Authentication
         authenticator_repository: ::DB::Repository::AuthenticatorRepository.new,
         token_factory: TokenFactory.new,
         role_repository_class: ::Role,
+        role_repo: ::DB::Repository::RoleRepository.new,
         resource_repository_class: ::Resource,
         logger: Rails.logger
       )
         @authenticator_repository = authenticator_repository
         @token_factory = token_factory
         @role_repository_class = role_repository_class
+        @role_repo = role_repo
         @resource_repository_class = resource_repository_class
         @logger = logger
       end
@@ -33,7 +35,11 @@ module Authentication
         validate_parameters_are_valid(authenticator, parameters)
 
         username = extract_and_verify_identity(authenticator, parameters)
-        conjur_role = fetch_conjur_role(authenticator, username)
+        conjur_role = fetch_conjur_role(
+          account: authenticator.account,
+          identity: username,
+          prefix: authenticator.authenticator_prefix
+        )
         raise Errors::Authentication::Security::RoleNotFound, username unless conjur_role
 
         validate_identity_can_use_authenticator?(authenticator, conjur_role)
@@ -44,8 +50,14 @@ module Authentication
 
         generate_token(account, username)
       rescue => e
-        log_audit_failure(account, service_id, username, parameters[:client_ip], e)
+        log_audit_failure(account, service_id, parse_username(role: conjur_role, username: username), parameters[:client_ip], e)
         raise e
+      end
+
+      def parse_username(role:, username:)
+        return username unless role
+
+        role.role_id.split(':').last
       end
 
       def get_login_url(account:, service_id:)
@@ -132,8 +144,12 @@ module Authentication
         raise Errors::Authentication::InvalidOrigin unless conjur_role.valid_origin?(client_ip_address)
       end
 
-      def fetch_conjur_role(authenticator, identity)
-        @role_repository_class.from_username(authenticator.account, identity)
+      def fetch_conjur_role(account:, identity:, prefix:)
+        @role_repo.find(
+          account: account,
+          identifier: identity,
+          name: "#{prefix}/identity"
+        )
       end
 
       def validate_account_exists(account)

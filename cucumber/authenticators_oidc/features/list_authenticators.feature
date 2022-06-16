@@ -68,9 +68,15 @@ Feature: A user can view the various authenticators they can use.
     - !group secrets-fetchers
     - !group cant-authenticate
 
-    - !user alice
+    - !user
+      id: alice
+      annotations:
+       authn-oidc/oidceast: alice.somebody@cyberark.com
 
-    - !user bob
+    - !user
+      id: bob
+      annotations:
+       authn-oidc/okta: bob.somebody@cyberark.com
 
     - !grant
       role: !group cant-authenticate
