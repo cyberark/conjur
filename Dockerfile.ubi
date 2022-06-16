@@ -25,7 +25,6 @@ RUN INSTALL_PKGS="gcc \
                   libxslt-devel \
                   make \
                   openldap-clients \
-                  redhat-rpm-config \
                   tzdata" && \
     yum install -y --setopt=tsflags=nodocs $INSTALL_PKGS && \
     rpm -V $INSTALL_PKGS && \
