@@ -16,6 +16,7 @@ Feature: OIDC Authenticator V2 - Users can authenticate with OIDC authenticator
             annotations:
               description: Authentication service for Keycloak, based on Open ID Connect.
 
+          - !variable name
           - !variable
             id: provider-uri
 

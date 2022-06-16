@@ -233,7 +233,17 @@ module Errors
 
       TokenVerificationFailed = ::Util::TrackableErrorClass.new(
         msg: "Conjur internal state doesn't match given state",
-        code: "CONJ00127E"
+        code: "CONJ00128E"
+      )
+
+      InvalidVariableValue = ::Util::TrackableErrorClass.new(
+        msg: "Parameter {0} with value {1} invalid",
+        code: "CONJ00129E"
+      )
+
+      InvalidProviderConfig = ::Util::TrackableErrorClass.new(
+        msg: "The OIDC provider variable values are misconfigured",
+        code: "CONJ00130E"
       )
 
     end

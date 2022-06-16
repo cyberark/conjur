@@ -223,6 +223,5 @@ Feature: Authenticator status check
     When I GET "/authn-oidc/keycloak/cucumber/status"
     Then the HTTP response status code is 500
     And the authenticator status check fails with error "WebserviceNotFound: CONJ00005E"
-
     # TODO: Implement this test when we have the ability to start a Conjur server from Cucumber
 #    Scenario: The authenticator is not whitelisted in environment variables
