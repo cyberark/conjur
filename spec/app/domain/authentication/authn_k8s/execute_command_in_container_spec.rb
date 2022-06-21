@@ -194,7 +194,7 @@ RSpec.describe('Authentication::AuthnK8s::ExecuteCommandInContainer') do
         @kube_client_api_endpoint = "https://path/to"
 
         expect(ws_client.connect_args[0]).to eq(
-          "wss://path/to/v1/namespaces/PodNamespace/pods/PodName/exec?container=Container&stderr=true&stdout=true&stdin=true&command=command1&command=command2"
+          "https://path/to/v1/namespaces/PodNamespace/pods/PodName/exec?container=Container&stderr=true&stdout=true&stdin=true&command=command1&command=command2"
         )
       end
 
@@ -202,7 +202,7 @@ RSpec.describe('Authentication::AuthnK8s::ExecuteCommandInContainer') do
         @kube_client_api_endpoint = "https://path/to:5432"
 
         expect(ws_client.connect_args[0]).to eq(
-          "wss://path/to:5432/v1/namespaces/PodNamespace/pods/PodName/exec?container=Container&stderr=true&stdout=true&stdin=true&command=command1&command=command2"
+          "https://path/to:5432/v1/namespaces/PodNamespace/pods/PodName/exec?container=Container&stderr=true&stdout=true&stdin=true&command=command1&command=command2"
         )
       end
 
@@ -210,7 +210,7 @@ RSpec.describe('Authentication::AuthnK8s::ExecuteCommandInContainer') do
         @kube_client_api_endpoint = "https://path/to?meow=moo"
 
         expect(ws_client.connect_args[0]).to eq(
-          "wss://path/to/v1/namespaces/PodNamespace/pods/PodName/exec?meow=moo&container=Container&stderr=true&stdout=true&stdin=true&command=command1&command=command2"
+          "https://path/to/v1/namespaces/PodNamespace/pods/PodName/exec?meow=moo&container=Container&stderr=true&stdout=true&stdin=true&command=command1&command=command2"
         )
       end
 
@@ -218,7 +218,7 @@ RSpec.describe('Authentication::AuthnK8s::ExecuteCommandInContainer') do
         @kube_client_api_endpoint = "https://path/to:5342?meow=moo"
 
         expect(ws_client.connect_args[0]).to eq(
-          "wss://path/to:5342/v1/namespaces/PodNamespace/pods/PodName/exec?meow=moo&container=Container&stderr=true&stdout=true&stdin=true&command=command1&command=command2"
+          "https://path/to:5342/v1/namespaces/PodNamespace/pods/PodName/exec?meow=moo&container=Container&stderr=true&stdout=true&stdin=true&command=command1&command=command2"
         )
       end
     end

@@ -3,10 +3,6 @@
 require 'spec_helper'
 require 'test/authn_k8s/authn_k8s_test_server.rb'
 
-# Start fresh
-# 
-DatabaseCleaner.clean_with(:truncation)
-
 # Turn on logs to debug
 # 
 # Rails.logger.extend(ActiveSupport::Logger.broadcast(ActiveSupport::TaggedLogging.new(Logger.new(STDOUT))))
@@ -18,11 +14,11 @@ DatabaseCleaner.clean_with(:truncation)
 # )
 
 def set_variable_value(resource_id, value)
-  post("/secrets/#{account}/variable/#{resource_id}", env: request_env.merge({ 'RAW_POST_DATA' => value }))
+  post("/secrets/#{account}/variable/#{resource_id}", env: admin_request_env.merge({ 'RAW_POST_DATA' => value }))
 end
 
 def apply_root_policy(account: , policy_content:, expect_success: false)
-  post("/policies/#{account}/policy/root", env: request_env.merge({ 'RAW_POST_DATA' => policy_content }))
+  post("/policies/#{account}/policy/root", env: admin_request_env.merge({ 'RAW_POST_DATA' => policy_content }))
   if expect_success
     expect(response.code).to eq("201")
   end
@@ -140,29 +136,37 @@ describe AuthenticateController, :type => :request do
   let(:account) { "rspec" }
   let(:authenticator_id) { "authn-k8s/meow" }
   let(:test_app_host) { "h-#{random_hex}" }
+  # Allows API calls to be made as the admin user
+  let(:admin_request_env) do
+    { 'HTTP_AUTHORIZATION' => "Token token=\"#{Base64.strict_encode64(Slosilo["authn:rspec"].signed_token("admin").to_json)}\"" }
+  end
 
-  # Ensure API calls are made by the admin
-  let(:login) { "admin" }
-  include_context "authenticate Token"
+  # Test server is defined in the appropritate "around" hook for the test example
+  let(:test_server) { @test_server }
+  
 
   describe "#authenticate" do
     context "k8s api access contains subpath" do
+      around(:each) do |example|
+        AuthnK8sTestServer.run_async(subpath: "/some/path", bearer_token: "bearer token") do |test_server|
+          @test_server = test_server
+          example.run(test_server)
+        end
+      end
+    
       it "client successfully authenticates" do
         service_id = "conjur/#{authenticator_id}"
 
-        # Run test server
-        server_thread = AuthnK8sTestServer.run_async(subpath: "/some/path", bearer_token: "bearer token")
-        
         # Setup authenticator
         define_authenticator(account, service_id, 
-          host_id: test_app_host
+        host_id: test_app_host
         )
         initialize_authenticator_ca(account, service_id)
         configure_k8s_api_access(
-          service_id, 
-          api_url: "http://localhost:1234/some/path", 
-          ca_cert: "---", 
-          service_account_token: "bearer token"
+        service_id, 
+        api_url: "http://localhost:1234/some/path", 
+        ca_cert: "---", 
+        service_account_token: "bearer token"
         )
 
         # Authenticate
@@ -174,7 +178,8 @@ describe AuthenticateController, :type => :request do
 
         # Login request, grab the signed certificate from the fake server
         authn_k8s_login(authenticator_id, host_id: test_app_host)
-        signed_cert = server_thread[:authn_k8s_test_server].copied_content
+        signed_cert = test_server.copied_content
+
         # Authenticate request
         authn_k8s_authenticate(authenticator_id, account, host_id: test_app_host, signed_cert_pem: signed_cert.to_s)
 
@@ -194,13 +199,12 @@ describe AuthenticateController, :type => :request do
   end
 
   before(:all) do
+    # Start fresh
+    DatabaseCleaner.clean_with(:truncation)
+
     # Init Slosilo key
     Slosilo["authn:rspec"] ||= Slosilo::Key.new
     Role.create(role_id: 'rspec:user:admin')
-  end
-
-  after(:all) do
-    DatabaseCleaner.clean_with(:truncation)
   end
 end
 

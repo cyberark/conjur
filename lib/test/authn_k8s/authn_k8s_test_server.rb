@@ -1,8 +1,9 @@
 require 'rack'
 require 'faye/websocket'
 require 'pathname'
+require 'rack/handler/puma'
 
-Faye::WebSocket.load_adapter('thin')
+Faye::WebSocket.load_adapter('puma')
 
 class AuthnK8sTestServer
     attr_reader :copied_content
@@ -23,18 +24,43 @@ class AuthnK8sTestServer
         puts(...)
     end
 
-    def self.run(...)
-        # TODO: find out how to get random ports
-        test_server = self.new(...)
-        Rack::Handler::Thin.run test_server, :Port => 1234, :Host => "0.0.0.0" do |server|
-            Thread.current[:authn_k8s_test_server] = test_server
-            AuthnK8sTestServer.log("Server running with port=#{server.port}, @subpath=#{server.app.subpath}")
+    def self.run_server_instance(test_server)
+        port = 1234
+
+        Rack::Handler::Puma.run test_server, :Port => port, :Host => "0.0.0.0", :workers => 0 do |launcher|
+            AuthnK8sTestServer.log("Server running with port=#{port}, @subpath=#{test_server.subpath}")
+
+            yield(launcher) if block_given?
         end
     end
 
+    # Runs the test server and blocks until there's an interrupt
+    def self.run(...)
+        # TODO: find out how to get random ports
+        test_server = self.new(...)
+        self.run_server_instance(test_server)
+    end
+
+    # Runs the test server in a non-main thread, then executes block in main thread. This function cleans up the test server when the block completes execution or raises an exception
     def self.run_async(...)
+        if !block_given?
+            raise "run_async requires a block"
+        end
+
+        test_server = self.new(...)
+        launcher = nil
         Thread.new do
-            self.run(...)
+            self.run_server_instance(test_server) do |_launcher|
+                launcher = _launcher
+            end
+        end
+
+        begin
+            sleep(0.1)
+            yield(test_server)
+        ensure
+            # clean up
+            launcher.stop if launcher
         end
     end
 
@@ -94,8 +120,10 @@ class AuthnK8sTestServer
             type, *message_bytes = event.data.bytes
             message = message_bytes.pack('c*')
             log_event([:message, type])
+            # log_event([:message, type, message])
 
             @copied_content = AuthnK8sTestServer.match_script(message).captures[2]
+            # AuthnK8sTestServer.log("Updated @copied_content: \n#{copied_content}")
             ws.close(1000)
         end
     
