@@ -134,8 +134,22 @@ module Loader
     end
 
     class Host < Record
-      def verify; end
-      def_delegators :@policy_object, :restricted_to
+
+      def_delegators :@policy_object, :restricted_to, :apikey
+
+      def verify;
+        if self.annotations.nil?
+          apiKey = false
+        else
+          apiKey = self.annotations["authn/api-key"]
+        end
+        if Rails.application.config.conjur_config.mandatory_api_key
+          message = "Api key required for host."
+          raise Exceptions::InvalidPolicyObject.new(self.id, message: message) unless apiKey == true
+        end
+
+      end
+
 
       def create!
         self.handle_restricted_to(self.roleid, restricted_to)
@@ -146,7 +160,17 @@ module Loader
     class HostFactory < Record
       def_delegators :@policy_object, :layers
 
-      def verify; end
+      def verify;
+        if self.annotations.nil?
+          apiKey = false
+        else
+          apiKey = self.annotations["authn/api-key"]
+        end
+        if Rails.application.config.conjur_config.mandatory_api_key
+          message = "Api key required for host factory."
+          raise Exceptions::InvalidPolicyObject.new(self.id, message: message) unless apiKey == true
+        end
+      end
 
       def create!
         super

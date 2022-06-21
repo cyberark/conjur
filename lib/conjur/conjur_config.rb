@@ -25,6 +25,7 @@ module Conjur
       trusted_proxies: (ENV['TRUSTED_PROXIES'] || []),
       user_authorization_token_ttl: 480, # The default TTL of User is 8 minutes
       host_authorization_token_ttl: 480, # The default TTL of Host is 8 minutes
+      mandatory_api_key: true,
       authenticators: []
     )
 
