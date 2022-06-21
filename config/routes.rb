@@ -33,6 +33,10 @@ Rails.application.routes.draw do
           post '/:authenticator(/:service_id)/:account/:id/authenticate' => 'authenticate#authenticate'
         end
 
+        constraints authenticator: /authn-oidc/ do
+          post '/:authenticator/:service_id/:account/:id/authenticate' => 'authenticate#v2_authenticate'
+        end
+
         post '/authn-gcp/:account/authenticate' => 'authenticate#authenticate_gcp'
         post '/authn-oidc(/:service_id)/:account/authenticate' => 'authenticate#authenticate_oidc'
         post '/authn-jwt/:service_id/:account(/:id)/authenticate' => 'authenticate#authenticate_jwt'

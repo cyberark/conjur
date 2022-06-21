@@ -1,8 +1,85 @@
 # frozen_string_literal: true
 
+module Authentication
+  module AuthnOidc
+    class ResolveIdentity
+      def initialize;end
+
+      def call(identity:, account:, allowed_roles:)
+        # make sure role has a resource (ex. user, host)
+        roles = allowed_roles.select { |role| role.resource? }
+
+        roles.each do |role|
+          role_account, _, role_id = role.id.split(':')
+          return role.resource if role_account == account && identity == role_id
+        end
+
+        roles.each do |role|
+
+          role_account, type, role_id = role.id.split(':')
+          next unless role_account == account
+
+          if role.resource.annotation('authn-oidc/identity').downcase == identity.downcase
+            return role.resource
+          end
+        end
+        nil
+      end
+    end
+
+    class Strategy
+      def initialize()
+        # @oidc = OidcUtils.new ??
+      end
+
+      def authenticate(parameters:, authenticator:)
+        @oidc.new(
+          authenticator: authenticator
+        ).validate(
+          code: parameters[:code],
+          state: parameters[:state]
+        )
+      end
+    end
+  end
+end
+
 class AuthenticateController < ApplicationController
   include BasicAuthenticator
   include AuthorizeResource
+
+  def v2_authenticate
+    authenticator_type = params[:authenticator].split('-').drop(1).join('-')
+    # Load Authenticator policy and values
+    authenticator = DB::Repository::AuthenticatorRepository.new.find(
+      type: authenticator_type,
+      account: parameters[:account],
+      service_id: parameters[:service_id]
+    )
+
+    role = Authentication::AuthnOidc::ResolveIdentity.new.call(
+      identity: Authentication::AuthnOidc::Strategy.new.authenticate(
+        parameters: params,
+        authenticator: authenticator
+      ),
+      account: parameters[:account],
+      allowed_roles: Role.that_can(
+        :authenticate,
+        authenticator.webservice
+      )
+    )
+
+    unless role.valid_origin?(request.ip)
+      raise 'IP address is  to authenticate'
+    end
+      TokenFactory.signed_token(
+        account: parameters[:account],
+        username: role
+      )
+    else
+      raise 'failed to authenticate'
+    end
+  end
 
   def index
     authenticators = {

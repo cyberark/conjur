@@ -20,22 +20,23 @@ module DB
         end
       end
 
-      def find(type:, account:,  service_id:)
+      def find(type:, account:,  service_id: nil)
         webservice =  @resource_repository.where(
           Sequel.like(
             :resource_id,
-            "#{account}:webservice:conjur/authn-#{type}/#{service_id}%"
+            "#{account}:webservice:conjur/#{["authn-#{type}", service_id].compact.join('/')}%"
           )
         ).first
+
         unless webservice
-          return
+          return nil
         end
 
         load_authenticator(account: account, id: webservice.id.split(':').last, type: type)
       end
 
       def exists?(type:, account:, service_id:)
-        @resource_repository.with_pk("#{account}:webservice:conjur/authn-#{type}/#{service_id}") != nil
+        @resource_repository.with_pk("#{account}:webservice:conjur/#{["authn-#{type}", service_id].compact.join('/')}") != nil
       end
 
       private
@@ -45,7 +46,7 @@ module DB
         variables = @resource_repository.where(
           Sequel.like(
             :resource_id,
-            "#{account}:variable:conjur/authn-#{type}/#{service_id}/%"
+            "#{account}:variable:conjur/#{["authn-#{type}", service_id].compact.join('/')}/%"
           )
         ).eager(:secrets).all
 
