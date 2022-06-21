@@ -95,7 +95,7 @@ RSpec.describe('DB::Repository::AuthenticatorRepository') do
         expect(authenticator.state).to be_nil
         expect(authenticator.nonce).to be_nil
         expect(authenticator.redirect_uri).to be_nil
-        expect(authenticator.is_valid?).to be_falsey
+        expect(authenticator.valid?).to be_falsey
         expect(authenticator.version).to be_nil
       end
     end
@@ -140,7 +140,7 @@ RSpec.describe('DB::Repository::AuthenticatorRepository') do
         expect(authenticator.state).to be_nil
         expect(authenticator.nonce).to be_nil
         expect(authenticator.redirect_uri).to be_nil
-        expect(authenticator.is_valid?).to be_falsey
+        expect(authenticator.valid?).to be_falsey
         expect(authenticator.version).to be_nil
       end
     end
@@ -191,7 +191,7 @@ RSpec.describe('DB::Repository::AuthenticatorRepository') do
         expect(authenticator.nonce).to eq("nonceabc123")
         expect(authenticator.redirect_uri).to eq("redirect_uriabc123")
         expect(authenticator.scope).to eq("scopeabc123")
-        expect(authenticator.is_valid?).to be_truthy
+        expect(authenticator.valid?).to be_truthy
         expect(authenticator.version).to eq(Authenticator::OidcAuthenticator::AUTH_VERSION_2)
       end
     end
@@ -240,7 +240,7 @@ RSpec.describe('DB::Repository::AuthenticatorRepository') do
         expect(authenticator.state).to be_nil
         expect(authenticator.nonce).to be_nil
         expect(authenticator.redirect_uri).to be_nil
-        expect(authenticator.is_valid?).to be_truthy
+        expect(authenticator.valid?).to be_truthy
         expect(authenticator.version).to eq(Authenticator::OidcAuthenticator::AUTH_VERSION_1)
       end
     end
@@ -298,7 +298,7 @@ RSpec.describe('DB::Repository::AuthenticatorRepository') do
         expect(authenticator.state).to be_nil
         expect(authenticator.nonce).to be_nil
         expect(authenticator.redirect_uri).to be_nil
-        expect(authenticator.is_valid?).to be_falsey
+        expect(authenticator.valid?).to be_falsey
         expect(authenticator.version).to be_nil
       end
     end
@@ -342,7 +342,7 @@ RSpec.describe('DB::Repository::AuthenticatorRepository') do
         expect(authenticator.state).to be_nil
         expect(authenticator.nonce).to be_nil
         expect(authenticator.redirect_uri).to be_nil
-        expect(authenticator.is_valid?).to be_falsey
+        expect(authenticator.valid?).to be_falsey
         expect(authenticator.version).to be_nil
       end
     end
@@ -392,7 +392,7 @@ RSpec.describe('DB::Repository::AuthenticatorRepository') do
         expect(authenticator.nonce).to eq("nonceabc123")
         expect(authenticator.redirect_uri).to eq("redirect_uriabc123")
         expect(authenticator.scope).to eq("scopeabc123")
-        expect(authenticator.is_valid?).to be_truthy
+        expect(authenticator.valid?).to be_truthy
         expect(authenticator.version).to eq(Authenticator::OidcAuthenticator::AUTH_VERSION_2)
       end
     end
@@ -440,7 +440,7 @@ RSpec.describe('DB::Repository::AuthenticatorRepository') do
         expect(authenticator.state).to be_nil
         expect(authenticator.nonce).to be_nil
         expect(authenticator.redirect_uri).to be_nil
-        expect(authenticator.is_valid?).to be_truthy
+        expect(authenticator.valid?).to be_truthy
         expect(authenticator.version).to eq(Authenticator::OidcAuthenticator::AUTH_VERSION_1)
       end
     end

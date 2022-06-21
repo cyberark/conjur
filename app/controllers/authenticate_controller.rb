@@ -300,7 +300,10 @@ class AuthenticateController < ApplicationController
       raise Forbidden
 
     when Errors::Authentication::RequestBody::MissingRequestParam,
-      Errors::Authentication::AuthnOidc::TokenVerificationFailed
+      Errors::Authentication::AuthnOidc::TokenVerificationFailed,
+      Errors::Authentication::AuthnOidc::StateMismatch,
+      Errors::Authentication::Security::RoleNotFound,
+      Rack::OAuth2::Client::Error
       raise BadRequest
 
     when Errors::Conjur::RequestedResourceNotFound
@@ -308,14 +311,6 @@ class AuthenticateController < ApplicationController
 
     when Errors::Authentication::Jwt::TokenExpired
       raise Unauthorized.new(err.message, true)
-
-    when Errors::Authentication::AuthnOidc::StateMismatch,
-      Errors::Authentication::Security::RoleNotFound
-      raise BadRequest
-
-    # Code value mismatch
-    when Rack::OAuth2::Client::Error
-      raise BadRequest
 
     else
       raise Unauthorized

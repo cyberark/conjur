@@ -40,7 +40,7 @@ module Authenticator
       end
     end
 
-    def is_valid?
+    def valid?
       return super && (@version == AUTH_VERSION_1 || @version == AUTH_VERSION_2)
     end
 

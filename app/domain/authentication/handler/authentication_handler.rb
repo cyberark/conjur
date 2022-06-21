@@ -16,7 +16,7 @@ module Authentication
       end
 
       def self.authenticate(account:, service_id:, parameters:)
-        self.new().authenticate(account: account, service_id: service_id, parameters: parameters)
+        new.authenticate(account: account, service_id: service_id, parameters: parameters)
       end
 
       def authenticate(account:, service_id:, parameters:)
@@ -27,7 +27,7 @@ module Authentication
           service_id: service_id
         )
 
-        raise Errors::Conjur::RequestedResourceNotFound, "Unable to find authenticator with account: #{account} and service-id: #{service_id}" unless authenticator != nil
+        raise Errors::Conjur::RequestedResourceNotFound, "Unable to find authenticator with account: #{account} and service-id: #{service_id}" if authenticator.nil?
 
         validate_authenticator(authenticator, service_id)
         validate_parameters_are_valid(authenticator, parameters)
@@ -42,7 +42,7 @@ module Authentication
 
         log_audit_success(authenticator, conjur_role, parameters[:client_ip])
 
-        return generate_token(account, username)
+        generate_token(account, username)
       rescue => e
         log_audit_failure(account, service_id, username, parameters[:client_ip], e)
         raise e
@@ -58,7 +58,7 @@ module Authentication
 
         validate_authenticator(authenticator, service_id)
 
-        return generate_login_url(authenticator)
+        generate_login_url(authenticator)
       end
 
       protected
@@ -69,6 +69,7 @@ module Authentication
 
       def validate_parameters_are_valid(authenticator, parameters)
         return unless authenticator.required_request_parameters
+
         authenticator.required_request_parameters.each do |param|
           raise Errors::Authentication::RequestBody::MissingRequestParam, param unless parameters[param.to_sym] && !parameters[param.to_sym].strip.empty?
         end
@@ -92,7 +93,7 @@ module Authentication
           )
         )
 
-        return identity
+        identity
       end
 
       def extract_identity(authenticator, parameters)
@@ -104,7 +105,7 @@ module Authentication
       end
 
       def identity_required_privilege
-        return 'authenticate'
+        'authenticate'
       end
 
       private
@@ -132,19 +133,19 @@ module Authentication
       end
 
       def fetch_conjur_role(authenticator, identity)
-        return @role_repository_class.from_username(authenticator.account, identity)
+        @role_repository_class.from_username(authenticator.account, identity)
       end
 
       def validate_account_exists(account)
-        raise Errors::Authentication::Security::AccountNotDefined, account unless @role_repository_class.with_pk("#{account}:user:admin") != nil
+        raise Errors::Authentication::Security::AccountNotDefined, account if @role_repository_class.with_pk("#{account}:user:admin").nil?
       end
 
       def validate_authenticator(authenticator, service_id)
-        raise Errors::Authentication::AuthenticatorNotSupported, "authn-#{type}/#{service_id}" unless authenticator && is_enabled?(authenticator)
-        #raise Errors::Conjur::RequiredResourceMissing,  unless authenticator.is_valid?
+        raise Errors::Authentication::AuthenticatorNotSupported, "authn-#{type}/#{service_id}" unless authenticator && enabled?(authenticator)
+        # raise Errors::Conjur::RequiredResourceMissing,  unless authenticator.valid?
       end
 
-      def is_enabled?(authenticator)
+      def enabled?(authenticator)
         ::Authentication::InstalledAuthenticators
           .enabled_authenticators
           .include?(authenticator.authenticator_name)
