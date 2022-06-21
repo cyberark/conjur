@@ -148,7 +148,10 @@ describe AuthenticateController, :type => :request do
   describe "#authenticate" do
     context "k8s api access contains subpath" do
       around(:each) do |example|
-        AuthnK8sTestServer.run_async(subpath: "/some/path", bearer_token: "bearer token") do |test_server|
+        AuthnK8sTestServer.run_async(
+          subpath: "/some/path", 
+          bearer_token: "bearer token"
+        ) do |test_server|
           @test_server = test_server
           example.run(test_server)
         end
@@ -158,15 +161,18 @@ describe AuthenticateController, :type => :request do
         service_id = "conjur/#{authenticator_id}"
 
         # Setup authenticator
-        define_authenticator(account, service_id, 
-        host_id: test_app_host
+        define_authenticator(
+          account, service_id, 
+          host_id: test_app_host
         )
-        initialize_authenticator_ca(account, service_id)
+        initialize_authenticator_ca(
+          account, service_id
+        )
         configure_k8s_api_access(
-        service_id, 
-        api_url: "http://localhost:1234/some/path", 
-        ca_cert: "---", 
-        service_account_token: "bearer token"
+          service_id, 
+          api_url: "http://localhost:1234/some/path", 
+          ca_cert: "---", 
+          service_account_token: "bearer token"
         )
 
         # Authenticate
@@ -177,11 +183,18 @@ describe AuthenticateController, :type => :request do
         # signed_cert = fake_authn_k8s_login(account, service_id, host_id: test_app_host)
 
         # Login request, grab the signed certificate from the fake server
-        authn_k8s_login(authenticator_id, host_id: test_app_host)
+        authn_k8s_login(
+          authenticator_id, 
+          host_id: test_app_host
+        )
         signed_cert = test_server.copied_content
 
         # Authenticate request
-        authn_k8s_authenticate(authenticator_id, account, host_id: test_app_host, signed_cert_pem: signed_cert.to_s)
+        authn_k8s_authenticate(
+          authenticator_id, account,
+          host_id: test_app_host,
+          signed_cert_pem: signed_cert.to_s
+        )
 
         # Assertions
         expect(response).to be_ok
