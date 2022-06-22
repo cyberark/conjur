@@ -1,0 +1,20 @@
+# Sample partial replica template
+# The following policy needs to be created once per replica set
+- !policy
+  id: conjur/replication-sets/foo
+  body:
+    # Webservice to enable replication permissions
+    - !webservice
+
+    # Holds the unique identifier for this replication set
+    - !variable replica-id
+
+    # All replicated variables for this Replication Set will be added
+    # to this group:
+    - !group replicated-data
+
+    # Give the role `replicated-data` permission to replicate
+    - !permit
+      role: !group replicated-data
+      privilege: [ replicate ]
+      resource: !webservice
