@@ -12,12 +12,17 @@ module Contexts
       end
 
       def call(role:, account:)
+        # Get the Autenticator Objects
+        # Select the ones that the user can see
+        # Return list of authenticators
+        # authenticators =  @repository.find_all(account: account,type: "oidc")
+
+        @repository.find_all(account: account,type: "oidc")
         authenticators =  @repository.find_all(
           account: account,
           type: "oidc"
         ).select do |authn|
-          role&.allowed_to?(
-            'authenticate', @resource[resource_id: authn.resource_id])
+          role&.allowed_to?( 'authenticate', @resource[resource_id: authn.resource_id])
         end
         authenticators.map do |authn|
           {
