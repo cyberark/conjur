@@ -9,7 +9,7 @@ module Authentication
           attr_reader :service_id, :redirect_uri
 
           # optional
-          attr_reader  :name
+          attr_reader :name
 
           def initialize(
             provider_uri:,
@@ -56,8 +56,6 @@ module Authentication
           def name
             @name || @service_id.titleize
           end
-
-          def valid?; end
 
           def resource_id
             "#{account}:webservice:conjur/authn-oidc/#{service_id}"

@@ -7,12 +7,19 @@ module Authentication
           authenticator:,
           oidc_client: ::OpenIDConnect::Client,
           oidc_id_token: ::OpenIDConnect::ResponseObject::IdToken,
-          discovery_configuration: ::OpenIDConnect::Discovery::Provider::Config
+          discovery_configuration: ::OpenIDConnect::Discovery::Provider::Config,
+          jwt_validator: ValidateJwt,
+          logger: Rails.logger
         )
           @authenticator = authenticator
           @oidc_client = oidc_client
           @oidc_id_token = oidc_id_token
           @discovery_configuration = discovery_configuration
+          @jwt_validator = jwt_validator.new(
+            jwks_endpoint: @authenticator.provider_uri,
+            name: @authenticator.service_id
+          )
+          @logger = logger
         end
 
         # Don't love this name...
@@ -40,18 +47,28 @@ module Authentication
             discovery_information.jwks
           )
 
-          # TODO: Create a robust JWT verifier based on https://blog.unathichonco.com/verifying-jwts-with-jwks-in-ruby
           decoded_id_token.verify!(
             issuer: @authenticator.provider_uri,
             client_id: @authenticator.client_id,
             nonce: @authenticator.nonce
           )
+
+
+
+          # A more robust JWT verifier based on https://blog.unathichonco.com/verifying-jwts-with-jwks-in-ruby
+          # JWT.decode does not handle 'nonce' verification, so we'll keep the above verify in.
+          @jwt_validator.verify!(
+            token: decoded_id_token,
+            audience: @authenticator.client_id
+          )
+
           decoded_id_token
         rescue OpenIDConnect::ValidationFailed => e
           raise Errors::Authentication::AuthnOidc::TokenVerificationFailed, e.message
         end
 
         def retrieve_identity(jwt:)
+          Rails.logger.info(jwt.raw_attributes.inspect)
           jwt.raw_attributes.with_indifferent_access[@authenticator.claim_mapping]
         end
 

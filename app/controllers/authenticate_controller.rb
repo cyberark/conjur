@@ -129,14 +129,65 @@
 #   end
 # end
 
+
+class Handler
+  def initialize(authenticator_type:)
+    case authenticator_type
+    when 'authn-oidc'
+      # 'V2' is a bit of a hack to handle the fact that the original OIDC authenticator
+      # is really a glorified JWT authenticator.
+      @data_object = Authentication::AuthnOidc::V2::DataObjects::Authenticator
+      @identity_resolver = Authentication::AuthnOidc::V2::ResolveIdentity
+    else
+      raise "#{authenticator_type} is not supported"
+    end
+  end
+
+  def handle(parameters:)
+    authenticator_type = params[:authenticator].split('-').drop(1).join('-')
+    # Load Authenticator policy and values (validates data stored as variables)
+
+
+    authenticator = DB::Repository::AuthenticatorRepository.new(
+      object: @data_object
+    ).find(
+      type: authenticator_type,
+      account: params[:account],
+      service_id: params[:service_id]
+    )
+
+    role = Authentication::AuthnOidc::V2::ResolveIdentity.new.call(
+      identity: Authentication::AuthnOidc::V2::Strategy.new(
+        authenticator: authenticator
+      ).callback(
+        parameters: params
+      ),
+      account: params[:account],
+      allowed_roles: Role.that_can(
+        :authenticate,
+        ::Resource[authenticator.resource_id]
+      ).all
+    )
+
+  end
+end
+
 class AuthenticateController < ApplicationController
   include BasicAuthenticator
   include AuthorizeResource
 
   def authenticate_okta
+    Handler.new(
+      authenticator_type: params[:authenticator]
+    ).handle(
+      parameters: params
+    )
+
     authenticator_type = params[:authenticator].split('-').drop(1).join('-')
     # Load Authenticator policy and values (validates data stored as variables)
-    authenticator = DB::Repository::AuthenticatorRepository.new.find(
+    authenticator = DB::Repository::AuthenticatorRepository.new(
+      object: Authentication::AuthnOidc::V2::DataObjects::Authenticator
+    ).find(
       type: authenticator_type,
       account: params[:account],
       service_id: params[:service_id]
@@ -165,6 +216,10 @@ class AuthenticateController < ApplicationController
       account: params[:account],
       username: role.id
     )
+  end
+
+  def authenticatable_roles(resource_id:)
+
   end
 
   def index
