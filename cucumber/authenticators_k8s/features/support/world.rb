@@ -37,6 +37,20 @@ module AuthnK8sWorld
     end
   end
 
+  # clear pod cert
+  def clear_pod_certificate
+    pod_metadata = @pod.metadata
+    Authentication::AuthnK8s::ExecuteCommandInContainer.new.call(
+          k8s_object_lookup: Authentication::AuthnK8s::K8sObjectLookup.new,
+          pod_namespace: pod_metadata.namespace,
+          pod_name: pod_metadata.name,
+          container: "authenticator",
+          cmds: %w[rm -rf /etc/conjur/ssl/client.pem],
+          body: "",
+          stdin: false
+        )
+  end
+
   # get pod cert
   def pod_certificate
     response = nil

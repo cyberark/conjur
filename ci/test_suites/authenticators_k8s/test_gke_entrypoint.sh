@@ -270,6 +270,7 @@ function run_conjur_master() {
   while [[ $num_tries -lt $max_tries ]]; do
     echo "Try $num_tries of $max_tries to retrieve pod conjur-authn-k8s..."
 
+    kubectl get pods
     if conjur_pod=$(retrieve_pod conjur-authn-k8s); then
       echo "Success!"
       pod_retrieved=true

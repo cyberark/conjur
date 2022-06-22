@@ -5,6 +5,7 @@ def login username, request_ip, authn_k8s_host, pkey, headers = {}
 
   headers[:content_type] = 'text/plain'
 
+  clear_pod_certificate
   response =
     RestClient::Resource.new(
       authn_k8s_host,
