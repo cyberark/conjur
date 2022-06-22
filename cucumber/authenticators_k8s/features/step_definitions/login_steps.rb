@@ -19,6 +19,9 @@ def login username, request_ip, authn_k8s_host, pkey, headers = {}
     warn("WARN: Certificate is empty!")
   end
 
+  puts "GOT CERT:", @cert.to_s
+  puts "FOR KEY:", pkey.to_s
+
   response
 end
 

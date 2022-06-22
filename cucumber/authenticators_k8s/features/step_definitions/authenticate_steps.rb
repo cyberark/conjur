@@ -21,6 +21,9 @@ end
 def authenticate_k8s(host, cert, key, conjur_id)
   conjur_id = substitute!(conjur_id)
 
+  puts "USE CERT:", cert.to_s
+  puts "WITH KEY:", key.to_s
+
   RestClient::Resource.new(
     host,
     ssl_ca_file: './nginx.crt',
