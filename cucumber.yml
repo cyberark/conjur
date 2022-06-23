@@ -49,6 +49,8 @@ authenticators_status: >
   -r cucumber/policy/features/step_definitions/policy_steps.rb
   -r cucumber/_authenticators_common
   -r cucumber/authenticators_status
+  -r cucumber/authenticators_oidc/features/step_definitions/authn_oidc_steps.rb
+  -r cucumber/authenticators_oidc/features/support/authn_oidc_helper.rb
   cucumber/authenticators_status
 
 authenticators_ldap: >

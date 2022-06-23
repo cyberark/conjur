@@ -38,8 +38,8 @@ module AuthnOidcHelper
     "#{path}?code=#{code}&state=#{state}"
   end
 
-  def create_oidc_secret(variable_name, value, service_id_suffix = "/keycloak")
-    path = "cucumber:variable:conjur/authn-oidc#{service_id_suffix}"
+  def create_oidc_secret(variable_name, value, service_id_suffix = "keycloak")
+    path = "cucumber:variable:conjur/authn-oidc/#{service_id_suffix}".chomp("/")
     Secret.create(resource_id: "#{path}/#{variable_name}", value: value)
   end
 
