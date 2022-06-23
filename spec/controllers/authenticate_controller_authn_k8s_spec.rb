@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
-require 'test/authn_k8s/authn_k8s_test_server.rb'
+require 'support/authn_k8s/authn_k8s_test_server.rb'
 
 # Turn on logs to debug
 # 
