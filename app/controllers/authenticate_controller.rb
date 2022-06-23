@@ -22,43 +22,14 @@ class AuthenticateController < ApplicationController
   include AuthorizeResource
 
   def authenticate_okta
-    authenticator_type = params[:authenticator].split('-').drop(1).join('-')
-    # Load Authenticator policy and values (validates data stored as variables)
-    authenticator = DB::Repository::AuthenticatorRepository.new.find(
-      type: authenticator_type,
-      account: params[:account],
-      service_id: params[:service_id]
+    # authenticator_type = params[:authenticator].split('-').drop(1).join('-')
+
+    Authentication::Handler::Handler.new(
+      authenticator_type: params[:authenticator]
+    ).call(
+      parameters: params,
+      request_ip: request.ip
     )
-
-    identity = Authentication::AuthnOidc::V2::Strategy.new(
-      authenticator: authenticator
-    ).callback(
-      parameters: params
-    )
-
-    role = Authentication::AuthnOidc::V2::ResolveIdentity.new.call(
-      identity: identity,
-      account: params[:account],
-      allowed_roles: Role.that_can(
-        :authenticate,
-        ::Resource[authenticator.resource_id]
-      ).all
-    )
-
-    raise 'failed to authenticate' unless role
-
-    unless role.valid_origin?(request.ip)
-      raise 'IP address is  to authenticate'
-    end
-
-    TokenFactory.new.signed_token(
-      account: params[:account],
-      username: role.id
-    )
-  end
-
-  def authenticatable_roles(resource_id:)
-
   end
 
   def index

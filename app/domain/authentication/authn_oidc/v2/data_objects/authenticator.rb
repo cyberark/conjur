@@ -48,11 +48,6 @@ module Authentication
             )
           end
 
-          def redirect_uri
-            # TODO: Add as required
-            'http://localhost:3000/authn-oidc/okta-2/cucumber/authenticate'
-          end
-
           def name
             @name || @service_id.titleize
           end
