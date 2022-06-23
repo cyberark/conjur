@@ -44,7 +44,7 @@ module Authentication
 
           def scope
             ERB::Util.url_encode(
-              (%w[openid profile] + [*@provider_scope]).join(' ')
+              (%w[openid profile] + [*@provider_scope]).uniq.join(' ')
             )
           end
 

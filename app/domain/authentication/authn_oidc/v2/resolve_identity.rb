@@ -3,7 +3,6 @@ module Authentication
     module V2
       class ResolveIdentity
         def call(identity:, account:, allowed_roles:)
-          # binding.pry
           # make sure role has a resource (ex. user, host)
           roles = allowed_roles.select { |role| role.resource? }
 
