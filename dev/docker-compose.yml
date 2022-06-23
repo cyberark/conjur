@@ -32,7 +32,7 @@ services:
     image: conjur-dev
     environment:
       CONJUR_APPLIANCE_URL: http://localhost:3000
-      DATABASE_URL: postgres://postgres@pg/postgres
+      DATABASE_URL: postgres://postgres@pgbouncer/postgres
       CONJUR_ADMIN_PASSWORD: ADmin123!!!!
       CONJUR_ACCOUNT: cucumber
       CONJUR_PASSWORD_ALICE: SEcret12!!!!
@@ -177,6 +177,20 @@ services:
         python /usr/src/jwks/jwks_server.py -p 8090
     volumes:
       - ../ci/jwt/:/usr/src/jwks/
+
+  pgbouncer:
+    image: edoburu/pgbouncer
+    environment:
+      DATABASE_URL: postgres://postgres@pg/postgres
+      # DB_USER: postgres
+      # DB_PASSWORD: postgres
+      # DB_HOST: pg
+      # DB_NAME: postgres
+    ports:
+      - 5432:5432
+    volumes:
+      - ./files/pgbouncer/pgbouncer.ini:/etc/pgbouncer/pgbouncer.ini:ro
+      - ./files/pgbouncer/userlist.txt:/etc/pgbouncer/userlist.txt:ro
 
 volumes:
   authn-local:
