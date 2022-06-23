@@ -160,11 +160,11 @@ function createNamespace() {
 }
 
 function pushDockerImages() {
-  gcloud docker -- push "$CONJUR_AUTHN_K8S_TAG"
-  gcloud docker -- push "$CONJUR_TEST_AUTHN_K8S_TAG"
-  gcloud docker -- push "$INVENTORY_TAG"
-  gcloud docker -- push "$INVENTORY_BASE_TAG"
-  gcloud docker -- push "$NGINX_TAG"
+  docker push "$CONJUR_AUTHN_K8S_TAG"
+  docker push "$CONJUR_TEST_AUTHN_K8S_TAG"
+  docker push "$INVENTORY_TAG"
+  docker push "$INVENTORY_BASE_TAG"
+  docker push "$NGINX_TAG"
 }
 
 function launchConjurMaster() {

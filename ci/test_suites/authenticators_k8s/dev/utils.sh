@@ -43,7 +43,7 @@ function initialize_gke() {
   gcloud auth activate-service-account --key-file $GCLOUD_SERVICE_KEY
   gcloud container clusters get-credentials $GCLOUD_CLUSTER_NAME --zone $GCLOUD_ZONE --project $GCLOUD_PROJECT_NAME
 
-  gcloud auth configure-docker
+  gcloud auth configure-docker --quiet
 
   # For CyberArk NG workstations, we need to stub out the certificate
   # verification for GKE
