@@ -12,7 +12,7 @@ module Authentication
         @authn_repo = authn_repo
 
         case authenticator_type
-        when 'oidc'
+        when 'authn-oidc'
           # 'V2' is a bit of a hack to handle the fact that the original OIDC authenticator
           # is really a glorified JWT authenticator.
           @data_object = Authentication::AuthnOidc::V2::DataObjects::Authenticator
@@ -24,7 +24,7 @@ module Authentication
         @type = authenticator_type
       end
 
-      def call(parameters:, request:)
+      def call(parameters:, request_ip:)
         # Load Authenticator policy and values (validates data stored as variables)
         authenticator = @authn_repo.find(
           type: @type,
@@ -48,7 +48,7 @@ module Authentication
 
         raise 'failed to authenticate' unless role
 
-        unless role.valid_origin?(request.ip)
+        unless role.valid_origin?(request_ip)
           raise 'IP address is  to authenticate'
         end
 

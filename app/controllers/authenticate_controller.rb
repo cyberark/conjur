@@ -28,7 +28,7 @@ class AuthenticateController < ApplicationController
       authenticator_type: authenticator_type
     ).call(
       parameters: params,
-      request: request
+      request_ip: request.ip
     )
   end
 
