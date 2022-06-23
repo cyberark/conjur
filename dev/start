@@ -214,6 +214,7 @@ configure_oidc_authenticators() {
     client_add_secret 'conjur/authn-oidc/okta-2/claim-mapping' 'preferred_username'
     client_add_secret 'conjur/authn-oidc/okta-2/nonce' '1656b4264b60af659fce'
     client_add_secret 'conjur/authn-oidc/okta-2/state' '4f413476ef7e2395f0af'
+    client_add_secret 'conjur/authn-oidc/okta-2/redirect_uri' 'http://localhost:3000/authn-oidc/okta-2/cucumber/authenticate'
 
     client_load_policy '/src/conjur-server/dev/policies/authenticators/authn-oidc/okta-users.yml'
   fi
