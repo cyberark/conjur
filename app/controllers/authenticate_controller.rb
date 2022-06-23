@@ -1,8 +1,36 @@
 # frozen_string_literal: true
 
+# class Timer
+#   def initialize(logger: Rails.logger)
+#     @logger = logger
+#   end
+
+#   def time(message: nil, level: 'INFO', &block)
+#     starting = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+#     result = yield(block)
+#     ending = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+
+#     message_string = "completed in #{(ending - starting).round(2)} seconds"
+#     message_string = "'#{message}' #{message_string}" if message.present?
+#     @logger.send(level.downcase, message_string)
+#     result
+#   end
+# end
+
 class AuthenticateController < ApplicationController
   include BasicAuthenticator
   include AuthorizeResource
+
+  def authenticate_okta
+    # authenticator_type = params[:authenticator].split('-').drop(1).join('-')
+
+    Authentication::Handler::Handler.new(
+      authenticator_type: params[:authenticator]
+    ).call(
+      parameters: params,
+      request_ip: request.ip
+    )
+  end
 
   def index
     authenticators = {

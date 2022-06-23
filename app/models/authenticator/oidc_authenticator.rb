@@ -53,7 +53,7 @@ module Authenticator
     end
 
     def resource_id
-      return "#{account}:webservice:conjur/authn-oidc/#{self.service_id}"
+      "#{account}:webservice:conjur/authn-oidc/#{service_id}"
     end
   end
 end

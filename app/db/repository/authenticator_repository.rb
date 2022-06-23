@@ -1,15 +1,17 @@
 module DB
   module Repository
     class AuthenticatorRepository
-      def initialize(resource_repository: ::Resource)
+      def initialize(data_object:, resource_repository: ::Resource, logger: Rails.logger)
         @resource_repository = resource_repository
+        @data_object = data_object
+        @logger = logger
       end
 
       def find_all(type:, account:)
         @resource_repository.where{
           Sequel.like(
             :resource_id,
-            "#{account}:webservice:conjur/authn-#{type}/%"
+            "#{account}:webservice:conjur/#{type}/%"
           ) &
           Sequel.~(Sequel.like(
             :resource_id,
@@ -17,14 +19,15 @@ module DB
           ))
         }.map do |webservice|
           load_authenticator(account: account, id: webservice.id.split(':').last, type: type)
-        end
+        end.compact
       end
 
       def find(type:, account:,  service_id:)
+        binding.pry
         webservice =  @resource_repository.where(
           Sequel.like(
             :resource_id,
-            "#{account}:webservice:conjur/authn-#{type}/#{service_id}%"
+            "#{account}:webservice:conjur/#{type}/#{service_id}%"
           )
         ).first
         unless webservice
@@ -35,31 +38,37 @@ module DB
       end
 
       def exists?(type:, account:, service_id:)
-        @resource_repository.with_pk("#{account}:webservice:conjur/authn-#{type}/#{service_id}") != nil
+        @resource_repository.with_pk("#{account}:webservice:conjur/#{type}/#{service_id}") != nil
       end
 
       private
 
       def load_authenticator(type:, account:, id:)
-        service_id = id.split('/')[2].underscore.to_sym
+        # service_id = id.split('/')[2].underscore.to_sym
+        service_id = id.split('/')[2]
         variables = @resource_repository.where(
           Sequel.like(
             :resource_id,
-            "#{account}:variable:conjur/authn-#{type}/#{service_id}/%"
+            "#{account}:variable:conjur/#{type}/#{service_id}/%"
           )
         ).eager(:secrets).all
 
         args_list = {}.tap do |args|
           args[:account] = account
-          args[:service_id] = id.split('/')[2].underscore.to_sym.to_s
+          args[:service_id] = service_id
           variables.each do |variable|
             next unless variable.secret
 
             args[variable.resource_id.split('/')[-1].underscore.to_sym] = variable.secret.value
           end
         end
-
-        "Authenticator::#{type.camelize}Authenticator".constantize.new(**args_list)
+        @logger.debug("DB::Repository::AuthenticatorRepository.load_authenticator - arguments for initialization: #{args_list.inspect}")
+        begin
+          @data_object.new(**args_list)
+        rescue ArgumentError => e
+          @logger.debug("DB::Repository::AuthenticatorRepository.load_authenticator - exception: #{e}")
+          @logger.debug("DB::Repository::AuthenticatorRepository.load_authenticator - invalid: #{args_list.inspect}")
+        end
       end
     end
   end
