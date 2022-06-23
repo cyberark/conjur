@@ -17,6 +17,8 @@ module Loader
       @loader.delete_shadowed_and_duplicate_rows
 
       @loader.store_policy_in_db
+
+      @loader.release_db_connection
     end
 
     def new_roles

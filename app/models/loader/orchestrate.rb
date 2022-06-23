@@ -373,5 +373,18 @@ module Loader
     def db
       Sequel::Model.db
     end
+    
+    # PostgreSQL has many types of caches, one of which is the "catalog cache". 
+    # When a connection is established to the database, this cache is initialized alongside it, and persists for the duration of the connection. 
+    # This cache contains references to Database Objects, such as indexes, etc. (not data records themselves). 
+    # This cache is not cleaned up by the system automatically. However, if the connection is disconnected, the cache is dumped.
+    # further reading: Postgres community email thread: https://www.postgresql.org/message-id/flat/20161219.201505.11562604.horiguchi.kyotaro@lab.ntt.co.jp.
+    # The default connection pool does not support closing connections.We must be able to close connections on demand
+    # to clear the connection cache after policy loads [cyberark/conjur#2584](https://github.com/cyberark/conjur/pull/2584)
+    # The ShardedThreadedConnectionPool does support closing connections on-demand
+    # [docs](https://www.rubydoc.info/github/jeremyevans/sequel/Sequel/ShardedThreadedConnectionPool)
+    def release_db_connection
+      Sequel::Model.db.disconnect
+    end  
   end
 end

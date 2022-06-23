@@ -19,6 +19,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Added configuration for default value for maximum number of results return to `/resources` request
   [cyberark/conjur#2510](https://github.com/cyberark/conjur/pull/2510)
 
+### Fixed
+- Previously, the temporary schemas used to modify Conjur policy
+  caused the Postgres database catalog cache to leak memory over time,
+  leading to an eventual crash. Now, we recycle the database
+  connection after modifying policy to free this cache and prevent
+  the memory leak from occurring.
+  [cyberark/conjur#2584](https://github.com/cyberark/conjur/pull/2584)
+
 ### Security
 - Update rack to 2.2.3.1 to resolve CVE-2022-3023
   [cyberark/conjur#2564](https://github.com/cyberark/conjur/pull/2564)
