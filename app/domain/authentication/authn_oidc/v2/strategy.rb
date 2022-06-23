@@ -22,11 +22,9 @@ module Authentication
 
         # Don't love this name...
         def callback(code:, state:)
-          puts state
-          puts @authenticator.state
+
           # TODO: Check that `code` and `state` attributes are present
           raise 'State is different' if state != @authenticator.state
-
 
           retrieve_identity(
             jwt: retrieve_jwt(
