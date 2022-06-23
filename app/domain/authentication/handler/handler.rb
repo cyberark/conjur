@@ -5,39 +5,47 @@ module Authentication
         authenticator_type:,
         role: ::Role,
         resource: ::Resource,
-        authn_repo: DB::Repository::AuthenticatorRepository.new
+        authn_repo: DB::Repository::AuthenticatorRepository
       )
         @role = role
         @resource = resource
-        @authn_repo = authn_repo
+        @authenticator_type = authenticator_type
 
-        case authenticator_type
-        when 'oidc'
-          # 'V2' is a bit of a hack to handle the fact that the original OIDC authenticator
-          # is really a glorified JWT authenticator.
-          @data_object = Authentication::AuthnOidc::V2::DataObjects::Authenticator
-          @identity_resolver = Authentication::AuthnOidc::V2::ResolveIdentity
-        else
-          raise "#{authenticator_type} is not supported"
+        # Dynamically load authenticator specific classes
+        klass_namespace = case authenticator_type
+                          when 'authn-oidc'
+                            # 'V2' is a bit of a hack to handle the fact that
+                            # the original OIDC authenticator is really a
+                            # glorified JWT authenticator.
+                            'AuthnOidc::V2'
+                          else
+                            raise "#{authenticator_type} is not supported"
         end
 
-        @type = authenticator_type
+        @identity_resolver = "Authentication::#{klass_namespace}::ResolveIdentity".constantize
+        @strategy = "Authentication::#{klass_namespace}::Strategy".constantize
+        @authn_repo = authn_repo.new(
+          data_object: "Authentication::#{klass_namespace}::DataObjects::Authenticator".constantize
+        )
       end
 
-      def call(parameters:, request:)
+      def call(parameters:, request_ip:)
         # Load Authenticator policy and values (validates data stored as variables)
+
+        # authenticator_type = params[:authenticator].split('-').drop(1).join('-')
+
         authenticator = @authn_repo.find(
-          type: @type,
+          type: @authenticator_type,
           account: parameters[:account],
           service_id: parameters[:service_id]
         )
 
         role = @identity_resolver.new.call(
-          identity: Authentication::AuthnOidc::V2::Strategy.new(
+          identity: @strategy.new(
             authenticator: authenticator
           ).callback(
             code: parameters[:code],
-            state: parameters[:state],
+            state: parameters[:state]
           ),
           account: parameters[:account],
           allowed_roles: @role.that_can(
@@ -48,7 +56,7 @@ module Authentication
 
         raise 'failed to authenticate' unless role
 
-        unless role.valid_origin?(request.ip)
+        unless role.valid_origin?(request_ip)
           raise 'IP address is  to authenticate'
         end
 
