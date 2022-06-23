@@ -98,11 +98,18 @@ function buildDockerImages() {
   conjur_version=$(echo "$(git rev-parse --short=8 HEAD)")
   DOCKER_REGISTRY_PATH="registry.tld"
 
+  # If the Conjur images aren't present, attempt to pull them from the registry.
+  # If we can't pull them from the registry, see if we have local images we can
+  # tag appropriately.
   if ! docker image inspect "$DOCKER_REGISTRY_PATH/conjur:$conjur_version" > /dev/null 2>&1; then
-    docker pull "$DOCKER_REGISTRY_PATH/conjur:$conjur_version"
+    docker pull "$DOCKER_REGISTRY_PATH/conjur:$conjur_version" || \
+      docker image inspect "conjur:$conjur_version" > /dev/null && \
+        docker tag "conjur:$conjur_version" "$DOCKER_REGISTRY_PATH/conjur:$conjur_version"
   fi
   if ! docker image inspect "$DOCKER_REGISTRY_PATH/conjur-test:$conjur_version" > /dev/null 2>&1; then
-    docker pull "$DOCKER_REGISTRY_PATH/conjur-test:$conjur_version"
+    docker pull "$DOCKER_REGISTRY_PATH/conjur-test:$conjur_version" || \
+      docker image inspect "conjur-test:$conjur_version"  > /dev/null && \
+        docker tag "conjur-test:$conjur_version" "$DOCKER_REGISTRY_PATH/conjur-test:$conjur_version"
   fi
 
   add_sni_cert_to_image "$DOCKER_REGISTRY_PATH/conjur:$conjur_version"
@@ -149,6 +156,7 @@ function test_gke() {
     -e INVENTORY_BASE_TAG \
     -e NGINX_TAG \
     -e CONJUR_AUTHN_K8S_TEST_NAMESPACE \
+    -e USE_GKE_GCLOUD_AUTH_PLUGIN=True \
     -e GCLOUD_CLUSTER_NAME \
     -e GCLOUD_PROJECT_NAME \
     -e GCLOUD_SERVICE_KEY=/tmp$GCLOUD_SERVICE_KEY \

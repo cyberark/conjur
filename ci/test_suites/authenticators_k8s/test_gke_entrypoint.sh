@@ -160,11 +160,11 @@ function createNamespace() {
 }
 
 function pushDockerImages() {
-  gcloud docker -- push "$CONJUR_AUTHN_K8S_TAG"
-  gcloud docker -- push "$CONJUR_TEST_AUTHN_K8S_TAG"
-  gcloud docker -- push "$INVENTORY_TAG"
-  gcloud docker -- push "$INVENTORY_BASE_TAG"
-  gcloud docker -- push "$NGINX_TAG"
+  docker push "$CONJUR_AUTHN_K8S_TAG"
+  docker push "$CONJUR_TEST_AUTHN_K8S_TAG"
+  docker push "$INVENTORY_TAG"
+  docker push "$INVENTORY_BASE_TAG"
+  docker push "$NGINX_TAG"
 }
 
 function launchConjurMaster() {
@@ -235,7 +235,7 @@ function applyInventoryFile() {
   sed -e "s#{{ INVENTORY_TAG }}#$INVENTORY_TAG#g" "dev/dev_$filename.${TEMPLATE_TAG}yaml" |
   sed -e "s#{{ CONJUR_AUTHN_K8S_TEST_NAMESPACE }}#$CONJUR_AUTHN_K8S_TEST_NAMESPACE#g" |
   sed -e "s#{{ INVENTORY_BASE_TAG }}#$INVENTORY_BASE_TAG#g" |
-  oc apply -f -
+  kubectl apply -f -
 }
 
 function runTests() {
@@ -243,7 +243,15 @@ function runTests() {
 
   conjurcmd mkdir -p /opt/conjur-server/output
 
-  run_cucumber "--tags 'not @skip' --tags 'not @k8s_skip' --tags 'not @sni_fails' --tags 'not @sni_success'"
+  # THE CUCUMBER_FILTER_TAGS environment variable is not natively
+  # implemented in cucumber-ruby, so we pass it as a CLI argument
+  # if the variable is set.
+  local cucumber_tags_arg
+  if [[ -n "$CUCUMBER_FILTER_TAGS" ]]; then
+    cucumber_tags_arg="--tags \"$CUCUMBER_FILTER_TAGS\""
+  fi
+
+  run_cucumber "--tags 'not @skip' --tags 'not @k8s_skip' --tags 'not @sni_fails' --tags 'not @sni_success' $cucumber_tags_arg"
 }
 
 retrieve_pod() {

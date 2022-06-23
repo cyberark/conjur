@@ -32,7 +32,7 @@ delete_image() {
     IFS=':' read -r -a array <<< $image_and_tag
     local image="${array[0]}"
     local tag="${array[1]}"
-    
+
     if gcloud container images list-tags $image | grep $tag; then
         gcloud container images delete --force-delete-tags -q $image_and_tag
     fi
@@ -42,6 +42,14 @@ function initialize_gke() {
   # setup kubectl
   gcloud auth activate-service-account --key-file $GCLOUD_SERVICE_KEY
   gcloud container clusters get-credentials $GCLOUD_CLUSTER_NAME --zone $GCLOUD_ZONE --project $GCLOUD_PROJECT_NAME
+
+  gcloud auth configure-docker --quiet
+
+  # For CyberArk NG workstations, we need to stub out the certificate
+  # verification for GKE
+  kubectl config set-cluster "$(kubectl config current-context)" \
+    --insecure-skip-tls-verify=true \
+    --tls-server-name=myexampledomain.example.com
 }
 
 function initialize_oc() {
