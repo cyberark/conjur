@@ -235,7 +235,7 @@ function applyInventoryFile() {
   sed -e "s#{{ INVENTORY_TAG }}#$INVENTORY_TAG#g" "dev/dev_$filename.${TEMPLATE_TAG}yaml" |
   sed -e "s#{{ CONJUR_AUTHN_K8S_TEST_NAMESPACE }}#$CONJUR_AUTHN_K8S_TEST_NAMESPACE#g" |
   sed -e "s#{{ INVENTORY_BASE_TAG }}#$INVENTORY_BASE_TAG#g" |
-  oc apply -f -
+  kubectl apply -f -
 }
 
 function runTests() {
