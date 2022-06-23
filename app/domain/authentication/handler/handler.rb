@@ -31,6 +31,9 @@ module Authentication
 
       def call(parameters:, request_ip:)
         # Load Authenticator policy and values (validates data stored as variables)
+
+        # authenticator_type = params[:authenticator].split('-').drop(1).join('-')
+
         authenticator = @authn_repo.find(
           type: @authenticator_type,
           account: parameters[:account],

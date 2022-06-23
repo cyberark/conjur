@@ -58,7 +58,7 @@ module DB
         @resource_repository.where{
           Sequel.like(
             :resource_id,
-            "#{account}:webservice:conjur/authn-#{type}/%"
+            "#{account}:webservice:conjur/#{type}/%"
           ) &
           Sequel.~(Sequel.like(
             :resource_id,
@@ -70,10 +70,11 @@ module DB
       end
 
       def find(type:, account:,  service_id:)
+        binding.pry
         webservice =  @resource_repository.where(
           Sequel.like(
             :resource_id,
-            "#{account}:webservice:conjur/authn-#{type}/#{service_id}%"
+            "#{account}:webservice:conjur/#{type}/#{service_id}%"
           )
         ).first
         unless webservice
@@ -84,7 +85,7 @@ module DB
       end
 
       def exists?(type:, account:, service_id:)
-        @resource_repository.with_pk("#{account}:webservice:conjur/authn-#{type}/#{service_id}") != nil
+        @resource_repository.with_pk("#{account}:webservice:conjur/#{type}/#{service_id}") != nil
       end
 
       private
@@ -95,7 +96,7 @@ module DB
         variables = @resource_repository.where(
           Sequel.like(
             :resource_id,
-            "#{account}:variable:conjur/authn-#{type}/#{service_id}/%"
+            "#{account}:variable:conjur/#{type}/#{service_id}/%"
           )
         ).eager(:secrets).all
 
@@ -108,7 +109,7 @@ module DB
             args[variable.resource_id.split('/')[-1].underscore.to_sym] = variable.secret.value
           end
         end
-        @logger.debug("DB::Repository::AuthenticatorRepository.load_authenticator - arguments for initialization: #{args_list.inspect}"
+        @logger.debug("DB::Repository::AuthenticatorRepository.load_authenticator - arguments for initialization: #{args_list.inspect}")
         begin
           @data_object.new(**args_list)
         rescue ArgumentError => e

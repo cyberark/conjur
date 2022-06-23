@@ -13,6 +13,9 @@
           - !variable client-id
           - !variable client-secret
 
+          # URI of Conjur instance
+          - !variable redirect_uri
+
           # Defines the JWT claim to use as the Conjur identifier
           - !variable claim-mapping
 
@@ -21,7 +24,6 @@
           # authenticator is created.
           - !variable nonce
           - !variable state
-
 
           # Group with permission to authenticate
           - !group

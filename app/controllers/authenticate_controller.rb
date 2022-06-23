@@ -22,16 +22,15 @@ class AuthenticateController < ApplicationController
   include AuthorizeResource
 
   def authenticate_okta
-    authenticator_type = params[:authenticator].split('-').drop(1).join('-')
+    # authenticator_type = params[:authenticator].split('-').drop(1).join('-')
 
     Authentication::Handler::Handler.new(
-      authenticator_type: authenticator_type
+      authenticator_type: params[:authenticator]
     ).call(
       parameters: params,
       request_ip: request.ip
     )
   end
-
 
   def index
     authenticators = {
