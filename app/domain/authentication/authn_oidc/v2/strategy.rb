@@ -19,14 +19,18 @@ module Authentication
           @logger = logger
         end
 
+
         # Don't love this name...
-        def callback(parameters:)
+        def callback(code:, state:)
+          puts state
+          puts @authenticator.state
           # TODO: Check that `code` and `state` attributes are present
-          raise 'State is different' if parameters[:state] != @authenticator.state
+          raise 'State is different' if state != @authenticator.state
+
 
           retrieve_identity(
             jwt: retrieve_jwt(
-              code: parameters[:code]
+              code: code
             )
           )
         end
