@@ -1,204 +1,43 @@
 # frozen_string_literal: true
 
-# module Authentication
-#   module AuthnOidc
-#     # class ResolveIdentity
-#     #   def call(identity:, account:, allowed_roles:)
-#     #     # binding.pry
-#     #     # make sure role has a resource (ex. user, host)
-#     #     roles = allowed_roles.select { |role| role.resource? }
+# class Timer
+#   def initialize(logger: Rails.logger)
+#     @logger = logger
+#   end
 
-#     #     roles.each do |role|
-#     #       role_account, _, role_id = role.id.split(':')
-#     #       return role if role_account == account && identity == role_id
-#     #     end
+#   def time(message: nil, level: 'INFO', &block)
+#     starting = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+#     result = yield(block)
+#     ending = Process.clock_gettime(Process::CLOCK_MONOTONIC)
 
-#     #     roles.each do |role|
-#     #       role_account = role.id.split(':').first
-#     #       next unless role_account == account
-
-#     #       # Don't love the performance...
-#     #       if role.resource.annotation('authn-oidc/identity').to_s.downcase == identity.to_s.downcase
-#     #         return role
-#     #       end
-#     #     end
-#     #     nil
-#     #   end
-#     # end
-
-#     # class Strategy
-#     #   def initialize(
-#     #     authenticator:,
-#     #     oidc_client: ::OpenIDConnect::Client,
-#     #     oidc_id_token: ::OpenIDConnect::ResponseObject::IdToken,
-#     #     discovery_configuration: ::OpenIDConnect::Discovery::Provider::Config
-#     #   )
-#     #     @authenticator = authenticator
-#     #     @oidc_client = oidc_client
-#     #     @oidc_id_token = oidc_id_token
-#     #     @discovery_configuration = discovery_configuration
-#     #   end
-
-#     #   # Don't love this name...
-#     #   def callback(parameters:)
-#     #     # TODO: Check that `code` and `state` attributes are present
-#     #     raise 'State is different' if parameters[:state] != @authenticator.state
-
-#     #     retrieve_identity(
-#     #       jwt: retrieve_jwt(
-#     #         code: parameters[:code]
-#     #       )
-#     #     )
-#     #   end
-
-#     #   def retrieve_jwt(code:)
-#     #     client.authorization_code = code
-#     #     id_token = client.access_token!(
-#     #       scope: true,
-#     #       client_auth_method: :basic,
-#     #       nonce: @authenticator.nonce
-#     #     ).id_token
-
-#     #     decoded_id_token = @oidc_id_token.decode(
-#     #       id_token,
-#     #       discovery_information.jwks
-#     #     )
-
-#     #     # ToDo
-#     #     decoded_id_token.verify!(
-#     #       issuer: @authenticator.provider_uri,
-#     #       client_id: @authenticator.client_id,
-#     #       nonce: @authenticator.nonce
-#     #     )
-#     #     decoded_id_token
-#     #   rescue OpenIDConnect::ValidationFailed => e
-#     #     raise Errors::Authentication::AuthnOidc::TokenVerificationFailed, e.message
-#     #   end
-
-#     #   def retrieve_identity(jwt:)
-#     #     jwt.raw_attributes.with_indifferent_access[@authenticator.claim_mapping]
-#     #   end
-
-#     #   def generate_login_url
-#     #   # def setup(authenticator)
-#     #     params = {
-#     #       client_id: @authenticator.client_id,
-#     #       response_type: @authenticator.response_type,
-#     #       scope: ERB::Util.url_encode(@authenticator.scope),
-#     #       state: @authenticator.state,
-#     #       nonce: @authenticator.nonce,
-#     #       redirect_uri: ERB::Util.url_encode(@authenticator.redirect_uri)
-#     #     }.map { |key, value| "#{key}=#{value}" }.join("&")
-
-#     #     "#{oidc_util(authenticator).discovery_information.authorization_endpoint}?#{params}"
-#     #   end
-
-#     #   def client
-#     #     # Internal methods
-#     #     @client ||= begin
-#     #       issuer_uri = URI(@authenticator.provider_uri)
-#     #       @oidc_client.new(
-#     #         identifier: @authenticator.client_id,
-#     #         secret: @authenticator.client_secret,
-#     #         redirect_uri: @authenticator.redirect_uri,
-#     #         scheme: issuer_uri.scheme,
-#     #         host: issuer_uri.host,
-#     #         port: issuer_uri.port,
-#     #         authorization_endpoint: URI(discovery_information.authorization_endpoint).path,
-#     #         token_endpoint: URI(discovery_information.token_endpoint).path,
-#     #         userinfo_endpoint: URI(discovery_information.userinfo_endpoint).path,
-#     #         jwks_uri: URI(discovery_information.jwks_uri).path,
-#     #         end_session_endpoint: URI(discovery_information.end_session_endpoint).path
-#     #       )
-#     #     end
-#     #   end
-
-#     #   def discovery_information
-#     #     Rails.cache.fetch(
-#     #       "#{@authenticator.account}/#{@authenticator.service_id}/#{URI::Parser.new.escape(@authenticator.provider_uri)}",
-#     #       expires_in: 5.minutes
-#     #     ) do
-#     #       @discovery_configuration.discover!(@authenticator.provider_uri)
-#     #     rescue HTTPClient::ConnectTimeoutError, Errno::ETIMEDOUT => e
-#     #       raise Errors::Authentication::OAuth::ProviderDiscoveryTimeout.new(@authenticator.provider_uri, e.inspect)
-#     #     rescue => e
-#     #       raise Errors::Authentication::OAuth::ProviderDiscoveryFailed.new(@authenticator.provider_uri, e.inspect)
-#     #     end
-#     #   end
-#     # end
+#     message_string = "completed in #{(ending - starting).round(2)} seconds"
+#     message_string = "'#{message}' #{message_string}" if message.present?
+#     @logger.send(level.downcase, message_string)
+#     result
 #   end
 # end
-
-
-class Handler
-  def initialize(authenticator_type:)
-    case authenticator_type
-    when 'authn-oidc'
-      # 'V2' is a bit of a hack to handle the fact that the original OIDC authenticator
-      # is really a glorified JWT authenticator.
-      @data_object = Authentication::AuthnOidc::V2::DataObjects::Authenticator
-      @identity_resolver = Authentication::AuthnOidc::V2::ResolveIdentity
-    else
-      raise "#{authenticator_type} is not supported"
-    end
-  end
-
-  def handle(parameters:)
-    authenticator_type = params[:authenticator].split('-').drop(1).join('-')
-    # Load Authenticator policy and values (validates data stored as variables)
-
-
-    authenticator = DB::Repository::AuthenticatorRepository.new(
-      object: @data_object
-    ).find(
-      type: authenticator_type,
-      account: params[:account],
-      service_id: params[:service_id]
-    )
-
-    role = Authentication::AuthnOidc::V2::ResolveIdentity.new.call(
-      identity: Authentication::AuthnOidc::V2::Strategy.new(
-        authenticator: authenticator
-      ).callback(
-        parameters: params
-      ),
-      account: params[:account],
-      allowed_roles: Role.that_can(
-        :authenticate,
-        ::Resource[authenticator.resource_id]
-      ).all
-    )
-
-  end
-end
 
 class AuthenticateController < ApplicationController
   include BasicAuthenticator
   include AuthorizeResource
 
   def authenticate_okta
-    Handler.new(
-      authenticator_type: params[:authenticator]
-    ).handle(
-      parameters: params
-    )
-
     authenticator_type = params[:authenticator].split('-').drop(1).join('-')
     # Load Authenticator policy and values (validates data stored as variables)
-    authenticator = DB::Repository::AuthenticatorRepository.new(
-      object: Authentication::AuthnOidc::V2::DataObjects::Authenticator
-    ).find(
+    authenticator = DB::Repository::AuthenticatorRepository.new.find(
       type: authenticator_type,
       account: params[:account],
       service_id: params[:service_id]
     )
 
+    identity = Authentication::AuthnOidc::V2::Strategy.new(
+      authenticator: authenticator
+    ).callback(
+      parameters: params
+    )
+
     role = Authentication::AuthnOidc::V2::ResolveIdentity.new.call(
-      identity: Authentication::AuthnOidc::V2::Strategy.new(
-        authenticator: authenticator
-      ).callback(
-        parameters: params
-      ),
+      identity: identity,
       account: params[:account],
       allowed_roles: Role.that_can(
         :authenticate,

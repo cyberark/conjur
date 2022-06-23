@@ -8,17 +8,14 @@ module Authentication
           oidc_client: ::OpenIDConnect::Client,
           oidc_id_token: ::OpenIDConnect::ResponseObject::IdToken,
           discovery_configuration: ::OpenIDConnect::Discovery::Provider::Config,
-          jwt_validator: ValidateJwt,
+          cache: Rails.cache,
           logger: Rails.logger
         )
           @authenticator = authenticator
           @oidc_client = oidc_client
           @oidc_id_token = oidc_id_token
           @discovery_configuration = discovery_configuration
-          @jwt_validator = jwt_validator.new(
-            jwks_endpoint: @authenticator.provider_uri,
-            name: @authenticator.service_id
-          )
+          @cache = cache
           @logger = logger
         end
 
@@ -34,6 +31,7 @@ module Authentication
           )
         end
 
+        # Internal methods
         def retrieve_jwt(code:)
           client.authorization_code = code
           id_token = client.access_token!(
@@ -42,26 +40,28 @@ module Authentication
             nonce: @authenticator.nonce
           ).id_token
 
-          decoded_id_token = @oidc_id_token.decode(
-            id_token,
-            discovery_information.jwks
-          )
+          begin
+            attempts ||= 0
+            decoded_id_token = @oidc_id_token.decode(
+              id_token,
+              discovery_information.jwks
+            )
+          rescue Exception => e
+            attempts += 1
+            raise e if attempts > 1
+
+            # If the JWKS verification fails, blow away the existing cache and
+            # try again. This is intended to handle the case where the OIDC certificate
+            # changes, and we want to cache the new certificate without decode failing.
+            discovery_information(invalidate: true)
+            retry
+          end
 
           decoded_id_token.verify!(
             issuer: @authenticator.provider_uri,
             client_id: @authenticator.client_id,
             nonce: @authenticator.nonce
           )
-
-
-
-          # A more robust JWT verifier based on https://blog.unathichonco.com/verifying-jwts-with-jwks-in-ruby
-          # JWT.decode does not handle 'nonce' verification, so we'll keep the above verify in.
-          @jwt_validator.verify!(
-            token: decoded_id_token,
-            audience: @authenticator.client_id
-          )
-
           decoded_id_token
         rescue OpenIDConnect::ValidationFailed => e
           raise Errors::Authentication::AuthnOidc::TokenVerificationFailed, e.message
@@ -72,15 +72,7 @@ module Authentication
           jwt.raw_attributes.with_indifferent_access[@authenticator.claim_mapping]
         end
 
-        # def generate_login_url
-        # # def setup(authenticator)
-        #   @authenticator.redirect_parameters.map { |key, value| "#{key}=#{value}" }.join("&")
-
-        #   "#{oidc_util(authenticator).discovery_information.authorization_endpoint}?#{params}"
-        # end
-
         def client
-          # Internal methods
           @client ||= begin
             issuer_uri = URI(@authenticator.provider_uri)
             @oidc_client.new(
@@ -99,10 +91,11 @@ module Authentication
           end
         end
 
-        def discovery_information
-          Rails.cache.fetch(
+        def discovery_information(invalidate: false)
+          @cache.fetch(
             "#{@authenticator.account}/#{@authenticator.service_id}/#{URI::Parser.new.escape(@authenticator.provider_uri)}",
-            expires_in: 5.minutes
+            force: invalidate,
+            skip_nil: true
           ) do
             @discovery_configuration.discover!(@authenticator.provider_uri)
           rescue HTTPClient::ConnectTimeoutError, Errno::ETIMEDOUT => e
