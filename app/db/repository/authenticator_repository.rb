@@ -22,10 +22,7 @@ module DB
 
       def find(type:, account:,  service_id:)
         webservice =  @resource_repository.where(
-          Sequel.like(
-            :resource_id,
-            "#{account}:webservice:conjur/authn-#{type}/#{service_id}%"
-          )
+          resource_id: "#{account}:webservice:conjur/authn-#{type}/#{service_id}"
         ).first
         unless webservice
           return
