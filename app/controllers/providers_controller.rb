@@ -1,30 +1,31 @@
 # frozen_string_literal: true
-module Authenticators
-  module Oidc
-    class ProvidersController < RestController
-      include FindResource
-      include AssumedRole
-      include CurrentUser
 
-      def index
-        # Rails 5 requires parameters to be explicitly permitted before converting
-        # to Hash.  See: https://stackoverflow.com/a/46029524
-        allowed_params = %i[account]
-        
-        render(
-          json: Contexts::Authenticators::AvailableAuthenticators.new.call(
-            role: role,
-            account: params[:account]
-          )
-        )
-        
-      end
+# require 'app/domain/authentication/util/namespace_selector'
 
-      # The v5 API currently sends +acting_as+ when listing resources
-      # for a role other than the current user.
-      def role
-        assumed_role(params[:role].presence) || assumed_role(params[:acting_as].presence)
-      end
-    end
+class ProvidersController < RestController
+  include FindResource
+  include AssumedRole
+  include CurrentUser
+
+  def index
+    namespace = Authentication::Util::NamespaceSelector.select(
+      authenticator_type: params[:authenticator]
+    )
+    render(
+      json: "#{namespace}::Views::ProviderContext".constantize.new.call(
+        authenticators: DB::Repository::AuthenticatorRepository.new(
+          data_object:  "#{namespace}::DataObjects::Authenticator".constantize
+        ).find_all(
+          account: params[:account],
+          type: params[:authenticator]
+        ).select { |authenticator| role&.allowed_to?(:read, ::Resource[authenticator.resource_id]) }
+      )
+    )
+  end
+
+  # The v5 API currently sends +acting_as+ when listing resources
+  # for a role other than the current user.
+  def role
+    assumed_role(params[:role].presence) || assumed_role(params[:acting_as].presence)
   end
 end

@@ -22,14 +22,18 @@ class AuthenticateController < ApplicationController
   include AuthorizeResource
 
   def authenticate_okta
-    # authenticator_type = params[:authenticator].split('-').drop(1).join('-')
+    # TODO: need a mechanism for an authenticator strategy to define the required
+    # params. This will likely need to be done via the Handler.
+    params.permit!
 
-    Authentication::Handler::Handler.new(
+    auth_token = Authentication::Handler.new(
       authenticator_type: params[:authenticator]
     ).call(
-      parameters: params,
+      parameters: params.to_hash.symbolize_keys,
       request_ip: request.ip
     )
+
+    Rails.logger.debug("AuthenticateController#authenticate_okta - authentication token: #{auth_token.inspect}")
   end
 
   def index
