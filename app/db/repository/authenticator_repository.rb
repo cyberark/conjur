@@ -8,31 +8,24 @@ module DB
       end
 
       def find_all(type:, account:)
-        @resource_repository.where{
+        @resource_repository.where(
           Sequel.like(
             :resource_id,
             "#{account}:webservice:conjur/#{type}/%"
-          ) &
-          Sequel.~(Sequel.like(
-            :resource_id,
-            "%/status"
-          ))
-        }.map do |webservice|
+          )
+        ).all.map do |webservice|
           load_authenticator(account: account, id: webservice.id.split(':').last, type: type)
         end.compact
       end
 
       def find(type:, account:,  service_id:)
-        binding.pry
         webservice =  @resource_repository.where(
           Sequel.like(
             :resource_id,
             "#{account}:webservice:conjur/#{type}/#{service_id}%"
           )
         ).first
-        unless webservice
-          return
-        end
+        return unless webservice
 
         load_authenticator(account: account, id: webservice.id.split(':').last, type: type)
       end
@@ -44,7 +37,6 @@ module DB
       private
 
       def load_authenticator(type:, account:, id:)
-        # service_id = id.split('/')[2].underscore.to_sym
         service_id = id.split('/')[2]
         variables = @resource_repository.where(
           Sequel.like(
@@ -68,6 +60,7 @@ module DB
         rescue ArgumentError => e
           @logger.debug("DB::Repository::AuthenticatorRepository.load_authenticator - exception: #{e}")
           @logger.debug("DB::Repository::AuthenticatorRepository.load_authenticator - invalid: #{args_list.inspect}")
+          nil
         end
       end
     end

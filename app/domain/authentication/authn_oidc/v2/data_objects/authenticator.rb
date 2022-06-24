@@ -55,19 +55,6 @@ module Authentication
           def resource_id
             "#{account}:webservice:conjur/authn-oidc/#{service_id}"
           end
-
-          def oidc_redirect
-            params = {
-              client_id: client_id,
-              response_type: response_type,
-              scope: ERB::Util.url_encode(scope),
-              state: state,
-              nonce: nonce,
-              redirect_uri: ERB::Util.url_encode(redirect_uri)
-            }.map { |key, value| "#{key}=#{value}" }.join("&")
-
-            "#{provider_uri}?#{params}"
-          end
         end
       end
     end
