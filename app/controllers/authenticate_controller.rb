@@ -1,22 +1,5 @@
 # frozen_string_literal: true
 
-# class Timer
-#   def initialize(logger: Rails.logger)
-#     @logger = logger
-#   end
-
-#   def time(message: nil, level: 'INFO', &block)
-#     starting = Process.clock_gettime(Process::CLOCK_MONOTONIC)
-#     result = yield(block)
-#     ending = Process.clock_gettime(Process::CLOCK_MONOTONIC)
-
-#     message_string = "completed in #{(ending - starting).round(2)} seconds"
-#     message_string = "'#{message}' #{message_string}" if message.present?
-#     @logger.send(level.downcase, message_string)
-#     result
-#   end
-# end
-
 class AuthenticateController < ApplicationController
   include BasicAuthenticator
   include AuthorizeResource
@@ -26,7 +9,7 @@ class AuthenticateController < ApplicationController
     # params. This will likely need to be done via the Handler.
     params.permit!
 
-    auth_token = Authentication::Handler.new(
+    auth_token = Authentication::Handler::AuthenticationHandler.new(
       authenticator_type: params[:authenticator]
     ).call(
       parameters: params.to_hash.symbolize_keys,
