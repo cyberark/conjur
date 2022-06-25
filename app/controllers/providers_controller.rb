@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-# require 'app/domain/authentication/util/namespace_selector'
-
 class ProvidersController < RestController
   include FindResource
   include AssumedRole
