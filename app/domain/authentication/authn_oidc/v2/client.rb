@@ -39,11 +39,13 @@ module Authentication
 
         def callback(code:)
           oidc_client.authorization_code = code
-          id_token = oidc_client.access_token!(
+          bearer_token = oidc_client.access_token!(
             scope: true,
             client_auth_method: :basic,
             nonce: @authenticator.nonce
-          ).id_token
+          )
+          id_token = bearer_token.id_token || bearer_token.access_token
+          @logger.debug("token: #{id_token.inspect}")
 
           begin
             attempts ||= 0
