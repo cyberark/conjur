@@ -27,7 +27,7 @@ module Authentication
         end
 
         def resolve_identity(jwt:)
-          Rails.logger.info(jwt.raw_attributes.inspect)
+          @logger.info(jwt.raw_attributes.inspect)
           jwt.raw_attributes.with_indifferent_access[@authenticator.claim_mapping]
         end
 
