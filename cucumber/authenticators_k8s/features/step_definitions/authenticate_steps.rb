@@ -69,7 +69,12 @@ Then(/^I( can)? authenticate pod matching "([^"]*)" with authn-k8s as "([^"]*)"(
     conjur_id = "#{hostid_prefix}/#{hostid_suffix}"
   end
 
-  cert = nocertkey ? nil : OpenSSL::X509::Certificate.new(@cert)
+  cert = nil
+  unless nocertkey
+    expect(@cert.to_s).not_to be_empty, "ERROR: Certificate fetched was empty or nil but was expected to be present!"
+    cert = OpenSSL::X509::Certificate.new(@cert)
+  end
+
   key = nocertkey ? nil : @pkey
 
   begin
