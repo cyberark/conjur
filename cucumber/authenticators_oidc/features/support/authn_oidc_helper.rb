@@ -114,6 +114,7 @@ module AuthnOidcHelper
   def parse_oidc_code(url)
     params = CGI::parse(URI(url).query)
     @url_oidc_code = params["code"][0] if params.has_key?("code")
+    puts @url_oidc_code
     @url_oidc_state = params["state"][0] if params.has_key?("state")
   end
 

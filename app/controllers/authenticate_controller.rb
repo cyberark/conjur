@@ -8,6 +8,8 @@ class AuthenticateController < ApplicationController
     # TODO: need a mechanism for an authenticator strategy to define the required
     # params. This will likely need to be done via the Handler.
     params.permit!
+    raise Errors::Authentication::RequestBody::MissingRequestParam, params[:code] unless params[:code]
+    raise Errors::Authentication::RequestBody::MissingRequestParam, params[:state] unless params[:state]
 
     auth_token = Authentication::Handler::AuthenticationHandler.new(
       authenticator_type: params[:authenticator]
@@ -322,7 +324,7 @@ class AuthenticateController < ApplicationController
   def handle_oidc_authentication_error(err)
     authentication_error = LogMessages::Authentication::AuthenticationError.new(err.inspect)
     logger.warn(authentication_error)
-
+    log_backtrace(err)
     case err
     when Errors::Authentication::Security::RoleNotAuthorizedOnResource
       raise ApplicationController::Forbidden

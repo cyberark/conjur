@@ -135,6 +135,23 @@ module Authentication
           error: error
         )
       end
+
+      def log_audit_success(authenticator, conjur_role, client_ip, type)
+        ::Authentication::LogAuditEvent.new.call(
+          authentication_params:
+            Authentication::AuthenticatorInput.new(
+              authenticator_name: "#{type}",
+              service_id: authenticator.service_id,
+              account: authenticator.account,
+              username: conjur_role.role_id,
+              client_ip: client_ip,
+              credentials: nil,
+              request: nil
+            ),
+          audit_event_class: Audit::Event::Authn::Authenticate,
+          error: nil
+        )
+      end
     end
   end
 end

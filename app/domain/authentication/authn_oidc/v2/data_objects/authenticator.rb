@@ -37,7 +37,6 @@ module Authentication
             @name = name
             @provider_scope = provider_scope
             @redirect_uri = redirect_uri
-
           end
 
           def scope
