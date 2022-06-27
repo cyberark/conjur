@@ -21,7 +21,7 @@ module Authentication
               return role
             end
           end
-          nil
+          raise Errors::Authentication::Security::RoleNotFound, identity
         end
       end
     end

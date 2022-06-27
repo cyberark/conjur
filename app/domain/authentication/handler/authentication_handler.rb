@@ -34,6 +34,8 @@ module Authentication
           service_id: parameters[:service_id]
         )
 
+        raise Errors::Conjur::RequestedResourceNotFound, "Unable to find authenticator with account: #{parameters[:account]} and service-id: #{parameters[:service_id]}" unless authenticator != nil
+
         role = @identity_resolver.new.call(
           identity: @strategy.new(
             authenticator: authenticator
@@ -48,12 +50,31 @@ module Authentication
         raise 'failed to authenticate' unless role
 
         unless role.valid_origin?(request_ip)
-          raise 'IP address is  to authenticate'
+          raise Errors::Authentication::InvalidOrigin
         end
+
+        log_audit_success(authenticator, role, request_ip, @authenticator_type)
 
         TokenFactory.new.signed_token(
           account: parameters[:account],
           username: role.role_id.split(':').last
+        )
+      end
+
+      def log_audit_success(authenticator, conjur_role, client_ip, type)
+        ::Authentication::LogAuditEvent.new.call(
+          authentication_params:
+            Authentication::AuthenticatorInput.new(
+              authenticator_name: "#{type}",
+              service_id: authenticator.service_id,
+              account: authenticator.account,
+              username: conjur_role.role_id,
+              client_ip: client_ip,
+              credentials: nil,
+              request: nil
+            ),
+          audit_event_class: Audit::Event::Authn::Authenticate,
+          error: nil
         )
       end
     end

@@ -8,6 +8,8 @@ class AuthenticateController < ApplicationController
     # TODO: need a mechanism for an authenticator strategy to define the required
     # params. This will likely need to be done via the Handler.
     params.permit!
+    raise Errors::Authentication::RequestBody::MissingRequestParam, params[:code] unless params[:code]
+    raise Errors::Authentication::RequestBody::MissingRequestParam, params[:state] unless params[:state]
 
     auth_token = Authentication::Handler::AuthenticationHandler.new(
       authenticator_type: params[:authenticator]
@@ -16,7 +18,10 @@ class AuthenticateController < ApplicationController
       request_ip: request.ip
     )
 
+    render_authn_token(auth_token)
     Rails.logger.debug("AuthenticateController#authenticate_okta - authentication token: #{auth_token.inspect}")
+  rescue => e
+    handle_oidc_authentication_error(e)
   end
 
   def index
@@ -309,7 +314,7 @@ class AuthenticateController < ApplicationController
     authentication_error = LogMessages::Authentication::AuthenticationError.new(err.inspect)
     logger.warn(authentication_error)
     log_backtrace(err)
-
+    puts err
     case err
     when Errors::Authentication::Security::RoleNotAuthorizedOnResource
       raise Forbidden

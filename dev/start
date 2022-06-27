@@ -160,7 +160,7 @@ configure_oidc_providers() {
   fetch_oidc_certificates
   configure_oidc_authenticators
   enable_oidc_authenticators
-  # create_keycloak_users
+  create_keycloak_users
   echo "keycloak admin console url: http://0.0.0.0:7777/auth/admin"
 }
 

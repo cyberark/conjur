@@ -22,6 +22,7 @@ module Authentication
             service_id:,
             redirect_uri:,
             name: nil,
+            response_type: 'code',
             provider_scope: ['email']
           )
             @account = account
@@ -30,11 +31,13 @@ module Authentication
             @client_secret = client_secret
             @claim_mapping = claim_mapping
             @nonce = nonce
+            @response_type = response_type
             @state = state
             @service_id = service_id
             @name = name
             @provider_scope = provider_scope
             @redirect_uri = redirect_uri
+            
           end
 
           def response_type
@@ -44,7 +47,7 @@ module Authentication
 
           def scope
             ERB::Util.url_encode(
-              (%w[openid profile] + [*@provider_scope]).join(' ')
+              (%w[] + [*@provider_scope]).join(' ')
             )
           end
 
