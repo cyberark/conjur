@@ -196,6 +196,18 @@ configure_oidc_authenticators() {
   client_add_secret \
     "conjur/authn-oidc/keycloak/id-token-user-property" "preferred_username"
 
+  # Specific for Keycloak Authenticator (for full flow)
+  client_load_policy '/src/conjur-server/dev/policies/authenticators/authn-oidc/keycloak2.yml'
+  client_add_secret 'conjur/authn-oidc/keycloak2/provider-uri' 'https://keycloak:8443/auth/realms/master'
+  client_add_secret 'conjur/authn-oidc/keycloak2/client-id' 'conjurClient'
+  client_add_secret 'conjur/authn-oidc/keycloak2/client-secret' '1234'
+  client_add_secret 'conjur/authn-oidc/keycloak2/claim-mapping' 'email'
+  client_add_secret 'conjur/authn-oidc/keycloak2/nonce' 'af88d8f8ff6631fb4cf0'
+  client_add_secret 'conjur/authn-oidc/keycloak2/state' 'd38e57e0fd47ccffa9c2'
+  # client_add_secret 'conjur/authn-oidc/keycloak2/redirect_uri' 'http://localhost:3000/authn-oidc/keycloak2/cucumber/authenticate'
+
+  client_load_policy '/src/conjur-server/dev/policies/authenticators/authn-oidc/keycloak2-users.yml'
+
   if [[ $ENABLE_OIDC_OKTA = true ]]; then
     # # add variables' values for okta
     # client_load_policy "/src/conjur-server/ci/authn-oidc/policy_okta.yml"
