@@ -23,6 +23,9 @@ module Conjur
     attr_config(
       # Read TRUSTED_PROXIES before default to maintain backwards compatibility
       trusted_proxies: (ENV['TRUSTED_PROXIES'] || []),
+      # The maximum number of results for listing requests. The default value
+      # is 0 and means that there is no limit.
+      api_resource_list_limit_max: 0,
       user_authorization_token_ttl: 480, # The default TTL of User is 8 minutes
       host_authorization_token_ttl: 480, # The default TTL of Host is 8 minutes
       authenticators: []

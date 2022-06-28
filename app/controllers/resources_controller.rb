@@ -11,6 +11,19 @@ class ResourcesController < RestController
     options = params.permit(*allowed_params)
       .slice(*allowed_params).to_h.symbolize_keys
 
+    # If a maximum limit is configured, we need to verify that the requested
+    # limit does not exceed the maximum.
+    # The maximum limit should not be apply if this is a count request.
+    if conjur_config.api_resource_list_limit_max.positive? && !params[:count]
+      # If no limit is given, default the limit to the configured maximum
+      options[:limit] = conjur_config.api_resource_list_limit_max.to_s unless options[:limit]
+
+      unless options[:limit].to_i <= conjur_config.api_resource_list_limit_max
+        raise ApplicationController::UnprocessableEntity, \
+              "'Limit' parameter must not exceed #{conjur_config.api_resource_list_limit_max}"
+      end
+    end
+
     if params[:owner]
       ownerid = Role.make_full_id(params[:owner], account)
       (options[:owner] = Role[ownerid]) || raise(Exceptions::RecordNotFound, ownerid)
@@ -102,5 +115,9 @@ class ResourcesController < RestController
         error_message: err.message
       )
     )
+  end
+
+  def conjur_config
+    Rails.application.config.conjur_config
   end
 end
