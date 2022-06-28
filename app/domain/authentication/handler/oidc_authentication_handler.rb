@@ -3,9 +3,11 @@ require_relative '../../../models/authenticator/oidc_authenticator'
 
 module Authentication
   module Handler
-    class OidcAuthenticationHandler < AuthenticationHandler
+    class OidcAuthenticationHandler < OldHandler
       def initialize(
-        authenticator_repository: ::DB::Repository::AuthenticatorRepository.new,
+        authenticator_repository: ::DB::Repository::AuthenticatorRepository.new(
+          data_object: ::Authenticator::OidcAuthenticator
+        ),
         token_factory: TokenFactory.new,
         role_repository_class: ::Role,
         role_repo: ::DB::Repository::RoleRepository.new,
@@ -56,7 +58,7 @@ module Authentication
       end
 
       def type
-        'oidc'
+        return 'authn-oidc'
       end
 
 

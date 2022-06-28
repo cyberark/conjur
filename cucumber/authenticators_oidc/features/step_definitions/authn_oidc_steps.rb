@@ -9,13 +9,12 @@ end
 
 Given(/I fetch a code for username "([^"]*)" and password "([^"]*)"/) do |username, password|
   Rails.application.config.conjur_config.authenticators = ['authn-oidc/keycloak2']
-  authentication_handler = Authentication::Handler::OidcAuthenticationHandler.new
-  uri = URI(authentication_handler.get_login_url(
-    service_id: AuthnOidcHelper::V2_SERVICE_ID,
-    account: AuthnOidcHelper::ACCOUNT
-  ))
 
-  res = Net::HTTP.get_response(uri)
+  @client = Client.for('user', 'admin')
+  providers = @client.fetch_authenticators
+  url = providers.body.map { |x| x["redirect_uri"] }
+
+  res = Net::HTTP.get_response(URI(url[0]))
   raise res if res.is_a?(Net::HTTPError) || res.is_a?(Net::HTTPClientError)
 
   all_cookies = res.get_fields('set-cookie')
@@ -46,31 +45,15 @@ Given(/^I successfully set OIDC variables$/) do
 end
 
 Given(/^I successfully set OIDC V2 variables$/) do
-  create_oidc_secret("provider-uri", oidc_provider_uri, "keycloak2")
-  create_oidc_secret("response-type", oidc_response_type, "keycloak2")
-  create_oidc_secret("client-id", oidc_client_id, "keycloak2")
-  create_oidc_secret("client-secret", oidc_client_secret, "keycloak2")
-  create_oidc_secret("claim-mapping", oidc_claim_mapping, "keycloak2")
-  create_oidc_secret("state", oidc_state, "keycloak2")
-  create_oidc_secret("nonce", oidc_nonce, "keycloak2")
-  create_oidc_secret("redirect-uri", oidc_redirect_uri, "keycloak2")
-  create_oidc_secret("scope", oidc_scope, "keycloak2")
-  create_oidc_secret("required-request-parameters", oidc_required_request_parameters, "keycloak2")
-  create_oidc_secret("name", "keycloak2", "keycloak2")
-end
-
-Given(/^I successfully set OIDC V2 variables with service id: "([^"]*)"$/) do |service_id|
-  create_oidc_secret("provider-uri", oidc_provider_uri, service_id)
-  create_oidc_secret("response-type", oidc_response_type, service_id)
-  create_oidc_secret("client-id", oidc_client_id, service_id)
-  create_oidc_secret("client-secret", oidc_client_secret, service_id)
-  create_oidc_secret("claim-mapping", oidc_claim_mapping, service_id)
-  create_oidc_secret("state", oidc_state, service_id)
-  create_oidc_secret("nonce", oidc_nonce, service_id)
-  create_oidc_secret("redirect-uri", oidc_redirect_uri, service_id)
-  create_oidc_secret("scope", oidc_scope, service_id)
-  create_oidc_secret("required-request-parameters", oidc_required_request_parameters, service_id)
-  create_oidc_secret("name", "keycloak2", service_id)
+  create_oidc_secret("provider-uri", oidc_provider_uri, "/keycloak2")
+  create_oidc_secret("response-type", oidc_response_type, "/keycloak2")
+  create_oidc_secret("client-id", oidc_client_id, "/keycloak2")
+  create_oidc_secret("client-secret", oidc_client_secret, "/keycloak2")
+  create_oidc_secret("claim-mapping", oidc_claim_mapping, "/keycloak2")
+  create_oidc_secret("state", oidc_state, "/keycloak2")
+  create_oidc_secret("nonce", oidc_nonce, "/keycloak2")
+  create_oidc_secret("redirect-uri", oidc_redirect_uri, "/keycloak2")
+  create_oidc_secret("provider_scope", oidc_scope, "/keycloak2")
 end
 
 Given(/^I successfully set OIDC variables without a service-id$/) do
