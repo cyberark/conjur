@@ -1,0 +1,10 @@
+FROM registry.tld/conjur-appliance:5.0-stable
+
+COPY app/domain/authentication/authn_k8s/authentication_request.rb /opt/conjur/possum/app/domain/authentication/authn_k8s/authentication_request.rb
+COPY app/domain/authentication/authn_k8s/consts.rb /opt/conjur/possum/app/app/domain/authentication/authn_k8s/consts.rb
+COPY app/domain/authentication/authn_k8s/k8s_object_lookup.rb /opt/conjur/possum/app/app/domain/authentication/authn_k8s/k8s_object_lookup.rb
+COPY app/domain/authentication/authn_k8s/k8s_resource_validator.rb /opt/conjur/possum/app/app/domain/authentication/authn_k8s/k8s_resource_validator.rb
+COPY app/domain/authentication/constraints/required_exclusive_constraint.rb /opt/conjur/possum/app/app/domain/authentication/constraints/required_exclusive_constraint.rb
+COPY app/domain/errors.rb /opt/conjur/possum/app/app/domain/errors.rb
+
+RUN chown -R conjur:conjur /opt/conjur/possum/app
