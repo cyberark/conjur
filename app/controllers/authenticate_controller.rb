@@ -8,8 +8,6 @@ class AuthenticateController < ApplicationController
     # TODO: need a mechanism for an authenticator strategy to define the required
     # params. This will likely need to be done via the Handler.
     params.permit!
-    raise Errors::Authentication::RequestBody::MissingRequestParam, params[:code] unless params[:code]
-    raise Errors::Authentication::RequestBody::MissingRequestParam, params[:state] unless params[:state]
 
     auth_token = Authentication::Handler::AuthenticationHandler.new(
       authenticator_type: params[:authenticator]
@@ -354,6 +352,8 @@ class AuthenticateController < ApplicationController
       raise ApplicationController::Unauthorized
     end
   end
+
+
 
   def log_backtrace(err)
     err.backtrace.each do |line|

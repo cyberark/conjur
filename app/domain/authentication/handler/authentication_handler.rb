@@ -152,6 +152,23 @@ module Authentication
           error: nil
         )
       end
+
+      def log_audit_failure(account, service_id, client_ip, type, error)
+        ::Authentication::LogAuditEvent.new.call(
+          authentication_params:
+            Authentication::AuthenticatorInput.new(
+              authenticator_name: "#{type}",
+              service_id: service_id,
+              account: account,
+              username: nil,
+              client_ip: client_ip,
+              credentials: nil,
+              request: nil
+            ),
+          audit_event_class: Audit::Event::Authn::Authenticate,
+          error: error
+        )
+      end
     end
   end
 end
