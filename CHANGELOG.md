@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
-## [1.17.7] - 2022-05-19
+## [1.17.7] - 2022-06-29
 
 ### Changed
 - Made simplecov a dev/test dependency
@@ -878,7 +878,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - The first tagged version.
 
-[Unreleased]: https://github.com/cyberark/conjur/compare/v1.17.5...HEAD
+[Unreleased]: https://github.com/cyberark/conjur/compare/v1.17.7...HEAD
+[1.17.7]: https://github.com/cyberark/conjur/compare/v1.17.6...v1.17.7
+[1.17.6]: https://github.com/cyberark/conjur/compare/v1.17.5...v1.17.6
 [1.17.5]: https://github.com/cyberark/conjur/compare/v1.17.3...v1.17.5
 [1.17.3]: https://github.com/cyberark/conjur/compare/v1.16.0...v1.17.3
 [1.16.0]: https://github.com/cyberark/conjur/compare/v1.15.0...v1.16.0
