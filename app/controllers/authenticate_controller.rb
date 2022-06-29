@@ -145,6 +145,7 @@ class AuthenticateController < ApplicationController
 
     render_authn_token(auth_token)
   rescue => e
+    log_backtrace(e)
     handle_oidc_authentication_error(e)
   end
 
@@ -318,7 +319,39 @@ class AuthenticateController < ApplicationController
     end
   end
 
+  def handle_oidc_authentication_error(err)
+    authentication_error = LogMessages::Authentication::AuthenticationError.new(err.inspect)
+    logger.warn(authentication_error)
 
+    case err
+    when Errors::Authentication::Security::RoleNotAuthorizedOnResource
+      raise ApplicationController::Forbidden
+
+    when Errors::Authentication::RequestBody::MissingRequestParam,
+      Errors::Authentication::AuthnOidc::TokenVerificationFailed
+      raise ApplicationController::BadRequest
+
+    when Errors::Conjur::RequestedResourceNotFound
+      raise ApplicationController::RecordNotFound.new(err.message)
+
+    when Errors::Authentication::AuthnOidc::IdTokenClaimNotFoundOrEmpty
+      raise ApplicationController::Unauthorized
+
+    when Errors::Authentication::Jwt::TokenExpired
+      raise ApplicationController::Unauthorized.new(err.message, true)
+
+    when Errors::Authentication::AuthnOidc::StateMismatch,
+      Errors::Authentication::Security::RoleNotFound
+      raise ApplicationController::BadRequest
+
+      # Code value mismatch
+    when Rack::OAuth2::Client::Error
+      raise ApplicationController::BadRequest
+
+    else
+      raise ApplicationController::Unauthorized
+    end
+  end
 
   def log_backtrace(err)
     err.backtrace.each do |line|

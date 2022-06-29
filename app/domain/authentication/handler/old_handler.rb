@@ -172,7 +172,7 @@ module Authentication
         ::Authentication::LogAuditEvent.new.call(
           authentication_params:
             Authentication::AuthenticatorInput.new(
-              authenticator_name: "authn-#{type}",
+              authenticator_name: "#{type}",
               service_id: authenticator.service_id,
               account: authenticator.account,
               username: conjur_role.role_id,
@@ -189,7 +189,7 @@ module Authentication
         ::Authentication::LogAuditEvent.new.call(
           authentication_params:
             Authentication::AuthenticatorInput.new(
-              authenticator_name: "authn-#{type}",
+              authenticator_name: "#{type}",
               service_id: service_id,
               account: account,
               username: username,
