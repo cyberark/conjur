@@ -104,6 +104,13 @@ module Authentication
         k8s_client_for_method("get_pod").get_pod(podname, namespace)
       end
 
+      # Locates the Namespace with a given name.
+      #
+      # @return nil if no such Namespace exists.
+      def namespace_by_name(namespace)
+        k8s_client_for_method("get_namespace").get_namespace(namespace)
+      end
+
       # Locates pods matching label selector in a namespace.
       #
       def pods_by_label(label_selector, namespace)
@@ -221,3 +228,15 @@ module Authentication
     end
   end
 end
+
+# rails c
+# 
+# webservice = ::Authentication::Webservice.new(
+#   account: "rancherDemoAccount",
+#   authenticator_name: "authn-k8s",
+#   service_id: "demo/rancher"
+#  )
+
+# k8s_object_lookup = Authentication::AuthnK8s::K8sObjectLookup.new(webservice)
+# namespace = k8s_object_lookup.kube_client.get_namespace("default")
+# namespace.metadata.labels.to_h
