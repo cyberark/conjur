@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Authentication
   module Util
     class NamespaceSelector
@@ -10,7 +11,7 @@ module Authentication
           # glorified JWT authenticator.
           'Authentication::AuthnOidc::V2'
         else
-          raise "#{authenticator_type} is not supported"
+          raise "'#{authenticator_type}' is not a supported authenticator type"
           # TODO: make this dynamic based on authenticator type.
         end
       end
