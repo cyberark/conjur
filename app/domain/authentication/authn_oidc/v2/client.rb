@@ -39,7 +39,7 @@ module Authentication
 
         def callback(code:)
           if code.empty?
-            raise Errors::Authentication::RequestBody::MissingRequestParam, code
+            raise Errors::Authentication::RequestBody::MissingRequestParam, 'code'
           end
           oidc_client.authorization_code = code
           bearer_token = oidc_client.access_token!(

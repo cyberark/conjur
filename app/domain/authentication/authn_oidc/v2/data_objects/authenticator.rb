@@ -6,7 +6,7 @@ module Authentication
 
           # required
           attr_reader :provider_uri, :client_id, :client_secret, :claim_mapping, :nonce, :state, :account
-          attr_reader :service_id, :redirect_uri
+          attr_reader :service_id, :redirect_uri, :response_type
 
           # optional
           attr_reader :name
@@ -20,7 +20,7 @@ module Authentication
             state:,
             account:,
             service_id:,
-            redirect_uri:,
+            redirect_uri: nil,
             name: nil,
             response_type: 'code',
             provider_scope: nil
@@ -38,11 +38,6 @@ module Authentication
             @provider_scope = provider_scope
             @redirect_uri = redirect_uri
 
-          end
-
-          def response_type
-            # TODO: Add as optional
-            'code'
           end
 
           def scope

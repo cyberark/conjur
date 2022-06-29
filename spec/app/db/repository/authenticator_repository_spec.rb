@@ -3,7 +3,9 @@
 require 'spec_helper'
 
 RSpec.describe('DB::Repository::AuthenticatorRepository') do
-  let(:repo) { DB::Repository::AuthenticatorRepository.new }
+  let(:repo) { DB::Repository::AuthenticatorRepository.new(
+    data_object: ::Authenticator::OidcAuthenticator
+  ) }
 
   describe('exists method') do
     context "with missing parameters" do
@@ -37,7 +39,7 @@ RSpec.describe('DB::Repository::AuthenticatorRepository') do
           resource_id: "rspec:webservice:conjur/authn-oidc/abc123",
           owner_id: "rspec:policy:conjur/authn-oidc/abc123"
         )
-        expect(repo.exists?(type: "oidc", account: "rspec", service_id: "abc123")).to eq(true)
+        expect(repo.exists?(type: "authn-oidc", account: "rspec", service_id: "abc123")).to eq(true)
       end
     end
   end
@@ -53,17 +55,17 @@ RSpec.describe('DB::Repository::AuthenticatorRepository') do
       end
 
       it "returns an empty array with no account parameter" do
-        expect(repo.find_all(type: "oidc", account: nil)).to eq([])
+        expect(repo.find_all(type: "authn-oidc", account: nil)).to eq([])
       end
 
       it "returns an empty array with no service_id parameter" do
-        expect(repo.find_all(type: "oidc", account: "rspec")).to eq([])
+        expect(repo.find_all(type: "authn-oidc", account: "rspec")).to eq([])
       end
     end
 
     context "no variables are set" do
       it "returns an empty array when the authenticator doesn't exist" do
-        expect(repo.find_all(type: "oidc", account: "rspec")).to eq([])
+        expect(repo.find_all(type: "authn-oidc", account: "rspec")).to eq([])
       end
     end
 
@@ -79,7 +81,7 @@ RSpec.describe('DB::Repository::AuthenticatorRepository') do
       end
 
       it "returns a v2 authenticator with all properties set" do
-        authenticators = repo.find_all(type: "oidc", account: "rspec")
+        authenticators = repo.find_all(type: "authn-oidc", account: "rspec")
         authenticator = authenticators.find{ |authn| authn.service_id == "abc123"}
         expect(authenticator).to be_truthy
         expect(authenticator.class.to_s).to eq("Authenticator::OidcAuthenticator")
@@ -124,7 +126,7 @@ RSpec.describe('DB::Repository::AuthenticatorRepository') do
       end
 
       it "returns a v2 authenticator with all properties set" do
-        authenticators = repo.find_all(type: "oidc", account: "rspec")
+        authenticators = repo.find_all(type: "authn-oidc", account: "rspec")
         authenticator = authenticators.find{ |authn| authn.service_id == "abc123"}
         expect(authenticator).to be_truthy
         expect(authenticator.class.to_s).to eq("Authenticator::OidcAuthenticator")
@@ -173,7 +175,7 @@ RSpec.describe('DB::Repository::AuthenticatorRepository') do
       end
 
       it "returns a v2 authenticator with all properties set" do
-        authenticators = repo.find_all(type: "oidc", account: "rspec")
+        authenticators = repo.find_all(type: "authn-oidc", account: "rspec")
         authenticator = authenticators.find{ |authn| authn.service_id == "abc123"}
         expect(authenticator).to be_truthy
         expect(authenticator.class.to_s).to eq("Authenticator::OidcAuthenticator")
@@ -223,7 +225,7 @@ RSpec.describe('DB::Repository::AuthenticatorRepository') do
       end
 
       it "returns a v2 authenticator with all properties set" do
-        authenticators = repo.find_all(type: "oidc", account: "rspec")
+        authenticators = repo.find_all(type: "authn-oidc", account: "rspec")
         authenticator = authenticators.find{ |authn| authn.service_id == "abc123"}
         expect(authenticator).to be_truthy
         expect(authenticator.class.to_s).to eq("Authenticator::OidcAuthenticator")
@@ -257,17 +259,17 @@ RSpec.describe('DB::Repository::AuthenticatorRepository') do
       end
 
       it "returns nil with no account parameter" do
-        expect(repo.find(type: "oidc", account: nil, service_id: "abc123")).to be_nil
+        expect(repo.find(type: "authn-oidc", account: nil, service_id: "abc123")).to be_nil
       end
 
       it "returns nil with no service_id parameter" do
-        expect(repo.find(type: "oidc", account: "rspec", service_id: nil)).to be_nil
+        expect(repo.find(type: "authn-oidc", account: "rspec", service_id: nil)).to be_nil
       end
     end
 
     context "no variables are set" do
       it "returns nil when the authenticator doesn't exist" do
-        expect(repo.find(type: "oidc", account: "rspec", service_id: "abc123")).to be_nil
+        expect(repo.find(type: "authn-oidc", account: "rspec", service_id: "abc123")).to be_nil
       end
     end
 
@@ -283,7 +285,7 @@ RSpec.describe('DB::Repository::AuthenticatorRepository') do
       end
 
       it "returns an authenticator with no variables set" do
-        authenticator = repo.find(type: "oidc", account: "rspec", service_id: "abc123")
+        authenticator = repo.find(type: "authn-oidc", account: "rspec", service_id: "abc123")
         expect(authenticator).to be_truthy
         expect(authenticator.class.to_s).to eq("Authenticator::OidcAuthenticator")
         expect(authenticator.account).to eq("rspec")
@@ -327,7 +329,7 @@ RSpec.describe('DB::Repository::AuthenticatorRepository') do
       end
 
       it "returns an authenticator with no variables set" do
-        authenticator = repo.find(type: "oidc", account: "rspec", service_id: "abc123")
+        authenticator = repo.find(type: "authn-oidc", account: "rspec", service_id: "abc123")
         expect(authenticator).to be_truthy
         expect(authenticator.class.to_s).to eq("Authenticator::OidcAuthenticator")
         expect(authenticator.account).to eq("rspec")
@@ -375,7 +377,7 @@ RSpec.describe('DB::Repository::AuthenticatorRepository') do
       end
 
       it "returns a v2 authenticator with all properties set" do
-        authenticator = repo.find(type: "oidc", account: "rspec", service_id: "abc123")
+        authenticator = repo.find(type: "authn-oidc", account: "rspec", service_id: "abc123")
         expect(authenticator).to be_truthy
         expect(authenticator.class.to_s).to eq("Authenticator::OidcAuthenticator")
         expect(authenticator.account).to eq("rspec")
@@ -424,7 +426,7 @@ RSpec.describe('DB::Repository::AuthenticatorRepository') do
       end
 
       it "returns a v2 authenticator with all properties set" do
-        authenticator = repo.find(type: "oidc", account: "rspec", service_id: "abc123")
+        authenticator = repo.find(type: "authn-oidc", account: "rspec", service_id: "abc123")
         expect(authenticator).to be_truthy
         expect(authenticator.class.to_s).to eq("Authenticator::OidcAuthenticator")
         expect(authenticator.account).to eq("rspec")
