@@ -288,7 +288,6 @@ RSpec.describe('Authentication::Handler::OidcAuthenticationHandler') do
               response_type: "code",
               client_id: "client-id-192",
               client_secret: "nf3i2h0f2w0hfei20f",
-              claim_mapping: "username",
               state: "statei0o3n",
               nonce: "noneo0j3409jhas",
               redirect_uri: "https://conjur.com"

@@ -22,7 +22,7 @@ module Contexts
           account: account,
           type: "oidc"
         ).select do |authn|
-          role&.allowed_to?(:authenticate, @resource[resource_id: authn.resource_id])
+          role&.allowed_to?("authenticate", @resource[resource_id: authn.resource_id])
         end
         authenticators.map do |authn|
           {

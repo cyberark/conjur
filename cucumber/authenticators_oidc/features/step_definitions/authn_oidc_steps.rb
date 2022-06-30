@@ -9,13 +9,12 @@ end
 
 Given(/I fetch a code for username "([^"]*)" and password "([^"]*)"/) do |username, password|
   Rails.application.config.conjur_config.authenticators = ['authn-oidc/keycloak2']
-  authentication_handler = Authentication::Handler::OidcAuthenticationHandler.new
-  uri = URI(authentication_handler.get_login_url(
-    service_id: AuthnOidcHelper::V2_SERVICE_ID,
-    account: AuthnOidcHelper::ACCOUNT
-  ))
 
-  res = Net::HTTP.get_response(uri)
+  @client = Client.for('user', 'admin')
+  providers = @client.fetch_authenticators
+  url = providers.body.map { |x| x["redirect_uri"] }
+
+  res = Net::HTTP.get_response(URI(url[0]))
   raise res if res.is_a?(Net::HTTPError) || res.is_a?(Net::HTTPClientError)
 
   all_cookies = res.get_fields('set-cookie')
@@ -54,8 +53,7 @@ Given(/^I successfully set OIDC V2 variables$/) do
   create_oidc_secret("state", oidc_state, "/keycloak2")
   create_oidc_secret("nonce", oidc_nonce, "/keycloak2")
   create_oidc_secret("redirect-uri", oidc_redirect_uri, "/keycloak2")
-  create_oidc_secret("scope", oidc_scope, "/keycloak2")
-  create_oidc_secret("required-request-parameters", oidc_required_request_parameters, "/keycloak2")
+  create_oidc_secret("provider_scope", oidc_scope, "/keycloak2")
 end
 
 Given(/^I successfully set OIDC variables without a service-id$/) do
