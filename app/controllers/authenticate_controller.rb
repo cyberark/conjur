@@ -1,35 +1,26 @@
 # frozen_string_literal: true
 
-# class Timer
-#   def initialize(logger: Rails.logger)
-#     @logger = logger
-#   end
-
-#   def time(message: nil, level: 'INFO', &block)
-#     starting = Process.clock_gettime(Process::CLOCK_MONOTONIC)
-#     result = yield(block)
-#     ending = Process.clock_gettime(Process::CLOCK_MONOTONIC)
-
-#     message_string = "completed in #{(ending - starting).round(2)} seconds"
-#     message_string = "'#{message}' #{message_string}" if message.present?
-#     @logger.send(level.downcase, message_string)
-#     result
-#   end
-# end
-
 class AuthenticateController < ApplicationController
   include BasicAuthenticator
   include AuthorizeResource
 
   def authenticate_okta
-    # authenticator_type = params[:authenticator].split('-').drop(1).join('-')
+    # TODO: need a mechanism for an authenticator strategy to define the required
+    # params. This will likely need to be done via the Handler.
+    params.permit!
 
-    Authentication::Handler::Handler.new(
+    auth_token = Authentication::Handler::AuthenticationHandler.new(
       authenticator_type: params[:authenticator]
     ).call(
-      parameters: params,
+      parameters: params.to_hash.symbolize_keys,
       request_ip: request.ip
     )
+
+    render_authn_token(auth_token)
+    Rails.logger.debug("AuthenticateController#authenticate_okta - authentication token: #{auth_token.inspect}")
+  rescue => e
+    log_backtrace(e)
+    raise e
   end
 
   def index
@@ -154,6 +145,7 @@ class AuthenticateController < ApplicationController
 
     render_authn_token(auth_token)
   rescue => e
+    log_backtrace(e)
     handle_oidc_authentication_error(e)
   end
 
@@ -300,8 +292,14 @@ class AuthenticateController < ApplicationController
     when Errors::Authentication::Security::RoleNotAuthorizedOnResource
       raise Forbidden
 
+    when Errors::Conjur::RequestedResourceNotFound
+      raise RecordNotFound.new(err.message)
+
     when Errors::Authentication::RequestBody::MissingRequestParam
       raise BadRequest
+
+    when Errors::Conjur::RequestedResourceNotFound
+      raise RecordNotFound.new(err.message)
 
     when Errors::Authentication::Jwt::TokenExpired
       raise Unauthorized.new(err.message, true)
@@ -313,6 +311,9 @@ class AuthenticateController < ApplicationController
       Errors::Authentication::AuthnK8s::CertMissingCNEntry
       raise ArgumentError
 
+    when Rack::OAuth2::Client::Error
+      raise BadRequest
+
     else
       raise Unauthorized
     end
@@ -321,32 +322,34 @@ class AuthenticateController < ApplicationController
   def handle_oidc_authentication_error(err)
     authentication_error = LogMessages::Authentication::AuthenticationError.new(err.inspect)
     logger.warn(authentication_error)
-    log_backtrace(err)
 
     case err
     when Errors::Authentication::Security::RoleNotAuthorizedOnResource
-      raise Forbidden
+      raise ApplicationController::Forbidden
 
     when Errors::Authentication::RequestBody::MissingRequestParam,
       Errors::Authentication::AuthnOidc::TokenVerificationFailed
-      raise BadRequest
+      raise ApplicationController::BadRequest
 
     when Errors::Conjur::RequestedResourceNotFound
-      raise RecordNotFound.new(err.message)
+      raise ApplicationController::RecordNotFound.new(err.message)
+
+    when Errors::Authentication::AuthnOidc::IdTokenClaimNotFoundOrEmpty
+      raise ApplicationController::Unauthorized
 
     when Errors::Authentication::Jwt::TokenExpired
-      raise Unauthorized.new(err.message, true)
+      raise ApplicationController::Unauthorized.new(err.message, true)
 
     when Errors::Authentication::AuthnOidc::StateMismatch,
       Errors::Authentication::Security::RoleNotFound
-      raise BadRequest
+      raise ApplicationController::BadRequest
 
-    # Code value mismatch
+      # Code value mismatch
     when Rack::OAuth2::Client::Error
-      raise BadRequest
+      raise ApplicationController::BadRequest
 
     else
-      raise Unauthorized
+      raise ApplicationController::Unauthorized
     end
   end
 

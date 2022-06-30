@@ -6,7 +6,7 @@ module Authentication
 
           # required
           attr_reader :provider_uri, :client_id, :client_secret, :claim_mapping, :nonce, :state, :account
-          attr_reader :service_id, :redirect_uri
+          attr_reader :service_id, :redirect_uri, :response_type
 
           # optional
           attr_reader :name
@@ -20,9 +20,10 @@ module Authentication
             state:,
             account:,
             service_id:,
-            redirect_uri:,
+            redirect_uri: nil,
             name: nil,
-            provider_scope: ['email']
+            response_type: 'code',
+            provider_scope: nil
           )
             @account = account
             @provider_uri = provider_uri
@@ -30,22 +31,17 @@ module Authentication
             @client_secret = client_secret
             @claim_mapping = claim_mapping
             @nonce = nonce
+            @response_type = response_type
             @state = state
             @service_id = service_id
             @name = name
             @provider_scope = provider_scope
             @redirect_uri = redirect_uri
-          end
 
-          def response_type
-            # TODO: Add as optional
-            'code'
           end
 
           def scope
-            ERB::Util.url_encode(
-              (%w[openid profile] + [*@provider_scope]).join(' ')
-            )
+            (%w[openid email profile] + [*@provider_scope]).uniq.join(' ')
           end
 
           def name
@@ -54,19 +50,6 @@ module Authentication
 
           def resource_id
             "#{account}:webservice:conjur/authn-oidc/#{service_id}"
-          end
-
-          def oidc_redirect
-            params = {
-              client_id: client_id,
-              response_type: response_type,
-              scope: ERB::Util.url_encode(scope),
-              state: state,
-              nonce: nonce,
-              redirect_uri: ERB::Util.url_encode(redirect_uri)
-            }.map { |key, value| "#{key}=#{value}" }.join("&")
-
-            "#{provider_uri}?#{params}"
           end
         end
       end
