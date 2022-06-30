@@ -12,16 +12,19 @@ module Authentication
             return role if role_account == account && identity == role_id
           end
 
+          annotated_roles = []
           roles.each do |role|
             role_account = role.id.split(':').first
             next unless role_account == account
 
             # Don't love the performance...
             if role.resource.annotation('authn-oidc/identity').to_s.downcase == identity.to_s.downcase
-              return role
+              annotated_roles.push(role)
             end
           end
-          raise Errors::Authentication::Security::RoleNotFound, identity
+          raise "Multiple annotations match identity: #{identity}" if annotated_roles.length > 1
+          raise Errors::Authentication::Security::RoleNotFound, identity unless  annotated_roles.first
+          annotated_roles.first
         end
       end
     end
