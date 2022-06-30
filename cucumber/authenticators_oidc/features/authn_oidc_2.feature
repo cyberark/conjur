@@ -163,6 +163,51 @@ Feature: OIDC Authenticator V2 - Users can authenticate with OIDC authenticator
     """
 
   @negative @acceptance
+  Scenario: Adding a group to keycloak2/users group permits users to authenticate
+    Given I extend the policy with:
+    """
+    - !user
+      id: bob
+      annotations:
+        authn-oidc/identity: bob.somebody@cyberark.com
+
+    - !group more-users
+
+    - !grant
+      role: !group more-users
+      member: !user bob
+
+    - !grant
+      role: !group conjur/authn-oidc/keycloak2/users
+      member: !group more-users
+    """
+
+    Given I extend the policy with:
+    """
+    - !user
+      id: chad
+      annotations:
+        authn-oidc/identity: bob.somebody@cyberark.com
+
+    - !group more-users
+
+    - !grant
+      role: !group more-users
+      member: !user chad
+
+    - !grant
+      role: !group conjur/authn-oidc/keycloak2/users
+      member: !group more-users
+    """
+    Given I save my place in the log file
+    And I fetch a code for username "bob.somebody@cyberark.com" and password "bob"
+    When I authenticate via OIDC V2 with code
+    And The following appears in the log after my savepoint:
+    """
+    Multiple annotations match identity: bob.somebody@cyberark.com
+    """
+
+  @negative @acceptance
   Scenario: Missing code is a bad request
     Given I save my place in the log file
     And I fetch a code for username "alice" and password "alice"
