@@ -87,15 +87,11 @@ describe Loader::Types::User do
 end
 
 describe Loader::Types::Host do
-  let(:user) do
-    #role = Conjur::PolicyParser::Types::Role.new
-    #role.id = role_id
-    #role.kind = role_kind
-    #role.account = 'default'
+  let(:host) do
     host = Conjur::PolicyParser::Types::Host.new
     host.id = resource_id
     if api_key != ''
-      host.annotations =  { "authn/api-key" => api_key } #["auth/api-key"] = api_key
+      host.annotations =  { "authn/api-key" => api_key }
     end
     Loader::Types.wrap(host, self)
   end
@@ -110,19 +106,19 @@ describe Loader::Types::Host do
       context 'when creating host with api-key annotation true' do
         let(:resource_id) { 'myhost@admin' }
         let(:api_key) { true }
-        it { expect { user.verify }.to_not raise_error }
+        it { expect { host.verify }.to_not raise_error }
       end
 
       context 'when creating host with api-key annotation false' do
         let(:resource_id) { 'myhost@cyberark' }
         let(:api_key) { false }
-        it { expect { user.verify }.to raise_error(Exceptions::InvalidPolicyObject) }
+        it { expect { host.verify }.to raise_error(Exceptions::InvalidPolicyObject) }
       end
 
       context 'when creating host without api-key annotation' do
         let(:resource_id) { 'myhost@cyberark' }
         let(:api_key) { '' }
-        it { expect { user.verify }.to raise_error(Exceptions::InvalidPolicyObject) }
+        it { expect { host.verify }.to raise_error(Exceptions::InvalidPolicyObject) }
       end
     end
 
@@ -135,19 +131,19 @@ describe Loader::Types::Host do
       context 'when creating host with api-key annotation true' do
         let(:resource_id) { 'myhost@admin' }
         let(:api_key) { true }
-        it { expect { user.verify }.to_not raise_error }
+        it { expect { host.verify }.to_not raise_error }
       end
 
       context 'when creating host with api-key annotation false' do
         let(:resource_id) { 'alice@cyberark' }
         let(:api_key) { false }
-        it { expect { user.verify }.to_not raise_error }
+        it { expect { host.verify }.to_not raise_error }
       end
 
       context 'when creating host without api-key annotation' do
         let(:resource_id) { 'alice@cyberark' }
         let(:api_key) { '' }
-        it { expect { user.verify }.to_not raise_error }
+        it { expect { host.verify }.to_not raise_error }
       end
     end
 
@@ -155,19 +151,107 @@ describe Loader::Types::Host do
       context 'when creating host with api-key annotation true' do
         let(:resource_id) { 'myhost@admin' }
         let(:api_key) { true }
-        it { expect { user.verify }.to_not raise_error }
+        it { expect { host.verify }.to_not raise_error }
       end
 
       context 'when creating host with api-key annotation false' do
         let(:resource_id) { 'alice@cyberark' }
         let(:api_key) { false }
-        it { expect { user.verify }.to_not raise_error }
+        it { expect { host.verify }.to_not raise_error }
       end
 
       context 'when creating host without api-key annotation' do
         let(:resource_id) { 'alice@cyberark' }
         let(:api_key) { '' }
-        it { expect { user.verify }.to_not raise_error }
+        it { expect { host.verify }.to_not raise_error }
+      end
+    end
+  end
+
+  describe Loader::Types::HostFactory do
+    let(:hostFactory) do
+      hostFactory = Conjur::PolicyParser::Types::HostFactory.new
+      hostFactory.id = resource_id
+      if api_key != ''
+        hostFactory.annotations =  { "authn/api-key" => api_key }
+      end
+      Loader::Types.wrap(hostFactory, self)
+    end
+
+    describe '.verify' do
+      context 'when CONJUR_MANDATORY_API_KEY is true' do
+        before do
+          allow(ENV).to receive(:[]).with('CONJUR_MANDATORY_API_KEY').and_return('true')
+          Rails.application.config.conjur_config.mandatory_api_key = true
+        end
+
+        context 'when creating host factory with api-key annotation true' do
+          let(:resource_id) { 'myhostfactory@admin' }
+          let(:api_key) { true }
+          it { expect { hostFactory.verify }.to_not raise_error }
+        end
+
+        context 'when creating host factory with api-key annotation false' do
+          let(:resource_id) { 'myhostfactory@cyberark' }
+          let(:api_key) { false }
+          it { expect { hostFactory.verify }.to raise_error(Exceptions::InvalidPolicyObject) }
+        end
+
+        context 'when creating host factory without api-key annotation' do
+          let(:resource_id) { 'myhostfactory@cyberark' }
+          let(:api_key) { '' }
+          it { expect { hostFactory.verify }.to raise_error(Exceptions::InvalidPolicyObject) }
+        end
+      end
+
+      context 'when CONJUR_MANDATORY_API_KEY is false' do
+        before do
+          allow(ENV).to receive(:[]).with('CONJUR_MANDATORY_API_KEY').and_return('false')
+          Rails.application.config.conjur_config.mandatory_api_key = false
+        end
+
+        context 'when creating host factory with api-key annotation true' do
+          let(:resource_id) { 'myhostfactory@admin' }
+          let(:api_key) { true }
+          it { expect { hostFactory.verify }.to_not raise_error }
+        end
+
+        context 'when creating host factory with api-key annotation false' do
+          let(:resource_id) { 'myhostfactory@cyberark' }
+          let(:api_key) { false }
+          it { expect { hostFactory.verify }.to_not raise_error }
+        end
+
+        context 'when creating host factory without api-key annotation' do
+          let(:resource_id) { 'myhostfactory@cyberark' }
+          let(:api_key) { '' }
+          it { expect { hostFactory.verify }.to_not raise_error }
+        end
+      end
+
+      context 'when CONJUR_MANDATORY_API_KEY is not set' do
+
+        before do
+          Rails.application.config.conjur_config.mandatory_api_key = false
+        end
+
+        context 'when creating host with api-key annotation true' do
+          let(:resource_id) { 'myhostfactory@admin' }
+          let(:api_key) { true }
+          it { expect { hostFactory.verify }.to_not raise_error }
+        end
+
+        context 'when creating host factory with api-key annotation false' do
+          let(:resource_id) { 'myhostfactory@cyberark' }
+          let(:api_key) { false }
+          it { expect { hostFactory.verify }.to_not raise_error }
+        end
+
+        context 'when creating host factory without api-key annotation' do
+          let(:resource_id) { 'myhostfactory@cyberark' }
+          let(:api_key) { '' }
+          it { expect { hostFactory.verify }.to_not raise_error }
+        end
       end
     end
   end
