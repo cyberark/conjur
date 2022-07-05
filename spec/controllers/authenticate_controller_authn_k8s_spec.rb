@@ -13,11 +13,11 @@ require 'support/authn_k8s/authn_k8s_test_server.rb'
 #   end
 # )
 
-def set_variable_value(resource_id, value)
+def set_variable_value(account, resource_id, value)
   post("/secrets/#{account}/variable/#{resource_id}", env: admin_request_env.merge({ 'RAW_POST_DATA' => value }))
 end
 
-def apply_root_policy(account: , policy_content:, expect_success: false)
+def apply_root_policy(account, policy_content:, expect_success: false)
   post("/policies/#{account}/policy/root", env: admin_request_env.merge({ 'RAW_POST_DATA' => policy_content }))
   if expect_success
     expect(response.code).to eq("201")
@@ -71,7 +71,7 @@ def define_authenticator(account, service_id , host_id:)
       resource: !webservice
 )
 
-  apply_root_policy(account: account, policy_content: authenticator_policy, expect_success: true)
+  apply_root_policy(account, policy_content: authenticator_policy, expect_success: true)
 end
 
 def initialize_authenticator_ca(account, service_id)
@@ -80,17 +80,18 @@ def initialize_authenticator_ca(account, service_id)
   ::Repos::ConjurCA.create(service_resource_id)
 end
 
-def configure_k8s_api_access(service_id, api_url:, ca_cert:, service_account_token:)
+def configure_k8s_api_access(account, service_id, api_url:, ca_cert:, service_account_token:)
   # Populate authenticator configuration variables
-  set_variable_value("#{service_id}/kubernetes/api-url", api_url)
-  set_variable_value("#{service_id}/kubernetes/ca-cert", ca_cert)
-  set_variable_value("#{service_id}/kubernetes/service-account-token", service_account_token)
+  set_variable_value(account, "#{service_id}/kubernetes/api-url", api_url)
+  set_variable_value(account, "#{service_id}/kubernetes/ca-cert", ca_cert)
+  set_variable_value(account, "#{service_id}/kubernetes/service-account-token", service_account_token)
 end
 
+# fake_authn_k8s_login returns a signed certificate based on the input CSR. It is "fake" because it mimicks the expected behavior of the server without the need
+# for a request roundtrip.
 def fake_authn_k8s_login(account, service_id, host_id:)
   service_resource_id = "#{account}:webservice:#{service_id}"
 
-  # Fake login
   hostpkey = OpenSSL::PKey::RSA.new(2048)      
   alt_names = [
     "URI:spiffe://cluster.local/namespace/default/pod/bash-8449b79d7-c2fwd"
@@ -169,7 +170,7 @@ describe AuthenticateController, :type => :request do
           account, service_id
         )
         configure_k8s_api_access(
-          service_id, 
+          account, service_id,
           api_url: "http://localhost:1234/some/path", 
           ca_cert: "---", 
           service_account_token: "bearer token"
