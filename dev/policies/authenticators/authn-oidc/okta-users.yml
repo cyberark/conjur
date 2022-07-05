@@ -1,0 +1,15 @@
+- !user test.user3@mycompany.com
+
+- !policy
+  id: okta
+  body:
+    - !user
+      id: test.user3
+      annotations:
+        authn-oidc/identity: 'test.user@mycompany.com'
+
+- !grant
+  members:
+    - !user test.user3@mycompany.com
+    - !user test.user3@okta
+  role: !group conjur/authn-oidc/okta-2/authenticatable
