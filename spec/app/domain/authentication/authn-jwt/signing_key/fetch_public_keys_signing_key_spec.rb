@@ -15,7 +15,9 @@ RSpec.describe('Authentication::AuthnJwt::SigningKey::FetchPublicKeysSigningKey'
 
   let(:string_value) { "string value" }
   let(:valid_jwks) {
-    Net::HTTP.get_response(URI("https://www.googleapis.com/oauth2/v3/certs")).body
+    VCR.use_cassette('authenticators/authn-jwt/valid-jwks') do
+      Net::HTTP.get_response(URI("https://www.googleapis.com/oauth2/v3/certs")).body
+    end
   }
   let(:invalid_public_keys_value) {
     "{\"type\":\"invalid\", \"value\": #{valid_jwks} }"
@@ -58,9 +60,11 @@ RSpec.describe('Authentication::AuthnJwt::SigningKey::FetchPublicKeysSigningKey'
 
     context "returns a JWKS object" do
       subject do
-        ::Authentication::AuthnJwt::SigningKey::FetchPublicKeysSigningKey.new(
-          signing_keys: valid_public_keys_value
-        ).call(force_fetch: false)
+        VCR.use_cassette('authenticators/authn-jwt/fetch-jwks') do
+          ::Authentication::AuthnJwt::SigningKey::FetchPublicKeysSigningKey.new(
+            signing_keys: valid_public_keys_value
+          ).call(force_fetch: false)
+        end
       end
 
       it "JWKS object has one key" do
