@@ -4,6 +4,25 @@ class AuthenticateController < ApplicationController
   include BasicAuthenticator
   include AuthorizeResource
 
+  def authenticate_okta
+    # TODO: need a mechanism for an authenticator strategy to define the required
+    # params. This will likely need to be done via the Handler.
+    params.permit!
+
+    auth_token = Authentication::Handler::AuthenticationHandler.new(
+      authenticator_type: params[:authenticator]
+    ).call(
+      parameters: params.to_hash.symbolize_keys,
+      request_ip: request.ip
+    )
+
+    render_authn_token(auth_token)
+    Rails.logger.debug("AuthenticateController#authenticate_okta - authentication token: #{auth_token.inspect}")
+  rescue => e
+    log_backtrace(e)
+    raise e
+  end
+
   def index
     authenticators = {
       # Installed authenticator plugins
@@ -113,21 +132,21 @@ class AuthenticateController < ApplicationController
 
   # Update the input to have the username from the token and authenticate
   def authenticate_oidc
-    params[:authenticator] = "authn-oidc"
-    input = Authentication::AuthnOidc::UpdateInputWithUsernameFromIdToken.new.(
-      authenticator_input: authenticator_input
+    auth_token = Authentication::Handler::OidcAuthenticationHandler.authenticate(
+      service_id: params[:service_id],
+      account: params[:account],
+      parameters: {
+        state: params[:state],
+        client_ip: request.ip,
+        credentials: request.body.read,
+        code: params[:code]
+      }
     )
-    # We don't audit success here as the authentication process is not done
+
+    render_authn_token(auth_token)
   rescue => e
-    # At this point authenticator_input.username is always empty (e.g. cucumber:user:USERNAME_MISSING)
-    log_audit_failure(
-      authn_params: authenticator_input,
-      audit_event_class: Audit::Event::Authn::Authenticate,
-      error: e
-    )
-    handle_authentication_error(e)
-  else
-    authenticate(input)
+    log_backtrace(e)
+    handle_oidc_authentication_error(e)
   end
 
   def authenticate_gcp
@@ -273,8 +292,14 @@ class AuthenticateController < ApplicationController
     when Errors::Authentication::Security::RoleNotAuthorizedOnResource
       raise Forbidden
 
+    when Errors::Conjur::RequestedResourceNotFound
+      raise RecordNotFound.new(err.message)
+
     when Errors::Authentication::RequestBody::MissingRequestParam
       raise BadRequest
+
+    when Errors::Conjur::RequestedResourceNotFound
+      raise RecordNotFound.new(err.message)
 
     when Errors::Authentication::Jwt::TokenExpired
       raise Unauthorized.new(err.message, true)
@@ -286,8 +311,45 @@ class AuthenticateController < ApplicationController
       Errors::Authentication::AuthnK8s::CertMissingCNEntry
       raise ArgumentError
 
+    when Rack::OAuth2::Client::Error
+      raise BadRequest
+
     else
       raise Unauthorized
+    end
+  end
+
+  def handle_oidc_authentication_error(err)
+    authentication_error = LogMessages::Authentication::AuthenticationError.new(err.inspect)
+    logger.warn(authentication_error)
+
+    case err
+    when Errors::Authentication::Security::RoleNotAuthorizedOnResource
+      raise ApplicationController::Forbidden
+
+    when Errors::Authentication::RequestBody::MissingRequestParam,
+      Errors::Authentication::AuthnOidc::TokenVerificationFailed
+      raise ApplicationController::BadRequest
+
+    when Errors::Conjur::RequestedResourceNotFound
+      raise ApplicationController::RecordNotFound.new(err.message)
+
+    when Errors::Authentication::AuthnOidc::IdTokenClaimNotFoundOrEmpty
+      raise ApplicationController::Unauthorized
+
+    when Errors::Authentication::Jwt::TokenExpired
+      raise ApplicationController::Unauthorized.new(err.message, true)
+
+    when Errors::Authentication::AuthnOidc::StateMismatch,
+      Errors::Authentication::Security::RoleNotFound
+      raise ApplicationController::BadRequest
+
+      # Code value mismatch
+    when Rack::OAuth2::Client::Error
+      raise ApplicationController::BadRequest
+
+    else
+      raise ApplicationController::Unauthorized
     end
   end
 
