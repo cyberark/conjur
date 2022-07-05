@@ -100,18 +100,25 @@ def with_background_process(cmd, &block)
     # Read the output of the background process in a thread to run
     # the given block in parallel.
     out_reader = Thread.new do
+      Thread.current.abort_on_exception = true
       output = StringIO.new
 
       loop do
-        ready = IO.select(
-          [stdout_and_err], # Watch for reading
-          [], # Not watching any files for writing
-          [], # Not watching any files for exceptions
-          # When the background process is killed, it doesn't end the
-          # the output stream, so we need a timeout here to recognize the
-          # stream has closed:
-          1 # 1 second timeout
-        )
+        begin
+          ready = IO.select(
+            [stdout_and_err], # Watch for reading
+            [], # Not watching any files for writing
+            [], # Not watching any files for exceptions
+            # When the background process is killed, it doesn't end the
+            # the output stream, so we need a timeout here to recognize the
+            # stream has closed:
+            1 # 1 second timeout
+          )
+        rescue IOError => e
+          # Stream seems to be closed externally once the command returns.
+          # This catch allows the loop to exit and the thread to return.
+          puts("Stream was closed: #{e}")
+        end
 
         # If the stream has closed, break the read loop.
         break if stdout_and_err.closed?
