@@ -58,9 +58,11 @@ RSpec.describe(Authentication::AuthnIam::Authenticator) do
   it "valid? with expired AWS headers" do
     subject = authenticator_instance
     parameters = double('AuthenticationParameters', credentials: expired_aws_headers)
-    expect{subject.valid?(parameters)}.to(
-      raise_error(Errors::Authentication::AuthnIam::InvalidAWSHeaders)
-    )
+    VCR.use_cassette('authenticators/authn-iam/verify-expired-headers') do
+      expect{subject.valid?(parameters)}.to(
+        raise_error(Errors::Authentication::AuthnIam::InvalidAWSHeaders)
+      )
+    end
   end
 
   it "validates identity_hash with valid response" do
