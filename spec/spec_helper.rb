@@ -5,6 +5,8 @@
 require 'English'
 
 require 'simplecov'
+require 'vcr'
+
 
 SimpleCov.command_name("SimpleCov #{rand(1000000)}")
 SimpleCov.merge_timeout(7200)
@@ -155,5 +157,9 @@ def conjur_server_dir
   Pathname.new(File.join(File.dirname(conjurctl_path), '..')).cleanpath
 end
 
-
 require 'stringio'
+
+VCR.configure do |config|
+  config.cassette_library_dir = "spec/fixtures/vcr_cassettes"
+  config.hook_into :webmock
+end
