@@ -45,7 +45,7 @@ RSpec.describe(Authentication::AuthnOidc::V2::Client) do
     context 'when JWT has expired' do
       it 'raises an error' do
         travel_to(Time.parse("2022-06-30 20:42:17 +0000")) do
-          VCR.use_cassette('client_callback-valid_oidc_credentials') do
+          VCR.use_cassette('authenticators/authn-oidc/v2/client_callback-valid_oidc_credentials') do
             expect do
               client.callback(
                 code: 'qdDm7On1dEEzNmMlk2bF7IcOF8gCgfvgMCMXXXDlYEE'
@@ -61,7 +61,7 @@ RSpec.describe(Authentication::AuthnOidc::V2::Client) do
 
     context 'when code has previously been used' do
       it 'raise an exception' do
-        VCR.use_cassette('client_callback-used_code-valid_oidc_credentials') do
+        VCR.use_cassette('authenticators/authn-oidc/v2/client_callback-used_code-valid_oidc_credentials') do
           expect do
             client.callback(
               code: '7wKEGhsN9UEL5MG9EfDJ8KWMToKINzvV29uyPsQZYpo'
