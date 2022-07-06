@@ -12,11 +12,11 @@ module Authentication
           end
 
           annotated_roles = roles.select do |role|
-            role.resource.annotation('authn-oidc/identity').to_s.downcase == identity.to_s.downcase &&
+            role.try(:resource).try(:annotation, 'authn-oidc/identity').to_s.downcase == identity.to_s.downcase &&
               role.id.split(':').first == account
           end
-          raise Errors::Authentication::Security::MultipleRoleMatchesFound, identity if annotated_roles.length > 1
-          raise Errors::Authentication::Security::RoleNotFound, identity unless  annotated_roles.first
+          raise(Errors::Authentication::Security::MultipleRoleMatchesFound, identity) if annotated_roles.length > 1
+          raise(Errors::Authentication::Security::RoleNotFound, identity) if annotated_roles.empty?
 
           annotated_roles.first
         end
