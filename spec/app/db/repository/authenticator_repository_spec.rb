@@ -3,35 +3,120 @@
 require 'spec_helper'
 
 RSpec.describe('DB::Repository::AuthenticatorRepository') do
-  let(:repo) { DB::Repository::AuthenticatorRepository.new(
-    data_object: ::Authenticator::OidcAuthenticator
-  ) }
+  let(:resource_repository) { ::Resource }
 
-  describe('exists method') do
-    context "with missing parameters" do
-      it "returns false with no parameters" do
-        expect(repo.exists?(type: nil, account: nil, service_id: nil)).to eq(false)
-      end
+  let(:repo) do
+    DB::Repository::AuthenticatorRepository.new(
+      resource_repository: resource_repository,
+      data_object: Authentication::AuthnOidc::V2::DataObjects::Authenticator
+    )
+  end
 
-      it "returns false with no type parameter" do
-        expect(repo.exists?(type: nil, account: "rspec", service_id: "abc123")).to eq(false)
-      end
+  let(:arguments) { %i[provider_uri client_id client_secret claim_mapping nonce state] }
 
-      it "returns false with no account parameter" do
-        expect(repo.exists?(type: "oidc", account: nil, service_id: "abc123")).to eq(false)
-      end
-
-      it "returns false with no service_id parameter" do
-        expect(repo.exists?(type: "oidc", account: "rspec", service_id: nil)).to eq(false)
-      end
+  describe('#find_all') do
+    context 'when webservice is not present' do
+      it { expect(repo.find_all(type: 'authn-oidc', account: 'rspec')).to eq([]) }
     end
 
-    context "all params" do
-      it "returns false if the resource doesn't exist" do
-        expect(repo.exists?(type: "oidc", account: "rspec", service_id: "abc123")).to eq(false)
+    context 'when webservices are presents' do
+      let(:services) { %i[foo bar] }
+      before(:each) do
+        services.each do |service|
+          ::Role.create(
+            role_id: "rspec:policy:conjur/authn-oidc/#{service}-abc123"
+          )
+          ::Resource.create(
+            resource_id: "rspec:webservice:conjur/authn-oidc/#{service}-abc123",
+            owner_id: "rspec:policy:conjur/authn-oidc/#{service}-abc123"
+          )
+        end
       end
 
-      it "returns true if the resource does exist" do
+      context 'variables are not loaded' do
+        it { expect(repo.find_all(type: 'authn-oidc', account: 'rspec')).to eq([]) }
+      end
+
+      context 'variables are loaded' do
+        before(:each) do
+          services.each do |service|
+            arguments.each do |variable|
+              ::Resource.create(
+                resource_id: "rspec:variable:conjur/authn-oidc/#{service}-abc123/#{variable}",
+                owner_id: "rspec:policy:conjur/authn-oidc/#{service}-abc123"
+              )
+            end
+          end
+        end
+
+        context 'secrets are not set' do
+          it { expect(repo.find_all(type: 'authn-oidc', account: 'rspec')).to eq([]) }
+        end
+
+        context 'secrets are set' do
+          before(:each) do
+            services.each do |service|
+              arguments.each do |variable|
+                ::Secret.create(
+                  resource_id: "rspec:variable:conjur/authn-oidc/#{service}-abc123/#{variable}",
+                  value: "#{variable}-abc123"
+                )
+              end
+            end
+          end
+
+          let(:authenticators) { repo.find_all(type: 'authn-oidc', account: 'rspec') }
+
+          it { expect(authenticators.length).to eq(2) }
+          it { expect(authenticators.first).to be_kind_of(Authentication::AuthnOidc::V2::DataObjects::Authenticator) }
+          it { expect(authenticators.last).to be_kind_of(Authentication::AuthnOidc::V2::DataObjects::Authenticator) }
+
+          context 'filters invalid authenticators' do
+            before(:each) do
+              ::Role.create(
+                role_id: "rspec:policy:conjur/authn-oidc/baz-abc123"
+              )
+              ::Resource.create(
+                resource_id: "rspec:webservice:conjur/authn-oidc/baz-abc123",
+                owner_id: "rspec:policy:conjur/authn-oidc/baz-abc123"
+              )
+            end
+
+            it { expect(repo.find_all(type: 'authn-oidc', account: 'rspec').length).to eq(2) }
+
+            after(:each) do
+              ::Resource['rspec:webservice:conjur/authn-oidc/baz-abc123'].destroy
+              ::Role['rspec:policy:conjur/authn-oidc/baz-abc123'].destroy
+            end
+          end
+        end
+
+        after(:each) do
+          services.each do |service|
+            arguments.each do |variable|
+              ::Resource["rspec:variable:conjur/authn-oidc/#{service}-abc123/#{variable}"].destroy
+            end
+          end
+        end
+      end
+
+      after(:each) do
+        services.each do |service|
+          ::Resource["rspec:webservice:conjur/authn-oidc/#{service}-abc123"].destroy
+          ::Role["rspec:policy:conjur/authn-oidc/#{service}-abc123"].destroy
+        end
+      end
+
+    end
+  end
+
+  describe('#find') do
+    context 'when webservice is not present' do
+      it { expect(repo.find(type: 'authn-oidc', account: 'rspec', service_id: 'abc123')).to be(nil) }
+    end
+
+    context 'when webservice is present' do
+      before(:each) do
         ::Role.create(
           role_id: "rspec:policy:conjur/authn-oidc/abc123"
         )
@@ -39,38 +124,61 @@ RSpec.describe('DB::Repository::AuthenticatorRepository') do
           resource_id: "rspec:webservice:conjur/authn-oidc/abc123",
           owner_id: "rspec:policy:conjur/authn-oidc/abc123"
         )
-        expect(repo.exists?(type: "authn-oidc", account: "rspec", service_id: "abc123")).to eq(true)
+      end
+
+      context 'when no variables are set' do
+        it { expect(repo.find(type: 'authn-oidc', account: 'rspec', service_id: 'abc123')).to be(nil) }
+      end
+
+      context 'when all variables are present' do
+        before(:each) do
+          arguments.each do |variable|
+            ::Resource.create(
+              resource_id: "rspec:variable:conjur/authn-oidc/abc123/#{variable}",
+              owner_id: "rspec:policy:conjur/authn-oidc/abc123"
+            )
+          end
+        end
+
+        context 'are empty' do
+          it { expect(repo.find(type: 'authn-oidc', account: 'rspec', service_id: 'abc123')).to be(nil) }
+        end
+
+        context 'are set' do
+          before(:each) do
+            arguments.each do |variable|
+              ::Secret.create(
+                resource_id: "rspec:variable:conjur/authn-oidc/abc123/#{variable}",
+                value: "#{variable}-abc123"
+              )
+            end
+          end
+
+          let(:authenticator) { repo.find(type: 'authn-oidc', account: 'rspec', service_id: 'abc123') }
+
+          it { expect(authenticator).to be_truthy }
+          it { expect(authenticator).to be_kind_of(Authentication::AuthnOidc::V2::DataObjects::Authenticator) }
+          it { expect(authenticator.account).to eq('rspec') }
+          it { expect(authenticator.service_id).to eq('abc123') }
+        end
+
+        after(:each) do
+          arguments.each do |variable|
+            ::Resource["rspec:variable:conjur/authn-oidc/abc123/#{variable}"].destroy
+          end
+        end
+      end
+
+      after(:each) do
+        ::Resource['rspec:webservice:conjur/authn-oidc/abc123'].destroy
+        ::Role['rspec:policy:conjur/authn-oidc/abc123'].destroy
       end
     end
   end
 
-  describe("find_all") do
-    context "missing parameters" do
-      it "returns an empty array with no parameters" do
-        expect(repo.find_all(type: nil, account: nil)).to eq([])
-      end
-
-      it "returns an empty array with no type parameter" do
-        expect(repo.find_all(type: nil, account: "rspec")).to eq([])
-      end
-
-      it "returns an empty array with no account parameter" do
-        expect(repo.find_all(type: "authn-oidc", account: nil)).to eq([])
-      end
-
-      it "returns an empty array with no service_id parameter" do
-        expect(repo.find_all(type: "authn-oidc", account: "rspec")).to eq([])
-      end
-    end
-
-    context "no variables are set" do
-      it "returns an empty array when the authenticator doesn't exist" do
-        expect(repo.find_all(type: "authn-oidc", account: "rspec")).to eq([])
-      end
-    end
-
-    context "no variables are set" do
-      before do
+  describe('#exists?') do
+    context 'when webservice is present' do
+      before(:context) do
         ::Role.create(
           role_id: "rspec:policy:conjur/authn-oidc/abc123"
         )
@@ -80,371 +188,22 @@ RSpec.describe('DB::Repository::AuthenticatorRepository') do
         )
       end
 
-      it "returns a v2 authenticator with all properties set" do
-        authenticators = repo.find_all(type: "authn-oidc", account: "rspec")
-        authenticator = authenticators.find{ |authn| authn.service_id == "abc123"}
-        expect(authenticator).to be_truthy
-        expect(authenticator.class.to_s).to eq("Authenticator::OidcAuthenticator")
-        expect(authenticator.account).to eq("rspec")
-        expect(authenticator.service_id).to eq("abc123")
-        expect(authenticator.required_request_parameters).to be_nil
-        expect(authenticator.name).to be_nil
-        expect(authenticator.provider_uri).to be_nil
-        expect(authenticator.response_type).to be_nil
-        expect(authenticator.client_id).to be_nil
-        expect(authenticator.client_secret).to be_nil
-        expect(authenticator.claim_mapping).to be_nil
-        expect(authenticator.state).to be_nil
-        expect(authenticator.nonce).to be_nil
-        expect(authenticator.redirect_uri).to be_nil
-        expect(authenticator.is_valid?).to be_falsey
-        expect(authenticator.version).to be_nil
+      it { expect(repo.exists?(type: 'authn-oidc', account: 'rspec', service_id: 'abc123')).to be_truthy }
+      it { expect(repo.exists?(type: nil, account: 'rspec', service_id: 'abc123')).to be_falsey }
+      it { expect(repo.exists?(type: 'authn-oidc', account: nil, service_id: 'abc123')).to be_falsey }
+      it { expect(repo.exists?(type: 'authn-oidc', account: 'rspec', service_id: nil)).to be_falsey }
+
+      after(:context) do
+        ::Resource['rspec:webservice:conjur/authn-oidc/abc123'].destroy
+        ::Role['rspec:policy:conjur/authn-oidc/abc123'].destroy
       end
     end
 
-    context "variables are set no secrets created" do
-      before do
-        ::Role.create(
-          role_id: "rspec:policy:conjur/authn-oidc/abc123"
-        )
-        ::Resource.create(
-          resource_id: "rspec:webservice:conjur/authn-oidc/abc123",
-          owner_id: "rspec:policy:conjur/authn-oidc/abc123"
-        )
-        ::Role.create(
-          role_id: "rspec:webservice:conjur/authn-oidc/abc123"
-        )
-
-        %i[required_request_parameters name provider_uri response_type
-           client_id client_secret claim_mapping state nonce redirect_uri]
-          .each do |variable|
-          ::Resource.create(
-            resource_id: "rspec:variable:conjur/authn-oidc/abc123/#{variable}",
-            owner_id: "rspec:webservice:conjur/authn-oidc/abc123"
-          )
-        end
-      end
-
-      it "returns a v2 authenticator with all properties set" do
-        authenticators = repo.find_all(type: "authn-oidc", account: "rspec")
-        authenticator = authenticators.find{ |authn| authn.service_id == "abc123"}
-        expect(authenticator).to be_truthy
-        expect(authenticator.class.to_s).to eq("Authenticator::OidcAuthenticator")
-        expect(authenticator.account).to eq("rspec")
-        expect(authenticator.service_id).to eq("abc123")
-        expect(authenticator.required_request_parameters).to be_nil
-        expect(authenticator.name).to be_nil
-        expect(authenticator.provider_uri).to be_nil
-        expect(authenticator.response_type).to be_nil
-        expect(authenticator.client_id).to be_nil
-        expect(authenticator.client_secret).to be_nil
-        expect(authenticator.claim_mapping).to be_nil
-        expect(authenticator.state).to be_nil
-        expect(authenticator.nonce).to be_nil
-        expect(authenticator.redirect_uri).to be_nil
-        expect(authenticator.is_valid?).to be_falsey
-        expect(authenticator.version).to be_nil
-      end
-    end
-
-    context "variables are set with secrets created for a v2 authenticator" do
-      before do
-        ::Role.create(
-          role_id: "rspec:policy:conjur/authn-oidc/abc123"
-        )
-        ::Resource.create(
-          resource_id: "rspec:webservice:conjur/authn-oidc/abc123",
-          owner_id: "rspec:policy:conjur/authn-oidc/abc123"
-        )
-        ::Role.create(
-          role_id: "rspec:webservice:conjur/authn-oidc/abc123"
-        )
-
-        %i[required_request_parameters name provider_uri response_type
-           client_id client_secret claim_mapping state nonce redirect_uri scope]
-          .each do |variable|
-          ::Resource.create(
-            resource_id: "rspec:variable:conjur/authn-oidc/abc123/#{variable}",
-            owner_id: "rspec:webservice:conjur/authn-oidc/abc123"
-          )
-          ::Secret.create(
-            resource_id: "rspec:variable:conjur/authn-oidc/abc123/#{variable}",
-            value: "#{variable}abc123"
-          )
-        end
-      end
-
-      it "returns a v2 authenticator with all properties set" do
-        authenticators = repo.find_all(type: "authn-oidc", account: "rspec")
-        authenticator = authenticators.find{ |authn| authn.service_id == "abc123"}
-        expect(authenticator).to be_truthy
-        expect(authenticator.class.to_s).to eq("Authenticator::OidcAuthenticator")
-        expect(authenticator.account).to eq("rspec")
-        expect(authenticator.service_id).to eq("abc123")
-        expect(authenticator.required_request_parameters).to be_truthy
-        expect(authenticator.required_request_parameters[0]).to eq("required_request_parametersabc123")
-        expect(authenticator.name).to eq("nameabc123")
-        expect(authenticator.provider_uri).to eq("provider_uriabc123")
-        expect(authenticator.response_type).to eq("response_typeabc123")
-        expect(authenticator.client_id).to eq("client_idabc123")
-        expect(authenticator.client_secret).to eq("client_secretabc123")
-        expect(authenticator.claim_mapping).to eq("claim_mappingabc123")
-        expect(authenticator.state).to eq("stateabc123")
-        expect(authenticator.nonce).to eq("nonceabc123")
-        expect(authenticator.redirect_uri).to eq("redirect_uriabc123")
-        expect(authenticator.scope).to eq("scopeabc123")
-        expect(authenticator.is_valid?).to be_truthy
-        expect(authenticator.version).to eq(Authenticator::OidcAuthenticator::AUTH_VERSION_2)
-      end
-    end
-
-    context "variables are set with secrets created for a v1 authenticator" do
-      before do
-        ::Role.create(
-          role_id: "rspec:policy:conjur/authn-oidc/abc123"
-        )
-        ::Resource.create(
-          resource_id: "rspec:webservice:conjur/authn-oidc/abc123",
-          owner_id: "rspec:policy:conjur/authn-oidc/abc123"
-        )
-        ::Role.create(
-          role_id: "rspec:webservice:conjur/authn-oidc/abc123"
-        )
-
-        %i[provider_uri id_token_user_property]
-          .each do |variable|
-          ::Resource.create(
-            resource_id: "rspec:variable:conjur/authn-oidc/abc123/#{variable}",
-            owner_id: "rspec:webservice:conjur/authn-oidc/abc123"
-          )
-          ::Secret.create(
-            resource_id: "rspec:variable:conjur/authn-oidc/abc123/#{variable}",
-            value: "#{variable}abc123"
-          )
-        end
-      end
-
-      it "returns a v2 authenticator with all properties set" do
-        authenticators = repo.find_all(type: "authn-oidc", account: "rspec")
-        authenticator = authenticators.find{ |authn| authn.service_id == "abc123"}
-        expect(authenticator).to be_truthy
-        expect(authenticator.class.to_s).to eq("Authenticator::OidcAuthenticator")
-        expect(authenticator.account).to eq("rspec")
-        expect(authenticator.service_id).to eq("abc123")
-        expect(authenticator.required_request_parameters).to be_truthy
-        expect(authenticator.required_request_parameters[0]).to eq(:credentials)
-        expect(authenticator.name).to be_nil
-        expect(authenticator.provider_uri).to eq("provider_uriabc123")
-        expect(authenticator.response_type).to be_nil
-        expect(authenticator.client_id).to be_nil
-        expect(authenticator.client_secret).to be_nil
-        expect(authenticator.claim_mapping).to eq("id_token_user_propertyabc123")
-        expect(authenticator.state).to be_nil
-        expect(authenticator.nonce).to be_nil
-        expect(authenticator.redirect_uri).to be_nil
-        expect(authenticator.is_valid?).to be_truthy
-        expect(authenticator.version).to eq(Authenticator::OidcAuthenticator::AUTH_VERSION_1)
-      end
-    end
-  end
-
-  describe("find") do
-    context "missing parameters" do
-      it "returns nil with no parameters" do
-        expect(repo.find(type: nil, account: nil, service_id: nil)).to be_nil
-      end
-
-      it "returns nil with no type parameter" do
-        expect(repo.find(type: nil, account: "rspec", service_id: "abc123")).to be_nil
-      end
-
-      it "returns nil with no account parameter" do
-        expect(repo.find(type: "authn-oidc", account: nil, service_id: "abc123")).to be_nil
-      end
-
-      it "returns nil with no service_id parameter" do
-        expect(repo.find(type: "authn-oidc", account: "rspec", service_id: nil)).to be_nil
-      end
-    end
-
-    context "no variables are set" do
-      it "returns nil when the authenticator doesn't exist" do
-        expect(repo.find(type: "authn-oidc", account: "rspec", service_id: "abc123")).to be_nil
-      end
-    end
-
-    context "no variables are set" do
-      before do
-        ::Role.create(
-          role_id: "rspec:policy:conjur/authn-oidc/abc123"
-        )
-        ::Resource.create(
-          resource_id: "rspec:webservice:conjur/authn-oidc/abc123",
-          owner_id: "rspec:policy:conjur/authn-oidc/abc123"
-        )
-      end
-
-      it "returns an authenticator with no variables set" do
-        authenticator = repo.find(type: "authn-oidc", account: "rspec", service_id: "abc123")
-        expect(authenticator).to be_truthy
-        expect(authenticator.class.to_s).to eq("Authenticator::OidcAuthenticator")
-        expect(authenticator.account).to eq("rspec")
-        expect(authenticator.service_id).to eq("abc123")
-        expect(authenticator.required_request_parameters).to be_nil
-        expect(authenticator.name).to be_nil
-        expect(authenticator.provider_uri).to be_nil
-        expect(authenticator.response_type).to be_nil
-        expect(authenticator.client_id).to be_nil
-        expect(authenticator.client_secret).to be_nil
-        expect(authenticator.claim_mapping).to be_nil
-        expect(authenticator.state).to be_nil
-        expect(authenticator.nonce).to be_nil
-        expect(authenticator.redirect_uri).to be_nil
-        expect(authenticator.is_valid?).to be_falsey
-        expect(authenticator.version).to be_nil
-      end
-    end
-
-    context "variables are set no secrets created" do
-      before do
-        ::Role.create(
-          role_id: "rspec:policy:conjur/authn-oidc/abc123"
-        )
-        ::Resource.create(
-          resource_id: "rspec:webservice:conjur/authn-oidc/abc123",
-          owner_id: "rspec:policy:conjur/authn-oidc/abc123"
-        )
-        ::Role.create(
-          role_id: "rspec:webservice:conjur/authn-oidc/abc123"
-        )
-
-        %i[required_request_parameters name provider_uri response_type
-           client_id client_secret claim_mapping state nonce redirect_uri]
-          .each do |variable|
-          ::Resource.create(
-            resource_id: "rspec:variable:conjur/authn-oidc/abc123/#{variable}",
-            owner_id: "rspec:webservice:conjur/authn-oidc/abc123"
-          )
-        end
-      end
-
-      it "returns an authenticator with no variables set" do
-        authenticator = repo.find(type: "authn-oidc", account: "rspec", service_id: "abc123")
-        expect(authenticator).to be_truthy
-        expect(authenticator.class.to_s).to eq("Authenticator::OidcAuthenticator")
-        expect(authenticator.account).to eq("rspec")
-        expect(authenticator.service_id).to eq("abc123")
-        expect(authenticator.required_request_parameters).to be_nil
-        expect(authenticator.name).to be_nil
-        expect(authenticator.provider_uri).to be_nil
-        expect(authenticator.response_type).to be_nil
-        expect(authenticator.client_id).to be_nil
-        expect(authenticator.client_secret).to be_nil
-        expect(authenticator.claim_mapping).to be_nil
-        expect(authenticator.state).to be_nil
-        expect(authenticator.nonce).to be_nil
-        expect(authenticator.redirect_uri).to be_nil
-        expect(authenticator.is_valid?).to be_falsey
-        expect(authenticator.version).to be_nil
-      end
-    end
-
-    context "variables are set with secrets created for a v2 authenticator" do
-      before do
-        ::Role.create(
-          role_id: "rspec:policy:conjur/authn-oidc/abc123"
-        )
-        ::Resource.create(
-          resource_id: "rspec:webservice:conjur/authn-oidc/abc123",
-          owner_id: "rspec:policy:conjur/authn-oidc/abc123"
-        )
-        ::Role.create(
-          role_id: "rspec:webservice:conjur/authn-oidc/abc123"
-        )
-
-        %i[required_request_parameters name provider_uri response_type
-           client_id client_secret claim_mapping state nonce redirect_uri scope]
-          .each do |variable|
-          ::Resource.create(
-            resource_id: "rspec:variable:conjur/authn-oidc/abc123/#{variable}",
-            owner_id: "rspec:webservice:conjur/authn-oidc/abc123"
-          )
-          ::Secret.create(
-            resource_id: "rspec:variable:conjur/authn-oidc/abc123/#{variable}",
-            value: "#{variable}abc123"
-          )
-        end
-      end
-
-      it "returns a v2 authenticator with all properties set" do
-        authenticator = repo.find(type: "authn-oidc", account: "rspec", service_id: "abc123")
-        expect(authenticator).to be_truthy
-        expect(authenticator.class.to_s).to eq("Authenticator::OidcAuthenticator")
-        expect(authenticator.account).to eq("rspec")
-        expect(authenticator.service_id).to eq("abc123")
-        expect(authenticator.required_request_parameters).to be_truthy
-        expect(authenticator.required_request_parameters[0]).to eq("required_request_parametersabc123")
-        expect(authenticator.name).to eq("nameabc123")
-        expect(authenticator.provider_uri).to eq("provider_uriabc123")
-        expect(authenticator.response_type).to eq("response_typeabc123")
-        expect(authenticator.client_id).to eq("client_idabc123")
-        expect(authenticator.client_secret).to eq("client_secretabc123")
-        expect(authenticator.claim_mapping).to eq("claim_mappingabc123")
-        expect(authenticator.state).to eq("stateabc123")
-        expect(authenticator.nonce).to eq("nonceabc123")
-        expect(authenticator.redirect_uri).to eq("redirect_uriabc123")
-        expect(authenticator.scope).to eq("scopeabc123")
-        expect(authenticator.is_valid?).to be_truthy
-        expect(authenticator.version).to eq(Authenticator::OidcAuthenticator::AUTH_VERSION_2)
-      end
-    end
-
-    context "variables are set with secrets created for a v1 authenticator" do
-      before do
-        ::Role.create(
-          role_id: "rspec:policy:conjur/authn-oidc/abc123"
-        )
-        ::Resource.create(
-          resource_id: "rspec:webservice:conjur/authn-oidc/abc123",
-          owner_id: "rspec:policy:conjur/authn-oidc/abc123"
-        )
-        ::Role.create(
-          role_id: "rspec:webservice:conjur/authn-oidc/abc123"
-        )
-
-        %i[provider_uri id_token_user_property]
-          .each do |variable|
-          ::Resource.create(
-            resource_id: "rspec:variable:conjur/authn-oidc/abc123/#{variable}",
-            owner_id: "rspec:webservice:conjur/authn-oidc/abc123"
-          )
-          ::Secret.create(
-            resource_id: "rspec:variable:conjur/authn-oidc/abc123/#{variable}",
-            value: "#{variable}abc123"
-          )
-        end
-      end
-
-      it "returns a v2 authenticator with all properties set" do
-        authenticator = repo.find(type: "authn-oidc", account: "rspec", service_id: "abc123")
-        expect(authenticator).to be_truthy
-        expect(authenticator.class.to_s).to eq("Authenticator::OidcAuthenticator")
-        expect(authenticator.account).to eq("rspec")
-        expect(authenticator.service_id).to eq("abc123")
-        expect(authenticator.required_request_parameters).to be_truthy
-        expect(authenticator.required_request_parameters[0]).to eq(:credentials)
-        expect(authenticator.name).to be_nil
-        expect(authenticator.provider_uri).to eq("provider_uriabc123")
-        expect(authenticator.response_type).to be_nil
-        expect(authenticator.client_id).to be_nil
-        expect(authenticator.client_secret).to be_nil
-        expect(authenticator.claim_mapping).to eq("id_token_user_propertyabc123")
-        expect(authenticator.state).to be_nil
-        expect(authenticator.nonce).to be_nil
-        expect(authenticator.redirect_uri).to be_nil
-        expect(authenticator.is_valid?).to be_truthy
-        expect(authenticator.version).to eq(Authenticator::OidcAuthenticator::AUTH_VERSION_1)
-      end
+    context 'when webservice is not present' do
+      it { expect(repo.exists?(type: 'authn-oidc', account: 'rspec', service_id: 'abc123')).to be_falsey }
+      it { expect(repo.exists?(type: nil, account: 'rspec', service_id: 'abc123')).to be_falsey }
+      it { expect(repo.exists?(type: 'authn-oidc', account: nil, service_id: 'abc123')).to be_falsey }
+      it { expect(repo.exists?(type: 'authn-oidc', account: 'rspec', service_id: nil)).to be_falsey }
     end
   end
 end
