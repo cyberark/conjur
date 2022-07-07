@@ -42,7 +42,7 @@ Feature: OIDC Authenticator V2 - Users can authenticate with OIDC authenticator
             id: redirect-uri
 
           - !variable
-            id: provider_scope
+            id: provider-scope
 
           - !group users
 
@@ -61,7 +61,7 @@ Feature: OIDC Authenticator V2 - Users can authenticate with OIDC authenticator
         member: !user alice
     """
     And I am the super-user
-    And I successfully set OIDC V2 variables
+    And I successfully set OIDC V2 variables for "keycloak2"
 
   @smoke
   Scenario: A valid code to get Conjur access token
@@ -320,7 +320,7 @@ Feature: OIDC Authenticator V2 - Users can authenticate with OIDC authenticator
     And I authenticate via OIDC V2 with code
     Then it is unauthorized
     # Check recovery to a valid provider uri
-    When I successfully set OIDC V2 variables
+    When I successfully set OIDC V2 variables for "keycloak2"
     And I fetch a code for username "alice" and password "alice"
     And I authenticate via OIDC V2 with code
     Then user "alice" has been authorized by Conjur
