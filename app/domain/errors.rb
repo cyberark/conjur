@@ -231,6 +231,10 @@ module Errors
         code: "CONJ00075E"
       )
 
+      StateMismatch = ::Util::TrackableErrorClass.new(
+        msg: "Provided State does not match the state configured in the OIDC authenticator",
+        code: "CONJ00127E"
+      )
     end
 
     module AuthnIam

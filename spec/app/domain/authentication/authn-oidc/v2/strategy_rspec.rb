@@ -4,23 +4,21 @@ require 'spec_helper'
 
 RSpec.describe(' Authentication::AuthnOidc::V2::Strategy') do
 
+  let(:jwt) { double(raw_attributes: { claim_mapping: "alice" }) }
 
-  let(:jwt) { double(raw_attributes: {claim_mapping: "alice" }) }
-  let(:args) { { state: "foostate", code: "code" } }
-
-  let(:foo) do
-    Authentication::AuthnOidc::V2::DataObjects::Authenticator
-      .new(account: "cucumber",
-           service_id: "foo",
-           redirect_uri: "http://conjur/authn-oidc/cucumber/authenticate",
-           provider_uri: "http://test",
-           name: "foo",
-           state: 'foostate',
-           client_id: "ConjurClient",
-           client_secret: 'client_secret',
-           claim_mapping: mapping,
-           nonce: 'secret',
-           )
+  let(:authenticator) do
+    Authentication::AuthnOidc::V2::DataObjects::Authenticator.new(
+      account: "cucumber",
+      service_id: "foo",
+      redirect_uri: "http://conjur/authn-oidc/cucumber/authenticate",
+      provider_uri: "http://test",
+      name: "foo",
+      state: 'foostate',
+      client_id: "ConjurClient",
+      client_secret: 'client_secret',
+      claim_mapping: mapping,
+      nonce: 'secret'
+    )
   end
 
   let(:client) do
@@ -38,7 +36,7 @@ RSpec.describe(' Authentication::AuthnOidc::V2::Strategy') do
 
   let(:strategy) do
     Authentication::AuthnOidc::V2::Strategy.new(
-      authenticator: foo,
+      authenticator: authenticator,
       client: client
     )
   end
@@ -64,10 +62,8 @@ RSpec.describe(' Authentication::AuthnOidc::V2::Strategy') do
       let(:mapping) { "wrong_mapping" }
       it 'raises an error' do
         expect { strategy.callback({ state: "foostate", code: "code" }) }
-          .to raise_error(
-                Errors::Authentication::AuthnOidc::IdTokenClaimNotFoundOrEmpty)
+          .to raise_error(Errors::Authentication::AuthnOidc::IdTokenClaimNotFoundOrEmpty)
       end
     end
   end
 end
-
