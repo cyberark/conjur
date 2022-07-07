@@ -18,7 +18,7 @@ fi
 # Minimal set of services.  We add to this list based on cmd line flags.
 services=(pg conjur client)
 
-# Authenticators to enable. 
+# Authenticators to enable.
 default_authenticators="authn,authn-k8s/test"
 enabled_authenticators="$default_authenticators"
 
@@ -83,7 +83,7 @@ the Conjur container.  To start the application server, run:
     # conjurctl server
 
 Usage: start [options]
-    --authn-ldap    Starts OpenLDAP server and loads a demo policy to enable 
+    --authn-ldap    Starts OpenLDAP server and loads a demo policy to enable
                     authentication via:
                     'curl -X POST -d "alice" http://localhost:3000/authn-ldap/test/cucumber/alice/authenticate'
     --rotators      Starts a cucumber and test postgres container.
@@ -154,6 +154,7 @@ client_add_secret() {
 configure_oidc_providers() {
   # Start conjur again, since it is recreating by docker-compose because of
   # dependency with keycloak
+
   start_conjur_server
   wait_for_keycloak_server
   fetch_oidc_certificates
@@ -195,15 +196,32 @@ configure_oidc_authenticators() {
   client_add_secret \
     "conjur/authn-oidc/keycloak/id-token-user-property" "preferred_username"
 
+  # Specific for Keycloak Authenticator (for full flow)
+    client_load_policy '/src/conjur-server/dev/policies/authenticators/authn-oidc/keycloak2.yml'
+    client_add_secret 'conjur/authn-oidc/keycloak2/provider-uri' 'https://keycloak:8443/auth/realms/master'
+    client_add_secret 'conjur/authn-oidc/keycloak2/client-id' 'conjurClient'
+    client_add_secret 'conjur/authn-oidc/keycloak2/client-secret' '1234'
+    client_add_secret 'conjur/authn-oidc/keycloak2/claim-mapping' 'email'
+    client_add_secret 'conjur/authn-oidc/keycloak2/nonce' 'af88d8f8ff6631fb4cf0'
+    client_add_secret 'conjur/authn-oidc/keycloak2/state' 'd38e57e0fd47ccffa9c2'
+    client_add_secret 'conjur/authn-oidc/keycloak2/redirect_uri' 'http://localhost:3000/authn-oidc/keycloak2/cucumber/authenticate'
+
+    client_load_policy '/src/conjur-server/dev/policies/authenticators/authn-oidc/keycloak2-users.yml'
+
+
+
   if [[ $ENABLE_OIDC_OKTA = true ]]; then
-    # add variables' values for okta
-    client_load_policy "/src/conjur-server/ci/authn-oidc/policy_okta.yml"
+    # Specific for new OIDC Authenticator
+    client_load_policy '/src/conjur-server/dev/policies/authenticators/authn-oidc/okta-2.yml'
+    client_add_secret 'conjur/authn-oidc/okta-2/provider-uri' 'https://dev-92899796.okta.com/oauth2/default'
+    client_add_secret 'conjur/authn-oidc/okta-2/client-id' '0oa3w3xig6rHiu9yT5d7'
+    client_add_secret 'conjur/authn-oidc/okta-2/client-secret' 'e349BMTTIpLO-rPuPqLLkLyH_pO-loUzhIVJCrHj'
+    client_add_secret 'conjur/authn-oidc/okta-2/claim-mapping' 'preferred_username'
+    client_add_secret 'conjur/authn-oidc/okta-2/nonce' '1656b4264b60af659fce'
+    client_add_secret 'conjur/authn-oidc/okta-2/state' '4f413476ef7e2395f0af'
+    client_add_secret 'conjur/authn-oidc/okta-2/redirect_uri' 'http://localhost:3000/authn-oidc/okta-2/cucumber/authenticate'
 
-    client_add_secret \
-      "conjur/authn-oidc/okta/provider-uri" "https://dev-842018.oktapreview.com"
-
-    client_add_secret \
-      "conjur/authn-oidc/okta/id-token-user-property" "preferred_username"
+    client_load_policy '/src/conjur-server/dev/policies/authenticators/authn-oidc/okta-users.yml'
   fi
 
   if [[ $ENABLE_OIDC_ADFS = true ]]; then
@@ -237,7 +255,7 @@ enable_oidc_authenticators() {
 
   if [[ $ENABLE_OIDC_OKTA = true ]]; then
     echo "Configuring OKTA as OpenID provider for manual testing"
-    enabled_authenticators="$enabled_authenticators,authn-oidc/okta"
+    enabled_authenticators="$enabled_authenticators,authn-oidc/okta,authn-oidc/okta-2"
   fi
 
   if [[ $ENABLE_OIDC_ADFS = true ]]; then
@@ -354,7 +372,7 @@ init_jwt() {
 
 init_oidc() {
   # ADFS and OKTA make no sense without OIDC.
-  if [[ $ENABLE_AUTHN_OIDC = false && 
+  if [[ $ENABLE_AUTHN_OIDC = false &&
     ($ENABLE_OIDC_ADFS = true || $ENABLE_OIDC_OKTA = true) ]]
   then
     echo "Error: --oidc-adfs and --oidc-okta both require --authn-oidc"

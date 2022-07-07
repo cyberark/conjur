@@ -123,9 +123,9 @@ services:
       - KEYCLOAK_APP_USER=alice
       - KEYCLOAK_APP_USER_PASSWORD=alice
       - KEYCLOAK_APP_USER_EMAIL=alice@conjur.net
-      - KEYCLOAK_SECOND_APP_USER=bob
+      - KEYCLOAK_SECOND_APP_USER=bob.somebody@cyberark.com
       - KEYCLOAK_SECOND_APP_USER_PASSWORD=bob
-      - KEYCLOAK_SECOND_APP_USER_EMAIL=bob@conjur.net
+      - KEYCLOAK_SECOND_APP_USER_EMAIL=bob.somebody@cyberark.com
       - KEYCLOAK_NON_CONJUR_APP_USER=not_in_conjur
       - KEYCLOAK_NON_CONJUR_APP_USER_PASSWORD=not_in_conjur
       - KEYCLOAK_NON_CONJUR_APP_USER_EMAIL=not_in_conjur

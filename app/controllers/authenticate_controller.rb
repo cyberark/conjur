@@ -4,6 +4,25 @@ class AuthenticateController < ApplicationController
   include BasicAuthenticator
   include AuthorizeResource
 
+  def authenticate_okta
+    # TODO: need a mechanism for an authenticator strategy to define the required
+    # params. This will likely need to be done via the Handler.
+    params.permit!
+
+    auth_token = Authentication::Handler::AuthenticationHandler.new(
+      authenticator_type: params[:authenticator]
+    ).call(
+      parameters: params.to_hash.symbolize_keys,
+      request_ip: request.ip
+    )
+
+    render_authn_token(auth_token)
+    Rails.logger.debug("AuthenticateController#authenticate_okta - authentication token: #{auth_token.inspect}")
+  rescue => e
+    log_backtrace(e)
+    raise e
+  end
+
   def index
     authenticators = {
       # Installed authenticator plugins
@@ -126,6 +145,7 @@ class AuthenticateController < ApplicationController
 
     render_authn_token(auth_token)
   rescue => e
+    log_backtrace(e)
     handle_oidc_authentication_error(e)
   end
 
@@ -272,8 +292,14 @@ class AuthenticateController < ApplicationController
     when Errors::Authentication::Security::RoleNotAuthorizedOnResource
       raise Forbidden
 
+    when Errors::Conjur::RequestedResourceNotFound
+      raise RecordNotFound.new(err.message)
+
     when Errors::Authentication::RequestBody::MissingRequestParam
       raise BadRequest
+
+    when Errors::Conjur::RequestedResourceNotFound
+      raise RecordNotFound.new(err.message)
 
     when Errors::Authentication::Jwt::TokenExpired
       raise Unauthorized.new(err.message, true)
@@ -285,6 +311,9 @@ class AuthenticateController < ApplicationController
       Errors::Authentication::AuthnK8s::CertMissingCNEntry
       raise ArgumentError
 
+    when Rack::OAuth2::Client::Error
+      raise BadRequest
+
     else
       raise Unauthorized
     end
@@ -293,27 +322,34 @@ class AuthenticateController < ApplicationController
   def handle_oidc_authentication_error(err)
     authentication_error = LogMessages::Authentication::AuthenticationError.new(err.inspect)
     logger.warn(authentication_error)
-    log_backtrace(err)
 
     case err
     when Errors::Authentication::Security::RoleNotAuthorizedOnResource
-      raise Forbidden
+      raise ApplicationController::Forbidden
 
     when Errors::Authentication::RequestBody::MissingRequestParam,
-      Errors::Authentication::AuthnOidc::TokenVerificationFailed,
-      Errors::Authentication::AuthnOidc::StateMismatch,
-      Errors::Authentication::Security::RoleNotFound,
-      Rack::OAuth2::Client::Error
-      raise BadRequest
+      Errors::Authentication::AuthnOidc::TokenVerificationFailed
+      raise ApplicationController::BadRequest
 
     when Errors::Conjur::RequestedResourceNotFound
-      raise RecordNotFound.new(err.message)
+      raise ApplicationController::RecordNotFound.new(err.message)
+
+    when Errors::Authentication::AuthnOidc::IdTokenClaimNotFoundOrEmpty
+      raise ApplicationController::Unauthorized
 
     when Errors::Authentication::Jwt::TokenExpired
-      raise Unauthorized.new(err.message, true)
+      raise ApplicationController::Unauthorized.new(err.message, true)
+
+    when Errors::Authentication::AuthnOidc::StateMismatch,
+      Errors::Authentication::Security::RoleNotFound
+      raise ApplicationController::BadRequest
+
+      # Code value mismatch
+    when Rack::OAuth2::Client::Error
+      raise ApplicationController::BadRequest
 
     else
-      raise Unauthorized
+      raise ApplicationController::Unauthorized
     end
   end
 

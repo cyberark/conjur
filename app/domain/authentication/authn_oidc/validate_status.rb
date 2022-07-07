@@ -5,7 +5,9 @@ module Authentication
       dependencies: {
         fetch_authenticator_secrets: Authentication::Util::FetchAuthenticatorSecrets.new,
         discover_identity_provider: Authentication::OAuth::DiscoverIdentityProvider.new,
-        authenticator_repository: ::DB::Repository::AuthenticatorRepository.new
+        authenticator_repository: ::DB::Repository::AuthenticatorRepository.new(
+          data_object: ::Authentication::AuthnOidc::V2::DataObjects::Authenticator
+        )
       },
       inputs: %i[account service_id]
     ) do
@@ -31,16 +33,18 @@ module Authentication
 
       def validate_secrets
         oidc_authenticator_secrets
-        validate_secret_values if v2?
+        validate_secret_values
       end
 
       def validate_secret_values
-        verify_secret("scope", scopes)
+        verify_secret("provider-scope", scopes)
         verify_secret("claim-mapping", profile_claims)
         verify_secret("response-type", response_types)
       end
 
       def verify_secret(name, possible_values)
+        puts oidc_authenticator_secrets.to_s
+        puts name
         oidc_authenticator_secrets[name].split.each do |value|
           raise Errors::Authentication::AuthnOidc::InvalidVariableValue.new(name, value) unless possible_values.include?(value)
         end
@@ -68,11 +72,8 @@ module Authentication
       end
 
       def required_variable_names
-        @required_variable_names ||= if v2?
-          %w[provider-uri name response-type client-id client-secret claim-mapping state nonce redirect-uri scope]
-        else
-          %w[provider-uri id-token-user-property]
-        end
+        @required_variable_names ||=
+          %w[provider-uri provider-scope response-type client-id client-secret claim-mapping state nonce]
       end
 
       def validate_provider_is_responsive
@@ -86,12 +87,9 @@ module Authentication
       end
 
       def type
-        'oidc'
+        'authn-oidc'
       end
 
-      def v2?
-        authenticator_version == ::Authenticator::OidcAuthenticator::AUTH_VERSION_2
-      end
 
       # Defined in OpenID Connect core specification section 5.1
       def profile_claims

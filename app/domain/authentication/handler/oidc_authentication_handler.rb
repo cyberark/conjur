@@ -3,11 +3,14 @@ require_relative '../../../models/authenticator/oidc_authenticator'
 
 module Authentication
   module Handler
-    class OidcAuthenticationHandler < AuthenticationHandler
+    class OidcAuthenticationHandler < OldHandler
       def initialize(
-        authenticator_repository: ::DB::Repository::AuthenticatorRepository.new,
+        authenticator_repository: ::DB::Repository::AuthenticatorRepository.new(
+          data_object: ::Authenticator::OidcAuthenticator
+        ),
         token_factory: TokenFactory.new,
         role_repository_class: ::Role,
+        role_repo: ::DB::Repository::RoleRepository.new,
         resource_repository_class: ::Resource,
         json: ::JSON::JWT,
         oidc_util: nil
@@ -55,7 +58,30 @@ module Authentication
       end
 
       def type
-        'oidc'
+        return 'authn-oidc'
+      end
+
+
+      def generate_token(account, identity)
+        @token_factory.signed_token(
+          account: account,
+          username: conjur_identity(
+            account: account,
+            id: identity,
+            prefix: "authn-oidc"
+          )
+        )
+      end
+
+      def conjur_identity(account:, id:, prefix:)
+        role = fetch_conjur_role(
+          account: account,
+          identity: id,
+          prefix: prefix
+        )
+        return id unless role
+
+        role.role_id.split(':').last
       end
 
       def oidc_util(authenticator)

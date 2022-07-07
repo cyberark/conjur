@@ -33,6 +33,9 @@ Rails.application.routes.draw do
           post '/:authenticator(/:service_id)/:account/:id/authenticate' => 'authenticate#authenticate'
         end
 
+        # New OIDC endpoint
+        get '/:authenticator(/:service_id)/:account/authenticate' => 'authenticate#authenticate_okta'
+
         post '/authn-gcp/:account/authenticate' => 'authenticate#authenticate_gcp'
         post '/authn-oidc(/:service_id)/:account/authenticate' => 'authenticate#authenticate_oidc'
         post '/authn-jwt/:service_id/:account(/:id)/authenticate' => 'authenticate#authenticate_jwt'
@@ -63,7 +66,7 @@ Rails.application.routes.draw do
       get     "/resources/:account"                   => "resources#index"
       get     "/resources"                            => "resources#index"
 
-      get     "/authn-oidc/:account/providers"              => "authenticators/oidc/providers#index"
+      get     "/:authenticator/:account/providers"  => "providers#index"
 
       # NOTE: the order of these routes matters: we need the expire
       #       route to come first.
