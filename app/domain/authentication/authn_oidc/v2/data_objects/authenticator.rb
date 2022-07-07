@@ -8,9 +8,6 @@ module Authentication
           attr_reader :provider_uri, :client_id, :client_secret, :claim_mapping, :nonce, :state, :account
           attr_reader :service_id, :redirect_uri, :response_type
 
-          # optional
-          attr_reader :name
-
           def initialize(
             provider_uri:,
             client_id:,
