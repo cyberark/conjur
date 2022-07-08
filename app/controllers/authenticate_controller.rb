@@ -132,23 +132,22 @@ class AuthenticateController < ApplicationController
 
   # Update the input to have the username from the token and authenticate
   def authenticate_oidc
-    auth_token = Authentication::Handler::OidcAuthenticationHandler.authenticate(
-      service_id: params[:service_id],
-      account: params[:account],
-      parameters: {
-        state: params[:state],
-        client_ip: request.ip,
-        credentials: request.body.read,
-        code: params[:code]
-      }
+    params[:authenticator] = "authn-oidc"
+    input = Authentication::AuthnOidc::UpdateInputWithUsernameFromIdToken.new.(
+      authenticator_input: authenticator_input
     )
-
-    render_authn_token(auth_token)
+    # We don't audit success here as the authentication process is not done
   rescue => e
-    log_backtrace(e)
-    handle_oidc_authentication_error(e)
+    # At this point authenticator_input.username is always empty (e.g. cucumber:user:USERNAME_MISSING)
+    log_audit_failure(
+      authn_params: authenticator_input,
+      audit_event_class: Audit::Event::Authn::Authenticate,
+      error: e
+    )
+    handle_authentication_error(e)
+  else
+    authenticate(input)
   end
-
   def authenticate_gcp
     params[:authenticator] = "authn-gcp"
     input = Authentication::AuthnGcp::UpdateAuthenticatorInput.new.(
@@ -316,40 +315,6 @@ class AuthenticateController < ApplicationController
 
     else
       raise Unauthorized
-    end
-  end
-
-  def handle_oidc_authentication_error(err)
-    authentication_error = LogMessages::Authentication::AuthenticationError.new(err.inspect)
-    logger.warn(authentication_error)
-
-    case err
-    when Errors::Authentication::Security::RoleNotAuthorizedOnResource
-      raise ApplicationController::Forbidden
-
-    when Errors::Authentication::RequestBody::MissingRequestParam,
-      Errors::Authentication::AuthnOidc::TokenVerificationFailed
-      raise ApplicationController::BadRequest
-
-    when Errors::Conjur::RequestedResourceNotFound
-      raise ApplicationController::RecordNotFound.new(err.message)
-
-    when Errors::Authentication::AuthnOidc::IdTokenClaimNotFoundOrEmpty
-      raise ApplicationController::Unauthorized
-
-    when Errors::Authentication::Jwt::TokenExpired
-      raise ApplicationController::Unauthorized.new(err.message, true)
-
-    when Errors::Authentication::AuthnOidc::StateMismatch,
-      Errors::Authentication::Security::RoleNotFound
-      raise ApplicationController::BadRequest
-
-      # Code value mismatch
-    when Rack::OAuth2::Client::Error
-      raise ApplicationController::BadRequest
-
-    else
-      raise ApplicationController::Unauthorized
     end
   end
 
