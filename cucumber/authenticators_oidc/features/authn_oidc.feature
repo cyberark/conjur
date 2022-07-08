@@ -73,21 +73,21 @@ Feature: OIDC Authenticator - Hosts can authenticate with OIDC authenticator
   Scenario: Adding a group to keycloak/users group permits users to authenticate
     Given I extend the policy with:
     """
-    - !user bob
+    - !user bob.somebody
 
     - !group more-users
 
     - !grant
       role: !group more-users
-      member: !user bob
+      member: !user bob.somebody
 
     - !grant
       role: !group conjur/authn-oidc/keycloak/users
       member: !group more-users
     """
-    And I fetch an ID Token for username "bob" and password "bob"
+    And I fetch an ID Token for username "bob.somebody" and password "bob"
     When I authenticate via OIDC with id token
-    Then user "bob" has been authorized by Conjur
+    Then user "bob.somebody" has been authorized by Conjur
 
   @negative @acceptance
   Scenario: Non-existing username in ID token is denied
@@ -108,9 +108,9 @@ Feature: OIDC Authenticator - Hosts can authenticate with OIDC authenticator
   Scenario: User that is not permitted to webservice in ID token is denied
     Given I extend the policy with:
     """
-    - !user bob
+    - !user bob.somebody
     """
-    And I fetch an ID Token for username "bob" and password "bob"
+    And I fetch an ID Token for username "bob.somebody" and password "bob"
     And I save my place in the log file
     When I authenticate via OIDC with id token
     Then it is forbidden
@@ -225,15 +225,15 @@ Feature: OIDC Authenticator - Hosts can authenticate with OIDC authenticator
   Scenario: Authentication failure is written to the audit log
     Given I extend the policy with:
     """
-    - !user bob
+    - !user bob.somebody
     """
-    And I fetch an ID Token for username "bob" and password "bob"
+    And I fetch an ID Token for username "bob.somebody" and password "bob"
     And I save my place in the audit log file
     When I authenticate via OIDC with id token
     Then it is forbidden
     And The following appears in the audit log after my savepoint:
     """
-    cucumber:user:bob failed to authenticate with authenticator authn-oidc service cucumber:webservice:conjur/authn-oidc/keycloak
+    cucumber:user:bob.somebody failed to authenticate with authenticator authn-oidc service cucumber:webservice:conjur/authn-oidc/keycloak
     """
 
   @negative @acceptance
