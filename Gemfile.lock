@@ -202,7 +202,11 @@ GEM
       dry-logic (~> 1.0, >= 1.0.2)
     erubi (1.10.0)
     event_emitter (0.2.6)
+    eventmachine (1.2.7)
     excon (0.91.0)
+    faye-websocket (0.11.1)
+      eventmachine (>= 0.12.0)
+      websocket-driver (>= 0.5.1)
     ffi (1.15.4)
     ffi-compiler (1.0.1)
       ffi (>= 1.0.0)
@@ -485,6 +489,7 @@ DEPENDENCIES
   dry-struct
   dry-types
   event_emitter
+  faye-websocket
   ffi (>= 1.9.24)
   gli
   haikunator (~> 1)

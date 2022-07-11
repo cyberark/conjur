@@ -113,7 +113,6 @@ module Authentication
 
       def ws_exec_url
         api_uri = kube_client.api_endpoint.clone # contains /api path prefix
-        api_uri.scheme = "wss"
 
         # append pod exec path
         api_uri.path += "/v1/namespaces/#{@pod_namespace}/pods/#{@pod_name}/exec"

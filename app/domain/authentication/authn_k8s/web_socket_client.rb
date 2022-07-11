@@ -25,9 +25,10 @@ module Authentication
 
         @url = url
         uri = URI.parse(url)
+        is_secure_connection = %w[https wss].include?(uri.scheme)
         @socket = TCPSocket.new(uri.host,
-                                uri.port || (uri.scheme == 'wss' ? 443 : 80))
-        if %w[https wss].include?(uri.scheme)
+                                uri.port || (is_secure_connection ? 443 : 80))
+        if is_secure_connection
           ctx = OpenSSL::SSL::SSLContext.new
           ssl_version = options[:ssl_version]
           ctx.ssl_version = ssl_version if ssl_version
