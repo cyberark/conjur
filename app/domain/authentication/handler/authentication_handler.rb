@@ -9,12 +9,14 @@ module Authentication
         resource: ::Resource,
         authn_repo: DB::Repository::AuthenticatorRepository,
         namespace_selector: Authentication::Util::NamespaceSelector,
-        logger: Rails.logger
+        logger: Rails.logger,
+        authentication_error: LogMessages::Authentication::AuthenticationError
       )
         @role = role
         @resource = resource
         @authenticator_type = authenticator_type
         @logger = logger
+        @authentication_error = authentication_error
 
         # Dynamically load authenticator specific classes
         namespace = namespace_selector.select(
@@ -38,7 +40,12 @@ module Authentication
           service_id: parameters[:service_id]
         )
 
-        raise Errors::Conjur::RequestedResourceNotFound, "Unable to find authenticator with account: #{parameters[:account]} and service-id: #{parameters[:service_id]}" unless authenticator != nil
+        if authenticator.nil?
+          raise(
+            Errors::Conjur::RequestedResourceNotFound,
+            "Unable to find authenticator with account: #{parameters[:account]} and service-id: #{parameters[:service_id]}"
+          )
+        end
 
         role = @identity_resolver.new.call(
           identity: @strategy.new(
@@ -51,6 +58,7 @@ module Authentication
           ).all
         )
 
+        # TODO: Add an error message
         raise 'failed to authenticate' unless role
 
         unless role.valid_origin?(request_ip)
@@ -63,14 +71,14 @@ module Authentication
           account: parameters[:account],
           username: role.role_id.split(':').last
         )
-      rescue => e
+      rescue e
         log_audit_failure(parameters[:account], parameters[:service_id], request_ip, @authenticator_type, e)
-        handle_oidc_authentication_error(e)
+        handle_error(e)
       end
 
-      def handle_oidc_authentication_error(err)
-        authentication_error = LogMessages::Authentication::AuthenticationError.new(err.inspect)
-        @logger.warn(authentication_error)
+      def handle_error(err)
+        # authentication_error = LogMessages::Authentication::AuthenticationError.new(err.inspect)
+        @logger.warn(@authentication_error.new(err))
 
         puts authentication_error
         puts authentication_error
