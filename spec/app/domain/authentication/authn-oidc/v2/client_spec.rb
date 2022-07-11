@@ -18,11 +18,9 @@ RSpec.describe(Authentication::AuthnOidc::V2::Client) do
   end
 
   let(:client) do
-    VCR.use_cassette('authenticators/authn-oidc/v2/client') do
-      Authentication::AuthnOidc::V2::Client.new(
-        authenticator: authenticator
-      )
-    end
+    Authentication::AuthnOidc::V2::Client.new(
+      authenticator: authenticator
+    )
   end
 
   describe '.callback' do
