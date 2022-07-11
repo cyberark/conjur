@@ -71,18 +71,13 @@ module Authentication
           account: parameters[:account],
           username: role.role_id.split(':').last
         )
-      rescue e
+      rescue => e
         log_audit_failure(parameters[:account], parameters[:service_id], request_ip, @authenticator_type, e)
         handle_error(e)
       end
 
       def handle_error(err)
-        # authentication_error = LogMessages::Authentication::AuthenticationError.new(err.inspect)
         @logger.warn(@authentication_error.new(err))
-
-        puts authentication_error
-        puts authentication_error
-        puts Errors::Authentication::Security::RoleNotFound
         case err
         when Errors::Authentication::Security::RoleNotAuthorizedOnResource
           puts "Errors::Authentication::Security::RoleNotAuthorizedOnResource"
