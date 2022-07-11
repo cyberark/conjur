@@ -38,6 +38,41 @@ Given(/I fetch a code for username "([^"]*)" and password "([^"]*)"/) do |userna
   end
 end
 
+Given(/^I fetch a code from okta for username "([^"]*)" and password "([^"]*)"/) do |username, password|
+  uri = URI("https://#{URI(okta_provider_uri).host}/api/v1/authn")
+  body = JSON.generate({ username: username, password: password })
+
+  http = Net::HTTP.new(uri.host, uri.port)
+  http.use_ssl = true
+  request = Net::HTTP::Post.new(uri.request_uri)
+  request['Accept'] = 'application/json'
+  request['Content-Type'] = 'application/json'
+  request.body = body
+
+  response = http.request(request)
+  session_token = JSON.parse(response.body)["sessionToken"]
+
+  oidc_parameters = {
+    client_id: okta_client_id,
+    redirect_uri: okta_redirect_uri,
+    response_type: oidc_response_type,
+    scope: okta_scope,
+    state: oidc_state,
+    nonce: oidc_nonce,
+    sessionToken: session_token
+  }
+
+  query_string = ""
+  oidc_parameters.each {|key, value| query_string += "#{key}=#{value}&"}
+  uri = URI("#{okta_provider_uri}/v1/authorize?#{query_string}")
+  request = Net::HTTP::Get.new(uri.request_uri)
+  response = http.request(request)
+
+  if response.is_a?(Net::HTTPRedirection)
+    parse_oidc_code(response['location'])
+  end
+end
+
 Given(/^I successfully set OIDC variables$/) do
   create_oidc_secret("provider-uri", oidc_provider_uri)
   create_oidc_secret("id-token-user-property", oidc_id_token_user_property)
@@ -50,6 +85,15 @@ When(/^I authenticate via OIDC V2 with code$/) do
   )
 end
 
+Given(/^I successfully set Okta OIDC V2 variables$/) do
+  create_oidc_secret("provider-uri", okta_provider_uri, "okta-2")
+  create_oidc_secret("client-id", okta_client_id, "okta-2")
+  create_oidc_secret("client-secret", okta_client_secret, "okta-2")
+  create_oidc_secret("claim-mapping", oidc_claim_mapping, "okta-2")
+  create_oidc_secret("state", oidc_state, "okta-2")
+  create_oidc_secret("nonce", oidc_nonce, "okta-2")
+  create_oidc_secret("redirect-uri", okta_redirect_uri, "okta-2")
+end
 
 Given(/^I successfully set OIDC variables without a service-id$/) do
   create_oidc_secret("provider-uri", oidc_provider_uri, "")
@@ -129,6 +173,27 @@ When(/^I authenticate via OIDC with id token and account "([^"]*)"$/) do |accoun
   authenticate_id_token_with_oidc(
     service_id: AuthnOidcHelper::SERVICE_ID,
     account: account
+  )
+end
+
+When(/^I authenticate via OIDC V2 with code and account "([^"]*)"$/) do |account|
+  authenticate_code_with_oidc(
+    service_id: "#{AuthnOidcHelper::SERVICE_ID}2",
+    account: account
+  )
+end
+
+When(/^I authenticate via OIDC with code and service_id "([^"]*)"$/) do |service_id|
+  authenticate_code_with_oidc(
+    service_id: service_id,
+    account: AuthnOidcHelper::ACCOUNT
+  )
+end
+
+When(/^I authenticate via OIDC V2 with code and service-id "([^"]*)"$/) do |service_id|
+  authenticate_code_with_oidc(
+    service_id: service_id,
+    account: AuthnOidcHelper::ACCOUNT
   )
 end
 
