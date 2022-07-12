@@ -1,12 +1,24 @@
-# CVE-2022-0778
+# OpenSSL CVEs
 #
-# In order to support FIPS with OpenSSL we are required to use OpenSSL version
-# 1.0.2 until OpenSSL supports the FIPS module in newer versions. The latest
-# available version to us is 1.0.2zd, which includes this fix. Trivy does not
-# recognize 1.0.2zd as a valid fixed version, hence the need for this ignore.
-#
-# Performed by @samirshetty, approved by @andytinkham
+# Because of the way OpenSSL 1.0.2 has moved to premium support and our Ubuntu
+# base image, trivy flags a number of OpenSSL issues in Conjur because the fix
+# for most Ubuntu users is to move to 1.1.1 instead of having the continued support
+# in the 1.0.2 line. Additionally, trivy flages 1.0.2zf as vulnerable to issues that
+# only affect 1.1.x. As of the time of this writing, we use 1.0.2zf which either 
+# has the fix or is unaffected by these issues.
+CVE-2022-2097
+CVE-2022-2068
+CVE-2022-1292
 CVE-2022-0778
+CVE-2021-23841
+CVE-2021-23840
+CVE-2021-3712
+CVE-2019-1563
+CVE-2019-1551
+CVE-2019-1549
+CVE-2019-1547
+CVE-2018-0735
+CVE-2018-0734
 
 # NULL pointer deref. OpenSSL 1.0.2 is not impacted
 CVE-2021-3449
