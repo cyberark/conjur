@@ -74,13 +74,11 @@ Feature: OIDC Authenticator V2 - Users can authenticate with OIDC authenticator
     Given I extend the policy with:
     """
     - !user
-      id: bob
-      annotations:
-        authn-oidc/identity: bob.somebody
+      id: bob.somebody
     - !group more-users
     - !grant
       role: !group more-users
-      member: !user bob
+      member: !user bob.somebody
     - !grant
       role: !group conjur/authn-oidc/keycloak2/users
       member: !group more-users
@@ -109,9 +107,7 @@ Feature: OIDC Authenticator V2 - Users can authenticate with OIDC authenticator
     Given I extend the policy with:
     """
     - !user
-      id: bob
-      annotations:
-        authn-oidc/identity:  bob.somebody
+      id: bob@conjur.net
     """
     And I fetch a code for username "bob@conjur.net" and password "bob"
     And I save my place in the log file
@@ -279,23 +275,23 @@ Feature: OIDC Authenticator V2 - Users can authenticate with OIDC authenticator
 
   @smoke
   Scenario: provider-uri dynamic change
-    And I fetch a code for username "alice" and password "alice"
+    And I fetch a code for username "alice@conjur.net" and password "alice"
     And I authenticate via OIDC V2 with code
-    And user "alice" has been authorized by Conjur
+    And user "alice@conjur.net" has been authorized by Conjur
     # Update provider uri to a different hostname and verify `provider-uri` has changed
     When I add the secret value "https://different-provider:8443" to the resource "cucumber:variable:conjur/authn-oidc/keycloak2/provider-uri"
     And I authenticate via OIDC V2 with code
     Then it is unauthorized
     # Check recovery to a valid provider uri
     When I successfully set OIDC V2 variables for "keycloak2"
-    And I fetch a code for username "alice" and password "alice"
+    And I fetch a code for username "alice@conjur.net" and password "alice"
     And I authenticate via OIDC V2 with code
-    Then user "alice" has been authorized by Conjur
+    Then user "alice@conjur.net" has been authorized by Conjur
   @negative @acceptance
   Scenario: Unauthenticated is raised in case of an invalid OIDC Provider hostname
-    Given I fetch a code for username "alice" and password "alice"
+    Given I fetch a code for username "alice@conjur.net" and password "alice"
     And I authenticate via OIDC V2 with code
-    And user "alice" has been authorized by Conjur
+    And user "alice@conjur.net" has been authorized by Conjur
     # Update provider uri to reachable but invalid hostname
     When I add the secret value "http://127.0.0.1.com/" to the resource "cucumber:variable:conjur/authn-oidc/keycloak2/provider-uri"
     And I save my place in the log file
