@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'spec_helper'
+
 RSpec.describe(Authentication::Jwt::VerifyAndDecodeToken) do
   let(:token_jwt) { "decoded_token" }
   let(:mock_decoded_token) { [token_jwt] }
