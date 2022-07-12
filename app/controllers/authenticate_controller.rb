@@ -4,6 +4,25 @@ class AuthenticateController < ApplicationController
   include BasicAuthenticator
   include AuthorizeResource
 
+  def authenticate_okta
+    # TODO: need a mechanism for an authenticator strategy to define the required
+    # params. This will likely need to be done via the Handler.
+    params.permit!
+
+    auth_token = Authentication::Handler::AuthenticationHandler.new(
+      authenticator_type: params[:authenticator]
+    ).call(
+      parameters: params.to_hash.symbolize_keys,
+      request_ip: request.ip
+    )
+
+    render_authn_token(auth_token)
+    Rails.logger.debug("AuthenticateController#authenticate_okta - authentication token: #{auth_token.inspect}")
+  rescue => e
+    log_backtrace(e)
+    raise e
+  end
+
   def index
     authenticators = {
       # Installed authenticator plugins
@@ -129,7 +148,6 @@ class AuthenticateController < ApplicationController
   else
     authenticate(input)
   end
-
   def authenticate_gcp
     params[:authenticator] = "authn-gcp"
     input = Authentication::AuthnGcp::UpdateAuthenticatorInput.new.(
@@ -273,8 +291,14 @@ class AuthenticateController < ApplicationController
     when Errors::Authentication::Security::RoleNotAuthorizedOnResource
       raise Forbidden
 
+    when Errors::Conjur::RequestedResourceNotFound
+      raise RecordNotFound.new(err.message)
+
     when Errors::Authentication::RequestBody::MissingRequestParam
       raise BadRequest
+
+    when Errors::Conjur::RequestedResourceNotFound
+      raise RecordNotFound.new(err.message)
 
     when Errors::Authentication::Jwt::TokenExpired
       raise Unauthorized.new(err.message, true)
@@ -285,6 +309,9 @@ class AuthenticateController < ApplicationController
     when Errors::Authentication::AuthnK8s::CSRMissingCNEntry,
       Errors::Authentication::AuthnK8s::CertMissingCNEntry
       raise ArgumentError
+
+    when Rack::OAuth2::Client::Error
+      raise BadRequest
 
     else
       raise Unauthorized
