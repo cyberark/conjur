@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
-require 'support/authn_k8s/authn_k8s_test_server.rb'
+require 'support/authn_k8s/authn_k8s_test_server'
 
 # Turn on logs to debug
-# 
+#
 # Rails.logger.extend(ActiveSupport::Logger.broadcast(ActiveSupport::TaggedLogging.new(Logger.new(STDOUT))))
 # Rails.logger.level = :info
 # Audit.logger = Audit::Log::SyslogAdapter.new(
@@ -24,7 +24,7 @@ def apply_root_policy(account, policy_content:, expect_success: false)
   end
 end
 
-def define_authenticator(account, service_id , host_id:)
+def define_authenticator(account:, service_id:, host_id:)
   # Create authenticator instance by applying policy
   authenticator_policy = %Q(
 ---
@@ -59,7 +59,7 @@ def define_authenticator(account, service_id , host_id:)
     - !variable ca/cert
     - !variable ca/key
 
-    # Webservice 
+    # Webservice
     - !webservice
       annotations:
         description: Authenticator service for K8s cluster
@@ -74,13 +74,13 @@ def define_authenticator(account, service_id , host_id:)
   apply_root_policy(account, policy_content: authenticator_policy, expect_success: true)
 end
 
-def initialize_authenticator_ca(account, service_id)
+def initialize_authenticator_ca(account:, service_id:)
   service_resource_id = "#{account}:webservice:#{service_id}"
   # Populate authenticator webservice CA values
   ::Repos::ConjurCA.create(service_resource_id)
 end
 
-def configure_k8s_api_access(account, service_id, api_url:, ca_cert:, service_account_token:)
+def configure_k8s_api_access(account:, service_id:, api_url:, ca_cert:, service_account_token:)
   # Populate authenticator configuration variables
   set_variable_value(account, "#{service_id}/kubernetes/api-url", api_url)
   set_variable_value(account, "#{service_id}/kubernetes/ca-cert", ca_cert)
@@ -92,14 +92,14 @@ end
 def fake_authn_k8s_login(account, service_id, host_id:)
   service_resource_id = "#{account}:webservice:#{service_id}"
 
-  hostpkey = OpenSSL::PKey::RSA.new(2048)      
+  hostpkey = OpenSSL::PKey::RSA.new(2048)
   alt_names = [
     "URI:spiffe://cluster.local/namespace/default/pod/bash-8449b79d7-c2fwd"
   ]
   smart_csr = Util::OpenSsl::X509::SmartCsr.new(
     Util::OpenSsl::X509::QuickCsr.new(common_name: "host.#{host_id}", rsa_key: hostpkey, alt_names: alt_names).request
   )
-  
+
   Repos::ConjurCA.ca(service_resource_id).signed_cert(
     smart_csr,
     subject_altnames: alt_names
@@ -107,9 +107,9 @@ def fake_authn_k8s_login(account, service_id, host_id:)
 end
 
 
-def authn_k8s_login(authenticator_id, host_id:)
+def authn_k8s_login(authenticator_id:, host_id:)
   # Fake login
-  hostpkey = OpenSSL::PKey::RSA.new(2048)      
+  hostpkey = OpenSSL::PKey::RSA.new(2048)
   alt_names = [
     "URI:spiffe://cluster.local/namespace/default/pod/bash-8449b79d7-c2fwd"
   ]
@@ -117,21 +117,20 @@ def authn_k8s_login(authenticator_id, host_id:)
     Util::OpenSsl::X509::QuickCsr.new(common_name: "#{host_id}", rsa_key: hostpkey, alt_names: alt_names).request
   )
 
-  payload = { 
+  payload = {
     'HTTP_HOST_ID_PREFIX' => 'host',
     'RAW_POST_DATA' => smart_csr.to_s,
   }
   post("/#{authenticator_id}/inject_client_cert", env: payload)
 end
 
-def authn_k8s_authenticate(authenticator_id, account, host_id:, signed_cert_pem:)
-  payload = { 
-    'HTTP_X_SSL_CLIENT_CERTIFICATE' => CGI.escape(signed_cert_pem),
+def authn_k8s_authenticate(authenticator_id:, account:, host_id:, signed_cert_pem:)
+  payload = {
+    'HTTP_X_SSL_CLIENT_CERTIFICATE' => CGI.escape(signed_cert_pem)
   }
   escaped_host_id = CGI.escape("host/#{host_id}")
   post("/#{authenticator_id}/#{account}/#{escaped_host_id}/authenticate", env: payload)
 end
-
 
 describe AuthenticateController, :type => :request do
   let(:account) { "rspec" }
@@ -144,35 +143,38 @@ describe AuthenticateController, :type => :request do
 
   # Test server is defined in the appropritate "around" hook for the test example
   let(:test_server) { @test_server }
-  
 
   describe "#authenticate" do
     context "k8s api access contains subpath" do
       around(:each) do |example|
+        WebMock.disable_net_connect!(allow: 'http://localhost:1234')
         AuthnK8sTestServer.run_async(
-          subpath: "/some/path", 
+          subpath: "/some/path",
           bearer_token: "bearer token"
         ) do |test_server|
           @test_server = test_server
           example.run(test_server)
         end
       end
-    
+
       it "client successfully authenticates" do
         service_id = "conjur/#{authenticator_id}"
 
         # Setup authenticator
         define_authenticator(
-          account, service_id, 
+          account: account,
+          service_id: service_id,
           host_id: test_app_host
         )
         initialize_authenticator_ca(
-          account, service_id
+          account: account,
+          service_id: service_id
         )
         configure_k8s_api_access(
-          account, service_id,
-          api_url: "http://localhost:1234/some/path", 
-          ca_cert: "---", 
+          account: account,
+          service_id: service_id,
+          api_url: "http://localhost:1234/some/path",
+          ca_cert: "---",
           service_account_token: "bearer token"
         )
 
@@ -185,14 +187,15 @@ describe AuthenticateController, :type => :request do
 
         # Login request, grab the signed certificate from the fake server
         authn_k8s_login(
-          authenticator_id, 
+          authenticator_id: authenticator_id,
           host_id: test_app_host
         )
         signed_cert = test_server.copied_content
 
         # Authenticate request
         authn_k8s_authenticate(
-          authenticator_id, account,
+          authenticator_id: authenticator_id,
+          account: account,
           host_id: test_app_host,
           signed_cert_pem: signed_cert.to_s
         )
