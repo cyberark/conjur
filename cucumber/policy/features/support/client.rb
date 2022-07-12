@@ -127,6 +127,10 @@ class Client
     resource(uri('roles', kind, id)).get(auth_header)
   end
 
+  def fetch_authenticators
+    resource(uri('authn-oidc', 'providers')).get(auth_header)
+  end
+
   def fetch_public_keys(username:)
     resource(uri('public_keys', 'user', username)).get(auth_header)
   end

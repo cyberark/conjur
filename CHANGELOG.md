@@ -9,11 +9,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
-## [1.17.7] - 2022-06-29
+## [1.18.0] - 2022-07-12
+### Changed
+- Adds support for authentication using OIDC's code authorization flow [cyberark/conjur#2595](https://github.com/cyberark/conjur/pull/2595)
 
+## [1.17.7] - 2022-06-29
 ### Changed
 - Made simplecov a dev/test dependency
-  [cyberark/conjur#2564](https://github.com/cyberark/conjur/pull/2564)  
+  [cyberark/conjur#2564](https://github.com/cyberark/conjur/pull/2564)
 - Added configuration for token TTL
   [cyberark/conjur#2510](https://github.com/cyberark/conjur/pull/2510)
 - Added configuration for default value for maximum number of results return to `/resources` request
