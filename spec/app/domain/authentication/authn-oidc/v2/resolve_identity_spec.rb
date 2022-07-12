@@ -73,16 +73,17 @@ RSpec.describe(' Authentication::AuthnOidc::V2::ResolveIdentity') do
               instance_double(::Role).tap do |double|
                 allow(double).to receive(:id).and_return('rspec:user:bob')
                 allow(double).to receive(:resource?).and_return(true)
-              end,
-              instance_double(::Role).tap do |double|
-                allow(double).to receive(:id).and_return('rspec:user:chad')
-                allow(double).to receive(:resource?).and_return(true)
-                allow(double).to receive(:resource).and_return(
-                  instance_double(::Resource).tap do |resource|
-                    allow(resource).to receive(:annotation).with('authn-oidc/identity').and_return('chad.example')
-                  end
-                )
               end
+              # ,
+              # instance_double(::Role).tap do |double|
+              #   allow(double).to receive(:id).and_return('rspec:user:chad')
+              #   allow(double).to receive(:resource?).and_return(true)
+              #   allow(double).to receive(:resource).and_return(
+              #     instance_double(::Resource).tap do |resource|
+              #       allow(resource).to receive(:annotation).with('authn-oidc/identity').and_return('chad.example')
+              #     end
+              #   )
+              # end
             ]
           )
         }.to raise_error(
