@@ -16,36 +16,25 @@ Feature: OIDC Authenticator V2 - Users can authenticate with OIDC authenticator
             annotations:
               description: Authentication service for Keycloak, based on Open ID Connect.
           - !variable name
-          - !variable
-            id: provider-uri
-          - !variable
-            id: response-type
-          - !variable
-            id: client-id
-          - !variable
-            id: client-secret
-          - !variable
-            id: claim-mapping
-          - !variable
-            id: state
-          - !variable
-            id: nonce
-          - !variable
-            id: redirect-uri
-          - !variable
-            id: provider-scope
+          - !variable provider-uri
+          - !variable response-type
+          - !variable client-id
+          - !variable client-secret
+          - !variable claim-mapping
+          - !variable state
+          - !variable nonce
+          - !variable redirect-uri
+          - !variable provider-scope
           - !group users
           - !permit
             role: !group users
             privilege: [ read, authenticate ]
             resource: !webservice
       - !user
-        id: alice
-        annotations:
-          authn-oidc/identity: alice@conjur.net
+        id: alice@conjur.net
       - !grant
         role: !group conjur/authn-oidc/keycloak2/users
-        member: !user alice
+        member: !user alice@conjur.net
     """
     And I am the super-user
     And I successfully set OIDC V2 variables for "keycloak2"
@@ -54,12 +43,12 @@ Feature: OIDC Authenticator V2 - Users can authenticate with OIDC authenticator
   Scenario: A valid code to get Conjur access token
     # We want to verify the returned access token is valid for retrieving a secret
     Given I have a "variable" resource called "test-variable"
-    And I permit user "alice" to "execute" it
+    And I permit user "alice@conjur.net" to "execute" it
     And I add the secret value "test-secret" to the resource "cucumber:variable:test-variable"
     And I fetch a code for username "alice@conjur.net" and password "alice"
     And I save my place in the audit log file
     When I authenticate via OIDC V2 with code
-    Then user "alice" has been authorized by Conjur
+    Then user "alice@conjur.net" has been authorized by Conjur
     And I successfully GET "/secrets/cucumber/variable/test-variable" with authorized user
     And The following appears in the audit log after my savepoint:
     """
