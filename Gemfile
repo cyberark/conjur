@@ -88,6 +88,7 @@ group :development, :test do
   gem 'debase', '~> 0.2.5.beta2'
   gem 'faye-websocket'
   gem 'json_spec', '~> 1.1'
+  gem 'faye-websocket'
   gem 'net-ssh'
   gem 'parallel'
   gem 'pry-byebug'
@@ -109,6 +110,8 @@ group :development, :test do
   gem 'spring-commands-cucumber'
   gem 'spring-commands-rspec'
   gem 'table_print'
+  gem 'vcr'
+  gem 'webmock'
   gem 'webrick'
 end
 

@@ -133,6 +133,8 @@ GEM
     conjur-rack-heartbeat (2.2.0)
       rack
     contracts (0.17)
+    crack (0.4.5)
+      rexml
     crass (1.0.6)
     csr (0.1.1)
     cucumber (7.1.0)
@@ -215,6 +217,7 @@ GEM
     globalid (1.0.0)
       activesupport (>= 5.0)
     haikunator (1.1.1)
+    hashdiff (1.0.1)
     highline (2.0.3)
     http (4.2.0)
       addressable (~> 2.3)
@@ -453,9 +456,14 @@ GEM
     validate_url (1.0.13)
       activemodel (>= 3.0.0)
       public_suffix
+    vcr (6.1.0)
     webfinger (1.2.0)
       activesupport
       httpclient (>= 2.4)
+    webmock (3.14.0)
+      addressable (>= 2.8.0)
+      crack (>= 0.3.2)
+      hashdiff (>= 0.4.0, < 2.0.0)
     webrick (1.7.0)
     websocket (1.2.9)
     websocket-driver (0.7.5)
@@ -539,6 +547,8 @@ DEPENDENCIES
   spring-commands-cucumber
   spring-commands-rspec
   table_print
+  vcr
+  webmock
   webrick
   websocket
 

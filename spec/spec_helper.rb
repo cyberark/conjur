@@ -4,6 +4,8 @@
 # cryptic names like `$CHILD_STATUS`
 require 'English'
 
+require 'stringio'
+
 require 'simplecov'
 
 SimpleCov.command_name("SimpleCov #{rand(1000000)}")
@@ -32,6 +34,19 @@ $LOAD_PATH << '../app/domain'
 # not under the default load paths.
 $LOAD_PATH << './bin/conjur-cli'
 
+# Please note, VCR is configured to only run when the `:vcr` arguement
+# is passed to the RSpec block. Calling VCR with `VCR.use_cassette` will
+# not work.
+require 'vcr'
+VCR.configure do |config|
+  config.hook_into(:webmock)
+  config.cassette_library_dir = 'spec/fixtures/vcr_cassettes'
+  config.configure_rspec_metadata!
+  config.default_cassette_options = {
+    decode_compressed_response: true
+  }
+end
+
 RSpec.configure do |config|
   config.before(:suite) do
     DatabaseCleaner.strategy = :transaction
@@ -40,6 +55,14 @@ RSpec.configure do |config|
   config.around(:each) do |example|
     DatabaseCleaner.cleaning do
       example.run
+    end
+  end
+
+  config.around do |example|
+    if example.metadata[:vcr]
+      example.run
+    else
+      VCR.turned_off { example.run }
     end
   end
 
@@ -98,18 +121,25 @@ def with_background_process(cmd, &block)
     # Read the output of the background process in a thread to run
     # the given block in parallel.
     out_reader = Thread.new do
+      Thread.current.abort_on_exception = true
       output = StringIO.new
 
       loop do
-        ready = IO.select(
-          [stdout_and_err], # Watch for reading
-          [], # Not watching any files for writing
-          [], # Not watching any files for exceptions
-          # When the background process is killed, it doesn't end the
-          # the output stream, so we need a timeout here to recognize the
-          # stream has closed:
-          1 # 1 second timeout
-        )
+        begin
+          ready = IO.select(
+            [stdout_and_err], # Watch for reading
+            [], # Not watching any files for writing
+            [], # Not watching any files for exceptions
+            # When the background process is killed, it doesn't end the
+            # the output stream, so we need a timeout here to recognize the
+            # stream has closed:
+            1 # 1 second timeout
+          )
+        rescue IOError => e
+          # Stream seems to be closed externally once the command returns.
+          # This catch allows the loop to exit and the thread to return.
+          puts("Stream was closed: #{e}")
+        end
 
         # If the stream has closed, break the read loop.
         break if stdout_and_err.closed?
@@ -154,6 +184,3 @@ def conjur_server_dir
   # Navigate from its directory (/bin) to the root Conjur server directory
   Pathname.new(File.join(File.dirname(conjurctl_path), '..')).cleanpath
 end
-
-
-require 'stringio'

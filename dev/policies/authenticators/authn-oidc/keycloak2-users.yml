@@ -1,0 +1,15 @@
+- !user alice@conjur.net
+
+- !policy
+  id: keycloak
+  body:
+    - !user
+      id: alice
+      annotations:
+        authn-oidc/identity: 'alice@conjur.net'
+
+- !grant
+  members:
+    - !user alice@conjur.net
+    - !user alice@keycloak
+  role: !group conjur/authn-oidc/keycloak2/authenticatable
