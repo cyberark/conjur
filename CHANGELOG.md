@@ -38,17 +38,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Changed
 - Adds `CONJUR_USERS_IN_ROOT_POLICY_ONLY` environment variable to prevent users from being created outside the root policy.
+- Fixed promotion behavior
 
 ### Security
 - Upgrade Rails to 6.12.5.1 to close CVE-2022-22577 and CVE-2022-27777
   [cyberark/conjur#2553](https://github.com/cyberark/conjur/pull/2553)
-
-## [1.17.5] - 2022-04-07
-
-### Changed
-- Fixed promotion behavior
-
-### Security
 - Updated nokogiri to 1.13.4 to resolve CVE-2022-24836
   [cyberark/conjur#2534](https://github.com/cyberark/conjur/pull/2534)
 
@@ -59,12 +53,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   Conjur to error - but this wasn't the case before the Ruby 3 upgrade
   [#2525](https://github.com/cyberark/conjur/pull/2525)
 - Verify non user or host resources do not have credentials.
-
-### Security
-- Updated KubeClient to 4.9.3 to resolve CVE-2022-0759
-  [cyberark/conjur#2527](https://github.com/cyberark/conjur/pull/2527)
-
-## [1.17.2] - 2022-03-09
+- Update to automated release process
+- Proper error message appears when JWT Authenticator gets HTTP code error
+  while trying to fetch JWKS data from `jwks-uri` [#2474](https://github.com/cyberark/conjur/pull/2474)
+- Upgrade to Ruby 3. [#2444](https://github.com/cyberark/conjur/pull/2444)
 
 ### Added
 - Added the ability to fetch signing keys from JWKS endpoints that use a self-signed
@@ -94,12 +86,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   authenticator
   [#2432](https://github.com/cyberark/conjur/pull/2432)
 
-### Changed
-- Update to automated release process
-- Proper error message appears when JWT Authenticator gets HTTP code error
-  while trying to fetch JWKS data from `jwks-uri` [#2474](https://github.com/cyberark/conjur/pull/2474)
-- Upgrade to Ruby 3. [#2444](https://github.com/cyberark/conjur/pull/2444)
-
 ### Fixed
 - IAM Authn bug fix - Take rexml gem to production configuration [#2493](https://github.com/cyberark/conjur/pull/2493)
 - Previously, a stale puma pid file would prevent the Conjur server from starting
@@ -121,6 +107,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   [cyberark/conjur#2492](https://github.com/cyberark/conjur/pull/2492)
 - Updated Puma to 5.6.4 to resolve CVE-2022-24790
   [cyberark/conjur#2534](https://github.com/cyberark/conjur/pull/2534)
+- Updated KubeClient to 4.9.3 to resolve CVE-2022-0759
+  [cyberark/conjur#2527](https://github.com/cyberark/conjur/pull/2527)
 
 ## [1.15.0] - 2021-12-21
 
@@ -880,10 +868,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 [Unreleased]: https://github.com/cyberark/conjur/compare/v1.17.7...HEAD
 [1.17.7]: https://github.com/cyberark/conjur/compare/v1.17.6...v1.17.7
-[1.17.6]: https://github.com/cyberark/conjur/compare/v1.17.5...v1.17.6
-[1.17.5]: https://github.com/cyberark/conjur/compare/v1.17.3...v1.17.5
-[1.17.3]: https://github.com/cyberark/conjur/compare/v1.16.0...v1.17.3
-[1.16.0]: https://github.com/cyberark/conjur/compare/v1.15.0...v1.16.0
+[1.17.6]: https://github.com/cyberark/conjur/compare/v1.17.3...v1.17.6
+[1.17.3]: https://github.com/cyberark/conjur/compare/v1.15.0...v1.17.3
 [1.15.0]: https://github.com/cyberark/conjur/compare/v1.14.2...v1.15.0
 [1.14.2]: https://github.com/cyberark/conjur/compare/v1.14.1...v1.14.2
 [1.14.1]: https://github.com/cyberark/conjur/compare/v1.14.0...v1.14.1
