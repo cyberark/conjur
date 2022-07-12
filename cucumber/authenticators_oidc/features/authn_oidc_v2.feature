@@ -52,7 +52,7 @@ Feature: OIDC Authenticator V2 - Users can authenticate with OIDC authenticator
     And I successfully GET "/secrets/cucumber/variable/test-variable" with authorized user
     And The following appears in the audit log after my savepoint:
     """
-    cucumber:user:alice successfully authenticated with authenticator authn-oidc service cucumber:webservice:conjur/authn-oidc/keycloak2
+    cucumber:user:alice@conjur.net successfully authenticated with authenticator authn-oidc service cucumber:webservice:conjur/authn-oidc/keycloak2
     """
 
   @smoke
@@ -65,7 +65,7 @@ Feature: OIDC Authenticator V2 - Users can authenticate with OIDC authenticator
       member: !user alice@conjur.net
     """
     When I add the secret value "email" to the resource "cucumber:variable:conjur/authn-oidc/keycloak2/claim-mapping"
-    And I fetch a code for username "alice" and password "alice"
+    And I fetch a code for username "alice@conjur.net" and password "alice"
     And I authenticate via OIDC V2 with code
     Then user "alice@conjur.net" has been authorized by Conjur
 
@@ -121,7 +121,7 @@ Feature: OIDC Authenticator V2 - Users can authenticate with OIDC authenticator
   @negative @acceptance
   Scenario: Code without value of variable claim mapping is denied
     When I add the secret value "non_existing_field" to the resource "cucumber:variable:conjur/authn-oidc/keycloak2/claim-mapping"
-    And I fetch a code for username "alice" and password "alice"
+    And I fetch a code for username "alice@conjur.net" and password "alice"
     And I save my place in the log file
     When I authenticate via OIDC V2 with code
     Then it is unauthorized
@@ -173,7 +173,7 @@ Feature: OIDC Authenticator V2 - Users can authenticate with OIDC authenticator
   @negative @acceptance
   Scenario: Missing code is a bad request
     Given I save my place in the log file
-    And I fetch a code for username "alice" and password "alice"
+    And I fetch a code for username "alice@conjur.net" and password "alice"
     When I authenticate via OIDC V2 with no code in the request
     Then it is a bad request
     And The following appears in the log after my savepoint:
@@ -188,7 +188,7 @@ Feature: OIDC Authenticator V2 - Users can authenticate with OIDC authenticator
   @negative @acceptance
   Scenario: Empty code is a bad request
     Given I save my place in the log file
-    And I fetch a code for username "alice" and password "alice"
+    And I fetch a code for username "alice@conjur.net" and password "alice"
     When I authenticate via OIDC V2 with code ""
     Then it is a bad request
     And The following appears in the log after my savepoint:
@@ -203,7 +203,7 @@ Feature: OIDC Authenticator V2 - Users can authenticate with OIDC authenticator
   @negative @acceptance
   Scenario: Invalid code is a bad request
     Given I save my place in the log file
-    And I fetch a code for username "alice" and password "alice"
+    And I fetch a code for username "alice@conjur.net" and password "alice"
     When I authenticate via OIDC V2 with code "bad-code"
     Then it is a bad request
     And The following appears in the log after my savepoint:
@@ -214,7 +214,7 @@ Feature: OIDC Authenticator V2 - Users can authenticate with OIDC authenticator
   @negative @acceptance
   Scenario: Invalid state is a bad request
     Given I save my place in the log file
-    And I fetch a code for username "alice" and password "alice"
+    And I fetch a code for username "alice@conjur.net" and password "alice"
     When I authenticate via OIDC V2 with state "bad-state"
     Then it is a bad request
     And The following appears in the log after my savepoint:
@@ -225,7 +225,7 @@ Feature: OIDC Authenticator V2 - Users can authenticate with OIDC authenticator
   @negative @acceptance
   Scenario: Bad OIDC provider credentials
     Given I save my place in the log file
-    And I fetch a code for username "alice" and password "notalice"
+    And I fetch a code for username "alice@conjur.net" and password "notalice"
     When I authenticate via OIDC V2 with code
     Then it is a bad request
     And The following appears in the log after my savepoint:
@@ -236,7 +236,7 @@ Feature: OIDC Authenticator V2 - Users can authenticate with OIDC authenticator
   @negative @acceptance
   Scenario: Non-Existent authenticator is not found
     Given I save my place in the log file
-    And I fetch a code for username "alice" and password "alice"
+    And I fetch a code for username "alice@conjur.net" and password "alice"
     When I authenticate via OIDC V2 with code and service-id "non-exist"
     Then it is not found
     And The following appears in the log after my savepoint:
