@@ -101,7 +101,7 @@ RSpec.describe(Authentication::AuthnOidc::V2::Client) do
 
   describe '.oidc_client' do
     context 'when credentials are valid' do
-      it 'returns a valid oidc client' do
+      it 'returns a valid oidc client', vcr: 'authenticators/authn-oidc/v2/client_initialization' do
         oidc_client = client.oidc_client
 
         expect(oidc_client).to be_a_kind_of(OpenIDConnect::Client)

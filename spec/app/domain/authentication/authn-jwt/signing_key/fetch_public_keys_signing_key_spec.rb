@@ -8,7 +8,7 @@ RSpec.describe(Authentication::AuthnJwt::SigningKey::FetchPublicKeysSigningKey) 
     Logger.new(
       log_output,
       formatter: proc do | severity, _time, _progname, msg|
-        "#{severity}, #{msg}\n"
+        "#{severity},#{msg}\n"
       end
     )
   end
@@ -44,13 +44,13 @@ RSpec.describe(Authentication::AuthnJwt::SigningKey::FetchPublicKeysSigningKey) 
         ).call(force_fetch: false)
       end
 
-      it "raises error" do
+      it "raises error", vcr: 'authenticators/authn-jwt/valid-jwks' do
         expect { subject }
           .to raise_error(Errors::Authentication::AuthnJwt::InvalidPublicKeys)
       end
     end
 
-    context "returns a JWKS object" do
+    context "returns a JWKS object", vcr: 'authenticators/authn-jwt/valid-jwks' do
       subject do
         ::Authentication::AuthnJwt::SigningKey::FetchPublicKeysSigningKey.new(
           signing_keys: valid_public_keys_value
@@ -79,7 +79,7 @@ RSpec.describe(Authentication::AuthnJwt::SigningKey::FetchPublicKeysSigningKey) 
         log_output.string.split("\n")
       end
 
-      it "as expected" do
+      it "as expected", vcr: 'authenticators/authn-jwt/valid-jwks' do
         expect(subject).to eql([
           "INFO,CONJ00143I Parsing JWKS from public-keys value...",
           "DEBUG,CONJ00144D Successfully parsed public-keys value"
