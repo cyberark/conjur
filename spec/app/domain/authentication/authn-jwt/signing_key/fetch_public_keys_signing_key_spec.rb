@@ -2,29 +2,21 @@
 
 require 'spec_helper'
 
-RSpec.describe('Authentication::AuthnJwt::SigningKey::FetchPublicKeysSigningKey') do
-
+RSpec.describe(Authentication::AuthnJwt::SigningKey::FetchPublicKeysSigningKey) do
   let(:log_output) { StringIO.new }
-  let(:logger) {
+  let(:logger) do
     Logger.new(
       log_output,
-      formatter: proc do | severity, time, progname, msg |
-        "#{severity},#{msg}\n"
-      end)
-  }
+      formatter: proc do | severity, _time, _progname, msg|
+        "#{severity}, #{msg}\n"
+      end
+    )
+  end
 
   let(:string_value) { "string value" }
-  let(:valid_jwks) {
-    VCR.use_cassette('authenticators/authn-jwt/valid-jwks') do
-      Net::HTTP.get_response(URI("https://www.googleapis.com/oauth2/v3/certs")).body
-    end
-  }
-  let(:invalid_public_keys_value) {
-    "{\"type\":\"invalid\", \"value\": #{valid_jwks} }"
-  }
-  let(:valid_public_keys_value) {
-    "{\"type\":\"jwks\", \"value\": #{valid_jwks} }"
-  }
+  let(:valid_jwks) { Net::HTTP.get_response(URI("https://www.googleapis.com/oauth2/v3/certs")).body }
+  let(:invalid_public_keys_value) { "{\"type\":\"invalid\", \"value\": #{valid_jwks} }" }
+  let(:valid_public_keys_value) { "{\"type\":\"jwks\", \"value\": #{valid_jwks} }" }
 
   #  ____  _   _  ____    ____  ____  ___  ____  ___
   # (_  _)( )_( )( ___)  (_  _)( ___)/ __)(_  _)/ __)
@@ -60,22 +52,20 @@ RSpec.describe('Authentication::AuthnJwt::SigningKey::FetchPublicKeysSigningKey'
 
     context "returns a JWKS object" do
       subject do
-        VCR.use_cassette('authenticators/authn-jwt/fetch-jwks') do
-          ::Authentication::AuthnJwt::SigningKey::FetchPublicKeysSigningKey.new(
-            signing_keys: valid_public_keys_value
-          ).call(force_fetch: false)
-        end
+        ::Authentication::AuthnJwt::SigningKey::FetchPublicKeysSigningKey.new(
+          signing_keys: valid_public_keys_value
+        ).call(force_fetch: false)
       end
 
-      it "JWKS object has one key" do
+      it "JWKS object has one key", vcr: 'authenticators/authn-jwt/fetch-jwks' do
         expect(subject.length).to eql(1)
       end
 
-      it "JWKS object key is keys" do
-        expect(subject.key?(:keys)).to be true
+      it "JWKS object key is keys", vcr: 'authenticators/authn-jwt/fetch-jwks' do
+        expect(subject.key?(:keys)).to be(true)
       end
 
-      it "JWKS object value be a JWK Set" do
+      it "JWKS object value be a JWK Set", vcr: 'authenticators/authn-jwt/fetch-jwks' do
         expect(subject[:keys]).to be_a(JSON::JWK::Set)
       end
     end
@@ -91,9 +81,9 @@ RSpec.describe('Authentication::AuthnJwt::SigningKey::FetchPublicKeysSigningKey'
 
       it "as expected" do
         expect(subject).to eql([
-                                 "INFO,CONJ00143I Parsing JWKS from public-keys value...",
-                                 "DEBUG,CONJ00144D Successfully parsed public-keys value"
-                               ])
+          "INFO,CONJ00143I Parsing JWKS from public-keys value...",
+          "DEBUG,CONJ00144D Successfully parsed public-keys value"
+        ])
       end
     end
   end

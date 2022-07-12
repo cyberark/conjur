@@ -4,9 +4,9 @@
 # cryptic names like `$CHILD_STATUS`
 require 'English'
 
-require 'simplecov'
-require 'vcr'
+require 'stringio'
 
+require 'simplecov'
 
 SimpleCov.command_name("SimpleCov #{rand(1000000)}")
 SimpleCov.merge_timeout(7200)
@@ -34,6 +34,19 @@ $LOAD_PATH << '../app/domain'
 # not under the default load paths.
 $LOAD_PATH << './bin/conjur-cli'
 
+# Please note, VCR is configured to only run when the `:vcr` arguement
+# is passed to the RSpec block. Calling VCR with `VCR.use_cassette` will
+# not work.
+require 'vcr'
+VCR.configure do |config|
+  config.hook_into(:webmock)
+  config.cassette_library_dir = 'spec/fixtures/vcr_cassettes'
+  config.configure_rspec_metadata!
+  config.default_cassette_options = {
+    decode_compressed_response: true
+  }
+end
+
 RSpec.configure do |config|
   config.before(:suite) do
     DatabaseCleaner.strategy = :transaction
@@ -42,6 +55,14 @@ RSpec.configure do |config|
   config.around(:each) do |example|
     DatabaseCleaner.cleaning do
       example.run
+    end
+  end
+
+  config.around do |example|
+    if example.metadata[:vcr]
+      example.run
+    else
+      VCR.turned_off { example.run }
     end
   end
 
@@ -162,11 +183,4 @@ def conjur_server_dir
 
   # Navigate from its directory (/bin) to the root Conjur server directory
   Pathname.new(File.join(File.dirname(conjurctl_path), '..')).cleanpath
-end
-
-require 'stringio'
-
-VCR.configure do |config|
-  config.cassette_library_dir = "spec/fixtures/vcr_cassettes"
-  config.hook_into :webmock
 end

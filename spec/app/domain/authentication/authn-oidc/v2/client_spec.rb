@@ -25,15 +25,13 @@ RSpec.describe(Authentication::AuthnOidc::V2::Client) do
 
   describe '.callback' do
     context 'when credentials are valid' do
-      it 'returns a valid JWT token' do
+      it 'returns a valid JWT token', vcr: 'authenticators/authn-oidc/v2/client_callback-valid_oidc_credentials' do
         # Because JWT tokens have an expiration timeframe, we need to hold
         # time constant after caching the request.
         travel_to(Time.parse("2022-06-30 16:42:17 +0000")) do
-          token = VCR.use_cassette('authenticators/authn-oidc/v2/client_callback-valid_oidc_credentials') do
-            client.callback(
-              code: 'qdDm7On1dEEzNmMlk2bF7IcOF8gCgfvgMCMXXXDlYEE'
-            )
-          end
+          token = client.callback(
+            code: 'qdDm7On1dEEzNmMlk2bF7IcOF8gCgfvgMCMXXXDlYEE'
+          )
           expect(token).to be_a_kind_of(OpenIDConnect::ResponseObject::IdToken)
           expect(token.raw_attributes['nonce']).to eq('1656b4264b60af659fce')
           expect(token.raw_attributes['preferred_username']).to eq('test.user3@mycompany.com')
@@ -43,49 +41,43 @@ RSpec.describe(Authentication::AuthnOidc::V2::Client) do
     end
 
     context 'when JWT has expired' do
-      it 'raises an error' do
+      it 'raises an error', vcr: 'authenticators/authn-oidc/v2/client_callback-valid_oidc_credentials' do
         travel_to(Time.parse("2022-06-30 20:42:17 +0000")) do
-          VCR.use_cassette('authenticators/authn-oidc/v2/client_callback-valid_oidc_credentials') do
-            expect do
-              client.callback(
-                code: 'qdDm7On1dEEzNmMlk2bF7IcOF8gCgfvgMCMXXXDlYEE'
-              )
-            end.to raise_error(
-              OpenIDConnect::ResponseObject::IdToken::ExpiredToken,
-              'Invalid ID token: Expired token'
+          expect do
+            client.callback(
+              code: 'qdDm7On1dEEzNmMlk2bF7IcOF8gCgfvgMCMXXXDlYEE'
             )
-          end
+          end.to raise_error(
+            OpenIDConnect::ResponseObject::IdToken::ExpiredToken,
+            'Invalid ID token: Expired token'
+          )
         end
       end
     end
 
     context 'when code has previously been used' do
-      it 'raise an exception' do
-        VCR.use_cassette('authenticators/authn-oidc/v2/client_callback-used_code-valid_oidc_credentials') do
-          expect do
-            client.callback(
-              code: '7wKEGhsN9UEL5MG9EfDJ8KWMToKINzvV29uyPsQZYpo'
-            )
-          end.to raise_error(
-            Rack::OAuth2::Client::Error,
-            'invalid_grant :: The authorization code is invalid or has expired.'
+      it 'raise an exception', vcr: 'authenticators/authn-oidc/v2/client_callback-used_code-valid_oidc_credentials' do
+        expect do
+          client.callback(
+            code: '7wKEGhsN9UEL5MG9EfDJ8KWMToKINzvV29uyPsQZYpo'
           )
-        end
+        end.to raise_error(
+          Rack::OAuth2::Client::Error,
+          'invalid_grant :: The authorization code is invalid or has expired.'
+        )
       end
     end
 
-    context 'when code has expired' do
+    context 'when code has expired', vcr: 'authenticators/authn-oidc/v2/client_callback-expired_code-valid_oidc_credentials' do
       it 'raise an exception' do
-        VCR.use_cassette('authenticators/authn-oidc/v2/client_callback-expired_code-valid_oidc_credentials') do
-          expect do
-            client.callback(
-              code: 'SNSPeiQJ0-D6nUHTg-Ht9ZoDxIaaWBB80pnYuXY2VxU'
-            )
-          end.to raise_error(
-            Rack::OAuth2::Client::Error,
-            'invalid_grant :: The authorization code is invalid or has expired.'
+        expect do
+          client.callback(
+            code: 'SNSPeiQJ0-D6nUHTg-Ht9ZoDxIaaWBB80pnYuXY2VxU'
           )
-        end
+        end.to raise_error(
+          Rack::OAuth2::Client::Error,
+          'invalid_grant :: The authorization code is invalid or has expired.'
+        )
       end
     end
 
@@ -126,12 +118,10 @@ RSpec.describe(Authentication::AuthnOidc::V2::Client) do
     end
   end
 
-  describe '.discovery_information' do
+  describe '.discovery_information', vcr: 'authenticators/authn-oidc/v2/discovery_endpoint-valid_oidc_credentials' do
     context 'when credentials are valid' do
       it 'endpoint returns valid data' do
-        discovery_information = VCR.use_cassette('authenticators/authn-oidc/v2/discovery_endpoint-valid_oidc_credentials') do
-          client.discovery_information(invalidate: true)
-        end
+        discovery_information = client.discovery_information(invalidate: true)
 
         expect(discovery_information.authorization_endpoint).to eq(
           'https://dev-92899796.okta.com/oauth2/default/v1/authorize'
@@ -151,7 +141,7 @@ RSpec.describe(Authentication::AuthnOidc::V2::Client) do
       end
     end
 
-    context 'when provider URI is invalid' do
+    context 'when provider URI is invalid', vcr: 'authenticators/authn-oidc/v2/discovery_endpoint-invalid_oidc_provider' do
       it 'returns an timeout error' do
         client = Authentication::AuthnOidc::V2::Client.new(
           authenticator: Authentication::AuthnOidc::V2::DataObjects::Authenticator.new(
@@ -167,11 +157,9 @@ RSpec.describe(Authentication::AuthnOidc::V2::Client) do
           )
         )
 
-        VCR.use_cassette('authenticators/authn-oidc/v2/discovery_endpoint-invalid_oidc_provider') do
-          expect{client.discovery_information(invalidate: true)}.to raise_error(
-            Errors::Authentication::OAuth::ProviderDiscoveryFailed
-          )
-        end
+        expect{client.discovery_information(invalidate: true)}.to raise_error(
+          Errors::Authentication::OAuth::ProviderDiscoveryFailed
+        )
       end
     end
   end
