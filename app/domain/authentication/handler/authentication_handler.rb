@@ -77,32 +77,27 @@ module Authentication
       end
 
       def handle_error(err)
-        @logger.warn(@authentication_error.new(err))
+        @logger.warn(@authentication_error.new(err.inspect))
+
         case err
         when Errors::Authentication::Security::RoleNotAuthorizedOnResource
-          puts "Errors::Authentication::Security::RoleNotAuthorizedOnResource"
           raise ApplicationController::Forbidden
 
         when Errors::Authentication::RequestBody::MissingRequestParam,
           Errors::Authentication::AuthnOidc::TokenVerificationFailed
-          puts "Errors::Authentication::AuthnOidc::TokenVerificationFailed"
           raise ApplicationController::BadRequest
 
         when Errors::Conjur::RequestedResourceNotFound
-          puts "Errors::Conjur::RequestedResourceNotFound"
           raise ApplicationController::RecordNotFound.new(err.message)
 
         when Errors::Authentication::AuthnOidc::IdTokenClaimNotFoundOrEmpty
-          puts "  Errors::Authentication::AuthnOidc::IdTokenClaimNotFoundOrEmpty"
           raise ApplicationController::Unauthorized
 
         when Errors::Authentication::Jwt::TokenExpired
-          puts "  Errors::Authentication::Jwt::TokenExpired"
           raise ApplicationController::Unauthorized.new(err.message, true)
 
         when Errors::Authentication::AuthnOidc::StateMismatch,
           Errors::Authentication::Security::RoleNotFound
-          puts "Errors::Authentication::Security::RoleNotFound"
           raise ApplicationController::BadRequest
 
         when Errors::Authentication::Security::MultipleRoleMatchesFound
@@ -112,7 +107,6 @@ module Authentication
           raise ApplicationController::BadRequest
 
         else
-          puts "case fails"
           raise ApplicationController::Unauthorized
         end
       end

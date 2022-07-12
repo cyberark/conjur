@@ -31,10 +31,10 @@ Feature: OIDC Authenticator V2 - Users can authenticate with OIDC authenticator
             privilege: [ read, authenticate ]
             resource: !webservice
       - !user
-        id: alice@conjur.net
+        id: alice
       - !grant
         role: !group conjur/authn-oidc/keycloak2/users
-        member: !user alice@conjur.net
+        member: !user alice
     """
     And I am the super-user
     And I successfully set OIDC V2 variables for "keycloak2"
@@ -43,16 +43,16 @@ Feature: OIDC Authenticator V2 - Users can authenticate with OIDC authenticator
   Scenario: A valid code to get Conjur access token
     # We want to verify the returned access token is valid for retrieving a secret
     Given I have a "variable" resource called "test-variable"
-    And I permit user "alice@conjur.net" to "execute" it
+    And I permit user "alice" to "execute" it
     And I add the secret value "test-secret" to the resource "cucumber:variable:test-variable"
-    And I fetch a code for username "alice@conjur.net" and password "alice"
+    And I fetch a code for username "alice" and password "alice"
     And I save my place in the audit log file
     When I authenticate via OIDC V2 with code
-    Then user "alice@conjur.net" has been authorized by Conjur
+    Then user "alice" has been authorized by Conjur
     And I successfully GET "/secrets/cucumber/variable/test-variable" with authorized user
     And The following appears in the audit log after my savepoint:
     """
-    cucumber:user:alice@conjur.net successfully authenticated with authenticator authn-oidc service cucumber:webservice:conjur/authn-oidc/keycloak2
+    cucumber:user:alice successfully authenticated with authenticator authn-oidc service cucumber:webservice:conjur/authn-oidc/keycloak2
     """
 
   @smoke
@@ -85,7 +85,7 @@ Feature: OIDC Authenticator V2 - Users can authenticate with OIDC authenticator
     """
     And I fetch a code for username "bob@conjur.net" and password "bob"
     When I authenticate via OIDC V2 with code
-    Then user "bob" has been authorized by Conjur
+    Then user "bob.somebody" has been authorized by Conjur
 
   @negative @acceptance
   Scenario: Non-existing username in claim mapping is denied
@@ -147,28 +147,45 @@ Feature: OIDC Authenticator V2 - Users can authenticate with OIDC authenticator
       member: !group more-users
     """
 
-    Given I extend the policy with:
-    """
-    - !user
-      id: chad
-      annotations:
-        authn-oidc/identity: bob.somebody
-    - !group more-users
-    - !grant
-      role: !group more-users
-      member: !user chad
-    - !grant
-      role: !group conjur/authn-oidc/keycloak2/users
-      member: !group more-users
-    """
-    Given I save my place in the log file
-    And I fetch a code for username "bob.somebody" and password "bob"
-    When I authenticate via OIDC V2 with code
-    Then it is forbidden
-    And The following appears in the log after my savepoint:
-    """
-    CONJ00009E 'bob.somebody' matched multiple roles
-    """
+#  @negative @acceptance
+#  Scenario: Adding a group to keycloak2/users group permits users to authenticate
+#    Given I extend the policy with:
+#    """
+#    - !user
+#      id: bob.somebody
+#      annotations:
+#        authn-oidc/identity: bob.somebody
+#    - !group more-users
+#    - !grant
+#      role: !group more-users
+#      member: !user bob.somebody
+#    - !grant
+#      role: !group conjur/authn-oidc/keycloak2/users
+#      member: !group more-users
+#    """
+#
+#    Given I extend the policy with:
+#    """
+#    - !user
+#      id: chad
+#      annotations:
+#        authn-oidc/identity: bob.somebody
+#    - !group more-users
+#    - !grant
+#      role: !group more-users
+#      member: !user chad
+#    - !grant
+#      role: !group conjur/authn-oidc/keycloak2/users
+#      member: !group more-users
+#    """
+#    Given I save my place in the log file
+#    And I fetch a code for username "bob.somebody" and password "bob"
+#    When I authenticate via OIDC V2 with code
+#    Then it is forbidden
+#    And The following appears in the log after my savepoint:
+#    """
+#    CONJ00009E 'bob.somebody' matched multiple roles
+#    """
 
   @negative @acceptance
   Scenario: Missing code is a bad request
@@ -214,7 +231,7 @@ Feature: OIDC Authenticator V2 - Users can authenticate with OIDC authenticator
   @negative @acceptance
   Scenario: Invalid state is a bad request
     Given I save my place in the log file
-    And I fetch a code for username "alice@conjur.net" and password "alice"
+    And I fetch a code for username "alice" and password "alice"
     When I authenticate via OIDC V2 with state "bad-state"
     Then it is a bad request
     And The following appears in the log after my savepoint:
@@ -225,7 +242,7 @@ Feature: OIDC Authenticator V2 - Users can authenticate with OIDC authenticator
   @negative @acceptance
   Scenario: Bad OIDC provider credentials
     Given I save my place in the log file
-    And I fetch a code for username "alice@conjur.net" and password "notalice"
+    And I fetch a code for username "alice" and password "notalice"
     When I authenticate via OIDC V2 with code
     Then it is a bad request
     And The following appears in the log after my savepoint:
@@ -236,7 +253,7 @@ Feature: OIDC Authenticator V2 - Users can authenticate with OIDC authenticator
   @negative @acceptance
   Scenario: Non-Existent authenticator is not found
     Given I save my place in the log file
-    And I fetch a code for username "alice@conjur.net" and password "alice"
+    And I fetch a code for username "alice" and password "alice"
     When I authenticate via OIDC V2 with code and service-id "non-exist"
     Then it is not found
     And The following appears in the log after my savepoint:
@@ -275,23 +292,24 @@ Feature: OIDC Authenticator V2 - Users can authenticate with OIDC authenticator
 
   @smoke
   Scenario: provider-uri dynamic change
-    And I fetch a code for username "alice@conjur.net" and password "alice"
+    And I fetch a code for username "alice" and password "alice"
     And I authenticate via OIDC V2 with code
-    And user "alice@conjur.net" has been authorized by Conjur
+    And user "alice" has been authorized by Conjur
     # Update provider uri to a different hostname and verify `provider-uri` has changed
     When I add the secret value "https://different-provider:8443" to the resource "cucumber:variable:conjur/authn-oidc/keycloak2/provider-uri"
     And I authenticate via OIDC V2 with code
     Then it is unauthorized
     # Check recovery to a valid provider uri
     When I successfully set OIDC V2 variables for "keycloak2"
-    And I fetch a code for username "alice@conjur.net" and password "alice"
+    And I fetch a code for username "alice" and password "alice"
     And I authenticate via OIDC V2 with code
-    Then user "alice@conjur.net" has been authorized by Conjur
+    Then user "alice" has been authorized by Conjur
+
   @negative @acceptance
   Scenario: Unauthenticated is raised in case of an invalid OIDC Provider hostname
-    Given I fetch a code for username "alice@conjur.net" and password "alice"
+    Given I fetch a code for username "alice" and password "alice"
     And I authenticate via OIDC V2 with code
-    And user "alice@conjur.net" has been authorized by Conjur
+    And user "alice" has been authorized by Conjur
     # Update provider uri to reachable but invalid hostname
     When I add the secret value "http://127.0.0.1.com/" to the resource "cucumber:variable:conjur/authn-oidc/keycloak2/provider-uri"
     And I save my place in the log file
