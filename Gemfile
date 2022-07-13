@@ -48,7 +48,7 @@ gem 'conjur-api', '~> 5.pre'
 gem 'conjur-policy-parser', path: 'gems/policy-parser'
 gem 'conjur-rack'
 gem 'conjur-rack-heartbeat'
-gem 'rack-rewrite'
+# gem 'rack-rewrite'
 
 # Putting this here currently confuses debify, so instead load it in
 # application.rb gem 'conjur_audit', path: 'engines/conjur_audit'
