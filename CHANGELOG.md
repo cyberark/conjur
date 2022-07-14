@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
+## [1.17.8] - 2022-07-14
+### Security
+- Updated rails to 6.1.6.1 to remove CVE-2022-32224
+  [cyberark/conjurinc#2605](https://github.com/cyberark/conjur/pull/2605)
+
 ## [1.17.7] - 2022-06-29
 
 ### Changed
