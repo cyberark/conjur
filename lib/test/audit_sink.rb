@@ -36,7 +36,7 @@ module Test
     end
 
     def socket_path
-      @socket_path ||= "audit_test_#{Process.pid}_#{Thread.current.object_id}.sock"
+      @socket_path ||= "/tmp/audit_test_#{Process.pid}_#{Thread.current.object_id}.sock"
     end
 
     attr_reader :socket, :messages
@@ -45,7 +45,7 @@ module Test
       def instance
         @instance ||= new
       end
-      
+
       extend Forwardable
       def_delegators :instance, :messages
     end
