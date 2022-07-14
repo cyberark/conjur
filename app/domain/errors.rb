@@ -154,6 +154,11 @@ module Errors
         msg: "Account '{0-account-name}' is not defined in Conjur",
         code: "CONJ00008E"
       )
+
+      MultipleRoleMatchesFound = ::Util::TrackableErrorClass.new(
+        msg: "'{0-role}' matched multiple roles",
+        code: "CONJ00009E"
+      )
     end
 
     module RequestBody
@@ -224,6 +229,26 @@ module Errors
       ServiceIdMissing = ::Util::TrackableErrorClass.new(
         msg: "Service id is required when authenticating with authn-oidc",
         code: "CONJ00075E"
+      )
+
+      StateMismatch = ::Util::TrackableErrorClass.new(
+        msg: "Conjur internal state doesn't match given state",
+        code: "CONJ00127E"
+      )
+
+      TokenVerificationFailed = ::Util::TrackableErrorClass.new(
+        msg: "Conjur internal state doesn't match given state",
+        code: "CONJ00128E"
+      )
+
+      InvalidVariableValue = ::Util::TrackableErrorClass.new(
+        msg: "Parameter {0} with value {1} invalid",
+        code: "CONJ00129E"
+      )
+
+      InvalidProviderConfig = ::Util::TrackableErrorClass.new(
+        msg: "The OIDC provider variable values are misconfigured",
+        code: "CONJ00130E"
       )
 
     end

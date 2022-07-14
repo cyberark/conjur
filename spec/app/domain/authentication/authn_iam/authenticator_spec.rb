@@ -18,9 +18,9 @@ RSpec.describe(Authentication::AuthnIam::Authenticator) do
     "38a232969747b77e82f6c845f63941ebde89eb2cc20ed1c6f2dbabc92b6\"}"
   end
 
-  def valid_response 
-    double('HTTPResponse', 
-           code: 200, 
+  def valid_response
+    double('HTTPResponse',
+           code: 200,
            body: %(
                 <GetCallerIdentityResponse xmlns="https://sts.amazonaws.com/doc/2011-06-15/">
                     <GetCallerIdentityResult>
@@ -31,13 +31,13 @@ RSpec.describe(Authentication::AuthnIam::Authenticator) do
                     <ResponseMetadata>
                         <RequestId>f555066a-7417-11e8-8ded-8daed431985e</RequestId>
                     </ResponseMetadata>
-                </GetCallerIdentityResponse> 
+                </GetCallerIdentityResponse>
             )
     )
   end
 
-  def invalid_response 
-    double('HTTPResponse', 
+  def invalid_response
+    double('HTTPResponse',
            code: 404,
            body: "Error"
     )
@@ -55,7 +55,7 @@ RSpec.describe(Authentication::AuthnIam::Authenticator) do
     Authentication::AuthnIam::Authenticator.new(env:[])
   end
 
-  it "valid? with expired AWS headers" do
+  it "valid? with expired AWS headers", vcr: 'authenticators/authn-iam/verify-expired-headers' do
     subject = authenticator_instance
     parameters = double('AuthenticationParameters', credentials: expired_aws_headers)
     expect{subject.valid?(parameters)}.to(
@@ -87,7 +87,7 @@ RSpec.describe(Authentication::AuthnIam::Authenticator) do
     subject = authenticator_instance
     expect(subject.identity_hash(invalid_response)).to eq(false)
   end
-  
+
   it "matches valid login to AWS IAM role (based on AWS response)" do
     subject = authenticator_instance
     identity_hash = subject.identity_hash(valid_response)

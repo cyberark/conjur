@@ -86,6 +86,7 @@ _run_cucumber_tests() {
 
   docker-compose run "${run_flags[@]}" "${env_var_flags[@]}" \
     cucumber -ec "\
+      /oauth/keycloak/scripts/fetch_certificate &&
       bundle exec cucumber \
        --strict \
        ${cucumber_tags_arg} \
