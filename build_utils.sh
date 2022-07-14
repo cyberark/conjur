@@ -6,11 +6,12 @@ function version_tag() {
   git rev-parse --short=8 HEAD
 }
 
-# generate less specific versions, eg. given 1.2.3 will print 1.2 and 1
-# (note: the argument itself is not printed, append it explicitly if needed)
+# generate set of less specific versions, eg. given 1.2.3 will print 1.2.3,
+# 1.2 and 1
 function gen_versions()
 {
   local version=$1
+  echo "$version"
   while [[ $version = *.* ]]; do
     version=${version%.*}
     echo "$version"
