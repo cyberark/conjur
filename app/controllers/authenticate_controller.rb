@@ -127,6 +127,12 @@ class AuthenticateController < ApplicationController
     )
     render_authn_token(authn_token)
   rescue => e
+    # At this point authenticator_input.username is always empty (e.g. cucumber:user:USERNAME_MISSING)
+    log_audit_failure(
+      authn_params: authenticator_input,
+      audit_event_class: Audit::Event::Authn::Authenticate,
+      error: e
+    )
     handle_authentication_error(e)
   end
 
