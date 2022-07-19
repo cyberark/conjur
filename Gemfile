@@ -88,7 +88,6 @@ group :development, :test do
   gem 'debase', '~> 0.2.5.beta2'
   gem 'faye-websocket'
   gem 'json_spec', '~> 1.1'
-  gem 'faye-websocket'
   gem 'net-ssh'
   gem 'parallel'
   gem 'pry-byebug'

@@ -33,6 +33,7 @@ module Authentication
       def call(parameters:, request_ip:)
         raise Errors::Authentication::RequestBody::MissingRequestParam, parameters[:code] unless parameters[:code]
         raise Errors::Authentication::RequestBody::MissingRequestParam, parameters[:state] unless parameters[:state]
+
         # Load Authenticator policy and values (validates data stored as variables)
         authenticator = @authn_repo.find(
           type: @authenticator_type,
@@ -88,7 +89,7 @@ module Authentication
           raise ApplicationController::BadRequest
 
         when Errors::Conjur::RequestedResourceNotFound
-          raise ApplicationController::RecordNotFound.new(err.message)
+          raise(ApplicationController::RecordNotFound.new(err.message))
 
         when Errors::Authentication::AuthnOidc::IdTokenClaimNotFoundOrEmpty
           raise ApplicationController::Unauthorized
@@ -115,7 +116,7 @@ module Authentication
         ::Authentication::LogAuditEvent.new.call(
           authentication_params:
             Authentication::AuthenticatorInput.new(
-              authenticator_name: "#{type}",
+              authenticator_name: type.to_s,
               service_id: authenticator.service_id,
               account: authenticator.account,
               username: conjur_role.role_id,
@@ -132,7 +133,7 @@ module Authentication
         ::Authentication::LogAuditEvent.new.call(
           authentication_params:
             Authentication::AuthenticatorInput.new(
-              authenticator_name: "#{type}",
+              authenticator_name: type.to_s,
               service_id: service_id,
               account: account,
               username: nil,

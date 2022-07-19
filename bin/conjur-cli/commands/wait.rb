@@ -25,7 +25,7 @@ module Commands
       if conjur_ready?
         $stdout.puts(" Conjur is ready!")
       else
-        exit_now!(" Conjur is not ready after #{@retries} seconds") 
+        exit_now!(" Conjur is not ready after #{@retries} seconds")
       end
     end
 

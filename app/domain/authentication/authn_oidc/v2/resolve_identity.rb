@@ -10,8 +10,6 @@ module Authentication
             role_account, _, role_id = role.id.split(':')
             return role if role_account == account && identity == role_id
           end
-
-          raise(Errors::Authentication::Security::RoleNotFound, identity)
         end
       end
     end
