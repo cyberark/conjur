@@ -695,8 +695,9 @@ module Errors
         code: "CONJ00069E"
       )
 
-      IllegalExclusiveRequiredCombination = ::Util::TrackableErrorClass.new(
-        msg: "Role must have only one of the following required constraints: {0-constraints}",
+      IllegalRequiredExclusiveCombination = ::Util::TrackableErrorClass.new(
+        msg: "Role must have exactly one of the following required constraints: " \
+             "{0-constraints}. Role configured with {1-provided}",
         code: "CONJ00069E"
       )
 
