@@ -14,6 +14,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Adds support for authentication using OIDC's code authorization flow
   [cyberark/conjur#2595](https://github.com/cyberark/conjur/pull/2595)
 
+### Security
+- Updated tzinfo to 1.2.10 to address CVE-2022-31163
+  [cyberark/conjur#2610](https://github.com/cyberark/conjur/pull/2610)
+
 ## [1.17.8] - 2022-07-14
 
 ### Security
