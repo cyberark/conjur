@@ -213,13 +213,6 @@ When(/^I authenticate via OIDC with code and service_id "([^"]*)"$/) do |service
   )
 end
 
-When(/^I authenticate via OIDC V2 with code and service-id "([^"]*)"$/) do |service_id|
-  authenticate_code_with_oidc(
-    service_id: service_id,
-    account: AuthnOidcHelper::ACCOUNT
-  )
-end
-
 When(/^I authenticate via OIDC with no id token( and user id "([^"]*)" in the request)?$/) do |user_id|
   authenticate_id_token_with_oidc(
     service_id: AuthnOidcHelper::SERVICE_ID,
