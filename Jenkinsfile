@@ -780,7 +780,7 @@ def runConjurTests(run_only_str) {
     ],
     "authenticators_oidc": [
       "OIDC Authenticator - ${env.STAGE_NAME}": {
-        sh 'ci/test authenticators_oidc'
+          sh 'summon -f ./ci/test_suites/authenticators_oidc/secrets.yml -e ci ci/test authenticators_oidc'
       }
     ],
     "authenticators_jwt": [
