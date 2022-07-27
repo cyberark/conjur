@@ -117,12 +117,6 @@ module Authentication
         k8s_client_for_method("get_pods").get_pods(label_selector: label_selector, namespace: namespace)
       end
 
-      # Locates namespace matching label selector in a namespace.
-      #
-      def namespace_by_label(namespace_name, label_selector)
-        k8s_client_for_method("get_namespaces").get_namespaces(field_selector: "metadata.name=#{namespace_name}", label_selector: label_selector)
-      end
-
       # Look up an object according to the resource name. In Kubernetes, the
       # "resource" means something like ReplicaSet, Job, Deployment, etc.
       #

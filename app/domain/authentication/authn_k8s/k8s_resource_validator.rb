@@ -25,28 +25,36 @@ module Authentication
       end
 
       def valid_namespace?(label_selector:)
-        # APPROACH
-        # 
-        # namespaces = @k8s_object_lookup.namespace_by_label(namespace, label_selector)
-        # condition = namespaces.any?
 
-        # APPROACH
+        if (!label_selector.include?("=")) {
+          raise Errors::Authentication::AuthnK8s::InvalidNamespaceLabelSelector.new(label_selector)
+        }
+
         namespace_object = @k8s_object_lookup.namespace_by_name(namespace)
+        labels_hash = namespace_object.metadata.labels.to_h
 
-        # in the spirit of https://github.com/kubernetes/apimachinery/blob/master/pkg/labels/selector.go
-        labels_h = namespace_object.metadata.labels.to_h
-        label_selector_h = label_selector
+        validate_namespace_labels(label_selector, labels_hash)
+      end
+
+      private
+
+      def validate_labels(label_selector, labels_hash)
+        # In the spirit of https://github.com/kubernetes/apimachinery/blob/master/pkg/labels/selector.go
+        label_selector_hash = label_selector
           .split(",")
-          .map{ |kv_pair| kv_pair = kv_pair.split("="); kv_pair[0] = kv_pair[0].to_sym; kv_pair }
+          .map{ |kv_pair|
+            kv_pair = kv_pair.split(/={1,2}/, 2)
+            kv_pair[0] = kv_pair[0].to_sym
+            kv_pair
+          }
           .to_h
-        condition = label_selector_h.all? { |k, v| labels_h[k] == v }
+
+        condition = label_selector_h.all? { |k, v| labels_hash[k] == v }
 
         unless condition
           raise Errors::Authentication::AuthnK8s::NamespaceLabelSelectorMismatch.new(namespace, label_selector)
         end
       end
-
-      private
 
       def retrieve_k8s_resource(type, name)
         @k8s_object_lookup.find_object_by_name(
