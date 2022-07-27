@@ -291,7 +291,12 @@ module Errors
 
       NamespaceLabelSelectorMismatch = ::Util::TrackableErrorClass.new(
         msg: "Kubernetes namespace '{0-namespace}' does not match label-selector: {1-label-selector}",
-        code: "CONJ00026E"
+        code: "CONJ00083E"
+      )
+
+      InvalidNamespaceLabelSelector = ::Util::TrackableErrorClass.new(
+        msg: "Invalid namespace label selector {0-label-selector}: must adhere to format '<key1>=<value1>'",
+        code: "CONJ00094E"
       )
 
       ContainerNotFound = ::Util::TrackableErrorClass.new(
