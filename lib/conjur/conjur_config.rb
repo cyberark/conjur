@@ -28,6 +28,7 @@ module Conjur
       api_resource_list_limit_max: 0,
       user_authorization_token_ttl: 480, # The default TTL of User is 8 minutes
       host_authorization_token_ttl: 480, # The default TTL of Host is 8 minutes
+      authn_api_key_default: true,
       authenticators: []
     )
 
