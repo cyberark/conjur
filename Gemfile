@@ -86,7 +86,6 @@ group :development, :test do
   gem 'cucumber', '~> 7.1'
   gem 'database_cleaner', '~> 1.8'
   gem 'debase', '~> 0.2.5.beta2'
-  gem 'faye-websocket'
   gem 'json_spec', '~> 1.1'
   gem 'faye-websocket'
   gem 'net-ssh'
@@ -113,8 +112,6 @@ group :development, :test do
   gem 'vcr'
   gem 'webmock'
   gem 'webrick'
-  gem 'faye-websocket'
-  gem 'thin'
 end
 
 group :development do

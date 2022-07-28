@@ -4,7 +4,12 @@ set -euo pipefail
 
 IMAGE="registry.tld/conjur-appliance:eval-authn-k8s-label-selector"
 
-echo "FROM registry.tld/conjur-appliance:5.0-stable
+echo "Building on top of stable appliance image and pushing to ${IMAGE}"
+
+echo "
+
+# ---
+FROM registry.tld/conjur-appliance:5.0-stable
 
 # Copy new source files
 $(
@@ -21,7 +26,12 @@ puts files.map {|file| "COPY #{file} /opt/conjur/possum/#{file}"}.join("\n")
 '
 )
 
-RUN chown -R conjur:conjur /opt/conjur/possum/app" > Dockerfile.appliance
+RUN chown -R conjur:conjur /opt/conjur/possum/app
 
-docker build -f ./Dockerfile.appliance -t "${IMAGE}" .
+# ---
+
+" | \
+ tee /dev/stderr | \
+ docker build -f - -t "${IMAGE}" .
+
 docker push "${IMAGE}"
