@@ -25,36 +25,41 @@ module Authentication
       end
 
       def valid_namespace?(label_selector:)
-
-        if (!label_selector.include?("=")) {
-          raise Errors::Authentication::AuthnK8s::InvalidNamespaceLabelSelector.new(label_selector)
-        }
-
-        namespace_object = @k8s_object_lookup.namespace_by_name(namespace)
-        labels_hash = namespace_object.metadata.labels.to_h
-
-        validate_namespace_labels(label_selector, labels_hash)
-      end
-
-      private
-
-      def validate_labels(label_selector, labels_hash)
+        # Validates label selector and creates a hash
         # In the spirit of https://github.com/kubernetes/apimachinery/blob/master/pkg/labels/selector.go
+        if label_selector.length == 0
+          raise Errors::Authentication::AuthnK8s::InvalidLabelSelector.new(label_selector)
+        end
         label_selector_hash = label_selector
           .split(",")
           .map{ |kv_pair|
             kv_pair = kv_pair.split(/={1,2}/, 2)
+
+            invalid ||= kv_pair.length != 2
+            invalid ||= kv_pair[0].include?("!")
+
+            if (invalid)
+              raise Errors::Authentication::AuthnK8s::InvalidLabelSelector.new(label_selector)
+            end
+
             kv_pair[0] = kv_pair[0].to_sym
             kv_pair
           }
           .to_h
 
-        condition = label_selector_h.all? { |k, v| labels_hash[k] == v }
+        # Fetch namespace labels
+        # TODO: refactor this to have a generic label fetching method in @k8s_object_lookup
+        labels_hash = @k8s_object_lookup.namespace_labels_hash(namespace)
 
-        unless condition
-          raise Errors::Authentication::AuthnK8s::NamespaceLabelSelectorMismatch.new(namespace, label_selector)
+        # Validates label selector hash against labels hash
+        unless label_selector_hash.all? { |k, v| labels_hash[k] == v }
+          raise Errors::Authentication::AuthnK8s::LabelSelectorMismatch.new('namespace', namespace, label_selector)
         end
+
+        return true
       end
+
+      private
 
       def retrieve_k8s_resource(type, name)
         @k8s_object_lookup.find_object_by_name(
