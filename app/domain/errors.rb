@@ -289,13 +289,13 @@ module Errors
         code: "CONJ00026E"
       )
 
-      NamespaceLabelSelectorMismatch = ::Util::TrackableErrorClass.new(
-        msg: "Kubernetes namespace '{0-namespace}' does not match label-selector: {1-label-selector}",
+      LabelSelectorMismatch = ::Util::TrackableErrorClass.new(
+        msg: "Kubernetes {0-resource-type} '{1-resource-id}' does not match label-selector: '{2-label-selector}'",
         code: "CONJ00083E"
       )
 
-      InvalidNamespaceLabelSelector = ::Util::TrackableErrorClass.new(
-        msg: "Invalid namespace label selector {0-label-selector}: must adhere to format '<key1>=<value1>'",
+      InvalidLabelSelector = ::Util::TrackableErrorClass.new(
+        msg: "Invalid label-selector '{0-label-selector}': must adhere to format '<key>=<value>,<key1>=<value2>,...', supports '=' and '=='",
         code: "CONJ00094E"
       )
 
