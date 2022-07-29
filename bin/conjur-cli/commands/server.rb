@@ -40,6 +40,7 @@ module Commands
       # processes
       fork_server_process
       fork_authn_local_process
+      fork_provider_list_process
       fork_rotation_process
 
       # Block until all child processes end
@@ -98,12 +99,12 @@ module Commands
     def cleanup_pidfile
       # Get the path to conjurctl
       conjurctl_path = `readlink -f $(which conjurctl)`
-    
+
       # Navigate from its directory (/bin) to the root Conjur server directory
       conjur_server_dir = Pathname.new(File.join(File.dirname(conjurctl_path), '..')).cleanpath
       pid_file_path = File.join(conjur_server_dir, 'tmp/pids/server.pid')
       return unless File.exist?(pid_file_path)
-      
+
       puts("Removing existing PID file: #{pid_file_path}")
       File.delete(pid_file_path)
     end
@@ -130,6 +131,12 @@ module Commands
     def fork_authn_local_process
       Process.fork do
         exec("rake authn_local:run")
+      end
+    end
+
+    def fork_provider_list_process
+      Process.fork do
+        exec("rake ui:run")
       end
     end
 
