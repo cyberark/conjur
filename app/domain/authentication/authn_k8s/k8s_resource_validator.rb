@@ -24,9 +24,11 @@ module Authentication
         @logger.debug(LogMessages::Authentication::AuthnK8s::ValidatedK8sResource.new(type, name))
       end
 
+      # Validates label selector and creates a hash
+      # In the spirit of https://github.com/kubernetes/apimachinery/blob/master/pkg/labels/selector.go
       def valid_namespace?(label_selector:)
-        # Validates label selector and creates a hash
-        # In the spirit of https://github.com/kubernetes/apimachinery/blob/master/pkg/labels/selector.go
+        @logger.debug(LogMessages::Authentication::AuthnK8s::ValidatingK8sResourceLabel.new('namespace', namespace, label_selector))
+
         if label_selector.length == 0
           raise Errors::Authentication::AuthnK8s::InvalidLabelSelector.new(label_selector)
         end
@@ -56,6 +58,7 @@ module Authentication
           raise Errors::Authentication::AuthnK8s::LabelSelectorMismatch.new('namespace', namespace, label_selector)
         end
 
+        @logger.debug(LogMessages::Authentication::AuthnK8s::ValidatedK8sResourceLabel.new('namespace', namespace, label_selector))
         return true
       end
 

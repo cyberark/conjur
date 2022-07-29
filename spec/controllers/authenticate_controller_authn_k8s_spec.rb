@@ -35,9 +35,9 @@ def define_authenticator(account:, service_id:, host_id:)
 - !host
   id: #{host_id}
   annotations:
-    authn-k8s/namespace: default
-    # authn-k8s/namespace-label-selector: "field.cattle.io/projectId=p-q7s7z"
+    authn-k8s/namespace-label: "field.cattle.io/projectId=p-q7s7z"
     authn-k8s/authentication-container-name: bash
+    # authn-k8s/namespace: default
     # authn-k8s/service-account: <service-account>
     # authn-k8s/deployment: <deployment>
     # authn-k8s/deployment-config: <deployment-config>

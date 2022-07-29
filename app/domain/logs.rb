@@ -234,12 +234,22 @@ module LogMessages
       )
 
       ValidatingK8sResource = ::Util::TrackableLogMessageClass.new(
-        msg: "Validating K8s resource. Type:'{0}', Name: {1}",
+        msg: "Validating K8s resource. Type:'{0}', Name:'{1}'",
+        code: "CONJ00050D"
+      )
+
+      ValidatingK8sResourceLabel = ::Util::TrackableLogMessageClass.new(
+        msg: "Validating K8s resource. Type:'{0}', Name:'{1}', Label:'{2}'",
         code: "CONJ00050D"
       )
 
       ValidatedK8sResource = ::Util::TrackableLogMessageClass.new(
-        msg: "Validated K8s resource. Type:'{0}', Name: {1}",
+        msg: "Validated K8s resource. Type:'{0}', Name:'{1}'",
+        code: "CONJ00051D"
+      )
+
+      ValidatedK8sResourceLabel = ::Util::TrackableLogMessageClass.new(
+        msg: "Validated K8s resource. Type:'{0}', Name:'{1}', Label:'{2}'",
         code: "CONJ00051D"
       )
     end
