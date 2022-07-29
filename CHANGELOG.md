@@ -9,14 +9,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
-## [1.18.1] - 2022-08-01
+## [1.18.1] - 2022-07-29
+### Changed
+- Adds support for local processes to retrieve a list of configured OIDC providers
+  [cyberark/conjur#2616](https://github.com/cyberark/conjur/pull/2616)
 
-## [1.18.0] - 2022-08-01
-
-### Added
-- Adds support for namespace label based identity scope for the Kubernetes Authenticator
-  [cyberark/conjur#2613](https://github.com/cyberark/conjur/pull/2613)
-
+## [1.18.0] - 2022-07-12
 ### Changed
 - Adds support for authentication using OIDC's code authorization flow
   [cyberark/conjur#2595](https://github.com/cyberark/conjur/pull/2595)
