@@ -18,7 +18,7 @@ module Authentication
           if restriction.value != @namespace
             raise Errors::Authentication::AuthnK8s::NamespaceMismatch.new(@namespace, restriction.value)
           end
-        when Restrictions::NAMESPACE_LABEL
+        when Restrictions::NAMESPACE_LABEL_SELECTOR
           @k8s_resource_validator.valid_namespace?(label_selector: restriction.value)
         else
           # Restrictions defined using '-', but the k8s client expects type with '_' instead.

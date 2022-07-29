@@ -8,7 +8,7 @@ module Authentication
     module Restrictions
 
       NAMESPACE = "namespace"
-      NAMESPACE_LABEL = "namespace-label"
+      NAMESPACE_LABEL_SELECTOR = "namespace-label-selector"
       SERVICE_ACCOUNT = "service-account"
       POD = "pod"
       DEPLOYMENT = "deployment"
@@ -18,7 +18,7 @@ module Authentication
       # This is not exactly a restriction, because it only validates container existence and not requesting container name.
       AUTHENTICATION_CONTAINER_NAME = "authentication-container-name"
 
-      REQUIRED_EXCLUSIVE = [NAMESPACE, NAMESPACE_LABEL].freeze
+      REQUIRED_EXCLUSIVE = [NAMESPACE, NAMESPACE_LABEL_SELECTOR].freeze
       RESOURCE_TYPE_EXCLUSIVE = [DEPLOYMENT, DEPLOYMENT_CONFIG, STATEFUL_SET].freeze
       OPTIONAL = [SERVICE_ACCOUNT, POD, AUTHENTICATION_CONTAINER_NAME].freeze
       PERMITTED = REQUIRED_EXCLUSIVE + RESOURCE_TYPE_EXCLUSIVE + OPTIONAL
