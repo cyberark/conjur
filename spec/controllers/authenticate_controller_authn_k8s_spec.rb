@@ -24,24 +24,30 @@ def apply_root_policy(account, policy_content:, expect_success: false)
   end
 end
 
+def define_and_grant_host(account:, host_id:, annotations:, service_id:)
+  host_policy = %Q(
+# Define test app host
+- !host
+  id: #{host_id}
+  annotations:
+#{annotations.map{ |k,v| "#{k}: #{v}" }.join("\n").indent(4)}
+
+# Grant app host authentication privileges
+- !permit
+  role: !host #{host_id}
+  privilege: [ read, authenticate ]
+  resource: !webservice #{service_id}
+  )
+
+  apply_root_policy(account, policy_content: host_policy, expect_success: true)
+end
+
 def define_authenticator(account:, service_id:, host_id:)
   # Create authenticator instance by applying policy
   authenticator_policy = %Q(
 ---
 # In the spirit of
 # https://docs.cyberark.com/Product-Doc/OnlineHelp/AAM-DAP/Latest/en/Content/Integrations/k8s-ocp/k8s-app-identity.htm?tocpath=Integrations%7COpenShift%252FKubernetes%7CSet%20up%20applications%7C_____4
-
-# Define test app host
-- !host
-  id: #{host_id}
-  annotations:
-    authn-k8s/namespace: default
-    # authn-k8s/namespace-label-selector: "field.cattle.io/projectId=p-q7s7z"
-    authn-k8s/authentication-container-name: bash
-    # authn-k8s/service-account: <service-account>
-    # authn-k8s/deployment: <deployment>
-    # authn-k8s/deployment-config: <deployment-config>
-    # authn-k8s/stateful-set: <stateful-set>
 
 # Enroll a Kubernetes authentication service
 - !policy
@@ -63,12 +69,6 @@ def define_authenticator(account:, service_id:, host_id:)
     - !webservice
       annotations:
         description: Authenticator service for K8s cluster
-
-    # Grant app host authentication privileges
-    - !permit
-      role: !host /#{host_id}
-      privilege: [ read, authenticate ]
-      resource: !webservice
 )
 
   apply_root_policy(account, policy_content: authenticator_policy, expect_success: true)
@@ -106,7 +106,6 @@ def fake_authn_k8s_login(account, service_id, host_id:)
   )
 end
 
-
 def authn_k8s_login(authenticator_id:, host_id:)
   # Fake login
   hostpkey = OpenSSL::PKey::RSA.new(2048)
@@ -132,20 +131,41 @@ def authn_k8s_authenticate(authenticator_id:, account:, host_id:, signed_cert_pe
   post("/#{authenticator_id}/#{account}/#{escaped_host_id}/authenticate", env: payload)
 end
 
+def capture_args(obj, method)
+  args = []
+  original_method = obj.method(method)
+  allow(obj).to receive(method) { |arg|
+    args.push(arg)
+    original_method.call(arg)
+  }
+  args
+end
+
 describe AuthenticateController, :type => :request do
+  # Test server is defined in the appropritate "around" hook for the test example
+  let(:test_server) { @test_server }
+
   let(:account) { "rspec" }
   let(:authenticator_id) { "authn-k8s/meow" }
+  let(:service_id) { "conjur/#{authenticator_id}" }
   let(:test_app_host) { "h-#{random_hex}" }
+
   # Allows API calls to be made as the admin user
   let(:admin_request_env) do
     { 'HTTP_AUTHORIZATION' => "Token token=\"#{Base64.strict_encode64(Slosilo["authn:rspec"].signed_token("admin").to_json)}\"" }
   end
 
-  # Test server is defined in the appropritate "around" hook for the test example
-  let(:test_server) { @test_server }
+  before(:all) do
+    # Start fresh
+    DatabaseCleaner.clean_with(:truncation)
+
+    # Init Slosilo key
+    Slosilo["authn:rspec"] ||= Slosilo::Key.new
+    Role.create(role_id: 'rspec:user:admin')
+  end
 
   describe "#authenticate" do
-    context "k8s api access contains subpath" do
+    context "k8s mock server" do
       around(:each) do |example|
         WebMock.disable_net_connect!(allow: 'http://localhost:1234')
         AuthnK8sTestServer.run_async(
@@ -157,9 +177,7 @@ describe AuthenticateController, :type => :request do
         end
       end
 
-      it "client successfully authenticates" do
-        service_id = "conjur/#{authenticator_id}"
-
+      before(:each) do
         # Setup authenticator
         define_authenticator(
           account: account,
@@ -177,10 +195,20 @@ describe AuthenticateController, :type => :request do
           ca_cert: "---",
           service_account_token: "bearer token"
         )
-
-        # Authenticate
-        # first, ensure authenticator is enabled. Unfortunately there's no nicer way to do this since configuration used is that which is evaluated at load time!
+        # ensure authenticator is enabled. Unfortunately there's no nicer way to do this since configuration used is that which is evaluated at load time!
         allow_any_instance_of(Authentication::Webservices).to receive(:include?).and_return(true)
+      end
+
+      it "client successfully authenticates with namespace name restriction" do
+        define_and_grant_host(
+          account: account,
+          host_id: test_app_host,
+          annotations: {
+            "authn-k8s/authentication-container-name" => "bash",
+            "authn-k8s/namespace" => "default"
+          },
+          service_id: service_id
+        )
 
         # NOTE: option to do an in-memory fake login request
         # signed_cert = fake_authn_k8s_login(account, service_id, host_id: test_app_host)
@@ -207,21 +235,76 @@ describe AuthenticateController, :type => :request do
         expect(token.signature).to be
         expect(token.claims).to have_key('iat')
       end
+
+      it "client successfully authenticates with namespace label restriction" do
+        define_and_grant_host(
+          account: account,
+          host_id: test_app_host,
+          annotations: {
+            "authn-k8s/authentication-container-name" => "bash",
+            "authn-k8s/namespace-label-selector" => "field.cattle.io/projectId=p-q7s7z"
+          },
+          service_id: service_id
+        )
+
+        # NOTE: option to do an in-memory fake login request
+        # signed_cert = fake_authn_k8s_login(account, service_id, host_id: test_app_host)
+
+        # Login request, grab the signed certificate from the fake server
+        authn_k8s_login(
+          authenticator_id: authenticator_id,
+          host_id: test_app_host
+        )
+        signed_cert = test_server.copied_content
+
+        # Authenticate request
+        authn_k8s_authenticate(
+          authenticator_id: authenticator_id,
+          account: account,
+          host_id: test_app_host,
+          signed_cert_pem: signed_cert.to_s
+        )
+
+        # Assertions
+        expect(response).to be_ok
+        token = Slosilo::JWT.parse_json(response.body)
+        expect(token.claims['sub']).to eq("host/#{test_app_host}")
+        expect(token.signature).to be
+        expect(token.claims).to have_key('iat')
+      end
+
+      it "client fails when given both namespace name and label restriction" do
+        define_and_grant_host(
+          account: account,
+          host_id: test_app_host,
+          annotations: {
+            "authn-k8s/namespace" => "default",
+            "authn-k8s/namespace-label-selector" => "field.cattle.io/projectId=p-q7s7z" ,
+            "authn-k8s/authentication-container-name" => "bash"
+          },
+          service_id: service_id
+        )
+
+        info_log_args = capture_args(Rails.logger, :info)
+
+        # Login request, grab the signed certificate from the fake server
+        authn_k8s_login(
+          authenticator_id: authenticator_id,
+          host_id: test_app_host
+        )
+
+        expect(info_log_args).to satisfy { |args|
+          args.any? { |arg|
+            arg.to_s.include?("CONJ00131E")
+          }
+        }
+      end
     end
 
     # TODO: Add more scenarios
     # 1. Kubernetes API errors
     # 2. Conjur Authentication errors
     # ...
-  end
-
-  before(:all) do
-    # Start fresh
-    DatabaseCleaner.clean_with(:truncation)
-
-    # Init Slosilo key
-    Slosilo["authn:rspec"] ||= Slosilo::Key.new
-    Role.create(role_id: 'rspec:user:admin')
   end
 end
 

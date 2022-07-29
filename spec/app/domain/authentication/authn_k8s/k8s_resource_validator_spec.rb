@@ -3,12 +3,32 @@
 require 'spec_helper'
 
 RSpec.describe(Authentication::AuthnK8s::K8sResourceValidator) do
-  subject {
-    described_class.new(k8s_object_lookup: k8s_object_lookup, pod: pod)
+  let(:log_output) { StringIO.new }
+  let(:logger) {
+    Logger.new(
+      log_output,
+      formatter: proc do | severity, time, progname, msg |
+        "#{severity},#{msg}\n"
+      end)
   }
 
-  let(:k8s_object_lookup) { double("k8s_object_lookup") }
-  let(:pod) { double("pod") }
+  subject {
+    described_class.new(k8s_object_lookup: k8s_object_lookup, pod: pod, logger: logger)
+  }
+
+  let(:k8s_object_lookup) {
+    double("k8s_object_lookup").tap { |d|
+      allow(d).to receive(:namespace_labels_hash)
+        .with("namespace_name")
+        .and_return({ :key1 => "value1", :key2 => "value2" })
+    }
+  }
+
+  let(:pod) {
+    double("pod").tap { |d|
+      d.stub_chain("metadata.namespace").and_return("namespace_name")
+    }
+  }
 
   context "#valid_namespace?" do
     it 'raises error on empty label selector' do
@@ -36,11 +56,6 @@ RSpec.describe(Authentication::AuthnK8s::K8sResourceValidator) do
     end
 
     it 'returns true for labels matching label-selector' do
-      pod.stub_chain("metadata.namespace").and_return("namespace_name")
-      allow(k8s_object_lookup).to receive(:namespace_labels_hash)
-        .with("namespace_name")
-        .and_return({ :key1 => "value1", :key2 => "value2"})
-
       # Single key, single equals format
       expect(
         subject.valid_namespace?(label_selector: "key1=value1")
@@ -56,11 +71,6 @@ RSpec.describe(Authentication::AuthnK8s::K8sResourceValidator) do
     end
 
     it 'throws an error for labels not matching label-selector' do
-      pod.stub_chain("metadata.namespace").and_return("namespace_name")
-      allow(k8s_object_lookup).to receive(:namespace_labels_hash)
-        .with("namespace_name")
-        .and_return({ :key1 => "value1", :key2 => "value2"})
-
       # Value mismatch
       expect { subject.valid_namespace?(label_selector: "key1=notvalue") }.to(
         raise_error(
@@ -78,6 +88,26 @@ RSpec.describe(Authentication::AuthnK8s::K8sResourceValidator) do
         raise_error(
           ::Errors::Authentication::AuthnK8s::LabelSelectorMismatch
         )
+      )
+    end
+
+    it 'logs before label-selector validation begins, and after success' do
+      subject.valid_namespace?(label_selector: "key1=value1")
+
+      expect(log_output.string.split("\n")).to include(
+        "DEBUG,CONJ00145D Validating K8s resource using label selector. Type:'namespace', Name:'namespace_name', Label:'key1=value1'",
+        "DEBUG,CONJ00146D Validated K8s resource using label selector. Type:'namespace', Name:'namespace_name', Label:'key1=value1'"
+      )
+    end
+
+    it 'logs before label-selector validation begins, but not after failure' do
+      expect { subject.valid_namespace?(label_selector: "key1=notvalue") }.to raise_error
+
+      expect(log_output.string.split("\n")).to include(
+        "DEBUG,CONJ00145D Validating K8s resource using label selector. Type:'namespace', Name:'namespace_name', Label:'key1=notvalue'",
+      )
+      expect(log_output.string.split("\n")).not_to include(
+        "DEBUG,CONJ00146D Validated K8s resource using label selector. Type:'namespace', Name:'namespace_name', Label:'key1=notvalue'"
       )
     end
   end

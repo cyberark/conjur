@@ -224,15 +224,3 @@ module Authentication
     end
   end
 end
-
-# rails c
-# 
-# webservice = ::Authentication::Webservice.new(
-#   account: "rancherDemoAccount",
-#   authenticator_name: "authn-k8s",
-#   service_id: "demo/rancher"
-#  )
-
-# k8s_object_lookup = Authentication::AuthnK8s::K8sObjectLookup.new(webservice)
-# namespace = k8s_object_lookup.kube_client.get_namespace("default")
-# namespace.metadata.labels.to_h
