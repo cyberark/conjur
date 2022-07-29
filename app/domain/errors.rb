@@ -700,12 +700,6 @@ module Errors
         code: "CONJ00069E"
       )
 
-      IllegalRequiredExclusiveCombination = ::Util::TrackableErrorClass.new(
-        msg: "Role must have exactly one of the following required constraints: " \
-             "{0-constraints}. Role configured with {1-provided}",
-        code: "CONJ00069E"
-      )
-
       NonPermittedRestrictionGiven = ::Util::TrackableErrorClass.new(
         msg: "Role can't have one of these none permitted restrictions '{0-restrictions}'",
         code: "CONJ00069E"
@@ -714,6 +708,12 @@ module Errors
       RoleMissingAnyRestrictions =  ::Util::TrackableErrorClass.new(
         msg: "Role must have at least one relevant annotation",
         code: "CONJ00099E"
+      )
+
+      IllegalRequiredExclusiveCombination = ::Util::TrackableErrorClass.new(
+        msg: "Role must have exactly one of the following required constraints: " \
+             "{0-constraints}. Role configured with {1-provided}",
+        code: "CONJ00131E"
       )
     end
   end

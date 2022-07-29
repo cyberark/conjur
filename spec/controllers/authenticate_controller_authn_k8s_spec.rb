@@ -24,14 +24,13 @@ def apply_root_policy(account, policy_content:, expect_success: false)
   end
 end
 
-def define_and_grant_host(account:, host_id:, namespace_annotation:, service_id:)
+def define_and_grant_host(account:, host_id:, annotations:, service_id:)
   host_policy = %Q(
 # Define test app host
 - !host
   id: #{host_id}
   annotations:
-    authn-k8s/authentication-container-name: bash
-    #{namespace_annotation}
+#{annotations.map{ |k,v| "#{k}: #{v}" }.join("\n").indent(4)}
 
 # Grant app host authentication privileges
 - !permit
@@ -132,9 +131,29 @@ def authn_k8s_authenticate(authenticator_id:, account:, host_id:, signed_cert_pe
   post("/#{authenticator_id}/#{account}/#{escaped_host_id}/authenticate", env: payload)
 end
 
+def capture_args(obj, method)
+  args = []
+  original_method = obj.method(method)
+  allow(obj).to receive(method) { |arg|
+    args.push(arg)
+    original_method.call(arg)
+  }
+  args
+end
+
 describe AuthenticateController, :type => :request do
   # Test server is defined in the appropritate "around" hook for the test example
   let(:test_server) { @test_server }
+
+  let(:account) { "rspec" }
+  let(:authenticator_id) { "authn-k8s/meow" }
+  let(:service_id) { "conjur/#{authenticator_id}" }
+  let(:test_app_host) { "h-#{random_hex}" }
+
+  # Allows API calls to be made as the admin user
+  let(:admin_request_env) do
+    { 'HTTP_AUTHORIZATION' => "Token token=\"#{Base64.strict_encode64(Slosilo["authn:rspec"].signed_token("admin").to_json)}\"" }
+  end
 
   before(:all) do
     # Start fresh
@@ -146,8 +165,7 @@ describe AuthenticateController, :type => :request do
   end
 
   describe "#authenticate" do
-    context "k8s api access contains subpath" do
-
+    context "k8s mock server" do
       around(:each) do |example|
         WebMock.disable_net_connect!(allow: 'http://localhost:1234')
         AuthnK8sTestServer.run_async(
@@ -181,23 +199,14 @@ describe AuthenticateController, :type => :request do
         allow_any_instance_of(Authentication::Webservices).to receive(:include?).and_return(true)
       end
 
-      let(:account) { "rspec" }
-      let(:authenticator_id) { "authn-k8s/meow" }
-      let(:service_id) { "conjur/#{authenticator_id}" }
-      let(:test_app_host) { "h-#{random_hex}" }
-      # Allows API calls to be made as the admin user
-      let(:admin_request_env) do
-        { 'HTTP_AUTHORIZATION' => "Token token=\"#{Base64.strict_encode64(Slosilo["authn:rspec"].signed_token("admin").to_json)}\"" }
-      end
-
-      let(:namespace_name_annot) { 'authn-k8s/namespace: default' }
-      let(:namespace_label_annot) { 'authn-k8s/namespace-label: "field.cattle.io/projectId=p-q7s7z"' }
-
       it "client successfully authenticates with namespace name restriction" do
         define_and_grant_host(
           account: account,
           host_id: test_app_host,
-          namespace_annotation: namespace_name_annot,
+          annotations: {
+            "authn-k8s/authentication-container-name" => "bash",
+            "authn-k8s/namespace" => "default"
+          },
           service_id: service_id
         )
 
@@ -231,7 +240,10 @@ describe AuthenticateController, :type => :request do
         define_and_grant_host(
           account: account,
           host_id: test_app_host,
-          namespace_annotation: namespace_label_annot,
+          annotations: {
+            "authn-k8s/authentication-container-name" => "bash",
+            "authn-k8s/namespace-label-selector" => "field.cattle.io/projectId=p-q7s7z"
+          },
           service_id: service_id
         )
 
@@ -259,6 +271,33 @@ describe AuthenticateController, :type => :request do
         expect(token.claims['sub']).to eq("host/#{test_app_host}")
         expect(token.signature).to be
         expect(token.claims).to have_key('iat')
+      end
+
+      it "client fails when given both namespace name and label restriction" do
+        define_and_grant_host(
+          account: account,
+          host_id: test_app_host,
+          annotations: {
+            "authn-k8s/namespace" => "default",
+            "authn-k8s/namespace-label-selector" => "field.cattle.io/projectId=p-q7s7z" ,
+            "authn-k8s/authentication-container-name" => "bash"
+          },
+          service_id: service_id
+        )
+
+        info_log_args = capture_args(Rails.logger, :info)
+
+        # Login request, grab the signed certificate from the fake server
+        authn_k8s_login(
+          authenticator_id: authenticator_id,
+          host_id: test_app_host
+        )
+
+        expect(info_log_args).to satisfy { |args|
+          args.any? { |arg|
+            arg.to_s.include?("CONJ00131E")
+          }
+        }
       end
     end
 

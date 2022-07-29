@@ -144,7 +144,7 @@ class AuthnK8sTestServer
         elsif req.fullpath == "#{subpath}/api/v1/namespaces/default"
             [ 200, {"Content-Type" => "application/json"}, [AuthnK8sTestServer.read_response_file("good:api.v1.getnamespace.json")]]
         elsif req.path.start_with?("#{subpath}/api/v1/namespaces")
-            [ 200, {"Content-Type" => "application/json"}, [AuthnK8sTestServer.read_response_file("bad:api.v1.getnamespace.json")] ]
+            [ 404, {"Content-Type" => "application/json"}, [AuthnK8sTestServer.read_response_file("bad:api.v1.getnamespace.json")] ]
         # NOTE: Kubenertes clients make requests to a whole set of endpoints at initialization time. The only way we could find to make the clients
         # happy was to have this else branch return 200 with an empty JSON object. Ideally, this branch should return something like a 404.
         # TODO: Find a better way to satisfy Kubernetes client initialization in relation to the above note.
