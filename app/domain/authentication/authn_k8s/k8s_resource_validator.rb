@@ -24,6 +24,44 @@ module Authentication
         @logger.debug(LogMessages::Authentication::AuthnK8s::ValidatedK8sResource.new(type, name))
       end
 
+      # Validates label selector and creates a hash
+      # In the spirit of https://github.com/kubernetes/apimachinery/blob/master/pkg/labels/selector.go
+      def valid_namespace?(label_selector:)
+        @logger.debug(LogMessages::Authentication::AuthnK8s::ValidatingK8sResourceLabel.new('namespace', namespace, label_selector))
+
+        if label_selector.length == 0
+          raise Errors::Authentication::AuthnK8s::InvalidLabelSelector.new(label_selector)
+        end
+        label_selector_hash = label_selector
+          .split(",")
+          .map{ |kv_pair|
+            kv_pair = kv_pair.split(/={1,2}/, 2)
+
+            invalid ||= kv_pair.length != 2
+            invalid ||= kv_pair[0].include?("!")
+
+            if (invalid)
+              raise Errors::Authentication::AuthnK8s::InvalidLabelSelector.new(label_selector)
+            end
+
+            kv_pair[0] = kv_pair[0].to_sym
+            kv_pair
+          }
+          .to_h
+
+        # Fetch namespace labels
+        # TODO: refactor this to have a generic label fetching method in @k8s_object_lookup
+        labels_hash = @k8s_object_lookup.namespace_labels_hash(namespace)
+
+        # Validates label selector hash against labels hash
+        unless label_selector_hash.all? { |k, v| labels_hash[k] == v }
+          raise Errors::Authentication::AuthnK8s::LabelSelectorMismatch.new('namespace', namespace, label_selector)
+        end
+
+        @logger.debug(LogMessages::Authentication::AuthnK8s::ValidatedK8sResourceLabel.new('namespace', namespace, label_selector))
+        return true
+      end
+
       private
 
       def retrieve_k8s_resource(type, name)

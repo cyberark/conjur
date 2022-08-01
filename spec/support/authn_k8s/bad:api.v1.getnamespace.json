@@ -1,0 +1,13 @@
+{
+    "kind": "Status",
+    "apiVersion": "v1",
+    "metadata": {},
+    "status": "Failure",
+    "message": "namespace \"ok\" not found",
+    "reason": "NotFound",
+    "details": {
+        "name": "ok",
+        "kind": "namespace"
+    },
+    "code": 404
+}
