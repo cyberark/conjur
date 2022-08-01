@@ -149,7 +149,7 @@ module Loader
         # does not explicitly state the policy authors intentions with the
         # `authn/api-key` annotation with value true, then we should reject this until the annotation
         # is added to the policy object.
-        self.annotations&.[]("authn/api-key").nil? or self.annotations["authn/api-key"] == false
+        self.annotations&.[]("authn/api-key").nil? || self.annotations["authn/api-key"].to_s.casecmp?("false")
       end
 
       def verify
