@@ -104,6 +104,15 @@ module Authentication
         k8s_client_for_method("get_pod").get_pod(podname, namespace)
       end
 
+      # Returns the labels hash for a Namespace with a given name.
+      #
+      # @return nil if no such Namespace exists.
+      def namespace_labels_hash(namespace)
+        namespace_object = k8s_client_for_method("get_namespace").get_namespace(namespace)
+
+        return namespace_object.metadata.labels.to_h unless namespace_object.nil?
+      end
+
       # Locates pods matching label selector in a namespace.
       #
       def pods_by_label(label_selector, namespace)
