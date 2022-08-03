@@ -9,20 +9,28 @@ module Authentication
       module Commands
         ListProviders ||= CommandClass.new(
           dependencies: {
-            json_lib: JSON
+            json_lib: JSON,
+            logger: Rails.logger
           },
           inputs: %i[message]
         ) do
           def call
             params = @json_lib.parse(@message)
+            @logger.debug("#{self.class}##{__method__} - #{params}")
             (account = params.delete("account")) || raise("'account' is required")
-            Authentication::AuthnOidc::V2::Views::ProviderContext.new.call(
-              authenticators: DB::Repository::AuthenticatorRepository.new(
-                data_object:  Authentication::AuthnOidc::V2::DataObjects::Authenticator
+
+            authenticators = DB::Repository::AuthenticatorRepository.new(
+                data_object: Authentication::AuthnOidc::V2::DataObjects::Authenticator,
+                logger: @logger
               ).find_all(
                 account: account,
                 type: 'authn-oidc'
               )
+            @logger.debug("#{self.class}##{__method__} - #{authenticators.inspect}")
+            Authentication::AuthnOidc::V2::Views::ProviderContext.new(
+              logger: @logger
+            ).call(
+              authenticators: authenticators
             )
           end
         end
