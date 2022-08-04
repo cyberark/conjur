@@ -28,6 +28,10 @@ RUN INSTALL_PKGS="gcc \
                   tzdata" && \
     yum install -y --setopt=tsflags=nodocs $INSTALL_PKGS && \
     rpm -V $INSTALL_PKGS && \
+    # Aug 4, 2022: Temporarily install the updated kernel headers package from
+    # centos until the UBI repository is updated with a version that resolves
+    # CVE-2022-1012 and CVE-2022-32250.
+    yum install -y http://mirror.centos.org/centos/8-stream/BaseOS/x86_64/os/Packages/kernel-headers-4.18.0-408.el8.x86_64.rpm && \
     yum -y clean all --enablerepo='*'
 
 # Create conjur user with one that has known gid / uid.
