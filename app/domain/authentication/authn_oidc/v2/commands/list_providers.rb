@@ -2,6 +2,9 @@
 
 require 'command_class'
 require './app/db/repository/authenticator_repository'
+require './app/domain/authentication/authn_oidc/v2/data_objects/authenticator'
+require './app/domain/authentication/authn_oidc/v2/views/provider_context'
+require './app/domain/authentication/authn_oidc/v2/client'
 
 module Authentication
   module AuthnOidc
@@ -10,7 +13,9 @@ module Authentication
         ListProviders ||= CommandClass.new(
           dependencies: {
             json_lib: JSON,
-            logger: Rails.logger
+            logger: Rails.logger,
+            authenticatorRepository: nil,
+            provider: Authentication::AuthnOidc::V2::Views::ProviderContext.new()
           },
           inputs: %i[message]
         ) do
@@ -18,18 +23,9 @@ module Authentication
             params = @json_lib.parse(@message)
             @logger.debug("#{self.class}##{__method__} - #{params}")
             (account = params.delete("account")) || raise("'account' is required")
-
-            authenticators = DB::Repository::AuthenticatorRepository.new(
-                data_object: Authentication::AuthnOidc::V2::DataObjects::Authenticator,
-                logger: @logger
-              ).find_all(
-                account: account,
-                type: 'authn-oidc'
-              )
+            authenticators = @authenticatorRepository.find_all(account: account, type: 'authn-oidc')
             @logger.debug("#{self.class}##{__method__} - #{authenticators.inspect}")
-            Authentication::AuthnOidc::V2::Views::ProviderContext.new(
-              logger: @logger
-            ).call(
+            @provider.call(
               authenticators: authenticators
             )
           end

@@ -11,6 +11,9 @@ namespace :ui do
       logger: logger
     ).run do |passed_arguments|
       Authentication::AuthnOidc::V2::Commands::ListProviders.new(
+        authenticatorRepository: DB::Repository::AuthenticatorRepository.new(
+          data_object: Authentication::AuthnOidc::V2::DataObjects::Authenticator
+        ),
         logger: logger
       ).call(
         message: passed_arguments
