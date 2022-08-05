@@ -128,7 +128,7 @@ class Client
   end
 
   def fetch_authenticators
-    resource(uri('authn-oidc', 'providers')).get(auth_header)
+    resource(uri('authn-oidc', 'providers')).get()
   end
 
   def fetch_public_keys(username:)
