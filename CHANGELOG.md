@@ -14,7 +14,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Migrates OIDC Provider list to be accessable via an unauthentated
   endpoint. This is not a concern as logins using this endpoint already
   display the redirect endpoint on the login page.
-## [1.18.1] - 2022-08-01
 
 ## [1.18.0] - 2022-08-01
 
