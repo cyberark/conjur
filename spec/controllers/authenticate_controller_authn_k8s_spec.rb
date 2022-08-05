@@ -191,7 +191,7 @@ describe AuthenticateController, :type => :request do
         configure_k8s_api_access(
           account: account,
           service_id: service_id,
-          api_url: "http://localhost:1234/some/path",
+          api_url: "http://localhost:1234/some/path/",
           ca_cert: "---",
           service_account_token: "bearer token"
         )
