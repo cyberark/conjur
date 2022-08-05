@@ -8,12 +8,16 @@ module DB
       end
 
       def find_all(type:, account:)
-        @resource_repository.where(
+        authenticators = @resource_repository.where(
           Sequel.like(
             :resource_id,
             "#{account}:webservice:conjur/#{type}/%"
           )
-        ).all.map do |webservice|
+        )
+        @logger.debug("#{self.class}##{__method__} - #{authenticators.count} found")
+        return [] if authenticators.count.zero?
+
+        authenticators.all.map do |webservice|
           load_authenticator(account: account, id: webservice.id.split(':').last, type: type)
         end.compact
       end

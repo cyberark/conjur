@@ -9,4 +9,18 @@ namespace :authn_local do
 
     AuthnLocal.run(socket: socket, queue_length: queue_length, timeout: timeout)
   end
+
+  task authenticate: :environment do
+    require 'json'
+    require 'socket'
+
+    response = UNIXSocket.open('/run/authn-local/.socket') do |socket|
+      socket.puts({
+        account: 'cucumber',
+        sub: 'admin'
+      }.to_json)
+      JSON.parse(socket.gets)
+    end
+    puts("received: #{response}")
+  end
 end
