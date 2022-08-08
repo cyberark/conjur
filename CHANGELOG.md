@@ -11,6 +11,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [1.18.1] - 2022-08-01
 
+### Changed
+- Migrates OIDC Provider list to be accessable via an unauthentated
+  endpoint. This is not a concern as logins using this endpoint already
+  display the redirect endpoint on the login page.
+  [cyberark/conjur#2625](https://github.com/cyberark/conjur/pull/2625)
+
 ## [1.18.0] - 2022-08-01
 
 ### Added
