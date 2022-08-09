@@ -401,6 +401,11 @@ module Errors
         msg: "Invalid Kubernetes host id: {0}. Must end with <namespace>/<resource_type>/<resource_id>",
         code: "CONJ00048E"
       )
+
+      NoMatchingClient = ::Util::TrackableErrorClass.new(
+        msg: "Unable to establish Kubernetes client to execute method: \#{0}",
+        code: "CONJ00132E"
+      )
     end
 
     module AuthnAzure

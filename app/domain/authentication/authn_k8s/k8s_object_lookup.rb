@@ -155,12 +155,16 @@ module Authentication
         k8s_clients.find do |client|
           begin
             client.respond_to?(method_name)
-          rescue KubeException => e
-            raise e unless e.error_code == 404
+          rescue => e
+            if e.kind_of?(KubeException)
+              raise e unless e.error_code == 404
+            end
 
             false
           end
-        end
+        end.tap { |client|
+          raise Errors::Authentication::AuthnK8s::NoMatchingClient, method_name if client.blank?
+        }
       end
 
       # If more API versions appear, add them here.

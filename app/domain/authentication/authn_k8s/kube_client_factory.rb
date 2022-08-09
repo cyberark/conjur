@@ -14,25 +14,18 @@ module Authentication
     module KubeClientFactory
 
       def self.client(api: 'api', version: 'v1', host_url: nil, options: nil)
-        full_url = "#{normalize(host_url)}/#{api}"
-        validate_host_url!(full_url)
+        begin
+          url = URI.parse(host_url)
+          raise if url.host.empty?
 
-        Kubeclient::Client.new(full_url, version, **options)
-      end
+          url.path = url.path.chomp("/") + "/#{api}"
 
-      class << self
-        private
-
-        def normalize(url)
-          return url unless url.ends_with?("/")
-          return url[0..-2]
-        end
-
-        def validate_host_url! host_url
-          raise if URI.parse(host_url).host.empty?
+          full_url = url.to_s
         rescue
           raise Errors::Authentication::AuthnK8s::InvalidApiUrl, host_url
         end
+
+        Kubeclient::Client.new(full_url, version, **options)
       end
     end
   end

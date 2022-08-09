@@ -168,7 +168,7 @@ describe AuthenticateController, :type => :request do
   describe "#authenticate" do
     context "k8s mock server" do
       around(:each) do |example|
-        WebMock.disable_net_connect!(allow: 'http://localhost:1234')
+        WebMock.disable_net_connect!(allow: ['http://localhost:1234', 'http://localhost:1111']) # Test server and bad server
         AuthnK8sTestServer.run_async(
           subpath: "/some/path",
           bearer_token: "bearer token"
@@ -339,6 +339,40 @@ describe AuthenticateController, :type => :request do
         expect(info_log_args).to satisfy { |args|
           args.any? { |arg|
             arg.to_s.include?("CONJ00131E")
+          }
+        }
+      end
+
+      it "client fails when given a url that is not kubernetes server" do
+        configure_k8s_api_access(
+          account: account,
+          service_id: service_id,
+          api_url: "http://localhost:1111",
+          ca_cert: "---",
+          service_account_token: "bearer token"
+        )
+
+        define_and_grant_host(
+          account: account,
+          host_id: test_app_host,
+          annotations: {
+            "authn-k8s/namespace" => "default",
+            "authn-k8s/authentication-container-name" => "bash"
+          },
+          service_id: service_id
+        )
+
+        info_log_args = capture_args(Rails.logger, :info)
+
+        # Login request, grab the signed certificate from the fake server
+        authn_k8s_login(
+          authenticator_id: authenticator_id,
+          host_id: test_app_host
+        )
+
+        expect(info_log_args).to satisfy { |args|
+          args.any? { |arg|
+            arg.to_s.include?("CONJ00132E")
           }
         }
       end
