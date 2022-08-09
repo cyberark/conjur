@@ -149,6 +149,7 @@ describe AuthenticateController, :type => :request do
   let(:authenticator_id) { "authn-k8s/meow" }
   let(:service_id) { "conjur/#{authenticator_id}" }
   let(:test_app_host) { "h-#{random_hex}" }
+  let(:api_url) { "http://localhost:1234/some/path" }
 
   # Allows API calls to be made as the admin user
   let(:admin_request_env) do
@@ -167,7 +168,7 @@ describe AuthenticateController, :type => :request do
   describe "#authenticate" do
     context "k8s mock server" do
       around(:each) do |example|
-        WebMock.disable_net_connect!(allow: 'http://localhost:1234')
+        WebMock.disable_net_connect!(allow: ['http://localhost:1234', 'http://localhost:1111']) # Test server and bad server
         AuthnK8sTestServer.run_async(
           subpath: "/some/path",
           bearer_token: "bearer token"
@@ -191,12 +192,54 @@ describe AuthenticateController, :type => :request do
         configure_k8s_api_access(
           account: account,
           service_id: service_id,
-          api_url: "http://localhost:1234/some/path",
+          api_url: api_url,
           ca_cert: "---",
           service_account_token: "bearer token"
         )
         # ensure authenticator is enabled. Unfortunately there's no nicer way to do this since configuration used is that which is evaluated at load time!
         allow_any_instance_of(Authentication::Webservices).to receive(:include?).and_return(true)
+      end
+
+      it "client successfully authenticates when the configured K8s API URL has a trailing slash" do
+        configure_k8s_api_access(
+          account: account,
+          service_id: service_id,
+          api_url: "#{api_url}/",
+          ca_cert: "---",
+          service_account_token: "bearer token"
+        )
+
+        define_and_grant_host(
+          account: account,
+          host_id: test_app_host,
+          annotations: {
+            "authn-k8s/authentication-container-name" => "bash",
+            "authn-k8s/namespace" => "default"
+          },
+          service_id: service_id
+        )
+
+        # Login request, grab the signed certificate from the fake server
+        authn_k8s_login(
+          authenticator_id: authenticator_id,
+          host_id: test_app_host
+        )
+        signed_cert = test_server.copied_content
+
+        # Authenticate request
+        authn_k8s_authenticate(
+          authenticator_id: authenticator_id,
+          account: account,
+          host_id: test_app_host,
+          signed_cert_pem: signed_cert.to_s
+        )
+
+        # Assertions
+        expect(response).to be_ok
+        token = Slosilo::JWT.parse_json(response.body)
+        expect(token.claims['sub']).to eq("host/#{test_app_host}")
+        expect(token.signature).to be
+        expect(token.claims).to have_key('iat')
       end
 
       it "client successfully authenticates with namespace name restriction" do
@@ -296,6 +339,40 @@ describe AuthenticateController, :type => :request do
         expect(info_log_args).to satisfy { |args|
           args.any? { |arg|
             arg.to_s.include?("CONJ00131E")
+          }
+        }
+      end
+
+      it "client fails when given a url that is not kubernetes server" do
+        configure_k8s_api_access(
+          account: account,
+          service_id: service_id,
+          api_url: "http://localhost:1111",
+          ca_cert: "---",
+          service_account_token: "bearer token"
+        )
+
+        define_and_grant_host(
+          account: account,
+          host_id: test_app_host,
+          annotations: {
+            "authn-k8s/namespace" => "default",
+            "authn-k8s/authentication-container-name" => "bash"
+          },
+          service_id: service_id
+        )
+
+        info_log_args = capture_args(Rails.logger, :info)
+
+        # Login request, grab the signed certificate from the fake server
+        authn_k8s_login(
+          authenticator_id: authenticator_id,
+          host_id: test_app_host
+        )
+
+        expect(info_log_args).to satisfy { |args|
+          args.any? { |arg|
+            arg.to_s.include?("CONJ00132E")
           }
         }
       end
