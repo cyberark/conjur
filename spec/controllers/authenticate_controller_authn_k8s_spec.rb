@@ -149,6 +149,7 @@ describe AuthenticateController, :type => :request do
   let(:authenticator_id) { "authn-k8s/meow" }
   let(:service_id) { "conjur/#{authenticator_id}" }
   let(:test_app_host) { "h-#{random_hex}" }
+  let(:api_url) { "http://localhost:1234/some/path" }
 
   # Allows API calls to be made as the admin user
   let(:admin_request_env) do
@@ -191,12 +192,54 @@ describe AuthenticateController, :type => :request do
         configure_k8s_api_access(
           account: account,
           service_id: service_id,
-          api_url: "http://localhost:1234/some/path",
+          api_url: api_url,
           ca_cert: "---",
           service_account_token: "bearer token"
         )
         # ensure authenticator is enabled. Unfortunately there's no nicer way to do this since configuration used is that which is evaluated at load time!
         allow_any_instance_of(Authentication::Webservices).to receive(:include?).and_return(true)
+      end
+
+      it "client successfully authenticates when the configured K8s API URL has a trailing slash" do
+        configure_k8s_api_access(
+          account: account,
+          service_id: service_id,
+          api_url: "#{api_url}/",
+          ca_cert: "---",
+          service_account_token: "bearer token"
+        )
+
+        define_and_grant_host(
+          account: account,
+          host_id: test_app_host,
+          annotations: {
+            "authn-k8s/authentication-container-name" => "bash",
+            "authn-k8s/namespace" => "default"
+          },
+          service_id: service_id
+        )
+
+        # Login request, grab the signed certificate from the fake server
+        authn_k8s_login(
+          authenticator_id: authenticator_id,
+          host_id: test_app_host
+        )
+        signed_cert = test_server.copied_content
+
+        # Authenticate request
+        authn_k8s_authenticate(
+          authenticator_id: authenticator_id,
+          account: account,
+          host_id: test_app_host,
+          signed_cert_pem: signed_cert.to_s
+        )
+
+        # Assertions
+        expect(response).to be_ok
+        token = Slosilo::JWT.parse_json(response.body)
+        expect(token.claims['sub']).to eq("host/#{test_app_host}")
+        expect(token.signature).to be
+        expect(token.claims).to have_key('iat')
       end
 
       it "client successfully authenticates with namespace name restriction" do

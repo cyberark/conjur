@@ -14,7 +14,7 @@ module Authentication
     module KubeClientFactory
 
       def self.client(api: 'api', version: 'v1', host_url: nil, options: nil)
-        full_url = "#{host_url}/#{api}"
+        full_url = "#{normalize(host_url)}/#{api}"
         validate_host_url!(full_url)
 
         Kubeclient::Client.new(full_url, version, **options)
@@ -22,6 +22,11 @@ module Authentication
 
       class << self
         private
+
+        def normalize(url)
+          return url unless url.ends_with?("/")
+          return url[0..-2]
+        end
 
         def validate_host_url! host_url
           raise if URI.parse(host_url).host.empty?
