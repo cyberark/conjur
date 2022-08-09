@@ -107,7 +107,7 @@ pipeline {
         'empty to run all tests. See Jenkinsfile for details.',
       // See note at top of file for temporarily changing this value during
       // development.
-      defaultValue: ''
+      defaultValue: 'rspec'
     )
     string(
       name: 'CUCUMBER_FILTER_TAGS',

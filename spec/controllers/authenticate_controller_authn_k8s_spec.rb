@@ -5,13 +5,13 @@ require 'support/authn_k8s/authn_k8s_test_server'
 
 # Turn on logs to debug
 #
-# Rails.logger.extend(ActiveSupport::Logger.broadcast(ActiveSupport::TaggedLogging.new(Logger.new(STDOUT))))
-# Rails.logger.level = :info
-# Audit.logger = Audit::Log::SyslogAdapter.new(
-#   Logger.new(STDOUT).tap do |logger|
-#     logger.formatter = Logger::Formatter::RFC5424Formatter
-#   end
-# )
+Rails.logger.extend(ActiveSupport::Logger.broadcast(ActiveSupport::TaggedLogging.new(Logger.new(STDOUT))))
+Rails.logger.level = :info
+Audit.logger = Audit::Log::SyslogAdapter.new(
+  Logger.new(STDOUT).tap do |logger|
+    logger.formatter = Logger::Formatter::RFC5424Formatter
+  end
+)
 
 def set_variable_value(account, resource_id, value)
   post("/secrets/#{account}/variable/#{resource_id}", env: admin_request_env.merge({ 'RAW_POST_DATA' => value }))
