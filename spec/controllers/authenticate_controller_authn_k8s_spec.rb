@@ -131,13 +131,21 @@ def authn_k8s_authenticate(authenticator_id:, account:, host_id:, signed_cert_pe
   post("/#{authenticator_id}/#{account}/#{escaped_host_id}/authenticate", env: payload)
 end
 
-def capture_args(obj, method)
-  args = []
-  original_method = obj.method(method)
-  allow(obj).to receive(method) { |arg|
-    args.push(arg)
-    original_method.call(arg)
+def capture_args(obj, *methods)
+  args = {:all => []}
+
+  methods.each { |method|
+    original_method = obj.method(method)
+    args[method] = []
+
+    allow(obj).to receive(method) { |arg|
+      args[method].push(arg)
+      args[:all].push([method, arg])
+
+      original_method.call(arg)
+    }
   }
+
   args
 end
 
@@ -179,17 +187,23 @@ describe AuthenticateController, :type => :request do
       end
 
       after(:each) do |example|
+        logger = ActiveSupport::TaggedLogging.new(Logger.new(STDOUT))
+
         if example.exception
-          logger = ActiveSupport::TaggedLogging.new(Logger.new(STDOUT))
           logger.info("Conjur server logs after failure:")
-          @info_log_args.each { |arg|
-            logger.info(arg)
+          @log_args.each { |v|
+            method, arg = v
+            logger.method(method).call(arg)
           }
         end
       end
 
       before(:each) do
-        @info_log_args = capture_args(Rails.logger, :info)
+        args_dict = capture_args(Rails.logger, :info, :debug, :error)
+        @log_args = args_dict[:all]
+        @info_log_args = args_dict[:info]
+        @debug_log_args = args_dict[:debug]
+        @error_log_args = args_dict[:error]
 
         # Setup authenticator
         define_authenticator(

@@ -49,20 +49,20 @@ class AuthnK8sTestServer
 
         test_server = self.new(...)
         launcher = nil
-        Thread.new do
+        thread = Thread.new do
             self.run_server_instance(test_server) do |_launcher|
                 launcher = _launcher
             end
         end
 
         begin
-            sleep(0.1)
             yield(test_server)
         ensure
             # clean up
             if launcher
                 launcher.halt
             end
+            thread.join
         end
     end
 
@@ -115,6 +115,10 @@ class AuthnK8sTestServer
         ws.on :close do |event|
           log_event([:close, event.code, event.reason])
           ws = nil
+        end
+
+        ws.on :error do |event|
+          log_event([:error, event.inspect])
         end
     
         # Return async Rack response
