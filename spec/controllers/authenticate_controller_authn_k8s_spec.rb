@@ -178,7 +178,19 @@ describe AuthenticateController, :type => :request do
         end
       end
 
+      after(:each) do |example|
+        if example.exception
+          logger = ActiveSupport::TaggedLogging.new(Logger.new(STDOUT))
+          logger.info("Conjur server logs after failure:")
+          @info_log_args.each { |arg|
+            logger.info(arg)
+          }
+        end
+      end
+
       before(:each) do
+        @info_log_args = capture_args(Rails.logger, :info)
+
         # Setup authenticator
         define_authenticator(
           account: account,
@@ -328,7 +340,7 @@ describe AuthenticateController, :type => :request do
           service_id: service_id
         )
 
-        info_log_args = capture_args(Rails.logger, :info)
+        @info_log_args.clear
 
         # Login request, grab the signed certificate from the fake server
         authn_k8s_login(
@@ -336,7 +348,7 @@ describe AuthenticateController, :type => :request do
           host_id: test_app_host
         )
 
-        expect(info_log_args).to satisfy { |args|
+        expect(@info_log_args).to satisfy { |args|
           args.any? { |arg|
             arg.to_s.include?("CONJ00131E")
           }
@@ -362,7 +374,7 @@ describe AuthenticateController, :type => :request do
           service_id: service_id
         )
 
-        info_log_args = capture_args(Rails.logger, :info)
+        @info_log_args.clear
 
         # Login request, grab the signed certificate from the fake server
         authn_k8s_login(
@@ -370,7 +382,7 @@ describe AuthenticateController, :type => :request do
           host_id: test_app_host
         )
 
-        expect(info_log_args).to satisfy { |args|
+        expect(@info_log_args).to satisfy { |args|
           args.any? { |arg|
             arg.to_s.include?("CONJ00132E")
           }
