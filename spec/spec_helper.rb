@@ -145,7 +145,13 @@ def with_background_process(cmd, &block)
         break if stdout_and_err.closed?
 
         # If we've reached the end of the stream, break the read loop.
-        break if stdout_and_err.eof?
+        begin
+          break if stdout_and_err.eof?
+        rescue IOError => e
+          # Stream can be closed externally.
+          # This catch allows the loop to exit and the thread to return.
+          puts("Stream was closed: #{e}")
+        end
 
         # If this was the result of a IO#select timeout, enter the select
         # loop again.
