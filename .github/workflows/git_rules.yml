@@ -16,7 +16,7 @@ jobs:
       with:
         fetch-depth: 0
     - name: Is Rebased on master?
-      uses: cyberark/enforce-rebase@v2
+      uses: cyberark/enforce-rebase@master
 
   commit_style:
     runs-on: ubuntu-latest
