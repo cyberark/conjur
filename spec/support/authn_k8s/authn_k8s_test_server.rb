@@ -60,7 +60,9 @@ class AuthnK8sTestServer
             yield(test_server)
         ensure
             # clean up
-            launcher.stop if launcher
+            if launcher
+                launcher.halt
+            end
         end
     end
 
@@ -111,7 +113,7 @@ class AuthnK8sTestServer
     
     
         ws.on :close do |event|
-            log_event([:close, event.code, event.reason])
+          log_event([:close, event.code, event.reason])
           ws = nil
         end
     
