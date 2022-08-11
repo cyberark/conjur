@@ -106,6 +106,7 @@ module Authentication
       end
 
       def send(data, opt = { type: :text })
+        puts("Websocket Send: attempting to send: #{data.inspect}")
         return if !@handshaked || @closed
 
         type = opt[:type]
