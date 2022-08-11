@@ -222,8 +222,11 @@ describe AuthenticateController, :type => :request do
           ca_cert: "---",
           service_account_token: "bearer token"
         )
-        # ensure authenticator is enabled. Unfortunately there's no nicer way to do this since configuration used is that which is evaluated at load time!
+        # Artificially enable the authenticator. Unfortunately there's no nicer way to do this since configuration used is that which is evaluated at load time!
         allow_any_instance_of(Authentication::Webservices).to receive(:include?).and_return(true)
+
+        # Artificially increase the timeout on ExecuteCommandInContainer
+        allow_any_instance_of(Authentication::AuthnK8s::ExecuteCommandInContainer.const_get("Call")).to receive(:timeout).and_return(15)
       end
 
       it "client successfully authenticates when the configured K8s API URL has a trailing slash" do
@@ -250,6 +253,8 @@ describe AuthenticateController, :type => :request do
           authenticator_id: authenticator_id,
           host_id: test_app_host
         )
+        expect(response).to have_http_status(:success)
+
         signed_cert = test_server.copied_content
 
         # Authenticate request
@@ -261,7 +266,7 @@ describe AuthenticateController, :type => :request do
         )
 
         # Assertions
-        expect(response).to be_ok
+        expect(response).to have_http_status(:success)
         token = Slosilo::JWT.parse_json(response.body)
         expect(token.claims['sub']).to eq("host/#{test_app_host}")
         expect(token.signature).to be
@@ -287,6 +292,7 @@ describe AuthenticateController, :type => :request do
           authenticator_id: authenticator_id,
           host_id: test_app_host
         )
+        expect(response).to have_http_status(:success)
         signed_cert = test_server.copied_content
 
         # Authenticate request
@@ -298,7 +304,7 @@ describe AuthenticateController, :type => :request do
         )
 
         # Assertions
-        expect(response).to be_ok
+        expect(response).to have_http_status(:success)
         token = Slosilo::JWT.parse_json(response.body)
         expect(token.claims['sub']).to eq("host/#{test_app_host}")
         expect(token.signature).to be
@@ -324,6 +330,7 @@ describe AuthenticateController, :type => :request do
           authenticator_id: authenticator_id,
           host_id: test_app_host
         )
+        expect(response).to have_http_status(:success)
         signed_cert = test_server.copied_content
 
         # Authenticate request
@@ -335,7 +342,7 @@ describe AuthenticateController, :type => :request do
         )
 
         # Assertions
-        expect(response).to be_ok
+        expect(response).to have_http_status(:success)
         token = Slosilo::JWT.parse_json(response.body)
         expect(token.claims['sub']).to eq("host/#{test_app_host}")
         expect(token.signature).to be
@@ -356,11 +363,12 @@ describe AuthenticateController, :type => :request do
 
         @info_log_args.clear
 
-        # Login request, grab the signed certificate from the fake server
+        # Login request
         authn_k8s_login(
           authenticator_id: authenticator_id,
           host_id: test_app_host
         )
+        expect(response).to have_http_status(:unauthorized)
 
         expect(@info_log_args).to satisfy { |args|
           args.any? { |arg|
@@ -395,6 +403,7 @@ describe AuthenticateController, :type => :request do
           authenticator_id: authenticator_id,
           host_id: test_app_host
         )
+        expect(response).to have_http_status(:unauthorized)
 
         expect(@info_log_args).to satisfy { |args|
           args.any? { |arg|
