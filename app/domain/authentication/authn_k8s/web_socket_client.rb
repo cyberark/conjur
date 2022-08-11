@@ -48,7 +48,7 @@ module Authentication
           when Resolv::IPv4::Regex, Resolv::IPv6::Regex
             # don't set SNI, as IP addresses in SNI is not valid
             # per RFC 6066, section 3.
-  
+
             # Avoid openssl warning
             ctx.verify_hostname = false
           else
@@ -113,6 +113,8 @@ module Authentication
         begin
           @socket.write(frame.to_s)
         rescue Errno::EPIPE => e
+          Rails.logger.error("Websocket failed to send: '#{data}'")
+          Rails.logger.error("error: #{e}")
           @pipe_broken = true
           emit(:__close, e)
         end
