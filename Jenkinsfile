@@ -265,7 +265,7 @@ pipeline {
         }
 
         // Run outside parallel block to avoid external pressure
-        stage('Run standard rspec tests') {
+        stage('RSpec - Standard agent tests') {
           steps {
             sh 'ci/test rspec'
           }
@@ -289,7 +289,12 @@ pipeline {
                 unstash 'version_info'
                 // Catch errors so remaining steps always run.
                 catchError {
-                  sh script: "ci/test rspec", label: "Standard rspec tests"
+                  // Run outside parallel block to avoid external pressure
+                  script {
+                    stage("RSpec - EE FIPS agent tests") {
+                      sh "ci/test rspec"
+                    }
+                  }
 
                   runConjurTests(params.RUN_ONLY)
                 }
