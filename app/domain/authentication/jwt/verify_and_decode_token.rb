@@ -31,7 +31,7 @@ module Authentication
 
       def verified_and_decoded_token
         return @verified_and_decoded_token if @verified_and_decoded_token
-
+        Rails.logger.info("++++++++++++ verified_and_decoded_token 1 @token_jwt = #{@token_jwt}")
         # @jwt_decoder.decode returns an array with one decoded token so we take the first object
         @verified_and_decoded_token = @jwt_decoder.decode(
           @token_jwt,
@@ -39,7 +39,7 @@ module Authentication
           should_verify,
           @verification_options
         ).first
-
+        Rails.logger.info("++++++++++++ verified_and_decoded_token 2")
         @logger.debug(LogMessages::Authentication::Jwt::TokenDecodeSuccess.new)
         @verified_and_decoded_token
       rescue JWT::ExpiredSignature

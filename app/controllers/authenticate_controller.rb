@@ -138,13 +138,17 @@ class AuthenticateController < ApplicationController
 
   # Update the input to have the username from the token and authenticate
   def authenticate_oidc
+    Rails.logger.info("+++++++++++++++ authenticate_oidc 1")
     params[:authenticator] = "authn-oidc"
+    Rails.logger.info("+++++++++++++++ authenticate_oidc 2")
     input = Authentication::AuthnOidc::UpdateInputWithUsernameFromIdToken.new.(
       authenticator_input: authenticator_input
     )
+    Rails.logger.info("+++++++++++++++ authenticate_oidc 3")
     # We don't audit success here as the authentication process is not done
   rescue => e
     # At this point authenticator_input.username is always empty (e.g. cucumber:user:USERNAME_MISSING)
+    Rails.logger.info("+++++++++++++++ authenticate_oidc 3.1")
     log_audit_failure(
       authn_params: authenticator_input,
       audit_event_class: Audit::Event::Authn::Authenticate,
@@ -152,7 +156,9 @@ class AuthenticateController < ApplicationController
     )
     handle_authentication_error(e)
   else
+    Rails.logger.info("+++++++++++++++ authenticate_oidc 4")
     authenticate(input)
+    Rails.logger.info("+++++++++++++++ authenticate_oidc 5")
   end
   def authenticate_gcp
     params[:authenticator] = "authn-gcp"
@@ -193,12 +199,26 @@ class AuthenticateController < ApplicationController
   end
 
   def authenticator_input
+    Rails.logger.info("+++++++++++++ authenticator_input 1")
+    body_read = request.body.read
+    Rails.logger.info("+++++++++++++ authenticator_input 2 request.body.read = #{body_read}")
+    if body_read.empty? || body_read == 'null'
+      cookeisArray = request.headers["HTTP_COOKIE"].split('; ', -1)
+      cookeisArray.each { | value |
+        if value.index("idToken") == 0
+          idToken = value.split('=', -1)
+          body_read="id_token=" + idToken[1]
+          break
+        end
+      }
+    end
+    Rails.logger.info("+++++++++++++++ body_read = #{body_read}")
     @authenticator_input ||= Authentication::AuthenticatorInput.new(
       authenticator_name: params[:authenticator],
       service_id: params[:service_id],
       account: params[:account],
       username: params[:id],
-      credentials: request.body.read,
+      credentials: body_read,
       client_ip: request.ip,
       request: request
     )

@@ -37,10 +37,12 @@ module Authentication
       end
 
       def validate_credentials_include_id_token
+        Rails.logger.info("+++++++++ validate_credentials_include_id_token 1")
         id_token_field_name = "id_token"
-
+        dec_cred = decoded_credentials
+        Rails.logger.info("+++++++++ validate_credentials_include_id_token dec_cred = #{dec_cred}")
         # check that id token field exists and has some value
-        if decoded_credentials.fetch(id_token_field_name, "") == ""
+        if dec_cred.fetch(id_token_field_name, "") == ""
           raise Errors::Authentication::RequestBody::MissingRequestParam, id_token_field_name
         end
       end
@@ -55,6 +57,7 @@ module Authentication
 
       # The credentials are in a URL encoded form data in the request body
       def decoded_credentials
+        #Rails.logger.info("+++++++++ decoded_credentials credentials = #{credentials}")
         @decoded_credentials ||= Hash[URI.decode_www_form(credentials)]
       end
 
