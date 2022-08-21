@@ -12,7 +12,7 @@ module Authentication
     ) do
       extend(Forwardable)
       def_delegators(:@authenticator_input, :service_id, :authenticator_name,
-                     :account, :username, :webservice, :credentials, :client_ip,
+                     :account, :username, :webservice, :credentials, :client_ip, :request,
                      :role)
 
       def call
@@ -22,6 +22,10 @@ module Authentication
         verify_and_decode_token
         validate_conjur_username
         input_with_username
+      end
+
+      def initialize()
+        @dec_cred = 'NA'
       end
 
       private
@@ -38,26 +42,46 @@ module Authentication
 
       def validate_credentials_include_id_token
         Rails.logger.info("+++++++++ validate_credentials_include_id_token 1")
+        token_prefix = "idToken"
         id_token_field_name = "id_token"
-        dec_cred = decoded_credentials
-        Rails.logger.info("+++++++++ validate_credentials_include_id_token dec_cred = #{dec_cred}")
-        # check that id token field exists and has some value
-        if dec_cred.fetch(id_token_field_name, "") == ""
-          raise Errors::Authentication::RequestBody::MissingRequestParam, id_token_field_name
+        #dec_cred = "NA"
+        Rails.logger.info("+++++++++++++ validate_credentials_include_id_token 2 credentials = #{credentials}")
+        if credentials.empty? || credentials == 'null'
+          Rails.logger.info("+++++++++ validate_credentials_include_id_token 3")
+          cookeisArray = request.headers["HTTP_COOKIE"].split('; ', -1)
+          cookeisArray.each { | value | # Rails.logger.info("+++++++++ validate_credentials_include_id_token 4 value = #{value}")
+            if value.index(token_prefix) == 0
+              Rails.logger.info("+++++++++ validate_credentials_include_id_token 5 value = #{value}")
+              idToken = value.split('=', -1)
+              @dec_cred = Hash[URI.decode_www_form("id_token=" + idToken[1])]
+              Rails.logger.info("+++++++++ validate_credentials_include_id_token 6 @dec_cred = #{@dec_cred}")
+              break
+            end
+          }
+          Rails.logger.info("+++++++++ validate_credentials_include_id_token 7 @dec_cred = #{@dec_cred}")
+
+        else
+          @dec_cred = decoded_credentials
+          # check that id token field exists and has some value
+          if @dec_cred.fetch(id_token_field_name, "") == ""
+            raise Errors::Authentication::RequestBody::MissingRequestParam, id_token_field_name
+          end
         end
       end
 
       def verify_and_decode_token
+        Rails.logger.info("+++++++++ verify_and_decode_token 1 @dec_cred = #{@dec_cred}")
         @decoded_token = @verify_and_decode_token.(
           provider_uri: oidc_authenticator_secrets["provider-uri"],
-          token_jwt: decoded_credentials["id_token"],
+          token_jwt: @dec_cred["id_token"], #decoded_credentials["id_token"],
           claims_to_verify: {} # We don't verify any claims
         )
+        Rails.logger.info("+++++++++ verify_and_decode_token 2")
       end
 
       # The credentials are in a URL encoded form data in the request body
       def decoded_credentials
-        #Rails.logger.info("+++++++++ decoded_credentials credentials = #{credentials}")
+        Rails.logger.info("+++++++++ decoded_credentials credentials = #{credentials}")
         @decoded_credentials ||= Hash[URI.decode_www_form(credentials)]
       end
 

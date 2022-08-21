@@ -198,27 +198,15 @@ class AuthenticateController < ApplicationController
     handle_authentication_error(e)
   end
 
-  def authenticator_input
+  def authenticator_input(jwt_header = nil)
     Rails.logger.info("+++++++++++++ authenticator_input 1")
-    body_read = request.body.read
-    Rails.logger.info("+++++++++++++ authenticator_input 2 request.body.read = #{body_read}")
-    if body_read.empty? || body_read == 'null'
-      cookeisArray = request.headers["HTTP_COOKIE"].split('; ', -1)
-      cookeisArray.each { | value |
-        if value.index("idToken") == 0
-          idToken = value.split('=', -1)
-          body_read="id_token=" + idToken[1]
-          break
-        end
-      }
-    end
-    Rails.logger.info("+++++++++++++++ body_read = #{body_read}")
+
     @authenticator_input ||= Authentication::AuthenticatorInput.new(
       authenticator_name: params[:authenticator],
       service_id: params[:service_id],
       account: params[:account],
       username: params[:id],
-      credentials: body_read,
+      credentials: request.body.read,
       client_ip: request.ip,
       request: request
     )
