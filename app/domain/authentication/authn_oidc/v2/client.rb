@@ -37,7 +37,7 @@ module Authentication
           end
         end
 
-        def callback(code:)
+def validate_code(code:)
           unless code.present?
             raise Errors::Authentication::RequestBody::MissingRequestParam, 'code'
           end
@@ -49,12 +49,16 @@ module Authentication
             nonce: @authenticator.nonce
           )
           id_token = bearer_token.id_token || bearer_token.access_token
-          @logger.debug("token: #{id_token.inspect}")
+          @logger.debug("id token: #{id_token.inspect}")
 
+          validate_token(token: id_token)
+        end
+
+        def validate_token(token:)
           begin
             attempts ||= 0
             decoded_id_token = @oidc_id_token.decode(
-              id_token,
+              token,
               discovery_information.jwks
             )
           rescue Exception => e

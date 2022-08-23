@@ -4,6 +4,23 @@ class AuthenticateController < ApplicationController
   include BasicAuthenticator
   include AuthorizeResource
 
+  def oidc_authenticate_token
+    params.permit!
+
+    auth_token = Authentication::Handler::AuthenticationHandler.new(
+      authenticator_type: params[:authenticator]
+    ).call(
+      parameters: params.to_hash.symbolize_keys,
+      request_ip: request.ip
+    ) do |authenticator|
+      Authentication::AuthnOidc::V2::Strategies::Token.new(
+        authenticator: authenticator
+      ).callback(request.authorization.to_s.split(' ').last || request.raw_post)
+    end
+
+    render_authn_token(auth_token)
+  end
+
   def oidc_authenticate_code_redirect
     # TODO: need a mechanism for an authenticator strategy to define the required
     # params. This will likely need to be done via the Handler.
