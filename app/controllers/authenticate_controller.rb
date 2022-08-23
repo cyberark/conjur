@@ -14,7 +14,11 @@ class AuthenticateController < ApplicationController
     ).call(
       parameters: params.to_hash.symbolize_keys,
       request_ip: request.ip
-    )
+    ) do |authenticator|
+      Authentication::AuthnOidc::V2::Strategies::Code.new(
+        authenticator: authenticator
+      ).callback(params.to_hash.symbolize_keys)
+    end
 
     render_authn_token(auth_token)
     Rails.logger.debug("AuthenticateController#authenticate_okta - authentication token: #{auth_token.inspect}")

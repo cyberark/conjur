@@ -24,15 +24,12 @@ module Authentication
         )
 
         @identity_resolver = "#{namespace}::ResolveIdentity".constantize
-        @strategy = "#{namespace}::Strategy".constantize
         @authn_repo = authn_repo.new(
           data_object: "#{namespace}::DataObjects::Authenticator".constantize
         )
       end
 
-      def call(parameters:, request_ip:)
-        raise Errors::Authentication::RequestBody::MissingRequestParam, parameters[:code] unless parameters[:code]
-        raise Errors::Authentication::RequestBody::MissingRequestParam, parameters[:state] unless parameters[:state]
+      def call(parameters:, request_ip:, &block)
         # Load Authenticator policy and values (validates data stored as variables)
         authenticator = @authn_repo.find(
           type: @authenticator_type,
@@ -48,9 +45,7 @@ module Authentication
         end
 
         role = @identity_resolver.new.call(
-          identity: @strategy.new(
-            authenticator: authenticator
-          ).callback(parameters),
+          identity: block.call(authenticator),
           account: parameters[:account],
           allowed_roles: @role.that_can(
             :authenticate,
