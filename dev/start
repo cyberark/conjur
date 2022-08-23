@@ -18,7 +18,7 @@ fi
 # Minimal set of services.  We add to this list based on cmd line flags.
 services=(pg conjur client)
 
-# Authenticators to enable. 
+# Authenticators to enable.
 default_authenticators="authn,authn-k8s/test"
 enabled_authenticators="$default_authenticators"
 
@@ -72,7 +72,7 @@ main() {
   # Updates CONJUR_AUTHENTICATORS and restarts required services.
   start_auth_services
   create_alice
-  kill_conjur # so dev's can restart it manually
+  #kill_conjur # so dev's can restart it manually
   enter_container
 }
 
@@ -83,7 +83,7 @@ the Conjur container.  To start the application server, run:
     # conjurctl server
 
 Usage: start [options]
-    --authn-ldap    Starts OpenLDAP server and loads a demo policy to enable 
+    --authn-ldap    Starts OpenLDAP server and loads a demo policy to enable
                     authentication via:
                     'curl -X POST -d "alice" http://localhost:3000/authn-ldap/test/cucumber/alice/authenticate'
     --rotators      Starts a cucumber and test postgres container.
@@ -384,7 +384,7 @@ init_oidc() {
 
   services+=(keycloak)
   docker-compose up -d --no-deps "${services[@]}"
-
+  echo "++++++++++ configure_oidc_providers ++++++++"
   configure_oidc_providers
 
   if [[ $ENABLE_AUTHN_LDAP = true && $ENABLE_OIDC_OKTA = true ]]; then
@@ -435,6 +435,46 @@ start_auth_services() {
 create_alice() {
   echo "Creating user alice"
   client_load_policy "/src/conjur-server/dev/files/policy.yml"
+
+  echo "+++++++++ list resources webservice"
+  docker-compose exec client conjur list -k webservice
+  echo "+++++++++ list resources variable"
+  docker-compose exec client conjur list -k variable
+
+  echo "+++++++++ authenticate OIDC"
+  #docker-compose exec client curl -X POST http://conjur:3000/authn-oidc/keycloak/cucumber/authenticate --header 'Content-Type: application/x-www-form-urlencoded' --header "Accept-Encoding: base64" --data-urlencode 'jwt=abcdefgfhfghgfhgfhf'
+
+#  ID_TOKEN="idToken-1a6633d9-b613-489f-930c-16673e906bf0= \
+#  eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IjFBNkNEMjNBMEVCMjk0MzJGN0QzRjZCMTQ5NjMyNkY0OTM0NDU5RjMiLCJ4NXQ \
+#  iOiJHbXpTT2c2eWxETDMwX2F4U1dNbTlKTkVXZk0iLCJhcHBfaWQiOiJfX2lkYXB0aXZlX2N5YnJfdXNlcl9vaWRjIn0.eyJwcmVmZXJyZW \
+#  RfdXNlcm5hbWUiOiJhbG9uQGN5YmVyYXJrLmNsb3VkLjI2NTEyIiwiZmFtaWx5X25hbWUiOiJhbG9uIiwidGVuYW50X3N1YmRvbWFpbiI6 \
+#  Imh0dHBzOi8vYWxvbmF1ZGl0dGVzdC5pbnRlZ3JhdGlvbi1jeWJlcmFyay5jbG91ZCIsInVuaXF1ZV9uYW1lIjoiYWxvbkBjeWJlcmFyay \
+#  5jbG91ZC4yNjUxMiIsImlkYXB0aXZlX3RlbmFudF9pZCI6IkFCUDU2NDgiLCJ0ZW5hbnRfaWQiOiIxYTY2MzNkOS1iNjEzLTQ4OWYtOTMw \
+#  Yy0xNjY3M2U5MDZiZjAiLCJ1c2VyX3JvbGVzIjpbIlN5c3RlbSBBZG1pbmlzdHJhdG9yIiwiRXZlcnlib2R5IiwiZ2xvYmFsIGF1ZGl0b3 \
+#  IiXSwiaWF0IjoxNjU5MDEwMjY4LCJzdWIiOiJjMmM3YmNjNi05NTYwLTQ0ZTAtOGRmZi01YmUyMjFjZDM3ZWUiLCJhdXRoX3RpbWUiOjE2 \
+#  NTkwMDkwNjQsInJ0X3JlZiI6IjEyODFFNjU0RDEzMkY5REQ2QjBEMEQwOTdFQjU0Q0JGNEM0RkJFRUMiLCJleHAiOjE2NTkwMTExNjgsIn \
+#  VzZXJfdXVpZCI6ImMyYzdiY2M2LTk1NjAtNDRlMC04ZGZmLTViZTIyMWNkMzdlZSIsInNjb3BlIjoib3BlbmlkIGFwaSBwcm9maWxlIiwi \
+#  bGFzdF9sb2dpbiI6IjAiLCJhdWQiOiJfX2lkYXB0aXZlX2N5YnJfdXNlcl9vaWRjIiwiYXdzX3JlZ2lvbiI6InVzLWVhc3QtMSIsInN1Ym \
+#  RvbWFpbiI6ImFsb25hdWRpdHRlc3QiLCJjc3JmX3Rva2VuIjoiV3BkZmxxcnZHUXVPeUFPTzBxTTRIVFJaOS1CelcxbEJoTXA1eUNmZzRq \
+#  czEiLCJpbnRlcm5hbF9zZXNzaW9uX2lkIjoiNzRiNTRhODktMmU5Yy00ZWY2LWI2OGQtOTcwM2ExYTYyZmE1IiwicGxhdGZvcm1fZG9tYW \
+#  luIjoiaW50ZWdyYXRpb24tY3liZXJhcmsuY2xvdWQiLCJpc3MiOiJodHRwczovL2FicDU2NDguaWQuaW50ZWdyYXRpb24tY3liZXJhcmsu \
+#  Y2xvdWQvX19pZGFwdGl2ZV9jeWJyX3VzZXJfb2lkYy8iLCJhdF9oYXNoIjoibjBGNmcwaUpLTzBJMlZucTVCUkJpZyIsIm5hbWUiOiJhbG \
+#  9uIiwiZ2l2ZW5fbmFtZSI6ImFsb24ifQ.E43AIh8Ch2iwZozILbsSwaB-_fkAyLVCmvvjX6q8z1FEGWS-mBUiQVewXopmyqYo47p3TkYtn \
+#  7XX99SWIwYaU-EW51pFgz_IA7Nn8NVSxLjCJuCl8TGfSAa_UwoJemlUOCsRkLSZFxrhZZt7GG7tENkxxPOIOaumka2NiBGpcOEuGxeT7i- \
+#  AsYnl2bFSAGCL-cAG6pxnBnsPYFGRvv90o8POh0ASRAgwDh9OmHUV-6nypGnoCu8ACy2aB_nhNwxLOsO6yBufBCYni5OqjQbPHbM-R-t9N \
+#  SseC56ViMNS6HDaUjDygSYLrMr3Lxj5m-XVzyS8jAtLRKEmoi9_Qc8OIQ"
+
+  docker-compose exec client curl -X POST http://conjur:3000/authn-oidc/keycloak/cucumber/authenticate --header 'Content-Type: application/x-www-form-urlencoded' --header "Accept-Encoding: base64" --data-urlencode "$ID_TOKEN"
+
+
+
+  docker-compose exec client curl -X POST https://ofiratest.integration-cyberark.cloud/authn-oidc/cyberark/conjur/authenticate \
+  --header 'Content-Type: application/json' \
+  --header 'Cookie: podloc=eyJjbG91ZC5pZGFwdGl2ZS5xYSI6ImFiYzU0NTkuaWQuaW50ZWdyYXRpb24tY3liZXJhcmsuY2xvdWQifQ__;
+  loggedIn-353c97c4-a7ec-4e33-9fef-9b02f0e0e39e=true; antixss=NXI1Ym4vdy9Jbi9PSk8zRGg2M3hPNmVsbDhSTGIxWG00b2c4YTREWGdhMD0_-xfx35wlXRWRuY_j41vkAHQ__-HlS2fB9LmGR5_XVbgmyVzw__-MM5BiMeMhpTv6yFLXoSGww__-9Xr12lfHBOR4HIkYMsmZZw__-a_wTcM6nnmvVi_CKjKLDEw__-6n8DVXybEWmKhN4U47Nw3g__-d8vwaeME5aO0aOfsjbu0bQ__-9_a3nItpUtO9XUCXwtrjnw__; idToken-353c97c4-a7ec-4e33-9fef-9b02f0e0e39e=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IjVFMzIzRThFQTVDMzVFMDVEMUI0MUEyNjFEOUIzNTRDOEYzNzM4RUQiLCJ4NXQiOiJYakktanFYRFhnWFJ0Qm9tSFpzMVRJODNPTzAiLCJhcHBfaWQiOiJfX2lkYXB0aXZlX2N5YnJfdXNlcl9vaWRjIn0.eyJwcmVmZXJyZWRfdXNlcm5hbWUiOiJhbG9uQGN5YmVyYXJrLmNsb3VkLjc4MjMiLCJmYW1pbHlfbmFtZSI6ImFsb24iLCJ0ZW5hbnRfc3ViZG9tYWluIjoiaHR0cHM6Ly9hbG9udWkuaW50ZWdyYXRpb24tY3liZXJhcmsuY2xvdWQiLCJ1bmlxdWVfbmFtZSI6ImFsb25AY3liZXJhcmsuY2xvdWQuNzgyMyIsImlkYXB0aXZlX3RlbmFudF9pZCI6IkFCQzU0NTkiLCJ0ZW5hbnRfaWQiOiIzNTNjOTdjNC1hN2VjLTRlMzMtOWZlZi05YjAyZjBlMGUzOWUiLCJ1c2VyX3JvbGVzIjpbIlN5c3RlbSBBZG1pbmlzdHJhdG9yIiwiU2VjcmV0cyBNYW5hZ2VyIOKAkyBDb25qdXIgQ2xvdWQgQWRtaW4iLCJFdmVyeWJvZHkiLCJnbG9iYWwgYXVkaXRvciJdLCJpYXQiOjE2NTY1NzQ5NDAsInN1YiI6ImMyYzdiY2M2LTk1NjAtNDRlMC04ZGZmLTViZTIyMWNkMzdlZSIsImF1dGhfdGltZSI6MTY1NjU3NDAwNSwicnRfcmVmIjoiQTNGRTMyRTcxRTY4NDE3Njk4NTE1RjM4MEVDQjA0NTNFRUQ0QTlBMCIsImV4cCI6MTY1NjU3NTg0MCwidXNlcl91dWlkIjoiYzJjN2JjYzYtOTU2MC00NGUwLThkZmYtNWJlMjIxY2QzN2VlIiwic2NvcGUiOiJvcGVuaWQgYXBpIHByb2ZpbGUiLCJsYXN0X2xvZ2luIjoiMTY1NjU3MTUyNSIsImF1ZCI6Il9faWRhcHRpdmVfY3licl91c2VyX29pZGMiLCJhd3NfcmVnaW9uIjoidXMtZWFzdC0xIiwic3ViZG9tYWluIjoiYWxvbnVpIiwiY3NyZl90b2tlbiI6IkExWHZ6cjNVc2J3Q29XanVialZqejFsUW5YTmtoRGxFbGZVOTM3NW45UE0xIiwiaW50ZXJuYWxfc2Vzc2lvbl9pZCI6IjU4ZjEwMDRmLTVlOTMtNDVhMS05YTk0LTU5YjViZjkxM2NmNSIsInBsYXRmb3JtX2RvbWFpbiI6ImludGVncmF0aW9uLWN5YmVyYXJrLmNsb3VkIiwiaXNzIjoiaHR0cHM6Ly9hYmM1NDU5LmlkLmludGVncmF0aW9uLWN5YmVyYXJrLmNsb3VkL19faWRhcHRpdmVfY3licl91c2VyX29pZGMvIiwiYXRfaGFzaCI6InVyb2ZFN2lURlctNm9GN2tpMFU1LXciLCJuYW1lIjoiYWxvbiIsImdpdmVuX25hbWUiOiJhbG9uIn0.YYDANSF051k9rMX_8_Jk9TUT0yy57HHOj4FDZV5gI4NOLi3fbA7XbaQpuBqQfkIve0SZo-QJNuS30NyQYHYHYi6qTzXNiLEkIVLHcSr4RxAK3rc5W3WajQxV_BAKh9J2mOVxZngHcUHMGfeRZ2PUFPzq1nD2nf87sOfS1k5xdAbDSu4Ex8pCFj-5fmWK0zm3RytpFSj0leOqR3gKoB2ufPXdvYU64Egv6ukwcDonjIjhAiC4Bphog8D1n8-iUmMa1JfQuVdI8qOL1r4CuwOxtWWGd8Ufjl-MnvrT2-5fTiXhLDITqPt34SwhcjsTzJTIRk5hdNdynS-9OVVKF0C0cA; XSRF-TOKEN-353c97c4-a7ec-4e33-9fef-9b02f0e0e39e=A1Xvzr3UsbwCoWjubjVjz1lQnXNkhDlElfU9375n9PM1; sessdata=L3dVSFFVSkROVFExT1FKQmxHb0lVWGdRRFlPdlZ2U3JEMjUwdzhZTTVDc2x4Um9UL3V0a21pSExkTThRVk9CNnlqbTJSSEU0QUxPdGY5KytzUmhaMUJKSkZLSkcwRWFFVDRScjFTV2VwWU1vS3dxZUU5TXJwYUVENS9NdEpPMWlMQU5PWDAxRm5WbHN2QVU9' \
+  --header 'X-IDAP-NATIVE-CLIENT: true' \
+  --data-raw '{"id":"c2c7bcc6-9560-44e0-8dff-5be221cd37ee","Args":{"PageNumber":1,"PageSize":100000,"Limit":100000,"SortBy":"","Caching":-1}}'
+
 }
 
 kill_conjur() {
