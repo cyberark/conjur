@@ -72,7 +72,7 @@ main() {
   # Updates CONJUR_AUTHENTICATORS and restarts required services.
   start_auth_services
   create_alice
-  #kill_conjur # so dev's can restart it manually
+  kill_conjur # so dev's can restart it manually
   enter_container
 }
 

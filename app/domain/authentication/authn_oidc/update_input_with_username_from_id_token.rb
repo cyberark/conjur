@@ -41,9 +41,6 @@ module Authentication
       end
 
       def validate_credentials_include_id_token
-        Rails.logger.info("+++++++++ validate_credentials_include_id_token 1")
-
-        #request.headers.each { |key, value|  Rails.logger.info("+++++++++ validate_credentials_include_id_token 4 key = #{key} value = #{value}")}
 
         id_token_field_name = "id_token"
         @dec_cred = decoded_credentials
@@ -51,33 +48,25 @@ module Authentication
         # check that id token field exists and has some value
         if @dec_cred.fetch(id_token_field_name, "") == ""
 
-          Rails.logger.info("+++++++++ validate_credentials_include_id_token 2")
           idToken = request.headers["HTTP_AUTHORIZATION"].split(' ', -1)
-          Rails.logger.info("+++++++++ validate_credentials_include_id_token 3 idToken[0]=#{idToken[0]}")
           if idToken.empty? || idToken[0] != "Bearer"
             raise Errors::Authentication::RequestBody::MissingRequestParam, id_token_field_name
           end
 
-          Rails.logger.info("+++++++++ validate_credentials_include_id_token 4 idToken = #{idToken[1]}")
           @dec_cred = Hash[URI.decode_www_form("id_token=" + idToken[1])]
-          Rails.logger.info("+++++++++ validate_credentials_include_id_token 7 @dec_cred = #{@dec_cred}")
-
         end
       end
 
       def verify_and_decode_token
-        Rails.logger.info("+++++++++ verify_and_decode_token 1 @dec_cred = #{@dec_cred}")
         @decoded_token = @verify_and_decode_token.(
           provider_uri: oidc_authenticator_secrets["provider-uri"],
-          token_jwt: @dec_cred["id_token"], #decoded_credentials["id_token"],
+          token_jwt: @dec_cred["id_token"],
           claims_to_verify: {} # We don't verify any claims
         )
-        Rails.logger.info("+++++++++ verify_and_decode_token 2")
       end
 
       # The credentials are in a URL encoded form data in the request body
       def decoded_credentials
-        Rails.logger.info("+++++++++ decoded_credentials credentials = #{credentials}")
         @decoded_credentials ||= Hash[URI.decode_www_form(credentials)]
       end
 
@@ -91,7 +80,7 @@ module Authentication
       end
 
       def required_variable_names
-        @required_variable_names ||= %w[provider-uri id-token-user-property] # id-token-prefix]
+        @required_variable_names ||= %w[provider-uri id-token-user-property]
       end
 
       def validate_conjur_username
@@ -118,10 +107,6 @@ module Authentication
 
       def id_token_username_field
         oidc_authenticator_secrets["id-token-user-property"]
-      end
-
-      def id_token_prefix_field
-        oidc_authenticator_secrets["id-token-prefix"]
       end
 
       def input_with_username
