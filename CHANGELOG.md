@@ -9,7 +9,20 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
-## [1.18.0] - 2022-07-12
+## [1.18.1] - 2022-08-01
+
+### Changed
+- Migrates OIDC Provider list to be accessable via an unauthentated
+  endpoint. This is not a concern as logins using this endpoint already
+  display the redirect endpoint on the login page.
+  [cyberark/conjur#2625](https://github.com/cyberark/conjur/pull/2625)
+
+## [1.18.0] - 2022-08-01
+
+### Added
+- Adds support for namespace label based identity scope for the Kubernetes Authenticator
+  [cyberark/conjur#2613](https://github.com/cyberark/conjur/pull/2613)
+
 ### Changed
 - Adds support for authentication using OIDC's code authorization flow
   [cyberark/conjur#2595](https://github.com/cyberark/conjur/pull/2595)
@@ -880,7 +893,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - The first tagged version.
 
-[Unreleased]: https://github.com/cyberark/conjur/compare/v1.17.7...HEAD
+[Unreleased]: https://github.com/cyberark/conjur/compare/v1.18.0...HEAD
+[1.18.0]: https://github.com/cyberark/conjur/compare/v1.17.7...v1.18.0
 [1.17.7]: https://github.com/cyberark/conjur/compare/v1.17.6...v1.17.7
 [1.17.6]: https://github.com/cyberark/conjur/compare/v1.17.3...v1.17.6
 [1.17.3]: https://github.com/cyberark/conjur/compare/v1.15.0...v1.17.3

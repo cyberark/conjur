@@ -99,8 +99,7 @@ describe Loader::Types::Host do
   describe '.verify' do
     context 'when CONJUR_AUTHN_API_KEY_DEFAULT is true' do
       before do
-        allow(ENV).to receive(:[]).with('CONJUR_AUTHN_API_KEY_DEFAULT').and_return('true')
-        Rails.application.config.conjur_config.authn_api_key_default = true
+        allow(Rails.application.config.conjur_config).to receive(:authn_api_key_default).and_return(true)
       end
 
       context 'when creating host with api-key annotation true' do
@@ -124,8 +123,7 @@ describe Loader::Types::Host do
 
     context 'when CONJUR_AUTHN_API_KEY_DEFAULT is false' do
       before do
-        allow(ENV).to receive(:[]).with('CONJUR_AUTHN_API_KEY_DEFAULT').and_return('false')
-        Rails.application.config.conjur_config.authn_api_key_default = false
+        allow(Rails.application.config.conjur_config).to receive(:authn_api_key_default).and_return(false)
       end
 
       context 'when creating host with api-key annotation true' do

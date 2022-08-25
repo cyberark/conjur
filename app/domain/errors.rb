@@ -289,6 +289,16 @@ module Errors
         code: "CONJ00026E"
       )
 
+      LabelSelectorMismatch = ::Util::TrackableErrorClass.new(
+        msg: "Kubernetes {0-resource-type} '{1-resource-id}' does not match label-selector: '{2-label-selector}'",
+        code: "CONJ00083E"
+      )
+
+      InvalidLabelSelector = ::Util::TrackableErrorClass.new(
+        msg: "Invalid label-selector '{0-label-selector}': must adhere to format '<key>=<value>,<key1>=<value2>,...', supports '=' and '=='",
+        code: "CONJ00094E"
+      )
+
       ContainerNotFound = ::Util::TrackableErrorClass.new(
         msg: "Container '{0}' was not found in the pod. Host id: {1}",
         code: "CONJ00028E"
@@ -390,6 +400,11 @@ module Errors
       InvalidHostId = ::Util::TrackableErrorClass.new(
         msg: "Invalid Kubernetes host id: {0}. Must end with <namespace>/<resource_type>/<resource_id>",
         code: "CONJ00048E"
+      )
+
+      NoMatchingClient = ::Util::TrackableErrorClass.new(
+        msg: "Unable to establish Kubernetes client to execute method: \#{0}",
+        code: "CONJ00132E"
       )
     end
 
@@ -698,6 +713,12 @@ module Errors
       RoleMissingAnyRestrictions =  ::Util::TrackableErrorClass.new(
         msg: "Role must have at least one relevant annotation",
         code: "CONJ00099E"
+      )
+
+      IllegalRequiredExclusiveCombination = ::Util::TrackableErrorClass.new(
+        msg: "Role must have exactly one of the following required constraints: " \
+             "{0-constraints}. Role configured with {1-provided}",
+        code: "CONJ00131E"
       )
     end
   end

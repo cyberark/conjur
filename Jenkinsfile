@@ -264,6 +264,13 @@ pipeline {
           }
         }
 
+        // Run outside parallel block to avoid external pressure
+        stage('RSpec - Standard agent tests') {
+          steps {
+            sh 'ci/test rspec'
+          }
+        }
+
         // Run outside parallel block to reduce main Jenkins executor load.
         stage('Nightly Only') {
           when {
@@ -282,6 +289,13 @@ pipeline {
                 unstash 'version_info'
                 // Catch errors so remaining steps always run.
                 catchError {
+                  // Run outside parallel block to avoid external pressure
+                  script {
+                    stage("RSpec - EE FIPS agent tests") {
+                      sh "ci/test rspec"
+                    }
+                  }
+
                   runConjurTests(params.RUN_ONLY)
                 }
 
@@ -755,9 +769,6 @@ def testShouldRun(run_only_str, test) {
 def runConjurTests(run_only_str) {
 
   all_tests = [
-    "rspec": [
-      "RSpec - ${env.STAGE_NAME}": { sh 'ci/test rspec' }
-    ],
     "authenticators_config": [
       "Authenticators Config - ${env.STAGE_NAME}": {
         sh 'ci/test authenticators_config'

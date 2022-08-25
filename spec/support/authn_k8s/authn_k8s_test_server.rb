@@ -49,18 +49,20 @@ class AuthnK8sTestServer
 
         test_server = self.new(...)
         launcher = nil
-        Thread.new do
+        thread = Thread.new do
             self.run_server_instance(test_server) do |_launcher|
                 launcher = _launcher
             end
         end
 
         begin
-            sleep(0.1)
             yield(test_server)
         ensure
             # clean up
-            launcher.stop if launcher
+            if launcher
+                launcher.halt
+            end
+            thread.join
         end
     end
 
@@ -111,8 +113,12 @@ class AuthnK8sTestServer
     
     
         ws.on :close do |event|
-            log_event([:close, event.code, event.reason])
+          log_event([:close, event.code, event.reason])
           ws = nil
+        end
+
+        ws.on :error do |event|
+          log_event([:error, event.inspect])
         end
     
         # Return async Rack response
@@ -141,10 +147,10 @@ class AuthnK8sTestServer
             [ 200, {"Content-Type" => "application/json"}, [AuthnK8sTestServer.read_response_file("good:api.v1.getpod.json")] ]
         elsif req.path.start_with?("#{subpath}/api/v1/namespaces/default/pods/")
             [ 404, {"Content-Type" => "application/json"}, [AuthnK8sTestServer.read_response_file("bad:api.v1.getpod.json")] ]
-        elsif req.fullpath == "#{subpath}/api/v1/namespaces?labelSelector=field.cattle.io%2FprojectId%3Dp-q7s7z&fieldSelector=metadata.name%3Ddefault"
-            [ 200, {"Content-Type" => "application/json"}, [AuthnK8sTestServer.read_response_file("good:api.v1.getnamespaces.json")] ]
+        elsif req.fullpath == "#{subpath}/api/v1/namespaces/default"
+            [ 200, {"Content-Type" => "application/json"}, [AuthnK8sTestServer.read_response_file("good:api.v1.getnamespace.json")]]
         elsif req.path.start_with?("#{subpath}/api/v1/namespaces")
-            [ 200, {"Content-Type" => "application/json"}, [AuthnK8sTestServer.read_response_file("bad:api.v1.getnamespaces.json")] ]
+            [ 404, {"Content-Type" => "application/json"}, [AuthnK8sTestServer.read_response_file("bad:api.v1.getnamespace.json")] ]
         # NOTE: Kubenertes clients make requests to a whole set of endpoints at initialization time. The only way we could find to make the clients
         # happy was to have this else branch return 200 with an empty JSON object. Ideally, this branch should return something like a 404.
         # TODO: Find a better way to satisfy Kubernetes client initialization in relation to the above note.
