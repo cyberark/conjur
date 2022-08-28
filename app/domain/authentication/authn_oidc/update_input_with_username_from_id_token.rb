@@ -41,19 +41,22 @@ module Authentication
       end
 
       def validate_credentials_include_id_token
-
         id_token_field_name = "id_token"
         @dec_cred = decoded_credentials
 
         # check that id token field exists and has some value
         if @dec_cred.fetch(id_token_field_name, "") == ""
-
-          idToken = request.headers["HTTP_AUTHORIZATION"].split(' ', -1)
-          if idToken.empty? || idToken[0] != "Bearer"
+          if request.headers.length == 0
             raise Errors::Authentication::RequestBody::MissingRequestParam, id_token_field_name
           end
 
-          @dec_cred = Hash[URI.decode_www_form("id_token=" + idToken[1])]
+          if request.headers.has_key?("HTTP_AUTHORIZATION")
+            idToken = request.headers["HTTP_AUTHORIZATION"].split(' ', -1)
+            if idToken.empty? || idToken[0] != "Bearer"
+              raise Errors::Authentication::RequestBody::MissingRequestParam, id_token_field_name
+            end
+            @dec_cred = Hash[URI.decode_www_form("id_token=" + idToken[1])]
+          end
         end
       end
 
