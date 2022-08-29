@@ -9,8 +9,6 @@ RSpec.describe('Authentication::AuthnOidc::V2::DataObjects::Authenticator') do
       client_id: 'client-id-123',
       client_secret: 'client-secret-123',
       claim_mapping: 'email',
-      nonce: 'nonce456',
-      state: 'state123',
       account: 'default',
       service_id: 'my-authenticator'
     }

@@ -8,7 +8,7 @@ module Authentication
         class SecurityAttributes
           attr_reader :nonce, :state, :code_verifier
 
-          # Part of the initializer to allow dependency injection.
+          # These are part of the initializer to allow dependency injection.
           # These values need to remain dynamic to ensure security
           def initialize(
             nonce: SecureRandom.hex(25),

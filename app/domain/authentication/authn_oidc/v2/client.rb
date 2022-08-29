@@ -38,10 +38,6 @@ module Authentication
         end
 
         def validate_code(code:, nonce:, code_verifier:)
-          unless code.present?
-            raise Errors::Authentication::RequestBody::MissingRequestParam, 'code'
-          end
-
           oidc_client.authorization_code = code
           bearer_token = oidc_client.access_token!(
             scope: true,
