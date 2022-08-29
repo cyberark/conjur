@@ -10,8 +10,7 @@ class AuthenticateController < ApplicationController
     params.permit!
 
     auth_token = Authentication::Handler::AuthenticationHandler.new(
-      authenticator_type: params[:authenticator],
-      data_object: Authentication::AuthnOidc::V2::DataObjects::Authenticator
+      authenticator_type: params[:authenticator]
     ).call(
       parameters: params.to_hash.symbolize_keys,
       request_ip: request.ip
