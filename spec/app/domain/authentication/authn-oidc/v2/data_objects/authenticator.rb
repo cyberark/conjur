@@ -15,7 +15,6 @@ RSpec.describe('Authentication::AuthnOidc::V2::DataObjects::Authenticator') do
   end
   let(:args) { default_args }
 
-  # subject { Authentication::AuthnOidc::V2::DataObjects::Authenticator.new(**default_args)}
   let(:authenticator) { Authentication::AuthnOidc::V2::DataObjects::Authenticator.new(**args) }
 
   describe '.scope' do

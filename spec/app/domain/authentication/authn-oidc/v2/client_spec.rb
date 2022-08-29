@@ -82,7 +82,6 @@ RSpec.describe(Authentication::AuthnOidc::V2::Client) do
             nonce: '1656b4264b60af659fce'
           )
           expect(token).to be_a_kind_of(OpenIDConnect::ResponseObject::IdToken)
-          # expect(token.raw_attributes['nonce']).to eq('1656b4264b60af659fce')
           expect(token.raw_attributes['preferred_username']).to eq('test.user3@mycompany.com')
           expect(token.aud).to eq('0oa3w3xig6rHiu9yT5d7')
         end
