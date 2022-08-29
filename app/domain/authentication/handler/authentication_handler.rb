@@ -10,8 +10,7 @@ module Authentication
         authn_repo: DB::Repository::AuthenticatorRepository,
         namespace_selector: Authentication::Util::NamespaceSelector,
         logger: Rails.logger,
-        authentication_error: LogMessages::Authentication::AuthenticationError,
-        data_object: nil
+        authentication_error: LogMessages::Authentication::AuthenticationError
       )
         @role = role
         @resource = resource
@@ -23,13 +22,9 @@ module Authentication
         namespace = namespace_selector.select(
           authenticator_type: authenticator_type
         )
-        # Use the default authenticator data object if one was not provided
-        if data_object.nil?
-          data_object = "#{namespace}::DataObjects::Authenticator".constantize
-        end
         @identity_resolver = "#{namespace}::IdentityResolver".constantize
         @authn_repo = authn_repo.new(
-          data_object: data_object
+          data_object: "#{namespace}::DataObjects::Authenticator".constantize
         )
       end
 
