@@ -1,54 +1,50 @@
+require 'securerandom'
+require 'digest'
+
 module Authentication
   module AuthnOidc
     module V2
       module DataObjects
-        class TokenAuthenticator
-          attr_reader :provider_uri, :client_id, :id_token_user_property, :account, :service_id
+        class SecurityAttributes
+          attr_reader :nonce, :state, :code_verifier
 
-          # Nil methods to allow OIDC Client to function as intended
-          # attr_reader
-
+          # Part of the initializer to allow dependency injection.
+          # These values need to remain dynamic to ensure security
           def initialize(
-            provider_uri:,
-            id_token_user_property:,
-            client_id:,
-            account:,
-            service_id:,
-            name: nil,
-            **_
+            nonce: SecureRandom.hex(25),
+            state: SecureRandom.hex(25),
+            code_verifier: SecureRandom.hex(25)
           )
-            @account = account
-            @provider_uri = provider_uri
-            @id_token_user_property = id_token_user_property
-            @client_id = client_id
-            @service_id = service_id
-            @name = name
+            @nonce = nonce
+            @state = state
+            @code_verifier = code_verifier
           end
 
-          def claim_mapping
-            @id_token_user_property
+          def code_challenge
+            Digest::SHA256.base64digest(@code_verifier).tr("+/", "-_").tr("=", "")
           end
 
-          def name
-            @name || @service_id.titleize
-          end
-
-          def resource_id
-            "#{account}:webservice:conjur/authn-oidc/#{service_id}"
+          def code_challenge_method
+            'S256'
           end
         end
-
-        class CodeRedirectAuthenticator
-          attr_reader :provider_uri, :client_id, :client_secret, :claim_mapping, :nonce, :state, :account
-          attr_reader :service_id, :redirect_uri, :response_type
+        class Authenticator
+          attr_reader(
+            :provider_uri,
+            :client_id,
+            :client_secret,
+            :claim_mapping,
+            :account,
+            :service_id,
+            :redirect_uri,
+            :response_type
+          )
 
           def initialize(
             provider_uri:,
             client_id:,
             client_secret:,
             claim_mapping:,
-            nonce:,
-            state:,
             account:,
             service_id:,
             redirect_uri: nil,
@@ -61,9 +57,7 @@ module Authentication
             @client_id = client_id
             @client_secret = client_secret
             @claim_mapping = claim_mapping
-            @nonce = nonce
             @response_type = response_type
-            @state = state
             @service_id = service_id
             @name = name
             @provider_scope = provider_scope

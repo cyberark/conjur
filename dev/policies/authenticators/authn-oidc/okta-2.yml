@@ -22,8 +22,8 @@
           # Nonce and State are random strings generated to supply an
           # additional layer of security. These values should be generated when the
           # authenticator is created.
-          - !variable nonce
-          - !variable state
+          # - !variable nonce
+          # - !variable state
 
           # Group with permission to authenticate
           - !group

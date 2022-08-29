@@ -5,6 +5,7 @@ module Authentication
         class ProviderContext
           def initialize(
             client: Authentication::AuthnOidc::V2::Client,
+            security_obj: Authentication::AuthnOidc::V2::DataObjects::SecurityAttributes,
             logger: Rails.logger
           )
             @client = client
@@ -13,7 +14,7 @@ module Authentication
 
           def call(authenticators:)
             authenticators.map do |authenticator|
-              state_nonce_code_challenge_values = state_nonce_challenge
+              security = @security_obj.new
               client = @client.new(authenticator: authenticator)
               {
                 service_id: authenticator.service_id,
@@ -24,35 +25,28 @@ module Authentication
                   client_id: authenticator.client_id,
                   response_type: authenticator.response_type,
                   scope: authenticator.scope,
-                  state: state_nonce_code_challenge_values[:state],
-                  nonce: state_nonce_code_challenge_values[:nonce],
-                  code_verifier: state_nonce_code_challenge_values[:code_verifier],
+                  state: security.state,
+                  nonce: security.nonce,
+                  code_challenge: security.code_challenge,
+                  code_challenge_method: security.code_challenge_method,
                   redirect_uri: authenticator.redirect_uri
-                  # @client.new(authenticator: authenticator),
-                  # client_id:
-                  # authenticator: authenticator
                 )
-              }.merge(state_nonce_code_challenge_values)
+              }.merge({
+                state: security.state,
+                nonce: security.nonce,
+                code_verifier: security.code_verifier
+              })
             end
           end
 
-          def state_nonce_challenge
-            {
-              state: SecureRandom.hex(25),
-              nonce: SecureRandom.hex(30),
-              code_verifier: SecureRandom.hex(35)
-            }
-          end
-
-          def generate_redirect_url(authorization_endpoint:, client_id:, response_type:, scope:, state:, code_verifier:, nonce:, redirect_uri:)
-            # code_verifier = 'f387301683cb91e03f3f25af45ed180293a54541d314252665'
+          def generate_redirect_url(authorization_endpoint:, client_id:, response_type:, scope:, state:, code_challenge:, code_challenge_method:, nonce:, redirect_uri:)
             params = {
               client_id: client_id,
               response_type: response_type,
               scope: ERB::Util.url_encode(scope),
               state: state,
-              code_challenge: Digest::SHA256.base64digest(code_verifier).tr("+/", "-_").tr("=", ""),
-              code_challenge_method: 'S256',
+              code_challenge: code_challenge,
+              code_challenge_method: code_challenge_method,
               nonce: nonce,
               redirect_uri: ERB::Util.url_encode(redirect_uri)
             }.map { |key, value| "#{key}=#{value}" }.join("&")
