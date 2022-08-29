@@ -10,6 +10,7 @@ module Authentication
           )
             @client = client
             @logger = logger
+            @security_obj = security_obj
           end
 
           def call(authenticators:)

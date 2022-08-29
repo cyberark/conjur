@@ -8,7 +8,7 @@ class ProvidersController < ApplicationController
     render(
       json: "#{namespace}::Views::ProviderContext".constantize.new.call(
         authenticators: DB::Repository::AuthenticatorRepository.new(
-          data_object:  "#{namespace}::DataObjects::CodeRedirectAuthenticator".constantize
+          data_object:  "#{namespace}::DataObjects::Authenticator".constantize
         ).find_all(
           account: params[:account],
           type: params[:authenticator]

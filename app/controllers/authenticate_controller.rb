@@ -11,12 +11,12 @@ class AuthenticateController < ApplicationController
 
     auth_token = Authentication::Handler::AuthenticationHandler.new(
       authenticator_type: params[:authenticator],
-      data_object: Authentication::AuthnOidc::V2::DataObjects::CodeRedirectAuthenticator
+      data_object: Authentication::AuthnOidc::V2::DataObjects::Authenticator
     ).call(
       parameters: params.to_hash.symbolize_keys,
       request_ip: request.ip
     ) do |authenticator|
-      Authentication::AuthnOidc::V2::Strategies::Code.new(
+      Authentication::AuthnOidc::V2::Strategy.new(
         authenticator: authenticator
       ).callback(
         params.to_hash.symbolize_keys
