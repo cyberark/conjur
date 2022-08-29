@@ -1,5 +1,0 @@
-- !user rafi_schwarz@cyberark.cloud.23548
-
-- !grant
-  member: !user rafi_schwarz@cyberark.cloud.23548
-  role: !group conjur/authn-oidc/identity/authenticatable

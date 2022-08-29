@@ -210,29 +210,12 @@ configure_oidc_authenticators() {
 
 
   if [[ $ENABLE_OIDC_OKTA = true ]]; then
-    # Old style
-    client_load_policy '/src/conjur-server/dev/policies/authenticators/authn-oidc/okta.yml'
-    client_add_secret 'conjur/authn-oidc/okta/provider-uri' 'https://dev-92899796.okta.com/oauth2/default'
-    client_add_secret 'conjur/authn-oidc/okta/client-id' '0oa3w3xig6rHiu9yT5d7'
-    client_add_secret 'conjur/authn-oidc/okta/id-token-user-property' 'preferred_username'
-    client_load_policy '/src/conjur-server/dev/policies/authenticators/authn-oidc/okta-users.yml'
-    # client_add_secret 'conjur/authn-oidc/okta/nonce' '1656b4264b60af659fce'
-
-    # Validate a Cyberark Identity token
-    client_load_policy '/src/conjur-server/dev/policies/authenticators/authn-oidc/identity.yml'
-    client_add_secret 'conjur/authn-oidc/identity/provider-uri' 'https://abn5520.id.integration-cyberark.cloud/__idaptive_cybr_user_oidc'
-    client_add_secret 'conjur/authn-oidc/identity/client-id' '__idaptive_cybr_user_oidc'
-    client_add_secret 'conjur/authn-oidc/identity/id-token-user-property' 'preferred_username'
-    client_load_policy '/src/conjur-server/dev/policies/authenticators/authn-oidc/identity-users.yml'
-
     # Specific for new OIDC Authenticator
     client_load_policy '/src/conjur-server/dev/policies/authenticators/authn-oidc/okta-2.yml'
     client_add_secret 'conjur/authn-oidc/okta-2/provider-uri' 'https://dev-92899796.okta.com/oauth2/default'
     client_add_secret 'conjur/authn-oidc/okta-2/client-id' '0oa3w3xig6rHiu9yT5d7'
     client_add_secret 'conjur/authn-oidc/okta-2/client-secret' 'e349BMTTIpLO-rPuPqLLkLyH_pO-loUzhIVJCrHj'
     client_add_secret 'conjur/authn-oidc/okta-2/claim-mapping' 'preferred_username'
-    client_add_secret 'conjur/authn-oidc/okta-2/nonce' '1656b4264b60af659fce'
-    client_add_secret 'conjur/authn-oidc/okta-2/state' '4f413476ef7e2395f0af'
     client_add_secret 'conjur/authn-oidc/okta-2/redirect_uri' 'http://localhost:3000/authn-oidc/okta-2/cucumber/authenticate'
 
     client_load_policy '/src/conjur-server/dev/policies/authenticators/authn-oidc/okta-2-users.yml'
