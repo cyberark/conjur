@@ -8,7 +8,8 @@ class AuthenticateController < ApplicationController
     params.permit!
 
     auth_token = Authentication::Handler::AuthenticationHandler.new(
-      authenticator_type: params[:authenticator]
+      authenticator_type: params[:authenticator],
+      data_object: Authentication::AuthnOidc::V2::DataObjects::TokenAuthenticator
     ).call(
       parameters: params.to_hash.symbolize_keys,
       request_ip: request.ip
@@ -27,14 +28,17 @@ class AuthenticateController < ApplicationController
     params.permit!
 
     auth_token = Authentication::Handler::AuthenticationHandler.new(
-      authenticator_type: params[:authenticator]
+      authenticator_type: params[:authenticator],
+      data_object: Authentication::AuthnOidc::V2::DataObjects::CodeRedirectAuthenticator
     ).call(
       parameters: params.to_hash.symbolize_keys,
       request_ip: request.ip
     ) do |authenticator|
       Authentication::AuthnOidc::V2::Strategies::Code.new(
         authenticator: authenticator
-      ).callback(params.to_hash.symbolize_keys)
+      ).callback(
+        params.to_hash.symbolize_keys
+      )
     end
 
     render_authn_token(auth_token)

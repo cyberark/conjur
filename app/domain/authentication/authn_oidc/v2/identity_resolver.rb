@@ -1,7 +1,7 @@
 module Authentication
   module AuthnOidc
     module V2
-      class ResolveIdentity
+      class IdentityResolver
         def call(identity:, account:, allowed_roles:)
           # make sure role has a resource (ex. user, host)
           roles = allowed_roles.select(&:resource?)

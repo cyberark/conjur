@@ -1,0 +1,27 @@
+- !policy
+  id: conjur
+  body:
+    - !policy
+      id: authn-oidc
+      body:
+        - !policy
+          id: identity
+          body:
+          - !webservice
+
+          - !variable provider-uri
+          - !variable client-id
+          # Defines the JWT claim to use as the Conjur identifier
+          - !variable id-token-user-property
+          # - !variable nonce
+
+          # Group with permission to authenticate
+          - !group
+            id: authenticatable
+            annotations:
+              description: Users who can authenticate using this authenticator
+
+          - !permit
+            role: !group authenticatable
+            privilege: [ read, authenticate ]
+            resource: !webservice

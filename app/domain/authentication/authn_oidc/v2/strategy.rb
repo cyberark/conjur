@@ -1,7 +1,6 @@
 module Authentication
   module AuthnOidc
     module V2
-      # class Strategy
       module Strategies
         class Utilities
           def self.resolve_identity(jwt:, claim_mapping:, logger: Rails.logger)
@@ -33,10 +32,13 @@ module Authentication
           end
 
           # Don't love this name...
-          def callback(args)
+          def callback(token)
+            # binding.pry
             # raise if args are empty... it means we don't have a token
+            raise Errors::Authentication::AuthnOidc::MissingBearerToken unless token.present?
+
             @utilities.resolve_identity(
-              jwt: @client.validate_token(token: args),
+              jwt: @client.validate_token(token: token),
               claim_mapping: @authenticator.claim_mapping
             )
           end
@@ -44,6 +46,8 @@ module Authentication
 
         # Looks up an identity based on a provided OIDC Code.
         class Code
+          REQUIRED_FIELDS = %i[code nonce code_verifier].freeze
+
           def initialize(
             authenticator:,
             client: Authentication::AuthnOidc::V2::Client,
@@ -56,19 +60,31 @@ module Authentication
             @utilities = utilities
           end
 
+          def validate_required_fields(parameters)
+            REQUIRED_FIELDS.each do |field|
+              next if parameters.key?(field) && parameters[field].present?
+
+              raise(Errors::Authentication::RequestBody::MissingRequestParam, field)
+            end
+          end
+
           # Don't love this name...
           def callback(args)
             @logger.info("-- args: #{args.inspect}")
+
             # Check we have our required parameters
-            raise Errors::Authentication::RequestBody::MissingRequestParam, args[:code] unless args[:code]
-            raise Errors::Authentication::RequestBody::MissingRequestParam, args[:state] unless args[:state]
+            validate_required_fields(args)
+            # raise Errors::Authentication::RequestBody::MissingRequestParam, 'code' unless args[:code].present?
+            # raise Errors::Authentication::RequestBody::MissingRequestParam, 'state' unless args[:state].present?
 
             # Ensure state matches the configured state
-            raise Errors::Authentication::AuthnOidc::StateMismatch unless args[:state] == @authenticator.state
+            # raise Errors::Authentication::AuthnOidc::StateMismatch unless args[:state] == @authenticator.state
 
             @utilities.resolve_identity(
               jwt: @client.validate_code(
-                code: args[:code]
+                code: args[:code],
+                nonce: args[:nonce],
+                code_verifier: args[:code_verifier]
               ),
               claim_mapping: @authenticator.claim_mapping
             )
