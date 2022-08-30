@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'securerandom'
 
 # Utility methods for OIDC authenticator
@@ -26,7 +27,7 @@ module AuthnOidcHelper
 
   def authenticate_code_with_oidc(service_id:, account:, code: url_oidc_code, state: url_oidc_state)
     path = "#{create_auth_url(service_id: service_id, account: account, user_id: nil)}"
-    get(url_with_params(path: path,code: code, state: state ))
+    get(url_with_params(path: path, code: code, state: state))
   end
 
   def create_auth_url(service_id:, account:, user_id:)
@@ -116,17 +117,17 @@ module AuthnOidcHelper
 
   def parse_oidc_code(url)
     params = CGI::parse(URI(url).query)
-    @url_oidc_code = params["code"][0] if params.has_key?("code")
-    @url_oidc_state = params["state"][0] if params.has_key?("state")
+    @url_oidc_code = params["code"][0] if params.key?("code")
+    @url_oidc_state = params["state"][0] if params.key?("state")
   end
 
   def url_oidc_code
     @url_oidc_code
   end
 
-  def url_oidc_code
-    @url_oidc_code
-  end
+  # def url_oidc_code
+  #   @url_oidc_code
+  # end
 
   def url_oidc_state
     @url_oidc_state

@@ -7,6 +7,7 @@ class AuthenticateController < ApplicationController
   def oidc_authenticate_code_redirect
     # TODO: need a mechanism for an authenticator strategy to define the required
     # params. This will likely need to be done via the Handler.
+    raise params.inspect
     params.permit!
 
     auth_token = Authentication::Handler::AuthenticationHandler.new(

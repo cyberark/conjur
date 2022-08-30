@@ -45,7 +45,7 @@ Given(/^I load a policy with okta user:/) do |policy|
   - !grant
     role: !group conjur/authn-oidc/okta-2/users
     member: !user #{ENV['OKTA_USERNAME']}"""
- 
+
   load_root_policy(policy + user_policy)
 end
 
@@ -108,8 +108,8 @@ Given(/^I successfully set Okta OIDC V2 variables$/) do
   create_oidc_secret("client-id", okta_client_id, "okta-2")
   create_oidc_secret("client-secret", okta_client_secret, "okta-2")
   create_oidc_secret("claim-mapping", oidc_claim_mapping, "okta-2")
-  create_oidc_secret("state", oidc_state, "okta-2")
-  create_oidc_secret("nonce", oidc_nonce, "okta-2")
+  # create_oidc_secret("state", oidc_state, "okta-2")
+  # create_oidc_secret("nonce", oidc_nonce, "okta-2")
   create_oidc_secret("redirect-uri", okta_redirect_uri, "okta-2")
 end
 
@@ -134,16 +134,16 @@ When(/^I authenticate via OIDC V2 with no code in the request$/) do
   authenticate_code_with_oidc(
     service_id: "#{AuthnOidcHelper::SERVICE_ID}2",
     account: AuthnOidcHelper::ACCOUNT,
-    code: nil,
-    )
+    code: nil
+  )
 end
 
 When(/^I authenticate via OIDC V2 with state "([^"]*)"$/) do |state|
   authenticate_code_with_oidc(
     service_id: "#{AuthnOidcHelper::SERVICE_ID}2",
     account: AuthnOidcHelper::ACCOUNT,
-    state: state,
-    )
+    state: state
+  )
 end
 
 Given(/^I successfully set provider-uri variable to value "([^"]*)"$/) do |provider_uri|
@@ -167,8 +167,8 @@ Given(/^I successfully set OIDC V2 variables for "([^"]*)"$/) do |service_id|
   create_oidc_secret("client-id", oidc_client_id, service_id)
   create_oidc_secret("client-secret", oidc_client_secret, service_id)
   create_oidc_secret("claim-mapping", oidc_claim_mapping, service_id)
-  create_oidc_secret("state", oidc_state, service_id)
-  create_oidc_secret("nonce", oidc_nonce, service_id)
+  # create_oidc_secret("state", oidc_state, service_id)
+  # create_oidc_secret("nonce", oidc_nonce, service_id)
   create_oidc_secret("redirect-uri", oidc_redirect_uri, service_id)
   create_oidc_secret("provider-scope", oidc_scope, service_id)
 end

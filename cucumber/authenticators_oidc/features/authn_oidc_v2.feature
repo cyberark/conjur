@@ -21,8 +21,6 @@ Feature: OIDC Authenticator V2 - Users can authenticate with OIDC authenticator
           - !variable client-id
           - !variable client-secret
           - !variable claim-mapping
-          - !variable state
-          - !variable nonce
           - !variable redirect-uri
           - !variable provider-scope
           - !group users

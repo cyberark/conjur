@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -e
+set -ex
 
 # This file has an implicit dependency on the environment variables defined in
 # "ci/docker-compose.yml" keycloak section.
