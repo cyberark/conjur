@@ -54,7 +54,6 @@ module DB
             args[variable.resource_id.split('/')[-1].underscore.to_sym] = variable.secret.value
           end
         end
-        @logger.debug("DB::Repository::AuthenticatorRepository.load_authenticator - arguments for initialization: #{args_list.inspect}")
         begin
           @data_object.new(**args_list)
         rescue ArgumentError => e
