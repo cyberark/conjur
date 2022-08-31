@@ -4,7 +4,22 @@ module Authentication
       module DataObjects
         class Authenticator
 
-          # required
+          REQUIRED_FIELDS = %i[
+            provider_uri
+            client_id
+            client_secret
+            claim_mapping
+            nonce
+            state
+            account
+            service_id
+            response_type
+          ].freeze
+
+          OPTIONAL_FIELDS = %i[
+            redirect_uri
+          ].freeze
+
           attr_reader :provider_uri, :client_id, :client_secret, :claim_mapping, :nonce, :state, :account
           attr_reader :service_id, :redirect_uri, :response_type
 
@@ -12,11 +27,11 @@ module Authentication
             provider_uri:,
             client_id:,
             client_secret:,
-            claim_mapping:,
             nonce:,
             state:,
             account:,
             service_id:,
+            claim_mapping: 'email',
             redirect_uri: nil,
             name: nil,
             response_type: 'code',

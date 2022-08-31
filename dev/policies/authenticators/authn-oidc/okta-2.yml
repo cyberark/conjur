@@ -8,6 +8,8 @@
           id: okta-2
           body:
           - !webservice
+          # Enable support for status checks
+          - !webservice status
 
           - !variable provider-uri
           - !variable client-id
@@ -35,3 +37,11 @@
             role: !group authenticatable
             privilege: [ read, authenticate ]
             resource: !webservice
+
+          # group with permission to monitor status
+          - !group operators
+
+          - !permit
+            role: !group operators
+            privilege: [ read ]
+            resource: !webservice status

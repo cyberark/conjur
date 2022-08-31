@@ -14,7 +14,13 @@ module DB
             "#{account}:webservice:conjur/#{type}/%"
           )
         ).all.map do |webservice|
-          load_authenticator(account: account, id: webservice.id.split(':').last, type: type)
+          hydrate_authenticator(
+            authenticator_hash: load_authenticator_attributes(
+              account: account,
+              id: webservice.id.split(':').last,
+              type: type
+            )
+          )
         end.compact
       end
 
@@ -27,16 +33,27 @@ module DB
         ).first
         return unless webservice
 
-        load_authenticator(account: account, id: webservice.id.split(':').last, type: type)
+        hydrate_authenticator(
+          authenticator_hash: load_authenticator_attributes(
+            type: type,
+            account: account,
+            id: webservice.id.split(':').last
+          )
+        )
+        # load_authenticator(account: account, id: webservice.id.split(':').last, type: type)
       end
 
       def exists?(type:, account:, service_id:)
         @resource_repository.with_pk("#{account}:webservice:conjur/#{type}/#{service_id}") != nil
       end
 
+      def valid?(type:, account:, service_id:)
+
+      end
+
       private
 
-      def load_authenticator(type:, account:, id:)
+      def load_authenticator_attributes(type:, account:, id:)
         service_id = id.split('/')[2]
         variables = @resource_repository.where(
           Sequel.like(
@@ -45,7 +62,7 @@ module DB
           )
         ).eager(:secrets).all
 
-        args_list = {}.tap do |args|
+        {}.tap do |args|
           args[:account] = account
           args[:service_id] = service_id
           variables.each do |variable|
@@ -54,12 +71,14 @@ module DB
             args[variable.resource_id.split('/')[-1].underscore.to_sym] = variable.secret.value
           end
         end
-        @logger.debug("DB::Repository::AuthenticatorRepository.load_authenticator - arguments for initialization: #{args_list.inspect}")
+      end
+
+      def hydrate_authenticator(authenticator_hash:)
         begin
-          @data_object.new(**args_list)
+          @data_object.new(**authenticator_hash)
         rescue ArgumentError => e
           @logger.debug("DB::Repository::AuthenticatorRepository.load_authenticator - exception: #{e}")
-          @logger.debug("DB::Repository::AuthenticatorRepository.load_authenticator - invalid: #{args_list.inspect}")
+          # @logger.debug("DB::Repository::AuthenticatorRepository.load_authenticator - invalid: #{args_list.inspect}")
           nil
         end
       end
