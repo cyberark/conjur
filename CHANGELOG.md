@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
-## [1.18.2] - 2022-08-01
+## [1.18.2] - 2022-09-01
 
 ### Changed
 - Reduces debug log verbosity.
