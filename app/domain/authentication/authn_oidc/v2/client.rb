@@ -49,7 +49,6 @@ module Authentication
             nonce: @authenticator.nonce
           )
           id_token = bearer_token.id_token || bearer_token.access_token
-          @logger.debug("token: #{id_token.inspect}")
 
           begin
             attempts ||= 0
