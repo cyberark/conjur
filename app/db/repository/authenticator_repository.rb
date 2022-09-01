@@ -8,13 +8,14 @@ module DB
       end
 
       def find_all(type:, account:)
+        # binding.pry
         @resource_repository.where(
           Sequel.like(
             :resource_id,
             "#{account}:webservice:conjur/#{type}/%"
           )
         ).all.map do |webservice|
-          hydrate_authenticator(
+          hydrate_data_object(
             authenticator_hash: load_authenticator_attributes(
               account: account,
               id: webservice.id.split(':').last,
@@ -33,7 +34,7 @@ module DB
         ).first
         return unless webservice
 
-        hydrate_authenticator(
+        hydrate_data_object(
           authenticator_hash: load_authenticator_attributes(
             type: type,
             account: account,
@@ -48,7 +49,11 @@ module DB
       end
 
       def valid?(type:, account:, service_id:)
-
+        Authentication::AuthnOidc::V2::DataObjects::AuthenticatorContract
+          .new
+          .call(
+            load_authenticator_attributes(type: type, account: account, id: service_id)
+          )
       end
 
       private
@@ -73,12 +78,11 @@ module DB
         end
       end
 
-      def hydrate_authenticator(authenticator_hash:)
+      def hydrate_data_object(authenticator_hash:)
         begin
           @data_object.new(**authenticator_hash)
         rescue ArgumentError => e
           @logger.debug("DB::Repository::AuthenticatorRepository.load_authenticator - exception: #{e}")
-          # @logger.debug("DB::Repository::AuthenticatorRepository.load_authenticator - invalid: #{args_list.inspect}")
           nil
         end
       end
