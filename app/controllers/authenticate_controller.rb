@@ -17,7 +17,6 @@ class AuthenticateController < ApplicationController
     )
 
     render_authn_token(auth_token)
-    Rails.logger.debug("AuthenticateController#authenticate_okta - authentication token: #{auth_token.inspect}")
   rescue => e
     log_backtrace(e)
     raise e
