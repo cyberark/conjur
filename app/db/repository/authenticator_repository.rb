@@ -58,7 +58,6 @@ module DB
           @data_object.new(**args_list)
         rescue ArgumentError => e
           @logger.debug("DB::Repository::AuthenticatorRepository.load_authenticator - exception: #{e}")
-          @logger.debug("DB::Repository::AuthenticatorRepository.load_authenticator - invalid: #{args_list.inspect}")
           nil
         end
       end
