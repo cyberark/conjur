@@ -251,6 +251,10 @@ module Errors
         code: "CONJ00130E"
       )
 
+      MissingBearerToken = ::Util::TrackableErrorClass.new(
+        msg: "Bearer Token must be provided either as an authorization header or in the request body",
+        code: "CONJ00133E"
+      )
     end
 
     module AuthnIam

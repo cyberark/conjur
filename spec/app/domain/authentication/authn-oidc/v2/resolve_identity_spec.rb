@@ -2,9 +2,9 @@
 
 require 'spec_helper'
 
-RSpec.describe(' Authentication::AuthnOidc::V2::ResolveIdentity') do
+RSpec.describe(' Authentication::AuthnOidc::V2::IdentityResolver') do
   let(:resolve_identity) do
-    Authentication::AuthnOidc::V2::ResolveIdentity.new
+    Authentication::AuthnOidc::V2::IdentityResolver.new
   end
 
   describe('#call') do
