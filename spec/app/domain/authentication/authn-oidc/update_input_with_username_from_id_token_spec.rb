@@ -27,13 +27,14 @@ RSpec.describe(Authentication::AuthnOidc::UpdateInputWithUsernameFromIdToken) do
   # request mock
   ####################################
 
-  def mock_authenticate_oidc_request(request_body_data:)
+  def mock_authenticate_oidc_request(request_body_data: , request_headers:)
     double('AuthnOidcRequest').tap do |request|
       request_body = StringIO.new
       request_body.puts(request_body_data)
       request_body.rewind
 
       allow(request).to receive(:body).and_return(request_body)
+      allow(request).to receive(:headers).and_return(request_headers)
     end
   end
 
@@ -42,23 +43,43 @@ RSpec.describe(Authentication::AuthnOidc::UpdateInputWithUsernameFromIdToken) do
   end
 
   let(:authenticate_id_token_request) do
-    mock_authenticate_oidc_request(request_body_data: "id_token={\"id_token_username_field\": \"alice\"}")
+    mock_authenticate_oidc_request(request_body_data: "id_token={\"id_token_username_field\": \"alice\"}", request_headers: nil)
   end
 
   let(:authenticate_id_token_request_missing_id_token_username_field) do
-    mock_authenticate_oidc_request(request_body_data: "id_token={}")
+    mock_authenticate_oidc_request(request_body_data: "id_token={}", request_headers: nil)
   end
 
   let(:authenticate_id_token_request_empty_id_token_username_field) do
-    mock_authenticate_oidc_request(request_body_data: "id_token={\"id_token_username_field\": \"\"}")
+    mock_authenticate_oidc_request(request_body_data: "id_token={\"id_token_username_field\": \"\"}", request_headers: nil)
   end
 
   let(:authenticate_id_token_request_missing_id_token_field) do
-    mock_authenticate_oidc_request(request_body_data: "some_key=some_value")
+    mock_authenticate_oidc_request(request_body_data: "some_key=some_value", request_headers: nil)
   end
 
   let(:authenticate_id_token_request_empty_id_token_field) do
-    mock_authenticate_oidc_request(request_body_data: "id_token=")
+    mock_authenticate_oidc_request(request_body_data: "id_token=", request_headers: nil)
+  end
+
+  let(:authenticate_id_token_request_id_token_in_header_field) do
+    mock_authenticate_oidc_request(request_body_data: "id_token=", request_headers: {"HTTP_AUTHORIZATION" => "Bearer {\"id_token_username_field\":\"alice\"}"})
+  end
+
+  let(:authenticate_id_token_request_invalid_id_token_in_header_field) do
+    mock_authenticate_oidc_request(request_body_data: "id_token=", request_headers: {"HTTP_AUTHORIZATION" => "{\"id_token_username_field\":\"alice\"}"})
+  end
+
+  let(:authenticate_id_token_request_empty_id_token_in_header_field) do
+    mock_authenticate_oidc_request(request_body_data: "id_token=", request_headers: {"HTTP_AUTHORIZATION" => ""})
+  end
+
+  let(:authenticate_id_token_request_missing_id_token_in_body_field) do
+    mock_authenticate_oidc_request(request_body_data: "", request_headers: {"HTTP_AUTHORIZATION" => "Bearer {\"id_token_username_field\":\"alice\"}"})
+  end
+
+  let(:authenticate_id_token_request_contain_only_bearer_in_header_field) do
+    mock_authenticate_oidc_request(request_body_data: "", request_headers: {"HTTP_AUTHORIZATION" => "Bearer"})
   end
 
   #  ____  _   _  ____    ____  ____  ___  ____  ___
@@ -247,6 +268,141 @@ RSpec.describe(Authentication::AuthnOidc::UpdateInputWithUsernameFromIdToken) do
           expect { subject }.to raise_error(::Errors::Authentication::RequestBody::MissingRequestParam)
         end
       end
+
+      context "with valid id token in header" do
+        let(:audit_success) { false }
+
+        subject do
+          input_ = Authentication::AuthenticatorInput.new(
+            authenticator_name: 'authn-oidc',
+            service_id: 'my-service',
+            account: 'my-acct',
+            username: nil,
+            credentials: request_body(authenticate_id_token_request_id_token_in_header_field),
+            client_ip: '127.0.0.1',
+            request: authenticate_id_token_request_id_token_in_header_field
+          )
+
+          ::Authentication::AuthnOidc::UpdateInputWithUsernameFromIdToken.new(
+            verify_and_decode_token: mocked_decode_and_verify_id_token,
+            validate_account_exists: mock_validate_account_exists(validation_succeeded: true)
+          ).call(
+            authenticator_input: input_
+          )
+        end
+
+        it "returns the input with the username inside it" do
+          expect(subject.username).to eql("alice")
+        end
+      end
+
+      context "with invalid id token in header and in body" do
+        let(:audit_success) { false }
+
+        subject do
+          input_ = Authentication::AuthenticatorInput.new(
+            authenticator_name: 'authn-oidc',
+            service_id: 'my-service',
+            account: 'my-acct',
+            username: nil,
+            credentials: request_body(authenticate_id_token_request_invalid_id_token_in_header_field),
+            client_ip: '127.0.0.1',
+            request: authenticate_id_token_request_invalid_id_token_in_header_field
+          )
+
+          ::Authentication::AuthnOidc::UpdateInputWithUsernameFromIdToken.new(
+            verify_and_decode_token: mocked_decode_and_verify_id_token,
+            validate_account_exists: mock_validate_account_exists(validation_succeeded: true)
+          ).call(
+            authenticator_input: input_
+          )
+        end
+
+        it "raises a MissingRequestParam error" do
+          expect { subject }.to raise_error(::Errors::Authentication::RequestBody::MissingRequestParam)
+        end
+      end
+
+      context "with empty id token in header and invalid in body" do
+        let(:audit_success) { false }
+
+        subject do
+          input_ = Authentication::AuthenticatorInput.new(
+            authenticator_name: 'authn-oidc',
+            service_id: 'my-service',
+            account: 'my-acct',
+            username: nil,
+            credentials: request_body(authenticate_id_token_request_empty_id_token_in_header_field),
+            client_ip: '127.0.0.1',
+            request: authenticate_id_token_request_empty_id_token_in_header_field
+          )
+
+          ::Authentication::AuthnOidc::UpdateInputWithUsernameFromIdToken.new(
+            verify_and_decode_token: mocked_decode_and_verify_id_token,
+            validate_account_exists: mock_validate_account_exists(validation_succeeded: true)
+          ).call(
+            authenticator_input: input_
+          )
+        end
+
+        it "raises a MissingRequestParam error" do
+          expect { subject }.to raise_error(::Errors::Authentication::RequestBody::MissingRequestParam)
+        end
+      end
+
+      context "with valid id token in header and empty body" do
+        let(:audit_success) { false }
+
+        subject do
+          input_ = Authentication::AuthenticatorInput.new(
+            authenticator_name: 'authn-oidc',
+            service_id: 'my-service',
+            account: 'my-acct',
+            username: nil,
+            credentials: request_body(authenticate_id_token_request_missing_id_token_in_body_field),
+            client_ip: '127.0.0.1',
+            request: authenticate_id_token_request_missing_id_token_in_body_field
+          )
+
+          ::Authentication::AuthnOidc::UpdateInputWithUsernameFromIdToken.new(
+            verify_and_decode_token: mocked_decode_and_verify_id_token,
+            validate_account_exists: mock_validate_account_exists(validation_succeeded: true)
+          ).call(
+            authenticator_input: input_
+          )
+        end
+
+        it "returns the input with the username inside it" do
+          expect(subject.username).to eql("alice")
+        end
+      end
+
+      context "with bearer only in id token in header and empty body" do
+        let(:audit_success) { false }
+
+        subject do
+          input_ = Authentication::AuthenticatorInput.new(
+            authenticator_name: 'authn-oidc',
+            service_id: 'my-service',
+            account: 'my-acct',
+            username: nil,
+            credentials: request_body(authenticate_id_token_request_contain_only_bearer_in_header_field),
+            client_ip: '127.0.0.1',
+            request: authenticate_id_token_request_contain_only_bearer_in_header_field
+          )
+
+          ::Authentication::AuthnOidc::UpdateInputWithUsernameFromIdToken.new(
+            verify_and_decode_token: mocked_decode_and_verify_id_token,
+            validate_account_exists: mock_validate_account_exists(validation_succeeded: true)
+          ).call(
+            authenticator_input: input_
+          )
+        end
+
+        it "raises a MissingRequestParam error" do
+          expect { subject }.to raise_error(::Errors::Authentication::RequestBody::MissingRequestParam)
+        end
+      end  
     end
   end
 end

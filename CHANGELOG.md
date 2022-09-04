@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
+## [1.18.4] - 2022-09-11
+
+### Added
+- Adds support for authorization token in header in OIDC authenticator.
+  [cyberark/conjur#2637](https://github.com/cyberark/conjur/pull/2637)
+
 ## [1.18.3] - 2022-09-07
 
 ### Security

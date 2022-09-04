@@ -11,14 +11,14 @@ module Authentication
       inputs: %i[authenticator_input]
     ) do
       extend(Forwardable)
+      # The 'request' field in the 'authenticator_input' object will be used to extract the id token from the request header
       def_delegators(:@authenticator_input, :service_id, :authenticator_name,
-                     :account, :username, :webservice, :credentials, :client_ip,
+                     :account, :username, :webservice, :credentials, :client_ip, :request,
                      :role)
 
       def call
         validate_account_exists
         validate_service_id_exists
-        validate_credentials_include_id_token
         verify_and_decode_token
         validate_conjur_username
         input_with_username
@@ -36,15 +36,6 @@ module Authentication
         raise Errors::Authentication::AuthnOidc::ServiceIdMissing unless service_id
       end
 
-      def validate_credentials_include_id_token
-        id_token_field_name = "id_token"
-
-        # check that id token field exists and has some value
-        if decoded_credentials.fetch(id_token_field_name, "") == ""
-          raise Errors::Authentication::RequestBody::MissingRequestParam, id_token_field_name
-        end
-      end
-
       def verify_and_decode_token
         @decoded_token = @verify_and_decode_token.(
           provider_uri: oidc_authenticator_secrets["provider-uri"],
@@ -53,9 +44,45 @@ module Authentication
         )
       end
 
-      # The credentials are in a URL encoded form data in the request body
+      # The credentials are in a URL encoded form data in the request body or in the request header
       def decoded_credentials
-        @decoded_credentials ||= Hash[URI.decode_www_form(credentials)]
+        @decoded_credentials ||= begin
+          return token_from_body if token_from_body
+
+          return token_from_header if token_from_header
+
+          # If the token is not in the header or body, raise a missing param exception
+          raise Errors::Authentication::RequestBody::MissingRequestParam, 'id_token'
+        end
+      end
+
+      def token_from_header
+        @token_from_header ||= begin
+          return nil unless request&.headers&.key?("HTTP_AUTHORIZATION")
+
+          # Extract the token from the authorization header
+          id_token = request.headers['HTTP_AUTHORIZATION'].split(' ', -1)
+
+          # Verify the token is given as a bearer token
+          return nil unless id_token[0] == "Bearer" && id_token.length == 2
+
+          # Return the token formatted as it would be if extracted from the body
+          # as `application/x-www-form-urlencoded` data.
+          {
+            # URL decode the ID token from the header
+            "id_token" => URI.decode_www_form_component(id_token[1])
+          }
+        end
+      end
+
+      def token_from_body
+        @token_from_body ||= begin
+          # Parse the request body
+          credential_token = Hash[URI.decode_www_form(credentials)]
+
+          # Return the parsed body if it include the token
+          credential_token unless credential_token.fetch('id_token', "").empty?
+        end
       end
 
       def oidc_authenticator_secrets
