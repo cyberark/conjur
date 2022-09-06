@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [1.18.2] - 2022-09-01
 
+### Security
+- Remove code and state from the debug logs
+  [conjurinc/conjur-ui#2644](https://github.com/cyberark/conjur/pull/2644)
+
 ### Changed
 - Reduces debug log verbosity.
   [cyberark/conjur#2639](https://github.com/cyberark/conjur/pull/2639)
