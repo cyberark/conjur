@@ -37,7 +37,7 @@ module Authentication
       rescue => e
         raise Errors::Authentication::OAuth::FetchProviderKeysFailed.new(
           @provider_uri,
-          e.inspect
+          e.message
         )
       end
     end
