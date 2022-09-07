@@ -40,7 +40,7 @@ module Authentication
       end
 
       def raise_error(error_class, original_error)
-        raise error_class.new(@provider_uri, original_error.inspect)
+        raise error_class.new(@provider_uri, original_error.message)
       end
     end
   end
