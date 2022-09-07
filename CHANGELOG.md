@@ -9,11 +9,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
-## [1.18.2] - 2022-09-01
+## [1.18.3] - 2022-09-07
 
 ### Security
 - Remove code and state from the debug logs
   [conjurinc/conjur-ui#2644](https://github.com/cyberark/conjur/pull/2644)
+
+## [1.18.2] - 2022-09-01
 
 ### Changed
 - Reduces debug log verbosity.
@@ -903,8 +905,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - The first tagged version.
 
-[Unreleased]: https://github.com/cyberark/conjur/compare/v1.18.0...HEAD
-[1.18.0]: https://github.com/cyberark/conjur/compare/v1.17.7...v1.18.0
+[Unreleased]: https://github.com/cyberark/conjur/compare/v1.18.3...HEAD
+[1.18.3]: https://github.com/cyberark/conjur/compare/v1.18.1...v1.18.3
+[1.18.2]: https://github.com/cyberark/conjur/compare/v1.18.1...v1.18.2
+[1.18.1]: https://github.com/cyberark/conjur/compare/v1.18.0...v1.18.1
+[1.18.0]: https://github.com/cyberark/conjur/compare/v1.17.8...v1.18.0
+[1.17.8]: https://github.com/cyberark/conjur/compare/v1.17.7...v1.17.8
 [1.17.7]: https://github.com/cyberark/conjur/compare/v1.17.6...v1.17.7
 [1.17.6]: https://github.com/cyberark/conjur/compare/v1.17.3...v1.17.6
 [1.17.3]: https://github.com/cyberark/conjur/compare/v1.15.0...v1.17.3
