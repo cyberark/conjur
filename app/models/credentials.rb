@@ -4,7 +4,7 @@ require 'bcrypt'
 require 'util/cidr'
 require 'conjur/password'
 
-# TODO: This is needed because having the same line config/application.rb is
+# This is needed because having the same line config/application.rb is
 # not working.  I wasn't able to figure out what precisely was going wrong,
 # even after discussing with Jeremy Evans (sequel's author) on IRC, but bottom
 # line: without this line the extensions aren't loaded.

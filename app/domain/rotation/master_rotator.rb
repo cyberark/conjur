@@ -92,6 +92,7 @@ module Rotation
       end
 
       def log_error(e)
+        # SECURITY
         # TODO: add to audit log (separate story)
       end
 

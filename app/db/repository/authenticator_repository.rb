@@ -57,7 +57,9 @@ module DB
         begin
           @data_object.new(**args_list)
         rescue ArgumentError => e
-          @logger.debug("DB::Repository::AuthenticatorRepository.load_authenticator - exception: #{e}")
+          # SECURITY - Change to print exception's message rather than `to_s`.
+          # TODO - maybe we just display the Conjur variable missing from this authenticator policy.
+          @logger.debug("DB::Repository::AuthenticatorRepository.load_authenticator - exception: #{e.message}")
           nil
         end
       end

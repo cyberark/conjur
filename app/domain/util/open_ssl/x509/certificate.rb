@@ -1,6 +1,4 @@
 # A declarative constructor for an X509::Certificate
-#
-# TODO: this could pulled out into a gem
 
 require 'openssl'
 require 'active_support/time'

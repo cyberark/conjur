@@ -31,8 +31,10 @@ module Authentication
       end
 
       def call(parameters:, request_ip:)
-        raise Errors::Authentication::RequestBody::MissingRequestParam, parameters[:code] unless parameters[:code]
-        raise Errors::Authentication::RequestBody::MissingRequestParam, parameters[:state] unless parameters[:state]
+        # SECURITY/Usability - return the actual missing parameter.
+        raise Errors::Authentication::RequestBody::MissingRequestParam, :code if !parameters.key?(:code) || parameters[:code].strip.empty?
+        raise Errors::Authentication::RequestBody::MissingRequestParam, :state if !parameters.key?(:state) || parameters[:state].strip.empty?
+
         # Load Authenticator policy and values (validates data stored as variables)
         authenticator = @authn_repo.find(
           type: @authenticator_type,
@@ -47,6 +49,13 @@ module Authentication
           )
         end
 
+        # SECURITY - everything below this needs to be audited
+        # TODO - need to create audit messages for things like:
+        # - jwt identity does not match a role
+        # - code reuse
+        # - bad pkce challenge
+        # - bad oidc credentials
+        # - etc.
         role = @identity_resolver.new.call(
           identity: @strategy.new(
             authenticator: authenticator
@@ -58,13 +67,15 @@ module Authentication
           ).all
         )
 
-        # TODO: Add an error message
-        raise 'failed to authenticate' unless role
+        # TODO: Add an custom error message
+        # Not security issue, but need to remove this line as it's never hit (exception raised in identity mapper)
+        # raise 'failed to authenticate' unless role
 
         unless role.valid_origin?(request_ip)
           raise Errors::Authentication::InvalidOrigin
         end
 
+        # SECURITY - this block won't run if if there is a failure before this point.
         log_audit_success(authenticator, role, request_ip, @authenticator_type)
 
         TokenFactory.new.signed_token(
@@ -77,7 +88,8 @@ module Authentication
       end
 
       def handle_error(err)
-        @logger.warn(@authentication_error.new(err.inspect))
+        # SECURITY - TODO - dont' throw, catch and raise new exceptions
+        # @logger.warn(@authentication_error.new(err.inspect))
 
         case err
         when Errors::Authentication::Security::RoleNotAuthorizedOnResource
@@ -108,6 +120,8 @@ module Authentication
 
         else
           raise ApplicationController::Unauthorized
+          # SECURITY
+          # TODO - may want to log exceptions captured here (but don't inspect the exception, just show the message)
         end
       end
 

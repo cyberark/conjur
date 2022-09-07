@@ -16,6 +16,7 @@ module Authentication
         # Don't love this name...
         def callback(args)
           @logger.info("-- args: #{args.inspect}")
+          # SECURITY - less urgent
           # TODO: Check that `code` and `state` attributes are present
           raise Errors::Authentication::AuthnOidc::StateMismatch unless args[:state] == @authenticator.state
 

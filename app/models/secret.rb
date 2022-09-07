@@ -3,15 +3,15 @@
 # An encrypted secure value.
 class Secret < Sequel::Model
   unrestrict_primary_key
-  
+
   many_to_one :resource, reciprocal: :secrets
-  
+
   attr_encrypted :value, aad: :resource_id
-  
+
   class << self
     def latest_public_keys account, kind, id
       # Select the most recent value of each secret
-      Secret.with(:max_values, 
+      Secret.with(:max_values,
                   Secret.select(:resource_id){ max(:version).as(:version) }.
                     group_by(:resource_id).
                     where("account(resource_id)".lit => account).
@@ -49,7 +49,7 @@ class Secret < Sequel::Model
           GROUP BY resource_id
         ) max_version ON max_version.resource_id = ttl.resource_id
 
-        WHERE ttl.name = 'rotation/ttl' 
+        WHERE ttl.name = 'rotation/ttl'
         AND secrets.version = max_version.version
         AND (
           secrets.expires_at < NOW() OR secrets.expires_at IS NULL
@@ -62,10 +62,7 @@ class Secret < Sequel::Model
       Secret.where(resource_id: resource_id).update(expires_at: expires_at)
     end
 
-    # TODO optimize
-    #
     def current_values(resource_ids)
-
       max_versions = Secret
         .select_group(:resource_id)
         .select_append{ max(:version).as(:version) }
@@ -89,14 +86,14 @@ class Secret < Sequel::Model
       response["resource"] = response.delete("resource_id")
     end
   end
-  
+
   def before_update
     raise Sequel::ValidationFailed, "Secret cannot be updated once created"
   end
-  
+
   def validate
     super
-    
+
     raise Sequel::ValidationFailed, "Value is not present" unless @values[:value]
   end
 end

@@ -85,9 +85,11 @@ module Authentication
           ) do
             @discovery_configuration.discover!(@authenticator.provider_uri)
           rescue HTTPClient::ConnectTimeoutError, Errno::ETIMEDOUT => e
-            raise Errors::Authentication::OAuth::ProviderDiscoveryTimeout.new(@authenticator.provider_uri, e.inspect)
+            # SECURITY fix
+            raise Errors::Authentication::OAuth::ProviderDiscoveryTimeout.new(@authenticator.provider_uri, e.message)
           rescue => e
-            raise Errors::Authentication::OAuth::ProviderDiscoveryFailed.new(@authenticator.provider_uri, e.inspect)
+            # SECURITY fix
+            raise Errors::Authentication::OAuth::ProviderDiscoveryFailed.new(@authenticator.provider_uri, e.message)
           end
         end
       end
