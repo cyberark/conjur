@@ -272,7 +272,7 @@ class AuthenticateController < ApplicationController
   end
 
   def handle_login_error(err)
-    login_error = LogMessages::Authentication::LoginError.new(err.message)
+    login_error = LogMessages::Authentication::LoginError.new(err.inspect)
     logger.info(login_error)
     log_backtrace(err)
 
@@ -288,7 +288,7 @@ class AuthenticateController < ApplicationController
   end
 
   def handle_authentication_error(err)
-    authentication_error = LogMessages::Authentication::AuthenticationError.new(err.message)
+    authentication_error = LogMessages::Authentication::AuthenticationError.new(err.inspect)
     logger.info(authentication_error)
     log_backtrace(err)
 

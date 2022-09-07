@@ -77,6 +77,8 @@ module Authentication
       end
 
       def handle_error(err)
+        @logger.info("#{err.class.name}: #{err.message}")
+
         case err
         when Errors::Authentication::Security::RoleNotAuthorizedOnResource
           raise ApplicationController::Forbidden
