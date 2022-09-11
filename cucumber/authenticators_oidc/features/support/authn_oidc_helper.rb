@@ -24,6 +24,14 @@ module AuthnOidcHelper
     post(path, payload)
   end
 
+  def authenticate_id_token_with_oidc_in_header(service_id:, account:, id_token: parsed_id_token)
+    service_id_part = service_id ? "/#{service_id}" : ""
+    path = "#{conjur_hostname}/authn-oidc#{service_id_part}/#{account}/authenticate"
+    headers = {}
+    headers["Authorization"] = "Bearer #{id_token}"
+    post(path, {}, headers)
+  end
+
   def authenticate_code_with_oidc(service_id:, account:, code: url_oidc_code, state: url_oidc_state)
     path = "#{create_auth_url(service_id: service_id, account: account, user_id: nil)}"
     get(url_with_params(path: path,code: code, state: state ))

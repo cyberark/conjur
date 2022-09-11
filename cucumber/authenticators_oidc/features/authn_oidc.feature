@@ -39,7 +39,23 @@ Feature: OIDC Authenticator - Hosts can authenticate with OIDC authenticator
     And I successfully set OIDC variables
 
   @smoke
-  Scenario: A valid id token to get Conjur access token
+  Scenario: A valid id token in header to get Conjur access token
+    # We want to verify the returned access token is valid for retrieving a secret
+    Given I have a "variable" resource called "test-variable"
+    And I permit user "alice" to "execute" it
+    And I add the secret value "test-secret" to the resource "cucumber:variable:test-variable"
+    And I fetch an ID Token for username "alice" and password "alice"
+    And I save my place in the audit log file
+    When I authenticate via OIDC with id token in header
+    Then user "alice" has been authorized by Conjur
+    And I successfully GET "/secrets/cucumber/variable/test-variable" with authorized user
+    And The following appears in the audit log after my savepoint:
+    """
+    cucumber:user:alice successfully authenticated with authenticator authn-oidc service cucumber:webservice:conjur/authn-oidc/keycloak
+    """
+
+  @smoke
+  Scenario: A valid id token in body to get Conjur access token
     # We want to verify the returned access token is valid for retrieving a secret
     Given I have a "variable" resource called "test-variable"
     And I permit user "alice" to "execute" it

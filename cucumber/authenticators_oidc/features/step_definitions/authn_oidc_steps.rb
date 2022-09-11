@@ -161,6 +161,13 @@ When(/^I authenticate via OIDC with id token$/) do
   )
 end
 
+When(/^I authenticate via OIDC with id token in header$/) do
+  authenticate_id_token_with_oidc_in_header(
+    service_id: AuthnOidcHelper::SERVICE_ID,
+    account: AuthnOidcHelper::ACCOUNT
+  )
+end
+
 Given(/^I successfully set OIDC V2 variables for "([^"]*)"$/) do |service_id|
   create_oidc_secret("provider-uri", oidc_provider_uri, service_id)
   create_oidc_secret("response-type", oidc_response_type, service_id)
