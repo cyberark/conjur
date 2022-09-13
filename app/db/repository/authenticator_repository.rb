@@ -54,12 +54,25 @@ module DB
             args[variable.resource_id.split('/')[-1].underscore.to_sym] = variable.secret.value
           end
         end
-        begin
-          @data_object.new(**args_list)
-        rescue ArgumentError => e
-          @logger.debug("DB::Repository::AuthenticatorRepository.load_authenticator - exception: #{e}")
+
+        args = @data_object.const_get('CONJUR_VARIABLE_SCHEMA').(args_list)
+        if args.success?
+          @data_object.new(**args.to_h.merge(account: account, service_id: service_id))
+        else
+          args.errors.each do |error|
+            @logger.debug("DB::Repository::AuthenticatorRepository.load_authenticator - exception: #{error.inspect}")
+          end
           nil
         end
+
+        # begin
+        #   binding.pry
+        #   @logger.info(args_list.inspect)
+        #   @data_object.new(**args_list)
+        # rescue ArgumentError => e
+        #   @logger.debug("DB::Repository::AuthenticatorRepository.load_authenticator - exception: #{e}")
+        #   nil
+        # end
       end
     end
   end

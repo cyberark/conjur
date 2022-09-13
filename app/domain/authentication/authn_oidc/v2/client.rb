@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Authentication
   module AuthnOidc
     module V2
@@ -37,23 +39,29 @@ module Authentication
           end
         end
 
-        def callback(code:)
-          unless code.present?
-            raise Errors::Authentication::RequestBody::MissingRequestParam, 'code'
-          end
+        # def callback(code:)
+        def validate_code(code:, nonce:, code_verifier:)
+  # unless code.present?
+  #           raise Errors::Authentication::RequestBody::MissingRequestParam, 'code'
+  #         end
 
           oidc_client.authorization_code = code
           bearer_token = oidc_client.access_token!(
             scope: true,
             client_auth_method: :basic,
-            nonce: @authenticator.nonce
+            nonce: nonce,
+            code_verifier: code_verifier
+            # nonce: @authenticator.nonce
           )
           id_token = bearer_token.id_token || bearer_token.access_token
+          validate_token(token: id_token, nonce: nonce)
+        end
 
+        def validate_token(token:, nonce: nil)
           begin
             attempts ||= 0
             decoded_id_token = @oidc_id_token.decode(
-              id_token,
+              token,
               discovery_information.jwks
             )
           rescue Exception => e
@@ -70,7 +78,8 @@ module Authentication
           decoded_id_token.verify!(
             issuer: @authenticator.provider_uri,
             client_id: @authenticator.client_id,
-            nonce: @authenticator.nonce
+            nonce: nonce
+            # nonce: @authenticator.nonce
           )
           decoded_id_token
         rescue OpenIDConnect::ValidationFailed => e

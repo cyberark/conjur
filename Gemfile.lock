@@ -189,9 +189,17 @@ GEM
     dry-core (0.7.1)
       concurrent-ruby (~> 1.0)
     dry-inflector (0.2.1)
+    dry-initializer (3.1.1)
     dry-logic (1.2.0)
       concurrent-ruby (~> 1.0)
       dry-core (~> 0.5, >= 0.5)
+    dry-schema (1.10.2)
+      concurrent-ruby (~> 1.0)
+      dry-configurable (~> 0.13, >= 0.13.0)
+      dry-core (~> 0.5, >= 0.5)
+      dry-initializer (~> 3.0)
+      dry-logic (~> 1.0)
+      dry-types (~> 1.5)
     dry-struct (1.4.0)
       dry-core (~> 0.5, >= 0.5)
       dry-types (~> 1.5)
@@ -496,6 +504,7 @@ DEPENDENCIES
   cucumber (~> 7.1)
   database_cleaner (~> 1.8)
   debase (~> 0.2.5.beta2)
+  dry-schema
   dry-struct
   dry-types
   event_emitter

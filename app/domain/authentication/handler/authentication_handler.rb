@@ -30,41 +30,40 @@ module Authentication
         )
       end
 
-      def call(parameters:, request_ip:)
-        required_parameters = %i[state code]
-        required_parameters.each do |parameter|
-          if !parameters.key?(parameter) || parameters[parameter].strip.empty?
-            raise Errors::Authentication::RequestBody::MissingRequestParam, parameter
+      def call(parameters:, account:, service_id:, request_ip:, http_method:)
+        # Validate required parameters are present
+        strategy_schema = @strategy.const_get(:SCHEMA).(parameters)
+        # binding.pry
+        unless strategy_schema.success?
+          strategy_schema.errors.messages.each do |error|
+            # TODO: should return a monad with below message
+            raise Errors::Authentication::RequestBody::MissingRequestParam, error
           end
         end
 
         # Load Authenticator policy and values (validates data stored as variables)
         authenticator = @authn_repo.find(
           type: @authenticator_type,
-          account: parameters[:account],
-          service_id: parameters[:service_id]
+          account: account,
+          service_id: service_id
         )
 
         if authenticator.nil?
           raise(
             Errors::Conjur::RequestedResourceNotFound,
-            "Unable to find authenticator with account: #{parameters[:account]} and service-id: #{parameters[:service_id]}"
+            "Unable to find authenticator with account: #{account} and service-id: #{service_id}"
           )
         end
-
         role = @identity_resolver.new.call(
           identity: @strategy.new(
             authenticator: authenticator
-          ).callback(parameters),
-          account: parameters[:account],
+          ).callback(**strategy_schema.to_h),
+          account: account,
           allowed_roles: @role.that_can(
             :authenticate,
             @resource[authenticator.resource_id]
           ).all
         )
-
-        # TODO: Add an error message
-        raise 'failed to authenticate' unless role
 
         unless role.valid_origin?(request_ip)
           raise Errors::Authentication::InvalidOrigin

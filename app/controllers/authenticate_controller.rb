@@ -4,16 +4,17 @@ class AuthenticateController < ApplicationController
   include BasicAuthenticator
   include AuthorizeResource
 
+  # TODO: This method should be generic, and become the entrypoint for
+  #       ALL authenthenticators.
   def oidc_authenticate_code_redirect
-    # TODO: need a mechanism for an authenticator strategy to define the required
-    # params. This will likely need to be done via the Handler.
-    params.permit!
-
     auth_token = Authentication::Handler::AuthenticationHandler.new(
       authenticator_type: params[:authenticator]
     ).call(
-      parameters: params.to_hash.symbolize_keys,
-      request_ip: request.ip
+      account: params[:account],
+      service_id: params[:service_id],
+      parameters: request.params,
+      request_ip: request.ip,
+      http_method: request.method_symbol
     )
 
     render_authn_token(auth_token)

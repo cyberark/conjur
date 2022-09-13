@@ -1,8 +1,17 @@
+# frozen_string_literal: true
+
+require 'dry/schema'
 
 module Authentication
   module AuthnOidc
     module V2
       class Strategy
+        SCHEMA = Dry::Schema.Params do
+          required(:nonce).filled(:string)
+          required(:code).filled(:string)
+          required(:code_verifier).filled(:string)
+        end
+
         def initialize(
           authenticator:,
           client: Authentication::AuthnOidc::V2::Client,
@@ -14,13 +23,15 @@ module Authentication
         end
 
         # Don't love this name...
-        def callback(args)
+        def callback(code:, nonce:, code_verifier:)
           # TODO: Check that `code` and `state` attributes are present
-          raise Errors::Authentication::AuthnOidc::StateMismatch unless args[:state] == @authenticator.state
+          # raise Errors::Authentication::AuthnOidc::StateMismatch unless args[:state] == @authenticator.state
 
           identity = resolve_identity(
-            jwt: @client.callback(
-              code: args[:code]
+            jwt: @client.validate_code(
+              code: code,
+              nonce: nonce,
+              code_verifier: code_verifier
             )
           )
           unless identity.present?
