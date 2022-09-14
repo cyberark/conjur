@@ -81,13 +81,13 @@ describe 'policy metrics', type: :request  do
     end
 
     it 'updates the registry' do
-      resources_before = registry.get(:conjur_resource_count).get(labels: { kind: 'group' })
-      roles_before = registry.get(:conjur_role_count).get(labels: { kind: 'group' })
+      resources_before = registry.get(@resource_metric.metric_name).get(labels: { kind: 'group' })
+      roles_before = registry.get(@role_metric.metric_name).get(labels: { kind: 'group' })
 
       post(policies_url, env: headers_with_auth('[!group test]'))
 
-      resources_after = registry.get(:conjur_resource_count).get(labels: { kind: 'group' })
-      roles_after = registry.get(:conjur_role_count).get(labels: { kind: 'group' })
+      resources_after = registry.get(@resource_metric.metric_name).get(labels: { kind: 'group' })
+      roles_after = registry.get(@role_metric.metric_name).get(labels: { kind: 'group' })
 
       expect(resources_after - resources_before).to eql(1.0)
       expect(roles_after - roles_before).to eql(1.0)

@@ -58,7 +58,9 @@ module Monitoring
     end
 
     def throttle_policy_event(metric)
-      # TODO: revisit throttling for metrics which execute DB queries
+      # TODO: Revisit throttling for metrics which execute DB queries. 
+      # Currently this method is only used to group events that should run
+      # when a policy is loaded. It does not throttle the amount of updates.
       metric.pubsub.subscribe('conjur.policy_loaded') do
         metric.pubsub.publish(metric.sub_event_name)
       end
