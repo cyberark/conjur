@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
+## [1.18.5] - 2022-09-14
+
 ## [1.18.4] - 2022-09-11
 
 ### Added
@@ -911,8 +913,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - The first tagged version.
 
-[Unreleased]: https://github.com/cyberark/conjur/compare/v1.18.3...HEAD
-[1.18.3]: https://github.com/cyberark/conjur/compare/v1.18.1...v1.18.3
+[Unreleased]: https://github.com/cyberark/conjur/compare/v1.18.5...HEAD
+[1.18.5]: https://github.com/cyberark/conjur/compare/v1.18.4...v1.18.5
+[1.18.4]: https://github.com/cyberark/conjur/compare/v1.18.3...v1.18.4
+[1.18.3]: https://github.com/cyberark/conjur/compare/v1.18.2...v1.18.3
 [1.18.2]: https://github.com/cyberark/conjur/compare/v1.18.1...v1.18.2
 [1.18.1]: https://github.com/cyberark/conjur/compare/v1.18.0...v1.18.1
 [1.18.0]: https://github.com/cyberark/conjur/compare/v1.17.8...v1.18.0
