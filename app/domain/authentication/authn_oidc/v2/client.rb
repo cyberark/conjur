@@ -37,19 +37,36 @@ module Authentication
           end
         end
 
+        def refresh(refresh_token:)
+          unless refresh_token.present?
+            raise Errors::Authentication::RequestBody::MissingRequestParam, 'refresh_token'
+          end
+
+          oidc_client.refresh_token = refresh_token
+          get_token_pair(nonce: nil)
+        end
+
         def callback(code:)
           unless code.present?
             raise Errors::Authentication::RequestBody::MissingRequestParam, 'code'
           end
 
           oidc_client.authorization_code = code
+          get_token_pair(nonce: @authenticator.nonce)
+        end
+
+        def get_token_pair(nonce:)
           bearer_token = oidc_client.access_token!(
-            scope: true,
+            scope: @authenticator.scope,
             client_auth_method: :basic,
-            nonce: @authenticator.nonce
+            nonce: nonce
           )
           id_token = bearer_token.id_token || bearer_token.access_token
+          refresh_token = bearer_token.refresh_token
+          return decode_id_token(id_token, nonce), refresh_token
+        end
 
+        def decode_id_token(id_token, expected_nonce)
           begin
             attempts ||= 0
             decoded_id_token = @oidc_id_token.decode(
@@ -70,7 +87,7 @@ module Authentication
           decoded_id_token.verify!(
             issuer: @authenticator.provider_uri,
             client_id: @authenticator.client_id,
-            nonce: @authenticator.nonce
+            nonce: expected_nonce
           )
           decoded_id_token
         rescue OpenIDConnect::ValidationFailed => e

@@ -37,7 +37,7 @@ module Authentication
           end
 
           def scope
-            (%w[openid email profile] + [*@provider_scope]).uniq.join(' ')
+            (%w[openid email profile offline_access] + [*@provider_scope]).uniq.join(' ')
           end
 
           def name

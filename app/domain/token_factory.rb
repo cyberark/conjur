@@ -18,13 +18,19 @@ class TokenFactory < Dry::Struct
   def signed_token(account:,
                    username:,
                    host_ttl: Rails.application.config.conjur_config.host_authorization_token_ttl,
-                   user_ttl: Rails.application.config.conjur_config.user_authorization_token_ttl)
-    signing_key(account).issue_jwt(
+                   user_ttl: Rails.application.config.conjur_config.user_authorization_token_ttl,
+                   refresh_token: nil)
+    claims = {
       sub: username,
       exp: Time.now + offset(
         ttl: username.starts_with?('host/') ? host_ttl : user_ttl
       )
-    )
+    }
+    unless refresh_token.nil?
+      claims[:jti] = refresh_token
+    end
+
+    signing_key(account).issue_jwt(claims)
   end
 
   def offset(ttl:)

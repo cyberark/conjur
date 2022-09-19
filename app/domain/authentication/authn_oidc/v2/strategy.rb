@@ -18,20 +18,25 @@ module Authentication
           # TODO: Check that `code` and `state` attributes are present
           raise Errors::Authentication::AuthnOidc::StateMismatch unless args[:state] == @authenticator.state
 
-          identity = resolve_identity(
-            jwt: @client.callback(
-              code: args[:code]
-            )
-          )
-          unless identity.present?
-            raise Errors::Authentication::AuthnOidc::IdTokenClaimNotFoundOrEmpty,
-                  @authenticator.claim_mapping
+          if args[:code].nil?
+            jwt, refresh_token = @client.refresh(refresh_token: args[:refresh_token])
+          else
+            jwt, refresh_token = @client.callback(code: args[:code])
           end
-          identity
+
+          identity = resolve_identity(
+            jwt: jwt,
+            claim_mapping: @authenticator.claim_mapping
+          )
+          return identity, refresh_token
         end
 
-        def resolve_identity(jwt:)
-          jwt.raw_attributes.with_indifferent_access[@authenticator.claim_mapping]
+        def resolve_identity(jwt:, claim_mapping:, logger: Rails.logger)
+          identity = jwt.raw_attributes.with_indifferent_access[claim_mapping]
+          unless identity.present?
+            raise Errors::Authentication::AuthnOidc::IdTokenClaimNotFoundOrEmpty, claim_mapping
+          end
+          identity
         end
       end
     end

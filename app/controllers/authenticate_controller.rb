@@ -4,15 +4,18 @@ class AuthenticateController < ApplicationController
   include BasicAuthenticator
   include AuthorizeResource
 
-  def oidc_authenticate_code_redirect
+  def oidc_exchange
     # TODO: need a mechanism for an authenticator strategy to define the required
     # params. This will likely need to be done via the Handler.
     params.permit!
 
+    body_hash = Rack::Utils.parse_nested_query(request.raw_post).symbolize_keys
+    merged_params = params.to_hash.symbolize_keys.merge(body_hash)
+
     auth_token = Authentication::Handler::AuthenticationHandler.new(
       authenticator_type: params[:authenticator]
     ).call(
-      parameters: params.to_hash.symbolize_keys,
+      parameters: merged_params,
       request_ip: request.ip
     )
 

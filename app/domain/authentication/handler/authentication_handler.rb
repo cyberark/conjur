@@ -31,31 +31,33 @@ module Authentication
       end
 
       def call(parameters:, request_ip:)
-        required_parameters = %i[state code]
+        required_parameters = %i[state]
         required_parameters.each do |parameter|
           if !parameters.key?(parameter) || parameters[parameter].strip.empty?
             raise Errors::Authentication::RequestBody::MissingRequestParam, parameter
           end
         end
 
-        # Load Authenticator policy and values (validates data stored as variables)
+        xor_paramteres = %i[code refresh_token]
+        raise Error unless !parameters[:code].nil? ^ !parameters[:refresh_token].nil?
+
         authenticator = @authn_repo.find(
           type: @authenticator_type,
           account: parameters[:account],
           service_id: parameters[:service_id]
         )
-
         if authenticator.nil?
           raise(
             Errors::Conjur::RequestedResourceNotFound,
             "Unable to find authenticator with account: #{parameters[:account]} and service-id: #{parameters[:service_id]}"
           )
         end
+        identity, refresh_token = @strategy.new(
+          authenticator: authenticator
+        ).callback(parameters)
 
         role = @identity_resolver.new.call(
-          identity: @strategy.new(
-            authenticator: authenticator
-          ).callback(parameters),
+          identity: identity,
           account: parameters[:account],
           allowed_roles: @role.that_can(
             :authenticate,
@@ -74,7 +76,8 @@ module Authentication
 
         TokenFactory.new.signed_token(
           account: parameters[:account],
-          username: role.role_id.split(':').last
+          username: role.role_id.split(':').last,
+          refresh_token: refresh_token
         )
       rescue => e
         log_audit_failure(parameters[:account], parameters[:service_id], request_ip, @authenticator_type, e)
