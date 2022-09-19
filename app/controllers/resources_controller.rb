@@ -19,8 +19,10 @@ class ResourcesController < RestController
       options[:limit] = conjur_config.api_resource_list_limit_max.to_s unless options[:limit]
 
       unless options[:limit].to_i <= conjur_config.api_resource_list_limit_max
-        raise ApplicationController::UnprocessableEntity, \
-              "'Limit' parameter must not exceed #{conjur_config.api_resource_list_limit_max}"
+        error_message = "'Limit' parameter must not exceed #{conjur_config.api_resource_list_limit_max}"
+        audit_list_failure(options, error_message)
+        raise ApplicationController::UnprocessableEntity, error_message
+
       end
     end
 
@@ -35,8 +37,10 @@ class ResourcesController < RestController
     begin
       scope = Resource.visible_to(assumed_role(query_role)).search(**options)
     rescue ApplicationController::Forbidden
+      audit_list_failure(options, "The authenticated user lacks the necessary privilege")
       raise
     rescue ArgumentError => e
+      audit_list_failure(options, e.message)
       raise ApplicationController::UnprocessableEntity, e.message
     end
 
@@ -51,7 +55,7 @@ class ResourcesController < RestController
           eager(:policy_versions).
           all
       end
-
+    audit_list_success(options)
     render(json: result)
   end
 
@@ -120,4 +124,36 @@ class ResourcesController < RestController
   def conjur_config
     Rails.application.config.conjur_config
   end
+
+  private
+
+  def audit_list_success(options)
+    additional_params = %i[count acting_as role]
+    additional_options = params.permit(*additional_params)
+      .slice(*additional_params).to_h.symbolize_keys
+    Audit.logger.log(
+      Audit::Event::List.new(
+        user_id: current_user.role_id,
+        client_ip: request.ip,
+        subject: options.clone.merge(additional_options),
+        success: true
+      )
+    )
+  end
+
+  def audit_list_failure(options, error_message)
+    additional_params = %i[count acting_as role]
+    additional_options = params.permit(*additional_params)
+      .slice(*additional_params).to_h.symbolize_keys
+    Audit.logger.log(
+      Audit::Event::List.new(
+        user_id: current_user.role_id,
+        client_ip: request.ip,
+        subject: options.clone.merge(additional_options),
+        success: false,
+        error_message: error_message
+      )
+    )
+  end
+
 end
