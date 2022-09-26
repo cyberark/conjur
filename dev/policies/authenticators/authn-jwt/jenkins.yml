@@ -1,0 +1,77 @@
+- !policy
+  id: conjur/authn-jwt/jenkins
+  annotations:
+    description: JWT Authenticator web service for Jenkins
+    jenkins: true
+  body:
+    # Create the conjur/authn-jwt/jenkins web service
+    - !webservice
+
+    # Optional: Uncomment any or all of the following variables:
+    # * token-app-propery
+    # * identity-path
+    # * issuer
+    # identity-path is always used together with token-app-property
+    # however, token-app-property can be used without identity-path
+
+    - !variable
+      id: token-app-property
+      annotations:
+        description: JWT Authenticator bases authentication on claims from the JWT. You can base authentication on identifying clams such as the name, the user, and so on. If you can customize the JWT, you can create a custom claim and base authentication on this claim.
+
+    - !variable
+      id: identity-path
+      annotations:
+        description: JWT Authenticator bases authentication on a combination of the claim in the token-app-property and the full path of the application identity (host) in Conjur. This variable is optional, and is used in conjunction with token-app-property. It has no purpose when standing alone.
+
+    - !variable
+      id: issuer
+      annotations:
+        description: JWT Authenticator bases authentication on the JWT issuer. This variable is optional, and is relevant only if there is an iss claim in the JWT. The issuer variable and iss claim values must match.
+
+    - !variable
+      id: audience
+      annotations:
+        description: JWT Authenticator validates the audience (aud) in the JWT.
+
+    # Mandatory: The JWT Provider URI: You must provide either a provider-uri or jwks-uri
+
+    # - !variable
+    #   id: provider-uri
+    #   annotations:
+    #     description: The JWT provider URI. Relevant only for JWT providers that support the Open ID Connect (OIDC) protocol.
+
+    - !variable
+      id: jwks-uri
+      annotations:
+        description: A JSON Web Key Set (JWKS) URI. If the JWKS vendor provides both a jwks-uri and an equivalent provider-uri, you can use the provider-uri which has an easier interface to work with.
+
+    # Group of hosts that can authenticate using this JWT Authenticator
+    - !group
+      id: authenticatable
+      annotations:
+        description: Allows authentication through authn-jwt/jenkins web service.
+        editable: "true"
+
+    # Permit the consumers group to authenticate to the authn-jwt/jenkins web service
+    - !permit
+      role: !group authenticatable
+      privilege: [ read, authenticate ]
+      resource: !webservice
+
+    # Create a web service for checking authn-jwt/jenkins status
+    - !webservice
+      id: status
+
+    # Group of users who can check the status of authn-jwt/jenkins
+    - !group
+      id: operators
+      annotations:
+        description: Group of users that can check the status of the authn-jwt/jenkins authenticator.
+        editable: "true"
+
+    # Permit group to check the status of authn-jwt/jenkins
+    - !permit
+      role: !group operators
+      privilege: read
+      resource: !webservice status

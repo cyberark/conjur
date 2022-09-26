@@ -169,6 +169,21 @@ services:
     entrypoint: sleep
     command: infinity
 
+  jenkins:
+    image: jenkins/jenkins:lts
+    # environment:
+    #   - CONJUR_APPLIANCE_URL=http://conjur:3000
+    #   - CONJUR_ACCOUNT=cucumber
+    #   - CONJUR_AUTHN_LOGIN=admin
+    #   - CONJUR_AUTHN_API_KEY=
+    ports:
+      - "9090:8080"
+    expose:
+      - "8080"
+    volumes:
+      - ./jenkins_custom_volume:/var/jenkins_home
+    restart: on-failure
+
   jwks_py:
     image: python:3
     ports:

@@ -1,0 +1,30 @@
+# conjur policy load jenkins projects.yml
+- !policy
+  id: jenkins
+  body:
+    - !policy
+      id: projects
+      annotations:
+        description: Projects that do not fall under a folder within Jenkins or project-specific host identities for authn-jwt/jenkins authentication.
+      body:
+
+        # Group of hosts that can authenticate using this JWT Authenticator
+        - !group
+
+        # `jenkins_name` is the primary identifying claim
+        - !host
+          id: test-pipeline
+          annotations:
+            authn-jwt/jenkins/jenkins_full_name: test-pipeline
+            # authn-jwt/jenkins/jenkins_pronoun: Pipeline
+            # authn-jwt/jenkins/identity: jenkins-projects-test-pipeline
+
+        # Grant all hosts in collection above to be members of projects group
+        - !grant
+          role: !group
+          members:
+            - !host test-pipeline
+
+- !grant
+  role: !group conjur/authn-jwt/jenkins/authenticatable
+  member: !group jenkins/projects

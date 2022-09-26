@@ -31,6 +31,7 @@ ENABLE_AUTHN_IAM=false
 ENABLE_AUTHN_AZURE=false
 ENABLE_AUTHN_OIDC=false
 ENABLE_AUTHN_GCP=false
+ENABLE_JENKINS=false
 ENABLE_AUTHN_JWT=false
 ENABLE_OIDC_ADFS=false
 ENABLE_OIDC_OKTA=false
@@ -68,6 +69,7 @@ main() {
   init_jwt
   init_oidc
   init_rotators
+  init_jenkins
 
   # Updates CONJUR_AUTHENTICATORS and restarts required services.
   start_auth_services
@@ -100,6 +102,8 @@ Usage: start [options]
 
     --authn-jwt     Starts with authn-jwt as authenticator
 
+    --jenkins       Starts Conjur and configures Jenkins using the JWT authenticator
+
     --oidc-adfs     Adds to authn-oidc adfs static env configuration
 
     --oidc-okta     Adds to authn-oidc okta static env configuration
@@ -119,6 +123,7 @@ parse_options() {
       --authn-ldap ) ENABLE_AUTHN_LDAP=true ; shift ;;
       --authn-gcp ) ENABLE_AUTHN_GCP=true ; shift ;;
       --authn-jwt ) ENABLE_AUTHN_JWT=true ; shift ;;
+      --jenkins ) ENABLE_JENKINS=true ; shift ;;
       --authn-oidc ) ENABLE_AUTHN_OIDC=true ; shift ;;
       --oidc-adfs ) ENABLE_OIDC_ADFS=true ; shift ;;
       --oidc-okta ) ENABLE_OIDC_OKTA=true ; shift ;;
@@ -180,6 +185,45 @@ wait_for_conjur() {
   docker-compose exec -T conjur conjurctl wait
 
   docker-compose exec client conjur authn login -u admin -p "$api_key"
+}
+
+init_jenkins() {
+  if [[ $ENABLE_JENKINS != true ]]; then
+    return
+  fi
+
+  # Start required services
+  docker-compose up --detach --no-deps jenkins
+
+  # Define authenticators which should be enabled
+  enabled_authenticators="$enabled_authenticators,authn-jwt/jenkins"
+
+
+  client_load_policy '/src/conjur-server/dev/policies/authenticators/authn-jwt/jenkins.yml'
+
+  client_add_secret 'conjur/authn-jwt/jenkins/token-app-property' 'jenkins_full_name'
+  client_add_secret 'conjur/authn-jwt/jenkins/identity-path' 'jenkins/projects'
+  client_add_secret 'conjur/authn-jwt/jenkins/issuer' 'http://localhost:9090'
+  client_add_secret 'conjur/authn-jwt/jenkins/audience' 'jenkins-projects'
+  client_add_secret 'conjur/authn-jwt/jenkins/jwks-uri' 'http://jenkins:8080/jwtauth/conjur-jwk-set'
+
+  client_load_policy '/src/conjur-server/dev/policies/jenkins/projects.yml'
+  client_load_policy '/src/conjur-server/dev/policies/jenkins/secrets.yml'
+
+  client_add_secret 'jenkins-secrets/secret-1' 'foo'
+  client_add_secret 'jenkins-secrets/secret-2' 'bar'
+
+  client_load_policy '/src/conjur-server/dev/policies/jenkins/other-secrets.yml'
+
+  client_add_secret 'applications/application-1/secrets/database-username' 'my-app-1'
+  client_add_secret 'applications/application-1/secrets/database-password' '480b53d7b5'
+  client_add_secret 'applications/application-1/secrets/database-port' '3306'
+  client_add_secret 'applications/application-1/secrets/database-uri' 'http://mydatabase.mycompany.com'
+  client_add_secret 'applications/application-1/secrets/api-client-id' 'f85454fdef4380d5'
+  client_add_secret 'applications/application-1/secrets/api-client-secret' 'e82b9f3de07db1ce4e811af58045a383401638ef'
+  client_add_secret 'applications/application-1/secrets/api-client-uri' 'http://api.mycompany.com'
+
+  # echo 'setup jenkins'
 }
 
 configure_oidc_authenticators() {
