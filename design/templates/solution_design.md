@@ -193,6 +193,7 @@ Output parameters:
 - Acceptance criteria have been met
 - Tests are implemented according to test plan 
 - The behaviour is documented in Conjur Open Source and Enterprise
+- Documentation has been validated by a manual UX walkthrough
 - All relevant components are released
 
 ## Solution Review
