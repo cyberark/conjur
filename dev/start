@@ -493,6 +493,7 @@ init_metrics() {
     return
   fi
   env_args+=(-e "CONJUR_TELEMETRY_ENABLED=true")
+  services+=(prometheus node-exporter)
 }
 
 start_auth_services() {
