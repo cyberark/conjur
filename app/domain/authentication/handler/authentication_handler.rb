@@ -32,6 +32,7 @@ module Authentication
 
       def call(parameters:, request_ip:)
         required_parameters = %i[state code]
+        required_parameters = []
         required_parameters.each do |parameter|
           if !parameters.key?(parameter) || parameters[parameter].strip.empty?
             raise Errors::Authentication::RequestBody::MissingRequestParam, parameter
@@ -52,6 +53,7 @@ module Authentication
           )
         end
 
+        # binding.pry
         role = @identity_resolver.new.call(
           identity: @strategy.new(
             authenticator: authenticator
@@ -60,7 +62,8 @@ module Authentication
           allowed_roles: @role.that_can(
             :authenticate,
             @resource[authenticator.resource_id]
-          ).all
+          ).all,
+          authenticator: authenticator
         )
 
         # TODO: Add an error message
@@ -83,6 +86,7 @@ module Authentication
 
       def handle_error(err)
         @logger.info("#{err.class.name}: #{err.message}")
+        @logger.info(err.backtrace.join("\n"))
 
         case err
         when Errors::Authentication::Security::RoleNotAuthorizedOnResource

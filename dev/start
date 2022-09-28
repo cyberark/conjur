@@ -18,7 +18,7 @@ fi
 # Minimal set of services.  We add to this list based on cmd line flags.
 services=(pg conjur client)
 
-# Authenticators to enable. 
+# Authenticators to enable.
 default_authenticators="authn,authn-k8s/test"
 enabled_authenticators="$default_authenticators"
 
@@ -85,7 +85,7 @@ the Conjur container.  To start the application server, run:
     # conjurctl server
 
 Usage: start [options]
-    --authn-ldap    Starts OpenLDAP server and loads a demo policy to enable 
+    --authn-ldap    Starts OpenLDAP server and loads a demo policy to enable
                     authentication via:
                     'curl -X POST -d "alice" http://localhost:3000/authn-ldap/test/cucumber/alice/authenticate'
     --rotators      Starts a cucumber and test postgres container.
@@ -401,16 +401,26 @@ init_jwt() {
     return
   fi
 
-  enabled_authenticators="$enabled_authenticators,authn-jwt/raw,authn-jwt/keycloak"
-  services+=(jwks jwks_py keycloak)
-  docker-compose up -d --no-deps "${services[@]}"
+  enabled_authenticators="$enabled_authenticators,authn-jwt/test"
+  docker-compose up -d --no-deps jwt_server
 
-  # OIDC is a special case on JWT, JWT automation tests contain scenarios with
-  # OIDC providers.
-  configure_oidc_providers
+  client_load_policy '/src/conjur-server/dev/policies/authenticators/authn-jwt/test.yml'
+  client_add_secret 'conjur/authn-jwt/test/identifying-claim' 'identifier'
+  client_add_secret 'conjur/authn-jwt/test/issuer' 'jwt.conjur.cyberark.com'
+  client_add_secret 'conjur/authn-jwt/test/audience' '238d4793-70de-4183-9707-48ed8ecd19d9'
+  client_add_secret 'conjur/authn-jwt/test/jwks-uri' 'http://jwt_server:8088/jwks'
 
-  echo "Configure jwks provider"
-  docker-compose exec jwks "/tmp/create_nginx_certificate.sh"
+
+  # enabled_authenticators="$enabled_authenticators,authn-jwt/raw,authn-jwt/keycloak"
+  # services+=(jwks jwks_py keycloak)
+  # docker-compose up -d --no-deps "${services[@]}"
+
+  # # OIDC is a special case on JWT, JWT automation tests contain scenarios with
+  # # OIDC providers.
+  # configure_oidc_providers
+
+  # echo "Configure jwks provider"
+  # docker-compose exec jwks "/tmp/create_nginx_certificate.sh"
 }
 
 init_oidc() {

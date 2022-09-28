@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+#
+# NOTE: You must execute this script from this directory (dev).
+set -ex
+set -o pipefail
+
+# echo "${pwd}"
+
+docker build \
+  --tag conjur-development-proxy \
+  dev-ruby/environment
+
+echo "location: $PWD"
+
+docker run \
+  --rm \
+  --tty \
+  --interactive \
+  --volume /var/run/docker.sock:/var/run/docker.sock \
+  --volume "$PWD:$PWD" \
+  --volume "$PWD/dev-ruby/Rakefile:/usr/src/environment/Rakefile" \
+  --env CONJUR_PATH=$PWD \
+  conjur-development-proxy \
+  "$@"

@@ -35,10 +35,11 @@ Rails.application.routes.draw do
 
         # New OIDC endpoint
         get '/:authenticator(/:service_id)/:account/authenticate' => 'authenticate#oidc_authenticate_code_redirect'
+        post '/:authenticator/:service_id/:account(/:id)/authenticate' => 'authenticate#authenticate_v2'
 
         post '/authn-gcp/:account/authenticate' => 'authenticate#authenticate_gcp'
         post '/authn-oidc(/:service_id)/:account/authenticate' => 'authenticate#authenticate_oidc'
-        post '/authn-jwt/:service_id/:account(/:id)/authenticate' => 'authenticate#authenticate_jwt'
+        # post '/authn-jwt/:service_id/:account(/:id)/authenticate' => 'authenticate#authenticate_jwt'
 
         # Update password is only relevant when using the default authenticator
         put  '/authn/:account/password' => 'credentials#update_password', defaults: { authenticator: 'authn' }

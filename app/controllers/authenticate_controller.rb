@@ -22,6 +22,24 @@ class AuthenticateController < ApplicationController
     raise e
   end
 
+  def authenticate_v2
+    params.permit!
+
+    # binding.pry
+
+    auth_token = Authentication::Handler::AuthenticationHandler.new(
+      authenticator_type: params[:authenticator]
+    ).call(
+      parameters: params.to_hash.symbolize_keys.merge(body: request.body.read),
+      request_ip: request.ip
+    )
+
+    render_authn_token(auth_token)
+  rescue => e
+    log_backtrace(e)
+    raise e
+  end
+
   def index
     authenticators = {
       # Installed authenticator plugins

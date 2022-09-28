@@ -10,6 +10,8 @@ module Authentication
           # the original OIDC authenticator is really a
           # glorified JWT authenticator.
           'Authentication::AuthnOidc::V2'
+        when 'authn-jwt'
+          'Authentication::AuthnJwt::V2'
         else
           raise "'#{authenticator_type}' is not a supported authenticator type"
           # TODO: make this dynamic based on authenticator type.
