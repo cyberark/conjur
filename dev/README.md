@@ -62,6 +62,18 @@ rails s -u webrick -b 0.0.0.0
    6. Set "Identity Format Fields" box to `jenkins_full_name`.
    7. Click "Save" to save settings.
 
+#### Populate Credential Store
+1. From the Home Page, click "Manage Jenkins".
+2. Click "Configure System".
+3. Scroll down to the `Conjur Appliance` header. Click the `Refresh Credential Store` button.
+4. Click "Save" button.
+5. Click "test-pipeline" pipeline.
+6. Click "Credentials" at the bottom of the left menu.
+
+You should now see two credentials:
+
+- `jenkins-secrets-secret-1`
+- `jenkins-secrets-secret-2`
 
 #### Create a Jenkins Secret
 
@@ -74,3 +86,131 @@ rails s -u webrick -b 0.0.0.0
    3. In "ID" input, put `SECRET_1`.
 5. Click "Create"
 6. Navigate to the `test-pipeline` job and click "Build Now". If everything was correctly configured, the pipeline should be green.
+
+
+## Authenticators
+
+### JWT Authenticator
+
+JWT Authentication offers a mechanism for mapping the claims on a JWT certificate to an identity in Conjur. Setup can be confusing, so always start with the JWT. The following is a set of JWT claims from the Jenkins Plugin:
+
+```json
+{
+  "sub": "admin",
+  "jenkins_full_name": "test-pipeline",
+  "iss": "http://localhost:9090",
+  "aud": "jenkins-projects",
+  "jenkins_name": "test-pipeline",
+  "nbf": 1664300708,
+  "identity": "test-pipeline",
+  "name": "Admin User",
+  "jenkins_task_noun": "Build",
+  "exp": 1664300858,
+  "iat": 1664300738,
+  "jenkins_pronoun": "Pipeline",
+  "jti": "c86322f29bff475ab8cd78c1a1188d68",
+  "jenkins_job_buildir": "/var/jenkins_home/jobs/test-pipeline/builds"
+}
+```
+
+**Note**: In the above set of claims:
+
+- The `aud` (Audience) value is set by the `JWT Audience` setting in the "Conjur JWT Authentication" setting in the Conjur Plugin.
+- The `identity` claim is defined in the `Identity Field Name` setting in the "Conjur JWT Authentication" setting in the Conjur Plugin. This claim's value is a composite value based on the `Identity Format Fields` and `Identity Fields Separator` values.
+
+A JWT Authenticator requires the following variables:
+
+- `token-app-property` - defines the claim value to be used as the primary identifier.
+- `identity-path` - defines the Conjur policy the corresponding host is in.
+- `issuer` - defines the JWT issuer (the expected `iss` claim value).
+- `audience` - defines the JWT audience (the expected `aud` claim value).
+- `jwks-uri` - defines the URI of the JWT JWKS endpoint.
+
+#### Host Definition
+
+In addition, the Conjur host id MUST match claim defined in the Conjur variable `token-app-property`.  In the above example, if:
+
+```
+token-app-property = 'identity'
+```
+
+then the Conjur host MUST be:
+
+```yml
+- !host test-pipeline
+```
+
+Additionally, host annotations can be used to further match JWT claims.  For example, if we wanted to additionally limit the Conjur Host to only work for Pipeline jobs, we'd set the host as follows:
+
+```yml
+- !host
+  id: test-pipeline
+  annotations:
+    authn-jwt/jenkins/jenkins_pronoun: Pipeline
+```
+
+**Note**: annotations can't be updated on an existing host. The host must be replaced.
+
+#### Example
+
+##### Authenticator
+
+The following is a sample authenticator policy:
+
+```yml
+- !policy
+  id: conjur
+  body:
+  - !policy
+    id: authn-jwt
+    body:
+    - !policy
+      id: jenkins
+      body:
+      # Authenticator Webservice
+      - !webservice
+
+      - !variable token-app-property
+      - !variable identity-path
+      - !variable issuer
+      - !variable audience
+      - !variable jwks-uri
+
+      # Group of hosts that can authenticate using this authenticator
+      - !group authenticatable
+
+      # Permit the authenticatable group to authenticate to this authenticator web service
+      - !permit
+        role: !group authenticatable
+        privilege: [ read, authenticate ]
+        resource: !webservice
+
+      ## -- Status Service --
+      # Create a web service for checking the status of this authenticator
+      - !webservice
+        id: status
+
+      # Group of users who can check the status of this authenticator
+      - !group
+        id: operators
+        annotations:
+          description: Group of users that can check the status of the authn-jwt/jenkins authenticator.
+
+      # Permit group to check the status of this authenticator
+      - !permit
+        role: !group operators
+        privilege: read
+        resource: !webservice status
+```
+
+##### Pipeline hosts
+
+```yml
+- !policy
+  id: jenkins-pipelines
+  body:
+  - !host
+    id: test-pipeline
+    annotations:
+      authn-jwt/jenkins/jenkins_pronoun: Pipeline
+```

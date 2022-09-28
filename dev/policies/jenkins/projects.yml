@@ -16,8 +16,6 @@
           id: test-pipeline
           annotations:
             authn-jwt/jenkins/jenkins_full_name: test-pipeline
-            # authn-jwt/jenkins/jenkins_pronoun: Pipeline
-            # authn-jwt/jenkins/identity: jenkins-projects-test-pipeline
 
         # Grant all hosts in collection above to be members of projects group
         - !grant
