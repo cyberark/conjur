@@ -1,4 +1,5 @@
 require 'jwt'
+require 'net/http'
 
 module Authentication
   module AuthnJwt
@@ -10,7 +11,7 @@ module Authentication
           authenticator:,
           jwt: JWT,
           json: JSON,
-          http: HTTP,
+          http: Net::HTTP,
           cache: Rails.cache,
           logger: Rails.logger
         )
@@ -20,7 +21,7 @@ module Authentication
           @cache = cache
           @http = http
           @json = json
-          @cache_key = "#{@authenticator.account}/auth-jwks/#{authenticator.service_id}/jwks-json".freeze
+          @cache_key = "#{@authenticator.account}/auth-jwks/#{authenticator.service_id}/jwks-json"
         end
 
         # Don't love this name...
@@ -28,14 +29,14 @@ module Authentication
           # binding.pry
 
           decoded_token = @jwt.decode(
-            params[:body],
+            params[:body].split('=').last,
             nil,
             true, # Verify the signature of this token
             algorithms: @authenticator.algorithms,
             iss: @authenticator.issuer,
-            verify_iss: true,
+            verify_iss: @authenticator.issuer.present?,
             aud: @authenticator.audience,
-            verify_aud: true,
+            verify_aud: @authenticator.audience.present?,
             jwks: jwk_loader
           )
           # Return the data portion of the decoded JWT
@@ -51,9 +52,10 @@ module Authentication
         end
 
         def fetch_jwks
-          response = @http.get(@authenticator.jwks_uri)
-          if response.code == 200
-            @json.parse(response.body.to_s)
+          # binding.pry
+          response = @http.get_response(URI(@authenticator.jwks_uri))
+          if response.code == '200'
+            @json.parse(response.body)
           end
         end
 

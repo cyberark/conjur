@@ -25,19 +25,29 @@ class AuthenticateController < ApplicationController
   def authenticate_v2
     params.permit!
 
-    # binding.pry
+    unless Rails.application.config.conjur_config.authenticators.include?("#{params[:authenticator]}/#{params[:service_id]}")
+      raise Errors::Authentication::Security::AuthenticatorNotWhitelisted, "#{params[:authenticator]}/#{params[:service_id]}"
+    end
 
+    # binding.pry
+    parameters = params.to_hash.symbolize_keys.merge(body: request.body.read)
     auth_token = Authentication::Handler::AuthenticationHandler.new(
       authenticator_type: params[:authenticator]
     ).call(
-      parameters: params.to_hash.symbolize_keys.merge(body: request.body.read),
+      parameters: parameters,
       request_ip: request.ip
     )
 
     render_authn_token(auth_token)
   rescue => e
+    log_audit_failure(
+      authn_params: authenticator_input,
+      audit_event_class: Audit::Event::Authn::Authenticate,
+      error: e
+    )
     log_backtrace(e)
-    raise e
+    # raise e
+    handle_authentication_error(e)
   end
 
   def index
@@ -306,6 +316,7 @@ class AuthenticateController < ApplicationController
   end
 
   def handle_authentication_error(err)
+    # binding.pry
     authentication_error = LogMessages::Authentication::AuthenticationError.new(err.inspect)
     logger.info(authentication_error)
     log_backtrace(err)
@@ -317,7 +328,8 @@ class AuthenticateController < ApplicationController
     when Errors::Conjur::RequestedResourceNotFound
       raise RecordNotFound.new(err.message)
 
-    when Errors::Authentication::RequestBody::MissingRequestParam
+    when Errors::Authentication::RequestBody::MissingRequestParam,
+      BadRequest
       raise BadRequest
 
     when Errors::Conjur::RequestedResourceNotFound

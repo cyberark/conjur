@@ -5,6 +5,7 @@ module Authentication
     class AuthenticationHandler
       def initialize(
         authenticator_type:,
+        enabled_authenticators: Rails.application.config.conjur_config.authenticators,
         role: ::Role,
         resource: ::Resource,
         authn_repo: DB::Repository::AuthenticatorRepository,
@@ -17,6 +18,7 @@ module Authentication
         @authenticator_type = authenticator_type
         @logger = logger
         @authentication_error = authentication_error
+        @enabled_authenticators = enabled_authenticators
 
         # Dynamically load authenticator specific classes
         namespace = namespace_selector.select(
@@ -31,6 +33,11 @@ module Authentication
       end
 
       def call(parameters:, request_ip:)
+        # authenticator_identifier = "#{params[:authenticator]}/#{params[:service_id]}"
+        # unless @enabled_authenticators.include?(authenticator_identifier)
+        #   raise Errors::Authentication::Security::AuthenticatorNotWhitelisted, authenticator_identifier
+        # end
+
         required_parameters = %i[state code]
         required_parameters = []
         required_parameters.each do |parameter|
@@ -45,11 +52,13 @@ module Authentication
           account: parameters[:account],
           service_id: parameters[:service_id]
         )
-
+        # binding.pry
         if authenticator.nil?
           raise(
-            Errors::Conjur::RequestedResourceNotFound,
-            "Unable to find authenticator with account: #{parameters[:account]} and service-id: #{parameters[:service_id]}"
+            Errors::Authentication::AuthenticatorMissingOrInvalid.new(
+              parameters[:account],
+              parameters[:service_id]
+            )
           )
         end
 
@@ -85,6 +94,7 @@ module Authentication
       end
 
       def handle_error(err)
+        # binding.pry
         @logger.info("#{err.class.name}: #{err.message}")
         @logger.info(err.backtrace.join("\n"))
 
@@ -106,7 +116,8 @@ module Authentication
           raise ApplicationController::Unauthorized.new(err.message, true)
 
         when Errors::Authentication::AuthnOidc::StateMismatch,
-          Errors::Authentication::Security::RoleNotFound
+          Errors::Authentication::Security::RoleNotFound,
+          Errors::Authentication::AuthenticatorMissingOrInvalid
           raise ApplicationController::BadRequest
 
         when Errors::Authentication::Security::MultipleRoleMatchesFound

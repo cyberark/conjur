@@ -16,7 +16,7 @@ if [ ! -f "../VERSION" ]; then
 fi
 
 # Minimal set of services.  We add to this list based on cmd line flags.
-services=(pg conjur client)
+services=(pg conjur client cucumber)
 
 # Authenticators to enable.
 default_authenticators="authn,authn-k8s/test"
@@ -401,8 +401,8 @@ init_jwt() {
     return
   fi
 
-  enabled_authenticators="$enabled_authenticators,authn-jwt/test"
-  docker-compose up -d --no-deps jwt_server
+  enabled_authenticators="$enabled_authenticators,authn-jwt/test,authn-jwt/raw"
+  docker-compose up -d --no-deps jwt_server jwks jwks_py
 
   client_load_policy '/src/conjur-server/dev/policies/authenticators/authn-jwt/test.yml'
   client_add_secret 'conjur/authn-jwt/test/identifying-claim' 'identifier'

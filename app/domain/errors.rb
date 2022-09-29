@@ -86,6 +86,11 @@ module Errors
       code: "CONJ00003E"
     )
 
+    AuthenticatorMissingOrInvalid = ::Util::TrackableErrorClass.new(
+      msg: "Unable to find authenticator for account: '{0-account}' and service-id: '{1-service_id}'",
+      code: "CONJ00133E"
+    )
+
     StatusNotSupported = ::Util::TrackableErrorClass.new(
       msg: "Status check not supported for authenticator '{0-authenticator-name}'",
       code: "CONJ00056E"
@@ -660,6 +665,7 @@ module Errors
         code: "CONJ00122E"
       )
 
+      # TODO - need to update code so it's unique
       FailedToFetchJwksData = ::Util::TrackableErrorClass.new(
         msg: "Failed to fetch JWKS data from '{0-jwks-uri}' with error: {1-error}",
         code: "CONJ00123E"

@@ -6,7 +6,7 @@ module Authentication
 
           attr_reader :issuer, :audience, :identifying_claim, :jwks_uri, :account, :service_id
 
-          def initialize(issuer:, audience:, jwks_uri:, account:, service_id:, token_app_property: nil, identifying_claim: nil, name: nil)
+          def initialize(jwks_uri:, account:, service_id:, issuer: nil, audience: nil, token_app_property: nil, identifying_claim: nil, name: nil)
             @issuer = issuer
             @audience = audience
             @jwks_uri = jwks_uri
