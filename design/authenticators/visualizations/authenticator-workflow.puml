@@ -1,0 +1,12 @@
+@startuml
+component controller as "AuthenticateController#oidc_authenticate_code_redirect"
+component handler as "Authentication::Handler::AuthenticationHandler#call"
+component strategy
+note right
+Handles the individual steps
+required to perform a full
+validation.
+end note
+controller --> handler : calls
+handler --> strategy : calls
+@enduml
