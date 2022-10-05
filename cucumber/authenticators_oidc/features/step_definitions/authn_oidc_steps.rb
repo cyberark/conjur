@@ -1,3 +1,14 @@
+Given('I set conjur variables') do |table|
+  client = Client.for("user", "admin")
+  table.hashes.each do |variable_hash|
+    # binding.pry
+    client.add_secret(
+      id: variable_hash['variable_id'],
+      value: variable_hash['value']
+    )
+  end
+end
+
 Given(/I fetch an ID Token for username "([^"]*)" and password "([^"]*)"/) do |username, password|
   path = "#{oidc_provider_internal_uri}/token"
   payload = { grant_type: 'password', username: username, password: password, scope: oidc_scope }
@@ -7,22 +18,33 @@ Given(/I fetch an ID Token for username "([^"]*)" and password "([^"]*)"/) do |u
   parse_oidc_id_token
 end
 
+# cucumber -p authenticators_oidc cucumber/authenticators_oidc/features/authn_oidc_v2.feature:49
+
 Given(/I fetch a code for username "([^"]*)" and password "([^"]*)"/) do |username, password|
   Rails.application.config.conjur_config.authenticators = ['authn-oidc/keycloak2']
 
-  @client = Client.for('user', 'admin')
-  providers = @client.fetch_authenticators
-  url = providers.body.map { |x| x["redirect_uri"] }
-  res = Net::HTTP.get_response(URI(url[0]))
-  raise res if res.is_a?(Net::HTTPError) || res.is_a?(Net::HTTPClientError)
+  client = Client.for('user', 'admin')
+  provider = JSON.parse(client.fetch_authenticators).first
+  # binding.pry
+  #  Save Nonce & Code Verifier for future use
+  @context.set(
+    nonce: provider['nonce'],
+    code_verifier: provider['code_verifier'],
+    service_id: provider['service_id']
+  )
 
-  all_cookies = res.get_fields('set-cookie')
+  # url = providers.body.map { |x| x["redirect_uri"] }
+  response = Net::HTTP.get_response(URI(provider['redirect_uri']))
+  # binding.pry
+  raise response if response.is_a?(Net::HTTPError) || response.is_a?(Net::HTTPClientError)
+
+  all_cookies = response.get_fields('set-cookie')
   cookies_arrays = Array.new
   all_cookies.each do |cookie|
     cookies_arrays.push(cookie.split('; ')[0])
   end
 
-  html = Nokogiri::HTML(res.body)
+  html = Nokogiri::HTML(response.body)
   post_uri = URI(html.xpath('//form').first.attributes['action'].value)
 
   http = Net::HTTP.new(post_uri.host, post_uri.port)
@@ -34,8 +56,12 @@ Given(/I fetch a code for username "([^"]*)" and password "([^"]*)"/) do |userna
   response = http.request(request)
 
   if response.is_a?(Net::HTTPRedirection)
-    parse_oidc_code(response['location'])
+    redirect = URI(response['location'])
+    code = redirect.query.split('&').find{|i| i.split('=')[0] == 'code' }.split('=').last
+     @context.set(code: code)
+    # parse_oidc_code(response['location'])
   end
+  # binding.pry
 end
 
 Given(/^I load a policy with okta user:/) do |policy|
@@ -45,7 +71,7 @@ Given(/^I load a policy with okta user:/) do |policy|
   - !grant
     role: !group conjur/authn-oidc/okta-2/users
     member: !user #{ENV['OKTA_USERNAME']}"""
- 
+
   load_root_policy(policy + user_policy)
 end
 
@@ -97,10 +123,17 @@ Given(/^I successfully set OIDC variables$/) do
 end
 
 When(/^I authenticate via OIDC V2 with code$/) do
-  authenticate_code_with_oidc(
-    service_id: "#{AuthnOidcHelper::SERVICE_ID}2",
-    account: AuthnOidcHelper::ACCOUNT
-  )
+    # path = "#{create_auth_url(service_id: @context.get(:service_id), account: 'cucumber')}"
+
+    # binding.pry
+    path = "#{conjur_hostname}/authn-oidc/#{@context.get(:service_id)}/cucumber/authenticate?code=#{@context.get(:code)}&nonce=#{@context.get(:nonce)}&code_verifier=#{@context.get(:code_verifier)}"
+    response = get(path)
+    # @context.set(conjur_auth_token: response.body)
+
+  # authenticate_code_with_oidc(
+  #   service_id: "#{AuthnOidcHelper::SERVICE_ID}2",
+  #   account: AuthnOidcHelper::ACCOUNT
+  # )
 end
 
 Given(/^I successfully set Okta OIDC V2 variables$/) do
@@ -123,28 +156,36 @@ Given(/^I successfully set provider-uri variable$/) do
 end
 
 When(/^I authenticate via OIDC V2 with code "([^"]*)"$/) do |code|
-  authenticate_code_with_oidc(
-    service_id: "#{AuthnOidcHelper::SERVICE_ID}2",
-    account: AuthnOidcHelper::ACCOUNT,
-    code: code,
-    )
+  path = "#{conjur_hostname}/authn-oidc/#{@context.get(:service_id)}/cucumber/authenticate?code=#{code}&nonce=#{@context.get(:nonce)}&code_verifier=#{@context.get(:code_verifier)}"
+  # TODO - eventually, need to save this to the context
+  get(path)
+
+  # authenticate_code_with_oidc(
+  #   service_id: "#{AuthnOidcHelper::SERVICE_ID}2",
+  #   account: AuthnOidcHelper::ACCOUNT,
+  #   code: code,
+  #   )
 end
 
 When(/^I authenticate via OIDC V2 with no code in the request$/) do
-  authenticate_code_with_oidc(
-    service_id: "#{AuthnOidcHelper::SERVICE_ID}2",
-    account: AuthnOidcHelper::ACCOUNT,
-    code: nil,
-    )
+    path = "#{conjur_hostname}/authn-oidc/#{@context.get(:service_id)}/cucumber/authenticate?code=#{nil}&nonce=#{@context.get(:nonce)}&code_verifier=#{@context.get(:code_verifier)}"
+  # TODO - eventually, need to save this to the context
+    get(path)
+
+  # authenticate_code_with_oidc(
+  #   service_id: "#{AuthnOidcHelper::SERVICE_ID}2",
+  #   account: AuthnOidcHelper::ACCOUNT,
+  #   code: nil,
+  #   )
 end
 
-When(/^I authenticate via OIDC V2 with state "([^"]*)"$/) do |state|
-  authenticate_code_with_oidc(
-    service_id: "#{AuthnOidcHelper::SERVICE_ID}2",
-    account: AuthnOidcHelper::ACCOUNT,
-    state: state,
-    )
-end
+# When(/^I authenticate via OIDC V2 with state "([^"]*)"$/) do |state|
+#   authenticate_code_with_oidc(
+#     service_id: "#{AuthnOidcHelper::SERVICE_ID}2",
+#     account: AuthnOidcHelper::ACCOUNT,
+#     state: state,
+#     )
+# end
 
 Given(/^I successfully set provider-uri variable to value "([^"]*)"$/) do |provider_uri|
   create_oidc_secret("provider-uri", provider_uri)
@@ -181,10 +222,14 @@ Given(/^I successfully set OIDC V2 variables for "([^"]*)"$/) do |service_id|
 end
 
 When(/^I authenticate via OIDC V2 with code and service-id "([^"]*)"$/) do |service_id|
-  authenticate_code_with_oidc(
-    service_id: service_id,
-    account: AuthnOidcHelper::ACCOUNT
-  )
+  path = "#{conjur_hostname}/authn-oidc/#{service_id}/cucumber/authenticate?code=#{@context.get(:code)}&nonce=#{@context.get(:nonce)}&code_verifier=#{@context.get(:code_verifier)}"
+  # TODO - eventually, need to save this to the context
+  get(path)
+
+  # authenticate_code_with_oidc(
+  #   service_id: service_id,
+  #   account: AuthnOidcHelper::ACCOUNT
+  # )
 end
 
 Then(/^The okta user has been authorized by conjur/) do
@@ -207,10 +252,12 @@ When(/^I authenticate via OIDC with id token and account "([^"]*)"$/) do |accoun
 end
 
 When(/^I authenticate via OIDC V2 with code and account "([^"]*)"$/) do |account|
-  authenticate_code_with_oidc(
-    service_id: "#{AuthnOidcHelper::SERVICE_ID}2",
-    account: account
-  )
+  path = "#{conjur_hostname}/authn-oidc/#{@context.get(:service_id)}/#{account}/authenticate?code=#{@context.get(:code)}&nonce=#{@context.get(:nonce)}&code_verifier=#{@context.get(:code_verifier)}"
+  response = get(path)
+  # authenticate_code_with_oidc(
+  #   service_id: "#{AuthnOidcHelper::SERVICE_ID}2",
+  #   account: account
+  # )
 end
 
 When(/^I authenticate via OIDC with code and service_id "([^"]*)"$/) do |service_id|

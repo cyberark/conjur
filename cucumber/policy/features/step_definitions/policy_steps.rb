@@ -4,6 +4,7 @@ require 'json'
 
 Given(/^I load a policy:$/) do |policy|
   @client ||= Client.for("user", "admin")
+  # binding.pry
   @result = @client.load_policy(id: 'root', policy: policy)
 end
 

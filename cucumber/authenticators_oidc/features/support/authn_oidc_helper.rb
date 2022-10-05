@@ -34,10 +34,10 @@ module AuthnOidcHelper
 
   def authenticate_code_with_oidc(service_id:, account:, code: url_oidc_code, state: url_oidc_state)
     path = "#{create_auth_url(service_id: service_id, account: account, user_id: nil)}"
-    get(url_with_params(path: path,code: code, state: state ))
+    get(url_with_params(path: path, code: code, state: state ))
   end
 
-  def create_auth_url(service_id:, account:, user_id:)
+  def create_auth_url(service_id:, account:, user_id: nil)
     service_id_part = service_id ? "/#{service_id}" : ""
     user_id_part = "/#{user_id}" unless user_id.nil? || user_id.empty?
     "#{conjur_hostname}/authn-oidc#{service_id_part}/#{account}#{user_id_part}/authenticate"
@@ -132,9 +132,9 @@ module AuthnOidcHelper
     @url_oidc_code
   end
 
-  def url_oidc_code
-    @url_oidc_code
-  end
+  # def url_oidc_code
+  #   @url_oidc_code
+  # end
 
   def url_oidc_state
     @url_oidc_state

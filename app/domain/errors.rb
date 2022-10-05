@@ -162,7 +162,7 @@ module Errors
     end
 
     module RequestBody
-
+      # TODO - generate new code as this is a duplicate of `MultipleRoleMatchesFound`
       MissingRequestParam = ::Util::TrackableErrorClass.new(
         msg: "Field '{0-field-name}' is missing or empty in request body",
         code: "CONJ00009E"
