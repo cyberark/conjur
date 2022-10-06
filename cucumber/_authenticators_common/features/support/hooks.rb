@@ -6,17 +6,18 @@ end
 
 module Scenario
   class Context
-    def initialize(logger: Rails.logger)
+    def initialize(logger: Rails.logger, **kwargs)
       @store = {}
       @logger = logger
+      set(**kwargs) if kwargs
     end
 
     def get(key)
       @store[key]
     end
 
-    def set(k_args)
-      k_args.each do |key, value|
+    def set(**kwargs)
+      kwargs.each do |key, value|
         @store[key] = value
       end
     end
@@ -34,7 +35,7 @@ end
 Before do
   @user_index = 0
   @host_index = 0
-  @context = Scenario::Context.new
+  @context = Scenario::Context.new(account: 'cucumber')
 
   Role.truncate(cascade: true)
   Secret.truncate

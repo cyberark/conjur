@@ -56,7 +56,6 @@ module DB
         end
 
         allowed_args = %i[account service_id] + @data_object.const_get(:REQUIRED_VARIABLES) + @data_object.const_get(:OPTIONAL_VARIABLES)
-        # binding.pry
         begin
           allowed_arg_list =  args_list.select{ |key, _| allowed_args.include?(key) }
           @data_object.new(**allowed_arg_list)

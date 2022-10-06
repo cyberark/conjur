@@ -65,10 +65,6 @@ module AuthenticatorHelpers
     http_status == 504 || client_timeout?
   end
 
-  def load_root_policy(policy)
-    conjur_api.load_policy('root', policy, method: Conjur::API::POLICY_METHOD_PUT)
-  end
-
   def get(path, options = {})
     options = options.merge(
       method: :get,

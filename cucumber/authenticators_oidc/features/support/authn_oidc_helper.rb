@@ -4,18 +4,14 @@ require 'securerandom'
 # Utility methods for OIDC authenticator
 module AuthnOidcHelper
 
-  V2_SERVICE_ID = 'keycloak2'
   SERVICE_ID = 'keycloak'
   ACCOUNT = 'cucumber'
 
   # The OIDC authentication request should not have the host id in its URL.
   # We add this option here as users can make such a mistake and we want to verify
   # that we raise a proper error in such a case
-  def authenticate_id_token_with_oidc(service_id:, account:, id_token: parsed_id_token, user_id: "")
-    service_id_part = service_id ? "/#{service_id}" : ""
-    user_id_part = "/#{user_id}" unless user_id.nil? || user_id.empty?
-    path = "#{conjur_hostname}/authn-oidc#{service_id_part}/#{account}#{user_id_part}/authenticate"
-
+  def authenticate_id_token_with_oidc(service_id:, account:, id_token: parsed_id_token, user_id: nil)
+    path = authn_url(type: 'oidc', account: account, service_id: service_id, user_id: user_id)
     payload = {}
     unless id_token.nil?
       payload["id_token"] = id_token
@@ -25,28 +21,33 @@ module AuthnOidcHelper
   end
 
   def authenticate_id_token_with_oidc_in_header(service_id:, account:, id_token: parsed_id_token)
-    service_id_part = service_id ? "/#{service_id}" : ""
-    path = "#{conjur_hostname}/authn-oidc#{service_id_part}/#{account}/authenticate"
+    path = authn_url(type: 'oidc', account: account, service_id: service_id)
     headers = {}
     headers["Authorization"] = "Bearer #{id_token}"
     post(path, {}, headers)
   end
 
-  def authenticate_code_with_oidc(service_id:, account:, code: url_oidc_code, state: url_oidc_state)
-    path = "#{create_auth_url(service_id: service_id, account: account, user_id: nil)}"
-    get(url_with_params(path: path, code: code, state: state ))
+  def authenticate_with_oidc_code(service_id:, account:, params: {})
+    url = authn_url(type: 'oidc', account: account, service_id: service_id, params: params)
+    get(url)
   end
 
-  def create_auth_url(service_id:, account:, user_id: nil)
-    service_id_part = service_id ? "/#{service_id}" : ""
-    user_id_part = "/#{user_id}" unless user_id.nil? || user_id.empty?
-    "#{conjur_hostname}/authn-oidc#{service_id_part}/#{account}#{user_id_part}/authenticate"
-  end
+  # Generic Authenticator URL builder
+  def authn_url(type:, account:, service_id: nil, user_id: nil, params: {})
+    path = [
+      "authn-#{type}",
+      service_id,
+      account,
+      user_id,
+      'authenticate'
+    ].compact.join('/')
+    result = "#{conjur_hostname}/#{path}"
 
-  def url_with_params(path:, code: nil, state: nil)
-    return path unless code || state
-
-    "#{path}?code=#{code}&state=#{state}"
+    unless params.empty?
+      param_args = params.map{|k, v| "#{k}=#{v}"}.join('&')
+      result += "?#{param_args}"
+    end
+    result
   end
 
   def create_oidc_secret(variable_name, value, service_id_suffix = "keycloak")

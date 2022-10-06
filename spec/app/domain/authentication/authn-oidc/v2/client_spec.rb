@@ -10,8 +10,6 @@ RSpec.describe(Authentication::AuthnOidc::V2::Client) do
       client_id: '0oa3w3xig6rHiu9yT5d7',
       client_secret: 'e349BMTTIpLO-rPuPqLLkLyH_pO-loUzhIVJCrHj',
       claim_mapping: 'foo',
-      nonce: '1656b4264b60af659fce',
-      state: 'state',
       account: 'bar',
       service_id: 'baz'
     )
@@ -28,12 +26,14 @@ RSpec.describe(Authentication::AuthnOidc::V2::Client) do
       it 'returns a valid JWT token', vcr: 'authenticators/authn-oidc/v2/client_callback-valid_oidc_credentials' do
         # Because JWT tokens have an expiration timeframe, we need to hold
         # time constant after caching the request.
-        travel_to(Time.parse("2022-06-30 16:42:17 +0000")) do
+        travel_to(Time.parse("2022-09-30 17:02:17 +0000")) do
           token = client.callback(
-            code: 'qdDm7On1dEEzNmMlk2bF7IcOF8gCgfvgMCMXXXDlYEE'
+            code: '-QGREc_SONbbJIKdbpyYudA13c9PZlgqdxowkf45LOw',
+            code_verifier: 'c1de7f1251849accd99d4839d79a637561b1181b909ed7dc1d',
+            nonce: '7efcbba36a9b96fdb5285a159665c3d382abd8b6b3288fcc8d'
           )
           expect(token).to be_a_kind_of(OpenIDConnect::ResponseObject::IdToken)
-          expect(token.raw_attributes['nonce']).to eq('1656b4264b60af659fce')
+          expect(token.raw_attributes['nonce']).to eq('7efcbba36a9b96fdb5285a159665c3d382abd8b6b3288fcc8d')
           expect(token.raw_attributes['preferred_username']).to eq('test.user3@mycompany.com')
           expect(token.aud).to eq('0oa3w3xig6rHiu9yT5d7')
         end
@@ -42,10 +42,12 @@ RSpec.describe(Authentication::AuthnOidc::V2::Client) do
 
     context 'when JWT has expired' do
       it 'raises an error', vcr: 'authenticators/authn-oidc/v2/client_callback-valid_oidc_credentials' do
-        travel_to(Time.parse("2022-06-30 20:42:17 +0000")) do
+        travel_to(Time.parse("2022-10-01 17:02:17 +0000")) do
           expect do
             client.callback(
-              code: 'qdDm7On1dEEzNmMlk2bF7IcOF8gCgfvgMCMXXXDlYEE'
+              code: '-QGREc_SONbbJIKdbpyYudA13c9PZlgqdxowkf45LOw',
+              code_verifier: 'c1de7f1251849accd99d4839d79a637561b1181b909ed7dc1d',
+              nonce: '7efcbba36a9b96fdb5285a159665c3d382abd8b6b3288fcc8d'
             )
           end.to raise_error(
             OpenIDConnect::ResponseObject::IdToken::ExpiredToken,
@@ -59,7 +61,9 @@ RSpec.describe(Authentication::AuthnOidc::V2::Client) do
       it 'raise an exception', vcr: 'authenticators/authn-oidc/v2/client_callback-used_code-valid_oidc_credentials' do
         expect do
           client.callback(
-            code: '7wKEGhsN9UEL5MG9EfDJ8KWMToKINzvV29uyPsQZYpo'
+            code: '-QGREc_SONbbJIKdbpyYudA13c9PZlgqdxowkf45LOw',
+            code_verifier: 'c1de7f1251849accd99d4839d79a637561b1181b909ed7dc1d',
+            nonce: '7efcbba36a9b96fdb5285a159665c3d382abd8b6b3288fcc8d'
           )
         end.to raise_error(
           Rack::OAuth2::Client::Error,
@@ -72,7 +76,9 @@ RSpec.describe(Authentication::AuthnOidc::V2::Client) do
       it 'raise an exception' do
         expect do
           client.callback(
-            code: 'SNSPeiQJ0-D6nUHTg-Ht9ZoDxIaaWBB80pnYuXY2VxU'
+            code: 'SNSPeiQJ0-D6nUHTg-Ht9ZoDxIaaWBB80pnYuXY2VxU',
+            code_verifier: 'c1de7f1251849accd99d4839d79a637561b1181b909ed7dc1d',
+            nonce: '7efcbba36a9b96fdb5285a159665c3d382abd8b6b3288fcc8d'
           )
         end.to raise_error(
           Rack::OAuth2::Client::Error,
@@ -80,28 +86,11 @@ RSpec.describe(Authentication::AuthnOidc::V2::Client) do
         )
       end
     end
-
-    context 'when code is invalid' do
-      context 'raise an error when' do
-        it 'code is nil' do
-          expect { client.callback(code: nil) }.to raise_error(
-            Errors::Authentication::RequestBody::MissingRequestParam,
-            "CONJ00009E Field 'code' is missing or empty in request body"
-          )
-        end
-        it 'code is an empty string' do
-          expect { client.callback(code: '') }.to raise_error(
-            Errors::Authentication::RequestBody::MissingRequestParam,
-            "CONJ00009E Field 'code' is missing or empty in request body"
-          )
-        end
-      end
-    end
   end
 
   describe '.oidc_client' do
     context 'when credentials are valid' do
-      it 'returns a valid oidc client', vcr: 'authenticators/authn-oidc/v2/client_initialization' do
+      it 'returns a valid oidc client' do
         oidc_client = client.oidc_client
 
         expect(oidc_client).to be_a_kind_of(OpenIDConnect::Client)
@@ -150,8 +139,6 @@ RSpec.describe(Authentication::AuthnOidc::V2::Client) do
             client_id: '0oa3w3xig6rHiu9yT5d7',
             client_secret: 'e349BMTTIpLO-rPuPqLLkLyH_pO-loUzhIVJCrHj',
             claim_mapping: 'foo',
-            nonce: '1656b4264b60af659fce',
-            state: 'state',
             account: 'bar',
             service_id: 'baz'
           )
