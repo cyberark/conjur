@@ -1,10 +1,4 @@
 Given('I set conjur variables') do |table|
-  puts "OKTA_PROVIDER_URI: '#{ENV['OKTA_PROVIDER_URI']}'"
-  puts "OKTA_CLIENT_ID: '#{ENV['OKTA_CLIENT_ID']}'"
-  puts "OKTA_CLIENT_SECRET: '#{ENV['OKTA_CLIENT_SECRET']}'"
-  puts "OKTA_USERNAME: '#{ENV['OKTA_USERNAME']}'"
-  puts "OKTA_PASSWORD: '#{ENV['OKTA_PASSWORD']}'"
-
   client = Client.for("user", "admin")
   table.hashes.each do |variable_hash|
     # Use environment variable if set
@@ -110,25 +104,22 @@ Given(/^I fetch a code from Okta/) do
   # Get a user session ID via the Okta `authn` endpoint
   provider_uri = URI(provider['redirect_uri'])
   uri = URI("https://#{provider_uri.host}/api/v1/authn")
-  body = JSON.generate({ username: ENV['OKTA_USERNAME'], password: ENV['OKTA_PASSWORD'] })
-
-  http = Net::HTTP.new(uri.host, uri.port)
-  http.use_ssl = true
-  request = Net::HTTP::Post.new(uri.request_uri)
-  request['Accept'] = 'application/json'
-  request['Content-Type'] = 'application/json'
-  request.body = body
+  result = Net::HTTP.start(uri.host, uri.port, use_ssl: true) do |http|
+    request = Net::HTTP::Post.new(uri.path, 'Content-Type' => 'application/json')
+    request.body = { username: ENV['OKTA_USERNAME'], password: ENV['OKTA_PASSWORD'] }.to_json
+    http.request(request)
+  end
 
   # Authenticate using the previously retrieved Session Token
-  response = http.request(request)
-  session_token = JSON.parse(response.body)["sessionToken"]
+  session_token = JSON.parse(result.body)["sessionToken"]
   uri = URI("#{provider['redirect_uri']}&state=foo&sessionToken=#{session_token}")
-  request = Net::HTTP::Get.new(uri.request_uri)
-  response = http.request(request)
+  response = Net::HTTP.start(uri.host, uri.port, use_ssl: true) do |http|
+    request = Net::HTTP::Get.new(uri)
+    http.request(request)
+  end
 
   if response.is_a?(Net::HTTPRedirection)
     parse_oidc_code(response['location'])
-
     redirect = URI(response['location'])
     code = redirect.query.split('&').find{|i| i.split('=')[0] == 'code' }.split('=').last
     # Save Code for future steps
