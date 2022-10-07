@@ -1,4 +1,10 @@
 Given('I set conjur variables') do |table|
+  puts "OKTA_PROVIDER_URI: '#{ENV['OKTA_PROVIDER_URI']}'"
+  puts "OKTA_CLIENT_ID: '#{ENV['OKTA_CLIENT_ID']}'"
+  puts "OKTA_CLIENT_SECRET: '#{ENV['OKTA_CLIENT_SECRET']}'"
+  puts "OKTA_USERNAME: '#{ENV['OKTA_USERNAME']}'"
+  puts "OKTA_PASSWORD: '#{ENV['OKTA_PASSWORD']}'"
+
   client = Client.for("user", "admin")
   table.hashes.each do |variable_hash|
     # Use environment variable if set
