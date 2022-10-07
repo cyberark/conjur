@@ -16,9 +16,17 @@ RSpec.describe(Authentication::AuthnOidc::V2::Client) do
   end
 
   let(:client) do
-    Authentication::AuthnOidc::V2::Client.new(
-      authenticator: authenticator
-    )
+    VCR.use_cassette("authenticators/authn-oidc/v2/client_load") do
+      client = Authentication::AuthnOidc::V2::Client.new(
+        authenticator: authenticator
+      )
+      # The call `oidc_client` queries the OIDC endpoint. As such,
+      # we need to wrap this in a VCR call. Calling this before
+      # returning the client to allow this call to be more effectively
+      # mocked.
+      client.oidc_client
+      client
+    end
   end
 
   describe '.callback' do
