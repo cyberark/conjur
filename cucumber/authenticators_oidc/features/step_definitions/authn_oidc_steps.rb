@@ -12,6 +12,15 @@ Given('I set conjur variables') do |table|
     else
       value = variable_hash['value']
     end
+
+    # !!!! TODO - Remove once Okta provider URI has been corrected in Conjur !!!!!
+    if variable_hash['environment_variable'] == 'OKTA_PROVIDER_URI'
+      unless ENV['OKTA_PROVIDER_URI'].include?('oauth2/default')
+        value = "#{value}oauth2/default"
+      end
+    end
+    # !!!!  ------  !!!!
+
     client.add_secret(
       id: variable_hash['variable_id'],
       value: value
