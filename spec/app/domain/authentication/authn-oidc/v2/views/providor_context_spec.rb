@@ -70,7 +70,10 @@ RSpec.describe('Authentication::AuthnOidc::V2::Views::ProviderContext') do
   end
 
   let(:secure_random) { class_double(SecureRandom, hex: 'random') }
+<<<<<<< HEAD
   # let(:digest) { double}
+=======
+>>>>>>> c124e2fb (Security improvements for OIDC code authenticator)
 
   let(:provider_context) do
     digest = double

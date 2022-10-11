@@ -15,15 +15,10 @@ module Authentication
 
         # Don't love this name...
         def callback(args)
-          # TODO: Check that `code`, `code_verifier` and `nonce` attributes are present
-          unless args[:code].present?
-            raise Errors::Authentication::RequestBody::MissingRequestParam, 'code'
-          end
-          unless args[:nonce].present?
-            raise Errors::Authentication::RequestBody::MissingRequestParam, 'nonce'
-          end
-          unless args[:code_verifier].present?
-            raise Errors::Authentication::RequestBody::MissingRequestParam, 'code_verifier'
+          %i[code nonce code_verifier].each do |param|
+            unless args[param].present?
+              raise Errors::Authentication::RequestBody::MissingRequestParam, param.to_s
+            end
           end
 
           identity = resolve_identity(
