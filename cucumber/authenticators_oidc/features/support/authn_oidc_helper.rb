@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'securerandom'
 
 # Utility methods for OIDC authenticator
@@ -93,52 +94,10 @@ module AuthnOidcHelper
     @oidc_scope ||= validated_env_var('KEYCLOAK_SCOPE')
   end
 
-  def oidc_required_request_parameters
-    @oidc_required_request_parameters ||= 'code state'
-  end
-
   def parse_oidc_id_token
     @oidc_id_token = (JSON.parse(@response_body))["id_token"]
   rescue => e
     raise "Failed to fetch id_token from HTTP response: #{@response_body} with Reason: #{e}"
-  end
-
-  def oidc_response_type
-    @oidc_response_type ||= 'code'
-  end
-
-  def oidc_claim_mapping
-    @oidc_claim_mapping ||= 'preferred_username'
-  end
-
-  def oidc_state
-    @oidc_state ||= SecureRandom.uuid
-  end
-
-  def oidc_nonce
-    @oidc_nonce ||= SecureRandom.uuid
-  end
-
-  def oidc_redirect_uri
-    @oidc_redirect_uri ||= 'http://conjur:3000/authn-oidc/keycloak2/cucumber/authenticate'
-  end
-
-  def parse_oidc_code(url)
-    params = CGI::parse(URI(url).query)
-    @url_oidc_code = params["code"][0] if params.has_key?("code")
-    @url_oidc_state = params["state"][0] if params.has_key?("state")
-  end
-
-  def url_oidc_code
-    @url_oidc_code
-  end
-
-  # def url_oidc_code
-  #   @url_oidc_code
-  # end
-
-  def url_oidc_state
-    @url_oidc_state
   end
 end
 

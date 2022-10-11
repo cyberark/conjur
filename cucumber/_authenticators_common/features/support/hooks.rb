@@ -4,6 +4,14 @@ Before('@skip') do
   skip_this_scenario
 end
 
+# The following is a context object. It's intended to store information which
+# needs which needs to exist for the duration of a Scenario. Although this is
+# an instance variable, it is intended to provide a single object for sharing
+# data between lines rather than needing to set arbitrary instance variables,
+# which are both hard to remember, and polute the instance space.
+
+# An example of when the context might be used is when retriving a user's Conjur
+# Authorization Token on one line, and validating the  token on another line.
 module Scenario
   class Context
     def initialize(logger: Rails.logger, **kwargs)
@@ -22,6 +30,13 @@ module Scenario
       end
     end
 
+<<<<<<< HEAD
+=======
+    def keys
+      @store.keys
+    end
+
+>>>>>>> 8debc7ee (Update and cleanup Cucumber tests for OIDC)
     def unset
       @store = {}
     end
