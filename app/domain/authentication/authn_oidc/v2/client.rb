@@ -37,16 +37,13 @@ module Authentication
           end
         end
 
-        def callback(code:)
-          unless code.present?
-            raise Errors::Authentication::RequestBody::MissingRequestParam, 'code'
-          end
-
+        def callback(code:, nonce:, code_verifier:)
           oidc_client.authorization_code = code
           bearer_token = oidc_client.access_token!(
             scope: true,
             client_auth_method: :basic,
-            nonce: @authenticator.nonce
+            nonce: nonce,
+            code_verifier: code_verifier
           )
           id_token = bearer_token.id_token || bearer_token.access_token
 
@@ -70,7 +67,7 @@ module Authentication
           decoded_id_token.verify!(
             issuer: @authenticator.provider_uri,
             client_id: @authenticator.client_id,
-            nonce: @authenticator.nonce
+            nonce: nonce
           )
           decoded_id_token
         rescue OpenIDConnect::ValidationFailed => e
