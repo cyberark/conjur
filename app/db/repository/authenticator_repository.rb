@@ -1,19 +1,27 @@
 module DB
   module Repository
     class AuthenticatorRepository
-      def initialize(data_object:, resource_repository: ::Resource, logger: Rails.logger)
+      def initialize(
+        data_object:,
+        resource_repository: ::Resource,
+        logger: Rails.logger,
+        enabled_authenticators: Rails.application.config.conjur_config.authenticators
+      )
         @resource_repository = resource_repository
         @data_object = data_object
         @logger = logger
+        @enabled_authenticators = enabled_authenticators
       end
 
       def find_all(type:, account:)
-        @resource_repository.where(
+        enabled_authenticator_types = @enabled_authenticators.select { |authenticator| authenticator.match("#{type}") }
+                .map { |authenticator| "#{account}:webservice:conjur/#{authenticator}" }
+       @resource_repository.where(
           Sequel.like(
             :resource_id,
             "#{account}:webservice:conjur/#{type}/%"
           )
-        ).all.map do |webservice|
+        ).all.select { |webservice|enabled_authenticator_types.include?(webservice.resource_id) }.map do |webservice|
           load_authenticator(account: account, id: webservice.id.split(':').last, type: type)
         end.compact
       end
