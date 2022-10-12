@@ -1,3 +1,25 @@
+Given('I set conjur variables') do |table|
+  client = Client.for("user", "admin")
+  table.hashes.each do |variable_hash|
+    # Use environment variable if set
+    if variable_hash['environment_variable'].present?
+      variable_name = variable_hash['environment_variable']
+      value = ENV[variable_name]
+      if value.blank?
+        raise "Environment variable: '#{variable_name}' must be set"
+      end
+    # Otherwise, use provided value
+    else
+      value = variable_hash['value']
+    end
+
+    client.add_secret(
+      id: variable_hash['variable_id'],
+      value: value
+    )
+  end
+end
+
 Given(/I fetch an ID Token for username "([^"]*)" and password "([^"]*)"/) do |username, password|
   path = "#{oidc_provider_internal_uri}/token"
   payload = { grant_type: 'password', username: username, password: password, scope: oidc_scope }
@@ -10,85 +32,98 @@ end
 Given(/I fetch a code for username "([^"]*)" and password "([^"]*)"/) do |username, password|
   Rails.application.config.conjur_config.authenticators = ['authn-oidc/keycloak2']
 
-  @client = Client.for('user', 'admin')
-  providers = @client.fetch_authenticators
-  url = providers.body.map { |x| x["redirect_uri"] }
-  res = Net::HTTP.get_response(URI(url[0]))
-  raise res if res.is_a?(Net::HTTPError) || res.is_a?(Net::HTTPClientError)
+  client = Client.for('user', 'admin')
+  provider = JSON.parse(client.fetch_authenticators).first
 
-  all_cookies = res.get_fields('set-cookie')
-  cookies_arrays = Array.new
+  #  Save Nonce & Code Verifier for future use
+  @context.set(
+    nonce: provider['nonce'],
+    code_verifier: provider['code_verifier'],
+    service_id: provider['service_id']
+  )
+
+  response = Net::HTTP.get_response(URI(provider['redirect_uri']))
+  raise response if response.is_a?(Net::HTTPError) || response.is_a?(Net::HTTPClientError)
+
+  all_cookies = response.get_fields('set-cookie')
+  cookies_arrays = []
   all_cookies.each do |cookie|
     cookies_arrays.push(cookie.split('; ')[0])
   end
 
-  html = Nokogiri::HTML(res.body)
+  html = Nokogiri::HTML(response.body)
   post_uri = URI(html.xpath('//form').first.attributes['action'].value)
 
   http = Net::HTTP.new(post_uri.host, post_uri.port)
   http.use_ssl = true
   request = Net::HTTP::Post.new(post_uri.request_uri)
   request['Cookie'] = cookies_arrays.join('; ')
-  request.set_form_data({'username' => username, 'password' => password})
+  request.set_form_data({ 'username' => username, 'password' => password })
 
   response = http.request(request)
 
   if response.is_a?(Net::HTTPRedirection)
-    parse_oidc_code(response['location'])
+    redirect = URI(response['location'])
+    code = redirect.query.split('&').find{|i| i.split('=')[0] == 'code' }.split('=').last
+    # Save Code for future steps
+    @context.set(code: code)
   end
 end
 
-Given(/^I load a policy with okta user:/) do |policy|
+Given(/^I add an Okta user/) do
+  # Ensure required environment variables are present
+  environment_variables_present?('OKTA_USERNAME')
+
   user_policy = """
-  - !user #{ENV['OKTA_USERNAME']}
+  - !user #{ENV.fetch('OKTA_USERNAME')}
 
   - !grant
     role: !group conjur/authn-oidc/okta-2/users
-    member: !user #{ENV['OKTA_USERNAME']}"""
- 
-  load_root_policy(policy + user_policy)
+    member: !user #{ENV.fetch('OKTA_USERNAME')}
+  """
+  @client ||= Client.for("user", "admin")
+  @result = @client.update_policy(id: 'root', policy: user_policy)
 end
 
-Given(/^I fetch a code from okta/) do
-  uri = URI("https://#{URI(okta_provider_uri).host}/api/v1/authn")
-  puts uri
-  body = JSON.generate({ username: ENV['OKTA_USERNAME'], password: ENV['OKTA_PASSWORD'] })
+Given(/^I fetch a code from Okta/) do
+  # Ensure required environment variables are present
+  environment_variables_present?(%w[OKTA_USERNAME OKTA_PASSWORD])
 
-  http = Net::HTTP.new(uri.host, uri.port)
-  http.use_ssl = true
-  request = Net::HTTP::Post.new(uri.request_uri)
-  request['Accept'] = 'application/json'
-  request['Content-Type'] = 'application/json'
-  request.body = body
+  client = Client.for('user', 'admin')
+  provider = JSON.parse(client.fetch_authenticators).first
 
-  response = http.request(request)
-  session_token = JSON.parse(response.body)["sessionToken"]
-  puts session_token
+  #  Save Nonce & Code Verifier for future use
+  @context.set(
+    nonce: provider['nonce'],
+    code_verifier: provider['code_verifier'],
+    service_id: provider['service_id']
+  )
 
-  oidc_parameters = {
-    client_id: okta_client_id,
-    redirect_uri: okta_redirect_uri,
-    response_type: oidc_response_type,
-    scope: okta_scope,
-    state: oidc_state,
-    nonce: oidc_nonce,
-    sessionToken: session_token
-  }
+  # Get a user session ID via the Okta `authn` endpoint
+  provider_uri = URI(provider['redirect_uri'])
+  uri = URI("https://#{provider_uri.host}/api/v1/authn")
+  result = Net::HTTP.start(uri.host, uri.port, use_ssl: true) do |http|
+    request = Net::HTTP::Post.new(uri.path, 'Content-Type' => 'application/json')
+    request.body = { username: ENV['OKTA_USERNAME'], password: ENV['OKTA_PASSWORD'] }.to_json
+    http.request(request)
+  end
 
-  query_string = ""
-  oidc_parameters.each {|key, value| query_string += "#{key}=#{value}&"}
-  uri = URI("#{okta_provider_uri}/v1/authorize?#{query_string}")
-  puts uri
-  request = Net::HTTP::Get.new(uri.request_uri)
-  response = http.request(request)
+  # Authenticate using the previously retrieved Session Token
+  session_token = JSON.parse(result.body)["sessionToken"]
+  uri = URI("#{provider['redirect_uri']}&state=foo&sessionToken=#{session_token}")
+  response = Net::HTTP.start(uri.host, uri.port, use_ssl: true) do |http|
+    request = Net::HTTP::Get.new(uri)
+    http.request(request)
+  end
 
   if response.is_a?(Net::HTTPRedirection)
-    parse_oidc_code(response['location'])
+    redirect = URI(response['location'])
+    code = redirect.query.split('&').find{|i| i.split('=')[0] == 'code' }.split('=').last
+    # Save Code for future steps
+    @context.set(code: code)
   else
-    puts "test"
-    raise "Failed to retrieve OIDC code status: #{response.code}"
+    raise "Failed to retrieve OIDC code. Status: '#{response.code}', Response: '#{response.body}'"
   end
-  puts response.body
 end
 
 Given(/^I successfully set OIDC variables$/) do
@@ -97,20 +132,15 @@ Given(/^I successfully set OIDC variables$/) do
 end
 
 When(/^I authenticate via OIDC V2 with code$/) do
-  authenticate_code_with_oidc(
-    service_id: "#{AuthnOidcHelper::SERVICE_ID}2",
-    account: AuthnOidcHelper::ACCOUNT
+  authenticate_with_oidc_code(
+    service_id: @context.get(:service_id),
+    account: @context.get(:account),
+    params: {
+      code: @context.get(:code),
+      nonce: @context.get(:nonce),
+      code_verifier: @context.get(:code_verifier)
+    }
   )
-end
-
-Given(/^I successfully set Okta OIDC V2 variables$/) do
-  create_oidc_secret("provider-uri", okta_provider_uri, "okta-2")
-  create_oidc_secret("client-id", okta_client_id, "okta-2")
-  create_oidc_secret("client-secret", okta_client_secret, "okta-2")
-  create_oidc_secret("claim-mapping", oidc_claim_mapping, "okta-2")
-  create_oidc_secret("state", oidc_state, "okta-2")
-  create_oidc_secret("nonce", oidc_nonce, "okta-2")
-  create_oidc_secret("redirect-uri", okta_redirect_uri, "okta-2")
 end
 
 Given(/^I successfully set OIDC variables without a service-id$/) do
@@ -123,27 +153,27 @@ Given(/^I successfully set provider-uri variable$/) do
 end
 
 When(/^I authenticate via OIDC V2 with code "([^"]*)"$/) do |code|
-  authenticate_code_with_oidc(
-    service_id: "#{AuthnOidcHelper::SERVICE_ID}2",
-    account: AuthnOidcHelper::ACCOUNT,
-    code: code,
-    )
+  authenticate_with_oidc_code(
+    service_id: @context.get(:service_id),
+    account: @context.get(:account),
+    params: {
+      code: code,
+      nonce: @context.get(:nonce),
+      code_verifier: @context.get(:code_verifier)
+    }
+  )
 end
 
 When(/^I authenticate via OIDC V2 with no code in the request$/) do
-  authenticate_code_with_oidc(
-    service_id: "#{AuthnOidcHelper::SERVICE_ID}2",
-    account: AuthnOidcHelper::ACCOUNT,
-    code: nil,
-    )
-end
-
-When(/^I authenticate via OIDC V2 with state "([^"]*)"$/) do |state|
-  authenticate_code_with_oidc(
-    service_id: "#{AuthnOidcHelper::SERVICE_ID}2",
-    account: AuthnOidcHelper::ACCOUNT,
-    state: state,
-    )
+  authenticate_with_oidc_code(
+    service_id: @context.get(:service_id),
+    account: @context.get(:account),
+    params: {
+      code: nil,
+      nonce: @context.get(:nonce),
+      code_verifier: @context.get(:code_verifier)
+    }
+  )
 end
 
 Given(/^I successfully set provider-uri variable to value "([^"]*)"$/) do |provider_uri|
@@ -168,26 +198,19 @@ When(/^I authenticate via OIDC with id token in header$/) do
   )
 end
 
-Given(/^I successfully set OIDC V2 variables for "([^"]*)"$/) do |service_id|
-  create_oidc_secret("provider-uri", oidc_provider_uri, service_id)
-  create_oidc_secret("response-type", oidc_response_type, service_id)
-  create_oidc_secret("client-id", oidc_client_id, service_id)
-  create_oidc_secret("client-secret", oidc_client_secret, service_id)
-  create_oidc_secret("claim-mapping", oidc_claim_mapping, service_id)
-  create_oidc_secret("state", oidc_state, service_id)
-  create_oidc_secret("nonce", oidc_nonce, service_id)
-  create_oidc_secret("redirect-uri", oidc_redirect_uri, service_id)
-  create_oidc_secret("provider-scope", oidc_scope, service_id)
-end
-
 When(/^I authenticate via OIDC V2 with code and service-id "([^"]*)"$/) do |service_id|
-  authenticate_code_with_oidc(
+  authenticate_with_oidc_code(
     service_id: service_id,
-    account: AuthnOidcHelper::ACCOUNT
+    account: @context.get(:account),
+    params: {
+      code: @context.get(:code),
+      nonce: @context.get(:nonce),
+      code_verifier: @context.get(:code_verifier)
+    }
   )
 end
 
-Then(/^The okta user has been authorized by conjur/) do
+Then(/^The Okta user has been authorized by Conjur/) do
   username = ENV['OKTA_USERNAME']
   expect(retrieved_access_token.username).to eq(username)
 end
@@ -207,16 +230,14 @@ When(/^I authenticate via OIDC with id token and account "([^"]*)"$/) do |accoun
 end
 
 When(/^I authenticate via OIDC V2 with code and account "([^"]*)"$/) do |account|
-  authenticate_code_with_oidc(
-    service_id: "#{AuthnOidcHelper::SERVICE_ID}2",
-    account: account
-  )
-end
-
-When(/^I authenticate via OIDC with code and service_id "([^"]*)"$/) do |service_id|
-  authenticate_code_with_oidc(
-    service_id: service_id,
-    account: AuthnOidcHelper::ACCOUNT
+  authenticate_with_oidc_code(
+    service_id: @context.get(:service_id),
+    account: account,
+    params: {
+      code: @context.get(:code),
+      nonce: @context.get(:nonce),
+      code_verifier: @context.get(:code_verifier)
+    }
   )
 end
 
