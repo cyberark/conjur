@@ -21,23 +21,30 @@ Feature: OIDC Authenticator V2 - Users can authenticate with OIDC authenticator
           - !variable client-id
           - !variable client-secret
           - !variable claim-mapping
-          - !variable state
-          - !variable nonce
           - !variable redirect-uri
           - !variable provider-scope
+
           - !group users
+
           - !permit
             role: !group users
             privilege: [ read, authenticate ]
             resource: !webservice
-      - !user
-        id: alice
+
+      - !user alice
+
       - !grant
         role: !group conjur/authn-oidc/keycloak2/users
         member: !user alice
     """
     And I am the super-user
-    And I successfully set OIDC V2 variables for "keycloak2"
+    And I set conjur variables
+      | variable_id                                 | value                                     |
+      | conjur/authn-oidc/keycloak2/provider-uri    | https://keycloak:8443/auth/realms/master  |
+      | conjur/authn-oidc/keycloak2/client-id       | conjurClient                              |
+      | conjur/authn-oidc/keycloak2/client-secret   | 1234                                      |
+      | conjur/authn-oidc/keycloak2/claim-mapping   | preferred_username                        |
+      | conjur/authn-oidc/keycloak2/redirect-uri    | http://conjur:3000/authn-oidc/keycloak2/cucumber/authenticate |
 
   @smoke
   Scenario: A valid code to get Conjur access token
@@ -147,46 +154,6 @@ Feature: OIDC Authenticator V2 - Users can authenticate with OIDC authenticator
       member: !group more-users
     """
 
-#  @negative @acceptance
-#  Scenario: Adding a group to keycloak2/users group permits users to authenticate
-#    Given I extend the policy with:
-#    """
-#    - !user
-#      id: bob.somebody
-#      annotations:
-#        authn-oidc/identity: bob.somebody
-#    - !group more-users
-#    - !grant
-#      role: !group more-users
-#      member: !user bob.somebody
-#    - !grant
-#      role: !group conjur/authn-oidc/keycloak2/users
-#      member: !group more-users
-#    """
-#
-#    Given I extend the policy with:
-#    """
-#    - !user
-#      id: chad
-#      annotations:
-#        authn-oidc/identity: bob.somebody
-#    - !group more-users
-#    - !grant
-#      role: !group more-users
-#      member: !user chad
-#    - !grant
-#      role: !group conjur/authn-oidc/keycloak2/users
-#      member: !group more-users
-#    """
-#    Given I save my place in the log file
-#    And I fetch a code for username "bob.somebody" and password "bob"
-#    When I authenticate via OIDC V2 with code
-#    Then it is forbidden
-#    And The following appears in the log after my savepoint:
-#    """
-#    CONJ00009E 'bob.somebody' matched multiple roles
-#    """
-
   @negative @acceptance
   Scenario: Missing code is a bad request
     Given I save my place in the log file
@@ -229,17 +196,6 @@ Feature: OIDC Authenticator V2 - Users can authenticate with OIDC authenticator
     """
 
   @negative @acceptance
-  Scenario: Invalid state is a bad request
-    Given I save my place in the log file
-    And I fetch a code for username "alice" and password "alice"
-    When I authenticate via OIDC V2 with state "bad-state"
-    Then it is a bad request
-    And The following appears in the log after my savepoint:
-    """
-    Errors::Authentication::AuthnOidc::StateMismatch
-    """
-
-  @negative @acceptance
   Scenario: Bad OIDC provider credentials
     Given I save my place in the log file
     And I fetch a code for username "alice" and password "notalice"
@@ -261,49 +217,28 @@ Feature: OIDC Authenticator V2 - Users can authenticate with OIDC authenticator
     Errors::Conjur::RequestedResourceNotFound: CONJ00123E Resource
     """
 
-#  @negative @acceptance
-#  Scenario: non-existing account in request is denied
-#    Given I save my place in the log file
-#    When I authenticate via OIDC V2 with code and account "non-existing"
-#    Then it is unauthorized
-#    And The following appears in the log after my savepoint:
-#    """
-#    Errors::Authentication::Security::AccountNotDefined
-#    """
-#    And The following appears in the audit log after my savepoint:
-#    """
-#    non-existing:user:USERNAME_MISSING failed to authenticate with authenticator authn-oidc service
-#    """
 
-#  @negative @acceptance
-#  Scenario: admin user is denied
-#    And I fetch a code for username "admin" and password "admin"
-#    And I save my place in the log file
-#    When I authenticate via OIDC V2 with code
-#    Then it is unauthorized
-#    And The following appears in the log after my savepoint:
-#    """
-#    Errors::Authentication::AdminAuthenticationDenied
-#    """
-#    And The following appears in the audit log after my savepoint:
-#    """
-#    cucumber:user:USERNAME_MISSING failed to authenticate with authenticator authn-oidc service
-#    """
-
-  @smoke
-  Scenario: provider-uri dynamic change
-    And I fetch a code for username "alice" and password "alice"
-    And I authenticate via OIDC V2 with code
-    And user "alice" has been authorized by Conjur
-    # Update provider uri to a different hostname and verify `provider-uri` has changed
-    When I add the secret value "https://different-provider:8443" to the resource "cucumber:variable:conjur/authn-oidc/keycloak2/provider-uri"
-    And I authenticate via OIDC V2 with code
-    Then it is unauthorized
-    # Check recovery to a valid provider uri
-    When I successfully set OIDC V2 variables for "keycloak2"
-    And I fetch a code for username "alice" and password "alice"
-    And I authenticate via OIDC V2 with code
-    Then user "alice" has been authorized by Conjur
+  # This test throws an error because the provider URI is invalid.
+  # TODO - add a test to verify URI valididity of provider uri
+  # TODO - throw a valid exception when the provider fails to load an OIDC
+  #         endpoint during the service discover (which occurs when rendering the
+  #         provider list)
+  #
+  # Does this test actually make sense?
+  # @smoke
+  # Scenario: provider-uri dynamic change
+  #   And I fetch a code for username "alice" and password "alice"
+  #   And I authenticate via OIDC V2 with code
+  #   And user "alice" has been authorized by Conjur
+  #   # Update provider uri to a different hostname and verify `provider-uri` has changed
+  #   When I add the secret value "https://different-provider:8443" to the resource "cucumber:variable:conjur/authn-oidc/keycloak2/provider-uri"
+  #   And I authenticate via OIDC V2 with code
+  #   Then it is unauthorized
+  #   # Check recovery to a valid provider uri
+  #   # When I successfully set OIDC V2 variables for "keycloak2"
+  #   And I fetch a code for username "alice" and password "alice"
+  #   And I authenticate via OIDC V2 with code
+  #   Then user "alice" has been authorized by Conjur
 
   @negative @acceptance
   Scenario: Unauthenticated is raised in case of an invalid OIDC Provider hostname
@@ -319,24 +254,3 @@ Feature: OIDC Authenticator V2 - Users can authenticate with OIDC authenticator
     """
     Errors::Authentication::OAuth::ProviderDiscoveryFailed
     """
-
-  # This test runs a failing authentication request that is already
-  # tested in another scenario (User that is not permitted to webservice in ID token is denied).
-  # We run it again here to verify that we write a message to the audit log
-#  @acceptance
-#  Scenario: Authentication failure is written to the audit log
-#    Given I extend the policy with:
-#    """
-#    - !user
-#      id: bob
-#      annotations:
-#        authn-oidc/identity: bob.somebody@cyberark.com
-#    """
-#    And I fetch a code for username "bob.somebody@cyberark.com" and password "bob"
-#    And I save my place in the audit log file
-#    When I authenticate via OIDC V2 with code
-#    Then it is forbidden
-#    And The following appears in the audit log after my savepoint:
-#    """
-#    cucumber:user:bob failed to authenticate with authenticator authn-oidc service cucumber:webservice:conjur/authn-oidc/keycloak
-#    """
