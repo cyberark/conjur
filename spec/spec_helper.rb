@@ -114,72 +114,32 @@ def with_background_process(cmd, &block)
     cmd,
     pgroup: true
   ) do |stdin, stdout_and_err, wait_thr|
-    # We don't need to interact with stdin for the background process,
-    # so close that stream immediately.
-    stdin.close_write
-
+    output = StringIO.new
     # Read the output of the background process in a thread to run
     # the given block in parallel.
     out_reader = Thread.new do
       Thread.current.abort_on_exception = true
-      output = StringIO.new
 
       loop do
-        begin
-          ready = IO.select(
-            [stdout_and_err], # Watch for reading
-            [], # Not watching any files for writing
-            [], # Not watching any files for exceptions
-            # When the background process is killed, it doesn't end the
-            # the output stream, so we need a timeout here to recognize the
-            # stream has closed:
-            1 # 1 second timeout
-          )
-        rescue IOError => e
-          # Stream seems to be closed externally once the command returns.
-          # This catch allows the loop to exit and the thread to return.
-          puts("Stream was closed: #{e}")
-        end
+        break if stdout_and_err.closed? || stdout_and_err.eof?
+        next unless stdout_and_err.wait_readable(1)
 
-        # If the stream has closed, break the read loop.
-        break if stdout_and_err.closed?
-
-        # If we've reached the end of the stream, break the read loop.
-        begin
-          break if stdout_and_err.eof?
-        rescue IOError => e
-          # Stream can be closed externally.
-          # This catch allows the loop to exit and the thread to return.
-          puts("Stream was closed: #{e}")
-        end
-
-        # If this was the result of a IO#select timeout, enter the select
-        # loop again.
-        next unless ready
-
-        # Read the next available output on the stream
         output << stdout_and_err.read_nonblock(1024)
+      rescue IOError
+        break
       end
-
-      # Return the collected output as the result of the read thread
-      output.string
     end
 
-    # Call the given block
     block.call
 
-    # Kill the background process and any children processes
+    out_reader.kill
     pgid = Process.getpgid(wait_thr.pid)
     Process.kill("-TERM", pgid) if wait_thr.alive?
 
     # Wait for the background process to end
     wait_thr.value
 
-    # Close the output thread
-    stdout_and_err.close
-
-    # Wait for the result from the reader thread
-    out_reader.value
+    output.string
   end
 end
 
