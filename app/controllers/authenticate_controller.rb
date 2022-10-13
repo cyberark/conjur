@@ -137,22 +137,38 @@ class AuthenticateController < ApplicationController
 
   # Update the input to have the username from the token and authenticate
   def authenticate_oidc
-    params[:authenticator] = "authn-oidc"
-    input = Authentication::AuthnOidc::UpdateInputWithUsernameFromIdToken.new.(
-      authenticator_input: authenticator_input
-    )
-    # We don't audit success here as the authentication process is not done
-  rescue => e
-    # At this point authenticator_input.username is always empty (e.g. cucumber:user:USERNAME_MISSING)
-    log_audit_failure(
-      authn_params: authenticator_input,
-      audit_event_class: Audit::Event::Authn::Authenticate,
-      error: e
-    )
-    handle_authentication_error(e)
-  else
-    authenticate(input)
+    json_request = JSON.parse(request.raw_post)
+    if json_request.key?('jwt')
+      params.permit!
+
+      auth_token = Authentication::Handler::AuthenticationHandler.new(
+        authenticator_type: 'authn-oidc'
+      ).call(
+        parameters: params.to_hash.symbolize_keys.merge(jwt: json_request['jwt'], nonce: json_request['nonce']),
+        request_ip: request.ip
+      )
+      render_authn_token(auth_token)
+    else
+      begin
+        params[:authenticator] = "authn-oidc"
+        input = Authentication::AuthnOidc::UpdateInputWithUsernameFromIdToken.new.(
+          authenticator_input: authenticator_input
+        )
+        # We don't audit success here as the authentication process is not done
+      rescue => e
+        # At this point authenticator_input.username is always empty (e.g. cucumber:user:USERNAME_MISSING)
+        log_audit_failure(
+          authn_params: authenticator_input,
+          audit_event_class: Audit::Event::Authn::Authenticate,
+          error: e
+        )
+        handle_authentication_error(e)
+      else
+        authenticate(input)
+      end
+    end
   end
+
   def authenticate_gcp
     params[:authenticator] = "authn-gcp"
     input = Authentication::AuthnGcp::UpdateAuthenticatorInput.new.(

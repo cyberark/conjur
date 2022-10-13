@@ -47,6 +47,24 @@ module Authentication
           )
           id_token = bearer_token.id_token || bearer_token.access_token
 
+          validate_jwt(jwt: id_token, nonce: nonce)
+        rescue OpenIDConnect::ValidationFailed => e
+          raise Errors::Authentication::AuthnOidc::TokenVerificationFailed, e.message
+        end
+
+        def validate_jwt(jwt:, nonce:)
+          decoded_id_token = decode_jwt(id_token: jwt)
+          decoded_id_token.verify!(
+            issuer: @authenticator.provider_uri,
+            client_id: @authenticator.client_id,
+            nonce: nonce
+          )
+          return decoded_id_token, { oidc_jwt: jwt }
+        rescue OpenIDConnect::ValidationFailed => e
+          raise Errors::Authentication::AuthnOidc::TokenVerificationFailed, e.message
+        end
+
+        def decode_jwt(id_token:)
           begin
             attempts ||= 0
             decoded_id_token = @oidc_id_token.decode(
@@ -63,15 +81,6 @@ module Authentication
             discovery_information(invalidate: true)
             retry
           end
-
-          decoded_id_token.verify!(
-            issuer: @authenticator.provider_uri,
-            client_id: @authenticator.client_id,
-            nonce: nonce
-          )
-          decoded_id_token
-        rescue OpenIDConnect::ValidationFailed => e
-          raise Errors::Authentication::AuthnOidc::TokenVerificationFailed, e.message
         end
 
         def discovery_information(invalidate: false)

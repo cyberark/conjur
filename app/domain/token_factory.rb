@@ -17,14 +17,17 @@ class TokenFactory < Dry::Struct
 
   def signed_token(account:,
                    username:,
+                   additional_claims: {},
                    host_ttl: Rails.application.config.conjur_config.host_authorization_token_ttl,
                    user_ttl: Rails.application.config.conjur_config.user_authorization_token_ttl)
-    signing_key(account).issue_jwt(
+
+    claims = additional_claims.merge({
       sub: username,
       exp: Time.now + offset(
         ttl: username.starts_with?('host/') ? host_ttl : user_ttl
       )
-    )
+    })
+    signing_key(account).issue_jwt(**claims)
   end
 
   def offset(ttl:)

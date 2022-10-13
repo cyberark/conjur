@@ -15,24 +15,27 @@ module Authentication
 
         # Don't love this name...
         def callback(args)
-          %i[code nonce code_verifier].each do |param|
-            unless args[param].present?
-              raise Errors::Authentication::RequestBody::MissingRequestParam, param.to_s
+          if args.key?(:jwt)
+            oidc_jwt, claims = @client.validate_jwt(jwt: args[:jwt], nonce: args[:nonce])
+          else
+            %i[code nonce code_verifier].each do |param|
+              unless args[param].present?
+                raise Errors::Authentication::RequestBody::MissingRequestParam, param.to_s
+              end
             end
-          end
 
-          identity = resolve_identity(
-            jwt: @client.callback(
+            oidc_jwt, claims = @client.callback(
               code: args[:code],
               nonce: args[:nonce],
               code_verifier: args[:code_verifier]
             )
-          )
+          end
+          identity = resolve_identity(jwt: oidc_jwt)
           unless identity.present?
             raise Errors::Authentication::AuthnOidc::IdTokenClaimNotFoundOrEmpty,
                   @authenticator.claim_mapping
           end
-          identity
+          return identity, claims
         end
 
         def resolve_identity(jwt:)

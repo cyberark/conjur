@@ -45,10 +45,12 @@ module Authentication
           )
         end
 
+        identity, payload = @strategy.new(
+          authenticator: authenticator
+        ).callback(parameters)
+
         role = @identity_resolver.new.call(
-          identity: @strategy.new(
-            authenticator: authenticator
-          ).callback(parameters),
+          identity: identity,
           account: parameters[:account],
           allowed_roles: @role.that_can(
             :authenticate,
@@ -67,9 +69,12 @@ module Authentication
 
         TokenFactory.new.signed_token(
           account: parameters[:account],
-          username: role.role_id.split(':').last
+          username: role.role_id.split(':').last,
+          additional_claims: payload || {}
         )
       rescue => e
+        @logger.error(e)
+        @logger.error(e.backtrace)
         log_audit_failure(parameters[:account], parameters[:service_id], request_ip, @authenticator_type, e)
         handle_error(e)
       end
