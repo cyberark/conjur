@@ -9,9 +9,14 @@ module Monitoring
       def initialize(app, options = {})
         @app = app
         @pubsub = options[:pubsub]
+        @lazy_init = options[:lazy_init]
       end
 
       def call(env) # :nodoc:
+        unless @initialized
+          @initialized = true
+          @lazy_init.call
+        end
         trace(env) { @app.call(env) }
       end
 
