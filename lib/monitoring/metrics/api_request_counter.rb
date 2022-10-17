@@ -1,7 +1,7 @@
 module Monitoring
   module Metrics
     class ApiRequestCounter
-      attr_reader :registry, :pubsub, :metric_name, :docstring, :labels, :sub_event_name, :throttle
+      attr_reader :registry, :pubsub, :metric_name, :docstring, :labels, :sub_event_name
 
       def setup(registry, pubsub)
         @registry = registry
