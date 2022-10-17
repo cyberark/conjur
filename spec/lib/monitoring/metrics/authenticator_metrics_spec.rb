@@ -1,15 +1,13 @@
 require 'spec_helper'
 require 'monitoring/query_helper'
 require 'monitoring/metrics/authenticator_gauge'
-Dir.glob(Rails.root + 'lib/monitoring/metrics/authenticator_.rb', &method(:require))
 
 describe 'authenticator metrics', type: :request  do
 
   before do
-    pubsub.unsubscribe('conjur.policy_loaded')
-    pubsub.unsubscribe('conjur.authenticator_count_update')
-
     @authenticator_metric = Monitoring::Metrics::AuthenticatorGauge.new
+    pubsub.unsubscribe(@authenticator_metric.sub_event_name)
+
 
     # Clear and setup the Prometheus client store
     Monitoring::Prometheus.setup(
@@ -30,8 +28,6 @@ describe 'authenticator metrics', type: :request  do
 
   let(:pubsub) { Monitoring::PubSub.instance }
 
-  let(:policy_load_event_name) { 'conjur.policy_loaded' }
-
   let(:policies_url) { '/policies/rspec/policy/root' }
 
   let(:current_user) { Role.find_or_create(role_id: 'rspec:user:admin') }
@@ -46,21 +42,18 @@ describe 'authenticator metrics', type: :request  do
   context 'when a policy is loaded' do
 
     it 'publishes a policy load event (POST)' do
-      expect(Monitoring::PubSub.instance).to receive(:publish).with(policy_load_event_name).and_call_original
       expect(Monitoring::PubSub.instance).to receive(:publish).with(@authenticator_metric.sub_event_name)
 
       post(policies_url, env: headers_with_auth('[!variable test]'))
     end
 
     it 'publishes a policy load event (PUT)' do
-      expect(Monitoring::PubSub.instance).to receive(:publish).with(policy_load_event_name).and_call_original
       expect(Monitoring::PubSub.instance).to receive(:publish).with(@authenticator_metric.sub_event_name)
 
       put(policies_url, env: headers_with_auth('[!variable test]'))
     end
 
     it 'publishes a policy load event (PATCH)' do
-      expect(Monitoring::PubSub.instance).to receive(:publish).with(policy_load_event_name).and_call_original
       expect(Monitoring::PubSub.instance).to receive(:publish).with(@authenticator_metric.sub_event_name)
 
       patch(policies_url, env: headers_with_auth('[!variable test]'))

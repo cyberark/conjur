@@ -5,12 +5,9 @@ Dir.glob(Rails.root + 'lib/monitoring/metrics/policy_*.rb', &method(:require))
 describe 'policy metrics', type: :request  do
 
   before do
-    pubsub.unsubscribe('conjur.policy_loaded')
-    pubsub.unsubscribe('conjur.resource_count_update')
-    pubsub.unsubscribe('conjur.role_count_update')
-
     @resource_metric = Monitoring::Metrics::PolicyResourceGauge.new
     @role_metric = Monitoring::Metrics::PolicyRoleGauge.new
+    pubsub.unsubscribe(policy_load_event_name)
 
     # Clear and setup the Prometheus client store
     Monitoring::Prometheus.setup(
@@ -27,9 +24,9 @@ describe 'policy metrics', type: :request  do
 
   let(:registry) { Monitoring::Prometheus.registry }
 
-  let(:metrics) { [ @resource_metric, @role_metric ] }
-
   let(:pubsub) { Monitoring::PubSub.instance }
+
+  let(:metrics) { [ @resource_metric, @role_metric ] }
 
   let(:policy_load_event_name) { 'conjur.policy_loaded' }
 
@@ -47,28 +44,19 @@ describe 'policy metrics', type: :request  do
   context 'when a policy is loaded' do
 
     it 'publishes a policy load event (POST)' do
-      expect(Monitoring::PubSub.instance).to receive(:publish).with(policy_load_event_name).and_call_original
-
-      expect(Monitoring::PubSub.instance).to receive(:publish).with(@resource_metric.sub_event_name)
-      expect(Monitoring::PubSub.instance).to receive(:publish).with(@role_metric.sub_event_name)
+      expect(Monitoring::PubSub.instance).to receive(:publish).with(policy_load_event_name).once
 
       post(policies_url, env: headers_with_auth('[!variable test]'))
     end
 
     it 'publishes a policy load event (PUT)' do
-      expect(Monitoring::PubSub.instance).to receive(:publish).with(policy_load_event_name).and_call_original
-
-      expect(Monitoring::PubSub.instance).to receive(:publish).with(@resource_metric.sub_event_name)
-      expect(Monitoring::PubSub.instance).to receive(:publish).with(@role_metric.sub_event_name)
+      expect(Monitoring::PubSub.instance).to receive(:publish).with(policy_load_event_name).once
 
       put(policies_url, env: headers_with_auth('[!variable test]'))
     end
 
     it 'publishes a policy load event (PATCH)' do
-      expect(Monitoring::PubSub.instance).to receive(:publish).with(policy_load_event_name).and_call_original
-
-      expect(Monitoring::PubSub.instance).to receive(:publish).with(@resource_metric.sub_event_name)
-      expect(Monitoring::PubSub.instance).to receive(:publish).with(@role_metric.sub_event_name)
+      expect(Monitoring::PubSub.instance).to receive(:publish).with(policy_load_event_name).once
 
       patch(policies_url, env: headers_with_auth('[!variable test]'))
     end
@@ -92,20 +80,5 @@ describe 'policy metrics', type: :request  do
       expect(resources_after - resources_before).to eql(1.0)
       expect(roles_after - roles_before).to eql(1.0)
     end
-
-  end
-
-  context 'when multiple policies are loaded' do
-
-    # Revisit this test when update throttling has been implemented
-    xit 'throttles policy events' do
-      expect(@resource_metric).to receive(:update).at_most(2).times
-      post(policies_url, env: headers_with_auth('[!variable test1]'))
-      post(policies_url, env: headers_with_auth('[!variable test2]'))
-      post(policies_url, env: headers_with_auth('[!variable test3]'))
-      post(policies_url, env: headers_with_auth('[!variable test4]'))
-      post(policies_url, env: headers_with_auth('[!variable test5]'))
-    end
-    
   end
 end
