@@ -1,7 +1,7 @@
 module Monitoring
   module Metrics
     class AuthenticatorGauge
-      attr_reader :registry, :pubsub, :metric_name, :docstring, :labels, :sub_event_name, :throttle
+      attr_reader :registry, :pubsub, :metric_name, :docstring, :labels, :sub_event_name
 
       def setup(registry, pubsub)
         @registry = registry
@@ -9,8 +9,7 @@ module Monitoring
         @metric_name = :conjur_server_authenticator
         @docstring = 'Number of authenticators enabled'
         @labels = [:type, :status]
-        @sub_event_name = 'conjur.authenticator_count_update'
-        @throttle = true
+        @sub_event_name = 'conjur.policy_loaded'
         
         # Create/register the metric
         Metrics.create_metric(self, :gauge)
