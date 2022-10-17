@@ -39,12 +39,24 @@ module Authentication
 
         def callback(code:, nonce:, code_verifier:)
           oidc_client.authorization_code = code
-          bearer_token = oidc_client.access_token!(
-            scope: true,
-            client_auth_method: :basic,
-            nonce: nonce,
-            code_verifier: code_verifier
-          )
+          begin
+            bearer_token = oidc_client.access_token!(
+              scope: true,
+              client_auth_method: :basic,
+              code_verifier: code_verifier
+            )
+          rescue Rack::OAuth2::Client::Error => e
+            # Only handle the expected errors related to access token retrieval.
+            case e.message
+            when /PKCE verification failed/
+              raise Errors::Authentication::AuthnOidc::TokenRetrievalFailed,
+                    'PKCE verification failed'
+            when /The authorization code is invalid or has expired/
+              raise Errors::Authentication::AuthnOidc::TokenRetrievalFailed,
+                    'Authorization code is invalid or has expired'
+            end
+            raise e
+          end
           id_token = bearer_token.id_token || bearer_token.access_token
 
           begin
@@ -64,14 +76,23 @@ module Authentication
             retry
           end
 
-          decoded_id_token.verify!(
-            issuer: @authenticator.provider_uri,
-            client_id: @authenticator.client_id,
-            nonce: nonce
-          )
+          begin
+            decoded_id_token.verify!(
+              issuer: @authenticator.provider_uri,
+              client_id: @authenticator.client_id,
+              nonce: nonce
+            )
+          rescue OpenIDConnect::ResponseObject::IdToken::InvalidNonce
+            raise Errors::Authentication::AuthnOidc::TokenVerificationFailed,
+                  'Provided nonce does not match the nonce in the JWT'
+          rescue OpenIDConnect::ResponseObject::IdToken::ExpiredToken
+            raise Errors::Authentication::AuthnOidc::TokenVerificationFailed,
+                  'JWT has expired'
+          rescue OpenIDConnect::ValidationFailed => e
+            raise Errors::Authentication::AuthnOidc::TokenVerificationFailed,
+                  e.message
+          end
           decoded_id_token
-        rescue OpenIDConnect::ValidationFailed => e
-          raise Errors::Authentication::AuthnOidc::TokenVerificationFailed, e.message
         end
 
         def discovery_information(invalidate: false)
