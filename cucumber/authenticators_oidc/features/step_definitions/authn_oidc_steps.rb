@@ -198,6 +198,10 @@ When(/^I authenticate via OIDC with id token in header$/) do
   )
 end
 
+Given(/^I enable OIDC V2 refresh token flows for "([^"]*)"$/) do |service_id|
+  create_oidc_secret("provider-scope", "#{oidc_scope},offline_access", service_id)
+end
+
 When(/^I authenticate via OIDC V2 with code and service-id "([^"]*)"$/) do |service_id|
   authenticate_with_oidc_code(
     service_id: service_id,
@@ -208,6 +212,11 @@ When(/^I authenticate via OIDC V2 with code and service-id "([^"]*)"$/) do |serv
       code_verifier: @context.get(:code_verifier)
     }
   )
+end
+
+Then(/^The authentication response includes header "([^"]*)"$/) do |header|
+  header_sym = header.parameterize.underscore.to_sym
+  expect(@response_headers[header_sym]).not_to be_nil
 end
 
 Then(/^The Okta user has been authorized by Conjur/) do

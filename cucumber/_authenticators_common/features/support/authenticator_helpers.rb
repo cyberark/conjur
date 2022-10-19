@@ -72,6 +72,7 @@ module AuthenticatorHelpers
     )
     result             = RestClient::Request.execute(options)
     @response_body     = result.body
+    @response_headers  = result.headers
     @http_status       = result.code
     result
   rescue RestClient::Exception => e

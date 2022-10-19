@@ -58,6 +58,7 @@ module Authentication
             raise e
           end
           id_token = bearer_token.id_token || bearer_token.access_token
+          refresh_token = bearer_token.refresh_token
 
           begin
             attempts ||= 0
@@ -92,7 +93,7 @@ module Authentication
             raise Errors::Authentication::AuthnOidc::TokenVerificationFailed,
                   e.message
           end
-          decoded_id_token
+          [decoded_id_token, refresh_token]
         end
 
         def discovery_information(invalidate: false)

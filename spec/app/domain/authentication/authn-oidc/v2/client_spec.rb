@@ -3,15 +3,21 @@
 require 'spec_helper'
 
 RSpec.describe(Authentication::AuthnOidc::V2::Client) do
+  let(:authn_config) do
+    {
+      :provider_uri => 'https://dev-92899796.okta.com/oauth2/default',
+      :redirect_uri => 'http://localhost:3000/authn-oidc/okta-2/cucumber/authenticate',
+      :client_id => '0oa3w3xig6rHiu9yT5d7',
+      :client_secret => 'e349BMTTIpLO-rPuPqLLkLyH_pO-loUzhIVJCrHj',
+      :claim_mapping => 'foo',
+      :account => 'bar',
+      :service_id => 'baz'
+    }
+  end
+
   let(:authenticator) do
     Authentication::AuthnOidc::V2::DataObjects::Authenticator.new(
-      provider_uri: 'https://dev-92899796.okta.com/oauth2/default',
-      redirect_uri: 'http://localhost:3000/authn-oidc/okta-2/cucumber/authenticate',
-      client_id: '0oa3w3xig6rHiu9yT5d7',
-      client_secret: 'e349BMTTIpLO-rPuPqLLkLyH_pO-loUzhIVJCrHj',
-      claim_mapping: 'foo',
-      account: 'bar',
-      service_id: 'baz'
+      **authn_config
     )
   end
 
@@ -35,15 +41,17 @@ RSpec.describe(Authentication::AuthnOidc::V2::Client) do
         # Because JWT tokens have an expiration timeframe, we need to hold
         # time constant after caching the request.
         travel_to(Time.parse("2022-09-30 17:02:17 +0000")) do
-          token = client.callback(
+          id_token, refresh_token = client.callback(
             code: '-QGREc_SONbbJIKdbpyYudA13c9PZlgqdxowkf45LOw',
             code_verifier: 'c1de7f1251849accd99d4839d79a637561b1181b909ed7dc1d',
             nonce: '7efcbba36a9b96fdb5285a159665c3d382abd8b6b3288fcc8d'
           )
-          expect(token).to be_a_kind_of(OpenIDConnect::ResponseObject::IdToken)
-          expect(token.raw_attributes['nonce']).to eq('7efcbba36a9b96fdb5285a159665c3d382abd8b6b3288fcc8d')
-          expect(token.raw_attributes['preferred_username']).to eq('test.user3@mycompany.com')
-          expect(token.aud).to eq('0oa3w3xig6rHiu9yT5d7')
+          expect(id_token).to be_a_kind_of(OpenIDConnect::ResponseObject::IdToken)
+          expect(id_token.raw_attributes['nonce']).to eq('7efcbba36a9b96fdb5285a159665c3d382abd8b6b3288fcc8d')
+          expect(id_token.raw_attributes['preferred_username']).to eq('test.user3@mycompany.com')
+          expect(id_token.aud).to eq('0oa3w3xig6rHiu9yT5d7')
+
+          expect(refresh_token).to be_nil
         end
       end
     end
@@ -126,6 +134,37 @@ RSpec.describe(Authentication::AuthnOidc::V2::Client) do
           Errors::Authentication::AuthnOidc::TokenRetrievalFailed,
           "CONJ00133E Access Token retrieval failure: 'Authorization code is invalid or has expired'"
         )
+      end
+    end
+
+    context 'when refresh token flow is enabled' do
+      # The 'offline_access' scope enables Okta's refresh token flow
+      let(:authenticator) do
+        Authentication::AuthnOidc::V2::DataObjects::Authenticator.new(
+          **authn_config.merge!({ :provider_scope => 'offline_access' })
+        )
+      end
+
+      context 'when credentials are valid' do
+        it 'returns valid ID and refresh tokens', vcr: 'authenticators/authn-oidc/v2/client_callback-valid_oidc_credentials_and_refresh' do
+          # Because JWT tokens have an expiration timeframe, we need to hold
+          # time constant after caching the request.
+          travel_to(Time.parse("2022-09-30 17:02:17 +0000")) do
+            id_token, refresh_token = client.callback(
+              code: '-QGREc_SONbbJIKdbpyYudA13c9PZlgqdxowkf45LOw',
+              code_verifier: 'c1de7f1251849accd99d4839d79a637561b1181b909ed7dc1d',
+              nonce: '7efcbba36a9b96fdb5285a159665c3d382abd8b6b3288fcc8d'
+            )
+            expect(id_token).to be_a_kind_of(OpenIDConnect::ResponseObject::IdToken)
+            expect(id_token.raw_attributes['nonce']).to eq('7efcbba36a9b96fdb5285a159665c3d382abd8b6b3288fcc8d')
+            expect(id_token.raw_attributes['preferred_username']).to eq('test.user3@mycompany.com')
+            expect(id_token.aud).to eq('0oa3w3xig6rHiu9yT5d7')
+
+            expect(refresh_token).not_to be_nil
+            expect(refresh_token).to be_a_kind_of(String)
+            expect(refresh_token).to eq('kXMJFtgtaEpOGn0Zk2x15i8umXIWp4aqY1Mh7zscfGI')
+          end
+        end
       end
     end
   end

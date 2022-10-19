@@ -9,13 +9,14 @@ class AuthenticateController < ApplicationController
     # params. This will likely need to be done via the Handler.
     params.permit!
 
-    auth_token = Authentication::Handler::AuthenticationHandler.new(
+    auth_token, headers_h = Authentication::Handler::AuthenticationHandler.new(
       authenticator_type: params[:authenticator]
     ).call(
       parameters: params.to_hash.symbolize_keys,
       request_ip: request.ip
     )
 
+    set_headers(headers_h)
     render_authn_token(auth_token)
   rescue => e
     log_backtrace(e)
@@ -246,6 +247,12 @@ class AuthenticateController < ApplicationController
       response.set_header("Content-Encoding", "base64")
     end
     render(content_type => authn_token)
+  end
+
+  def set_headers(headers_h)
+    headers_h.each { |key, value|
+      response.set_header(key, value.to_s) unless key.blank? || value.blank?
+    }
   end
 
   def log_audit_success(

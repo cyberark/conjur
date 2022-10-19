@@ -45,10 +45,12 @@ module Authentication
           )
         end
 
+        identity, headers_h = @strategy.new(
+          authenticator: authenticator
+        ).callback(parameters)
+
         role = @identity_resolver.new.call(
-          identity: @strategy.new(
-            authenticator: authenticator
-          ).callback(parameters),
+          identity: identity,
           account: parameters[:account],
           allowed_roles: @role.that_can(
             :authenticate,
@@ -65,10 +67,12 @@ module Authentication
 
         log_audit_success(authenticator, role, request_ip, @authenticator_type)
 
-        TokenFactory.new.signed_token(
+        token = TokenFactory.new.signed_token(
           account: parameters[:account],
           username: role.role_id.split(':').last
         )
+
+        [token, headers_h]
       rescue => e
         log_audit_failure(parameters[:account], parameters[:service_id], request_ip, @authenticator_type, e)
         handle_error(e)

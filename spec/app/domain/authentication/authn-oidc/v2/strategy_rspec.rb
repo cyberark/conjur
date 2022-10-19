@@ -5,6 +5,7 @@ require 'spec_helper'
 RSpec.describe(' Authentication::AuthnOidc::V2::Strategy') do
 
   let(:jwt) { double(raw_attributes: { claim_mapping: "alice" }) }
+  let(:refresh_token) { 'kXMJFtgtaEpOGn0Zk2x15i8umXIWp4aqY1Mh7zscfGI' }
 
   let(:authenticator) do
     Authentication::AuthnOidc::V2::DataObjects::Authenticator.new(
@@ -27,7 +28,7 @@ RSpec.describe(' Authentication::AuthnOidc::V2::Strategy') do
 
   let(:current_client) do
     instance_double(::Authentication::AuthnOidc::V2::Client).tap do |double|
-      allow(double).to receive(:callback).and_return(jwt)
+      allow(double).to receive(:callback).and_return([jwt, nil])
     end
   end
 
@@ -39,11 +40,13 @@ RSpec.describe(' Authentication::AuthnOidc::V2::Strategy') do
   end
 
   describe('#callback') do
-    context 'when a role_id matches the identity exist' do
+    context 'When a role_id matches the identity exist' do
       let(:mapping) { "claim_mapping" }
       it 'returns the role' do
-        expect(strategy.callback(nonce: 'nonce', code: 'code', code_verifier: 'foo'))
-          .to eq('alice')
+        role, headers_h = strategy.callback(nonce: 'nonce', code: 'code', code_verifier: 'foo')
+
+        expect(role).to eq('alice')
+        expect(headers_h).to be_empty
       end
     end
 
@@ -73,6 +76,24 @@ RSpec.describe(' Authentication::AuthnOidc::V2::Strategy') do
         it 'raises a `MissingRequestParam` error' do
           expect { strategy.callback(nonce: 'nonce', code: 'code') }
             .to raise_error(Errors::Authentication::RequestBody::MissingRequestParam)
+        end
+      end
+    end
+
+    context 'When refresh token flow is enabled' do
+      let(:current_client) do
+        instance_double(::Authentication::AuthnOidc::V2::Client).tap do |double|
+          allow(double).to receive(:callback).and_return([jwt, refresh_token])
+        end
+      end
+
+      context 'when a role_id matches the identity exist' do
+        let(:mapping) { "claim_mapping" }
+        it 'returns the role and its refresh token' do
+          role, headers_h = strategy.callback(nonce: 'nonce', code: 'code', code_verifier: 'foo')
+
+          expect(role).to eq("alice")
+          expect(headers_h).to include('X-OIDC-Refresh-Token' => refresh_token)
         end
       end
     end

@@ -63,6 +63,14 @@ Feature: OIDC Authenticator V2 - Users can authenticate with OIDC authenticator
     """
 
   @smoke
+  Scenario: A valid code to get Conjur access token and OIDC refresh token
+    Given I enable OIDC V2 refresh token flows for "keycloak2"
+    And I fetch a code for username "alice" and password "alice"
+    When I authenticate via OIDC V2 with code
+    Then user "alice" has been authorized by Conjur
+    And The authentication response includes header "X-OIDC-Refresh-Token"
+
+  @smoke
   Scenario: A valid code with email as claim mapping
     Given I extend the policy with:
     """
@@ -189,7 +197,7 @@ Feature: OIDC Authenticator V2 - Users can authenticate with OIDC authenticator
     Given I save my place in the log file
     And I fetch a code for username "alice@conjur.net" and password "alice"
     When I authenticate via OIDC V2 with code "bad-code"
-    Then it is a bad request
+    Then it is unauthorized
     And The following appears in the log after my savepoint:
     """
     Rack::OAuth2::Client::Error
