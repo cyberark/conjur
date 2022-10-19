@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [1.19.0] - 2022-10-11
 
 ### Changed
-- OIDC authenticator now uses PKCE and dynamic nonce. ([cyberark/conjur#2661](https://github.com/cyberark/conjur/pull/2661)
+- OIDC authenticator now uses PKCE and dynamic nonce. ([cyberark/conjur#2662](https://github.com/cyberark/conjur/pull/2662)
 
 ## [1.18.5] - 2022-09-14
 
