@@ -31,13 +31,6 @@ module Authentication
       end
 
       def call(parameters:, request_ip:)
-        required_parameters = %i[state code]
-        required_parameters.each do |parameter|
-          if !parameters.key?(parameter) || parameters[parameter].strip.empty?
-            raise Errors::Authentication::RequestBody::MissingRequestParam, parameter
-          end
-        end
-
         # Load Authenticator policy and values (validates data stored as variables)
         authenticator = @authn_repo.find(
           type: @authenticator_type,
@@ -89,7 +82,8 @@ module Authentication
           raise ApplicationController::Forbidden
 
         when Errors::Authentication::RequestBody::MissingRequestParam,
-          Errors::Authentication::AuthnOidc::TokenVerificationFailed
+          Errors::Authentication::AuthnOidc::TokenVerificationFailed,
+          Errors::Authentication::AuthnOidc::TokenRetrievalFailed
           raise ApplicationController::BadRequest
 
         when Errors::Conjur::RequestedResourceNotFound
@@ -101,16 +95,11 @@ module Authentication
         when Errors::Authentication::Jwt::TokenExpired
           raise ApplicationController::Unauthorized.new(err.message, true)
 
-        when Errors::Authentication::AuthnOidc::StateMismatch,
-          Errors::Authentication::Security::RoleNotFound
+        when Errors::Authentication::Security::RoleNotFound
           raise ApplicationController::BadRequest
 
         when Errors::Authentication::Security::MultipleRoleMatchesFound
           raise ApplicationController::Forbidden
-          # Code value mismatch
-        when Rack::OAuth2::Client::Error
-          raise ApplicationController::BadRequest
-
         else
           raise ApplicationController::Unauthorized
         end

@@ -54,8 +54,11 @@ module DB
             args[variable.resource_id.split('/')[-1].underscore.to_sym] = variable.secret.value
           end
         end
+
+        allowed_args = %i[account service_id] + @data_object.const_get(:REQUIRED_VARIABLES) + @data_object.const_get(:OPTIONAL_VARIABLES)
         begin
-          @data_object.new(**args_list)
+          allowed_arg_list =  args_list.select{ |key, _| allowed_args.include?(key) }
+          @data_object.new(**allowed_arg_list)
         rescue ArgumentError => e
           @logger.debug("DB::Repository::AuthenticatorRepository.load_authenticator - exception: #{e}")
           nil

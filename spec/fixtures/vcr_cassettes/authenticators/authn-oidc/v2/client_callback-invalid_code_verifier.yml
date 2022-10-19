@@ -5,14 +5,14 @@ http_interactions:
     uri: https://dev-92899796.okta.com/oauth2/default/v1/token
     body:
       encoding: UTF-8
-      string: grant_type=authorization_code&code=-QGREc_SONbbJIKdbpyYudA13c9PZlgqdxowkf45LOw&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fauthn-oidc%2Fokta-2%2Fcucumber%2Fauthenticate&scope=true&nonce=7efcbba36a9b96fdb5285a159665c3d382abd8b6b3288fcc8d&code_verifier=c1de7f1251849accd99d4839d79a637561b1181b909ed7dc1d
+      string: grant_type=authorization_code&code=GV48_SF4a19ghvBhVbbSG3Lr8BuFl8PhWVPZSbokV2o&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fauthn-oidc%2Fokta-2%2Fcucumber%2Fauthenticate&scope=true&nonce=3e6bd5235e4692b37ca1f04cb01b6e0cb177aa20dcef19e89f&code_verifier=bad-code-verifier
     headers:
       User-Agent:
       - Rack::OAuth2 (1.19.0) (2.8.3, ruby 3.0.4 (2022-04-12))
       Accept:
       - "*/*"
       Date:
-      - Fri, 30 Sep 2022 17:18:17 GMT
+      - Mon, 17 Oct 2022 17:23:30 GMT
       Authorization:
       - Basic MG9hM3czeGlnNnJIaXU5eVQ1ZDc6ZTM0OUJNVFRJcExPLXJQdVBxTExrTHlIX3BPLWxvVXpoSVZKQ3JIag==
       Content-Type:
@@ -23,7 +23,7 @@ http_interactions:
       message: Bad Request
     headers:
       Date:
-      - Fri, 30 Sep 2022 17:18:18 GMT
+      - Mon, 17 Oct 2022 17:24:19 GMT
       Content-Type:
       - application/json
       Transfer-Encoding:
@@ -37,25 +37,11 @@ http_interactions:
         pin-sha256="72G5IEvDEWn+EThf3qjR7/bQSWaS2ZSLqolhnO6iyJI="; pin-sha256="rrV6CLCCvqnk89gWibYT0JO6fNQ8cCit7GGoiVTjCOg=";
         max-age=60; report-uri="https://okta.report-uri.com/r/default/hpkp/reportOnly"
       X-Okta-Request-Id:
-      - Yzck2nN7s2AQGePZY8c2gQAAB94
+      - Y02Pw8hcjYzIfnEoK4T9AAAACQU
       X-Xss-Protection:
       - '0'
       P3p:
       - CP="HONK"
-      Content-Security-Policy-Report-Only:
-      - 'default-src ''self'' dev-92899796.okta.com *.oktacdn.com; connect-src ''self''
-        dev-92899796.okta.com dev-92899796-admin.okta.com *.oktacdn.com *.mixpanel.com
-        *.mapbox.com app.pendo.io data.pendo.io pendo-static-5634101834153984.storage.googleapis.com
-        pendo-static-5391521872216064.storage.googleapis.com https://oinmanager.okta.com
-        data:; script-src ''unsafe-inline'' ''nonce-ZUSAcrGWJJO_LGxCGbys2QL4CSrTAzGBje02qK26sdc''
-        ''unsafe-eval'' ''self'' dev-92899796.okta.com *.oktacdn.com; style-src ''unsafe-inline''
-        ''self'' dev-92899796.okta.com *.oktacdn.com app.pendo.io cdn.pendo.io pendo-static-5634101834153984.storage.googleapis.com
-        pendo-static-5391521872216064.storage.googleapis.com; frame-src ''self'' dev-92899796.okta.com
-        dev-92899796-admin.okta.com login.okta.com; img-src ''self'' dev-92899796.okta.com
-        *.oktacdn.com *.tiles.mapbox.com *.mapbox.com app.pendo.io data.pendo.io cdn.pendo.io
-        pendo-static-5634101834153984.storage.googleapis.com pendo-static-5391521872216064.storage.googleapis.com
-        data: blob:; font-src ''self'' dev-92899796.okta.com data: *.oktacdn.com fonts.gstatic.com;
-        frame-ancestors ''self'''
       Content-Security-Policy:
       - 'default-src ''self'' dev-92899796.okta.com *.oktacdn.com; connect-src ''self''
         dev-92899796.okta.com dev-92899796-admin.okta.com *.oktacdn.com *.mixpanel.com
@@ -69,13 +55,14 @@ http_interactions:
         *.oktacdn.com *.tiles.mapbox.com *.mapbox.com app.pendo.io data.pendo.io cdn.pendo.io
         pendo-static-5634101834153984.storage.googleapis.com pendo-static-5391521872216064.storage.googleapis.com
         data: blob:; font-src ''self'' dev-92899796.okta.com data: *.oktacdn.com fonts.gstatic.com;
-        frame-ancestors ''self'''
+        frame-ancestors ''self''; report-uri https://okta.report-uri.com/r/d/csp/enforce;
+        report-to csp'
       X-Rate-Limit-Limit:
       - '300'
       X-Rate-Limit-Remaining:
       - '299'
       X-Rate-Limit-Reset:
-      - '1664558358'
+      - '1666027519'
       Cache-Control:
       - no-cache, no-store
       Pragma:
@@ -89,12 +76,11 @@ http_interactions:
       Strict-Transport-Security:
       - max-age=315360000; includeSubDomains
       Set-Cookie:
-      - JSESSIONID=69068D777A11001AB7E7539E934C9A20; Path=/; Secure; HttpOnly
+      - JSESSIONID=9ABDA66E3EA85BE59AB6233C8DC28B7F; Path=/; Secure; HttpOnly
       - autolaunch_triggered=""; Expires=Thu, 01-Jan-1970 00:00:10 GMT; Path=/
       - sid=""; Expires=Thu, 01-Jan-1970 00:00:10 GMT; Path=/
     body:
       encoding: UTF-8
-      string: '{"error":"invalid_grant","error_description":"The authorization code
-        is invalid or has expired."}'
-  recorded_at: Fri, 30 Sep 2022 17:18:18 GMT
+      string: '{"error":"invalid_grant","error_description":"PKCE verification failed."}'
+  recorded_at: Mon, 17 Oct 2022 17:23:30 GMT
 recorded_with: VCR 6.1.0
