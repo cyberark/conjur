@@ -35,13 +35,13 @@ RSpec.describe(Authentication::AuthnOidc::V2::Client) do
     end
   end
 
-  describe '.callback' do
+  describe '.get_token_with_code' do
     context 'when credentials are valid' do
       it 'returns a valid JWT token', vcr: 'authenticators/authn-oidc/v2/client_callback-valid_oidc_credentials' do
         # Because JWT tokens have an expiration timeframe, we need to hold
         # time constant after caching the request.
         travel_to(Time.parse("2022-09-30 17:02:17 +0000")) do
-          id_token, refresh_token = client.callback(
+          id_token, refresh_token = client.get_token_with_code(
             code: '-QGREc_SONbbJIKdbpyYudA13c9PZlgqdxowkf45LOw',
             code_verifier: 'c1de7f1251849accd99d4839d79a637561b1181b909ed7dc1d',
             nonce: '7efcbba36a9b96fdb5285a159665c3d382abd8b6b3288fcc8d'
@@ -60,7 +60,7 @@ RSpec.describe(Authentication::AuthnOidc::V2::Client) do
       it 'raises an error', vcr: 'authenticators/authn-oidc/v2/client_callback-invalid_code_verifier' do
         travel_to(Time.parse("2022-10-17 17:23:30 +0000")) do
           expect do
-            client.callback(
+            client.get_token_with_code(
               code: 'GV48_SF4a19ghvBhVbbSG3Lr8BuFl8PhWVPZSbokV2o',
               code_verifier: 'bad-code-verifier',
               nonce: '3e6bd5235e4692b37ca1f04cb01b6e0cb177aa20dcef19e89f'
@@ -77,7 +77,7 @@ RSpec.describe(Authentication::AuthnOidc::V2::Client) do
       it 'raises an error', vcr: 'authenticators/authn-oidc/v2/client_callback-valid_oidc_credentials' do
         travel_to(Time.parse("2022-09-30 17:02:17 +0000")) do
           expect do
-            client.callback(
+            client.get_token_with_code(
               code: '-QGREc_SONbbJIKdbpyYudA13c9PZlgqdxowkf45LOw',
               code_verifier: 'c1de7f1251849accd99d4839d79a637561b1181b909ed7dc1d',
               nonce: 'bad-nonce'
@@ -94,7 +94,7 @@ RSpec.describe(Authentication::AuthnOidc::V2::Client) do
       it 'raises an error', vcr: 'authenticators/authn-oidc/v2/client_callback-valid_oidc_credentials' do
         travel_to(Time.parse("2022-10-01 17:02:17 +0000")) do
           expect do
-            client.callback(
+            client.get_token_with_code(
               code: '-QGREc_SONbbJIKdbpyYudA13c9PZlgqdxowkf45LOw',
               code_verifier: 'c1de7f1251849accd99d4839d79a637561b1181b909ed7dc1d',
               nonce: '7efcbba36a9b96fdb5285a159665c3d382abd8b6b3288fcc8d'
@@ -110,7 +110,7 @@ RSpec.describe(Authentication::AuthnOidc::V2::Client) do
     context 'when code has previously been used' do
       it 'raise an exception', vcr: 'authenticators/authn-oidc/v2/client_callback-used_code-valid_oidc_credentials' do
         expect do
-          client.callback(
+          client.get_token_with_code(
             code: '-QGREc_SONbbJIKdbpyYudA13c9PZlgqdxowkf45LOw',
             code_verifier: 'c1de7f1251849accd99d4839d79a637561b1181b909ed7dc1d',
             nonce: '7efcbba36a9b96fdb5285a159665c3d382abd8b6b3288fcc8d'
@@ -125,7 +125,7 @@ RSpec.describe(Authentication::AuthnOidc::V2::Client) do
     context 'when code has expired', vcr: 'authenticators/authn-oidc/v2/client_callback-expired_code-valid_oidc_credentials' do
       it 'raise an exception' do
         expect do
-          client.callback(
+          client.get_token_with_code(
             code: 'SNSPeiQJ0-D6nUHTg-Ht9ZoDxIaaWBB80pnYuXY2VxU',
             code_verifier: 'c1de7f1251849accd99d4839d79a637561b1181b909ed7dc1d',
             nonce: '7efcbba36a9b96fdb5285a159665c3d382abd8b6b3288fcc8d'
@@ -150,7 +150,7 @@ RSpec.describe(Authentication::AuthnOidc::V2::Client) do
           # Because JWT tokens have an expiration timeframe, we need to hold
           # time constant after caching the request.
           travel_to(Time.parse("2022-09-30 17:02:17 +0000")) do
-            id_token, refresh_token = client.callback(
+            id_token, refresh_token = client.get_token_with_code(
               code: '-QGREc_SONbbJIKdbpyYudA13c9PZlgqdxowkf45LOw',
               code_verifier: 'c1de7f1251849accd99d4839d79a637561b1181b909ed7dc1d',
               nonce: '7efcbba36a9b96fdb5285a159665c3d382abd8b6b3288fcc8d'
@@ -164,6 +164,74 @@ RSpec.describe(Authentication::AuthnOidc::V2::Client) do
             expect(refresh_token).to be_a_kind_of(String)
             expect(refresh_token).to eq('kXMJFtgtaEpOGn0Zk2x15i8umXIWp4aqY1Mh7zscfGI')
           end
+        end
+      end
+    end
+  end
+
+  describe '.get_token_with_refresh_token' do
+    # Use different Okta authorization server with refresh tokens enabled.
+    # At some point, all these test cases should point to a single Okta server,
+    # with PKCE and refresh tokens both enabled.
+    let(:authenticator) do
+      Authentication::AuthnOidc::V2::DataObjects::Authenticator.new(
+        **authn_config.merge!({
+          :provider_uri => 'https://dev-56357110.okta.com/oauth2/default',
+          :client_id => '0oa6ccivzf3nEeiGt5d7',
+          :client_secret => 'YnAukUECEAtsWSWCHPzi1coiZZeOhdvQOSnri4Kz',
+          :provider_scope => 'offline_access'
+        })
+      )
+    end
+
+    context 'when refresh token is valid' do
+      context 'with refresh token rotation disabled' do
+        it 'returns a valid JWT token', vcr: 'authenticators/authn-oidc/v2/client_refresh-valid_token' do
+          travel_to(Time.parse("2022-10-19 17:02:17 +0000")) do
+            id_token, refresh_token = client.get_token_with_refresh_token(
+                refresh_token: 'a8VLPRtcOS5-IFYXkZYzZbrIhSJq6trFXxYJyKbaUng',
+                nonce: 'some-nonce'
+              )
+              expect(id_token).to be_a_kind_of(OpenIDConnect::ResponseObject::IdToken)
+              expect(id_token.raw_attributes['nonce']).to be_nil
+              expect(id_token.raw_attributes['preferred_username']).to eq('test.user3@mycompany.com')
+              expect(id_token.aud).to eq('0oa6ccivzf3nEeiGt5d7')
+
+              expect(refresh_token).to be_nil
+          end
+        end
+      end
+
+      context 'with refresh token rotation enabled' do
+        it 'returns a valid JWT token and refresh token', vcr: 'authenticators/authn-oidc/v2/client_refresh-valid_token_with_rotation' do
+          travel_to(Time.parse("2022-10-19 17:02:17 +0000")) do
+            id_token, refresh_token = client.get_token_with_refresh_token(
+              refresh_token: 'a8VLPRtcOS5-IFYXkZYzZbrIhSJq6trFXxYJyKbaUng',
+              nonce: 'some-nonce'
+            )
+            expect(id_token).to be_a_kind_of(OpenIDConnect::ResponseObject::IdToken)
+            expect(id_token.raw_attributes['nonce']).to be_nil
+            expect(id_token.raw_attributes['preferred_username']).to eq('test.user3@mycompany.com')
+            expect(id_token.aud).to eq('0oa6ccivzf3nEeiGt5d7')
+
+            expect(refresh_token).to eq('dyJXfWUg1Xjt4KP7IQ7qcHUVNtKNWmmtOu9qNScjkN8')
+          end
+        end
+      end
+    end
+
+    context 'when refresh token is invalid or expired' do
+      it 'raises an error', vcr: 'authenticators/authn-oidc/v2/client_refresh-invalid_token' do
+        travel_to(Time.parse("2022-10-19 17:02:17 +0000")) do
+          expect do
+            client.get_token_with_refresh_token(
+              refresh_token: 'a8VLPRtcOS5-IFYXkZYzZbrIhSJq6trFXxYJyKbaUng',
+              nonce: 'some-nonce'
+            )
+          end.to raise_error(
+            Errors::Authentication::AuthnOidc::TokenRetrievalFailed,
+            "CONJ00133E Access Token retrieval failure: 'Refresh token is invalid or has expired'"
+          )
         end
       end
     end

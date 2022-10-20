@@ -21,7 +21,7 @@ module Authentication
             end
           end
 
-          jwt, refresh_token = @client.callback(
+          jwt, refresh_token = @client.get_token_with_code(
             code: args[:code],
             nonce: args[:nonce],
             code_verifier: args[:code_verifier]
