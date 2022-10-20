@@ -17,7 +17,7 @@ gem 'base58'
 gem 'command_class'
 gem 'http', '~> 4.2.0'
 gem 'iso8601'
-gem 'jbuilder', '~> 2.7.0'
+gem 'jbuilder', '~> 2.11'
 gem 'nokogiri', '>= 1.8.2'
 gem 'puma', '~> 5.6'
 gem 'rack', '~> 2.2'
@@ -75,7 +75,7 @@ gem 'jwt', '2.2.2' # version frozen due to authn-jwt requirements
 gem 'openid_connect'
 
 gem "anyway_config"
-gem 'i18n', '~> 1.8.11'
+gem 'i18n', '~> 1.12'
 
 group :development, :test do
   gem 'aruba'
@@ -85,7 +85,7 @@ group :development, :test do
   gem 'csr'
   gem 'cucumber', '~> 7.1'
   gem 'database_cleaner', '~> 1.8'
-  gem 'debase', '~> 0.2.5.beta2'
+  gem 'debase', '~> 0.2.4.1'
   gem 'json_spec', '~> 1.1'
   gem 'faye-websocket'
   gem 'net-ssh'

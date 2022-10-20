@@ -14,6 +14,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 - OIDC authenticator now uses PKCE and dynamic nonce. ([cyberark/conjur#2662](https://github.com/cyberark/conjur/pull/2662)
 
+### Security
+- `bundle update` on Gemfile and docs/Gemfile to bring in updated nokogiri 1.13.9 (and other versions)
+  [cyberark/conjur#2668](https://github.com/cyberark/conjur/pull/2652)
+
 ## [1.18.5] - 2022-09-14
 
 ### Added

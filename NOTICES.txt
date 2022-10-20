@@ -8,50 +8,50 @@ of the license associated with each component.
 
 Section 1: Apache-2.0
 
->>> https://rubygems.org/gems/aws-sdk-iam/versions/1.66.0
->>> https://rubygems.org/gems/gli/versions/2.20.1
+>>> https://rubygems.org/gems/aws-sdk-iam/versions/1.71.0
+>>> https://rubygems.org/gems/gli/versions/2.21.0
 
 Section 2: BSD-2-Clause
 
 >>> https://rubygems.org/gems/base32-crockford/versions/0.1.0
->>> https://rubygems.org/gems/pg/versions/1.2.3
+>>> https://rubygems.org/gems/pg/versions/1.4.4
 >>> https://rubygems.org/gems/websocket/versions/1.2.9
 
 Section 3: BSD-3-Clause
 
->>> https://rubygems.org/gems/ffi/versions/1.15.4
->>> https://rubygems.org/gems/puma/versions/5.5.2
+>>> https://rubygems.org/gems/ffi/versions/1.15.5
+>>> https://rubygems.org/gems/puma/versions/5.6.5
 
 Section 4: MIT
 
->>> https://rubygems.org/gems/activesupport/versions/6.1.6.1
->>> https://rubygems.org/gems/anyway_config/versions/2.2.3
+>>> https://rubygems.org/gems/activesupport/versions/6.1.7
+>>> https://rubygems.org/gems/anyway_config/versions/2.3.0
 >>> https://rubygems.org/gems/base58/versions/0.2.3
->>> https://rubygems.org/gems/bcrypt/versions/3.1.16
+>>> https://rubygems.org/gems/bcrypt/versions/3.1.18
 >>> https://rubygems.org/gems/command_class/versions/0.0.2
 >>> https://rubygems.org/gems/conjur-policy-parser/versions/3.0.4
 >>> https://rubygems.org/gems/conjur-rack/versions/5.0.0
 >>> https://rubygems.org/gems/conjur-rack-heartbeat/versions/2.2.0
->>> https://rubygems.org/gems/dry-struct/versions/1.4.0
->>> https://rubygems.org/gems/dry-types/versions/1.5.1
+>>> https://rubygems.org/gems/dry-struct/versions/1.5.2
+>>> https://rubygems.org/gems/dry-types/versions/1.6.1
 >>> https://rubygems.org/gems/http/versions/4.2.0
 >>> https://rubygems.org/gems/iso8601/versions/0.13.0
 >>> https://rubygems.org/gems/jbuilder/versions/2.7.0
 >>> https://rubygems.org/gems/jwt/versions/2.2.2
->>> https://rubygems.org/gems/kubeclient/versions/4.9.2
->>> https://rubygems.org/gems/listen/versions/3.7.0
->>> https://rubygems.org/gems/loofah/versions/2.13.0
->>> https://rubygems.org/gems/net-ldap/versions/0.17.0
->>> https://rubygems.org/gems/nokogiri/versions/1.13.6
->>> https://rubygems.org/gems/openid_connect/versions/1.3.0
+>>> https://rubygems.org/gems/kubeclient/versions/4.10.1
+>>> https://rubygems.org/gems/listen/versions/3.7.1
+>>> https://rubygems.org/gems/loofah/versions/2.19.0
+>>> https://rubygems.org/gems/net-ldap/versions/0.17.1
+>>> https://rubygems.org/gems/nokogiri/versions/1.13.9
+>>> https://rubygems.org/gems/openid_connect/versions/2.2.0
 >>> https://rubygems.org/gems/rack-rewrite/versions/1.5.1
->>> https://rubygems.org/gems/rails/versions/6.1.6.1
+>>> https://rubygems.org/gems/rails/versions/6.1.7
 >>> https://rubygems.org/gems/rake/versions/13.0.6
->>> https://rubygems.org/gems/sequel/versions/5.51.0
+>>> https://rubygems.org/gems/sequel/versions/5.61.0
 >>> https://rubygems.org/gems/sequel-pg_advisory_locking/versions/1.0.1
 >>> https://rubygems.org/gems/sequel-postgres-schemata/versions/0.1.3
->>> https://rubygems.org/gems/sequel-rails/versions/1.1.1
->>> https://rubygems.org/gems/simplecov/versions/0.14.1
+>>> https://rubygems.org/gems/sequel-rails/versions/1.2.0
+>>> https://rubygems.org/gems/simplecov/versions/0.21.2
 >>> https://rubygems.org/gems/slosilo/versions/3.0.0
 >>> https://rubygems.org/gems/event_emitter/versions/0.2.6
 
@@ -66,7 +66,7 @@ APPENDIX: Standard License Files and Templates
 
 Apache-2.0 License is applicable to the following component(s).
 
->>> https://rubygems.org/gems/aws-sdk-iam/versions/1.66.0
+>>> https://rubygems.org/gems/aws-sdk-iam/versions/1.71.0
 
 Copyright 2011-2014 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 
@@ -82,7 +82,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 
->>> https://rubygems.org/gem/gli/versions/2.20.1
+>>> https://rubygems.org/gem/gli/versions/2.21.0
 
 Copyright <YEAR> <COPYRIGHT HOLDER>
 
@@ -102,7 +102,7 @@ limitations under the License.
 
 BSD-2-Clause License is applicable to the following component(s).
 
->>> https://rubygems.org/gems/pg/versions/1.2.3
+>>> https://rubygems.org/gems/pg/versions/1.4.4
 
 Copyright © 1997-2019 by the authors.
 
@@ -185,7 +185,7 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
->>> https://rubygems.org/gems/ffi/versions/1.15.4
+>>> https://rubygems.org/gems/ffi/versions/1.15.5
 
 Copyright (c) 2008-2016, Ruby FFI project contributors
 
@@ -214,7 +214,7 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
->>> https://rubygems.org/gems/puma/versions/5.5.2
+>>> https://rubygems.org/gems/puma/versions/5.6.5
 
 Some code copyright (c) 2005, Zed Shaw
 Copyright (c) 2011, Evan Phoenix
@@ -247,7 +247,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 MIT License is applicable to the following component(s).
 
->>> https://rubygems.org/gems/activesupport/versions/6.1.6.1
+>>> https://rubygems.org/gems/activesupport/versions/6.1.7
 
 Copyright (c) 2005-2018 David Heinemeier Hansson
 
@@ -269,7 +269,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
->>> https://rubygems.org/gems/anyway_config/versions/2.2.3
+>>> https://rubygems.org/gems/anyway_config/versions/2.3.0
 
 Copyright (c) 2015-2020 Vladimir Dementyev
 
@@ -316,7 +316,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
->>> https://rubygems.org/gems/bcrypt/versions/3.1.16
+>>> https://rubygems.org/gems/bcrypt/versions/3.1.18
 
 Copyright 2007-2011:
 
@@ -436,7 +436,7 @@ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
->>> https://rubygems.org/gems/dry-struct/versions/1.4.0
+>>> https://rubygems.org/gems/dry-struct/versions/1.5.2
 
 Copyright (c) 2013-2016 Piotr Solnica
 
@@ -458,7 +458,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
->>> https://rubygems.org/gems/dry-types/versions/1.5.1
+>>> https://rubygems.org/gems/dry-types/versions/1.6.1
 
 Copyright (c) 2013-2014 Piotr Solnica
 
@@ -567,7 +567,7 @@ HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTIO
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
->>> https://rubygems.org/gems/kubeclient/versions/4.9.2
+>>> https://rubygems.org/gems/kubeclient/versions/4.10.1
 
 Copyright (c) 2014 Alissa Bonas
 
@@ -592,7 +592,7 @@ LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
->>> https://rubygems.org/gems/listen/versions/3.7.0
+>>> https://rubygems.org/gems/listen/versions/3.7.1
 
 Copyright (c) 2013 Thibaud Guillaume-Gentil
 
@@ -614,7 +614,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
->>> https://rubygems.org/gems/loofah/versions/2.13.0
+>>> https://rubygems.org/gems/loofah/versions/2.19.0
 
 Copyright (c) 2009 -- 2018 by Mike Dalessio, Bryan Helmkamp
 
@@ -636,29 +636,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
->>> https://rubygems.org/gems/mini_racer/versions/0.2.9
-
-Copyright (c) 2016-2019, the mini_racer project authors.
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
->>> https://rubygems.org/gems/net-ldap/versions/0.17.0
+>>> https://rubygems.org/gems/net-ldap/versions/0.17.1
 
 Copyright 2006–2011 by Francis Cianfrocca and other contributors.
 
@@ -680,7 +658,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
->>> https://rubygems.org/gems/nokogiri/versions/1.13.6
+>>> https://rubygems.org/gems/nokogiri/versions/1.13.9
 
 Copyright 2008 -- 2018 by Aaron Patterson, Mike Dalessio, Charles Nutter, Sergio Arbeo, Patrick Mahoney, Yoko Harada, Akinori MUSHA, John Shahid, Lars Kanis
 
@@ -702,7 +680,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
->>> https://rubygems.org/gems/openid_connect/versions/1.3.0
+>>> https://rubygems.org/gems/openid_connect/versions/2.2.0
 
 Copyright (c) 2011 nov matake
 
@@ -748,7 +726,7 @@ LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
->>> https://rubygems.org/gems/rails/versions/6.1.6.1
+>>> https://rubygems.org/gems/rails/versions/6.1.7
 
 Copyright (c) 2005-2018 David Heinemeier Hansson
 
@@ -773,28 +751,6 @@ SOFTWARE.
 >>> https://rubygems.org/gems/rake/versions/13.0.6
 
 Copyright (c) Jim Weirich
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
->>> https://rubygems.org/gems/ruby_dep/versions/1.3.1
-
-Copyright (c) 2016 Cezary Baginski
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -858,7 +814,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
->>> https://rubygems.org/gems/sequel-rails/versions/1.1.1
+>>> https://rubygems.org/gems/sequel-rails/versions/1.2.0
 
 Copyright (c) 2009-2013 The sequel-rails team
 
@@ -880,7 +836,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
->>> https://rubygems.org/gems/sequel/versions/5.50.0
+>>> https://rubygems.org/gems/sequel/versions/5.61.0
 
 Copyright (c) 2007-2008 Sharon Rosner
 Copyright (c) 2008-2021 Jeremy Evans
@@ -902,7 +858,7 @@ THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
->>> https://rubygems.org/gems/simplecov/versions/0.14.1
+>>> https://rubygems.org/gems/simplecov/versions/0.21.2
 
 Copyright (c) 2010-2015 Christoph Olszowka
 
