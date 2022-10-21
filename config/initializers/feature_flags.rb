@@ -22,7 +22,12 @@ Rails.application.configure do
     # When enabled, policy load extensions cause the policy orchestration
     # to emit lifecycle event callbacks (e.g. before_insert, after_load_policy)
     # during policy load.
-    policy_load_extensions: false
+    policy_load_extensions: false,
+
+    # If enabled, the Roles API will emit callbacks to extensions for
+    # before/after events when role memberships are added or removed
+    # through the REST API.
+    roles_api_extensions: false
   }.freeze
 
   config.feature_flags = Conjur::FeatureFlags::Features.new(
