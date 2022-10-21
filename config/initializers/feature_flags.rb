@@ -19,6 +19,10 @@ Rails.application.configure do
   # the status if no flag is given (its default state).
   # ex. { telemetry: true }
   feature_flags = {
+    # When enabled, policy load extensions cause the policy orchestration
+    # to emit lifecycle event callbacks (e.g. before_insert, after_load_policy)
+    # during policy load.
+    policy_load_extensions: false
   }.freeze
 
   config.feature_flags = Conjur::FeatureFlags::Features.new(

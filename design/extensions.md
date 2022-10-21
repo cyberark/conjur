@@ -93,3 +93,60 @@ There are two ways to allow Conjur to load an extension when it runs:
   ```
 
 ## Available Extension Points
+
+### Policy Load Callbacks
+
+Policy load callback extension classes receive event method calls during Conjur
+policy load orchestration.
+
+#### **Feature flag**
+
+Policy load callbacks are enabled with the feature flag
+`CONJUR_FEATURE_POLICY_LOAD_EXTENSIONS`.
+
+#### **Extension registration**
+
+Policy load callback extension classes are registered registered with the kind
+`:policy_load`. For example:
+
+```rb
+Conjur::ExtensionRepository.register_extension(
+  extension_kind: :policy_load,
+  extension_class: ...
+)
+```
+
+#### **Available events**
+
+- `before_load_policy`, `after_load_policy`
+
+  Events before and after the policy load context (temporary database schema)
+  is created and dropped.
+
+  Arguments: `policy_version`
+
+- `after_create_schema`
+
+  Emitted after the temporary database schema is initialized.
+
+  Arguments: `policy_version`, `schema_name`
+
+- `before_insert`, `after_insert`
+
+  Emitted before and after new records are inserted into the primary database
+  schema.
+
+  Arguments: `policy_version`, `schema_name`
+
+- `before_update`, `after_update`
+
+  Emitted before and after existing records are updated in the primary database
+  schema.
+
+  Arguments: `policy_version`, `schema_name`
+
+- `before_delete`, `after_delete`
+
+  Emitted before after records are deleted from the primary database schema.
+
+  Arguments: `policy_version`, `schema_name`
