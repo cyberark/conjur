@@ -21,8 +21,15 @@ Bundler.require(*Rails.groups)
 $LOAD_PATH.push(File.expand_path("../../engines/conjur_audit/lib", __FILE__))
 require 'conjur_audit'
 
-# Must require because lib folder hasn't been loaded yet
-require './lib/conjur/conjur_config'
+# Ensure we can require application source files from the extensions before
+# auto-loading is ready.
+$LOAD_PATH.push(File.expand_path("../../", __FILE__))
+$LOAD_PATH.push(File.expand_path("../../lib", __FILE__))
+
+# Must require because lib folder hasn't been auto-loaded yet
+require 'conjur/conjur_config'
+require 'conjur/extension_repository'
+require 'conjur/extensions/server_lifecycle'
 
 module Conjur
   class Application < Rails::Application
@@ -47,7 +54,7 @@ module Conjur
       Sequel.extension(:core_extensions, :postgres_schemata)
       Sequel::Model.db.extension(:pg_array, :pg_inet)
     end
-    
+
     #The default connection pool does not support closing connections.
     # We must be able to close connections on demand to clear the connection cache
     # after policy loads [cyberark/conjur#2584](https://github.com/cyberark/conjur/pull/2584)
@@ -55,7 +62,7 @@ module Conjur
     # Sequel is configured to use the ShardedThreadedConnectionPool by setting the servers configuration on
     # the database connection [docs](https://www.rubydoc.info/github/jeremyevans/sequel/Sequel%2FShardedThreadedConnectionPool:servers)
     config.sequel.servers = {}
-    
+
     config.encoding = "utf-8"
     config.active_support.escape_html_entities_in_json = true
 
@@ -82,5 +89,14 @@ module Conjur
     # We create this in application.rb instead of an initializer so that it's
     # guaranteed to be available for other initializers to use.
     config.conjur_config = Conjur::ConjurConfig.new
+
+    # Signal lifeycle extensions that the application server is about to start
+    extension_repository = Conjur::ExtensionRepository.new(
+      logger: Logger.new(STDOUT)
+    )
+    lifecycle_extensions = extension_repository.get(
+      Conjur::Extensions::ServerLifecycle
+    )
+    lifecycle_extensions.call(:before_server_start)
   end
 end
