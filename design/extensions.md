@@ -150,3 +150,46 @@ Conjur::ExtensionRepository.register_extension(
   Emitted before after records are deleted from the primary database schema.
 
   Arguments: `policy_version`, `schema_name`
+
+### Roles API Callbacks
+
+Roles API callback extension classes receive event method calls when role
+members are added or removed using the Conjur REST API.
+
+#### **Feature flag**
+
+Roles API callbacks are enabled with the feature flag
+`CONJUR_FEATURE_ROLES_API_EXTENSIONS`.
+
+#### **Extension registration**
+
+Roles API callback extension classes are registered registered with the kind
+`:roles_api`. For example:
+
+```rb
+Conjur::ExtensionRepository.register_extension(
+  extension_kind: :roles_api,
+  extension_class: ...
+)
+```
+
+#### **Available events**
+
+- `before_add_member`
+
+  Emitted before a member is added to a role with the Conjur REST API.
+
+  Arguments: `role`, `member`
+
+- `after_add_member`
+
+  Emitted after a member is added to a role with the Conjur REST API.
+
+  Arguments: `role`, `member`, `membership`
+
+- `before_delete_member`, `after_delete_member`
+
+  Emitted before and after a member is removed from a role with the Conjur REST
+  API.
+
+  Arguments: `role`, `member`, `membership`
