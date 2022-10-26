@@ -13,6 +13,7 @@ class AuthenticateController < ApplicationController
       authenticator_type: params[:authenticator]
     ).call(
       parameters: params.to_hash.symbolize_keys,
+      body: {},
       request_ip: request.ip
     )
 
@@ -136,13 +137,29 @@ class AuthenticateController < ApplicationController
     handle_authentication_error(e)
   end
 
-  # Update the input to have the username from the token and authenticate
   def authenticate_oidc
     params[:authenticator] = "authn-oidc"
-    input = Authentication::AuthnOidc::UpdateInputWithUsernameFromIdToken.new.(
-      authenticator_input: authenticator_input
-    )
-    # We don't audit success here as the authentication process is not done
+    decoded_body = URI.decode_www_form(request.raw_post).to_h.symbolize_keys
+
+    if decoded_body[:refresh_token] || decoded_body[:code]
+      auth_token, headers_h = Authentication::Handler::AuthenticationHandler.new(
+        authenticator_type: params[:authenticator]
+      ).call(
+        parameters: params,
+        body: decoded_body,
+        request_ip: request.ip
+      )
+
+      set_headers(headers_h)
+      render_authn_token(auth_token)
+      return
+    else
+      # Update the input to have the username from the token and authenticate to Conjur
+      input = Authentication::AuthnOidc::UpdateInputWithUsernameFromIdToken.new.(
+        authenticator_input: authenticator_input
+      )
+      # We don't audit success here as the authentication process is not done
+    end
   rescue => e
     # At this point authenticator_input.username is always empty (e.g. cucumber:user:USERNAME_MISSING)
     log_audit_failure(
@@ -154,6 +171,7 @@ class AuthenticateController < ApplicationController
   else
     authenticate(input)
   end
+
   def authenticate_gcp
     params[:authenticator] = "authn-gcp"
     input = Authentication::AuthnGcp::UpdateAuthenticatorInput.new.(

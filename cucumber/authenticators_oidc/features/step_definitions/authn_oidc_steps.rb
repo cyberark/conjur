@@ -164,6 +164,24 @@ When(/^I authenticate via OIDC V2 with code "([^"]*)"$/) do |code|
   )
 end
 
+When(/^I authenticate via OIDC V2 with refresh token$/) do 
+  authenticate_with_oidc_refresh_token(
+    service_id: @context.get(:service_id),
+    account: @context.get(:account),
+    refresh_token: @context.get(:x_oidc_refresh_token),
+    nonce: @context.get(:nonce)
+  )
+end
+
+When(/^I store the current access token$/) do
+  @context.set(:access_token => retrieved_access_token)
+end
+
+When(/^a new access token was issued$/) do
+  previous_token = @context.get(:access_token)
+  expect(retrieved_access_token.token).not_to eq(@context.get(:access_token).token)
+end
+
 When(/^I authenticate via OIDC V2 with no code in the request$/) do
   authenticate_with_oidc_code(
     service_id: @context.get(:service_id),
@@ -216,7 +234,10 @@ end
 
 Then(/^The authentication response includes header "([^"]*)"$/) do |header|
   header_sym = header.parameterize.underscore.to_sym
-  expect(@response_headers[header_sym]).not_to be_nil
+  # Store header for future steps
+  header_val = @response_headers[header_sym]
+  @context.set(header_sym => header_val)
+  expect(header_val).not_to be_nil
 end
 
 Then(/^The Okta user has been authorized by Conjur/) do

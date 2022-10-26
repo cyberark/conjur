@@ -30,7 +30,8 @@ module Authentication
         )
       end
 
-      def call(parameters:, request_ip:)
+      def call(parameters:, body:, request_ip:)
+
         # Load Authenticator policy and values (validates data stored as variables)
         authenticator = @authn_repo.find(
           type: @authenticator_type,
@@ -44,6 +45,8 @@ module Authentication
             "Unable to find authenticator with account: #{parameters[:account]} and service-id: #{parameters[:service_id]}"
           )
         end
+
+        populate_oidc_params(parameters, body)
 
         identity, headers_h = @strategy.new(
           authenticator: authenticator
@@ -76,6 +79,12 @@ module Authentication
       rescue => e
         log_audit_failure(parameters[:account], parameters[:service_id], request_ip, @authenticator_type, e)
         handle_error(e)
+      end
+
+      def populate_oidc_params(parameters, body)
+        %i[code nonce code_verifier state refresh_token].each do |param|
+          parameters[param] = body[param] if body[param]
+        end
       end
 
       def handle_error(err)
