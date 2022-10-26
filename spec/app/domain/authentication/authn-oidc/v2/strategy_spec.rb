@@ -28,7 +28,7 @@ RSpec.describe(' Authentication::AuthnOidc::V2::Strategy') do
 
   let(:current_client) do
     instance_double(::Authentication::AuthnOidc::V2::Client).tap do |double|
-      allow(double).to receive(:callback).and_return([jwt, nil])
+      allow(double).to receive(:get_token_with_code).and_return([jwt, nil])
     end
   end
 
@@ -83,7 +83,7 @@ RSpec.describe(' Authentication::AuthnOidc::V2::Strategy') do
     context 'When refresh token flow is enabled' do
       let(:current_client) do
         instance_double(::Authentication::AuthnOidc::V2::Client).tap do |double|
-          allow(double).to receive(:callback).and_return([jwt, refresh_token])
+          allow(double).to receive(:get_token_with_code).and_return([jwt, refresh_token])
         end
       end
 

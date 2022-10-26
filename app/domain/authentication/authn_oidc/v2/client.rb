@@ -37,11 +37,28 @@ module Authentication
           end
         end
 
-        def callback(code:, nonce:, code_verifier:)
+        def get_token_with_code(code:, nonce:, code_verifier:)
           oidc_client.authorization_code = code
+          id_token, refresh_token = get_token_pair(code_verifier)
+          decoded_id_token = decode_id_token(id_token)
+          verify_id_token(decoded_id_token, nonce)
+
+          [decoded_id_token, refresh_token]
+        end
+
+        def get_token_with_refresh_token(refresh_token:, nonce:)
+          oidc_client.refresh_token = refresh_token
+          id_token, refresh_token = get_token_pair(nil)
+          decoded_id_token = decode_id_token(id_token)
+          verify_id_token(decoded_id_token, nonce, refresh: true)
+
+          [decoded_id_token, refresh_token]
+        end
+
+        def get_token_pair(code_verifier)
           begin
             bearer_token = oidc_client.access_token!(
-              scope: true,
+              scope: @authenticator.scope,
               client_auth_method: :basic,
               code_verifier: code_verifier
             )
@@ -54,12 +71,19 @@ module Authentication
             when /The authorization code is invalid or has expired/
               raise Errors::Authentication::AuthnOidc::TokenRetrievalFailed,
                     'Authorization code is invalid or has expired'
+            when /The refresh token is invalid or expired/
+              raise Errors::Authentication::AuthnOidc::TokenRetrievalFailed,
+                    'Refresh token is invalid or has expired'
             end
             raise e
           end
+
           id_token = bearer_token.id_token || bearer_token.access_token
           refresh_token = bearer_token.refresh_token
+          [id_token, refresh_token]
+        end
 
+        def decode_id_token(id_token)
           begin
             attempts ||= 0
             decoded_id_token = @oidc_id_token.decode(
@@ -77,11 +101,20 @@ module Authentication
             retry
           end
 
+          decoded_id_token
+        end
+
+        def verify_id_token(decoded_id_token, nonce, refresh: false)
+          expected_nonce = nonce
+          if refresh && decoded_id_token.raw_attributes['nonce'].nil?
+            expected_nonce = nil
+          end
+
           begin
             decoded_id_token.verify!(
               issuer: @authenticator.provider_uri,
               client_id: @authenticator.client_id,
-              nonce: nonce
+              nonce: expected_nonce
             )
           rescue OpenIDConnect::ResponseObject::IdToken::InvalidNonce
             raise Errors::Authentication::AuthnOidc::TokenVerificationFailed,
@@ -93,7 +126,6 @@ module Authentication
             raise Errors::Authentication::AuthnOidc::TokenVerificationFailed,
                   e.message
           end
-          [decoded_id_token, refresh_token]
         end
 
         def discovery_information(invalidate: false)
