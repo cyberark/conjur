@@ -15,8 +15,11 @@ module Authentication
 
         # Don't love this name...
         def callback(args)
-            jwt, refresh_token = nil, nil
+          jwt, refresh_token = nil, nil
           if args[:refresh_token]
+            unless args[:nonce].present?
+              raise Errors::Authentication::RequestBody::MissingRequestParam, 'nonce'
+            end
             jwt, refresh_token = @client.get_token_with_refresh_token(
               refresh_token: args[:refresh_token],
               nonce: args[:nonce]

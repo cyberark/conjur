@@ -100,15 +100,6 @@ RSpec.describe(' Authentication::AuthnOidc::V2::Strategy') do
           expect(headers_h).to include('X-OIDC-Refresh-Token' => refresh_token)
         end
 
-        it 'returns the role and refresh token when passed a refresh token' do
-          expect(current_client).to receive(:get_token_with_refresh_token)
-            .with(:refresh_token => 'token', :nonce => nil)
-          role, headers_h = strategy.callback(refresh_token: 'token')
-
-          expect(role).to eq("alice")
-          expect(headers_h).to include('X-OIDC-Refresh-Token' => refresh_token)
-        end
-
         it 'returns the role and refresh token when passed a refresh token and nonce' do
           expect(current_client).to receive(:get_token_with_refresh_token)
             .with(:refresh_token => 'token', :nonce => 'nonce')
@@ -116,6 +107,13 @@ RSpec.describe(' Authentication::AuthnOidc::V2::Strategy') do
 
           expect(role).to eq("alice")
           expect(headers_h).to include('X-OIDC-Refresh-Token' => refresh_token)
+        end
+        
+        context 'when nonce is missing' do
+          it 'raises a `MissingRequestParam` error' do
+            expect { strategy.callback(refresh_token: 'token') }
+              .to raise_error(Errors::Authentication::RequestBody::MissingRequestParam)
+          end
         end
       end
     end
