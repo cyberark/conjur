@@ -21,9 +21,6 @@ module Authentication
               refresh_token: args[:refresh_token],
               nonce: args[:nonce]
             )
-
-            # Re-use the same refresh token if rotation not enabled
-            refresh_token = args[:refresh_token] if refresh_token.nil?
           else
             %i[code nonce code_verifier].each do |param|
               unless args[param].present?
