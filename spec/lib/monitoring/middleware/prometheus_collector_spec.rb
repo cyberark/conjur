@@ -28,13 +28,19 @@ describe Monitoring::Middleware::PrometheusCollector do
 
   let(:env) { Rack::MockRequest.env_for }
 
+  let(:lazy_init) {
+    lambda do
+      # nothing
+    end 
+  }
+
   let(:app) do
     app = ->(env) { [200, { 'Content-Type' => 'text/html' }, ['OK']] }
   end
 
   let(:pubsub) { Monitoring::PubSub.instance }
 
-  let(:options) { { pubsub: pubsub } }
+  let(:options) { { pubsub: pubsub, lazy_init: lazy_init} }
 
   subject { described_class.new(app, **options) }
 

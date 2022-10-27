@@ -9,9 +9,14 @@ module Monitoring
       def initialize(app, options = {})
         @app = app
         @pubsub = options[:pubsub]
+        @lazy_init = options[:lazy_init]
       end
 
       def call(env) # :nodoc:
+        unless @initialized
+          @initialized = true
+          @lazy_init.call
+        end
         trace(env) { @app.call(env) }
       end
 
@@ -20,11 +25,11 @@ module Monitoring
       # Trace HTTP requests
       def trace(env)
         response = nil
+        operation = find_operation(env['REQUEST_METHOD'], env['PATH_INFO'])
         duration = Benchmark.realtime { response = yield }
-        record(env, response.first.to_s, duration)
+        record(env, response.first.to_s, duration, operation)
         return response
       rescue => exception
-        operation = find_operation(env['REQUEST_METHOD'], env['PATH_INFO'])
         @pubsub.publish(
           "conjur.request_exception", 
           operation: operation,
@@ -34,8 +39,7 @@ module Monitoring
         raise
       end
 
-      def record(env, code, duration)
-        operation = find_operation(env['REQUEST_METHOD'], env['PATH_INFO'])
+      def record(env, code, duration, operation)
         @pubsub.publish(
           "conjur.request", 
           code: code,
