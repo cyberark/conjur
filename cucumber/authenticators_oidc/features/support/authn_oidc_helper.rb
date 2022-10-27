@@ -29,8 +29,8 @@ module AuthnOidcHelper
   end
 
   def authenticate_with_oidc_code(service_id:, account:, params: {})
-    url = authn_url(type: 'oidc', account: account, service_id: service_id, params: params)
-    get(url)
+    path = authn_url(type: 'oidc', account: account, service_id: service_id)
+    post(path, params)
   end
 
   def authenticate_with_oidc_refresh_token(service_id:, account:, refresh_token:, nonce:)
