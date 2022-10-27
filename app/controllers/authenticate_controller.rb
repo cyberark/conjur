@@ -13,7 +13,6 @@ class AuthenticateController < ApplicationController
       authenticator_type: params[:authenticator]
     ).call(
       parameters: params.to_hash.symbolize_keys,
-      body: {},
       request_ip: request.ip
     )
 
@@ -139,14 +138,14 @@ class AuthenticateController < ApplicationController
 
   def authenticate_oidc
     params[:authenticator] = "authn-oidc"
-    decoded_body = URI.decode_www_form(request.raw_post).to_h.symbolize_keys
-
-    if decoded_body[:refresh_token] || decoded_body[:code]
+    decode_and_merge_request_body
+    
+    if params[:refresh_token] || params[:code]
+      params.permit!
       auth_token, headers_h = Authentication::Handler::AuthenticationHandler.new(
         authenticator_type: params[:authenticator]
       ).call(
-        parameters: params,
-        body: decoded_body,
+        parameters: params.to_hash.symbolize_keys,
         request_ip: request.ip
       )
 
@@ -271,6 +270,13 @@ class AuthenticateController < ApplicationController
     headers_h.each { |key, value|
       response.set_header(key, value.to_s) unless key.blank? || value.blank?
     }
+  end
+
+  def decode_and_merge_request_body
+    request_body = URI.decode_www_form(request.raw_post)
+    request_body.to_h.each do |param, val|
+      params[param] = val
+    end
   end
 
   def log_audit_success(
