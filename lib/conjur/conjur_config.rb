@@ -29,7 +29,8 @@ module Conjur
       user_authorization_token_ttl: 480, # The default TTL of User is 8 minutes
       host_authorization_token_ttl: 480, # The default TTL of Host is 8 minutes
       authn_api_key_default: true,
-      authenticators: []
+      authenticators: [],
+      extensions: []
     )
 
     def initialize(*args)
@@ -91,6 +92,10 @@ module Conjur
     end
 
     def authenticators=(val)
+      super(str_to_list(val)&.uniq)
+    end
+
+    def extensions=(val)
       super(str_to_list(val)&.uniq)
     end
 

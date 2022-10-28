@@ -11,6 +11,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [1.19.0] - 2022-10-11
 
+### Added
+- Conjur policy loads can now emit callbacks to extensions on policy
+  load lifecycle events (e.g. before/after policy load). This is disabled
+  by default, but is available under the
+  `CONJUR_FEATURE_POLICY_LOAD_EXTENSIONS` feature flag.
+  [cyberark/conjur#2671](https://github.com/cyberark/conjur/pull/2671)
+- Conjur roles API can now emit callbacks to extensions on member add and
+  remove events (e.g. before/after add member). This is disabled by default,
+  but is available under the `CONJUR_FEATURE_ROLES_API_EXTENSIONS` feature flag.
+  [cyberark/conjur#2671](https://github.com/cyberark/conjur/pull/2671)
+
 ### Changed
 - OIDC authenticator now uses PKCE and dynamic nonce. ([cyberark/conjur#2662](https://github.com/cyberark/conjur/pull/2662)
 
