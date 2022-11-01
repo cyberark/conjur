@@ -54,6 +54,9 @@ module Authentication
             when /The authorization code is invalid or has expired/
               raise Errors::Authentication::AuthnOidc::TokenRetrievalFailed,
                     'Authorization code is invalid or has expired'
+            when /Code not valid/
+              raise Errors::Authentication::AuthnOidc::TokenRetrievalFailed,
+                    'Authorization code is invalid'
             end
             raise e
           end
