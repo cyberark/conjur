@@ -136,13 +136,29 @@ class AuthenticateController < ApplicationController
     handle_authentication_error(e)
   end
 
-  # Update the input to have the username from the token and authenticate
   def authenticate_oidc
     params[:authenticator] = "authn-oidc"
-    input = Authentication::AuthnOidc::UpdateInputWithUsernameFromIdToken.new.(
-      authenticator_input: authenticator_input
-    )
-    # We don't audit success here as the authentication process is not done
+    decode_and_merge_request_body
+    
+    if params[:refresh_token] || params[:code]
+      params.permit!
+      auth_token, headers_h = Authentication::Handler::AuthenticationHandler.new(
+        authenticator_type: params[:authenticator]
+      ).call(
+        parameters: params.to_hash.symbolize_keys,
+        request_ip: request.ip
+      )
+
+      set_headers(headers_h)
+      render_authn_token(auth_token)
+      return
+    else
+      # Update the input to have the username from the token and authenticate to Conjur
+      input = Authentication::AuthnOidc::UpdateInputWithUsernameFromIdToken.new.(
+        authenticator_input: authenticator_input
+      )
+      # We don't audit success here as the authentication process is not done
+    end
   rescue => e
     # At this point authenticator_input.username is always empty (e.g. cucumber:user:USERNAME_MISSING)
     log_audit_failure(
@@ -154,6 +170,7 @@ class AuthenticateController < ApplicationController
   else
     authenticate(input)
   end
+
   def authenticate_gcp
     params[:authenticator] = "authn-gcp"
     input = Authentication::AuthnGcp::UpdateAuthenticatorInput.new.(
@@ -253,6 +270,13 @@ class AuthenticateController < ApplicationController
     headers_h.each { |key, value|
       response.set_header(key, value.to_s) unless key.blank? || value.blank?
     }
+  end
+
+  def decode_and_merge_request_body
+    request_body = URI.decode_www_form(request.raw_post)
+    request_body.to_h.each do |param, val|
+      params[param] = val
+    end
   end
 
   def log_audit_success(

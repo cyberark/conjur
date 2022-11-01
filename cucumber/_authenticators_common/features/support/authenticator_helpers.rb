@@ -84,6 +84,7 @@ module AuthenticatorHelpers
   def post(path, payload, options = {})
     result             = RestClient.post(path, payload, options)
     @response_body     = result.body
+    @response_headers  = result.headers
     @http_status       = result.code
   rescue RestClient::Exception => e
     @rest_client_error = e

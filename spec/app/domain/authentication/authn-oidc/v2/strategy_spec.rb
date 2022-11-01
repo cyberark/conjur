@@ -84,16 +84,36 @@ RSpec.describe(' Authentication::AuthnOidc::V2::Strategy') do
       let(:current_client) do
         instance_double(::Authentication::AuthnOidc::V2::Client).tap do |double|
           allow(double).to receive(:get_token_with_code).and_return([jwt, refresh_token])
+          allow(double).to receive(:get_token_with_refresh_token).and_return([jwt, refresh_token])
         end
       end
 
+      let(:mapping) { "claim_mapping" }
+
       context 'when a role_id matches the identity exist' do
-        let(:mapping) { "claim_mapping" }
-        it 'returns the role and its refresh token' do
+        it 'returns the role and refresh token when passed an authz code' do
+          expect(current_client).to receive(:get_token_with_code)
+            .with(:nonce => 'nonce', :code => 'code', :code_verifier => 'foo')
           role, headers_h = strategy.callback(nonce: 'nonce', code: 'code', code_verifier: 'foo')
 
           expect(role).to eq("alice")
           expect(headers_h).to include('X-OIDC-Refresh-Token' => refresh_token)
+        end
+
+        it 'returns the role and refresh token when passed a refresh token and nonce' do
+          expect(current_client).to receive(:get_token_with_refresh_token)
+            .with(:refresh_token => 'token', :nonce => 'nonce')
+          role, headers_h = strategy.callback(refresh_token: 'token', nonce: 'nonce')
+
+          expect(role).to eq("alice")
+          expect(headers_h).to include('X-OIDC-Refresh-Token' => refresh_token)
+        end
+        
+        context 'when nonce is missing' do
+          it 'raises a `MissingRequestParam` error' do
+            expect { strategy.callback(refresh_token: 'token') }
+              .to raise_error(Errors::Authentication::RequestBody::MissingRequestParam)
+          end
         end
       end
     end

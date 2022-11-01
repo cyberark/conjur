@@ -15,17 +15,27 @@ module Authentication
 
         # Don't love this name...
         def callback(args)
-          %i[code nonce code_verifier].each do |param|
-            unless args[param].present?
-              raise Errors::Authentication::RequestBody::MissingRequestParam, param.to_s
+          jwt, refresh_token = nil, nil
+          if args[:refresh_token]
+            unless args[:nonce].present?
+              raise Errors::Authentication::RequestBody::MissingRequestParam, 'nonce'
             end
+            jwt, refresh_token = @client.get_token_with_refresh_token(
+              refresh_token: args[:refresh_token],
+              nonce: args[:nonce]
+            )
+          else
+            %i[code nonce code_verifier].each do |param|
+              unless args[param].present?
+                raise Errors::Authentication::RequestBody::MissingRequestParam, param.to_s
+              end
+            end
+            jwt, refresh_token = @client.get_token_with_code(
+              code: args[:code],
+              nonce: args[:nonce],
+              code_verifier: args[:code_verifier]
+            )
           end
-
-          jwt, refresh_token = @client.get_token_with_code(
-            code: args[:code],
-            nonce: args[:nonce],
-            code_verifier: args[:code_verifier]
-          )
           identity = resolve_identity(jwt: jwt)
           unless identity.present?
             raise Errors::Authentication::AuthnOidc::IdTokenClaimNotFoundOrEmpty,

@@ -71,6 +71,17 @@ Feature: OIDC Authenticator V2 - Users can authenticate with OIDC authenticator
     And The authentication response includes header "X-OIDC-Refresh-Token"
 
   @smoke
+  Scenario: A valid refresh token to get Conjur access token and OIDC refresh token
+    Given I enable OIDC V2 refresh token flows for "keycloak2"
+    And I fetch a code for username "alice" and password "alice"
+    And I authenticate via OIDC V2 with code
+    And The authentication response includes header "X-OIDC-Refresh-Token"
+    When I store the current access token
+    And I authenticate via OIDC V2 with refresh token
+    Then user "alice" has been authorized by Conjur
+    And a new access token was issued
+
+  @smoke
   Scenario: A valid code with email as claim mapping
     Given I extend the policy with:
     """

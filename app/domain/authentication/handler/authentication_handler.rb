@@ -31,6 +31,7 @@ module Authentication
       end
 
       def call(parameters:, request_ip:)
+
         # Load Authenticator policy and values (validates data stored as variables)
         authenticator = @authn_repo.find(
           type: @authenticator_type,
