@@ -168,6 +168,11 @@ module Errors
         code: "CONJ00009E"
       )
 
+      MultipleXorRequestParams = ::Util::TrackableErrorClass.new(
+        msg: "Exactly one of parameters '{0}' and '{1}' is required",
+        code: "CONJ00134E"
+      )
+
     end
 
     module OAuth

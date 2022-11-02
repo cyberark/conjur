@@ -24,14 +24,12 @@ module Authentication
         )
 
         @identity_resolver = "#{namespace}::ResolveIdentity".constantize
-        @strategy = "#{namespace}::Strategy".constantize
         @authn_repo = authn_repo.new(
           data_object: "#{namespace}::DataObjects::Authenticator".constantize
         )
       end
 
-      def call(parameters:, request_ip:)
-
+      def call(parameters:, request_ip:, &block)
         # Load Authenticator policy and values (validates data stored as variables)
         authenticator = @authn_repo.find(
           type: @authenticator_type,
@@ -46,9 +44,7 @@ module Authentication
           )
         end
 
-        identity, headers_h = @strategy.new(
-          authenticator: authenticator
-        ).callback(parameters)
+        identity, headers_h = block.call(authenticator)
 
         role = @identity_resolver.new.call(
           identity: identity,
@@ -88,7 +84,8 @@ module Authentication
 
         when Errors::Authentication::RequestBody::MissingRequestParam,
           Errors::Authentication::AuthnOidc::TokenVerificationFailed,
-          Errors::Authentication::AuthnOidc::TokenRetrievalFailed
+          Errors::Authentication::AuthnOidc::TokenRetrievalFailed,
+          Errors::Authentication::RequestBody::MultipleXorRequestParams
           raise ApplicationController::BadRequest
 
         when Errors::Conjur::RequestedResourceNotFound

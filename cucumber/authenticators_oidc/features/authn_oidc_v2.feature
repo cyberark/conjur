@@ -273,3 +273,14 @@ Feature: OIDC Authenticator V2 - Users can authenticate with OIDC authenticator
     """
     Errors::Authentication::OAuth::ProviderDiscoveryFailed
     """
+
+  @negative @acceptance
+  Scenario: Authenticating with both code and refresh token raises Bad Request
+    Given I fetch a code for username "alice" and password "alice"
+    When I save my place in the log file
+    And I authenticate via OIDC V2 with code and refresh token
+    Then it is a bad request
+    And The following appears in the log after my savepoint:
+    """
+    Errors::Authentication::RequestBody::MultipleXorRequestParams
+    """

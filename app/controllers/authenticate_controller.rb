@@ -14,7 +14,11 @@ class AuthenticateController < ApplicationController
     ).call(
       parameters: params.to_hash.symbolize_keys,
       request_ip: request.ip
-    )
+    ) do |authenticator|
+      Authentication::AuthnOidc::V2::Strategies::AuthzCode.new(
+        authenticator: authenticator
+      ).call(params.to_hash.symbolize_keys)
+    end
 
     set_headers(headers_h)
     render_authn_token(auth_token)
@@ -139,36 +143,46 @@ class AuthenticateController < ApplicationController
   def authenticate_oidc
     params[:authenticator] = "authn-oidc"
     decode_and_merge_request_body
-    
-    if params[:refresh_token] || params[:code]
-      params.permit!
+    params.permit!
+
+    if params[:code] || params[:refresh_token]
+      namespace = 'Authentication::AuthnOidc::V2::Strategies'
+      strategy = 'AuthzCode' if params[:code]
+      strategy = 'RefreshToken' if params[:refresh_token]
+      strategy = "#{namespace}::#{strategy}".constantize
+
       auth_token, headers_h = Authentication::Handler::AuthenticationHandler.new(
         authenticator_type: params[:authenticator]
       ).call(
         parameters: params.to_hash.symbolize_keys,
         request_ip: request.ip
-      )
+      ) do |authenticator|
+        strategy.new(
+          authenticator: authenticator
+        ).callback(params.to_hash.symbolize_keys)
+      end
 
       set_headers(headers_h)
       render_authn_token(auth_token)
-      return
     else
-      # Update the input to have the username from the token and authenticate to Conjur
-      input = Authentication::AuthnOidc::UpdateInputWithUsernameFromIdToken.new.(
-        authenticator_input: authenticator_input
-      )
-      # We don't audit success here as the authentication process is not done
+      begin
+        # Update the input to have the username from the token and authenticate to Conjur
+        input = Authentication::AuthnOidc::UpdateInputWithUsernameFromIdToken.new.(
+          authenticator_input: authenticator_input
+        )
+        # We don't audit success here as the authentication process is not done
+      rescue => e
+        # At this point authenticator_input.username is always empty (e.g. cucumber:user:USERNAME_MISSING)
+        log_audit_failure(
+          authn_params: authenticator_input,
+          audit_event_class: Audit::Event::Authn::Authenticate,
+          error: e
+        )
+        handle_authentication_error(e)
+      else
+        authenticate(input)
+      end
     end
-  rescue => e
-    # At this point authenticator_input.username is always empty (e.g. cucumber:user:USERNAME_MISSING)
-    log_audit_failure(
-      authn_params: authenticator_input,
-      audit_event_class: Audit::Event::Authn::Authenticate,
-      error: e
-    )
-    handle_authentication_error(e)
-  else
-    authenticate(input)
   end
 
   def authenticate_gcp

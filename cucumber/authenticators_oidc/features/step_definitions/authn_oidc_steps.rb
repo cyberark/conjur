@@ -143,6 +143,19 @@ When(/^I authenticate via OIDC V2 with code$/) do
   )
 end
 
+When(/^I authenticate via OIDC V2 with code and refresh token$/) do
+  authenticate_with_oidc_code(
+    service_id: @context.get(:service_id),
+    account: @context.get(:account),
+    params: {
+      code: 'some-code',
+      refresh_token: 'some-refresh-token',
+      nonce: @context.get(:nonce),
+      code_verifier: @context.get(:code_verifier)
+    }
+  )
+end
+
 Given(/^I successfully set OIDC variables without a service-id$/) do
   create_oidc_secret("provider-uri", oidc_provider_uri, "")
   create_oidc_secret("id-token-user-property", oidc_id_token_user_property, "")
