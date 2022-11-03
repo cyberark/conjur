@@ -32,7 +32,8 @@ module Authentication
               token_endpoint: URI(discovery_information.token_endpoint).path,
               userinfo_endpoint: URI(discovery_information.userinfo_endpoint).path,
               jwks_uri: URI(discovery_information.jwks_uri).path,
-              end_session_endpoint: URI(discovery_information.end_session_endpoint).path
+              end_session_endpoint: URI(discovery_information.end_session_endpoint).path,
+              revocation_endpoint: URI(discovery_information.raw["revocation_endpoint"]).path
             )
           end
         end
@@ -48,11 +49,46 @@ module Authentication
 
         def get_token_with_refresh_token(refresh_token:, nonce:)
           oidc_client.refresh_token = refresh_token
-          id_token, refresh_token = get_token_pair(nil)
+          id_token, new_refresh_token = get_token_pair(nil)
           decoded_id_token = decode_id_token(id_token)
           verify_id_token(decoded_id_token, nonce, refresh: true)
 
-          [decoded_id_token, refresh_token]
+          revoke(refresh_token) if new_refresh_token != refresh_token
+
+          [decoded_id_token, new_refresh_token]
+        end
+
+        # Given a valid OIDC refresh token, nonce, state and redirect URI,
+        # this method revokes the provided (and updated, if applicable) refresh
+        # token(s), and constructs a URI to the OIDC provider's session
+        # termination endpoint.
+        def end_session(refresh_token:, nonce:, state:, redirect_uri:)
+          oidc_client.refresh_token = refresh_token
+          id_token, new_refresh_token = get_token_pair(nil)
+          decoded_id_token = decode_id_token(id_token)
+          verify_id_token(decoded_id_token, nonce, refresh: true)
+
+          revoke(refresh_token)
+          revoke(new_refresh_token) if new_refresh_token != refresh_token
+
+          end_session_uri(
+            id_token: id_token,
+            state: state,
+            redirect_uri: redirect_uri
+          )
+        end
+
+        def end_session_uri(id_token:, state:, redirect_uri:)
+          query = URI.encode_www_form(
+            "id_token_hint" => id_token.to_s,
+            "state" => state,
+            "post_logout_redirect_uri" => redirect_uri
+          )
+          URI("#{discovery_information.end_session_endpoint}?#{query}")
+        end
+
+        def revoke(refresh_token)
+          oidc_client.revoke!(refresh_token: refresh_token)
         end
 
         def get_token_pair(code_verifier)

@@ -1,0 +1,91 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://dev-56357110.okta.com/oauth2/default/v1/revoke
+    body:
+      encoding: UTF-8
+      string: token=some-refresh-token&token_type_hint=refresh_token
+    headers:
+      User-Agent:
+      - Rack::OAuth2 (2.2.0)
+      Authorization:
+      - Basic MG9hNmNjaXZ6ZjNuRWVpR3Q1ZDc6WW5BdWtVRUNFQXRzV1NXQ0hQemkxY29pWlplT2hkdlFPU25yaTRLeg==
+      Content-Type:
+      - application/x-www-form-urlencoded
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 26 Oct 2022 21:14:11 GMT
+      Content-Length:
+      - '0'
+      Connection:
+      - keep-alive
+      Server:
+      - nginx
+      Public-Key-Pins-Report-Only:
+      - pin-sha256="r5EfzZxQVvQpKo3AgYRaT7X2bDO/kj3ACwmxfdT2zt8="; pin-sha256="MaqlcUgk2mvY/RFSGeSwBRkI+rZ6/dxe/DuQfBT/vnQ=";
+        pin-sha256="72G5IEvDEWn+EThf3qjR7/bQSWaS2ZSLqolhnO6iyJI="; pin-sha256="rrV6CLCCvqnk89gWibYT0JO6fNQ8cCit7GGoiVTjCOg=";
+        max-age=60; report-uri="https://okta.report-uri.com/r/default/hpkp/reportOnly"
+      X-Okta-Request-Id:
+      - Y1mjIwo5qJw9th8Rm60oxgAABZg
+      X-Xss-Protection:
+      - '0'
+      P3p:
+      - CP="HONK"
+      Content-Security-Policy:
+      - 'default-src ''self'' dev-56357110.okta.com *.oktacdn.com; connect-src ''self''
+        dev-56357110.okta.com dev-56357110-admin.okta.com *.oktacdn.com *.mixpanel.com
+        *.mapbox.com app.pendo.io data.pendo.io pendo-static-5634101834153984.storage.googleapis.com
+        pendo-static-5391521872216064.storage.googleapis.com dev-56357110.kerberos.okta.com
+        *.authenticatorlocalprod.com:8769 http://localhost:8769 http://127.0.0.1:8769
+        *.authenticatorlocalprod.com:65111 http://localhost:65111 http://127.0.0.1:65111
+        *.authenticatorlocalprod.com:65121 http://localhost:65121 http://127.0.0.1:65121
+        *.authenticatorlocalprod.com:65131 http://localhost:65131 http://127.0.0.1:65131
+        *.authenticatorlocalprod.com:65141 http://localhost:65141 http://127.0.0.1:65141
+        *.authenticatorlocalprod.com:65151 http://localhost:65151 http://127.0.0.1:65151
+        https://oinmanager.okta.com data:; script-src ''unsafe-inline'' ''unsafe-eval''
+        ''self'' dev-56357110.okta.com *.oktacdn.com; style-src ''unsafe-inline''
+        ''self'' dev-56357110.okta.com *.oktacdn.com app.pendo.io cdn.pendo.io pendo-static-5634101834153984.storage.googleapis.com
+        pendo-static-5391521872216064.storage.googleapis.com; frame-src ''self'' dev-56357110.okta.com
+        dev-56357110-admin.okta.com login.okta.com com-okta-authenticator:; img-src
+        ''self'' dev-56357110.okta.com *.oktacdn.com *.tiles.mapbox.com *.mapbox.com
+        app.pendo.io data.pendo.io cdn.pendo.io pendo-static-5634101834153984.storage.googleapis.com
+        pendo-static-5391521872216064.storage.googleapis.com data: blob:; font-src
+        ''self'' dev-56357110.okta.com data: *.oktacdn.com fonts.gstatic.com'
+      X-Rate-Limit-Limit:
+      - '300'
+      X-Rate-Limit-Remaining:
+      - '299'
+      X-Rate-Limit-Reset:
+      - '1666818911'
+      Cache-Control:
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      Expect-Ct:
+      - report-uri="https://oktaexpectct.report-uri.com/r/t/ct/reportOnly", max-age=0
+      Strict-Transport-Security:
+      - max-age=315360000; includeSubDomains
+      X-Robots-Tag:
+      - noindex,nofollow
+      Set-Cookie:
+      - DT=DI1YdZ2ESVhQ4G34lEpBtaTCw;Version=1;Path=/;Max-Age=63072000;Secure;Expires=Fri,
+        25 Oct 2024 21:14:11 GMT;HttpOnly
+      - JSESSIONID=4D99FB03A27EF97FA6FE50A5F45209E7; Path=/; Secure; HttpOnly
+      - autolaunch_triggered=""; Expires=Thu, 01-Jan-1970 00:00:10 GMT; Path=/
+      - sid=""; Expires=Thu, 01-Jan-1970 00:00:10 GMT; Path=/
+    body:
+      encoding: UTF-8
+      string: ''
+  recorded_at: Wed, 26 Oct 2022 21:14:11 GMT
+recorded_with: VCR 6.1.0

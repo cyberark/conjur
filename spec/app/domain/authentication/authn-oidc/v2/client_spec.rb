@@ -188,16 +188,19 @@ RSpec.describe(Authentication::AuthnOidc::V2::Client) do
       context 'with refresh token rotation disabled' do
         it 'returns a valid JWT token', vcr: 'authenticators/authn-oidc/v2/client_refresh-valid_token' do
           travel_to(Time.parse("2022-10-19 17:02:17 +0000")) do
-            id_token, refresh_token = client.get_token_with_refresh_token(
-                refresh_token: 'a8VLPRtcOS5-IFYXkZYzZbrIhSJq6trFXxYJyKbaUng',
-                nonce: 'some-nonce'
-              )
-              expect(id_token).to be_a_kind_of(OpenIDConnect::ResponseObject::IdToken)
-              expect(id_token.raw_attributes['nonce']).to be_nil
-              expect(id_token.raw_attributes['preferred_username']).to eq('test.user3@mycompany.com')
-              expect(id_token.aud).to eq('0oa6ccivzf3nEeiGt5d7')
+            allow(client).to receive(:revoke).and_return(:success)
 
-              expect(refresh_token).to be_nil
+            id_token, refresh_token = client.get_token_with_refresh_token(
+              refresh_token: 'a8VLPRtcOS5-IFYXkZYzZbrIhSJq6trFXxYJyKbaUng',
+              nonce: 'some-nonce'
+            )
+
+            expect(id_token).to be_a_kind_of(OpenIDConnect::ResponseObject::IdToken)
+            expect(id_token.raw_attributes['nonce']).to be_nil
+            expect(id_token.raw_attributes['preferred_username']).to eq('test.user3@mycompany.com')
+            expect(id_token.aud).to eq('0oa6ccivzf3nEeiGt5d7')
+
+            expect(refresh_token).to be_nil
           end
         end
       end
@@ -205,10 +208,13 @@ RSpec.describe(Authentication::AuthnOidc::V2::Client) do
       context 'with refresh token rotation enabled' do
         it 'returns a valid JWT token and refresh token', vcr: 'authenticators/authn-oidc/v2/client_refresh-valid_token_with_rotation' do
           travel_to(Time.parse("2022-10-19 17:02:17 +0000")) do
+            allow(client).to receive(:revoke).and_return(:success)
+
             id_token, refresh_token = client.get_token_with_refresh_token(
               refresh_token: 'a8VLPRtcOS5-IFYXkZYzZbrIhSJq6trFXxYJyKbaUng',
               nonce: 'some-nonce'
             )
+
             expect(id_token).to be_a_kind_of(OpenIDConnect::ResponseObject::IdToken)
             expect(id_token.raw_attributes['nonce']).to be_nil
             expect(id_token.raw_attributes['preferred_username']).to eq('test.user3@mycompany.com')
@@ -233,6 +239,94 @@ RSpec.describe(Authentication::AuthnOidc::V2::Client) do
             "CONJ00133E Access Token retrieval failure: 'Refresh token is invalid or has expired'"
           )
         end
+      end
+    end
+  end
+
+  describe '.revoke' do
+    let(:authenticator) do
+      Authentication::AuthnOidc::V2::DataObjects::Authenticator.new(
+        **authn_config.merge!({
+          :provider_uri => 'https://dev-56357110.okta.com/oauth2/default',
+          :client_id => '0oa6ccivzf3nEeiGt5d7',
+          :client_secret => 'YnAukUECEAtsWSWCHPzi1coiZZeOhdvQOSnri4Kz',
+          :provider_scope => 'offline_access'
+        })
+      )
+    end
+
+    context 'given a valid refresh token', vcr: 'authenticators/authn-oidc/v2/revoke_token-valid_token' do
+      let(:revoke) do
+        client.revoke('R2sJgxtLGEL-F_-3AnE5XWqmYKTnc3zTsu0P5uddwmE')
+      end
+
+      it 'succeeds' do
+        expect { revoke }.not_to raise_error
+      end
+
+      it 'cannot be used in subsequent requests' do
+        expect do
+          client.get_token_with_refresh_token(
+            refresh_token: 'R2sJgxtLGEL-F_-3AnE5XWqmYKTnc3zTsu0P5uddwmE',
+            nonce: 'some-nonce'
+          )
+        end.to raise_error(
+          Errors::Authentication::AuthnOidc::TokenRetrievalFailed,
+          "CONJ00133E Access Token retrieval failure: 'Refresh token is invalid or has expired'"
+        )
+      end
+    end
+
+    context 'given an invalid refresh token', vcr: 'authenticators/authn-oidc/v2/revoke_token-invalid_token' do
+      let(:revoke) do
+        client.revoke('some-refresh-token')
+      end
+
+      it 'succeeds' do
+        expect {revoke }.not_to raise_error
+      end
+    end
+  end
+
+  describe '.end_session' do
+    let(:authenticator) do
+      Authentication::AuthnOidc::V2::DataObjects::Authenticator.new(
+        **authn_config.merge!({
+          :provider_uri => 'https://dev-56357110.okta.com/oauth2/default',
+          :client_id => '0oa6ccivzf3nEeiGt5d7',
+          :client_secret => 'YnAukUECEAtsWSWCHPzi1coiZZeOhdvQOSnri4Kz',
+          :provider_scope => 'offline_access'
+        })
+      )
+    end
+
+    context 'ending a user session', vcr: 'empty' do
+      let(:end_session) do
+        allow(client).to receive(:revoke).and_return(:success)
+        allow(client).to receive(:get_token_pair).and_return(['id_token', 'new_refresh_token'])
+        allow(client).to receive(:decode_id_token).and_return('decoded_id_token')
+        allow(client).to receive(:verify_id_token).and_return(true)
+
+        client.end_session(
+          refresh_token: 'old_refresh_token',
+          nonce: 'some-nonce',
+          state: 'some-state',
+          redirect_uri: 'https://conjur.org/redirect?foo=bar'
+        )
+      end
+
+      it 'returns a properly formatted URI' do
+        uri = end_session
+
+        expect(uri).to be_a_kind_of(URI::HTTPS)
+        expect(uri.to_s).to eq('https://dev-56357110.okta.com/oauth2/default/v1/logout?id_token_hint=id_token&state=some-state&post_logout_redirect_uri=https%3A%2F%2Fconjur.org%2Fredirect%3Ffoo%3Dbar')
+      end
+
+      it 'revokes the remaining refresh tokens' do
+        expect(client).to receive(:revoke).with('old_refresh_token')
+        expect(client).to receive(:revoke).with('new_refresh_token')
+
+        end_session
       end
     end
   end
