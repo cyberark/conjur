@@ -122,7 +122,7 @@ services:
       - ../ci/ldap-certs:/container/service/slapd/assets/certs:ro
 
   keycloak:
-    image: jboss/keycloak:4.3.0.Final
+    image: jboss/keycloak:16.1.1
     environment:
       - KEYCLOAK_USER=admin
       - KEYCLOAK_PASSWORD=admin
@@ -145,7 +145,7 @@ services:
     volumes:
       # TODO: authenticators_oidc/test has a dep on this
       - ../ci/oauth/keycloak:/scripts
-      - ../ci/oauth/keycloak/standalone.xml:/opt/jboss/keycloak/standalone/configuration/standalone.xml
+      - ../ci/oauth/keycloak/standalone-ha.xml:/opt/jboss/keycloak/standalone/configuration/standalone-ha.xml
 
   okta-ldap-agent:
     image: weareenvoy/okta-ldap-agent
