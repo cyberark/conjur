@@ -140,6 +140,25 @@ class AuthenticateController < ApplicationController
     handle_authentication_error(e)
   end
 
+  def logout_oidc
+    params[:authenticator] = "authn-oidc"
+    decode_and_merge_request_body
+    params.permit!
+
+    logout_uri = Authentication::Handler::LogoutHandler.new(
+      authenticator_type: params[:authenticator]
+    ).call(
+      parameters: params.to_hash.symbolize_keys,
+      request_ip: request.ip
+    ) do |authenticator|
+      Authentication::AuthnOidc::V2::Strategies::Logout.new(
+        authenticator: authenticator
+      ).callback(params.to_hash.symbolize_keys)
+    end
+
+    render(json: { oidc_logout_uri: logout_uri })
+  end
+
   def authenticate_oidc
     params[:authenticator] = "authn-oidc"
     decode_and_merge_request_body

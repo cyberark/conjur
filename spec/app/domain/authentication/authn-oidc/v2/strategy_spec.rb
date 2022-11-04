@@ -104,7 +104,6 @@ RSpec.describe('Authentication::AuthnOidc::V2::Strategies') do
   describe('::RefreshToken') do
     let(:current_client) do
       instance_double(::Authentication::AuthnOidc::V2::Client).tap do |double|
-        allow(double).to receive(:get_token_with_code).and_return([jwt, refresh_token])
         allow(double).to receive(:get_token_with_refresh_token).and_return([jwt, refresh_token])
       end
     end
@@ -137,6 +136,77 @@ RSpec.describe('Authentication::AuthnOidc::V2::Strategies') do
           it 'raises a `MissingRequestParam` error' do
             expect { strategy.callback(refresh_token: 'refresh_token') }
               .to raise_error(Errors::Authentication::RequestBody::MissingRequestParam)
+          end
+        end
+      end
+    end
+  end
+
+  describe('::Logout') do
+    let(:current_client) do
+      instance_double(::Authentication::AuthnOidc::V2::Client).tap do |double|
+        allow(double).to receive(:get_token_with_refresh_token).and_return([jwt, refresh_token])
+        allow(double).to receive(:end_session).and_return(URI('https://oidc-provider.org/logout'))
+      end
+    end
+
+    let(:strategy) do
+      Authentication::AuthnOidc::V2::Strategies::Logout.new(
+        authenticator: authenticator,
+        client: client
+      )
+    end
+
+    describe('#callback') do
+      it 'returns an OIDC session termination URI' do
+        uri = strategy.callback(refresh_token: 'refresh_token', nonce: 'nonce', state: 'state', redirect_uri: 'https://conjur.org/redir')
+
+        expect(uri.to_s).to eq('https://oidc-provider.org/logout')
+      end
+
+      context 'when required parameters are missing' do
+        context 'when refresh_token is missing' do
+          it 'raises a `MissingRequestParam` error' do
+            expect do
+              strategy.callback(
+                nonce: 'nonce',
+                state: 'state',
+                redirect_uri: 'https://redir.com/here'
+              )
+            end.to raise_error(Errors::Authentication::RequestBody::MissingRequestParam)
+          end
+        end
+        context 'when nonce is missing' do
+          it 'raises a `MissingRequestParam` error' do
+            expect do
+              strategy.callback(
+                refresh_token: 'refresh_token',
+                state: 'state',
+                redirect_uri: 'https://redir.com/here'
+              )
+            end.to raise_error(Errors::Authentication::RequestBody::MissingRequestParam)
+          end
+        end
+        context 'when state is missing' do
+          it 'raises a `MissingRequestParam` error' do
+            expect do
+              strategy.callback(
+                refresh_token: 'refresh_token',
+                nonce: 'nonce',
+                redirect_uri: 'https://redir.com/here'
+              )
+            end.to raise_error(Errors::Authentication::RequestBody::MissingRequestParam)
+          end
+        end
+        context 'when redirect_uri is missing' do
+          it 'raises a `MissingRequestParam` error' do
+            expect do
+              strategy.callback(
+                refresh_token: 'refresh_token',
+                nonce: 'nonce',
+                state: 'state'
+              )
+            end.to raise_error(Errors::Authentication::RequestBody::MissingRequestParam)
           end
         end
       end

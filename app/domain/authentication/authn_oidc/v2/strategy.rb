@@ -72,6 +72,20 @@ module Authentication
             end
           end
         end
+
+        class Logout
+          include Common
+
+          def callback(args)
+            validate_args(args: args, required: %i[refresh_token nonce state redirect_uri])
+            @client.end_session(
+              refresh_token: args[:refresh_token],
+              nonce: args[:nonce],
+              state: args[:state],
+              redirect_uri: args[:redirect_uri]
+            )
+          end
+        end
       end
     end
   end

@@ -181,8 +181,10 @@ When(/^I authenticate via OIDC V2 with refresh token$/) do
   authenticate_with_oidc_refresh_token(
     service_id: @context.get(:service_id),
     account: @context.get(:account),
-    refresh_token: @context.get(:x_oidc_refresh_token),
-    nonce: @context.get(:nonce)
+    params: {
+      refresh_token: @context.get(:x_oidc_refresh_token),
+      nonce: @context.get(:nonce)
+    }
   )
 end
 
@@ -205,6 +207,23 @@ When(/^I authenticate via OIDC V2 with no code in the request$/) do
       code_verifier: @context.get(:code_verifier)
     }
   )
+end
+
+When(/^I logout of the OIDC V2 authenticator with state "([^"]*)" and redirect URI "([^"]*)"$/) do |state, redirect_uri|
+  logout_with_refresh_token(
+    service_id: @context.get(:service_id),
+    account: @context.get(:account),
+    params: {
+      refresh_token: @context.get(:x_oidc_refresh_token),
+      nonce: @context.get(:nonce),
+      state: state,
+      redirect_uri: redirect_uri
+    }
+  )
+end
+
+When(/^the response contains the OIDC provider's logout URI "([^"]*)"$/) do |expected_uri|
+  expect(@response_body).to include(expected_uri)
 end
 
 Given(/^I successfully set provider-uri variable to value "([^"]*)"$/) do |provider_uri|
@@ -230,7 +249,15 @@ When(/^I authenticate via OIDC with id token in header$/) do
 end
 
 Given(/^I enable OIDC V2 refresh token flows for "([^"]*)"$/) do |service_id|
-  create_oidc_secret("provider-scope", "#{oidc_scope},offline_access", service_id)
+  # In many OIDC provider implementations, notably Okta, an additional scope
+  # is required on calls to the provider's authorization endpoint to enable
+  # refresh token flows. These end-to-end tests use a Keycloak 16.1.1 container,
+  # which does not have this requirement.
+  #
+  # This step is being maintained in case the target OIDC provider is changed.
+  # The following would add the required scope for an Okta authz server:
+  #
+  # create_oidc_secret("provider-scope", "#{oidc_scope},offline_access", service_id)
 end
 
 When(/^I authenticate via OIDC V2 with code and service-id "([^"]*)"$/) do |service_id|

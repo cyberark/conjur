@@ -82,6 +82,15 @@ Feature: OIDC Authenticator V2 - Users can authenticate with OIDC authenticator
     And a new access token was issued
 
   @smoke
+  Scenario: A valid refresh token to get an OIDC provider's logout URI
+    Given I enable OIDC V2 refresh token flows for "keycloak2"
+    And I fetch a code for username "alice" and password "alice"
+    And I authenticate via OIDC V2 with code
+    And The authentication response includes header "X-OIDC-Refresh-Token"
+    When I logout of the OIDC V2 authenticator with state "some-state" and redirect URI "https://conjur.org"
+    Then the response contains the OIDC provider's logout URI "https://keycloak:8443/auth/realms/master/protocol/openid-connect/logout"
+
+  @smoke
   Scenario: A valid code with email as claim mapping
     Given I extend the policy with:
     """

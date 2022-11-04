@@ -2,7 +2,7 @@
 
 module Authentication
   module Handler
-    class AuthenticationHandler
+    module Common
       def initialize(
         authenticator_type:,
         role: ::Role,
@@ -29,20 +29,47 @@ module Authentication
         )
       end
 
-      def call(parameters:, request_ip:, &block)
-        # Load Authenticator policy and values (validates data stored as variables)
+      def authenticator(account:, service_id:)
         authenticator = @authn_repo.find(
           type: @authenticator_type,
-          account: parameters[:account],
-          service_id: parameters[:service_id]
+          account: account,
+          service_id: service_id
         )
 
         if authenticator.nil?
           raise(
             Errors::Conjur::RequestedResourceNotFound,
-            "Unable to find authenticator with account: #{parameters[:account]} and service-id: #{parameters[:service_id]}"
+            "Unable to find authenticator with account: #{account} and service-id: #{service_id}"
           )
         end
+
+        authenticator
+      end
+    end
+
+    class LogoutHandler
+      include Common
+
+      def call(parameters:, request_ip:, &block)
+        # Load Authenticator policy and values (validates data stored as variables)
+        authenticator = authenticator(
+          account: parameters[:account],
+          service_id: parameters[:service_id]
+        )
+
+        block.call(authenticator)
+      end
+    end
+
+    class AuthenticationHandler
+      include Common
+
+      def call(parameters:, request_ip:, &block)
+        # Load Authenticator policy and values (validates data stored as variables)
+        authenticator = authenticator(
+          account: parameters[:account],
+          service_id: parameters[:service_id]
+        )
 
         identity, headers_h = block.call(authenticator)
 
