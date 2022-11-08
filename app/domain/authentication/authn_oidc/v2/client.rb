@@ -4,16 +4,6 @@ require 'net/http'
 module Authentication
   module AuthnOidc
     module V2
-
-      class ExchangeCodeForIdToken
-        def initialize(client:, logger:)
-          @client = client
-          @logger = logger
-        end
-
-        def call()
-      end
-
       class Client
         def initialize(
           authenticator:,
