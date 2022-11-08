@@ -2,21 +2,19 @@
 
 module Authentication
   module Handler
-    module Common
+    class AuthenticationHandler
       def initialize(
         authenticator_type:,
         role: ::Role,
         resource: ::Resource,
         authn_repo: DB::Repository::AuthenticatorRepository,
         namespace_selector: Authentication::Util::NamespaceSelector,
-        logger: Rails.logger,
-        authentication_error: LogMessages::Authentication::AuthenticationError
+        logger: Rails.logger
       )
         @role = role
         @resource = resource
         @authenticator_type = authenticator_type
         @logger = logger
-        @authentication_error = authentication_error
 
         # Dynamically load authenticator specific classes
         namespace = namespace_selector.select(
@@ -24,57 +22,24 @@ module Authentication
         )
 
         @identity_resolver = "#{namespace}::ResolveIdentity".constantize
+        @strategy = "#{namespace}::Strategy".constantize
         @authn_repo = authn_repo.new(
           data_object: "#{namespace}::DataObjects::Authenticator".constantize
         )
       end
 
-      def authenticator(account:, service_id:)
+      def call(parameters:, request_ip:)
+        # Load Authenticator policy and values (validates data stored as variables)
         authenticator = @authn_repo.find(
           type: @authenticator_type,
-          account: account,
-          service_id: service_id
-        )
-
-        if authenticator.nil?
-          raise(
-            Errors::Conjur::RequestedResourceNotFound,
-            "Unable to find authenticator with account: #{account} and service-id: #{service_id}"
-          )
-        end
-
-        authenticator
-      end
-    end
-
-    class LogoutHandler
-      include Common
-
-      def call(parameters:, request_ip:, &block)
-        # Load Authenticator policy and values (validates data stored as variables)
-        authenticator = authenticator(
           account: parameters[:account],
           service_id: parameters[:service_id]
         )
-
-        block.call(authenticator)
-      end
-    end
-
-    class AuthenticationHandler
-      include Common
-
-      def call(parameters:, request_ip:, &block)
-        # Load Authenticator policy and values (validates data stored as variables)
-        authenticator = authenticator(
-          account: parameters[:account],
-          service_id: parameters[:service_id]
-        )
-
-        identity, headers_h = block.call(authenticator)
 
         role = @identity_resolver.new.call(
-          identity: identity,
+          identity: @strategy.new(
+            authenticator: authenticator
+          ).callback(parameters),
           account: parameters[:account],
           allowed_roles: @role.that_can(
             :authenticate,
@@ -91,12 +56,10 @@ module Authentication
 
         log_audit_success(authenticator, role, request_ip, @authenticator_type)
 
-        token = TokenFactory.new.signed_token(
+        TokenFactory.new.signed_token(
           account: parameters[:account],
           username: role.role_id.split(':').last
         )
-
-        [token, headers_h]
       rescue => e
         log_audit_failure(parameters[:account], parameters[:service_id], request_ip, @authenticator_type, e)
         handle_error(e)
@@ -111,8 +74,7 @@ module Authentication
 
         when Errors::Authentication::RequestBody::MissingRequestParam,
           Errors::Authentication::AuthnOidc::TokenVerificationFailed,
-          Errors::Authentication::AuthnOidc::TokenRetrievalFailed,
-          Errors::Authentication::RequestBody::MultipleXorRequestParams
+          Errors::Authentication::AuthnOidc::TokenRetrievalFailed
           raise ApplicationController::BadRequest
 
         when Errors::Conjur::RequestedResourceNotFound

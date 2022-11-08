@@ -140,23 +140,24 @@ class AuthenticateController < ApplicationController
     handle_authentication_error(e)
   end
 
-  def logout_oidc
-    params[:authenticator] = "authn-oidc"
-    decode_and_merge_request_body
-    params.permit!
+  def logout
+    # params.permit!
+    # Parse incoming JSON
+    request_body = JSON.parse(request.body.read)
 
-    logout_uri = Authentication::Handler::LogoutHandler.new(
+    Authentication::Handler::LogoutHandler.new(
       authenticator_type: params[:authenticator]
     ).call(
-      parameters: params.to_hash.symbolize_keys,
+      parameters: params.to_hash.merge(request_body).symbolize_keys,
       request_ip: request.ip
-    ) do |authenticator|
-      Authentication::AuthnOidc::V2::Strategies::Logout.new(
-        authenticator: authenticator
-      ).callback(params.to_hash.symbolize_keys)
-    end
-
-    render(json: { oidc_logout_uri: logout_uri })
+    )
+    # TODO: Likely we should just return a 200 for success. We need
+    # to add the redirect url to the authenticator to support.
+    #
+    # We should think about the behavior we want for redirect.  If this
+    # is only called by an SDK, a redirect is likely not the correct
+    # response.
+    # render(json: { oidc_logout_uri: logout_uri })
   end
 
   def authenticate_oidc

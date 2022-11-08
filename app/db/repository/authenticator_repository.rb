@@ -27,7 +27,14 @@ module DB
         ).first
         return unless webservice
 
-        load_authenticator(account: account, id: webservice.id.split(':').last, type: type)
+        authenticator = load_authenticator(account: account, id: webservice.id.split(':').last, type: type)
+        if authenticator.nil?
+          raise(
+            Errors::Conjur::RequestedResourceNotFound,
+            "Unable to find authenticator with account: #{parameters[:account]} and service-id: #{parameters[:service_id]}"
+          )
+        end
+        authenticator
       end
 
       def exists?(type:, account:, service_id:)
