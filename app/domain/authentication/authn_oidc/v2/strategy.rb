@@ -15,39 +15,81 @@ module Authentication
 
         # Don't love this name...
         def callback(args)
-          jwt, refresh_token = nil, nil
-          if args[:refresh_token]
-            unless args[:nonce].present?
-              raise Errors::Authentication::RequestBody::MissingRequestParam, 'nonce'
+          unless args.key?(:code) ^ args.key?(:refresh_token)
+            raise Errors::Authentication::RequestBody::BadXorCombination.new('code', 'refresh_token')
+          end
+
+          strategy = if args.key?(:code)
+            Strategies::CodeAuthentication
+          elsif args.key?(:refresh_token)
+            Strategies::RefreshAuthentication
+          end
+
+          validate_required_params(args: args, required: strategy.const_get(:REQUIRED_PARAMETERS))
+
+          tokens = strategy.new(
+            oidc_client: @client
+          ).call(args)
+
+          identity = resolve_identity(jwt: tokens[:id_token])
+
+          {
+            :identity => identity,
+            :headers => {
+              'X-OIDC-Refresh-Token' => tokens[:refresh_token].to_s
+            }
+          }
+        end
+
+        def validate_required_params(args:, required:)
+          required.each do |param|
+            unless args[param].present?
+              raise Errors::Authentication::RequestBody::MissingRequestParam, param.to_s
             end
-            jwt, refresh_token = @client.get_token_with_refresh_token(
-              refresh_token: args[:refresh_token],
-              nonce: args[:nonce]
-            )
-          else
-            %i[code nonce code_verifier].each do |param|
-              unless args[param].present?
-                raise Errors::Authentication::RequestBody::MissingRequestParam, param.to_s
-              end
-            end
-            jwt, refresh_token = @client.get_token_with_code(
+          end
+        end
+
+        def resolve_identity(jwt:)
+          identity = jwt.raw_attributes.with_indifferent_access[@authenticator.claim_mapping]
+
+          unless identity.present?
+            raise Errors::Authentication::AuthnOidc::IdTokenClaimNotFoundOrEmpty
+                  @authenticator.claim_mapping
+          end
+
+          identity
+        end
+      end
+
+      module Strategies
+        class BaseStrategy
+          def initialize(oidc_client:, logger: Rails.logger)
+            @oidc_client = oidc_client
+            @logger = logger
+          end
+        end
+
+        class CodeAuthentication < BaseStrategy
+          REQUIRED_PARAMETERS = %i[code nonce code_verifier]
+
+          def call(args)
+            @oidc_client.exchange_code_for_tokens(
               code: args[:code],
               nonce: args[:nonce],
               code_verifier: args[:code_verifier]
             )
           end
-          identity = resolve_identity(jwt: jwt)
-          unless identity.present?
-            raise Errors::Authentication::AuthnOidc::IdTokenClaimNotFoundOrEmpty,
-                  @authenticator.claim_mapping
-          end
-
-          return [identity, {}] if refresh_token.nil?
-          [identity, { 'X-OIDC-Refresh-Token' => refresh_token }]
         end
 
-        def resolve_identity(jwt:)
-          jwt.raw_attributes.with_indifferent_access[@authenticator.claim_mapping]
+        class RefreshAuthentication < BaseStrategy
+          REQUIRED_PARAMETERS = %i[refresh_token nonce]
+
+          def call(args)
+            @oidc_client.exchange_refresh_token_for_tokens(
+              refresh_token: args[:refresh_token],
+              nonce: args[:nonce]
+            )
+          end
         end
       end
     end

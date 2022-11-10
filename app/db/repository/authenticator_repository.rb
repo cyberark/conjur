@@ -25,7 +25,12 @@ module DB
             "#{account}:webservice:conjur/#{type}/#{service_id}"
           )
         ).first
-        return unless webservice
+        unless webservice
+          raise(
+            Errors::Conjur::RequestedResourceNotFound,
+            "Unable to find authenticator with account: #{account} and service-id: #{service_id}"
+          )
+        end
 
         load_authenticator(account: account, id: webservice.id.split(':').last, type: type)
       end

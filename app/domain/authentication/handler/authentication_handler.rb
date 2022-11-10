@@ -31,7 +31,6 @@ module Authentication
       end
 
       def call(parameters:, request_ip:)
-
         # Load Authenticator policy and values (validates data stored as variables)
         authenticator = @authn_repo.find(
           type: @authenticator_type,
@@ -46,12 +45,12 @@ module Authentication
           )
         end
 
-        identity, headers_h = @strategy.new(
+        id_and_headers = @strategy.new(
           authenticator: authenticator
         ).callback(parameters)
 
         role = @identity_resolver.new.call(
-          identity: identity,
+          identity: id_and_headers[:identity],
           account: parameters[:account],
           allowed_roles: @role.that_can(
             :authenticate,
@@ -68,12 +67,13 @@ module Authentication
 
         log_audit_success(authenticator, role, request_ip, @authenticator_type)
 
-        token = TokenFactory.new.signed_token(
-          account: parameters[:account],
-          username: role.role_id.split(':').last
-        )
-
-        [token, headers_h]
+        {
+          :token => TokenFactory.new.signed_token(
+            account: parameters[:account],
+            username: role.role_id.split(':').last
+          ),
+          :headers => id_and_headers[:headers]
+        }
       rescue => e
         log_audit_failure(parameters[:account], parameters[:service_id], request_ip, @authenticator_type, e)
         handle_error(e)
