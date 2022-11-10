@@ -35,203 +35,284 @@ RSpec.describe(Authentication::AuthnOidc::V2::Client) do
     end
   end
 
-  describe '.get_token_with_code' do
-    context 'when credentials are valid' do
-      it 'returns a valid JWT token', vcr: 'authenticators/authn-oidc/v2/client_callback-valid_oidc_credentials' do
-        # Because JWT tokens have an expiration timeframe, we need to hold
-        # time constant after caching the request.
-        travel_to(Time.parse("2022-09-30 17:02:17 +0000")) do
-          id_token, refresh_token = client.get_token_with_code(
-            code: '-QGREc_SONbbJIKdbpyYudA13c9PZlgqdxowkf45LOw',
-            code_verifier: 'c1de7f1251849accd99d4839d79a637561b1181b909ed7dc1d',
-            nonce: '7efcbba36a9b96fdb5285a159665c3d382abd8b6b3288fcc8d'
-          )
-          expect(id_token).to be_a_kind_of(OpenIDConnect::ResponseObject::IdToken)
-          expect(id_token.raw_attributes['nonce']).to eq('7efcbba36a9b96fdb5285a159665c3d382abd8b6b3288fcc8d')
-          expect(id_token.raw_attributes['preferred_username']).to eq('test.user3@mycompany.com')
-          expect(id_token.aud).to eq('0oa3w3xig6rHiu9yT5d7')
+  describe '.get_bearer_token' do
+    context 'when authorization code provided' do
+      context 'when code is valid', vcr: 'authenticators/authn-oidc/v2/client_callback-valid_oidc_credentials' do
+        it 'returns a valid bearer token' do
+          # Because JWT tokens have an expiration timeframe, we need to hold time
+          # constant after caching the request.
+          travel_to(Time.parse("2022-09-30 17:02:17 +0000")) do
+            bearer_token = client.get_bearer_token(
+              code: '-QGREc_SONbbJIKdbpyYudA13c9PZlgqdxowkf45LOw',
+              code_verifier: 'c1de7f1251849accd99d4839d79a637561b1181b909ed7dc1d',
+            )
 
-          expect(refresh_token).to be_nil
+            expect(bearer_token).to be_a_kind_of(OpenIDConnect::AccessToken)
+          end
         end
       end
-    end
 
-    context 'when code verifier does not match' do
-      it 'raises an error', vcr: 'authenticators/authn-oidc/v2/client_callback-invalid_code_verifier' do
-        travel_to(Time.parse("2022-10-17 17:23:30 +0000")) do
+      context 'when code_verifier is invalid', vcr: 'authenticators/authn-oidc/v2/client_callback-invalid_code_verifier' do
+        it 'raises an error' do
+          travel_to(Time.parse("2022-10-17 17:23:30 +0000")) do
+            expect do
+              client.get_bearer_token(
+                code: 'GV48_SF4a19ghvBhVbbSG3Lr8BuFl8PhWVPZSbokV2o',
+                code_verifier: 'bad-code-verifier'
+              )
+            end.to raise_error(
+              Errors::Authentication::AuthnOidc::TokenRetrievalFailed,
+              "CONJ00133E Access Token retrieval failure: 'PKCE verification failed'"
+            )
+          end
+        end
+      end
+
+      context 'when code is invalid or expired', vcr: 'authenticators/authn-oidc/v2/client_callback-expired_code-valid_oidc_credentials' do
+        it 'raises an error' do
           expect do
-            client.get_token_with_code(
-              code: 'GV48_SF4a19ghvBhVbbSG3Lr8BuFl8PhWVPZSbokV2o',
-              code_verifier: 'bad-code-verifier',
-              nonce: '3e6bd5235e4692b37ca1f04cb01b6e0cb177aa20dcef19e89f'
+            client.get_bearer_token(
+              code: 'SNSPeiQJ0-D6nUHTg-Ht9ZoDxIaaWBB80pnYuXY2VxU',
+              code_verifier: 'c1de7f1251849accd99d4839d79a637561b1181b909ed7dc1d'
             )
           end.to raise_error(
             Errors::Authentication::AuthnOidc::TokenRetrievalFailed,
-            "CONJ00133E Access Token retrieval failure: 'PKCE verification failed'"
+            "CONJ00133E Access Token retrieval failure: 'Authorization code is invalid or has expired'"
           )
         end
       end
     end
 
-    context 'when nonce does not match' do
-      it 'raises an error', vcr: 'authenticators/authn-oidc/v2/client_callback-valid_oidc_credentials' do
-        travel_to(Time.parse("2022-09-30 17:02:17 +0000")) do
-          expect do
-            client.get_token_with_code(
-              code: '-QGREc_SONbbJIKdbpyYudA13c9PZlgqdxowkf45LOw',
-              code_verifier: 'c1de7f1251849accd99d4839d79a637561b1181b909ed7dc1d',
-              nonce: 'bad-nonce'
-            )
-          end.to raise_error(
-            Errors::Authentication::AuthnOidc::TokenVerificationFailed,
-            "CONJ00128E JWT Token validation failed: 'Provided nonce does not match the nonce in the JWT'"
-          )
-        end
-      end
-    end
-
-    context 'when JWT has expired' do
-      it 'raises an error', vcr: 'authenticators/authn-oidc/v2/client_callback-valid_oidc_credentials' do
-        travel_to(Time.parse("2022-10-01 17:02:17 +0000")) do
-          expect do
-            client.get_token_with_code(
-              code: '-QGREc_SONbbJIKdbpyYudA13c9PZlgqdxowkf45LOw',
-              code_verifier: 'c1de7f1251849accd99d4839d79a637561b1181b909ed7dc1d',
-              nonce: '7efcbba36a9b96fdb5285a159665c3d382abd8b6b3288fcc8d'
-            )
-          end.to raise_error(
-            Errors::Authentication::AuthnOidc::TokenVerificationFailed,
-            "CONJ00128E JWT Token validation failed: 'JWT has expired'"
-          )
-        end
-      end
-    end
-
-    context 'when code has previously been used' do
-      it 'raise an exception', vcr: 'authenticators/authn-oidc/v2/client_callback-used_code-valid_oidc_credentials' do
-        expect do
-          client.get_token_with_code(
-            code: '-QGREc_SONbbJIKdbpyYudA13c9PZlgqdxowkf45LOw',
-            code_verifier: 'c1de7f1251849accd99d4839d79a637561b1181b909ed7dc1d',
-            nonce: '7efcbba36a9b96fdb5285a159665c3d382abd8b6b3288fcc8d'
-          )
-        end.to raise_error(
-          Errors::Authentication::AuthnOidc::TokenRetrievalFailed,
-          "CONJ00133E Access Token retrieval failure: 'Authorization code is invalid or has expired'"
-        )
-      end
-    end
-
-    context 'when code has expired', vcr: 'authenticators/authn-oidc/v2/client_callback-expired_code-valid_oidc_credentials' do
-      it 'raise an exception' do
-        expect do
-          client.get_token_with_code(
-            code: 'SNSPeiQJ0-D6nUHTg-Ht9ZoDxIaaWBB80pnYuXY2VxU',
-            code_verifier: 'c1de7f1251849accd99d4839d79a637561b1181b909ed7dc1d',
-            nonce: '7efcbba36a9b96fdb5285a159665c3d382abd8b6b3288fcc8d'
-          )
-        end.to raise_error(
-          Errors::Authentication::AuthnOidc::TokenRetrievalFailed,
-          "CONJ00133E Access Token retrieval failure: 'Authorization code is invalid or has expired'"
-        )
-      end
-    end
-
-    context 'when refresh token flow is enabled' do
-      # The 'offline_access' scope enables Okta's refresh token flow
+    context 'when refresh token provided' do
+      # Use different Okta authorization server with refresh tokens enabled.
+      # At some point, all these test cases should point to a single Okta server,
+      # with PKCE and refresh tokens both enabled.
       let(:authenticator) do
         Authentication::AuthnOidc::V2::DataObjects::Authenticator.new(
-          **authn_config.merge!({ :provider_scope => 'offline_access' })
+          **authn_config.merge!({
+            :provider_uri => 'https://dev-56357110.okta.com/oauth2/default',
+            :client_id => '0oa6ccivzf3nEeiGt5d7',
+            :client_secret => 'YnAukUECEAtsWSWCHPzi1coiZZeOhdvQOSnri4Kz',
+            :provider_scope => 'offline_access'
+          })
         )
       end
 
-      context 'when credentials are valid' do
-        it 'returns valid ID and refresh tokens', vcr: 'authenticators/authn-oidc/v2/client_callback-valid_oidc_credentials_and_refresh' do
-          # Because JWT tokens have an expiration timeframe, we need to hold
-          # time constant after caching the request.
-          travel_to(Time.parse("2022-09-30 17:02:17 +0000")) do
-            id_token, refresh_token = client.get_token_with_code(
-              code: '-QGREc_SONbbJIKdbpyYudA13c9PZlgqdxowkf45LOw',
-              code_verifier: 'c1de7f1251849accd99d4839d79a637561b1181b909ed7dc1d',
-              nonce: '7efcbba36a9b96fdb5285a159665c3d382abd8b6b3288fcc8d'
+      context 'when refresh token is valid', vcr: 'authenticators/authn-oidc/v2/client_refresh-valid_token_with_rotation' do
+        it 'returns a valid bearer token' do
+          travel_to(Time.parse("2022-10-19 17:02:17 +0000")) do
+            bearer_token = client.get_bearer_token(
+              refresh_token: 'a8VLPRtcOS5-IFYXkZYzZbrIhSJq6trFXxYJyKbaUng'
             )
-            expect(id_token).to be_a_kind_of(OpenIDConnect::ResponseObject::IdToken)
-            expect(id_token.raw_attributes['nonce']).to eq('7efcbba36a9b96fdb5285a159665c3d382abd8b6b3288fcc8d')
-            expect(id_token.raw_attributes['preferred_username']).to eq('test.user3@mycompany.com')
-            expect(id_token.aud).to eq('0oa3w3xig6rHiu9yT5d7')
 
-            expect(refresh_token).not_to be_nil
-            expect(refresh_token).to be_a_kind_of(String)
-            expect(refresh_token).to eq('kXMJFtgtaEpOGn0Zk2x15i8umXIWp4aqY1Mh7zscfGI')
+            expect(bearer_token).to be_a_kind_of(OpenIDConnect::AccessToken)
+          end
+        end
+      end
+
+      context 'when refresh token is invalid or expired', vcr: 'authenticators/authn-oidc/v2/client_refresh-invalid_token' do
+        it 'raises an error' do
+          travel_to(Time.parse("2022-10-19 17:02:17 +0000")) do
+            expect do
+              client.get_bearer_token(
+                refresh_token: 'a8VLPRtcOS5-IFYXkZYzZbrIhSJq6trFXxYJyKbaUng'
+              )
+            end.to raise_error(
+              Errors::Authentication::AuthnOidc::TokenRetrievalFailed,
+              "CONJ00133E Access Token retrieval failure: 'Refresh token is invalid or has expired'"
+            )
           end
         end
       end
     end
   end
 
-  describe '.get_token_with_refresh_token' do
-    # Use different Okta authorization server with refresh tokens enabled.
-    # At some point, all these test cases should point to a single Okta server,
-    # with PKCE and refresh tokens both enabled.
-    let(:authenticator) do
-      Authentication::AuthnOidc::V2::DataObjects::Authenticator.new(
-        **authn_config.merge!({
-          :provider_uri => 'https://dev-56357110.okta.com/oauth2/default',
-          :client_id => '0oa6ccivzf3nEeiGt5d7',
-          :client_secret => 'YnAukUECEAtsWSWCHPzi1coiZZeOhdvQOSnri4Kz',
-          :provider_scope => 'offline_access'
+  describe '.extract_identity_and_refresh_tokens', vcr: 'empty' do
+    let(:refresh_token)        { 'sample_refresh_token' }
+    let(:nonce)                { 'sample_nonce' }
+    let(:grant)                { 'sample_grant' }
+
+    let(:id_token)             { 'id_token' }
+    let(:decoded_id_token)     { 'sample_decoded_id_token' }
+
+    let(:access_token)         { 'access_token' }
+    let(:decoded_access_token) { 'sample_decoded_access_token' }
+
+    let(:bearer_token) {
+      instance_double(OpenIDConnect::AccessToken).tap do |double|
+        allow(double).to receive(:raw_attributes).and_return(
+          { 'grant' => grant }
+        )
+        allow(double).to receive(:id_token).and_return(id_token)
+        allow(double).to receive(:access_token).and_return(access_token)
+        allow(double).to receive(:refresh_token).and_return(refresh_token)
+      end
+    }
+
+    context 'if the provided bearer token includes an identity token' do
+      it 'returns the embedded identity and refresh tokens' do
+        allow(client).to receive(:decode_identity_token)
+          .with(id_token: id_token, nonce: nonce, grant: grant)
+          .and_return(decoded_id_token)
+
+        response = client.extract_identity_and_refresh_tokens(
+          bearer_token: bearer_token,
+          nonce: nonce
+        )
+
+        expect(response).to eq({
+          id_token: decoded_id_token,
+          refresh_token: refresh_token
         })
-      )
+      end
     end
 
-    context 'when refresh token is valid' do
-      context 'with refresh token rotation disabled' do
-        it 'returns a valid JWT token', vcr: 'authenticators/authn-oidc/v2/client_refresh-valid_token' do
-          travel_to(Time.parse("2022-10-19 17:02:17 +0000")) do
-            id_token, refresh_token = client.get_token_with_refresh_token(
-                refresh_token: 'a8VLPRtcOS5-IFYXkZYzZbrIhSJq6trFXxYJyKbaUng',
-                nonce: 'some-nonce'
+    context 'if the provided bearer token does not include an identity token' do
+      it 'returns the embedded access and refresh tokens' do
+        allow(client).to receive(:decode_identity_token)
+          .with(id_token: access_token, nonce: nonce, grant: grant)
+          .and_return(decoded_access_token)
+        allow(bearer_token).to receive(:id_token).and_return(nil)
+
+        response = client.extract_identity_and_refresh_tokens(
+          bearer_token: bearer_token,
+          nonce: nonce
+        )
+
+        expect(response).to eq({
+          id_token: decoded_access_token,
+          refresh_token: refresh_token
+        })
+      end
+    end
+  end
+
+  describe '.decode_identity_token', vcr: 'empty' do
+    let(:id_token_claims) {
+      {
+        iss: 'https://dev-92899796.okta.com/oauth2/default',
+        aud: '0oa3w3xig6rHiu9yT5d7',
+        sub: 'alice',
+        iat: Time.now,
+        exp: Time.now + 600
+      }
+    }
+
+    let(:id_token_class) {
+      class_double(OpenIDConnect::ResponseObject::IdToken).tap do |double|
+        allow(double).to receive(:decode).and_return(decoded_id_token)
+      end
+    }
+
+    let(:discovery_information) {
+      instance_double(OpenIDConnect::Discovery::Provider::Config::Response).tap do |double|
+        allow(double).to receive(:jwks).and_return('jwks_details')
+      end
+    }
+
+    let(:client) do
+      VCR.use_cassette("authenticators/authn-oidc/v2/client_load") do
+        client = Authentication::AuthnOidc::V2::Client.new(
+          authenticator: authenticator,
+          oidc_id_token: id_token_class
+        )
+        # The call `oidc_client` queries the OIDC endpoint. As such,
+        # we need to wrap this in a VCR call. Calling this before
+        # returning the client to allow this call to be more effectively
+        # mocked.
+        client.oidc_client
+        allow(client).to receive(:discovery_information).and_return(discovery_information)
+        client
+      end
+    end
+
+    context 'when given a valid identity token' do
+      context 'when using a refresh_token grant type' do
+        let(:grant) {
+          Rack::OAuth2::Client::Grant::RefreshToken.new(refresh_token: 'refresh_token')
+        }
+
+        context 'when the identity token does not contain a nonce value' do
+          let(:decoded_id_token) {
+            OpenIDConnect::ResponseObject::IdToken.new id_token_claims.merge(nonce: nil)
+          }
+
+          it 'returns a decoded identity token' do
+            response = client.decode_identity_token(
+              id_token: 'encoded_id_token',
+              nonce: 'some-nonce',
+              grant: grant
+            )
+            expect(response).to eq(decoded_id_token)
+          end
+        end
+
+        context 'when the identity token contains a nonce value' do
+          let(:decoded_id_token) {
+            OpenIDConnect::ResponseObject::IdToken.new id_token_claims.merge(nonce: 'some-nonce')
+          }
+
+          context 'when the expected nonce matches' do
+            it 'returns a decoded identity token' do
+              response = client.decode_identity_token(
+                id_token: 'encoded_id_token',
+                nonce: 'some-nonce',
+                grant: grant
               )
-              expect(id_token).to be_a_kind_of(OpenIDConnect::ResponseObject::IdToken)
-              expect(id_token.raw_attributes['nonce']).to be_nil
-              expect(id_token.raw_attributes['preferred_username']).to eq('test.user3@mycompany.com')
-              expect(id_token.aud).to eq('0oa6ccivzf3nEeiGt5d7')
+              expect(response).to eq(decoded_id_token)
+            end
+          end
 
-              expect(refresh_token).to be_nil
+          context 'when the expected nonce does not match' do
+            it 'raises an error' do
+              expect do
+                client.decode_identity_token(
+                  id_token: 'encoded_id_token',
+                  nonce: 'bad-nonce',
+                  grant: grant
+                )
+              end.to raise_error(
+                Errors::Authentication::AuthnOidc::TokenVerificationFailed,
+                "CONJ00128E JWT Token validation failed: 'Provided nonce does not match the nonce in the JWT'"
+              )
+            end
           end
         end
       end
 
-      context 'with refresh token rotation enabled' do
-        it 'returns a valid JWT token and refresh token', vcr: 'authenticators/authn-oidc/v2/client_refresh-valid_token_with_rotation' do
-          travel_to(Time.parse("2022-10-19 17:02:17 +0000")) do
-            id_token, refresh_token = client.get_token_with_refresh_token(
-              refresh_token: 'a8VLPRtcOS5-IFYXkZYzZbrIhSJq6trFXxYJyKbaUng',
-              nonce: 'some-nonce'
-            )
-            expect(id_token).to be_a_kind_of(OpenIDConnect::ResponseObject::IdToken)
-            expect(id_token.raw_attributes['nonce']).to be_nil
-            expect(id_token.raw_attributes['preferred_username']).to eq('test.user3@mycompany.com')
-            expect(id_token.aud).to eq('0oa6ccivzf3nEeiGt5d7')
+      context 'when using an authorization code grant type' do
+        let(:grant) {
+          Rack::OAuth2::Client::Grant::AuthorizationCode.new(code: 'code')
+        }
 
-            expect(refresh_token).to eq('dyJXfWUg1Xjt4KP7IQ7qcHUVNtKNWmmtOu9qNScjkN8')
+        let(:decoded_id_token) {
+          OpenIDConnect::ResponseObject::IdToken.new id_token_claims.merge(nonce: 'some-nonce')
+        }
+
+        context 'when the expected nonce matches' do
+          it 'returns a decoded identity token' do
+            response = client.decode_identity_token(
+              id_token: 'encoded_id_token',
+              nonce: 'some-nonce',
+              grant: grant
+            )
+            expect(response).to eq(decoded_id_token)
           end
         end
-      end
-    end
 
-    context 'when refresh token is invalid or expired' do
-      it 'raises an error', vcr: 'authenticators/authn-oidc/v2/client_refresh-invalid_token' do
-        travel_to(Time.parse("2022-10-19 17:02:17 +0000")) do
-          expect do
-            client.get_token_with_refresh_token(
-              refresh_token: 'a8VLPRtcOS5-IFYXkZYzZbrIhSJq6trFXxYJyKbaUng',
-              nonce: 'some-nonce'
+        context 'when the expected nonce does not match' do
+          it 'raises an error' do
+            expect do
+              client.decode_identity_token(
+                id_token: 'encoded_id_token',
+                nonce: 'bad-nonce',
+                grant: grant
+              )
+            end.to raise_error(
+              Errors::Authentication::AuthnOidc::TokenVerificationFailed,
+              "CONJ00128E JWT Token validation failed: 'Provided nonce does not match the nonce in the JWT'"
             )
-          end.to raise_error(
-            Errors::Authentication::AuthnOidc::TokenRetrievalFailed,
-            "CONJ00133E Access Token retrieval failure: 'Refresh token is invalid or has expired'"
-          )
+          end
         end
       end
     end

@@ -1,3 +1,6 @@
+require 'uri'
+require 'net/http'
+
 module Authentication
   module AuthnOidc
     module V2
@@ -37,25 +40,39 @@ module Authentication
           end
         end
 
-        def get_token_with_code(code:, nonce:, code_verifier:)
-          oidc_client.authorization_code = code
-          id_token, refresh_token = get_token_pair(code_verifier)
-          decoded_id_token = decode_id_token(id_token)
-          verify_id_token(decoded_id_token, nonce)
-
-          [decoded_id_token, refresh_token]
+        def exchange_refresh_token_for_tokens(refresh_token:, nonce:)
+          extract_identity_and_refresh_tokens(
+            bearer_token: get_bearer_token(refresh_token: refresh_token),
+            nonce: nonce
+          )
         end
 
-        def get_token_with_refresh_token(refresh_token:, nonce:)
-          oidc_client.refresh_token = refresh_token
-          id_token, refresh_token = get_token_pair(nil)
-          decoded_id_token = decode_id_token(id_token)
-          verify_id_token(decoded_id_token, nonce, refresh: true)
-
-          [decoded_id_token, refresh_token]
+        def exchange_code_for_tokens(code:, nonce:, code_verifier:)
+          extract_identity_and_refresh_tokens(
+            bearer_token: get_bearer_token(code: code, code_verifier: code_verifier),
+            nonce: nonce
+          )
         end
 
-        def get_token_pair(code_verifier)
+        def extract_identity_and_refresh_tokens(bearer_token:, nonce:)
+          id_token = bearer_token.id_token || bearer_token.access_token
+          {
+            :id_token => decode_identity_token(
+              id_token: id_token,
+              nonce: nonce,
+              grant: bearer_token.raw_attributes['grant']
+            ),
+            :refresh_token => bearer_token.refresh_token
+          }
+        end
+
+        def get_bearer_token(code: nil, refresh_token: nil, code_verifier: nil)
+          if code.present?
+            oidc_client.authorization_code = code
+          elsif refresh_token.present?
+            oidc_client.refresh_token = refresh_token
+          end
+
           begin
             bearer_token = oidc_client.access_token!(
               scope: @authenticator.scope,
@@ -63,7 +80,6 @@ module Authentication
               code_verifier: code_verifier
             )
           rescue Rack::OAuth2::Client::Error => e
-            # Only handle the expected errors related to access token retrieval.
             case e.message
             when /PKCE verification failed/
               raise Errors::Authentication::AuthnOidc::TokenRetrievalFailed,
@@ -78,12 +94,10 @@ module Authentication
             raise e
           end
 
-          id_token = bearer_token.id_token || bearer_token.access_token
-          refresh_token = bearer_token.refresh_token
-          [id_token, refresh_token]
+          bearer_token
         end
 
-        def decode_id_token(id_token)
+        def decode_identity_token(id_token:, nonce:, grant:)
           begin
             attempts ||= 0
             decoded_id_token = @oidc_id_token.decode(
@@ -101,20 +115,20 @@ module Authentication
             retry
           end
 
-          decoded_id_token
-        end
-
-        def verify_id_token(decoded_id_token, nonce, refresh: false)
-          expected_nonce = nonce
-          if refresh && decoded_id_token.raw_attributes['nonce'].nil?
-            expected_nonce = nil
+          # In token refresh flows, the OIDC provider should not include a nonce
+          # value in the refreshed identity token, but if they do, it should be
+          # validated.
+          #
+          # https://bitbucket.org/openid/connect/pull-requests/341/errata-clarified-nonce-during-id-token
+          if grant.is_a?(Rack::OAuth2::Client::Grant::RefreshToken) && decoded_id_token.nonce.nil?
+            nonce = nil
           end
 
           begin
             decoded_id_token.verify!(
               issuer: @authenticator.provider_uri,
               client_id: @authenticator.client_id,
-              nonce: expected_nonce
+              nonce: nonce
             )
           rescue OpenIDConnect::ResponseObject::IdToken::InvalidNonce
             raise Errors::Authentication::AuthnOidc::TokenVerificationFailed,
@@ -126,6 +140,8 @@ module Authentication
             raise Errors::Authentication::AuthnOidc::TokenVerificationFailed,
                   e.message
           end
+
+          decoded_id_token
         end
 
         def discovery_information(invalidate: false)
