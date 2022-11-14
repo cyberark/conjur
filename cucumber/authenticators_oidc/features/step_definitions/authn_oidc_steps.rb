@@ -217,7 +217,13 @@ When(/^I authenticate via OIDC with id token in header$/) do
 end
 
 Given(/^I enable OIDC V2 refresh token flows for "([^"]*)"$/) do |service_id|
-  create_oidc_secret("provider-scope", "#{oidc_scope},offline_access", service_id)
+  # Disabling. In previous versions of Keycloak and other popular OIDC providers
+  # like Okta, enabling refresh token distribution requires including an
+  # additional scope in the initial request to the authorization endpoint. This
+  # is no longer required in Keycloak 16.1.1. This step should remain where it's
+  # used, to better illustrate a popular OIDC workflow.
+  #
+  # create_oidc_secret("provider-scope", "#{oidc_scope},offline_access", service_id)
 end
 
 When(/^I authenticate via OIDC V2 with code and service-id "([^"]*)"$/) do |service_id|
