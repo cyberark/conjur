@@ -151,7 +151,7 @@ module Authentication
             skip_nil: true
           ) do
             @discovery_configuration.discover!(@authenticator.provider_uri)
-          rescue HTTPClient::ConnectTimeoutError, Errno::ETIMEDOUT => e
+          rescue Faraday::TimeoutError, Errno::ETIMEDOUT => e
             raise Errors::Authentication::OAuth::ProviderDiscoveryTimeout.new(@authenticator.provider_uri, e.message)
           rescue => e
             raise Errors::Authentication::OAuth::ProviderDiscoveryFailed.new(@authenticator.provider_uri, e.message)
