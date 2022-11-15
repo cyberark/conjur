@@ -1,0 +1,14 @@
+@startuml
+title OIDC Information Workflow
+if (Does OIDC policy exist?) is (no) then
+  #pink:Message: An OIDC policy must be created with the\nid: 'service_id' to create an authenticator;
+  kill
+endif
+if (Is authenticator enabled?) is (no) then
+  #pink:Message: Authenticator 'authn-oidc/<service-id>'\nneeds to be enabkled to use;
+  kill
+endif
+
+
+#palegreen:action;
+@enduml
