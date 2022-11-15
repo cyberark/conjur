@@ -9,6 +9,12 @@ if (Is authenticator enabled?) is (no) then
   kill
 endif
 
+if (Is authenticator configured correctly?) is (no) then
+  #pink:Message: ;
+  kill
+endif
+
+
 
 #palegreen:action;
 @enduml
