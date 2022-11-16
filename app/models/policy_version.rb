@@ -126,6 +126,16 @@ class PolicyVersion < Sequel::Model(:policy_versions)
     SQL
   end
 
+  def latest_policies
+    Sequel::Model.db[<<-SQL, resource_id, policies_version_limit, resource_id]
+      WITH
+      "ordered_versions" AS (
+        Select DISTINCT ON ( policy_text) policy_text, resource_id, created_at from policy_versions ORDER BY policy_text, created_at DESC;
+      )
+
+    SQL
+  end
+
   def remove_expired_versions
     Sequel::Model.db[<<-SQL, resource_id, policies_version_limit, resource_id].delete
       WITH
