@@ -36,4 +36,10 @@ class PolicyExporter
   def all_current_policies
     PolicyVersion.distinct(:resource_id).reverse_order(:resource_id, :version).all
   end
+  
+  def create_files
+    PolicyVersion.all_current_policies.each_with_index do |policy, index|
+      File.open("#{%03d index} - #{policy.branch_name} policy.yaml", "w") { |f| f.write policy.working_policy_text }
+    end
+  end
 end
