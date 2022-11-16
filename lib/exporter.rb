@@ -7,8 +7,14 @@ require 'app/models/policy_version'
 class Exporter
   class << self
     def export
-      Sequel::Model.db.transaction do
-        puts PolicyVersion.all
+      puts policy_list.join("---\n")
+    end
+
+    private
+
+    def policy_list
+      PolicyVersion.all_current_policies.map do |policy|
+         policy.working_policy_text
       end
     end
   end

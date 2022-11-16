@@ -45,6 +45,30 @@ class PolicyVersion < Sequel::Model(:policy_versions)
     end
   end
 
+  def self.all_current_policies
+    self.distinct(:resource_id).reverse_order(:resource_id, :version).all
+  end
+
+  def working_policy_text
+    return policy_text if root_policy?
+
+    return <<~POLICY
+    # policy for branch #{policy_branch_name} automatically generated
+    # by rake policy:export at #{Time.now}
+    #
+    # Load this policy into conjur using the cli with
+    #     conur policy load root #{policy_branch_name}.yaml
+    - !policy
+      id: #{policy_branch_name}
+      body:
+        #{policy_text.gsub(/[\n]/, "\n    ")}
+    POLICY
+  end
+
+  def policy_branch_name
+    resource_id.split(":")[-1]
+  end
+
   def as_json options = {}
     super(options).tap do |response|
       response["id"] = response.delete("resource_id")
