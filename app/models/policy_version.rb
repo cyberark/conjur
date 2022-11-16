@@ -53,11 +53,6 @@ class PolicyVersion < Sequel::Model(:policy_versions)
     return policy_text if root_policy?
 
     return <<~POLICY
-    # policy for branch #{policy_branch_name} automatically generated
-    # by rake policy:export at #{Time.now}
-    #
-    # Load this policy into conjur using the cli with
-    #     conur policy load root #{policy_branch_name}.yaml
     - !policy
       id: #{policy_branch_name}
       body:
