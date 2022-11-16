@@ -52,4 +52,11 @@ namespace :policy do
   
     RootLoader.load(account, file_name)
   end
+
+  desc "Export policy to a file"
+  task :export, %w[account] => ["environment"] do |t, args|
+    require 'root_loader'
+
+    Exporter.export
+  end
 end
