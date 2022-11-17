@@ -53,10 +53,19 @@ namespace :policy do
     RootLoader.load(account, file_name)
   end
 
-  desc "Export policy to a file"
-  task :export => ["environment"] do |t, args|
+  desc "Export conjur policy to a file"
+  task :export, %w[format] => ["environment"] do |t, args|
     require 'root_loader'
 
-    PolicyExporter.new.export
+    formats = [
+      "stream",
+      "files"
+    ]
+
+    args.with_defaults({"format": "stream"})
+    format = args["format"]
+    raise("Format must be one of: #{formats.join(',')}") unless formats.include?(format.to_s)
+
+    PolicyExporter.new.export(format: format)
   end
 end

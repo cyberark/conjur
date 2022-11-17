@@ -9,8 +9,12 @@ class PolicyExporter
     @policy_version = policy_version
   end
 
-  def export
-    puts policy_list.map{ |p| p.strip }.join("\n")
+  def export(format:)
+    if format == "stream"
+      puts policy_list.map{ |p| p.strip }.join("\n")
+    else
+      create_files
+    end
   end
 
   private
@@ -34,12 +38,14 @@ class PolicyExporter
   end
 
   def all_current_policies
-    PolicyVersion.distinct(:resource_id).reverse_order(:resource_id, :version).all
+    PolicyVersion.distinct(:resource_id).reverse_order(:resource_id, :version).all.sort do |a, b|
+      b.created_at - a.created_at
+    end
   end
   
   def create_files
     PolicyVersion.all_current_policies.each_with_index do |policy, index|
-      File.open("#{%03d index} - #{policy.branch_name} policy.yaml", "w") { |f| f.write policy.working_policy_text }
+      File.open("#{policy.policy_branch_name}.policy.yaml", "w") { |f| f.write policy.working_policy_text }
     end
   end
 end
