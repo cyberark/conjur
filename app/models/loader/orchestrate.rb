@@ -327,6 +327,7 @@ module Loader
       in_primary_schema do
         disable_policy_log_trigger
         TABLES.each { |table| insert_table_records(table) }
+        update_materialized_views
         enable_policy_log_trigger
       end
 
@@ -362,6 +363,15 @@ module Loader
 
     def enable_policy_log_trigger
       db.run('SET LOCAL conjur.skip_insert_policy_log_trigger = false')
+    end
+
+    def update_materialized_views
+      # Materialized views are used to pre-compute recursive role members
+      # and resource attributes to save time on read. These
+      # must be refreshed when they underlying tables are updated.
+      db.run('REFRESH MATERIALIZED VIEW all_roles_view;')
+      db.run('REFRESH MATERIALIZED VIEW resources_view;')
+      
     end
 
     def insert_policy_log_records(table)
