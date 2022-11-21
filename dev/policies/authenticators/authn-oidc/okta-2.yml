@@ -14,7 +14,7 @@
           - !variable client-secret
 
           # URI of Conjur instance
-          - !variable redirect-uri
+          - !variable redirect_uri
 
           # Defines the JWT claim to use as the Conjur identifier
           - !variable claim-mapping
