@@ -31,6 +31,13 @@ module Authentication
       end
 
       def call(parameters:, request_ip:)
+        required_parameters = %i[state code]
+        required_parameters.each do |parameter|
+          if !parameters.key?(parameter) || parameters[parameter].strip.empty?
+            raise Errors::Authentication::RequestBody::MissingRequestParam, parameter
+          end
+        end
+
         # Load Authenticator policy and values (validates data stored as variables)
         authenticator = @authn_repo.find(
           type: @authenticator_type,

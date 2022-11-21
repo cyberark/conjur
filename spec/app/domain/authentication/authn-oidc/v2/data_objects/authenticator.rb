@@ -9,12 +9,15 @@ RSpec.describe('Authentication::AuthnOidc::V2::DataObjects::Authenticator') do
       client_id: 'client-id-123',
       client_secret: 'client-secret-123',
       claim_mapping: 'email',
+      nonce: 'nonce456',
+      state: 'state123',
       account: 'default',
       service_id: 'my-authenticator'
     }
   end
   let(:args) { default_args }
 
+  # subject { Authentication::AuthnOidc::V2::DataObjects::Authenticator.new(**default_args)}
   let(:authenticator) { Authentication::AuthnOidc::V2::DataObjects::Authenticator.new(**args) }
 
   describe '.scope' do
@@ -34,12 +37,12 @@ RSpec.describe('Authentication::AuthnOidc::V2::DataObjects::Authenticator') do
 
     context 'when initialized with an array argument' do
       context 'single value array' do
-        let(:args) { default_args.merge({ provider_scope: 'foo' }) }
+        let(:args) { default_args.merge({ provider_scope: ['foo'] }) }
         it { expect(authenticator.scope).to eq('openid email profile foo') }
       end
 
       context 'multi-value array' do
-        let(:args) { default_args.merge({ provider_scope: 'foo bar' }) }
+        let(:args) { default_args.merge({ provider_scope: ['foo', 'bar'] }) }
         it { expect(authenticator.scope).to eq('openid email profile foo bar') }
       end
     end

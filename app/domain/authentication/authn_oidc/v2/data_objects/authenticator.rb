@@ -4,9 +4,7 @@ module Authentication
       module DataObjects
         class Authenticator
 
-          REQUIRED_VARIABLES = %i[provider_uri client_id client_secret claim_mapping].freeze
-          OPTIONAL_VARIABLES = %i[redirect_uri response_type provider_scope name].freeze
-
+          # required
           attr_reader :provider_uri, :client_id, :client_secret, :claim_mapping, :nonce, :state, :account
           attr_reader :service_id, :redirect_uri, :response_type
 
@@ -15,6 +13,8 @@ module Authentication
             client_id:,
             client_secret:,
             claim_mapping:,
+            nonce:,
+            state:,
             account:,
             service_id:,
             redirect_uri: nil,
@@ -27,7 +27,9 @@ module Authentication
             @client_id = client_id
             @client_secret = client_secret
             @claim_mapping = claim_mapping
+            @nonce = nonce
             @response_type = response_type
+            @state = state
             @service_id = service_id
             @name = name
             @provider_scope = provider_scope
@@ -35,7 +37,7 @@ module Authentication
           end
 
           def scope
-            (%w[openid email profile] + [*@provider_scope.to_s.split(' ')]).uniq.join(' ')
+            (%w[openid email profile] + [*@provider_scope]).uniq.join(' ')
           end
 
           def name

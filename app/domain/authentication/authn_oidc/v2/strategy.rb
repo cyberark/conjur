@@ -15,17 +15,12 @@ module Authentication
 
         # Don't love this name...
         def callback(args)
-          %i[code nonce code_verifier].each do |param|
-            unless args[param].present?
-              raise Errors::Authentication::RequestBody::MissingRequestParam, param.to_s
-            end
-          end
+          # TODO: Check that `code` and `state` attributes are present
+          raise Errors::Authentication::AuthnOidc::StateMismatch unless args[:state] == @authenticator.state
 
           identity = resolve_identity(
             jwt: @client.callback(
-              code: args[:code],
-              nonce: args[:nonce],
-              code_verifier: args[:code_verifier]
+              code: args[:code]
             )
           )
           unless identity.present?
