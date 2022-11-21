@@ -12,7 +12,7 @@ RSpec.describe('DB::Repository::AuthenticatorRepository') do
     )
   end
 
-  let(:arguments) { %i[provider_uri client_id client_secret claim_mapping extra] }
+  let(:arguments) { %i[provider_uri client_id client_secret claim_mapping nonce state] }
 
   describe('#find_all') do
     context 'when webservice is not present' do

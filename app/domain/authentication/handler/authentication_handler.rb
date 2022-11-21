@@ -82,8 +82,7 @@ module Authentication
           raise ApplicationController::Forbidden
 
         when Errors::Authentication::RequestBody::MissingRequestParam,
-          Errors::Authentication::AuthnOidc::TokenVerificationFailed,
-          Errors::Authentication::AuthnOidc::TokenRetrievalFailed
+          Errors::Authentication::AuthnOidc::TokenVerificationFailed
           raise ApplicationController::BadRequest
 
         when Errors::Conjur::RequestedResourceNotFound
@@ -95,11 +94,16 @@ module Authentication
         when Errors::Authentication::Jwt::TokenExpired
           raise ApplicationController::Unauthorized.new(err.message, true)
 
-        when Errors::Authentication::Security::RoleNotFound
+        when Errors::Authentication::AuthnOidc::StateMismatch,
+          Errors::Authentication::Security::RoleNotFound
           raise ApplicationController::BadRequest
 
         when Errors::Authentication::Security::MultipleRoleMatchesFound
           raise ApplicationController::Forbidden
+          # Code value mismatch
+        when Rack::OAuth2::Client::Error
+          raise ApplicationController::BadRequest
+
         else
           raise ApplicationController::Unauthorized
         end
