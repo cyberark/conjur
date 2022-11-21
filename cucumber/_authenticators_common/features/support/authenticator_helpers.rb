@@ -65,6 +65,10 @@ module AuthenticatorHelpers
     http_status == 504 || client_timeout?
   end
 
+  def load_root_policy(policy)
+    conjur_api.load_policy('root', policy, method: Conjur::API::POLICY_METHOD_PUT)
+  end
+
   def get(path, options = {})
     options = options.merge(
       method: :get,
@@ -73,7 +77,6 @@ module AuthenticatorHelpers
     result             = RestClient::Request.execute(options)
     @response_body     = result.body
     @http_status       = result.code
-    result
   rescue RestClient::Exception => e
     @rest_client_error = e
     @http_status       = e.http_code

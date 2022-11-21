@@ -22,9 +22,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   but is available under the `CONJUR_FEATURE_ROLES_API_EXTENSIONS` feature flag.
   [cyberark/conjur#2671](https://github.com/cyberark/conjur/pull/2671)
 
-### Changed
-- OIDC authenticator now uses PKCE and dynamic nonce. ([cyberark/conjur#2662](https://github.com/cyberark/conjur/pull/2662)
-
 ### Security
 - Updated nokogiri in root and docs Gemfile.lock files to resolve GHSA-2qc6-mcvw-92cw
   [cyberark/conjur#2670](https://github.com/cyberark/conjur/pull/2670)
