@@ -192,7 +192,7 @@ Feature: OIDC Authenticator V2 - Users can authenticate with OIDC authenticator
     Then it is a bad request
     And The following appears in the log after my savepoint:
     """
-    Errors::Authentication::AuthnOidc::TokenRetrievalFailed
+    Rack::OAuth2::Client::Error
     """
 
   @negative @acceptance
@@ -216,6 +216,29 @@ Feature: OIDC Authenticator V2 - Users can authenticate with OIDC authenticator
     """
     Errors::Conjur::RequestedResourceNotFound: CONJ00123E Resource
     """
+
+
+  # This test throws an error because the provider URI is invalid.
+  # TODO - add a test to verify URI valididity of provider uri
+  # TODO - throw a valid exception when the provider fails to load an OIDC
+  #         endpoint during the service discover (which occurs when rendering the
+  #         provider list)
+  #
+  # Does this test actually make sense?
+  # @smoke
+  # Scenario: provider-uri dynamic change
+  #   And I fetch a code for username "alice" and password "alice"
+  #   And I authenticate via OIDC V2 with code
+  #   And user "alice" has been authorized by Conjur
+  #   # Update provider uri to a different hostname and verify `provider-uri` has changed
+  #   When I add the secret value "https://different-provider:8443" to the resource "cucumber:variable:conjur/authn-oidc/keycloak2/provider-uri"
+  #   And I authenticate via OIDC V2 with code
+  #   Then it is unauthorized
+  #   # Check recovery to a valid provider uri
+  #   # When I successfully set OIDC V2 variables for "keycloak2"
+  #   And I fetch a code for username "alice" and password "alice"
+  #   And I authenticate via OIDC V2 with code
+  #   Then user "alice" has been authorized by Conjur
 
   @negative @acceptance
   Scenario: Unauthenticated is raised in case of an invalid OIDC Provider hostname
