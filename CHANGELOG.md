@@ -23,7 +23,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   [cyberark/conjur#2671](https://github.com/cyberark/conjur/pull/2671)
 
 ### Changed
-- OIDC authenticator now uses PKCE and dynamic nonce. ([cyberark/conjur#2662](https://github.com/cyberark/conjur/pull/2662)
+- OIDC authenticator now uses PKCE and dynamic nonce. ([cyberark/conjur#2661](https://github.com/cyberark/conjur/pull/2661)
 
 ### Security
 - Updated nokogiri in root and docs Gemfile.lock files to resolve GHSA-2qc6-mcvw-92cw

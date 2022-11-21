@@ -20,10 +20,10 @@ RSpec.describe('Authentication::AuthnOidc::V2::Views::ProviderContext') do
   let(:foo) do
     Authentication::AuthnOidc::V2::DataObjects::Authenticator.new(
       account: "cucumber",
-      service_id: "foo_service",
+      service_id: "foo",
       redirect_uri: "http://conjur/authn-oidc/cucumber/authenticate",
       provider_uri: "http://test",
-      name: "foo_name",
+      name: "foo",
       client_id: "ConjurClient",
       client_secret: 'client_secret',
       claim_mapping: 'claim_mapping'
@@ -33,10 +33,10 @@ RSpec.describe('Authentication::AuthnOidc::V2::Views::ProviderContext') do
   let(:bar) do
     Authentication::AuthnOidc::V2::DataObjects::Authenticator.new(
       account: "cucumber",
-      service_id: "bar_service",
+      service_id: "bar",
       provider_uri: "http://test",
       redirect_uri: "http://conjur/authn-oidc/cucumber/authenticate",
-      name: "bar_name",
+      name: "bar",
       client_id: "ConjurClient",
       client_secret: 'client_secret',
       claim_mapping: 'claim_mapping'
@@ -48,20 +48,20 @@ RSpec.describe('Authentication::AuthnOidc::V2::Views::ProviderContext') do
   let(:res) do
     [
       {
-        name: "foo_name",
+        name: "foo",
         redirect_uri: "\"http://test\"?client_id=ConjurClient&response_type=code&scope=openid%20email%20profile" \
          "&nonce=random&code_challenge=digested&code_challenge_method=S256" \
          "&redirect_uri=http%3A%2F%2Fconjur%2Fauthn-oidc%2Fcucumber%2Fauthenticate",
-        service_id: "foo_service",
+        service_id: "foo",
         code_verifier: 'random',
         nonce: 'random',
         type: "authn-oidc"
       }, {
-        name: "bar_name",
+        name: "bar",
         redirect_uri: "\"http://test\"?client_id=ConjurClient&response_type=code&scope=openid%20email%20profile" \
          "&nonce=random&code_challenge=digested&code_challenge_method=S256" \
          "&redirect_uri=http%3A%2F%2Fconjur%2Fauthn-oidc%2Fcucumber%2Fauthenticate",
-        service_id: "bar_service",
+        service_id: "bar",
         type: "authn-oidc",
         code_verifier: 'random',
         nonce: 'random'

@@ -32,11 +32,6 @@ RSpec.describe('Authentication::AuthnOidc::V2::DataObjects::Authenticator') do
       it { expect(authenticator.scope).to eq('openid email profile 1') }
     end
 
-    context 'when initialized with a duplicated argument' do
-      let(:args) { default_args.merge({ provider_scope: 'profile' }) }
-      it { expect(authenticator.scope).to eq('openid email profile') }
-    end
-
     context 'when initialized with an array argument' do
       context 'single value array' do
         let(:args) { default_args.merge({ provider_scope: 'foo' }) }

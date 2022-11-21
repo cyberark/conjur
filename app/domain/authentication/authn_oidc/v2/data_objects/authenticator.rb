@@ -7,7 +7,7 @@ module Authentication
           REQUIRED_VARIABLES = %i[provider_uri client_id client_secret claim_mapping].freeze
           OPTIONAL_VARIABLES = %i[redirect_uri response_type provider_scope name].freeze
 
-          attr_reader :provider_uri, :client_id, :client_secret, :claim_mapping, :account
+          attr_reader :provider_uri, :client_id, :client_secret, :claim_mapping, :nonce, :state, :account
           attr_reader :service_id, :redirect_uri, :response_type
 
           def initialize(
