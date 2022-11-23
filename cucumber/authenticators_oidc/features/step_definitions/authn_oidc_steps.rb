@@ -173,6 +173,17 @@ When(/^I authenticate via OIDC V2 with refresh token$/) do
   )
 end
 
+Given(/^I logout from the OIDC V2 authenticator "([^"]*)" with state "([^"]*)" and redirect URI "([^"]*)"$/) do |service_id, state, redirect_uri|
+  logout_with_refresh_token(
+    service_id: service_id,
+    account: @context.get(:account),
+    refresh_token: @context.get(:x_oidc_refresh_token),
+    nonce: @context.get(:nonce),
+    state: state,
+    post_logout_redirect_uri: redirect_uri
+  )
+end
+
 When(/^I store the current access token$/) do
   @context.set(:access_token => retrieved_access_token)
 end
@@ -244,6 +255,10 @@ Then(/^The authentication response includes header "([^"]*)"$/) do |header|
   header_val = @response_headers[header_sym]
   @context.set(header_sym => header_val)
   expect(header_val).not_to be_nil
+end
+
+Then(/^The response includes the OIDC provider's logout URI/) do
+  expect(@response_body.to_s).to include('https://keycloak:8443/auth/realms/master/protocol/openid-connect/logout')
 end
 
 Then(/^The Okta user has been authorized by Conjur/) do

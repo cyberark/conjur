@@ -1,0 +1,169 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://dev-56357110.okta.com/oauth2/default/v1/token
+    body:
+      encoding: UTF-8
+      string: grant_type=refresh_token&refresh_token=WjL3C_CGeYIVnV4WfcjyNI6uJRn0wwjIqpsJ_yeHSvo&scope=openid+email+profile+offline_access
+    headers:
+      User-Agent:
+      - Rack::OAuth2 (2.2.0)
+      Authorization:
+      - Basic MG9hNmNjaXZ6ZjNuRWVpR3Q1ZDc6WW5BdWtVRUNFQXRzV1NXQ0hQemkxY29pWlplT2hkdlFPU25yaTRLeg==
+      Content-Type:
+      - application/x-www-form-urlencoded
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 23 Nov 2022 15:42:14 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Server:
+      - nginx
+      Public-Key-Pins-Report-Only:
+      - pin-sha256="r5EfzZxQVvQpKo3AgYRaT7X2bDO/kj3ACwmxfdT2zt8="; pin-sha256="MaqlcUgk2mvY/RFSGeSwBRkI+rZ6/dxe/DuQfBT/vnQ=";
+        pin-sha256="72G5IEvDEWn+EThf3qjR7/bQSWaS2ZSLqolhnO6iyJI="; pin-sha256="rrV6CLCCvqnk89gWibYT0JO6fNQ8cCit7GGoiVTjCOg=";
+        max-age=60; report-uri="https://okta.report-uri.com/r/default/hpkp/reportOnly"
+      X-Okta-Request-Id:
+      - Y34_VsWnmvC6vyIs0HjFNwAABMk
+      X-Xss-Protection:
+      - '0'
+      P3p:
+      - CP="HONK"
+      Content-Security-Policy:
+      - 'default-src ''self'' dev-56357110.okta.com *.oktacdn.com; connect-src ''self''
+        dev-56357110.okta.com dev-56357110-admin.okta.com *.oktacdn.com *.mixpanel.com
+        *.mapbox.com app.pendo.io data.pendo.io pendo-static-5634101834153984.storage.googleapis.com
+        pendo-static-5391521872216064.storage.googleapis.com dev-56357110.kerberos.okta.com
+        *.authenticatorlocalprod.com:8769 http://localhost:8769 http://127.0.0.1:8769
+        *.authenticatorlocalprod.com:65111 http://localhost:65111 http://127.0.0.1:65111
+        *.authenticatorlocalprod.com:65121 http://localhost:65121 http://127.0.0.1:65121
+        *.authenticatorlocalprod.com:65131 http://localhost:65131 http://127.0.0.1:65131
+        *.authenticatorlocalprod.com:65141 http://localhost:65141 http://127.0.0.1:65141
+        *.authenticatorlocalprod.com:65151 http://localhost:65151 http://127.0.0.1:65151
+        https://oinmanager.okta.com data:; script-src ''unsafe-inline'' ''unsafe-eval''
+        ''self'' dev-56357110.okta.com *.oktacdn.com; style-src ''unsafe-inline''
+        ''self'' dev-56357110.okta.com *.oktacdn.com app.pendo.io cdn.pendo.io pendo-static-5634101834153984.storage.googleapis.com
+        pendo-static-5391521872216064.storage.googleapis.com; frame-src ''self'' dev-56357110.okta.com
+        dev-56357110-admin.okta.com login.okta.com com-okta-authenticator:; img-src
+        ''self'' dev-56357110.okta.com *.oktacdn.com *.tiles.mapbox.com *.mapbox.com
+        app.pendo.io data.pendo.io cdn.pendo.io pendo-static-5634101834153984.storage.googleapis.com
+        pendo-static-5391521872216064.storage.googleapis.com data: blob:; font-src
+        ''self'' dev-56357110.okta.com data: *.oktacdn.com fonts.gstatic.com; frame-ancestors
+        ''self'''
+      X-Rate-Limit-Limit:
+      - '300'
+      X-Rate-Limit-Remaining:
+      - '299'
+      X-Rate-Limit-Reset:
+      - '1669218194'
+      Cache-Control:
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      Expect-Ct:
+      - report-uri="https://oktaexpectct.report-uri.com/r/t/ct/reportOnly", max-age=0
+      X-Content-Type-Options:
+      - nosniff
+      Strict-Transport-Security:
+      - max-age=315360000; includeSubDomains
+      X-Robots-Tag:
+      - noindex,nofollow
+      Set-Cookie:
+      - JSESSIONID=19C6C0CB6EDA27F26388459D92E4411A; Path=/; Secure; HttpOnly
+      - autolaunch_triggered=""; Expires=Thu, 01-Jan-1970 00:00:10 GMT; Path=/
+      - sid=""; Expires=Thu, 01-Jan-1970 00:00:10 GMT; Path=/
+    body:
+      encoding: UTF-8
+      string: '{"token_type":"Bearer","expires_in":3600,"access_token":"eyJraWQiOiJrU0EwSGItaVBmUlAzV2xDaGZ5djNVdldfTks4YVhQMEdNeHhtWjlJdXFFIiwiYWxnIjoiUlMyNTYifQ.eyJ2ZXIiOjEsImp0aSI6IkFULlhDSW0yeDE4LUdFR2lXZ3c1N2VmWUN0cFFVWG53WXpJVlNVSUJqbTlVN3Mub2FycmVtOXViYXFKTldHRnY1ZDYiLCJpc3MiOiJodHRwczovL2Rldi01NjM1NzExMC5va3RhLmNvbS9vYXV0aDIvZGVmYXVsdCIsImF1ZCI6ImFwaTovL2RlZmF1bHQiLCJpYXQiOjE2NjkyMTgxMzQsImV4cCI6MTY2OTIyMTczNCwiY2lkIjoiMG9hNmNjaXZ6ZjNuRWVpR3Q1ZDciLCJ1aWQiOiIwMHU2eGhmbXBtVFZnbVFvRjVkNyIsInNjcCI6WyJvZmZsaW5lX2FjY2VzcyIsIm9wZW5pZCIsInByb2ZpbGUiLCJlbWFpbCJdLCJhdXRoX3RpbWUiOjE2NjkyMTc4ODksInN1YiI6InRlc3QudXNlcjNAbXljb21wYW55LmNvbSJ9.IvxxG6XrQqIwHs09IsxGOleyZGMlfyqeoGNXkEjvCjjOZUdUz0aroxEfkhHIY5rH7y1gXI0BvI5zZNu1i8NHneOWsV6U1nxHi3IIwXjBFpvaAy-T9he6LqO0puy_S2rItFE-QXGyMk5bkMADeVJfJ7P8-d3ilaLQcrIFxtCij7B1vo7pmNDH7NyHNRVDP6Eip7s1aQdW802BGH-IejZplNjizpW-ODMXQt5b35i18i2cJglKyGvmCp0_2AwkFRftyjxkIAy6p2xAHM9yZkor-9VXLET8-HipbWYwYk0VoyMrsW2_O3ONT0pM4X-2gOjAli7QJMBqcpPryK05LMCX8g","scope":"offline_access openid profile email","refresh_token":"vP06427f5bdCNXUURSOOlDGzJt484PYnSpmCpdpNKws","id_token":"eyJraWQiOiJrU0EwSGItaVBmUlAzV2xDaGZ5djNVdldfTks4YVhQMEdNeHhtWjlJdXFFIiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiIwMHU2eGhmbXBtVFZnbVFvRjVkNyIsIm5hbWUiOiJUZXN0IFBlcnNvbiIsImVtYWlsIjoidGVzdC51c2VyM0BteWNvbXBhbnkuY29tIiwidmVyIjoxLCJpc3MiOiJodHRwczovL2Rldi01NjM1NzExMC5va3RhLmNvbS9vYXV0aDIvZGVmYXVsdCIsImF1ZCI6IjBvYTZjY2l2emYzbkVlaUd0NWQ3IiwiaWF0IjoxNjY5MjE4MTM0LCJleHAiOjE2NjkyMjE3MzQsImp0aSI6IklELmxpYlFnQjBRVWVLdkdCOHNwY2JFWGNaMWMxc3AwaU1kQ2gyNlhWdE50OXciLCJhbXIiOltdLCJpZHAiOiIwMG82Y2JtYzJuZjJsclJnUDVkNyIsInByZWZlcnJlZF91c2VybmFtZSI6InRlc3QudXNlcjNAbXljb21wYW55LmNvbSIsImF1dGhfdGltZSI6MTY2OTIxNzg4OSwiYXRfaGFzaCI6Ik5qRkkwZ1FJVG52N2hFRVBYc3RwQ1EifQ.wuLbsmy2PFsU8Sv0iBvZNP_L4KRkisF6PLO49YMiZI8vndlxohuRHsFpF0_LyRQ_vH-bTHJBRKSC4iQWvTzaL_8cfzV33RLtZYwTE8fqiW46K7WuSkeFrX0pcoY8PQ-bhHAxxgBKOrI0CHcVXVsw6GLydSzlaOsdy612POHmVLPZjB12dWK5_Dp3B_MvVnYc21tiPolM-mk7kXiAD2UEd-2UAcmtamim3YCSEPVXd5HPQTmxJ3z1HaIyvC8g6aUD2JcvHpj2V4N2UpKK1_Mh1-yG74VWiaGoec5SMYfuDFLLkUGitJkJtcU44TunXzoO-fCczU0wZIrRb36O6WQAwA"}'
+  recorded_at: Mon, 21 Nov 2022 17:02:17 GMT
+- request:
+    method: get
+    uri: https://dev-56357110.okta.com/oauth2/default/v1/keys
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      User-Agent:
+      - OpenIDConnect (2.2.0)
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 23 Nov 2022 15:42:15 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Server:
+      - nginx
+      Public-Key-Pins-Report-Only:
+      - pin-sha256="r5EfzZxQVvQpKo3AgYRaT7X2bDO/kj3ACwmxfdT2zt8="; pin-sha256="MaqlcUgk2mvY/RFSGeSwBRkI+rZ6/dxe/DuQfBT/vnQ=";
+        pin-sha256="72G5IEvDEWn+EThf3qjR7/bQSWaS2ZSLqolhnO6iyJI="; pin-sha256="rrV6CLCCvqnk89gWibYT0JO6fNQ8cCit7GGoiVTjCOg=";
+        max-age=60; report-uri="https://okta.report-uri.com/r/default/hpkp/reportOnly"
+      X-Xss-Protection:
+      - '0'
+      P3p:
+      - CP="HONK"
+      Content-Security-Policy:
+      - 'default-src ''self'' dev-56357110.okta.com *.oktacdn.com; connect-src ''self''
+        dev-56357110.okta.com dev-56357110-admin.okta.com *.oktacdn.com *.mixpanel.com
+        *.mapbox.com app.pendo.io data.pendo.io pendo-static-5634101834153984.storage.googleapis.com
+        pendo-static-5391521872216064.storage.googleapis.com dev-56357110.kerberos.okta.com
+        *.authenticatorlocalprod.com:8769 http://localhost:8769 http://127.0.0.1:8769
+        *.authenticatorlocalprod.com:65111 http://localhost:65111 http://127.0.0.1:65111
+        *.authenticatorlocalprod.com:65121 http://localhost:65121 http://127.0.0.1:65121
+        *.authenticatorlocalprod.com:65131 http://localhost:65131 http://127.0.0.1:65131
+        *.authenticatorlocalprod.com:65141 http://localhost:65141 http://127.0.0.1:65141
+        *.authenticatorlocalprod.com:65151 http://localhost:65151 http://127.0.0.1:65151
+        https://oinmanager.okta.com data:; script-src ''unsafe-inline'' ''unsafe-eval''
+        ''self'' dev-56357110.okta.com *.oktacdn.com; style-src ''unsafe-inline''
+        ''self'' dev-56357110.okta.com *.oktacdn.com app.pendo.io cdn.pendo.io pendo-static-5634101834153984.storage.googleapis.com
+        pendo-static-5391521872216064.storage.googleapis.com; frame-src ''self'' dev-56357110.okta.com
+        dev-56357110-admin.okta.com login.okta.com com-okta-authenticator:; img-src
+        ''self'' dev-56357110.okta.com *.oktacdn.com *.tiles.mapbox.com *.mapbox.com
+        app.pendo.io data.pendo.io cdn.pendo.io pendo-static-5634101834153984.storage.googleapis.com
+        pendo-static-5391521872216064.storage.googleapis.com data: blob:; font-src
+        ''self'' dev-56357110.okta.com data: *.oktacdn.com fonts.gstatic.com; frame-ancestors
+        ''self'''
+      Expect-Ct:
+      - report-uri="https://oktaexpectct.report-uri.com/r/t/ct/reportOnly", max-age=0
+      Cache-Control:
+      - max-age=4431600, must-revalidate
+      Expires:
+      - Fri, 13 Jan 2023 22:42:15 GMT
+      Vary:
+      - Origin
+      X-Content-Type-Options:
+      - nosniff
+      Strict-Transport-Security:
+      - max-age=315360000; includeSubDomains
+      X-Okta-Request-Id:
+      - Y34_Vxk5o3LJQK587Bc1WwAABf4
+    body:
+      encoding: UTF-8
+      string: '{"keys":[{"kty":"RSA","alg":"RS256","kid":"kSA0Hb-iPfRP3WlChfyv3UvW_NK8aXP0GMxxmZ9IuqE","use":"sig","e":"AQAB","n":"0Zr8pwGpTyvZzaOZz0aBVc_xQ-YroSIUeuIrZpPLMPBO29SrF13bEpY2yLMO3PxT_HqVBsRVooyCqnMU84VJ38eL7oX4NE8WOOcqhjktHtAzNbZgLHhEyoH59yVOiM5eMFA00Z8XY_YZuKvlRHQOkjC1t3yIlFnooeKpZm1zfg9GTaaUUQuXWfV9tEVgLYsuX5rcTnJuojExRf_nQM211AugeEgiZTcD-wP7U1-DYAk7l9hnnFyWJYfBCF0B1cCS0TVCtwqqybUbv2mFe0Q7QGrdelOQXEsFB4qud6AJ8hYAGTiuFmAHkqBIngxM-zFEAtxRuK4nsf_RSBVYgS78dw"},{"kty":"RSA","alg":"RS256","kid":"xK6Bg6bmgAWe_CKgrm-5Sr8sGpyrpWQb8LV2xmxcvIc","use":"sig","e":"AQAB","n":"qyzixXfFY2c7CxTUI2aN4oYugrcbUhJ-DfYPcuYCSg50YeWBbVHG_ZVa1tcTBwRQoaIjKOJfPHRWGmweqdSYu39fFh2z7I7TyATf0dkmQTnx0Yx9nGnBWuazG4Gx0rqXfQmvHTCXsYNFmVTu16sI1EKkLlTWU6BQ4_yg99Y6Poczl55aoZn0x2PUoEH61xYAr2nMqhbxb8AHwAn_n35Gufe9uwL4Uwg8tIq56aygfXCLS7HA0fXqsrrgw_GTHBjz-zRUxuKgPdA-RdhPHjhExlxFrR1UrvN5cxXVIy2NEeKWdEAqrqVsQrJNIyWorBBVmAj5t9MDXSSKwXbFcrdf0w"}]}'
+  recorded_at: Mon, 21 Nov 2022 17:02:17 GMT
+recorded_with: VCR 6.1.0

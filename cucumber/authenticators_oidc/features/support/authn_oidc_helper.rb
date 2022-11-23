@@ -39,14 +39,25 @@ module AuthnOidcHelper
     post(path, payload)
   end
 
+  def logout_with_refresh_token(service_id:, account:, refresh_token:, nonce:, state:, post_logout_redirect_uri:)
+    path = authn_url(type: 'oidc', account: account, service_id: service_id, operation: 'logout')
+    payload = {
+      :refresh_token => refresh_token,
+      :nonce => nonce,
+      :state => state,
+      :post_logout_redirect_uri => post_logout_redirect_uri
+    }
+    post(path, payload)
+  end
+
   # Generic Authenticator URL builder
-  def authn_url(type:, account:, service_id: nil, user_id: nil, params: {})
+  def authn_url(type:, account:, service_id: nil, user_id: nil, operation: 'authenticate', params: {})
     path = [
       "authn-#{type}",
       service_id,
       account,
       user_id,
-      'authenticate'
+      operation
     ].compact.join('/')
     result = "#{conjur_hostname}/#{path}"
 

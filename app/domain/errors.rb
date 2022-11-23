@@ -106,6 +106,15 @@ module Errors
       code: "CONJ00126E"
     )
 
+    module Handler
+
+      LogoutNotImplemented = ::Util::TrackableErrorClass.new(
+        msg: "Logout class not implemented in namespace '{0-namespace}'",
+        code: "CONJ00144E"
+      )
+
+    end
+
     module AuthenticatorClass
 
       DoesntStartWithAuthn = ::Util::TrackableErrorClass.new(

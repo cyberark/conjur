@@ -71,6 +71,15 @@ Feature: OIDC Authenticator V2 - Users can authenticate with OIDC authenticator
     And The authentication response includes header "X-OIDC-Refresh-Token"
 
   @smoke
+  Scenario: OIDC V2 logout endpoint kicks off RP-Initiated logout
+    Given I enable OIDC V2 refresh token flows for "keycloak2"
+    And I fetch a code for username "alice" and password "alice"
+    And I authenticate via OIDC V2 with code
+    And The authentication response includes header "X-OIDC-Refresh-Token"
+    When I logout from the OIDC V2 authenticator "keycloak2" with state "rand-state" and redirect URI "https://conjur.org/redirect"
+    Then The response includes the OIDC provider's logout URI
+
+  @smoke
   Scenario: A valid refresh token to get Conjur access token and OIDC refresh token
     Given I enable OIDC V2 refresh token flows for "keycloak2"
     And I fetch a code for username "alice" and password "alice"

@@ -169,6 +169,7 @@ RSpec.describe(Authentication::AuthnOidc::V2::Client) do
 
         expect(response).to eq({
           id_token: decoded_id_token,
+          raw_id_token: id_token,
           refresh_token: refresh_token
         })
       end
@@ -190,6 +191,7 @@ RSpec.describe(Authentication::AuthnOidc::V2::Client) do
 
         expect(response).to eq({
           id_token: decoded_access_token,
+          raw_id_token: access_token,
           refresh_token: refresh_token
         })
       end
@@ -386,6 +388,66 @@ RSpec.describe(Authentication::AuthnOidc::V2::Client) do
         expect{client.discovery_information(invalidate: true)}.to raise_error(
           Errors::Authentication::OAuth::ProviderDiscoveryFailed
         )
+      end
+    end
+  end
+
+  describe '.logout', vcr: 'authenticators/authn-oidc/v2/logout-valid_refresh_token' do
+    # Use different Okta authorization server with refresh tokens enabled.
+    # At some point, all these test cases should point to a single Okta server,
+    # with PKCE and refresh tokens both enabled.
+    let(:authenticator) do
+      Authentication::AuthnOidc::V2::DataObjects::Authenticator.new(
+        **authn_config.merge!({
+          :provider_uri => 'https://dev-56357110.okta.com/oauth2/default',
+          :client_id => '0oa6ccivzf3nEeiGt5d7',
+          :client_secret => 'YnAukUECEAtsWSWCHPzi1coiZZeOhdvQOSnri4Kz',
+          :provider_scope => 'offline_access'
+        })
+      )
+    end
+
+    context 'when passed a valid refresh_token, nonce and state values' do
+      context 'when passed post_logout_redirect_uri value' do
+        it 'returns a properly formatted logout uri and identity token' do
+          # Because JWT tokens have an expiration timeframe, we need to hold time
+          # constant after caching the request.
+          travel_to(Time.parse("2022-11-21 17:02:17 +0000")) do
+            expect(client.oidc_client).to receive(:revoke!).twice
+
+            logout_uri = client.exchange_refresh_token_for_logout_uri(
+              refresh_token: 'WjL3C_CGeYIVnV4WfcjyNI6uJRn0wwjIqpsJ_yeHSvo',
+              nonce: 'some-nonce',
+              state: 'some-state',
+              post_logout_redirect_uri: 'https://conjur.org/redirect'
+            )
+
+            expect(logout_uri).to be_a_kind_of(URI::HTTPS)
+            expect(logout_uri.query).to include('state=some-state')
+            expect(logout_uri.query).to include('post_logout_redirect_uri=https%3A%2F%2Fconjur.org%2Fredirect')
+          end
+        end
+
+        context 'when psot_logout_redirect_uri value omitted' do
+          it 'returns a properly formatted logout uri and identity token' do
+            # Because JWT tokens have an expiration timeframe, we need to hold time
+            # constant after caching the request.
+            travel_to(Time.parse("2022-11-21 17:02:17 +0000")) do
+              expect(client.oidc_client).to receive(:revoke!).twice
+
+              logout_uri = client.exchange_refresh_token_for_logout_uri(
+                refresh_token: 'WjL3C_CGeYIVnV4WfcjyNI6uJRn0wwjIqpsJ_yeHSvo',
+                nonce: 'some-nonce',
+                state: 'some-state',
+                post_logout_redirect_uri: nil
+              )
+
+              expect(logout_uri).to be_a_kind_of(URI::HTTPS)
+              expect(logout_uri.query).to include('state=some-state')
+              expect(logout_uri.query).not_to include('post_logout_redirect_uri')
+            end
+          end
+        end
       end
     end
   end

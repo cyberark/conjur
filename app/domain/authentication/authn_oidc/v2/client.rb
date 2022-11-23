@@ -35,7 +35,8 @@ module Authentication
               token_endpoint: URI(discovery_information.token_endpoint).path,
               userinfo_endpoint: URI(discovery_information.userinfo_endpoint).path,
               jwks_uri: URI(discovery_information.jwks_uri).path,
-              end_session_endpoint: URI(discovery_information.end_session_endpoint).path
+              end_session_endpoint: URI(discovery_information.end_session_endpoint).path,
+              revocation_endpoint: URI(discovery_information.raw['revocation_endpoint']).path
             )
           end
         end
@@ -63,6 +64,27 @@ module Authentication
           tokens
         end
 
+        # This method is meant to support RP-Initiated logout, where an end-
+        # user's user-agent is redirected to the OIDC provider's
+        # `end_session_endpoint`.
+        def exchange_refresh_token_for_logout_uri(refresh_token:, nonce:, state:, post_logout_redirect_uri:)
+          tokens = exchange_refresh_token_for_tokens(
+            refresh_token: refresh_token,
+            nonce: nonce
+          )
+
+          oidc_client.revoke!(refresh_token: refresh_token)
+          oidc_client.revoke!(refresh_token: tokens[:refresh_token])
+
+          uri = URI(discovery_information.end_session_endpoint)
+          uri.query = URI.encode_www_form({
+            :id_token_hint => tokens[:raw_id_token],
+            :state => state,
+            :post_logout_redirect_uri => post_logout_redirect_uri
+          }.compact)
+          uri
+        end
+
         # The methods below are internal methods. They are not marked as
         # private to allow them to be unit tested without going through the
         # above methods.
@@ -71,6 +93,7 @@ module Authentication
           id_token = bearer_token.id_token || bearer_token.access_token
           {
             :id_token => decode_identity_token(id_token: id_token),
+            :raw_id_token => id_token,
             :refresh_token => bearer_token.refresh_token
           }
         end
