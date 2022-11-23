@@ -41,27 +41,36 @@ module Authentication
         end
 
         def exchange_refresh_token_for_tokens(refresh_token:, nonce:)
-          extract_identity_and_refresh_tokens(
-            bearer_token: get_bearer_token(refresh_token: refresh_token),
-            nonce: nonce
+          tokens = extract_identity_and_refresh_tokens(
+            bearer_token: get_bearer_token(refresh_token: refresh_token)
           )
+          verify_identity_token(
+            decoded_id_token: tokens[:id_token],
+            nonce: nonce,
+            refresh: true
+          )
+          tokens
         end
 
         def exchange_code_for_tokens(code:, nonce:, code_verifier:)
-          extract_identity_and_refresh_tokens(
+          tokens = extract_identity_and_refresh_tokens(
             bearer_token: get_bearer_token(code: code, code_verifier: code_verifier),
+          )
+          verify_identity_token(
+            decoded_id_token: tokens[:id_token],
             nonce: nonce
           )
+          tokens
         end
 
-        def extract_identity_and_refresh_tokens(bearer_token:, nonce:)
+        # The methods below are internal methods. They are not marked as
+        # private to allow them to be unit tested without going through the
+        # above methods.
+
+        def extract_identity_and_refresh_tokens(bearer_token:)
           id_token = bearer_token.id_token || bearer_token.access_token
           {
-            :id_token => decode_identity_token(
-              id_token: id_token,
-              nonce: nonce,
-              grant: bearer_token.raw_attributes['grant']
-            ),
+            :id_token => decode_identity_token(id_token: id_token),
             :refresh_token => bearer_token.refresh_token
           }
         end
@@ -97,7 +106,7 @@ module Authentication
           bearer_token
         end
 
-        def decode_identity_token(id_token:, nonce:, grant:)
+        def decode_identity_token(id_token:)
           begin
             attempts ||= 0
             decoded_id_token = @oidc_id_token.decode(
@@ -115,12 +124,16 @@ module Authentication
             retry
           end
 
+          decoded_id_token
+        end
+
+        def verify_identity_token(decoded_id_token:, nonce:, refresh: false)
           # In token refresh flows, the OIDC provider should not include a nonce
           # value in the refreshed identity token, but if they do, it should be
           # validated.
           #
           # https://bitbucket.org/openid/connect/pull-requests/341/errata-clarified-nonce-during-id-token
-          if grant.is_a?(Rack::OAuth2::Client::Grant::RefreshToken) && decoded_id_token.nonce.nil?
+          if refresh && decoded_id_token.nonce.nil?
             nonce = nil
           end
 
@@ -140,8 +153,6 @@ module Authentication
             raise Errors::Authentication::AuthnOidc::TokenVerificationFailed,
                   e.message
           end
-
-          decoded_id_token
         end
 
         def discovery_information(invalidate: false)

@@ -21,10 +21,15 @@ RSpec.describe(Authentication::AuthnOidc::V2::Client) do
     )
   end
 
+  let(:id_token_class) do
+    ::OpenIDConnect::ResponseObject::IdToken
+  end
+
   let(:client) do
     VCR.use_cassette("authenticators/authn-oidc/v2/client_load") do
       client = Authentication::AuthnOidc::V2::Client.new(
-        authenticator: authenticator
+        authenticator: authenticator,
+        oidc_id_token: id_token_class
       )
       # The call `oidc_client` queries the OIDC endpoint. As such,
       # we need to wrap this in a VCR call. Calling this before
@@ -152,12 +157,14 @@ RSpec.describe(Authentication::AuthnOidc::V2::Client) do
     context 'if the provided bearer token includes an identity token' do
       it 'returns the embedded identity and refresh tokens' do
         allow(client).to receive(:decode_identity_token)
-          .with(id_token: id_token, nonce: nonce, grant: grant)
+          .with(id_token: id_token)
           .and_return(decoded_id_token)
+        allow(client).to receive(:verify_identity_token)
+          .with(decoded_id_token: decoded_id_token, nonce: nonce)
+          .and_return(true)
 
         response = client.extract_identity_and_refresh_tokens(
-          bearer_token: bearer_token,
-          nonce: nonce
+          bearer_token: bearer_token
         )
 
         expect(response).to eq({
@@ -170,13 +177,15 @@ RSpec.describe(Authentication::AuthnOidc::V2::Client) do
     context 'if the provided bearer token does not include an identity token' do
       it 'returns the embedded access and refresh tokens' do
         allow(client).to receive(:decode_identity_token)
-          .with(id_token: access_token, nonce: nonce, grant: grant)
+          .with(id_token: access_token)
           .and_return(decoded_access_token)
+        allow(client).to receive(:verify_identity_token)
+          .with(decoded_id_token: decoded_access_token, nonce: nonce)
+          .and_return(true)
         allow(bearer_token).to receive(:id_token).and_return(nil)
 
         response = client.extract_identity_and_refresh_tokens(
-          bearer_token: bearer_token,
-          nonce: nonce
+          bearer_token: bearer_token
         )
 
         expect(response).to eq({
@@ -198,6 +207,10 @@ RSpec.describe(Authentication::AuthnOidc::V2::Client) do
       }
     }
 
+    let(:decoded_id_token) {
+      OpenIDConnect::ResponseObject::IdToken.new id_token_claims
+    }
+
     let(:id_token_class) {
       class_double(OpenIDConnect::ResponseObject::IdToken).tap do |double|
         allow(double).to receive(:decode).and_return(decoded_id_token)
@@ -210,68 +223,74 @@ RSpec.describe(Authentication::AuthnOidc::V2::Client) do
       end
     }
 
-    let(:client) do
-      VCR.use_cassette("authenticators/authn-oidc/v2/client_load") do
-        client = Authentication::AuthnOidc::V2::Client.new(
-          authenticator: authenticator,
-          oidc_id_token: id_token_class
-        )
-        # The call `oidc_client` queries the OIDC endpoint. As such,
-        # we need to wrap this in a VCR call. Calling this before
-        # returning the client to allow this call to be more effectively
-        # mocked.
-        client.oidc_client
-        allow(client).to receive(:discovery_information).and_return(discovery_information)
-        client
+    def mock_oidc_discovery
+      allow(client).to receive(:discovery_information)
+        .and_return(discovery_information)
+    end
+
+    context 'when given some encoded identity token object' do
+      it 'returns a decoded identity token' do
+        mock_oidc_discovery
+        response = client.decode_identity_token(id_token: 'encoded_id_token')
+        expect(response).to eq(decoded_id_token)
       end
+    end
+  end
+
+  describe '.verify_identity_token', vcr: 'empty' do
+    let(:id_token_claims) {
+      {
+        iss: 'https://dev-92899796.okta.com/oauth2/default',
+        aud: '0oa3w3xig6rHiu9yT5d7',
+        sub: 'alice',
+        iat: Time.now,
+        exp: Time.now + 600
+      }
+    }
+
+    let(:nonce) { 'some-nonce' }
+    let(:expected_nonce) { nonce }
+
+    def run_verify
+      client.verify_identity_token(
+        decoded_id_token: decoded_id_token,
+        nonce: expected_nonce,
+        refresh: refresh
+      )
     end
 
     context 'when given a valid identity token' do
       context 'when using a refresh_token grant type' do
-        let(:grant) {
-          Rack::OAuth2::Client::Grant::RefreshToken.new(refresh_token: 'refresh_token')
-        }
+        let(:refresh) { true }
 
         context 'when the identity token does not contain a nonce value' do
           let(:decoded_id_token) {
             OpenIDConnect::ResponseObject::IdToken.new id_token_claims.merge(nonce: nil)
           }
 
-          it 'returns a decoded identity token' do
-            response = client.decode_identity_token(
-              id_token: 'encoded_id_token',
-              nonce: 'some-nonce',
-              grant: grant
-            )
-            expect(response).to eq(decoded_id_token)
+          it 'is verified' do
+            response = run_verify
+            expect(response).to eq(true)
           end
         end
 
         context 'when the identity token contains a nonce value' do
           let(:decoded_id_token) {
-            OpenIDConnect::ResponseObject::IdToken.new id_token_claims.merge(nonce: 'some-nonce')
+            OpenIDConnect::ResponseObject::IdToken.new id_token_claims.merge(nonce: nonce)
           }
 
           context 'when the expected nonce matches' do
-            it 'returns a decoded identity token' do
-              response = client.decode_identity_token(
-                id_token: 'encoded_id_token',
-                nonce: 'some-nonce',
-                grant: grant
-              )
-              expect(response).to eq(decoded_id_token)
+            it 'is verified' do
+              response = run_verify
+              expect(response).to eq(true)
             end
           end
 
           context 'when the expected nonce does not match' do
+            let(:expected_nonce) { 'bad-nonce' }
+
             it 'raises an error' do
-              expect do
-                client.decode_identity_token(
-                  id_token: 'encoded_id_token',
-                  nonce: 'bad-nonce',
-                  grant: grant
-                )
-              end.to raise_error(
+              expect { run_verify }.to raise_error(
                 Errors::Authentication::AuthnOidc::TokenVerificationFailed,
                 "CONJ00128E JWT Token validation failed: 'Provided nonce does not match the nonce in the JWT'"
               )
@@ -281,34 +300,24 @@ RSpec.describe(Authentication::AuthnOidc::V2::Client) do
       end
 
       context 'when using an authorization code grant type' do
-        let(:grant) {
-          Rack::OAuth2::Client::Grant::AuthorizationCode.new(code: 'code')
-        }
+        let(:refresh) { false }
 
         let(:decoded_id_token) {
-          OpenIDConnect::ResponseObject::IdToken.new id_token_claims.merge(nonce: 'some-nonce')
+          OpenIDConnect::ResponseObject::IdToken.new id_token_claims.merge(nonce: nonce)
         }
 
         context 'when the expected nonce matches' do
-          it 'returns a decoded identity token' do
-            response = client.decode_identity_token(
-              id_token: 'encoded_id_token',
-              nonce: 'some-nonce',
-              grant: grant
-            )
-            expect(response).to eq(decoded_id_token)
+          it 'is verified' do
+            response = run_verify
+            expect(response).to eq(true)
           end
         end
 
         context 'when the expected nonce does not match' do
+          let(:expected_nonce) { 'bad-nonce' }
+
           it 'raises an error' do
-            expect do
-              client.decode_identity_token(
-                id_token: 'encoded_id_token',
-                nonce: 'bad-nonce',
-                grant: grant
-              )
-            end.to raise_error(
+            expect { run_verify }.to raise_error(
               Errors::Authentication::AuthnOidc::TokenVerificationFailed,
               "CONJ00128E JWT Token validation failed: 'Provided nonce does not match the nonce in the JWT'"
             )
