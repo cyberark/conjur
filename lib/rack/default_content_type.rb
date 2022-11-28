@@ -53,8 +53,7 @@ module Rack
     # the code less readable.
     def call(env)
       # added because our .NET SDK sends an invalid content type, but we
-      # can't fix it now - need to remove later:
-      # https://ca-il-jira.il.cyber-ark.com:8443/browse/ONYX-17641
+      # can't fix it now - need to remove later: ONYX-17641
       begin
         ::Mime::Type.lookup(env['CONTENT_TYPE']) if env['CONTENT_TYPE']
       rescue ::Mime::Type::InvalidMimeType

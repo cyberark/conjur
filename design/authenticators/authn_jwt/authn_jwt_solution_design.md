@@ -57,7 +57,7 @@
 ## Useful links
 
 - [PRD](https://cyberark365.sharepoint.com/sites/Conjur/Shared%20Documents/DAP/PRDs/%5bPRD%5d%20JWT%20Authenticator.docx?web=1)
-- [Feature doc](https://ca-il-confluence.il.cyber-ark.com/display/rndp/Conjur+JWT+Authenticator)
+- Feature doc (Confluence - Conjur JWT Authenticator)
 - [JWT claims](https://auth0.com/docs/tokens/json-web-tokens/json-web-token-claims)
 
 ## Issue description
@@ -401,7 +401,7 @@ Once we will have multiple interfaces implementations, the way to support a new 
 
 ### Meet the requirements
 
-More details on the requirements can be found [here](https://ca-il-confluence.il.cyber-ark.com/display/rndp/Conjur+JWT+Authenticator)
+More details on the requirements can be found on Confluence - Conjur JWT Authenticator
 
 * New simple JWT generic authenticator
     * Meet? Yes
