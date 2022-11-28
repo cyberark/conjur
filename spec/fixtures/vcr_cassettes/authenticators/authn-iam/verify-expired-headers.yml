@@ -10,7 +10,7 @@ http_interactions:
       Accept:
       - "*/*"
       User-Agent:
-      - rest-client/2.1.0 (linux x86_64) ruby/3.0.4p208
+      - rest-client/2.1.0 (linux x86_64) ruby/3.0.5p211
       X-Amz-Date:
       - 20180620T025910Z
       X-Amz-Security-Token:
