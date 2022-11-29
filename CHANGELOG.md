@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
-## [1.19.0] - 2022-10-11
+## [1.19.0] - 2022-11-29
 
 ### Added
 - Conjur policy loads can now emit callbacks to extensions on policy
@@ -937,7 +937,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - The first tagged version.
 
-[Unreleased]: https://github.com/cyberark/conjur/compare/v1.18.5...HEAD
+[Unreleased]: https://github.com/cyberark/conjur/compare/v1.19.0...HEAD
+[1.19.0]: https://github.com/cyberark/conjur/compare/v1.18.5...v1.19.0
 [1.18.5]: https://github.com/cyberark/conjur/compare/v1.18.4...v1.18.5
 [1.18.4]: https://github.com/cyberark/conjur/compare/v1.18.3...v1.18.4
 [1.18.3]: https://github.com/cyberark/conjur/compare/v1.18.2...v1.18.3
