@@ -139,14 +139,14 @@ class AuthenticateController < ApplicationController
   def logout
     decode_and_merge_request_body
     params.permit!
-    logout_uri = Authentication::Handler::LogoutHandler.new(
+    target_uri = Authentication::Handler::LogoutHandler.new(
       authenticator_type: params[:authenticator]
     ).call(
       parameters: params.to_hash.symbolize_keys,
       request_ip: request.ip
     )
 
-    render(plain: logout_uri)
+    redirect_to target_uri
   end
 
   def authenticate_oidc

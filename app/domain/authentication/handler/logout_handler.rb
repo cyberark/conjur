@@ -5,10 +5,14 @@ module Authentication
     class LogoutHandler
       def initialize(
         authenticator_type:,
+        role: ::Role,
+        resource: ::Resource,
         authn_repo: DB::Repository::AuthenticatorRepository,
         namespace_selector: Authentication::Util::NamespaceSelector,
         logger: Rails.logger
       )
+        @role = role
+        @resource = resource
         @authenticator_type = authenticator_type
         @authn_repo = authn_repo
         @logger = logger
@@ -38,14 +42,97 @@ module Authentication
           service_id: parameters[:service_id]
         )
 
-        @logout.new(
+        id_and_logout_uri = @logout.new(
           authenticator: authenticator
         ).callback(parameters)
 
-        # TODO: Add audit logging for success and failure. This will probably
-        # require resolving the provided refresh token to a Conjur identity.
-        # This functionality already exists in the AuthenticationHandler class -
-        # maybe combining these classes would make sense.
+        role = @identity_resolver.new.call(
+          identity: id_and_logout_uri[:identity],
+          account: parameters[:account],
+          allowed_roles: @role.that_can(
+            :authenticate,
+            @resource[authenticator.resource_id]
+          ).all
+        )
+
+        # TODO: Add an error message
+        raise 'failed to logout' unless role
+
+        unless role.valid_origin?(request_ip)
+          raise Errors::Authentication::InvalidOrigin
+        end
+
+        log_audit_success(authenticator, role, request_ip, @authenticator_type)
+
+        id_and_logout_uri[:logout_uri]
+      rescue => e
+        log_audit_failure(parameters[:account], parameters[:service_id], request_ip, @authenticator_type, e)
+        handle_error(e)
+      end
+
+      def log_audit_success(authenticator, conjur_role, client_ip, type)
+        ::Authentication::LogAuditEvent.new.call(
+          authentication_params:
+            Authentication::AuthenticatorInput.new(
+              authenticator_name: "#{type}",
+              service_id: authenticator.service_id,
+              account: authenticator.account,
+              username: conjur_role.role_id,
+              client_ip: client_ip,
+              credentials: nil,
+              request: nil
+            ),
+          audit_event_class: Audit::Event::Authn::Logout,
+          error: nil
+        )
+      end
+
+      def handle_error(err)
+        @logger.info("#{err.class.name}: #{err.message}")
+
+        case err
+        when Errors::Authentication::Security::RoleNotAuthorizedOnResource
+          raise ApplicationController::Forbidden
+
+        when Errors::Authentication::RequestBody::MissingRequestParam,
+          Errors::Authentication::AuthnOidc::TokenVerificationFailed,
+          Errors::Authentication::AuthnOidc::TokenRetrievalFailed
+          raise ApplicationController::BadRequest
+
+        when Errors::Conjur::RequestedResourceNotFound
+          raise ApplicationController::RecordNotFound.new(err.message)
+
+        when Errors::Authentication::AuthnOidc::IdTokenClaimNotFoundOrEmpty
+          raise ApplicationController::Unauthorized
+
+        when Errors::Authentication::Jwt::TokenExpired
+          raise ApplicationController::Unauthorized.new(err.message, true)
+
+        when Errors::Authentication::Security::RoleNotFound
+          raise ApplicationController::BadRequest
+
+        when Errors::Authentication::Security::MultipleRoleMatchesFound
+          raise ApplicationController::Forbidden
+        else
+          raise ApplicationController::Unauthorized
+        end
+      end
+
+      def log_audit_failure(account, service_id, client_ip, type, error)
+        ::Authentication::LogAuditEvent.new.call(
+          authentication_params:
+            Authentication::AuthenticatorInput.new(
+              authenticator_name: "#{type}",
+              service_id: service_id,
+              account: account,
+              username: nil,
+              client_ip: client_ip,
+              credentials: nil,
+              request: nil
+            ),
+          audit_event_class: Audit::Event::Authn::Logout,
+          error: error
+        )
       end
     end
   end

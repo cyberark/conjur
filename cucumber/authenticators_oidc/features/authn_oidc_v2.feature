@@ -76,8 +76,13 @@ Feature: OIDC Authenticator V2 - Users can authenticate with OIDC authenticator
     And I fetch a code for username "alice" and password "alice"
     And I authenticate via OIDC V2 with code
     And The authentication response includes header "X-OIDC-Refresh-Token"
+    And I save my place in the audit log file
     When I logout from the OIDC V2 authenticator "keycloak2" with state "rand-state" and redirect URI "https://conjur.org/redirect"
     Then The response includes the OIDC provider's logout URI
+    And The following appears in the audit log after my savepoint:
+    """
+    cucumber:user:alice successfully logged out with authenticator authn-oidc service cucumber:webservice:conjur/authn-oidc/keycloak2
+    """
 
   @smoke
   Scenario: A valid refresh token to get Conjur access token and OIDC refresh token

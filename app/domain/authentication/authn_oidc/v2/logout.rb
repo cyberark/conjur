@@ -24,12 +24,28 @@ module Authentication
             end
           end
 
-          @client.exchange_refresh_token_for_logout_uri(
+          id_token_and_logout_uri = @client.exchange_refresh_token_for_logout_uri(
             refresh_token: args[:refresh_token],
             nonce: args[:nonce],
             state: args[:state],
             post_logout_redirect_uri: args[:post_logout_redirect_uri]
-          ).to_s
+          )
+
+          {
+            :identity => resolve_identity(jwt: id_token_and_logout_uri[:id_token]),
+            :logout_uri => id_token_and_logout_uri[:logout_uri].to_s
+          }
+        end
+
+        def resolve_identity(jwt:)
+          identity = jwt.raw_attributes.with_indifferent_access[@authenticator.claim_mapping]
+
+          unless identity.present?
+            raise Errors::Authentication::AuthnOidc::IdTokenClaimNotFoundOrEmpty
+                  @authenticator.claim_mapping
+          end
+
+          identity
         end
       end
     end

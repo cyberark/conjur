@@ -415,37 +415,37 @@ RSpec.describe(Authentication::AuthnOidc::V2::Client) do
           travel_to(Time.parse("2022-11-21 17:02:17 +0000")) do
             expect(client.oidc_client).to receive(:revoke!).twice
 
-            logout_uri = client.exchange_refresh_token_for_logout_uri(
+            id_token_and_logout_uri = client.exchange_refresh_token_for_logout_uri(
               refresh_token: 'WjL3C_CGeYIVnV4WfcjyNI6uJRn0wwjIqpsJ_yeHSvo',
               nonce: 'some-nonce',
               state: 'some-state',
               post_logout_redirect_uri: 'https://conjur.org/redirect'
             )
 
-            expect(logout_uri).to be_a_kind_of(URI::HTTPS)
-            expect(logout_uri.query).to include('state=some-state')
-            expect(logout_uri.query).to include('post_logout_redirect_uri=https%3A%2F%2Fconjur.org%2Fredirect')
+            expect(id_token_and_logout_uri[:logout_uri]).to be_a_kind_of(URI::HTTPS)
+            expect(id_token_and_logout_uri[:logout_uri].query).to include('state=some-state')
+            expect(id_token_and_logout_uri[:logout_uri].query).to include('post_logout_redirect_uri=https%3A%2F%2Fconjur.org%2Fredirect')
           end
         end
+      end
 
-        context 'when psot_logout_redirect_uri value omitted' do
-          it 'returns a properly formatted logout uri and identity token' do
-            # Because JWT tokens have an expiration timeframe, we need to hold time
-            # constant after caching the request.
-            travel_to(Time.parse("2022-11-21 17:02:17 +0000")) do
-              expect(client.oidc_client).to receive(:revoke!).twice
+      context 'when post_logout_redirect_uri value omitted' do
+        it 'returns a properly formatted logout uri and identity token' do
+          # Because JWT tokens have an expiration timeframe, we need to hold time
+          # constant after caching the request.
+          travel_to(Time.parse("2022-11-21 17:02:17 +0000")) do
+            expect(client.oidc_client).to receive(:revoke!).twice
 
-              logout_uri = client.exchange_refresh_token_for_logout_uri(
-                refresh_token: 'WjL3C_CGeYIVnV4WfcjyNI6uJRn0wwjIqpsJ_yeHSvo',
-                nonce: 'some-nonce',
-                state: 'some-state',
-                post_logout_redirect_uri: nil
-              )
+            id_token_and_logout_uri = client.exchange_refresh_token_for_logout_uri(
+              refresh_token: 'WjL3C_CGeYIVnV4WfcjyNI6uJRn0wwjIqpsJ_yeHSvo',
+              nonce: 'some-nonce',
+              state: 'some-state',
+              post_logout_redirect_uri: nil
+            )
 
-              expect(logout_uri).to be_a_kind_of(URI::HTTPS)
-              expect(logout_uri.query).to include('state=some-state')
-              expect(logout_uri.query).not_to include('post_logout_redirect_uri')
-            end
+            expect(id_token_and_logout_uri[:logout_uri]).to be_a_kind_of(URI::HTTPS)
+            expect(id_token_and_logout_uri[:logout_uri].query).to include('state=some-state')
+            expect(id_token_and_logout_uri[:logout_uri].query).not_to include('post_logout_redirect_uri')
           end
         end
       end

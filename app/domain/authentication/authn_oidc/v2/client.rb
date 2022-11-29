@@ -67,6 +67,10 @@ module Authentication
         # This method is meant to support RP-Initiated logout, where an end-
         # user's user-agent is redirected to the OIDC provider's
         # `end_session_endpoint`.
+        #
+        # This method needs to return both the OP's logout endpoint and a valid
+        # identity token. Conjur needs to resolve the id token to a role for
+        # audit logging.
         def exchange_refresh_token_for_logout_uri(refresh_token:, nonce:, state:, post_logout_redirect_uri:)
           tokens = exchange_refresh_token_for_tokens(
             refresh_token: refresh_token,
@@ -82,7 +86,11 @@ module Authentication
             :state => state,
             :post_logout_redirect_uri => post_logout_redirect_uri
           }.compact)
-          uri
+
+          {
+            :id_token => tokens[:id_token],
+            :logout_uri => uri
+          }
         end
 
         # The methods below are internal methods. They are not marked as

@@ -258,7 +258,8 @@ Then(/^The authentication response includes header "([^"]*)"$/) do |header|
 end
 
 Then(/^The response includes the OIDC provider's logout URI/) do
-  expect(@response_body.to_s).to include('https://keycloak:8443/auth/realms/master/protocol/openid-connect/logout')
+  expect(@http_status).to eq(302)
+  expect(@response_body).to include('https://keycloak:8443/auth/realms/master/protocol/openid-connect/logout')
 end
 
 Then(/^The Okta user has been authorized by Conjur/) do
