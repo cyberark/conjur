@@ -63,7 +63,7 @@
 ## Requirements
 [//]: # "Elaborate on the issue you are writing a solution for"
 
-[Functional signof document](https://ca-il-confluence.il.cyber-ark.com/x/SkusF)
+Functional signof document (Confluence: JWT Authenticator - re-scope)
 
 Extending the JWT generic authenticator by providing a more complex schema to help map JWT fields to host annotation. Still, have the end user be responsible for setting this schema. JWT Authenticator will support:
 
@@ -214,7 +214,7 @@ Total 11 SP
 
 ## Test Plan
 
-https://ca-il-confluence.il.cyber-ark.com/x/fdjKFQ
+Confluence - Different Cases Of Complex Token
 
 ## Open Questions
 

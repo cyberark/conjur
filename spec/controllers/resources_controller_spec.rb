@@ -107,8 +107,7 @@ describe ResourcesController, type: :request do
 
       # There is a currently a bug in the API when supplying both the `limit`
       # and `count` parameters. A count response shouldn't be affected by
-      # the `limit` parameter. This should be changed when the bug is fixed here:
-      # https://ca-il-jira.il.cyber-ark.com:8443/browse/ONYX-22079
+      # the `limit` parameter. This should be changed when the bug is fixed (ONYX-22079)
       it "should count resources according to query param limit " do
         count_resources_with_limit(1)
         expect(response.body).to eq("{\"count\":1}")
