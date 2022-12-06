@@ -219,7 +219,6 @@ module Errors
     end
 
     module AuthnOidc
-
       IdTokenClaimNotFoundOrEmpty = ::Util::TrackableErrorClass.new(
         msg: "Claim '{0-claim-name}' not found or empty in ID token. " \
             "This claim is defined in the id-token-user-property variable.",
@@ -229,16 +228,6 @@ module Errors
       ServiceIdMissing = ::Util::TrackableErrorClass.new(
         msg: "Service id is required when authenticating with authn-oidc",
         code: "CONJ00075E"
-      )
-
-      StateMismatch = ::Util::TrackableErrorClass.new(
-        msg: "Conjur internal state doesn't match given state",
-        code: "CONJ00127E"
-      )
-
-      TokenVerificationFailed = ::Util::TrackableErrorClass.new(
-        msg: "Conjur internal state doesn't match given state",
-        code: "CONJ00128E"
       )
 
       InvalidVariableValue = ::Util::TrackableErrorClass.new(
@@ -251,6 +240,26 @@ module Errors
         code: "CONJ00130E"
       )
 
+      TokenVerificationFailed = ::Util::TrackableErrorClass.new(
+        msg: "JWT Token validation failed: '{0-error}'",
+        code: "CONJ00128E"
+      )
+
+      TokenRetrievalFailed = ::Util::TrackableErrorClass.new(
+        msg: "Access Token retrieval failure: '{0-error}'",
+        code: "CONJ00133E"
+      )
+
+      # TODO - this error comes from the current version of the OIDC
+      # authenticator. The second iteration (currently behind a flag)
+      # moves state generation and verification to the client. Once the
+      # 'pkce_support' feature flag functionality permanently replaces
+      # the initial implementation, this error message will no longer be
+      # used and should be removed.
+      StateMismatch = ::Util::TrackableErrorClass.new(
+        msg: "Conjur internal state doesn't match given state",
+        code: "CONJ00127E"
+      )
     end
 
     module AuthnIam

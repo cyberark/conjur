@@ -10,13 +10,15 @@ module Authentication
         authn_repo: DB::Repository::AuthenticatorRepository,
         namespace_selector: Authentication::Util::NamespaceSelector,
         logger: Rails.logger,
-        authentication_error: LogMessages::Authentication::AuthenticationError
+        authentication_error: LogMessages::Authentication::AuthenticationError,
+        pkce_support_enabled: Rails.configuration.feature_flags.enabled?(:pkce_support)
       )
         @role = role
         @resource = resource
         @authenticator_type = authenticator_type
         @logger = logger
         @authentication_error = authentication_error
+        @pkce_support_enabled = pkce_support_enabled
 
         # Dynamically load authenticator specific classes
         namespace = namespace_selector.select(
@@ -31,10 +33,12 @@ module Authentication
       end
 
       def call(parameters:, request_ip:)
-        required_parameters = %i[state code]
-        required_parameters.each do |parameter|
-          if !parameters.key?(parameter) || parameters[parameter].strip.empty?
-            raise Errors::Authentication::RequestBody::MissingRequestParam, parameter
+        unless @pkce_support_enabled
+          required_parameters = %i[state code]
+          required_parameters.each do |parameter|
+            if !parameters.key?(parameter) || parameters[parameter].strip.empty?
+              raise Errors::Authentication::RequestBody::MissingRequestParam, parameter
+            end
           end
         end
 
