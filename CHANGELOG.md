@@ -9,7 +9,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
-## [1.19.0] - 2022-11-29
+## [1.19.0] - 2022-12-06
+### Fixed
+- Previously, if an OIDC authenticator was configured with a `Status` webservice,
+  the OIDC provider endpoint would include duplicate OIDC authenticators. This
+  change resolves ONYX-25530.
+
+## [1.19.0] - 2022-10-11
 
 ### Added
 - Conjur policy loads can now emit callbacks to extensions on policy

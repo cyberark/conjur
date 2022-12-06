@@ -62,6 +62,16 @@ RSpec.describe('DB::Repository::AuthenticatorRepository') do
                   value: "#{variable}-abc123"
                 )
               end
+              # Webservice for authenticator
+              ::Resource.create(
+                resource_id: "rspec:webservice:conjur/authn-oidc/#{service}",
+                owner_id: "rspec:policy:conjur/authn-oidc/#{service}"
+              )
+              # Webservice for authenticator status
+              ::Resource.create(
+                resource_id: "rspec:webservice:conjur/authn-oidc/#{service}/status",
+                owner_id: "rspec:policy:conjur/authn-oidc/#{service}"
+              )
             end
           end
 
