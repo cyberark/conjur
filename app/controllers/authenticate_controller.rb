@@ -39,10 +39,11 @@ class AuthenticateController < ApplicationController
   end
 
   def status
-    Authentication::ValidateStatus.new.(
-      authenticator_status_input: status_input,
+    Authentication::Handler::StatusHandler.new.call(
+      status_input: status_input,
       enabled_authenticators: Authentication::InstalledAuthenticators.enabled_authenticators_str
     )
+
     log_audit_success(
       authn_params: status_input,
       audit_event_class: Audit::Event::Authn::ValidateStatus

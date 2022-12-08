@@ -5,40 +5,66 @@ module DB
         data_object:,
         resource_repository: ::Resource,
         logger: Rails.logger,
+        available_authenticators: Rails.application.config.conjur_config.authenticators,
         pkce_support_enabled: Rails.configuration.feature_flags.enabled?(:pkce_support)
       )
         @resource_repository = resource_repository
         @data_object = data_object
         @logger = logger
         @pkce_support_enabled = pkce_support_enabled
+        @available_authenticators = available_authenticators.map { |authenticator| "conjur/#{authenticator}" }
       end
 
-      def find_all(type:, account:)
+      def find_webservices(type:, account:, service_id: '%')
         @resource_repository.where(
           Sequel.like(
             :resource_id,
-            "#{account}:webservice:conjur/#{type}/%"
+            "#{account}:webservice:conjur/#{type}/#{service_id}"
           )
         ).all.map do |webservice|
-          service_id = service_id_from_resource_id(webservice.id)
+          if @available_authenticators.include?(webservice.identifier)
+            webservice
+          else
+            authenticator = webservice.identifier.gsub('conjur/', '')
+            @logger.info("Authenticator: '#{authenticator}' is not available because it is not enabled.")
+          end
+        end.compact
+      end
+
+      def find_all(type:, account:)
+        # @resource_repository.where(
+        #   Sequel.like(
+        #     :resource_id,
+        #     "#{account}:webservice:conjur/#{type}/%"
+        #   )
+        # ).all.select do |webservice|
+        #   # Select only webservices that are enabled
+        #   @available_authenticators.map{|a| "conjur/#{a}"}.include?(webservice.identifier)
+        #   # binding.pry
+        # end.map do |webservice|
+        find_webservices(type: type, account: account).map do |webservice|
+        service_id = service_id_from_resource_id(webservice.id)
 
           # Querying for the authenticator webservice above includes the webservices
           # for the authenticator status. The filter below removes webservices that
           # don't match the authenticator policy.
-          next unless webservice.id.split(':').last == "conjur/#{type}/#{service_id}"
+          # next unless webservice.id.split(':').last == "conjur/#{type}/#{service_id}"
 
           load_authenticator(account: account, service_id: service_id, type: type)
         end.compact
       end
 
-      def find(type:, account:,  service_id:)
-        webservice =  @resource_repository.where(
-          Sequel.like(
-            :resource_id,
-            "#{account}:webservice:conjur/#{type}/#{service_id}"
-          )
-        ).first
-        return unless webservice
+      def find(type:, account:, service_id:)
+        # No-op if authenticator is not enabled
+        # return unless @available_authenticators.include?("#{type}/#{service_id}")
+
+        # webservice =  @resource_repository.where(
+        #   Sequel.like(
+        #     :resource_id,
+        #     "#{account}:webservice:conjur/#{type}/#{service_id}"
+        #   )
+        # ).first
+        return unless find_webservices(type: type, account: account, service_id: service_id).first
 
         load_authenticator(account: account, service_id: service_id, type: type)
       end
