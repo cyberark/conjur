@@ -1,10 +1,16 @@
 module DB
   module Repository
     class AuthenticatorRepository
-      def initialize(data_object:, resource_repository: ::Resource, logger: Rails.logger)
+      def initialize(
+        data_object:,
+        resource_repository: ::Resource,
+        logger: Rails.logger,
+        pkce_support_enabled: Rails.configuration.feature_flags.enabled?(:pkce_support)
+      )
         @resource_repository = resource_repository
         @data_object = data_object
         @logger = logger
+        @pkce_support_enabled = pkce_support_enabled
       end
 
       def find_all(type:, account:)
@@ -65,7 +71,14 @@ module DB
             args[variable.resource_id.split('/')[-1].underscore.to_sym] = variable.secret.value
           end
         end
+
         begin
+          if @pkce_support_enabled
+            allowed_args = %i[account service_id] +
+                          @data_object.const_get(:REQUIRED_VARIABLES) +
+                          @data_object.const_get(:OPTIONAL_VARIABLES)
+            args_list = args_list.select{ |key, _| allowed_args.include?(key) }
+          end
           @data_object.new(**args_list)
         rescue ArgumentError => e
           @logger.debug("DB::Repository::AuthenticatorRepository.load_authenticator - exception: #{e}")
