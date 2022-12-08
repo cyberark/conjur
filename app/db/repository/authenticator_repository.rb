@@ -14,7 +14,14 @@ module DB
             "#{account}:webservice:conjur/#{type}/%"
           )
         ).all.map do |webservice|
-          load_authenticator(account: account, id: webservice.id.split(':').last, type: type)
+          service_id = service_id_from_resource_id(webservice.id)
+
+          # Querying for the authenticator webservice above includes the webservices
+          # for the authenticator status. The filter below removes webservices that
+          # don't match the authenticator policy.
+          next unless webservice.id.split(':').last == "conjur/#{type}/#{service_id}"
+
+          load_authenticator(account: account, service_id: service_id, type: type)
         end.compact
       end
 
@@ -27,7 +34,7 @@ module DB
         ).first
         return unless webservice
 
-        load_authenticator(account: account, id: webservice.id.split(':').last, type: type)
+        load_authenticator(account: account, service_id: service_id, type: type)
       end
 
       def exists?(type:, account:, service_id:)
@@ -36,8 +43,12 @@ module DB
 
       private
 
-      def load_authenticator(type:, account:, id:)
-        service_id = id.split('/')[2]
+      def service_id_from_resource_id(id)
+        full_id = id.split(':').last
+        full_id.split('/')[2]
+      end
+
+      def load_authenticator(type:, account:, service_id:)
         variables = @resource_repository.where(
           Sequel.like(
             :resource_id,

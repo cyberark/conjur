@@ -35,3 +35,15 @@
             role: !group authenticatable
             privilege: [ read, authenticate ]
             resource: !webservice
+
+          # Create a web service for checking status
+          - !webservice status
+
+          # Group of users who can check the status
+          - !group operators
+
+          # Permit group to check the status
+          - !permit
+            role: !group operators
+            privilege: read
+            resource: !webservice status

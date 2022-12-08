@@ -15,6 +15,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Updated nokogiri in root and docs Gemfile.lock files to resolve GHSA-qv4q-mr5r-qprj
   [cyberark/conjur#2684](https://github.com/cyberark/conjur/pull/2684)
 
+### Fixed
+- Previously, if an OIDC authenticator was configured with a `Status` webservice,
+  the OIDC provider endpoint would include duplicate OIDC authenticators. This
+  change resolves ONYX-25530.
+  [cyberark/conjur#2678](https://github.com/cyberark/conjur/pull/2678)
+
 ## [1.19.0] - 2022-11-29
 
 ### Added
