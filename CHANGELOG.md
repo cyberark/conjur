@@ -36,10 +36,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 - List resources request (`GET /resources`) now produce audit events.
-  ([cyberark/conjur#2652](https://github.com/cyberark/conjur/pull/2652)
+  [cyberark/conjur#2652](https://github.com/cyberark/conjur/pull/2652)
 
 ### Changed
 - AWS Access Key Rotation now preserves only one key
+
+### Fixed
+- Removed Status webservices from the list providers endpoint
+  [cyberark/conjur#2640](https://github.com/cyberark/conjur/pull/2640)
 
 ## [1.18.4] - 2022-09-11
 

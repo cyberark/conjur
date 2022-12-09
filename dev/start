@@ -250,7 +250,7 @@ enable_oidc_authenticators() {
   echo "Configuring Keycloak as OpenID provider for automatic testing"
   # We enable an OIDC authenticator without a service-id to test that it's
   # invalid.
-  enabled_authenticators="$enabled_authenticators,authn-oidc/keycloak,authn-oidc,authn-oidc/keycloak2"
+  enabled_authenticators="$enabled_authenticators,authn-oidc/keycloak,authn-oidc/okta,authn-oidc/oidceast,authn-oidc/keycloak2"
 
   if [[ $ENABLE_OIDC_OKTA = true ]]; then
     echo "Configuring OKTA as OpenID provider for manual testing"

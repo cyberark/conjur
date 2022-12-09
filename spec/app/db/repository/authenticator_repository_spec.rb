@@ -8,9 +8,16 @@ RSpec.describe('DB::Repository::AuthenticatorRepository') do
   let(:repo) do
     DB::Repository::AuthenticatorRepository.new(
       resource_repository: resource_repository,
-      data_object: Authentication::AuthnOidc::V2::DataObjects::Authenticator
+      data_object: Authentication::AuthnOidc::V2::DataObjects::Authenticator,
+      enabled_authenticators: enabled_authenticators
     )
   end
+
+  let (:enabled_authenticators) {
+    %w[authn-oidc/foo-abc123
+       authn-oidc/baz-abc123
+       authn-oidc/bar-abc123]
+  }
 
   let(:arguments) { %i[provider_uri client_id client_secret claim_mapping nonce state] }
 
@@ -87,6 +94,21 @@ RSpec.describe('DB::Repository::AuthenticatorRepository') do
             after(:each) do
               ::Resource['rspec:webservice:conjur/authn-oidc/baz-abc123'].destroy
               ::Role['rspec:policy:conjur/authn-oidc/baz-abc123'].destroy
+            end
+          end
+
+          context 'when webservices status are presents' do
+            before(:each) do
+                ::Resource.create(
+                  resource_id: "rspec:webservice:conjur/authn-oidc/foo-abc123/status",
+                  owner_id: "rspec:policy:conjur/authn-oidc/foo-abc123"
+                )
+              end
+
+            it { expect(repo.find_all(type: 'authn-oidc', account: 'rspec').length).to eq(2) }
+
+            after(:each) do
+              ::Resource['rspec:webservice:conjur/authn-oidc/foo-abc123/status'].destroy
             end
           end
         end
