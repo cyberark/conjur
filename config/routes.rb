@@ -82,6 +82,8 @@ Rails.application.routes.draw do
 
       get     "/public_keys/:account/:kind/*identifier" => 'public_keys#show'
 
+      get     "/system_keys/:account" => 'edge#show'
+
       post     "/ca/:account/:service_id/sign" => 'certificate_authority#sign'
     end
 
