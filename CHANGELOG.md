@@ -12,6 +12,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [1.19.1] - 2022-12-08
 
 ### Security
+- Update loofah to 2.19.1 for CVE-2022-23514, CVE-2022-23515 and CVE-2022-23516 (all Not Vulnerable)
+  and rails-html-sanitizr to 1.4.4 for CVE-2022-23517, CVE-2022-23518, CVE-2022-23519, and CVE-2022-23520 (Not vulnerable)
+  [cyberark/conjur#2686](https://github.com/cyberark/conjur/pull/2686)
 - Updated nokogiri in root and docs Gemfile.lock files to resolve GHSA-qv4q-mr5r-qprj
   [cyberark/conjur#2684](https://github.com/cyberark/conjur/pull/2684)
 
