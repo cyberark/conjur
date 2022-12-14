@@ -106,6 +106,15 @@ module Errors
       code: "CONJ00126E"
     )
 
+    module DataObjects
+
+      InvalidTokenTTL = ::Util::TrackableErrorClass.new(
+        msg: "Webservice '{0-webservice}' configured with invalid custom token TTL '{1-ttl}': must be a valid duration as described by ISO 8601",
+        code: "CONJ00134E"
+      )
+
+    end
+
     module AuthenticatorClass
 
       DoesntStartWithAuthn = ::Util::TrackableErrorClass.new(

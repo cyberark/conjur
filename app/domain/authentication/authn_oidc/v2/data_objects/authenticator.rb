@@ -20,7 +20,8 @@ module Authentication
             redirect_uri: nil,
             name: nil,
             response_type: 'code',
-            provider_scope: nil
+            provider_scope: nil,
+            token_ttl: 'PT8M'
           )
             @account = account
             @provider_uri = provider_uri
@@ -34,6 +35,7 @@ module Authentication
             @name = name
             @provider_scope = provider_scope
             @redirect_uri = redirect_uri
+            @token_ttl = token_ttl
           end
 
           def scope
@@ -46,6 +48,13 @@ module Authentication
 
           def resource_id
             "#{account}:webservice:conjur/authn-oidc/#{service_id}"
+          end
+
+          # Returns the validity duration, in seconds, of an instance's access tokens.
+          def token_ttl
+            ActiveSupport::Duration.parse(@token_ttl)
+          rescue ActiveSupport::Duration::ISO8601Parser::ParsingError
+            raise Errors::Authentication::DataObjects::InvalidTokenTTL.new(resource_id, @token_ttl)
           end
         end
       end

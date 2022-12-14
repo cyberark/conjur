@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe('Authentication::AuthnOidc::PkceSupportFeature::DataObjects::Authenticator') do
+RSpec.describe(Authentication::AuthnOidc::PkceSupportFeature::DataObjects::Authenticator) do
   let(:default_args) do
     {
       provider_uri: 'https://foo.bar.com/baz',
@@ -15,7 +15,7 @@ RSpec.describe('Authentication::AuthnOidc::PkceSupportFeature::DataObjects::Auth
   end
   let(:args) { default_args }
 
-  let(:authenticator) { Authentication::AuthnOidc::PkceSupportFeature::DataObjects::Authenticator.new(**args) }
+  let(:authenticator) { described_class.new(**args) }
 
   describe '.scope' do
     context 'with default initializer' do
@@ -69,6 +69,24 @@ RSpec.describe('Authentication::AuthnOidc::PkceSupportFeature::DataObjects::Auth
   describe '.response_type' do
     context 'with default initializer' do
       it { expect(authenticator.response_type).to eq('code') }
+    end
+  end
+
+  describe '.token_ttl' do
+    context 'with default initializer' do
+      it { expect(authenticator.token_ttl).to eq(8.minutes) }
+    end
+
+    context 'when initialized with a valid duration' do
+      let (:args) { default_args.merge({ token_ttl: 'PT1H'}) }
+      it { expect(authenticator.token_ttl).to eq(1.hour)}
+    end
+
+    context 'when initialized with an invalid duration' do
+      let (:args) { default_args.merge({ token_ttl: 'PTinvalidH' }) }
+      it { expect {
+        authenticator.token_ttl
+      }.to raise_error(Errors::Authentication::DataObjects::InvalidTokenTTL) }
     end
   end
 end

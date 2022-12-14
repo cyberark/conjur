@@ -14,7 +14,7 @@ Feature: OIDC Authenticator V2 - Users can authenticate with OIDC authenticator
         body:
           - !webservice
             annotations:
-              description: Authentication service for Keycloak, based on Open ID Connect.
+              description: Authentication service for Keycloak, based on Open ID Connect. Uses the default token TTL of 8 minutes.
           - !variable name
           - !variable provider-uri
           - !variable response-type
@@ -25,22 +25,52 @@ Feature: OIDC Authenticator V2 - Users can authenticate with OIDC authenticator
           - !variable nonce
           - !variable redirect-uri
           - !variable provider-scope
+          - !variable token-ttl
           - !group users
           - !permit
             role: !group users
             privilege: [ read, authenticate ]
             resource: !webservice
+
+      - !policy
+        id: conjur/authn-oidc/keycloak2-long-lived
+        body:
+          - !webservice
+            annotations:
+              description: Authentication service for Keycloak, based on Open ID Connect. Uses a 2 hour token TTL.
+          - !variable name
+          - !variable provider-uri
+          - !variable response-type
+          - !variable client-id
+          - !variable client-secret
+          - !variable claim-mapping
+          - !variable state
+          - !variable nonce
+          - !variable redirect-uri
+          - !variable provider-scope
+          - !variable token-ttl
+          - !group users
+          - !permit
+            role: !group users
+            privilege: [ read, authenticate ]
+            resource: !webservice
+
       - !user
         id: alice
       - !grant
         role: !group conjur/authn-oidc/keycloak2/users
         member: !user alice
+      - !grant
+        role: !group conjur/authn-oidc/keycloak2-long-lived/users
+        member: !user alice
     """
     And I am the super-user
     And I successfully set OIDC V2 variables for "keycloak2"
+    And I successfully set OIDC V2 variables for "keycloak2-long-lived"
+    And I set a custom token TTL of "PT2H" for "keycloak2-long-lived"
 
   @smoke
-  Scenario: A valid code to get Conjur access token
+  Scenario: A valid code to get Conjur access token from webservice with default token TTL
     # We want to verify the returned access token is valid for retrieving a secret
     Given I have a "variable" resource called "test-variable"
     And I permit user "alice" to "execute" it
@@ -48,11 +78,26 @@ Feature: OIDC Authenticator V2 - Users can authenticate with OIDC authenticator
     And I fetch a code for username "alice" and password "alice"
     And I save my place in the audit log file
     When I authenticate via OIDC V2 with code
-    Then user "alice" has been authorized by Conjur
+    Then user "alice" has been authorized by Conjur for 8 minutes
     And I successfully GET "/secrets/cucumber/variable/test-variable" with authorized user
     And The following appears in the audit log after my savepoint:
     """
     cucumber:user:alice successfully authenticated with authenticator authn-oidc service cucumber:webservice:conjur/authn-oidc/keycloak2
+    """
+
+  @smoke
+  Scenario: A valid code to get Conjur access token from webservice with custom token TTL
+    Given I have a "variable" resource called "test-variable"
+    And I permit user "alice" to "execute" it
+    And I add the secret value "test-secret" to the resource "cucumber:variable:test-variable"
+    And I fetch a code for username "alice" and password "alice"
+    And I save my place in the audit log file
+    When I authenticate via OIDC V2 with code and service-id "keycloak2-long-lived"
+    Then user "alice" has been authorized by Conjur for 2 hours
+    And I successfully GET "/secrets/cucumber/variable/test-variable" with authorized user
+    And The following appears in the audit log after my savepoint:
+    """
+    cucumber:user:alice successfully authenticated with authenticator authn-oidc service cucumber:webservice:conjur/authn-oidc/keycloak2-long-lived
     """
 
   @smoke

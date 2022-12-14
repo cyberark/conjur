@@ -77,7 +77,7 @@ module DB
             allowed_args = %i[account service_id] +
                           @data_object.const_get(:REQUIRED_VARIABLES) +
                           @data_object.const_get(:OPTIONAL_VARIABLES)
-            args_list = args_list.select{ |key, _| allowed_args.include?(key) }
+            args_list = args_list.select{ |key, value| allowed_args.include?(key) && value.present? }
           end
           @data_object.new(**args_list)
         rescue ArgumentError => e

@@ -11,6 +11,10 @@ class ConjurToken
     payload['sub']
   end
 
+  def duration
+    payload['exp'] - payload['iat']
+  end
+
   private
 
   def payload

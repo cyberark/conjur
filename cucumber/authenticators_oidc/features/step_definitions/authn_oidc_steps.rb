@@ -180,6 +180,10 @@ Given(/^I successfully set OIDC V2 variables for "([^"]*)"$/) do |service_id|
   create_oidc_secret("provider-scope", oidc_scope, service_id)
 end
 
+Given(/^I set a custom token TTL of "([^"]*)" for "([^"]*)"$/) do |duration_iso8601, service_id|
+  create_oidc_secret("token-ttl", duration_iso8601, service_id)
+end
+
 When(/^I authenticate via OIDC V2 with code and service-id "([^"]*)"$/) do |service_id|
   authenticate_code_with_oidc(
     service_id: service_id,
@@ -190,6 +194,21 @@ end
 Then(/^The okta user has been authorized by conjur/) do
   username = ENV['OKTA_USERNAME']
   expect(retrieved_access_token.username).to eq(username)
+end
+
+Then(/^user "(\S+)" has been authorized by Conjur for (\d+) (\S+)$/) do |username, duration, duration_unit|
+  token = retrieved_access_token
+  expect(token.username).to eq(username)
+
+  case duration_unit
+  when /hours?/
+    expected_duration = duration * 3600
+  when /minutes?/
+    expected_duration = duration * 60
+  when /seconds?/
+    expected_duration = duration
+  end
+  expect(token.duration).to eq(expected_duration)
 end
 
 When(/^I authenticate via OIDC with id token and without a service-id$/) do
