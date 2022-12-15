@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
+## [1.19.2] - 2022-12-14
+### Fixed
+- Fixed a bug where the OIDC Authenticator Status Endpoint would return a 500
+  error when using the OIDC redirect authenticator.
+  [cyberark/conjur#2687](https://github.com/cyberark/conjur/pull/2687)
+
 ## [1.19.1] - 2022-12-08
 
 ### Security

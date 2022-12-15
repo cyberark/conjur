@@ -39,9 +39,9 @@ class AuthenticateController < ApplicationController
   end
 
   def status
-    Authentication::ValidateStatus.new.(
-      authenticator_status_input: status_input,
-      enabled_authenticators: Authentication::InstalledAuthenticators.enabled_authenticators_str
+    Authentication::Handler::StatusHandler.new.call(
+      status_input: status_input,
+      enabled_authenticators: Rails.application.config.conjur_config.authenticators
     )
     log_audit_success(
       authn_params: status_input,

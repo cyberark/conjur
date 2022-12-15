@@ -4,12 +4,12 @@ module Errors
   module Conjur
 
     RequiredResourceMissing = ::Util::TrackableErrorClass.new(
-      msg: "Missing required resource: {0-resource-name}",
+      msg: "Missing required resource: '{0-resource-name}'",
       code: "CONJ00036E"
     )
 
     RequiredSecretMissing = ::Util::TrackableErrorClass.new(
-      msg: "Missing value for resource: {0-resource-name}",
+      msg: "Missing value for resource: '{0-resource-name}'",
       code: "CONJ00037E"
     )
 

@@ -71,4 +71,16 @@ RSpec.describe('Authentication::AuthnOidc::PkceSupportFeature::DataObjects::Auth
       it { expect(authenticator.response_type).to eq('code') }
     end
   end
+
+  describe '.initialize' do
+    context 'when arguements are missing' do
+      let(:default_args) { { account: 'foo', service_id: 'baz' } }
+      it 'throws an exception' do
+        expect { authenticator }.to raise_error(
+          ArgumentError,
+          "missing keywords: :provider_uri, :client_id, :client_secret, :claim_mapping"
+        )
+      end
+    end
+  end
 end
