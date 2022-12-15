@@ -5,8 +5,7 @@ require 'spec_helper'
 RSpec.describe('Authentication::AuthnOidc::V2::Views::ProviderContext') do
   let(:client) do
     class_double(::Authentication::AuthnOidc::V2::Client).tap do |double|
-      allow(double).to receive(:new).and_return(
-        current_client)
+      allow(double).to receive(:new).and_return(current_client)
     end
   end
 
@@ -49,7 +48,7 @@ RSpec.describe('Authentication::AuthnOidc::V2::Views::ProviderContext') do
 
   let(:authenticators) {[foo, bar]}
 
-  let(:res) do
+  let(:response) do
     [{ name: "foo",
        redirect_uri: "\"http://test\"?client_id=ConjurClient&response_type=code&scope=openid%20email%20profile" \
          "&state=foostate&nonce=secret&redirect_uri=http%3A%2F%2Fconjur%2Fauthn-oidc%2Fcucumber%2Fauthenticate",
@@ -72,7 +71,7 @@ RSpec.describe('Authentication::AuthnOidc::V2::Views::ProviderContext') do
     context 'when provider context is given multiple authenticators' do
       it 'returns the providers object with the redirect urls' do
         expect(provider_context.call(authenticators: authenticators))
-          .to eq(res)
+          .to eq(response)
       end
     end
 
@@ -84,4 +83,3 @@ RSpec.describe('Authentication::AuthnOidc::V2::Views::ProviderContext') do
     end
   end
 end
-
