@@ -39,7 +39,7 @@ Feature: JWT Authenticator - JWKs Basic sanity
     And I am the super-user
     And I initialize remote JWKS endpoint with file "authn-jwt-general" and alg "RS256"
     And I successfully set authn-jwt "jwks-uri" variable value to "http://jwks_py:8090/authn-jwt-general/RS256" in service "raw"
-    And I successfully set authn-jwt "token-app-property" variable to value "host"
+    And I successfully set authn-jwt "token-app-property" variable value to "host"
 
   @sanity
   @negative @acceptance

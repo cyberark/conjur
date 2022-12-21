@@ -28,7 +28,7 @@ Feature: JWT Authenticator - Token Schema
     And I initialize remote JWKS endpoint with file "authn-jwt-token-schema" and alg "RS256"
     And I successfully set authn-jwt "jwks-uri" variable value to "http://jwks_py:8090/authn-jwt-token-schema/RS256" in service "raw"
     And I have a "variable" resource called "test-variable"
-    And I successfully set authn-jwt "token-app-property" variable to value "host"
+    And I successfully set authn-jwt "token-app-property" variable value to "host"
 
   @sanity
   @acceptance
@@ -46,7 +46,7 @@ Feature: JWT Authenticator - Token Schema
       role: !group conjur/authn-jwt/raw/hosts
       member: !host myapp
     """
-    And I successfully set authn-jwt "enforced-claims" variable to value "ref"
+    And I successfully set authn-jwt "enforced-claims" variable value to "ref"
     And I add the secret value "test-secret" to the resource "cucumber:variable:test-variable"
     And I permit host "myapp" to "execute" it
     And I am using file "authn-jwt-token-schema" and alg "RS256" for remotely issue token:
@@ -81,7 +81,7 @@ Feature: JWT Authenticator - Token Schema
       role: !group conjur/authn-jwt/raw/hosts
       member: !host myapp
     """
-    And I successfully set authn-jwt "enforced-claims" variable to value "ref,sub"
+    And I successfully set authn-jwt "enforced-claims" variable value to "ref,sub"
     And I add the secret value "test-secret" to the resource "cucumber:variable:test-variable"
     And I permit host "myapp" to "execute" it
     And I am using file "authn-jwt-token-schema" and alg "RS256" for remotely issue token:
@@ -116,7 +116,7 @@ Feature: JWT Authenticator - Token Schema
       role: !group conjur/authn-jwt/raw/hosts
       member: !host myapp
     """
-    And I successfully set authn-jwt "enforced-claims" variable to value "ref"
+    And I successfully set authn-jwt "enforced-claims" variable value to "ref"
     And I am using file "authn-jwt-token-schema" and alg "RS256" for remotely issue token:
     """
     {
@@ -147,7 +147,7 @@ Feature: JWT Authenticator - Token Schema
       role: !group conjur/authn-jwt/raw/hosts
       member: !host myapp
     """
-    And I successfully set authn-jwt "enforced-claims" variable to value "ref"
+    And I successfully set authn-jwt "enforced-claims" variable value to "ref"
     And I am using file "authn-jwt-token-schema" and alg "RS256" for remotely issue token:
     """
     {
@@ -177,7 +177,7 @@ Feature: JWT Authenticator - Token Schema
       role: !group conjur/authn-jwt/raw/hosts
       member: !host myapp
     """
-    And I successfully set authn-jwt "enforced-claims" variable to value "<claims>"
+    And I successfully set authn-jwt "enforced-claims" variable value to "<claims>"
     And I am using file "authn-jwt-token-schema" and alg "RS256" for remotely issue token:
     """
     {
@@ -243,7 +243,7 @@ Feature: JWT Authenticator - Token Schema
       role: !group conjur/authn-jwt/raw/hosts
       member: !host myapp
     """
-    And I successfully set authn-jwt "claim-aliases" variable to value "branch:ref"
+    And I successfully set authn-jwt "claim-aliases" variable value to "branch:ref"
     And I am using file "authn-jwt-token-schema" and alg "RS256" for remotely issue token:
     """
     {
@@ -295,7 +295,7 @@ Feature: JWT Authenticator - Token Schema
     """
     - !variable conjur/authn-jwt/raw/enforced-claims
     """
-    And I successfully set authn-jwt "enforced-claims" variable to value "ref"
+    And I successfully set authn-jwt "enforced-claims" variable value to "ref"
     When I authenticate via authn-jwt with the JWT token
     Then the HTTP response status code is 401
     And The following appears in the log after my savepoint:
@@ -337,7 +337,7 @@ Feature: JWT Authenticator - Token Schema
       role: !group conjur/authn-jwt/raw/hosts
       member: !host myapp
     """
-    And I successfully set authn-jwt "claim-aliases" variable to value "branch:ref"
+    And I successfully set authn-jwt "claim-aliases" variable value to "branch:ref"
     And I am using file "authn-jwt-token-schema" and alg "RS256" for remotely issue token:
     """
     {
@@ -371,7 +371,7 @@ Feature: JWT Authenticator - Token Schema
       role: !group conjur/authn-jwt/raw/hosts
       member: !host myapp
     """
-    And I successfully set authn-jwt "claim-aliases" variable to value "branch:ref"
+    And I successfully set authn-jwt "claim-aliases" variable value to "branch:ref"
     And I am using file "authn-jwt-token-schema" and alg "RS256" for remotely issue token:
     """
     {
@@ -419,7 +419,7 @@ Feature: JWT Authenticator - Token Schema
     """
     - !variable conjur/authn-jwt/raw/claim-aliases
     """
-    And I successfully set authn-jwt "claim-aliases" variable to value "branch:ref"
+    And I successfully set authn-jwt "claim-aliases" variable value to "branch:ref"
     And I authenticate via authn-jwt with the JWT token
     Then the HTTP response status code is 401
     And The following appears in the log after my savepoint:
@@ -444,8 +444,8 @@ Feature: JWT Authenticator - Token Schema
       role: !group conjur/authn-jwt/raw/hosts
       member: !host myapp
     """
-    And I successfully set authn-jwt "claim-aliases" variable to value "branch:ref"
-    And I successfully set authn-jwt "enforced-claims" variable to value "ref"
+    And I successfully set authn-jwt "claim-aliases" variable value to "branch:ref"
+    And I successfully set authn-jwt "enforced-claims" variable value to "ref"
     And I am using file "authn-jwt-token-schema" and alg "RS256" for remotely issue token:
     """
     {
@@ -477,8 +477,8 @@ Feature: JWT Authenticator - Token Schema
       role: !group conjur/authn-jwt/raw/hosts
       member: !host myapp
     """
-    And I successfully set authn-jwt "enforced-claims" variable to value "ref"
-    And I successfully set authn-jwt "claim-aliases" variable to value "branch:ref"
+    And I successfully set authn-jwt "enforced-claims" variable value to "ref"
+    And I successfully set authn-jwt "claim-aliases" variable value to "branch:ref"
     And I am using file "authn-jwt-token-schema" and alg "RS256" for remotely issue token:
     """
     {
@@ -508,7 +508,7 @@ Feature: JWT Authenticator - Token Schema
       role: !group conjur/authn-jwt/raw/hosts
       member: !host myapp
     """
-    And I successfully set authn-jwt "claim-aliases" variable to value "sub:ref"
+    And I successfully set authn-jwt "claim-aliases" variable value to "sub:ref"
     And I am using file "authn-jwt-token-schema" and alg "RS256" for remotely issue token:
     """
     {
@@ -548,7 +548,7 @@ Feature: JWT Authenticator - Token Schema
       "host":"myapp"
     }
     """
-    And I successfully set authn-jwt "enforced-claims" variable to value "ref"
+    And I successfully set authn-jwt "enforced-claims" variable value to "ref"
     And I save my place in the log file
     When I authenticate via authn-jwt with the JWT token
     Then the HTTP response status code is 401
@@ -576,8 +576,8 @@ Feature: JWT Authenticator - Token Schema
       role: !group conjur/authn-jwt/raw/hosts
       member: !host myapp
     """
-    And I successfully set authn-jwt "claim-aliases" variable to value "claim_ant:claim.ant..., _:claim_name"
-    And I successfully set authn-jwt "enforced-claims" variable to value "claim.name, claim.ant..."
+    And I successfully set authn-jwt "claim-aliases" variable value to "claim_ant:claim.ant..., _:claim_name"
+    And I successfully set authn-jwt "enforced-claims" variable value to "claim.name, claim.ant..."
     And I am using file "authn-jwt-token-schema" and alg "RS256" for remotely issue token:
     """
     {
@@ -611,7 +611,7 @@ Feature: JWT Authenticator - Token Schema
       role: !group conjur/authn-jwt/raw/hosts
       member: !host myapp
     """
-    And I successfully set authn-jwt "claim-aliases" variable to value "<aliases>"
+    And I successfully set authn-jwt "claim-aliases" variable value to "<aliases>"
     And I am using file "authn-jwt-token-schema" and alg "RS256" for remotely issue token:
     """
     {
@@ -649,7 +649,7 @@ Feature: JWT Authenticator - Token Schema
       member: !host myapp
     """
 
-    And I successfully set authn-jwt "claim-aliases" variable to value "<alias>"
+    And I successfully set authn-jwt "claim-aliases" variable value to "<alias>"
     And I am using file "authn-jwt-token-schema" and alg "RS256" for remotely issue token:
 
     """
@@ -686,7 +686,7 @@ Feature: JWT Authenticator - Token Schema
       role: !group conjur/authn-jwt/raw/hosts
       member: !host myapp
     """
-    And I successfully set authn-jwt "enforced-claims" variable to value "%@^#[{]}$~=-+_?.><&^@*@#*sdhj812ehd"
+    And I successfully set authn-jwt "enforced-claims" variable value to "%@^#[{]}$~=-+_?.><&^@*@#*sdhj812ehd"
     And I permit host "myapp" to "execute" it
     And I am using file "authn-jwt-token-schema" and alg "RS256" for remotely issue token:
     """
@@ -718,7 +718,7 @@ Feature: JWT Authenticator - Token Schema
       role: !group conjur/authn-jwt/raw/hosts
       member: !host myapp
     """
-    And I successfully set authn-jwt "claim-aliases" variable to value "aaa: %@^#&^[{]}$~=-+_?.><812ehd"
+    And I successfully set authn-jwt "claim-aliases" variable value to "aaa: %@^#&^[{]}$~=-+_?.><812ehd"
     And I permit host "myapp" to "execute" it
     And I am using file "authn-jwt-token-schema" and alg "RS256" for remotely issue token:
     """
@@ -750,7 +750,7 @@ Feature: JWT Authenticator - Token Schema
       role: !group conjur/authn-jwt/raw/hosts
       member: !host myapp
     """
-    And I successfully set authn-jwt "enforced-claims" variable to value "ref"
+    And I successfully set authn-jwt "enforced-claims" variable value to "ref"
     And I am using file "authn-jwt-token-schema" and alg "RS256" for remotely issue token:
     """
     {
@@ -764,7 +764,7 @@ Feature: JWT Authenticator - Token Schema
     """
     - !variable conjur/authn-jwt/raw/claim-aliases
     """
-    And I successfully set authn-jwt "claim-aliases" variable to value "branch:ref"
+    And I successfully set authn-jwt "claim-aliases" variable value to "branch:ref"
     And I save my place in the audit log file
     And I authenticate via authn-jwt with the JWT token
     And the HTTP response status code is 401
@@ -825,7 +825,7 @@ Feature: JWT Authenticator - Token Schema
       role: !group conjur/authn-jwt/raw/hosts
       member: !host myapp
     """
-    And I successfully set authn-jwt "claim-aliases" variable to value "branch:ref"
+    And I successfully set authn-jwt "claim-aliases" variable value to "branch:ref"
     And I am using file "authn-jwt-token-schema" and alg "RS256" for remotely issue token:
     """
     {
@@ -835,7 +835,7 @@ Feature: JWT Authenticator - Token Schema
     """
     And I authenticate via authn-jwt with the JWT token
     And the HTTP response status code is 200
-    When I successfully set authn-jwt "claim-aliases" variable to value "job:ref"
+    When I successfully set authn-jwt "claim-aliases" variable value to "job:ref"
     And I save my place in the audit log file
     And I authenticate via authn-jwt with the JWT token
     And the HTTP response status code is 401
@@ -883,7 +883,7 @@ Feature: JWT Authenticator - Token Schema
       role: !group conjur/authn-jwt/raw/hosts
       member: !host myapp
     """
-    And I successfully set authn-jwt "claim-aliases" variable to value "claim:google/claim"
+    And I successfully set authn-jwt "claim-aliases" variable value to "claim:google/claim"
     And I am using file "authn-jwt-token-schema" and alg "RS256" for remotely issue token:
     """
     {
@@ -917,7 +917,7 @@ Feature: JWT Authenticator - Token Schema
       role: !group conjur/authn-jwt/raw/hosts
       member: !host myapp
     """
-    And I successfully set authn-jwt "claim-aliases" variable to value "claim:google/claim"
+    And I successfully set authn-jwt "claim-aliases" variable value to "claim:google/claim"
     And I am using file "authn-jwt-token-schema" and alg "RS256" for remotely issue token:
     """
     {
@@ -952,8 +952,8 @@ Feature: JWT Authenticator - Token Schema
       role: !group conjur/authn-jwt/raw/hosts
       member: !host myapp
     """
-    And I successfully set authn-jwt "enforced-claims" variable to value "google/claim"
-    And I successfully set authn-jwt "claim-aliases" variable to value "claim:google/claim"
+    And I successfully set authn-jwt "enforced-claims" variable value to "google/claim"
+    And I successfully set authn-jwt "claim-aliases" variable value to "claim:google/claim"
     And I am using file "authn-jwt-token-schema" and alg "RS256" for remotely issue token:
     """
     {
@@ -987,7 +987,7 @@ Feature: JWT Authenticator - Token Schema
       role: !group conjur/authn-jwt/raw/hosts
       member: !host myapp
     """
-    And I successfully set authn-jwt "claim-aliases" variable to value "claim/claim:valid"
+    And I successfully set authn-jwt "claim-aliases" variable value to "claim/claim:valid"
     And I am using file "authn-jwt-token-schema" and alg "RS256" for remotely issue token:
     """
     {

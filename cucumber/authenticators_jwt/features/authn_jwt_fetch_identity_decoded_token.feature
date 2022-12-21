@@ -61,7 +61,7 @@ Feature: JWT Authenticator - Fetch identity from decoded token
   @sanity
   @smoke
   Scenario: ONYX-8820: A valid JWT token with identity in the token
-    Given I successfully set authn-jwt "token-app-property" variable to value "host"
+    Given I successfully set authn-jwt "token-app-property" variable value to "host"
     And I permit host "myapp" to "execute" it
     And I add the secret value "test-secret" to the resource "cucumber:variable:test-variable"
     And I am using file "identity-from-decoded-token" and alg "RS256" for remotely issue token:
@@ -83,7 +83,7 @@ Feature: JWT Authenticator - Fetch identity from decoded token
   @sanity
   @negative @acceptance
   Scenario: ONYX-9522: User as Token identity is not supported, error
-    And I successfully set authn-jwt "token-app-property" variable to value "host"
+    And I successfully set authn-jwt "token-app-property" variable value to "host"
     Given I extend the policy with:
     """
     - !user
@@ -122,7 +122,7 @@ Feature: JWT Authenticator - Fetch identity from decoded token
       }
     }
     """
-    And I successfully set authn-jwt "token-app-property" variable to value "host_claim"
+    And I successfully set authn-jwt "token-app-property" variable value to "host_claim"
     And I save my place in the log file
     When I authenticate via authn-jwt with the JWT token
     Then the HTTP response status code is 401
@@ -151,7 +151,7 @@ Feature: JWT Authenticator - Fetch identity from decoded token
   @acceptance
   Scenario: ONYX-9524: Host with delimiter as Token identity, identity-path configured, 200 ok
     Given I have a "variable" resource called "test-variable"
-    And I successfully set authn-jwt "token-app-property" variable to value "host_claim"
+    And I successfully set authn-jwt "token-app-property" variable value to "host_claim"
     And I extend the policy with:
     """
     - !policy
@@ -160,7 +160,7 @@ Feature: JWT Authenticator - Fetch identity from decoded token
       - !variable
         id: identity-path
     """
-    And I successfully set authn-jwt "identity-path" variable to value "some_policy/"
+    And I successfully set authn-jwt "identity-path" variable value to "some_policy/"
     And I permit host "some_policy/sub_policy/host_test_from_token" to "execute" it
     And I add the secret value "test-secret" to the resource "cucumber:variable:test-variable"
     And I am using file "identity-from-decoded-token" and alg "RS256" for remotely issue token:
@@ -183,7 +183,7 @@ Feature: JWT Authenticator - Fetch identity from decoded token
   @acceptance
   Scenario: ONYX-9523: Host without delimiter as Token identity, identity-path configured, 200 ok
     Given I have a "variable" resource called "test-variable"
-    And I successfully set authn-jwt "token-app-property" variable to value "host_claim"
+    And I successfully set authn-jwt "token-app-property" variable value to "host_claim"
     And I extend the policy with:
     """
     - !policy
@@ -192,7 +192,7 @@ Feature: JWT Authenticator - Fetch identity from decoded token
       - !variable
         id: identity-path
     """
-    And I successfully set authn-jwt "identity-path" variable to value "some_policy/"
+    And I successfully set authn-jwt "identity-path" variable value to "some_policy/"
     And I permit host "some_policy/host_test_from_token" to "execute" it
     And I add the secret value "test-secret" to the resource "cucumber:variable:test-variable"
     And I am using file "identity-from-decoded-token" and alg "RS256" for remotely issue token:
@@ -214,7 +214,7 @@ Feature: JWT Authenticator - Fetch identity from decoded token
   @sanity
   @acceptance
   Scenario: ONYX-13707: Token-app-property from nested claim
-    Given I successfully set authn-jwt "token-app-property" variable to value "account/project/id"
+    Given I successfully set authn-jwt "token-app-property" variable value to "account/project/id"
     And I am using file "identity-from-decoded-token" and alg "RS256" for remotely issue token:
     """
     {
@@ -238,7 +238,7 @@ Feature: JWT Authenticator - Fetch identity from decoded token
 
   @negative @acceptance
   Scenario: ONYX-13711: Token-app-property does not accept array reference
-    Given I successfully set authn-jwt "token-app-property" variable to value "account[0]/project/id"
+    Given I successfully set authn-jwt "token-app-property" variable value to "account[0]/project/id"
     And I am using file "identity-from-decoded-token" and alg "RS256" for remotely issue token:
     """
     {
@@ -264,7 +264,7 @@ Feature: JWT Authenticator - Fetch identity from decoded token
 
   @negative @acceptance
   Scenario: ONYX-13713: Token-app-property does not accept array reference
-    Given I successfully set authn-jwt "token-app-property" variable to value "account/projects"
+    Given I successfully set authn-jwt "token-app-property" variable value to "account/projects"
     And I am using file "identity-from-decoded-token" and alg "RS256" for remotely issue token:
     """
     {

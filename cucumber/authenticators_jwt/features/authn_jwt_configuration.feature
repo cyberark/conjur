@@ -32,7 +32,7 @@ Feature: JWT Authenticator - Configuration Check
     """
     And I am the super-user
     And I successfully set authn-jwt "jwks-uri" variable value to "http://jwks_py:8090/authn-jwt-configuration/RS256" in service "raw"
-    And I successfully set authn-jwt "token-app-property" variable to value "host"
+    And I successfully set authn-jwt "token-app-property" variable value to "host"
     And I am using file "authn-jwt-configuration" and alg "RS256" for remotely issue token:
     """
     {
@@ -75,7 +75,7 @@ Feature: JWT Authenticator - Configuration Check
     """
     And I am the super-user
     And I successfully set authn-jwt "jwks-uri" variable value to "http://jwks_py:8090/authn-jwt-configuration/RS256" in service "raw"
-    And I successfully set authn-jwt "token-app-property" variable to value "host"
+    And I successfully set authn-jwt "token-app-property" variable value to "host"
     And I am using file "authn-jwt-configuration" and alg "RS256" for remotely issue token:
     """
     {
@@ -125,8 +125,8 @@ Feature: JWT Authenticator - Configuration Check
       member: !host myapp
     """
     And I am the super-user
-    And I successfully set authn-jwt "jwks-uri" variable to value "jwks uri placehodlder"
-    And I successfully set authn-jwt "provider-uri" variable to value "provider uri placeholder"
+    And I successfully set authn-jwt "jwks-uri" variable value to "jwks uri placehodlder"
+    And I successfully set authn-jwt "provider-uri" variable value to "provider uri placeholder"
     And I am using file "authn-jwt-configuration" and alg "RS256" for remotely issue token:
     """
     {
@@ -176,8 +176,8 @@ Feature: JWT Authenticator - Configuration Check
       member: !host myapp
     """
     And I am the super-user
-    And I successfully set authn-jwt "jwks-uri" variable to value " "
-    And I successfully set authn-jwt "provider-uri" variable to value "provider uri placeholder"
+    And I successfully set authn-jwt "jwks-uri" variable value to " "
+    And I successfully set authn-jwt "provider-uri" variable value to "provider uri placeholder"
     And I am using file "authn-jwt-configuration" and alg "RS256" for remotely issue token:
     """
     {
@@ -363,7 +363,7 @@ Feature: JWT Authenticator - Configuration Check
     """
     And I am the super-user
     And I successfully set authn-jwt "jwks-uri" variable value to "http://jwks_py:8090/authn-jwt-configuration/RS256" in service "raw"
-    And I successfully set authn-jwt "provider-uri" variable to value " "
+    And I successfully set authn-jwt "provider-uri" variable value to " "
     And I am using file "authn-jwt-configuration" and alg "RS256" for remotely issue token:
     """
     {
@@ -409,7 +409,7 @@ Feature: JWT Authenticator - Configuration Check
       role: !group conjur/authn-jwt/raw/hosts
       member: !host myapp
     """
-    And I successfully set authn-jwt "token-app-property" variable to value "host"
+    And I successfully set authn-jwt "token-app-property" variable value to "host"
     And I successfully set authn-jwt "jwks-uri" variable value to "http://jwks_py:8090/authn-jwt-configuration/RS256" in service "raw"
     And I am using file "authn-jwt-configuration" and alg "RS256" for remotely issue token:
     """

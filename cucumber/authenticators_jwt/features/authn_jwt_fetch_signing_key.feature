@@ -124,8 +124,8 @@ Feature: JWT Authenticator - Fetch signing key
     """
     And I am the super-user
     And I initialize remote JWKS endpoint with file "authn-jwt-fetch-signing-key" and alg "RS256"
-    And I successfully set authn-jwt "jwks-uri" variable to value "unknown-host.com"
-    And I successfully set authn-jwt "token-app-property" variable to value "host"
+    And I successfully set authn-jwt "jwks-uri" variable value to "unknown-host.com"
+    And I successfully set authn-jwt "token-app-property" variable value to "host"
     And I am using file "authn-jwt-fetch-signing-key" and alg "RS256" for remotely issue token:
     """
     {
@@ -427,11 +427,11 @@ Feature: JWT Authenticator - Fetch signing key
       member: !host myapp
     """
     And I am the super-user
-    And I successfully set authn-jwt "token-app-property" variable to value "host"
+    And I successfully set authn-jwt "token-app-property" variable value to "host"
     And I have a "variable" resource called "test-variable"
     And I add the secret value "test-secret" to the resource "cucumber:variable:test-variable"
     And I permit host "myapp" to "execute" it
-    And I successfully set authn-jwt "jwks-uri" variable to value "incorrect.com"
+    And I successfully set authn-jwt "jwks-uri" variable value to "incorrect.com"
     And I am using file "authn-jwt-fetch-signing-key" and alg "RS256" for remotely issue token:
     """
     {
@@ -491,7 +491,7 @@ Feature: JWT Authenticator - Fetch signing key
     """
     And I am the super-user
     And I successfully set authn-jwt jwks-uri variable with value of "myFirstJWKs.json" endpoint
-    And I successfully set authn-jwt "token-app-property" variable to value "host"
+    And I successfully set authn-jwt "token-app-property" variable value to "host"
     And I issue a JWT token signed with jku with jwks file_name "mySecondJWKs.json":
     """
     {
@@ -544,7 +544,7 @@ Feature: JWT Authenticator - Fetch signing key
     """
     And I am the super-user
     And I successfully set authn-jwt jwks-uri variable with value of "myFirstJWKs.json" endpoint
-    And I successfully set authn-jwt "token-app-property" variable to value "host"
+    And I successfully set authn-jwt "token-app-property" variable value to "host"
     And I issue a JWT token signed with jwk with jwks file_name "localRsaKey.json":
     """
     {
@@ -705,8 +705,8 @@ Feature: JWT Authenticator - Fetch signing key
     And I am the super-user
     And I initialize remote JWKS endpoint with file "public-key-1" and alg "RS256"
     And I successfully set authn-jwt public-keys variable to value from remote JWKS endpoint "public-key-1" and alg "RS256"
-    And I successfully set authn-jwt "issuer" variable to value "valid-issuer"
-    And I successfully set authn-jwt "token-app-property" variable to value "host"
+    And I successfully set authn-jwt "issuer" variable value to "valid-issuer"
+    And I successfully set authn-jwt "token-app-property" variable value to "host"
     And I am using file "public-key-1" and alg "RS256" for remotely issue token:
     """
     {
@@ -736,8 +736,8 @@ Feature: JWT Authenticator - Fetch signing key
        - !webservice status
      """
     And I am the super-user
-    And I successfully set authn-jwt "public-keys" variable to value "{ }"
-    And I successfully set authn-jwt "issuer" variable to value "valid-issuer"
+    And I successfully set authn-jwt "public-keys" variable value to "{ }"
+    And I successfully set authn-jwt "issuer" variable value to "valid-issuer"
     When I GET "/authn-jwt/raw/cucumber/status"
     Then the HTTP response status code is 500
     And the authenticator status check fails with error "CONJ00120E Failed to parse 'public-keys': Type can't be blank, Value can't be blank, and Type '' is not a valid public-keys type. Valid types are: jwks"
@@ -789,8 +789,8 @@ Feature: JWT Authenticator - Fetch signing key
       member: !host myapp
     """
     And I am the super-user
-    And I successfully set authn-jwt "jwks-uri" variable to value "unknown-host.com"
-    And I successfully set authn-jwt "token-app-property" variable to value "host"
+    And I successfully set authn-jwt "jwks-uri" variable value to "unknown-host.com"
+    And I successfully set authn-jwt "token-app-property" variable value to "host"
     And I am using file "authn-jwt-fetch-signing-key" and alg "RS256" for remotely issue token:
     """
     {

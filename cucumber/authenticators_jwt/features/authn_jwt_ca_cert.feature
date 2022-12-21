@@ -19,7 +19,7 @@ Feature: JWT Authenticator - ca-cert variable tests
   Scenario: ONYX-15311: Self-signed jwks-uri no ca-cert variable
     Given I initialize JWKS endpoint with file "ca-cert-ONYX-15311.json"
     And I am the super-user
-    And I successfully set authn-jwt "jwks-uri" variable to value "https://jwks/ca-cert-ONYX-15311.json"
+    And I successfully set authn-jwt "jwks-uri" variable value to "https://jwks/ca-cert-ONYX-15311.json"
     When I GET "/authn-jwt/raw/cucumber/status"
     Then the HTTP response status code is 500
     And the authenticator status check fails with error "CONJ00087E Failed to fetch JWKS from 'https://jwks/ca-cert-ONYX-15311.json'. Reason: '#<OpenSSL::SSL::SSLError: SSL_connect returned=1 errno=0 state=error: certificate verify failed (self signed certificate)>'>"
@@ -33,7 +33,7 @@ Feature: JWT Authenticator - ca-cert variable tests
     """
     - !variable conjur/authn-jwt/raw/ca-cert
     """
-    And I successfully set authn-jwt "jwks-uri" variable to value "https://jwks/ca-cert-ONYX-15312.json"
+    And I successfully set authn-jwt "jwks-uri" variable value to "https://jwks/ca-cert-ONYX-15312.json"
     And I fetch root certificate from https://jwks endpoint as "self"
     And I successfully set authn-jwt "ca-cert" variable value to the "self" certificate
     When I GET "/authn-jwt/raw/cucumber/status"
@@ -50,7 +50,7 @@ Feature: JWT Authenticator - ca-cert variable tests
     """
     - !variable conjur/authn-jwt/raw/ca-cert
     """
-    And I successfully set authn-jwt "jwks-uri" variable to value "<jwks-uri>"
+    And I successfully set authn-jwt "jwks-uri" variable value to "<jwks-uri>"
     And I fetch root certificate from https://jwks endpoint as "self"
     And I fetch root certificate from https://chained.mycompany.local endpoint as "chained"
     And I bundle the next certificates as "bundle":
@@ -72,7 +72,7 @@ Feature: JWT Authenticator - ca-cert variable tests
   Scenario: ONYX-15314: Chained jwks-uri no ca-cert variable
     Given I initialize JWKS endpoint with file "ca-cert-ONYX-15314.json"
     And I am the super-user
-    And I successfully set authn-jwt "jwks-uri" variable to value "https://chained.mycompany.local/ca-cert-ONYX-15314.json"
+    And I successfully set authn-jwt "jwks-uri" variable value to "https://chained.mycompany.local/ca-cert-ONYX-15314.json"
     When I GET "/authn-jwt/raw/cucumber/status"
     Then the HTTP response status code is 500
     And the authenticator status check fails with error "CONJ00087E Failed to fetch JWKS from 'https://chained.mycompany.local/ca-cert-ONYX-15314.json'. Reason: '#<OpenSSL::SSL::SSLError: SSL_connect returned=1 errno=0 state=error: certificate verify failed (self signed certificate in certificate chain)>'>"
@@ -86,7 +86,7 @@ Feature: JWT Authenticator - ca-cert variable tests
     """
     - !variable conjur/authn-jwt/raw/ca-cert
     """
-    And I successfully set authn-jwt "jwks-uri" variable to value "https://chained.mycompany.local/ca-cert-ONYX-15315.json"
+    And I successfully set authn-jwt "jwks-uri" variable value to "https://chained.mycompany.local/ca-cert-ONYX-15315.json"
     And I fetch root certificate from https://chained.mycompany.local endpoint as "chained"
     And I successfully set authn-jwt "ca-cert" variable value to the "chained" certificate
     When I GET "/authn-jwt/raw/cucumber/status"
@@ -97,7 +97,7 @@ Feature: JWT Authenticator - ca-cert variable tests
   @acceptance
   Scenario: ONYX-15317: Google's jwks-uri no ca-cert variable
     Given I am the super-user
-    And I successfully set authn-jwt "jwks-uri" variable to value "https://www.googleapis.com/oauth2/v3/certs"
+    And I successfully set authn-jwt "jwks-uri" variable value to "https://www.googleapis.com/oauth2/v3/certs"
     When I GET "/authn-jwt/raw/cucumber/status"
     Then the HTTP response status code is 200
     And the HTTP response content type is "application/json"
@@ -111,7 +111,7 @@ Feature: JWT Authenticator - ca-cert variable tests
     """
     - !variable conjur/authn-jwt/raw/ca-cert
     """
-    And I successfully set authn-jwt "jwks-uri" variable to value "https://login.microsoftonline.com/common/discovery/v2.0/keys"
+    And I successfully set authn-jwt "jwks-uri" variable value to "https://login.microsoftonline.com/common/discovery/v2.0/keys"
     And I fetch root certificate from https://chained.mycompany.local endpoint as "chained"
     And I successfully set authn-jwt "ca-cert" variable value to the "chained" certificate
     When I GET "/authn-jwt/raw/cucumber/status"

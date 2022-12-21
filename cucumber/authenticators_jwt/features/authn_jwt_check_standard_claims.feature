@@ -69,7 +69,7 @@ Feature: JWT Authenticator - Check registered claim
       member: !host myapp
     """
     And I am the super-user
-    And I successfully set authn-jwt "token-app-property" variable to value "host"
+    And I successfully set authn-jwt "token-app-property" variable value to "host"
     And I have a "variable" resource called "test-variable"
     And I add the secret value "test-secret" to the resource "cucumber:variable:test-variable"
     And I permit host "myapp" to "execute" it
@@ -89,7 +89,7 @@ Feature: JWT Authenticator - Check registered claim
         id: issuer
     """
     And I successfully set authn-jwt "jwks-uri" variable value to "http://jwks_py:8090/authn-jwt-check-standard-claims/RS256" in service "raw"
-    And I successfully set authn-jwt "issuer" variable to value "incorrect-value"
+    And I successfully set authn-jwt "issuer" variable value to "incorrect-value"
     And I am using file "authn-jwt-check-standard-claims" and alg "RS256" for remotely issue token:
     """
     {
@@ -286,7 +286,7 @@ Feature: JWT Authenticator - Check registered claim
         id: issuer
     """
     And I successfully set authn-jwt "jwks-uri" variable value to "http://jwks_py:8090/authn-jwt-check-standard-claims/RS256" in service "raw"
-    And I successfully set authn-jwt "issuer" variable to value "http://jwks"
+    And I successfully set authn-jwt "issuer" variable value to "http://jwks"
     And I am using file "authn-jwt-check-standard-claims" and alg "RS256" for remotely issue token:
     """
     {
@@ -317,7 +317,7 @@ Feature: JWT Authenticator - Check registered claim
       - !variable
         id: issuer
     """
-    And I successfully set authn-jwt "issuer" variable to value "incorrect.com"
+    And I successfully set authn-jwt "issuer" variable value to "incorrect.com"
     And I successfully set authn-jwt "jwks-uri" variable value to "http://jwks_py:8090/authn-jwt-check-standard-claims/RS256" in service "raw"
     And I am using file "authn-jwt-check-standard-claims" and alg "RS256" for remotely issue token:
     """
@@ -348,8 +348,8 @@ Feature: JWT Authenticator - Check registered claim
       - !variable
         id: issuer
     """
-    And I successfully set authn-jwt "jwks-uri" variable to value "incorrect.com"
-    And I successfully set authn-jwt "issuer" variable to value "incorrect.com"
+    And I successfully set authn-jwt "jwks-uri" variable value to "incorrect.com"
+    And I successfully set authn-jwt "issuer" variable value to "incorrect.com"
     And I am using file "authn-jwt-check-standard-claims" and alg "RS256" for remotely issue token:
     """
     {
@@ -388,7 +388,7 @@ Feature: JWT Authenticator - Check registered claim
     - !variable conjur/authn-jwt/raw/issuer
     """
     And I successfully set authn-jwt public-keys variable to value from remote JWKS endpoint "authn-jwt-check-standard-claims" and alg "RS256"
-    And I successfully set authn-jwt "issuer" variable to value "invalid-issuer"
+    And I successfully set authn-jwt "issuer" variable value to "invalid-issuer"
     And I am using file "authn-jwt-check-standard-claims" and alg "RS256" for remotely issue token:
     """
     {
@@ -423,7 +423,7 @@ Feature: JWT Authenticator - Check registered claim
       member: !host aud-test-app
     """
     And I successfully set authn-jwt "jwks-uri" variable value to "http://jwks_py:8090/authn-jwt-check-standard-claims/RS256" in service "raw"
-    And I successfully set authn-jwt "audience" variable to value "<audience>"
+    And I successfully set authn-jwt "audience" variable value to "<audience>"
     And I am using file "authn-jwt-check-standard-claims" and alg "RS256" for remotely issue token:
     """
     {

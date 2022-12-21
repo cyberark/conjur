@@ -35,7 +35,7 @@ Feature: JWT Authenticator - Security
       member: !host myapp
     """
     And I am the super-user
-    And I successfully set authn-jwt "token-app-property" variable to value "host"
+    And I successfully set authn-jwt "token-app-property" variable value to "host"
     And I have a "variable" resource called "test-variable"
     And I add the secret value "test-secret" to the resource "cucumber:variable:test-variable"
     And I permit host "myapp" to "execute" it

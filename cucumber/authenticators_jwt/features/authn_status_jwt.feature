@@ -62,9 +62,9 @@ Feature: JWT Authenticator - Status Check
     """
     And I am the super-user
     And I successfully set authn-jwt "jwks-uri" variable value to "http://jwks_py:8090/authn-jwt-configuration/RS256" in service "raw"
-    And I successfully set authn-jwt "token-app-property" variable to value "kubernetes.io/user"
-    And I successfully set authn-jwt "issuer" variable to value "gitlab"
-    And I successfully set authn-jwt "audience" variable to value "conjur"
+    And I successfully set authn-jwt "token-app-property" variable value to "kubernetes.io/user"
+    And I successfully set authn-jwt "issuer" variable value to "gitlab"
+    And I successfully set authn-jwt "audience" variable value to "conjur"
     And I login as "alice"
     And I save my place in the log file
     When I GET "/authn-jwt/raw/cucumber/status"
@@ -119,8 +119,8 @@ Feature: JWT Authenticator - Status Check
       - !user alice
     """
     And I am the super-user
-    And I successfully set authn-jwt "token-app-property" variable to value "user"
-    And I successfully set authn-jwt "issuer" variable to value "someIssuer"
+    And I successfully set authn-jwt "token-app-property" variable value to "user"
+    And I successfully set authn-jwt "issuer" variable value to "someIssuer"
     And I login as "alice"
     And I save my place in the log file
     When I GET "/authn-jwt/raw/cucumber/status"
@@ -181,9 +181,9 @@ Feature: JWT Authenticator - Status Check
     """
     And I am the super-user
     And I successfully set authn-jwt jwks-uri variable with value of "myJWKs.json" endpoint
-    And I successfully set authn-jwt "provider-uri" variable to value "someProvider"
-    And I successfully set authn-jwt "token-app-property" variable to value "user"
-    And I successfully set authn-jwt "issuer" variable to value "someIssuer"
+    And I successfully set authn-jwt "provider-uri" variable value to "someProvider"
+    And I successfully set authn-jwt "token-app-property" variable value to "user"
+    And I successfully set authn-jwt "issuer" variable value to "someIssuer"
     And I login as "alice"
     And I save my place in the log file
     When I GET "/authn-jwt/raw/cucumber/status"
@@ -233,7 +233,7 @@ Feature: JWT Authenticator - Status Check
     """
     And I am the super-user
     And I successfully set authn-jwt jwks-uri variable with value of "myJWKs.json" endpoint
-    And I successfully set authn-jwt "token-app-property" variable to value "user"
+    And I successfully set authn-jwt "token-app-property" variable value to "user"
     And I login as "alice"
     And I save my place in the log file
     When I GET "/authn-jwt/raw/cucumber/status"
@@ -288,7 +288,7 @@ Feature: JWT Authenticator - Status Check
     """
     And I am the super-user
     And I successfully set authn-jwt "jwks-uri" variable value to "http://jwks_py:8090/authn-jwt-configuration/RS256" in service "raw"
-    And I successfully set authn-jwt "token-app-property" variable to value "user"
+    And I successfully set authn-jwt "token-app-property" variable value to "user"
     And I login as "alice"
     And I save my place in the log file
     When I GET "/authn-jwt/raw/cucumber/status"
@@ -340,7 +340,7 @@ Feature: JWT Authenticator - Status Check
       - !user alice
     """
     And I am the super-user
-    And I successfully set authn-jwt "token-app-property" variable to value "user"
+    And I successfully set authn-jwt "token-app-property" variable value to "user"
     And I login as "alice"
     And I save my place in the log file
     When I GET "/authn-jwt/raw/cucumber/status"
@@ -439,7 +439,7 @@ Feature: JWT Authenticator - Status Check
     """
     And I am the super-user
     And I successfully set authn-jwt "jwks-uri" variable value to "http://jwks_py:8090/authn-jwt-configuration/RS256" in service "raw"
-    And I successfully set authn-jwt "token-app-property" variable to value "user"
+    And I successfully set authn-jwt "token-app-property" variable value to "user"
     And I login as "alice"
     And I save my place in the log file
     When I GET "/authn-jwt/raw/cucumber/status"
@@ -493,7 +493,7 @@ Feature: JWT Authenticator - Status Check
       - !user alice
     """
     And I am the super-user
-    And I successfully set authn-jwt "token-app-property" variable to value "user"
+    And I successfully set authn-jwt "token-app-property" variable value to "user"
     And I login as "alice"
     And I save my place in the log file
     When I GET "/authn-jwt/raw/cucumber/status"
@@ -547,7 +547,7 @@ Feature: JWT Authenticator - Status Check
       - !user alice
     """
     And I am the super-user
-    And I successfully set authn-jwt "token-app-property" variable to value "user"
+    And I successfully set authn-jwt "token-app-property" variable value to "user"
     And I login as "alice"
     And I save my place in the log file
     When I GET "/authn-jwt/raw/cucumber/status"
@@ -601,8 +601,8 @@ Feature: JWT Authenticator - Status Check
       - !user alice
     """
     And I am the super-user
-    And I successfully set authn-jwt "provider-uri" variable to value "unknow-host.com"
-    And I successfully set authn-jwt "token-app-property" variable to value "user"
+    And I successfully set authn-jwt "provider-uri" variable value to "unknow-host.com"
+    And I successfully set authn-jwt "token-app-property" variable value to "user"
     And I login as "alice"
     And I save my place in the log file
     When I GET "/authn-jwt/raw/cucumber/status"
@@ -656,8 +656,8 @@ Feature: JWT Authenticator - Status Check
       - !user alice
     """
     And I am the super-user
-    And I successfully set authn-jwt "jwks-uri" variable to value "unknow-host.com"
-    And I successfully set authn-jwt "token-app-property" variable to value "user"
+    And I successfully set authn-jwt "jwks-uri" variable value to "unknow-host.com"
+    And I successfully set authn-jwt "token-app-property" variable value to "user"
     And I login as "alice"
     And I save my place in the log file
     When I GET "/authn-jwt/raw/cucumber/status"
@@ -716,7 +716,7 @@ Feature: JWT Authenticator - Status Check
     """
     And I am the super-user
     And I successfully set authn-jwt "jwks-uri" variable value to "http://jwks_py:8090/authn-jwt-configuration/RS256" in service "raw"
-    And I successfully set authn-jwt "token-app-property" variable to value "user"
+    And I successfully set authn-jwt "token-app-property" variable value to "user"
     And I login as "alice"
     And I save my place in the log file
     When I GET "/authn-jwt/raw/cucumber/status"
@@ -783,9 +783,9 @@ Feature: JWT Authenticator - Status Check
     """
     And I am the super-user
     And I successfully set authn-jwt "jwks-uri" variable value to "http://jwks_py:8090/authn-jwt-configuration/RS256" in service "raw"
-    And I successfully set authn-jwt "token-app-property" variable to value "user"
-    And I successfully set authn-jwt "identity-path" variable to value "apps"
-    And I successfully set authn-jwt "issuer" variable to value "gitlab"
+    And I successfully set authn-jwt "token-app-property" variable value to "user"
+    And I successfully set authn-jwt "identity-path" variable value to "apps"
+    And I successfully set authn-jwt "issuer" variable value to "gitlab"
     And I login as "alice"
     And I save my place in the log file
     When I GET "/authn-jwt/raw/cucumber/status"
@@ -852,9 +852,9 @@ Feature: JWT Authenticator - Status Check
     """
     And I am the super-user
     And I successfully set authn-jwt "jwks-uri" variable value to "http://jwks_py:8090/authn-jwt-configuration/RS256" in service "raw"
-    And I successfully set authn-jwt "token-app-property" variable to value "user"
-    And I successfully set authn-jwt "claim-aliases" variable to value "branch:ref"
-    And I successfully set authn-jwt "enforced-claims" variable to value "ref"
+    And I successfully set authn-jwt "token-app-property" variable value to "user"
+    And I successfully set authn-jwt "claim-aliases" variable value to "branch:ref"
+    And I successfully set authn-jwt "enforced-claims" variable value to "ref"
     And I login as "alice"
     And I save my place in the log file
     When I GET "/authn-jwt/raw/cucumber/status"
@@ -913,7 +913,7 @@ Feature: JWT Authenticator - Status Check
     """
     And I am the super-user
     And I successfully set authn-jwt "jwks-uri" variable value to "http://jwks_py:8090/authn-jwt-configuration/RS256" in service "raw"
-    And I successfully set authn-jwt "token-app-property" variable to value "user"
+    And I successfully set authn-jwt "token-app-property" variable value to "user"
     And I login as "alice"
     And I save my place in the log file
     When I GET "/authn-jwt/raw/cucumber/status"
@@ -976,7 +976,7 @@ Feature: JWT Authenticator - Status Check
     """
     And I am the super-user
     And I successfully set authn-jwt "jwks-uri" variable value to "http://jwks_py:8090/authn-jwt-configuration/RS256" in service "raw"
-    And I successfully set authn-jwt "token-app-property" variable to value "user"
+    And I successfully set authn-jwt "token-app-property" variable value to "user"
     And I login as "alice"
     And I save my place in the log file
     When I GET "/authn-jwt/raw/cucumber/status"
@@ -1039,7 +1039,7 @@ Feature: JWT Authenticator - Status Check
     """
     And I am the super-user
     And I successfully set authn-jwt "jwks-uri" variable value to "http://jwks_py:8090/authn-jwt-configuration/RS256" in service "raw"
-    And I successfully set authn-jwt "token-app-property" variable to value "user"
+    And I successfully set authn-jwt "token-app-property" variable value to "user"
     And I login as "alice"
     And I save my place in the log file
     When I GET "/authn-jwt/raw/cucumber/status"
@@ -1102,8 +1102,8 @@ Feature: JWT Authenticator - Status Check
     """
     And I am the super-user
     And I successfully set authn-jwt "jwks-uri" variable value to "http://jwks_py:8090/authn-jwt-configuration/RS256" in service "raw"
-    And I successfully set authn-jwt "token-app-property" variable to value "user"
-    And I successfully set authn-jwt "enforced-claims" variable to value "$@$@#sda//sdasdq23asd32rdf"
+    And I successfully set authn-jwt "token-app-property" variable value to "user"
+    And I successfully set authn-jwt "enforced-claims" variable value to "$@$@#sda//sdasdq23asd32rdf"
     And I login as "alice"
     And I save my place in the log file
     When I GET "/authn-jwt/raw/cucumber/status"
@@ -1166,8 +1166,8 @@ Feature: JWT Authenticator - Status Check
     """
     And I am the super-user
     And I successfully set authn-jwt "jwks-uri" variable value to "http://jwks_py:8090/authn-jwt-configuration/RS256" in service "raw"
-    And I successfully set authn-jwt "token-app-property" variable to value "user"
-    And I successfully set authn-jwt "claim-aliases" variable to value "<claim-aliases-value>"
+    And I successfully set authn-jwt "token-app-property" variable value to "user"
+    And I successfully set authn-jwt "claim-aliases" variable value to "<claim-aliases-value>"
     And I login as "alice"
     And I save my place in the log file
     When I GET "/authn-jwt/raw/cucumber/status"
@@ -1232,9 +1232,9 @@ Feature: JWT Authenticator - Status Check
     """
     And I am the super-user
     And I successfully set authn-jwt "jwks-uri" variable value to "http://jwks_py:8090/authn-jwt-configuration/RS256" in service "raw"
-    And I successfully set authn-jwt "token-app-property" variable to value "a//b"
-    And I successfully set authn-jwt "issuer" variable to value "gitlab"
-    And I successfully set authn-jwt "audience" variable to value "conjur"
+    And I successfully set authn-jwt "token-app-property" variable value to "a//b"
+    And I successfully set authn-jwt "issuer" variable value to "gitlab"
+    And I successfully set authn-jwt "audience" variable value to "conjur"
     And I login as "alice"
     And I save my place in the log file
     When I GET "/authn-jwt/raw/cucumber/status"
