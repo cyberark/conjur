@@ -10,7 +10,7 @@ Feature: JWT Authenticator - JWKs Basic sanity
     And I load a policy:
     """
     - !policy
-      id: conjur/authn-jwt/raw
+      id: conjur/authn-jwt/raw.auth
       body:
       - !webservice
 
@@ -30,16 +30,16 @@ Feature: JWT Authenticator - JWKs Basic sanity
     - !host
       id: myapp
       annotations:
-        authn-jwt/raw/project_id: myproject
+        authn-jwt/raw.auth/project_id: myproject
 
     - !grant
-      role: !group conjur/authn-jwt/raw/hosts
+      role: !group conjur/authn-jwt/raw.auth/hosts
       member: !host myapp
     """
     And I am the super-user
     And I initialize remote JWKS endpoint with file "authn-jwt-general" and alg "RS256"
-    And I successfully set authn-jwt "jwks-uri" variable value to "http://jwks_py:8090/authn-jwt-general/RS256" in service "raw"
-    And I successfully set authn-jwt "token-app-property" variable value to "host"
+    And I successfully set authn-jwt "jwks-uri" variable value to "http://jwks_py:8090/authn-jwt-general/RS256" in service "raw.auth"
+    And I successfully set authn-jwt "token-app-property" variable value to "host" in service "raw.auth"
 
   @sanity
   @negative @acceptance
