@@ -31,7 +31,7 @@ Feature: JWT Authenticator - Validate And Decode
       member: !host myapp
     """
     And I am the super-user
-    And I successfully set authn-jwt "token-app-property" variable to value "host"
+    And I successfully set authn-jwt "token-app-property" variable value to "host"
     And I initialize JWKS endpoint with file "myJWKs.json"
 
   @negative @acceptance
@@ -88,7 +88,7 @@ Feature: JWT Authenticator - Validate And Decode
     - !variable conjur/authn-jwt/raw/issuer
     """
     And I successfully set authn-jwt public-keys variable with value from "myJWKs.json" endpoint
-    And I successfully set authn-jwt "issuer" variable to value "valid-issuer"
+    And I successfully set authn-jwt "issuer" variable value to "valid-issuer"
     And I issue another key JWT token:
     """
     {

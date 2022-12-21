@@ -46,7 +46,7 @@ Feature: JWT Authenticator - Validate restrictions
       role: !group conjur/authn-jwt/raw/hosts
       member: !host myapp
     """
-    And I successfully set authn-jwt "token-app-property" variable to value "host"
+    And I successfully set authn-jwt "token-app-property" variable value to "host"
     And I add the secret value "test-secret" to the resource "cucumber:variable:test-variable"
     And I permit host "myapp" to "execute" it
     And I am using file "authn-jwt-validate-restrictions" and alg "RS256" for remotely issue token:
@@ -75,7 +75,7 @@ Feature: JWT Authenticator - Validate restrictions
 
   @negative @acceptance
   Scenario: ONYX-9112: General annotation and without service specific annotations, 401 Error
-    And I successfully set authn-jwt "token-app-property" variable to value "host"
+    And I successfully set authn-jwt "token-app-property" variable value to "host"
     Given I extend the policy with:
     """
     - !host
@@ -106,7 +106,7 @@ Feature: JWT Authenticator - Validate restrictions
 
   @negative @acceptance
   Scenario: ONYX-9070: General annotations with valid values, annotation with correct service and valid value and annotation with correct service and wrong value, 401 Error
-    And I successfully set authn-jwt "token-app-property" variable to value "host"
+    And I successfully set authn-jwt "token-app-property" variable value to "host"
     Given I extend the policy with:
     """
     - !host
@@ -139,7 +139,7 @@ Feature: JWT Authenticator - Validate restrictions
 
   @negative @acceptance
   Scenario: ONYX-9068: Host without annotations, 401 Error
-    And I successfully set authn-jwt "token-app-property" variable to value "host"
+    And I successfully set authn-jwt "token-app-property" variable value to "host"
     Given I extend the policy with:
     """
     - !host
@@ -167,7 +167,7 @@ Feature: JWT Authenticator - Validate restrictions
 
   @negative @acceptance
   Scenario: ONYX-8737: Validate multiple annotations with incorrect values but one, 401 Error
-    And I successfully set authn-jwt "token-app-property" variable to value "host"
+    And I successfully set authn-jwt "token-app-property" variable value to "host"
     Given I extend the policy with:
     """
     - !host
@@ -202,7 +202,7 @@ Feature: JWT Authenticator - Validate restrictions
 
   @negative @acceptance
   Scenario: ONYX-8736: Validate multiple annotations with incorrect, 401 Error
-    And I successfully set authn-jwt "token-app-property" variable to value "host"
+    And I successfully set authn-jwt "token-app-property" variable value to "host"
     Given I extend the policy with:
     """
     - !host
@@ -235,7 +235,7 @@ Feature: JWT Authenticator - Validate restrictions
 
   @negative @acceptance
   Scenario: ONYX-9113: Non existing field annotation, 401 Error
-    And I successfully set authn-jwt "token-app-property" variable to value "host"
+    And I successfully set authn-jwt "token-app-property" variable value to "host"
     Given I extend the policy with:
     """
     - !host
@@ -275,7 +275,7 @@ Feature: JWT Authenticator - Validate restrictions
       role: !group conjur/authn-jwt/raw/hosts
       member: !host myapp
     """
-    And I successfully set authn-jwt "token-app-property" variable to value "host"
+    And I successfully set authn-jwt "token-app-property" variable value to "host"
     And I am using file "authn-jwt-validate-restrictions" and alg "RS256" for remotely issue token:
     """
     {
@@ -310,7 +310,7 @@ Feature: JWT Authenticator - Validate restrictions
       role: !group conjur/authn-jwt/raw/hosts
       member: !host myapp
     """
-    And I successfully set authn-jwt "token-app-property" variable to value "host"
+    And I successfully set authn-jwt "token-app-property" variable value to "host"
     And I am using file "authn-jwt-validate-restrictions" and alg "RS256" for remotely issue token:
     """
     {
@@ -340,7 +340,7 @@ Feature: JWT Authenticator - Validate restrictions
 
   @negative @acceptance
   Scenario: ONYX-13722: Annotation with invalid claim path format, 401 Error
-    And I successfully set authn-jwt "token-app-property" variable to value "host"
+    And I successfully set authn-jwt "token-app-property" variable value to "host"
     Given I extend the policy with:
     """
     - !host
