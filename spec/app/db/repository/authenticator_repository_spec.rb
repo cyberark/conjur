@@ -4,7 +4,7 @@ require 'spec_helper'
 
 RSpec.describe('DB::Repository::AuthenticatorRepository') do
   # Verify tests pass with flag enabled/disabled
-  %w[true false].each do |pkce_flag_enabled|
+  [true, false].each do |pkce_flag_enabled|
     context "with flag #{pkce_flag_enabled}" do
       let(:data_object) do
         if pkce_flag_enabled
@@ -177,6 +177,21 @@ RSpec.describe('DB::Repository::AuthenticatorRepository') do
               it { expect(authenticator).to be_kind_of(data_object) }
               it { expect(authenticator.account).to eq('rspec') }
               it { expect(authenticator.service_id).to eq('abc123') }
+
+              context 'custom token TTL' do
+                before(:each) do
+                  ::Resource.create(
+                    resource_id: "rspec:variable:conjur/authn-oidc/abc123/token_ttl",
+                    owner_id: "rspec:policy:conjur/authn-oidc/abc123"
+                  )
+                  ::Secret.create(
+                    resource_id: "rspec:variable:conjur/authn-oidc/abc123/token_ttl",
+                    value: "PT2H"
+                  )
+                end
+
+                it { expect(authenticator.token_ttl).to eq(2.hours) }
+              end
             end
 
             after(:each) do
