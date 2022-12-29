@@ -55,7 +55,12 @@ class RolesController < RestController
   #
   def direct_memberships
     memberships = filtered_roles(role.direct_memberships_dataset(filter_params), membership_filter)
-    render_dataset(memberships)
+    render_result = render_dataset(memberships)
+    audit_memberships_success(membership_filter)
+    return render_result
+  rescue => e
+    audit_memberships_failure(membership_filter, e)
+    raise e
   end
 
   # Find all members of this role.
@@ -251,6 +256,37 @@ class RolesController < RestController
     options[:role] = role_id
     Audit.logger.log(
       Audit::Event::Members.new(
+        user_id: current_user.role_id,
+        client_ip: request.ip,
+        subject: options,
+        success: false,
+        error_message: err.message
+      )
+    )
+  end
+
+  def audit_memberships_success(filter)
+    additional_params = %i[account count search kind filter]
+    options = params.permit(*additional_params).to_h.symbolize_keys
+    options[:filter] = filter if filter
+    options[:role] = role_id
+    Audit.logger.log(
+      Audit::Event::Memberships.new(
+        user_id: current_user.role_id,
+        client_ip: request.ip,
+        subject: options,
+        success: true
+      )
+    )
+  end
+
+  def audit_memberships_failure(filter, err)
+    additional_params = %i[account count search kind filter]
+    options = params.permit(*additional_params).to_h.symbolize_keys
+    options[:filter] = filter if filter
+    options[:role] = role_id
+    Audit.logger.log(
+      Audit::Event::Memberships.new(
         user_id: current_user.role_id,
         client_ip: request.ip,
         subject: options,
