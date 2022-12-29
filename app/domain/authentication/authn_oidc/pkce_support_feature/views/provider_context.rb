@@ -7,7 +7,7 @@ module Authentication
       module Views
         class ProviderContext
           def initialize(
-            client: Authentication::AuthnOidc::V2::Client,
+            client: Authentication::AuthnOidc::PkceSupportFeature::Client,
             digest: Digest::SHA256,
             random: SecureRandom,
             logger: Rails.logger
@@ -20,23 +20,29 @@ module Authentication
 
           def call(authenticators:)
             authenticators.map do |authenticator|
-              nonce = @random.hex(25)
-              code_verifier = @random.hex(25)
-              code_challenge = @digest.base64digest(code_verifier).tr("+/", "-_").tr("=", "")
-              {
-                service_id: authenticator.service_id,
-                type: 'authn-oidc',
-                name: authenticator.name,
-                nonce: nonce,
-                code_verifier: code_verifier,
-                redirect_uri: generate_redirect_url(
-                  client: @client.new(authenticator: authenticator),
-                  authenticator: authenticator,
+              begin
+                nonce = @random.hex(25)
+                code_verifier = @random.hex(25)
+                code_challenge = @digest.base64digest(code_verifier).tr("+/", "-_").tr("=", "")
+                {
+                  service_id: authenticator.service_id,
+                  type: 'authn-oidc',
+                  name: authenticator.name,
                   nonce: nonce,
-                  code_challenge: code_challenge
-                )
-              }
-            end
+                  code_verifier: code_verifier,
+                  redirect_uri: generate_redirect_url(
+                    client: @client.new(authenticator: authenticator),
+                    authenticator: authenticator,
+                    nonce: nonce,
+                    code_challenge: code_challenge
+                  )
+                }
+              rescue Errors::Authentication::OAuth::ProviderDiscoveryFailed,
+                Errors::Authentication::OAuth::ProviderDiscoveryTimeout
+                @logger.warn("Authn-OIDC '#{authenticator.service_id}' provider-uri: '#{authenticator.provider_uri}' is unreachable")
+                nil
+              end
+            end.compact
           end
 
           def generate_redirect_url(client:, authenticator:, nonce:, code_challenge:)
