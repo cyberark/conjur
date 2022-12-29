@@ -37,6 +37,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - OIDC Authenticator can now be configured to distribute access tokens with a
   custom time-to-live.
   [cyberark/conjur#2683](https://github.com/cyberark/conjur/pull/2683)
+- List members request (`GET /roles/conjur/{kind}/{identifier}?members`) now produce audit events.
+  [cyberark/conjur#2691](https://github.com/cyberark/conjur/pull/2691)
 
 ## [1.19.0] - 2022-11-29
 
