@@ -113,6 +113,8 @@ describe Resource, :type => :model do
       end
       it "the corresponding role is listed exactly once in the owner's list of roles" do
         the_membership_again
+        # update materialized view
+        Sequel::Model.db << "REFRESH MATERIALIZED VIEW all_roles_view;"
         expect(the_user.all_roles.reverse_order(:role_id).all.map(&:role_id)).to eq([ the_user, the_role ].map(&:role_id))
       end
     end
@@ -120,6 +122,8 @@ describe Resource, :type => :model do
       RoleMembership.create(role: the_role, member: the_user, admin_option: true)
     end
     it "the corresponding role is in the owner's list of roles" do
+      # update materialized view
+      Sequel::Model.db << "REFRESH MATERIALIZED VIEW all_roles_view;"
       expect(the_user.all_roles.all).to include(the_role)
     end
     context "changing the owner" do
