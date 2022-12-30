@@ -31,6 +31,9 @@ end
 Given('I create a new user {string} in account {string}') do |login, account|
   roleid = "#{account}:user:#{login}"
   Role.create(role_id: roleid)
+
+  Sequel::Model.db << "REFRESH MATERIALIZED VIEW all_roles_view;"
+  Sequel::Model.db << "REFRESH MATERIALIZED VIEW resources_view;"
 end
 
 Given("I login as {string}") do |login|
