@@ -15,7 +15,7 @@ Feature: Fetch resource details.
     And I create a new user "bob"
     And I permit user "bob" to "execute" it
     And I set annotation "description" to "Front end server"
-
+    Given I save my place in the audit log file for remote
     When I successfully GET "/resources/cucumber/:resource_kind/:resource_id"
     Then the JSON should be:
     """
@@ -42,8 +42,27 @@ Feature: Fetch resource details.
       ]
     }
     """
+    And there is an audit record matching:
+    """
+      <86>1 * * conjur * resource
+      [auth@43868 user="cucumber:user:alice"]
+      [subject@43868 resource="cucumber:variable:@namespace@/app-01.mycorp.com"]
+      [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
+      [action@43868 result="success" operation="get"]
+      cucumber:user:alice successfully fetched resource details.
+    """
 
   @negative @acceptance
   Scenario: Trying to show a resource that does not exist
+    Given I save my place in the audit log file for remote
     When I GET "/resources/cucumber/santa/claus"
     Then the HTTP response status code is 404
+    And there is an audit record matching:
+    """
+      <84>1 * * conjur * resource
+      [auth@43868 user="cucumber:user:alice"]
+      [subject@43868 resource="cucumber:santa:claus"]
+      [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
+      [action@43868 result="failure" operation="get"]
+      cucumber:user:alice failed to fetch resource details: Santa 'claus' not found in account 'cucumber'
+    """

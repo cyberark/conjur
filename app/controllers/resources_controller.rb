@@ -60,7 +60,12 @@ class ResourcesController < RestController
   end
 
   def show
-    render(json: resource)
+    result = resource
+    audit_show_success
+    render(json: result)
+  rescue => e
+    audit_show_failure(e.message)
+    raise e
   end
 
   def permitted_roles
@@ -150,6 +155,33 @@ class ResourcesController < RestController
         user_id: current_user.role_id,
         client_ip: request.ip,
         subject: options.clone.merge(additional_options),
+        success: false,
+        error_message: error_message
+      )
+    )
+  end
+
+  def audit_show_success
+    subject = { resource: resource_id }
+    Audit.logger.log(
+      Audit::Event::Show.new(
+        user_id: current_user.role_id,
+        client_ip: request.ip,
+        subject: subject,
+        message_id: "resource",
+        success: true
+      )
+    )
+  end
+
+  def audit_show_failure(error_message)
+    subject = { resource: resource_id }
+    Audit.logger.log(
+      Audit::Event::Show.new(
+        user_id: current_user.role_id,
+        client_ip: request.ip,
+        subject: subject,
+        message_id: "resource",
         success: false,
         error_message: error_message
       )
