@@ -37,14 +37,12 @@ module Authentication
           end
         end
 
-        def callback(code:, nonce:, code_verifier:)
+        def callback(code:, nonce:, code_verifier: nil)
           oidc_client.authorization_code = code
+          access_token_args = { scope: true, client_auth_method: :basic }
+          access_token_args[:code_verifier] = code_verifier if code_verifier.present?
           begin
-            bearer_token = oidc_client.access_token!(
-              scope: true,
-              client_auth_method: :basic,
-              code_verifier: code_verifier
-            )
+            bearer_token = oidc_client.access_token!(**access_token_args)
           rescue Rack::OAuth2::Client::Error => e
             # Only handle the expected errors related to access token retrieval.
             case e.message

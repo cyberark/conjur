@@ -18,6 +18,7 @@ Feature: OIDC Authenticator V2 - Users can authenticate with Okta using OIDC
           - !variable state
           - !variable nonce
           - !variable redirect-uri
+
           - !group users
 
           - !permit
@@ -30,6 +31,7 @@ Feature: OIDC Authenticator V2 - Users can authenticate with Okta using OIDC
 
   @smoke
   Scenario: Authenticating with Conjur using Okta
-    Given I fetch a code from okta
+    Given I retrieve OIDC configuration from the provider endpoint for "okta-2"
+    And I authenticate and fetch a code from Okta
     When I authenticate via OIDC with code and service_id "okta-2"
-    Then The okta user has been authorized by conjur
+    Then the okta user has been authorized by conjur

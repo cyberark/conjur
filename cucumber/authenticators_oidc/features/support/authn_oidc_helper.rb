@@ -32,9 +32,15 @@ module AuthnOidcHelper
     post(path, {}, headers)
   end
 
-  def authenticate_code_with_oidc(service_id:, account:, code: url_oidc_code, state: url_oidc_state)
-    path = "#{create_auth_url(service_id: service_id, account: account, user_id: nil)}"
-    get(url_with_params(path: path,code: code, state: state ))
+  def authenticate_code_with_oidc(service_id:, account:)
+    path = create_auth_url(service_id: service_id, account: account, user_id: nil).to_s
+    params = {
+      path: path,
+      code: @scenario_context.get(:code),
+      nonce: @scenario_context.get(:nonce),
+      code_verifier: @scenario_context.get(:code_verifier)
+    }
+    get(url_with_params(**params))
   end
 
   def create_auth_url(service_id:, account:, user_id:)
@@ -43,10 +49,10 @@ module AuthnOidcHelper
     "#{conjur_hostname}/authn-oidc#{service_id_part}/#{account}#{user_id_part}/authenticate"
   end
 
-  def url_with_params(path:, code: nil, state: nil)
-    return path unless code || state
+  def url_with_params(path:, **kargs)
+    return path unless kargs
 
-    "#{path}?code=#{code}&state=#{state}"
+    "#{path}?#{URI.encode_www_form(kargs)}"
   end
 
   def create_oidc_secret(variable_name, value, service_id_suffix = "keycloak")
@@ -124,12 +130,14 @@ module AuthnOidcHelper
 
   def parse_oidc_code(url)
     params = CGI::parse(URI(url).query)
-    @url_oidc_code = params["code"][0] if params.has_key?("code")
-    @url_oidc_state = params["state"][0] if params.has_key?("state")
-  end
-
-  def url_oidc_code
-    @url_oidc_code
+    if params.key?("code")
+      @url_oidc_code = params["code"][0]
+      @scenario_context.set(:code, params["code"][0])
+    end
+    if params.key?("state")
+      @url_oidc_state = params["state"][0]
+      @scenario_context.set(:state, params["state"][0])
+    end
   end
 
   def url_oidc_code
