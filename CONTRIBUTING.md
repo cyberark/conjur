@@ -23,11 +23,16 @@ For general contribution and community guidelines, please see the [community rep
     - [Updating the API](#updating-the-api)
     - [Updating the database schema](#updating-the-database-schema)
   - [Testing](#testing)
+    - [Best Practices](#best-practices)
     - [CI Pipeline](#ci-pipeline)
     - [RSpec](#rspec)
     - [Cucumber](#cucumber)
+      - [Running Cucumber Tests](#running-cucumber-tests)
+      - [Cucumber Best Practices](#cucumber-best-practices)
+        - [Use Scenario Context](#use-scenario-context)
     - [Adding New Test Suites](#adding-new-test-suites)
       - [Spin up Open ID Connect (OIDC) Compatible Environment for testing](#spin-up-open-id-connect-oidc-compatible-environment-for-testing)
+        - [OIDC Cucumber Tests](#oidc-cucumber-tests)
       - [Spin up Google Cloud Platform (GCP) Compatible Environment for testing](#spin-up-google-cloud-platform-gcp-compatible-environment-for-testing)
       - [Run all the cukes:](#run-all-the-cukes)
       - [Run just one feature:](#run-just-one-feature)
@@ -174,7 +179,7 @@ $ curl -v -k -X POST -d "alice" http://localhost:3000/authn-ldap/test/cucumber/a
 #### Google Cloud Platform (GCP) Authentication
 
 To enable a host to log into Conjur using GCP identity token, run `start` with the `--authn-gcp` flag.
-Form more information on how to setup Conjur Google Cloud (GCP) authenticator, follow the official [documentation](https://www.conjur.org/). 
+Form more information on how to setup Conjur Google Cloud (GCP) authenticator, follow the official [documentation](https://www.conjur.org/).
 
 #### RubyMine IDE Debugging
 
@@ -341,11 +346,24 @@ the[ci/docker-compose.yml](ci/docker-compose.yml) and
 [conjur/ci/test_suites/authenticators_k8s/dev/dev_conjur.template.yaml](conjur/ci/test_suites/authenticators_k8s/dev/dev_conjur.template.yaml).
 This isn't a realistic configuration and should not be used for benchmarking.
 
+### Best Practices
+
+It is very important that all new functionality includes unit, integration, and end-to-end tests to ensure code behaves as expected.
+
+- **Unit Tests** - unit tests should be written in RSpec, be stateless, and execute very fast. The code being tested should accept dependencies in its initializer. This allows us to take advantage of dependency injenction. All functionality outside a class should be mocked. If network mocking is required, please use VCR.
+- Integration Tests - integration tests are written in RSpec. They test the interaction between classes. Integration tests will generally take two forms:
+   - Controller Integration Tests - tests which exercise the Controllers. These tests are heavier and likely require setup and teardown. Controller Integration Tests should be used to validate endpoint workflows. These workflows should include happy and sad paths, but validating all possible paths should be handled in Command Class Integration Tests.
+   - Command Class Integration Tests - tests which exercise a command class. Command classe initializers should include all objects used by the command class. This allows us to mock all external objects.  Command class integrations should be stateless and very fast. All possible happy and sad paths should be exercised. If network mocking is required, VCR should be used.
+- End-to-End Tests - end-to-end tests are written in Cucumber using the Gherkin syntax. End-to-end tests exercise Conjur from the outside. End-to-end tests provide confidence that features work as defined by the Product Owner. These tests should test common workflows, but should not test large numbers of sad path scenarios as they are very expensive to run.
+
+
 ### CI Pipeline
 
 The CI Pipeline is defined in the `Jenkinsfile`, and documented in [CI_README.md](./CI_README.md)
 
 ### RSpec
+
+Unit and Integration tests should be written using RSpec.
 
 RSpec tests are easy to run from within the `conjur` server container:
 
@@ -362,9 +380,12 @@ Finished in 3.84 seconds (files took 3.33 seconds to load)
 
 ### Cucumber
 
+End-to-end tests should be written using Cucumber.
+
+#### Running Cucumber Tests
+
 Cucumber tests require the Conjur server to be running. It's easiest to achieve
-this by starting Conjur in one container and running Cucumber from another. Run
-the service in the `conjur` server container:
+this by starting Conjur in one shell and running Cucumber tests from another. To achieve this, run the service in the `conjur` server container:
 
 ```sh-session
 root@aa8bc35ba7f4:/src/conjur-server# conjurctl server
@@ -373,7 +394,7 @@ root@aa8bc35ba7f4:/src/conjur-server# conjurctl server
 Use Ctrl-C to stop
 ```
 
-Then, using the `dev/cli` script, step into the Conjur container to run the cukes:
+Then, using the `dev/cli` script, step into the Conjur container to run the Cucumber tests:
 
 ```sh-session
 $ ./cli exec
@@ -381,7 +402,32 @@ $ ./cli exec
 root@9feae5e5e001:/src/conjur-server#
 ```
 
+#### Cucumber Best Practices
+
+##### Use Scenario Context
+
+At times, information needs to be shared between Cucumber Scenario Steps. Often, storing this data is handled by setting instance ad-hoc variables.
+
+Instead of ad-hoc instance variables, please use the `Utilities::ScenarioContext`, which is a key value store that lives for the life of the Scenario. It can be used as follows:
+
+```ruby
+# Add a value
+@scenario_context.add(:my_value, 'Shared Value')
+# or
+@scenario_context.set(:my_value, 'Shared Value')
+
+# Retrieve a previously set value:
+@scenario_context.get(:my_value) => 'Shared Value'
+
+# Check if a value has been set:
+@scenario_context.key?(:value_to_check) => true/false
+```
+
+The Scenario Context is reset after each scenario is run.
+
 ### Adding New Test Suites
+
+Cucumber tests are broken into different groups. This allows us to run tests in parallel. Parallelization does increase resource requirements on Jenkins, so please be cautious about adding additional parallelization moving forward.
 
 When adding new test suites, please follow the guidelines in the top comments
 of the file [`ci/test`](https://github.com/cyberark/conjur/blob/master/ci/test).
@@ -397,12 +443,37 @@ $ ./cli exec --authn-oidc
 root@9feae5e5e001:/src/conjur-server#
 ```
 
+##### OIDC Cucumber Tests
+
+Running Cucumber tests to
+
+**Okta**
+
+```sh
+OKTA_USERNAME=<Okta user email> \
+OKTA_PASSWORD=<Okta user password> \
+OKTA_CLIENT_ID=<Client ID> \
+OKTA_CLIENT_SECRET=<Client Secret> \
+OKTA_PROVIDER_URI=<Full provider URI, ex: https://dev-92899796.okta.com/oauth2/default> \
+   bundle exec cucumber -p authenticators_oidc cucumber/authenticators_oidc/features/authn_oidc_okta.feature
+```
+
+**Keycloak**
+
+```sh
+KEYCLOAK_SCOPE=openid \
+KEYCLOAK_CLIENT_SECRET=1234 \
+KEYCLOAK_CLIENT_ID=conjurClient \
+PROVIDER_URI=https://keycloak:8443/auth/realms/master \
+   bundle exec cucumber -p authenticators_oidc cucumber/authenticators_oidc/features/authn_oidc_v2.feature
+```
+
 #### Spin up Google Cloud Platform (GCP) Compatible Environment for testing
 
 **Prerequisites**
 - A Google Cloud Platform account. To create an account see https://cloud.google.com/.
 - Google Cloud SDK installed. For information on how to install see https://cloud.google.com/sdk/docs
-- Access to a running Google Compute Engine instance. 
+- Access to a running Google Compute Engine instance.
 - Access to predefined Google cloud function with the following [code](ci/authn-gcp/function/main.py).
 
 To run the cukes with a Google Cloud Platform (GCP) compatible environment, run `cli`
@@ -417,7 +488,7 @@ $ ./cli exec --authn-gcp --gce [GCE_INSTANCE_NAME] --gcf [GCF_URL]
 root@9feae5e5e001:/src/conjur-server#
 ```
 
-When running with `--authn-gcp` flag, the cli script executes another script which does the heavy lifting of 
+When running with `--authn-gcp` flag, the cli script executes another script which does the heavy lifting of
 provisioning the ID tokens (required by the tests) from Google Cloud Platform.
 To run the GCP authenticator test suite:
 ```sh-session
@@ -436,8 +507,8 @@ Below is the list of the available Cucumber suites:
   * authenticators_status
   * manual-rotators
   * policy
-  * rotators 
-  
+  * rotators
+
 Each of the above suites can be executed using a profile of the same name.
 For example, to execute the `api` suite, your command might look like the following:
 
