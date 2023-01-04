@@ -23,10 +23,39 @@ module Authentication
       end
 
       def status(authenticator_status_input:)
-        Authentication::AuthnOidc::ValidateStatus.new.(
+        # The following is intended as a short-term fix for dealing
+        # with two versions of the OIDC authenticator. In the medium
+        # term, we need to port the V1 functionality to V2. Once that
+        # is done, the following check can be removed.
+
+        # Attempt to load the V2 version of the OIDC Authenticator
+        data_object = if Rails.configuration.feature_flags.enabled?(:pkce_support)
+          Authentication::AuthnOidc::PkceSupportFeature::DataObjects::Authenticator
+        else
+          Authentication::AuthnOidc::V2::DataObjects::Authenticator
+        end
+        authenticator = DB::Repository::AuthenticatorRepository.new(
+          data_object: data_object
+        ).find(
+          type: authenticator_status_input.authenticator_name,
           account: authenticator_status_input.account,
           service_id: authenticator_status_input.service_id
         )
+        # If successful, validate the new set of required variables
+        if authenticator.present?
+          Authentication::AuthnOidc::ValidateStatus.new(
+            required_variable_names: %w[provider-uri client-id client-secret claim-mapping]
+          ).(
+            account: authenticator_status_input.account,
+            service_id: authenticator_status_input.service_id
+          )
+        else
+          # Otherwise, perform the default check
+          Authentication::AuthnOidc::ValidateStatus.new.(
+            account: authenticator_status_input.account,
+            service_id: authenticator_status_input.service_id
+          )
+        end
       end
     end
   end

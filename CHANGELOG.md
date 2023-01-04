@@ -23,6 +23,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   the OIDC provider endpoint would include duplicate OIDC authenticators. This
   change resolves ONYX-25530.
   [cyberark/conjur#2678](https://github.com/cyberark/conjur/pull/2678)
+- Allows V2 OIDC authenticators to be checked through the authenticator status
+  endpoint.  This change resolves ONYX-25531.
+  [cyberark/conjur#2692](https://github.com/cyberark/conjur/pull/2692)
 
 ### Added
 - Provides support for PKCE in the OIDC Authenticator code redirect workflow.
