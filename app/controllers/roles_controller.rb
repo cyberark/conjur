@@ -69,7 +69,12 @@ class RolesController < RestController
   # +params[:kind] (array) returns only the members that match the specified kinds
   def members
     members = role.members_dataset(filter_params)
-    render_dataset(members) { |dataset| dataset.result_set(**render_params) }
+    render_result = render_dataset(members) { |dataset| dataset.result_set(**render_params) }
+    audit_list_success
+    return render_result
+  rescue => e
+    audit_list_failure(e)
+    raise e
   end
 
   # Returns a graph of the roles anchored on the current Role
@@ -225,4 +230,34 @@ class RolesController < RestController
   def count_payload(dataset)
     { count: dataset.count }
   end
+
+  def audit_list_success
+    additional_params = %i[account count kind search limit offset]
+    options = params.permit(*additional_params).to_h.symbolize_keys
+    options[:role] = role_id
+    Audit.logger.log(
+      Audit::Event::Members.new(
+        user_id: current_user.role_id,
+        client_ip: request.ip,
+        subject: options,
+        success: true
+      )
+    )
+  end
+
+  def audit_list_failure(err)
+    additional_params = %i[account count search kind limit offset]
+    options = params.permit(*additional_params).to_h.symbolize_keys
+    options[:role] = role_id
+    Audit.logger.log(
+      Audit::Event::Members.new(
+        user_id: current_user.role_id,
+        client_ip: request.ip,
+        subject: options,
+        success: false,
+        error_message: err.message
+      )
+    )
+  end
+
 end
