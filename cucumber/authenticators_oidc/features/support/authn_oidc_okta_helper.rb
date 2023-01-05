@@ -23,7 +23,7 @@ module AuthnOidcHelper
   end
 
   def okta_redirect_uri
-    @okta_redirect_uri ||= 'http://localhost:3000/authn-oidc/okta/cucumber/authenticate'
+    @okta_redirect_uri ||= ENV.fetch('OKTA_REDIRECT', 'http://localhost:3000/authn-oidc/okta/cucumber/authenticate')
   end
 end
 

@@ -31,7 +31,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 - Provides support for PKCE in the OIDC Authenticator code redirect workflow.
-  This is disabled by default, but is available under the
+  This is enabled by default. If needed, it can be disabled using the
   `CONJUR_FEATURE_PKCE_SUPPORT_ENABLED` feature flag.
   [cyberark/conjur#2678](https://github.com/cyberark/conjur/pull/2678)
 - OIDC Authenticator can now be configured to distribute access tokens with a

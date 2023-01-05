@@ -94,7 +94,8 @@ module Authentication
           raise ApplicationController::Forbidden
 
         when Errors::Authentication::RequestBody::MissingRequestParam,
-          Errors::Authentication::AuthnOidc::TokenVerificationFailed
+          Errors::Authentication::AuthnOidc::TokenVerificationFailed,
+          Errors::Authentication::AuthnOidc::TokenRetrievalFailed
           raise ApplicationController::BadRequest
 
         when Errors::Conjur::RequestedResourceNotFound

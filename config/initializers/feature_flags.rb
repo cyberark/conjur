@@ -35,7 +35,7 @@ Rails.application.configure do
     #
     # Once the change is made on the UI (which is the intended target), the behavior
     # enabled by the flag should be made the default behavior.
-    pkce_support: false
+    pkce_support: true
   }.freeze
 
   config.feature_flags = Conjur::FeatureFlags::Features.new(

@@ -13,7 +13,7 @@ module Authentication
         end
 
         def callback(args)
-          %i[code nonce code_verifier].each do |param|
+          %i[code nonce].each do |param|
             unless args[param].present?
               raise Errors::Authentication::RequestBody::MissingRequestParam, param.to_s
             end
