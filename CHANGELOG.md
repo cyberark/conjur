@@ -41,6 +41,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   [cyberark/conjur#2691](https://github.com/cyberark/conjur/pull/2691)
 - Show resource request (`GET /resources/:account/:kind/*identifier`) now produce audit events.
   [cyberark/conjur#2695](https://github.com/cyberark/conjur/pull/2695)
+- List memberships request (`GET /roles/:account/:kind/*identifier?memberships`) now produce audit events.
+  [cyberark/conjur#2693](https://github.com/cyberark/conjur/pull/2693)
 
 ## [1.19.0] - 2022-11-29
 

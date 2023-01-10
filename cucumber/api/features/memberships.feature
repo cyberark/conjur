@@ -61,6 +61,7 @@ Feature: Obtain the memberships of a role
     And I create a new user "carol"
     And I grant user "carol" to user "bob"
     And I grant user "bob" to user "alice"
+    Given I save my place in the audit log file for remote
     When I successfully GET "/roles/cucumber/user/alice?memberships"
     Then the JSON should be:
     """
@@ -73,6 +74,16 @@ Feature: Obtain the memberships of a role
       }
     ]
     """
+    And there is an audit record matching:
+    """
+      <86>1 * * conjur * membership
+      [auth@43868 user="cucumber:user:admin"]
+      [subject@43868 account="cucumber" kind="user" role="cucumber:user:alice"]
+      [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
+      [action@43868 result="success" operation="list"]
+      cucumber:user:admin successfully listed memberships with parameters: {:account=>"cucumber", :kind=>"user", :role=>"cucumber:user:alice"}
+    """
+
 
   @smoke
   Scenario: Direct memberships can be counted
@@ -80,12 +91,22 @@ Feature: Obtain the memberships of a role
     And I create a new user "carol"
     And I grant user "carol" to user "bob"
     And I grant user "bob" to user "alice"
-    When I successfully GET "/roles/cucumber/user/alice?memberships&count"
+    Given I save my place in the audit log file for remote
+    When I successfully GET "/roles/cucumber/user/alice?memberships&count=true"
     Then the JSON should be:
     """
     {
       "count": 1
     }
+    """
+    And there is an audit record matching:
+    """
+      <86>1 * * conjur * membership
+      [auth@43868 user="cucumber:user:admin"]
+      [subject@43868 account="cucumber" count="true" kind="user" role="cucumber:user:alice"]
+      [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
+      [action@43868 result="success" operation="list"]
+      cucumber:user:admin successfully listed memberships with parameters: {:account=>"cucumber", :count=>"true", :kind=>"user", :role=>"cucumber:user:alice"}
     """
 
   @smoke
@@ -94,6 +115,7 @@ Feature: Obtain the memberships of a role
     And I create a new user "carol"
     And I grant user "alice" to user "bob"
     And I grant user "carol" to user "bob"
+    Given I save my place in the audit log file for remote
     When I successfully GET "/roles/cucumber/user/bob?memberships&search=alice"
     Then the JSON should be:
     """
@@ -105,6 +127,15 @@ Feature: Obtain the memberships of a role
         "role": "cucumber:user:alice"
       }
     ]
+    """
+    And there is an audit record matching:
+    """
+      <86>1 * * conjur * membership
+      [auth@43868 user="cucumber:user:admin"]
+      [subject@43868 account="cucumber" search="alice" kind="user" role="cucumber:user:bob"]
+      [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
+      [action@43868 result="success" operation="list"]
+      cucumber:user:admin successfully listed memberships with parameters: {:account=>"cucumber", :search=>"alice", :kind=>"user", :role=>"cucumber:user:bob"}
     """
 
   @smoke
@@ -134,3 +165,4 @@ Feature: Obtain the memberships of a role
       "cucumber:user:charles"
     ]
     """
+
