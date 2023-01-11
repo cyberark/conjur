@@ -20,4 +20,8 @@ class RoleMembership < Sequel::Model
       where(member_id: subset_roles.to_a)
     end
   end
+
+  def after_create
+    ::DB::Utils::MaterializedViews.new.refresh
+  end
 end

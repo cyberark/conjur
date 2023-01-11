@@ -58,6 +58,9 @@ Given(/^I permit role "([^"]*)" to "([^"]*)" resource "([^"]*)"$/) do |grantee, 
   grantee = Role.with_pk!(grantee)
   target = Resource.with_pk!(target)
   target.permit(privilege, grantee)
+
+  Sequel::Model.db << "REFRESH MATERIALIZED VIEW all_roles_view;"
+  Sequel::Model.db << "REFRESH MATERIALIZED VIEW resources_view;"
 end
 
 Given(/^I permit user "([^"]*)" to "([^"]*)" user "([^"]*)"$/) do |grantee, privilege, target|
@@ -93,6 +96,7 @@ end
 
 Given(/^I add the secret value(?: "([^"]*)")? to the resource(?: "([^"]*)")?$/) do |value, resource_id|
   Secret.create(resource_id: resource_id, value: value)
+  # TODO: refresh mat views here?
 end
 
 Given(/^I permit (user|host) "([^"]*)" to "([^"]*)" it$/) do |role_type, grantee, privilege|
@@ -120,4 +124,7 @@ Given(/^I grant group "([^"]*)" to (user|host) "([^"]*)"$/) do |group_id, role_t
 
   grantee = role_type == "user" ? lookup_user(grantee) : lookup_host(grantee)
   group.grant_to(grantee)
+
+  Sequel::Model.db << "REFRESH MATERIALIZED VIEW all_roles_view;"
+  Sequel::Model.db << "REFRESH MATERIALIZED VIEW resources_view;"
 end

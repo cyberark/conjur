@@ -184,4 +184,8 @@ class Role < Sequel::Model
     yield(credentials)
     credentials.save(raise_on_save_failure: true)
   end
+
+  def after_create
+    ::DB::Utils::MaterializedViews.new.refresh
+  end
 end
