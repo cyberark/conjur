@@ -262,9 +262,6 @@ module RestHelpers
       Credentials[role: role] || Credentials.new(role: role).save(raise_on_save_failure: true)
       Resource.create(resource_id: roleid, owner: owner)
       roles[roleid] = role
-
-      Sequel::Model.db << "REFRESH MATERIALIZED VIEW all_roles_view;"
-      Sequel::Model.db << "REFRESH MATERIALIZED VIEW resources_view;"
     end
   end
 

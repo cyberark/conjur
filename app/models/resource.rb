@@ -192,4 +192,8 @@ class Resource < Sequel::Model
   def annotation name
     annotations_dataset.where(name: name).select(:value).single_value
   end
+
+  def after_create
+    ::DB::Utils::MaterializedViews.new.refresh
+  end
 end

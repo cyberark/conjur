@@ -369,9 +369,7 @@ module Loader
       # Materialized views are used to pre-compute recursive role members
       # and resource attributes to save time on read. These
       # must be refreshed when they underlying tables are updated.
-      db.run('REFRESH MATERIALIZED VIEW all_roles_view;')
-      db.run('REFRESH MATERIALIZED VIEW resources_view;')
-      
+      ::DB::Utils::MaterializedViews.new.refresh
     end
 
     def insert_policy_log_records(table)

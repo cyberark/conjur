@@ -13,4 +13,8 @@ class Permission < Sequel::Model
       end
     end
   end
+
+  def after_create
+    ::DB::Utils::MaterializedViews.new.refresh
+  end
 end
