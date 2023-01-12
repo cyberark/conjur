@@ -11,6 +11,7 @@ module Authentication
         namespace_selector: Authentication::Util::NamespaceSelector,
         logger: Rails.logger,
         authentication_error: LogMessages::Authentication::AuthenticationError,
+        token_factory: TokenFactory.new,
         pkce_support_enabled: Rails.configuration.feature_flags.enabled?(:pkce_support)
       )
         @role = role
@@ -18,6 +19,7 @@ module Authentication
         @authenticator_type = authenticator_type
         @logger = logger
         @authentication_error = authentication_error
+        @token_factory = token_factory
         @pkce_support_enabled = pkce_support_enabled
 
         # Dynamically load authenticator specific classes
@@ -76,7 +78,7 @@ module Authentication
 
         log_audit_success(authenticator, role, request_ip, @authenticator_type)
 
-        TokenFactory.new.signed_token(
+        @token_factory.signed_token(
           account: parameters[:account],
           username: role.role_id.split(':').last,
           ttl: authenticator.token_ttl,
