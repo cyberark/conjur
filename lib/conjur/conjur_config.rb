@@ -26,8 +26,11 @@ module Conjur
       # The maximum number of results for listing requests. The default value
       # is 0 and means that there is no limit.
       api_resource_list_limit_max: 0,
-      user_authorization_token_ttl: 480, # The default TTL of User is 8 minutes
-      host_authorization_token_ttl: 480, # The default TTL of Host is 8 minutes
+
+      # to set auth token ttl correctly, we need to know these were set
+      user_authorization_token_ttl: nil,
+      host_authorization_token_ttl: nil,
+
       authn_api_key_default: true,
       authenticators: [],
       extensions: []

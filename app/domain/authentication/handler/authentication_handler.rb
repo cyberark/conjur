@@ -79,7 +79,8 @@ module Authentication
         TokenFactory.new.signed_token(
           account: parameters[:account],
           username: role.role_id.split(':').last,
-          user_ttl: authenticator.token_ttl
+          ttl: authenticator.token_ttl,
+          default_ttl: authenticator.default_ttl
         )
       rescue => e
         log_audit_failure(parameters[:account], parameters[:service_id], request_ip, @authenticator_type, e)
