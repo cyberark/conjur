@@ -104,6 +104,9 @@ class Resource < Sequel::Model
       # Filter by string search
       scope = scope.textsearch(search) if search
 
+      # Sort results alphabetically by resource ID
+      scope = scope.order(:resource_id)
+
       if offset || limit
         # 'limit' must be an integer greater than 0 if given
         if limit && (!numeric?(limit) || limit.to_i <= 0)
@@ -114,7 +117,7 @@ class Resource < Sequel::Model
           raise ArgumentError, "'offset' contains an invalid value. 'offset' must be an integer greater than or equal to 0."
         end
 
-        scope = scope.order(:resource_id).limit(
+        scope = scope.limit(
           (limit || 10).to_i,
           (offset || 0).to_i
         )
