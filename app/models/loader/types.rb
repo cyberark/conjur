@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'json'
+
 module Loader
   module Types
     class << self
@@ -25,9 +27,9 @@ module Loader
       # +external_handler+ should provide the methods +policy_id+, +handle_password+,
       # +handle_public_key+. This argument is optional if the policy will not use
       # that functionality.
-      def wrap obj, external_handler = nil
+      def wrap obj, external_handler, transaction_id = nil
         cls = Types.const_get(obj.class.name.split("::")[-1])
-        cls.new(obj, external_handler)
+        cls.new(obj, external_handler, transaction_id)
       end
     end
 
@@ -36,12 +38,14 @@ module Loader
 
       def_delegators :@external_handler, :policy_id, :handle_password, :handle_public_key, :handle_restricted_to
       def_delegators :@policy_object, :owner, :id
+      def_delegators :@transaction_id
 
       attr_reader :policy_object, :external_handler
 
-      def initialize policy_object, external_handler = nil
+      def initialize policy_object, external_handler = nil, transaction_id
         @policy_object = policy_object
         @external_handler = external_handler
+        @transaction_id = transaction_id
       end
 
       def find_ownerid
@@ -113,11 +117,27 @@ module Loader
 
       def calculate_defaults!; end
 
+      def to_json1
+        #{'resourceid' => resourceid, 'annotations' => annotations }.to_json
+      end
+
+      def add_notification
+        if (@transaction_id == "Policy_Transaction_ID")
+          Rails.logger.info("++++++++++++++ Policy entity not notified")
+          return
+        end
+        Rails.logger.info("++++++++++++++ add_notification @transaction_id = #{@transaction_id}")
+        #data = to_json()
+        Rails.logger.info("++++++++++++++ add_notification data=#{to_json()}")
+        #@external_handler.add_record_message(@transaction_id, data)
+      end
+
       def create!
         verify
         calculate_defaults!
         create_role! if policy_object.respond_to?(:roleid)
         create_resource! if policy_object.respond_to?(:resourceid)
+        #add_notification
       end
     end
 
@@ -150,6 +170,10 @@ module Loader
         # `authn/api-key` annotation with value true, then we should reject this until the annotation
         # is added to the policy object.
         self.annotations&.[]("authn/api-key").nil? || self.annotations["authn/api-key"].to_s.casecmp?("false")
+      end
+
+      def to_json1
+        { 'host' => {'policy_object' => @policy_object, 'restricted_to' => restricted_to }, 'action' => 'put' }.to_json
       end
 
       def verify
@@ -216,6 +240,10 @@ module Loader
 
       def verify; end
 
+      def to_json1
+        { 'group' => {'policy_object' => @policy_object, 'gidnumber' => gidnumber }, 'action' => 'put' }.to_json
+      end
+
       def create!
         self.annotations ||= {}
         self.annotations["conjur/gidnumber"] ||= self.gidnumber if self.gidnumber
@@ -236,6 +264,11 @@ module Loader
           message = "User creation is disabled."
           raise Exceptions::InvalidPolicyObject.new(resource_id, message: message)
         end
+      end
+
+      def to_json1
+        { 'user' => {'policy_object' => @policy_object, 'public_keys' => public_keys, 'role_kind' => role_kind,
+          'uidnumber' => uidnumber, 'restricted_to' => restricted_to }, 'action' => 'put' }.to_json
       end
 
       # Below is a sample method verifying policy data validity
@@ -283,6 +316,10 @@ module Loader
 
       def_delegators :@policy_object, :kind, :mime_type
 
+      def to_json1
+        { 'variable' => {'policy_object' => @policy_object, 'kind' => kind, 'mime_type' => mime_type }, 'action' => 'put' }.to_json
+      end
+
       def verify; end
 
       def create!
@@ -321,6 +358,10 @@ module Loader
     class Permit < Types::Base
       def_delegators :@policy_object, :resources, :privileges, :roles
 
+      def to_json1
+        { 'permit' => {'policy_object' => @policy_object, 'resources' => resources, 'privileges' => privileges, 'roles' => roles }, 'action' => 'put' }.to_json
+      end
+
       def create!
         Array(resources).each do |r|
           Array(privileges).each do |p|
@@ -340,8 +381,8 @@ module Loader
       def_delegators :@policy_object, :role, :resource, :body
 
       def create!
-        Types.wrap(self.role, external_handler).create!
-        Types.wrap(self.resource, external_handler).create!
+        Types.wrap(self.role, external_handler, "Policy_Transaction_ID").create!
+        Types.wrap(self.resource, external_handler, "Policy_Transaction_ID").create!
 
         Array(body).map(&:create!)
       end
@@ -350,6 +391,9 @@ module Loader
     # Deletions
 
     class Deletion < Types::Base
+      def to_json1
+        { 'deletion' => {'policy_object' => @policy_object}, 'action' => 'deletion' }.to_json
+      end
     end
 
     class Deny < Deletion
@@ -375,6 +419,9 @@ module Loader
         if policy_object.record.respond_to?(:roleid)
           role = ::Role[policy_object.record.roleid]
           role.destroy if role
+        end
+        def to_json1
+          { 'delete' => {'policy_object' => policy_object}, 'action' => 'delete' }.to_json
         end
       end
     end

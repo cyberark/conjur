@@ -10,7 +10,8 @@ EXPOSE 80
 
 RUN apt-get update -y && \
     apt-get -y dist-upgrade && \
-    apt-get install -y libz-dev
+    apt-get install -y libz-dev && \
+    apt-get install -y vim
 
 RUN apt-get install -y build-essential \
                        curl \

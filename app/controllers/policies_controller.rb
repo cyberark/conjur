@@ -3,7 +3,7 @@
 class PoliciesController < RestController
   include FindResource
   include AuthorizeResource
-  
+
   before_action :current_user
   before_action :find_or_create_root_policy
 
@@ -29,6 +29,7 @@ class PoliciesController < RestController
 
   # Returns newly created roles
   def perform(policy_action)
+
     policy_action.call
     new_actor_roles = actor_roles(policy_action.new_roles)
     create_roles(new_actor_roles)
@@ -41,6 +42,7 @@ class PoliciesController < RestController
   private
 
   def load_policy(action, loader_class, delete_permitted)
+
     authorize(action)
 
     policy = save_submitted_policy(delete_permitted: delete_permitted)

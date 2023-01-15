@@ -80,7 +80,9 @@ class ApplicationController < ActionController::API
 
   # Wrap the request in a transaction.
   def run_with_transaction(&block)
+    Rails.logger.info("+++++++++++++ run_with_transaction ++++++++++")
     Sequel::Model.db.transaction(&block)
+    Rails.logger.info("+++++++++++++ run_with_transaction 2 ++++++++++")
   end
 
   def resource_not_found e

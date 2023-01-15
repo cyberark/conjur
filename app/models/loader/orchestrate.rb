@@ -41,6 +41,7 @@ require 'conjur/extension/repository'
 # "new"). This "safe" mode can be operationally important, because the presence of cascading foreign key constraints in the schema
 # means that many records can potentially be deleted as a consequence of deleting an important "root"-ish record. For
 # example, deleting the "admin" role will most likely cascade to delete all records in the database.
+require 'securerandom'
 
 module Loader
   # As a legacy class, we know Orchestrate is too long and should be refactored
@@ -60,6 +61,7 @@ module Loader
     include Handlers::PublicKey
 
     attr_reader :policy_version, :create_records, :delete_records, :new_roles, :schemata
+    #changed_records = {}
 
     TABLES = %i[roles role_memberships resources permissions annotations]
 
@@ -80,21 +82,33 @@ module Loader
       @policy_version = policy_version
       @schemata = Schemata.new
       @feature_flags = feature_flags
-
+      Rails.logger.info("+++++++++++ Orchestrate::initialize")
+      transaction_id = SecureRandom.uuid
+      Rails.logger.info("+++++++++++ Orchestrate::initialize 1 transaction id = #{transaction_id}")
       # Only attempt to load policy load extensions if the feature is enabled
       @extensions =
         if @feature_flags.enabled?(:policy_load_extensions)
           extension_repository.extension(kind: POLICY_LOAD_EXTENSION_KIND)
         end
-
+      #changed_records[transaction_id] = "["
+      Rails.logger.info("+++++++++++ Orchestrate::initialize 2 transaction id = #{transaction_id}")
       # Transform each statement into a Loader type
       @create_records = policy_version.create_records.map do |policy_object|
-        Loader::Types.wrap(policy_object, self)
+        Loader::Types.wrap(policy_object, self, transaction_id)
       end
+      Rails.logger.info("+++++++++++ Orchestrate::initialize 3 transaction id = #{transaction_id}")
       @delete_records = policy_version.delete_records.map do |policy_object|
-        Loader::Types.wrap(policy_object, self)
+        Loader::Types.wrap(policy_object, self, transaction_id)
       end
+      Rails.logger.info("+++++++++++ Orchestrate::initialize 4 transaction id = #{transaction_id}")
+      #changed_records[transaction_id].concat("]")
+      #Rails.logger.info("+++++++++++ Orchestrate::initialize changed_records[transaction_id] = #{changed_records[transaction_id]}")
     end
+
+    #def add_record_message(transaction_id, record_message)
+      #changed_records[transaction_id].concat(record_message)
+
+
 
     # Gets the id of the policy being loaded.
     def policy_id
@@ -422,18 +436,36 @@ module Loader
       # rubocop:enable Style/GuardClause
     end
 
+    def publish_changes
+      @create_records = policy_version.create_records.map do |policy_object|
+        entity_message = "{ \"" + policy_object.class.name + "\" : { \"action\": \"set\", " + policy_object.to_json() + "}}"
+        Rails.logger.info("+++++++++ publish_changes 1 entity_message = #{entity_message}")
+      end
+      @delete_records = policy_version.delete_records.map do |policy_object|
+        entity_message = "{ \"" + policy_object.class.name + "\" : { \"action\": \"delete\", " + policy_object.to_json() + "}}"
+        Rails.logger.info("+++++++++ publish_changes 2 entity_message = #{entity_message}")
+      end
+    end
+
     # Loads the records into the temporary schema (since the schema search path
     # contains only the temporary schema).
     def load_records
       raise "Policy version must be saved before loading" unless policy_version.resource_id
 
+      Rails.logger.info("+++++++++ load_records 1")
       create_records.map(&:create!)
-
+      Rails.logger.info("+++++++++ load_records 2")
       db[:role_memberships].where(admin_option: nil).update(admin_option: false)
       db[:role_memberships].where(ownership: nil).update(ownership: false)
+      Rails.logger.info("+++++++++ load_records 3")
       TABLES.each do |table|
+        Rails.logger.info("+++++++++ load_records 4")
         db[table].update(policy_id: policy_version.resource_id)
       end
+      Rails.logger.info("+++++++++ load_records 5")
+      publish_changes
+
+      Rails.logger.info("+++++++++ load_records 7")
     end
 
     def in_primary_schema &block

@@ -18,7 +18,7 @@ fi
 # Minimal set of services.  We add to this list based on cmd line flags.
 services=(pg conjur client)
 
-# Authenticators to enable. 
+# Authenticators to enable.
 default_authenticators="authn,authn-k8s/test"
 enabled_authenticators="$default_authenticators"
 
@@ -83,7 +83,7 @@ the Conjur container.  To start the application server, run:
     # conjurctl server
 
 Usage: start [options]
-    --authn-ldap    Starts OpenLDAP server and loads a demo policy to enable 
+    --authn-ldap    Starts OpenLDAP server and loads a demo policy to enable
                     authentication via:
                     'curl -X POST -d "alice" http://localhost:3000/authn-ldap/test/cucumber/alice/authenticate'
     --rotators      Starts a cucumber and test postgres container.
@@ -435,6 +435,9 @@ start_auth_services() {
 create_alice() {
   echo "Creating user alice"
   client_load_policy "/src/conjur-server/dev/files/policy.yml"
+
+  echo "Create host and secret"
+  client_load_policy "/src/conjur-server/dev/files/policy_secrets_and_hosts.yaml"
 }
 
 kill_conjur() {
