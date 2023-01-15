@@ -454,6 +454,11 @@ module Loader
 
       Rails.logger.info("+++++++++ load_records 1")
       create_records.map(&:create!)
+      #db.after_commit {
+      #  Rails.logger.info("+++++++++ load_records after commit")
+      #  publish_changes
+      #  raise "This is an exception"
+      #}
       Rails.logger.info("+++++++++ load_records 2")
       db[:role_memberships].where(admin_option: nil).update(admin_option: false)
       db[:role_memberships].where(ownership: nil).update(ownership: false)
@@ -462,10 +467,12 @@ module Loader
         Rails.logger.info("+++++++++ load_records 4")
         db[table].update(policy_id: policy_version.resource_id)
       end
+
       Rails.logger.info("+++++++++ load_records 5")
       publish_changes
-
+      #raise "This is an exception"
       Rails.logger.info("+++++++++ load_records 7")
+
     end
 
     def in_primary_schema &block
