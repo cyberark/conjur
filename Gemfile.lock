@@ -91,6 +91,9 @@ GEM
     aws-sdk-iam (1.66.0)
       aws-sdk-core (~> 3, >= 3.126.0)
       aws-sigv4 (~> 1.1)
+    aws-sdk-sqs (1.50.0)
+      aws-sdk-core (~> 3, >= 3.126.0)
+      aws-sigv4 (~> 1.1)
     aws-sigv4 (1.4.0)
       aws-eventstream (~> 1, >= 1.0.2)
     base32-crockford (0.1.0)
@@ -482,6 +485,7 @@ DEPENDENCIES
   anyway_config
   aruba
   aws-sdk-iam
+  aws-sdk-sqs
   base32-crockford
   base58
   bcrypt

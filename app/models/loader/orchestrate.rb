@@ -42,6 +42,9 @@ require 'conjur/extension/repository'
 # means that many records can potentially be deleted as a consequence of deleting an important "root"-ish record. For
 # example, deleting the "admin" role will most likely cascade to delete all records in the database.
 require 'securerandom'
+require 'aws-sdk-sqs'
+require 'aws-sdk-sts'
+
 
 module Loader
   # As a legacy class, we know Orchestrate is too long and should be refactored
@@ -437,14 +440,50 @@ module Loader
     end
 
     def publish_changes
+      transaction_message = "{"
       @create_records = policy_version.create_records.map do |policy_object|
         entity_message = "{ \"" + policy_object.class.name + "\" : { \"action\": \"set\", " + policy_object.to_json() + "}}"
         Rails.logger.info("+++++++++ publish_changes 1 entity_message = #{entity_message}")
+        transaction_message = transaction_message + entity_message + ","
       end
       @delete_records = policy_version.delete_records.map do |policy_object|
         entity_message = "{ \"" + policy_object.class.name + "\" : { \"action\": \"delete\", " + policy_object.to_json() + "}}"
         Rails.logger.info("+++++++++ publish_changes 2 entity_message = #{entity_message}")
+        transaction_message = transaction_message + entity_message + ","
       end
+      transaction_message = transaction_message + "\"end\": 1 }"
+
+      region = 'us-east-2'
+      queue_name = 'OfiraConjurEdgeQueue.fifo'
+      #message_body = 'This is my message.'
+      Rails.logger.info("+++++++++ publish_changes 4")
+      #sts_client = Aws::STS::Client.new(region: region)
+      Rails.logger.info("+++++++++ publish_changes 5 transaction_message = #{transaction_message}")
+      # For example:
+      # 'https://sqs.us-east-1.amazonaws.com/111111111111/my-queue'
+      queue_url = 'https://sqs.' + region + '.amazonaws.com/' +
+        '238637036211' + '/' + queue_name
+
+      #queue_url = 'https://sqs.us-east-2.amazonaws.com/238637036211/OfiraConjurEdgeQueue.fifo'
+
+      #creds = JSON.load(File.read('secrets.json'))
+      #Aws.config.update({
+      #  credentials: Aws::Credentials.new(creds['AccessKeyId'], creds['SecretAccessKey'])
+      #})
+
+      sqs_client = Aws::SQS::Client.new(region: region)
+
+      Rails.logger.info("+++++++++ Sending a message to the queue named '#{queue_name}'...")
+
+      begin
+        sqs_client.send_message(
+            queue_url: queue_url,
+            message_body: transaction_message,
+            message_group_id: 'message_group_id')
+      rescue OpenSSL::Digest::DigestError
+        Rails.logger.info("+++++++++ publish_changes 6")
+      end
+      Rails.logger.info("+++++++++ publish_changes 7")
     end
 
     # Loads the records into the temporary schema (since the schema search path

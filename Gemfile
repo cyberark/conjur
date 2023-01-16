@@ -59,6 +59,7 @@ gem 'net-ldap'
 
 # for AWS rotator
 gem 'aws-sdk-iam', require: false
+gem 'aws-sdk-sqs', require: false
 
 group :production do
   gem 'rails_12factor'
@@ -79,6 +80,7 @@ gem 'i18n', '~> 1.8.11'
 
 group :development, :test do
   gem 'aruba'
+  #gem 'aws-sdk', '~> 2'
   gem 'ci_reporter_rspec'
   gem 'conjur-cli', '~> 6.2'
   gem 'conjur-debify', require: false
