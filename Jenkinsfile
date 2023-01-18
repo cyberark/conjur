@@ -46,37 +46,6 @@ These are defined in runConjurTests, and also include the one-offs
     gcp_authenticator
 */
 
-// Automated release, promotion and dependencies
-properties([
-  // Include the automated release parameters for the build
-  release.addParams(),
-  // Dependencies of the project that should trigger builds
-  dependencies(['cyberark/conjur-base-image',
-                'cyberark/conjur-api-ruby',
-                'conjurinc/debify'])
-])
-
-// Performs release promotion.  No other stages will be run
-if (params.MODE == "PROMOTE") {
-  release.promote(params.VERSION_TO_PROMOTE) { sourceVersion, targetVersion, assetDirectory ->
-    sh "docker pull registry.tld/cyberark/conjur:${sourceVersion}"
-    sh "docker tag registry.tld/cyberark/conjur:${sourceVersion} conjur:${sourceVersion}"
-    sh "docker pull registry.tld/conjur-ubi:${sourceVersion}"
-    sh "docker tag registry.tld/conjur-ubi:${sourceVersion} conjur-ubi:${sourceVersion}"
-    sh "summon -f ./secrets.yml ./publish-images.sh --promote --redhat --base-version=${sourceVersion} --version=${targetVersion}"
-
-    // Trigger Conjurops build to push newly promoted releases of conjur to ConjurOps Staging
-    build(
-      job:'../conjurinc--conjurops/master',
-      parameters:[
-        string(name: 'conjur_oss_source_image', value: "cyberark/conjur:${targetVersion}")
-      ],
-      wait: false
-    )
-  }
-  return
-}
-
 // Break the total number of tests into a subset of tests.
 // This will give 3 nested lists of tests to run, which is
 // distributed over 3 jenkins agents.
@@ -122,52 +91,12 @@ pipeline {
 
   }
 
-  environment {
-    // Sets the MODE to the specified or autocalculated value as appropriate
-    MODE = release.canonicalizeMode()
-  }
-
   stages {
-    // Aborts any builds triggered by another project that wouldn't include any changes
-    stage ("Skip build if triggering job didn't create a release") {
-      when {
-        expression {
-          MODE == "SKIP"
-        }
-      }
-      steps {
-        script {
-          currentBuild.result = 'ABORTED'
-          error("Aborting build because this build was triggered from upstream, but no release was built")
-        }
-      }
-    }
     // Generates a VERSION file based on the current build number and latest version in CHANGELOG.md
     stage('Validate Changelog and set version') {
       steps {
         updateVersion("CHANGELOG.md", "${BUILD_NUMBER}")
         stash name: 'version_info', includes: 'VERSION'
-      }
-    }
-
-    stage('Fetch tags') {
-      steps {
-        withCredentials(
-          [
-            usernameColonPassword(
-              credentialsId: 'conjur-jenkins-api', variable: 'GITCREDS'
-            )
-          ]
-        ) {
-          sh '''
-            git fetch --tags "$(
-              git remote get-url origin |
-              sed -e "s|https://|https://$GITCREDS@|"
-            )"
-            # print them out to make sure, can remove when this is robust
-            git tag
-          '''
-        }
       }
     }
 
@@ -248,22 +177,6 @@ pipeline {
             stage("Scan UBI-based Docker image for total issues") {
               steps {
                 scanAndReport("conjur-ubi:${tagWithSHA()}", "NONE", true)
-              }
-            }
-          }
-        }
-
-        // TODO: Add comments explaining which env vars are set here.
-        stage('Prepare For CodeClimate Coverage Report Submission') {
-          when {
-            expression { params.RUN_ONLY == '' }
-          }
-          steps {
-            catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-              script {
-                ccCoverage.dockerPrep()
-                sh 'mkdir -p coverage'
-                env.CODE_CLIMATE_PREPARED = "true"
               }
             }
           }
@@ -453,25 +366,27 @@ pipeline {
                 allowEmptyArchive: true
               )
 
-              publishHTML(
-                reportDir: 'ee-test/cucumber',
-                reportFiles: '''
-                  api/cucumber_results.html,
-                  authenticators_config/cucumber_results.html,
-                  authenticators_azure/cucumber_results.html,
-                  authenticators_ldap/cucumber_results.html,
-                  authenticators_oidc/cucumber_results.html,
-                  authenticators_jwt/cucumber_results.html,
-                  authenticators_status/cucumber_results.html
-                  policy/cucumber_results.html,
-                  rotators/cucumber_results.html
-                ''',
-                reportName: 'EE Integration reports',
-                reportTitles: '',
-                allowMissing: false,
-                alwaysLinkToLastBuild: true,
-                keepAll: true
-              )
+                  publishHTML(
+                    reportDir: 'ee-test/cucumber',
+                    reportFiles: '''
+                      api/cucumber_results.html,
+                      authenticators_config/cucumber_results.html,
+                      authenticators_azure/cucumber_results.html,
+                      authenticators_ldap/cucumber_results.html,
+                      authenticators_oidc/cucumber_results.html,
+                      authenticators_jwt/cucumber_results.html,
+                      authenticators_status/cucumber_results.html
+                      policy/cucumber_results.html,
+                      rotators/cucumber_results.html
+                    ''',
+                    reportName: 'EE Integration reports',
+                    reportTitles: '',
+                    allowMissing: false,
+                    alwaysLinkToLastBuild: true,
+                    keepAll: true
+                  )
+                }
+              }
             }
           }
         }
@@ -821,17 +736,6 @@ pipeline {
       }
 
       post {
-        success {
-          script {
-            if (env.BRANCH_NAME == 'master') {
-              build(
-                job:'../cyberark--secrets-provider-for-k8s/main',
-                wait: false
-              )
-            }
-          }
-        }
-
         always {
           script {
 
@@ -910,42 +814,6 @@ pipeline {
         }
       }
     } // end stage: build and test conjur
-
-    stage('Submit Coverage Report') {
-      when {
-        expression {
-          env.CODE_CLIMATE_PREPARED == "true"
-        }
-      }
-      steps{
-        sh 'ci/submit-coverage'
-      }
-    }
-
-    stage("Release Conjur images and packages") {
-      when {
-        expression {
-          MODE == "RELEASE"
-        }
-      }
-      steps {
-        release { billOfMaterialsDirectory, assetDirectory ->
-          // Publish docker images
-          sh './publish-images.sh --edge --dockerhub'
-
-          // Create deb and rpm packages
-          sh 'echo "CONJUR_VERSION=5" >> debify.env'
-          sh './package.sh'
-          archiveArtifacts artifacts: '*.deb', fingerprint: true
-          archiveArtifacts artifacts: '*.rpm', fingerprint: true
-          sh "cp *.rpm ${assetDirectory}/."
-          sh "cp *.deb ${assetDirectory}/."
-
-          // Publish deb and rpm packages
-          sh './publish.sh'
-        }
-      }
-    }
   }
 
   post {
@@ -954,7 +822,7 @@ pipeline {
       // cleanupAndNotify(buildStatus, slackChannel, additionalMessage, ticket)
       cleanupAndNotify(
         currentBuild.currentResult,
-        '#conjur-core',
+        'Team - Palm Tree',
         "${(params.NIGHTLY ? 'nightly' : '')}",
         true
       )

@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
+## [0.0.1-cloud] - 2022-01-13
+### Changed
+- Remove auto-release options to allow for a pseudo-fork development on a branch
+
 ## [1.19.6] - 2023-07-05
 
 ### Fixed
@@ -142,7 +146,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 - List resources request (`GET /resources`) now produce audit events.
-  [cyberark/conjur#2652](https://github.com/cyberark/conjur/pull/2652)
+  ([cyberark/conjur#2652](https://github.com/cyberark/conjur/pull/2652)
 
 ### Changed
 - AWS Access Key Rotation now preserves only one key
@@ -1049,11 +1053,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - The first tagged version.
 
-[Unreleased]: https://github.com/cyberark/conjur/compare/v1.19.5...HEAD
-[1.19.5]: https://github.com/cyberark/conjur/compare/v1.19.3...v1.19.5
-[1.19.3]: https://github.com/cyberark/conjur/compare/v1.19.2...v1.19.3
-[1.19.2]: https://github.com/cyberark/conjur/compare/v1.19.1...v1.19.2
-[1.19.1]: https://github.com/cyberark/conjur/compare/v1.19.0...v1.19.1
+[Unreleased]: https://github.com/cyberark/conjur/compare/v1.19.0...HEAD
 [1.19.0]: https://github.com/cyberark/conjur/compare/v1.18.5...v1.19.0
 [1.18.5]: https://github.com/cyberark/conjur/compare/v1.18.4...v1.18.5
 [1.18.4]: https://github.com/cyberark/conjur/compare/v1.18.3...v1.18.4
