@@ -35,7 +35,7 @@ services:
       POSTGRES_HOST_AUTH_METHOD: trust
 
   conjur:
-    image: "conjur-test:${TAG}"
+    image: "conjur-test-cloud:${TAG}"
     environment:
       DATABASE_URL: postgres://postgres@pg/postgres
       CONJUR_ADMIN_PASSWORD: ADmin123!!!!
@@ -68,7 +68,7 @@ services:
       - keycloak
 
   cucumber:
-    image: conjur-test:$TAG
+    image: conjur-test-cloud:$TAG
     entrypoint: bash
     working_dir: /src/conjur-server
     environment:
