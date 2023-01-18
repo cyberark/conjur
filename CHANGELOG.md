@@ -17,6 +17,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   request results are sorted by resource ID.
   [cyberark/conjur#2702](https://github.com/cyberark/conjur/pull/2702)
 
+### Security
+- Upgraded Rails to 6.1.7.1 to resolve CVE-2023-22794 (not vulnerable)
+  [cyberark/conjur#2703](https://github.com/cyberark/conjur/pull/2703)
+
 ## [1.19.1] - 2022-12-08
 
 ### Security
