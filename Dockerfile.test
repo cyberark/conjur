@@ -1,4 +1,4 @@
 ARG VERSION=latest
-FROM conjur:${VERSION}
+FROM conjur-cloud:${VERSION}
 
 RUN bundle --no-deployment --without ''
