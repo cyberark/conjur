@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
+## [1.19.2] - 2022-01-13
+
+### Fixed
+- Previously, including `limit` or `offset` parameters to a resource list request
+  resulted in the returned list being unexpectedly sorted. Now, all resource list
+  request results are sorted by resource ID.
+  [cyberark/conjur#2702](https://github.com/cyberark/conjur/pull/2702)
+
 ## [1.19.1] - 2022-12-08
 
 ### Security
