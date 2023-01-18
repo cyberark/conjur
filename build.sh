@@ -68,18 +68,18 @@ image_doesnt_exist() {
   [[ "$(docker images -q "$1" 2> /dev/null)" == "" ]]
 }
 
-if image_doesnt_exist "conjur:$TAG"; then
-  echo "Building image conjur:$TAG"
-  docker build -t "conjur:$TAG" .
-  flatten "conjur:$TAG"
+if image_doesnt_exist "conjur-cloud:$TAG"; then
+  echo "Building image conjur-cloud:$TAG"
+  docker build -t "conjur-cloud:$TAG" .
+  flatten "conjur-cloud:$TAG"
 fi
 
-if image_doesnt_exist "conjur-test:$TAG"; then
-  echo "Building image conjur-test:$TAG container"
-  docker build --build-arg "VERSION=$TAG" -t "conjur-test:$TAG" -f Dockerfile.test .
+if image_doesnt_exist "conjur-test-cloud:$TAG"; then
+  echo "Building image conjur-test-cloud:$TAG container"
+  docker build --build-arg "VERSION=$TAG" -t "conjur-test-cloud:$TAG" -f Dockerfile.test .
 fi
 
-if image_doesnt_exist "conjur-ubi:$TAG"; then
-  echo "Building image conjur-ubi:$TAG container"
-  docker build --build-arg "VERSION=$TAG" -t "conjur-ubi:$TAG" -f Dockerfile.ubi .
+if image_doesnt_exist "conjur-ubi-cloud:$TAG"; then
+  echo "Building image conjur-ubi-cloud:$TAG container"
+  docker build --build-arg "VERSION=$TAG" -t "conjur-ubi-cloud:$TAG" -f Dockerfile.ubi .
 fi

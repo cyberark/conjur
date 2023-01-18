@@ -441,37 +441,39 @@ pipeline {
                 }
               }
 
-              archiveArtifacts(
-                artifacts: "ee-test/cucumber/*/*.*",
-                fingerprint: false,
-                allowEmptyArchive: true
-              )
+                  archiveArtifacts(
+                    artifacts: "ee-test/cucumber/*/*.*",
+                    fingerprint: false,
+                    allowEmptyArchive: true
+                  )
 
-              archiveArtifacts(
-                artifacts: "ee-test/container_logs/*/*",
-                fingerprint: false,
-                allowEmptyArchive: true
-              )
+                  archiveArtifacts(
+                    artifacts: "ee-test/container_logs/*/*",
+                    fingerprint: false,
+                    allowEmptyArchive: true
+                  )
 
-              publishHTML(
-                reportDir: 'ee-test/cucumber',
-                reportFiles: '''
-                  api/cucumber_results.html,
-                  authenticators_config/cucumber_results.html,
-                  authenticators_azure/cucumber_results.html,
-                  authenticators_ldap/cucumber_results.html,
-                  authenticators_oidc/cucumber_results.html,
-                  authenticators_jwt/cucumber_results.html,
-                  authenticators_status/cucumber_results.html
-                  policy/cucumber_results.html,
-                  rotators/cucumber_results.html
-                ''',
-                reportName: 'EE Integration reports',
-                reportTitles: '',
-                allowMissing: false,
-                alwaysLinkToLastBuild: true,
-                keepAll: true
-              )
+                  publishHTML(
+                    reportDir: 'ee-test/cucumber',
+                    reportFiles: '''
+                      api/cucumber_results.html,
+                      authenticators_config/cucumber_results.html,
+                      authenticators_azure/cucumber_results.html,
+                      authenticators_ldap/cucumber_results.html,
+                      authenticators_oidc/cucumber_results.html,
+                      authenticators_jwt/cucumber_results.html,
+                      authenticators_status/cucumber_results.html
+                      policy/cucumber_results.html,
+                      rotators/cucumber_results.html
+                    ''',
+                    reportName: 'EE Integration reports',
+                    reportTitles: '',
+                    allowMissing: false,
+                    alwaysLinkToLastBuild: true,
+                    keepAll: true
+                  )
+                }
+              }
             }
           }
         }
@@ -618,19 +620,19 @@ pipeline {
 
               post {
                 always {
-                  stash(
-                    name: 'testResultAzure',
-                    allowEmpty: true,
-                    includes: '''
-                      cucumber/*azure*/*.*,
-                      container_logs/*azure*/*,
-                      cucumber_results*.json
-                    '''
-                  )
-                  // Remove this Agent's IP from IPManager's prefix list
-                  // There are a limited number of entries, so it remove it
-                  // rather than waiting for it to expire.
-                  removeIPAccess()
+                    stash(
+                      name: 'testResultAzure',
+                      allowEmpty: true,
+                      includes: '''
+                        cucumber/*azure*/*.*,
+                        container_logs/*azure*/*,
+                        cucumber_results*.json
+                      '''
+                    )
+                    // Remove this Agent's IP from IPManager's prefix list
+                    // There are a limited number of entries, so it remove it
+                    // rather than waiting for it to expire.
+                    removeIPAccess()
                 }
               }
             }
@@ -1042,14 +1044,14 @@ def conjurTests() {
         sh 'ci/test authenticators_status'
       }
     ],
+    "authenticators_k8s": [
+      "K8s Authenticator - ${env.STAGE_NAME}": {
+        sh 'ci/test authenticators_k8s'
+      }
+    ],
     "authenticators_ldap": [
       "LDAP Authenticator - ${env.STAGE_NAME}": {
         sh 'ci/test authenticators_ldap'
-      }
-    ],
-    "api": [
-      "API - ${env.STAGE_NAME}": {
-        sh 'ci/test api'
       }
     ],
     "authenticators_oidc": [
@@ -1067,14 +1069,14 @@ def conjurTests() {
         sh 'ci/test policy'
       }
     ],
+    "api": [
+      "API - ${env.STAGE_NAME}": {
+        sh 'ci/test api'
+      }
+    ],
     "rotators": [
       "Rotators - ${env.STAGE_NAME}": {
         sh 'ci/test rotators'
-      }
-    ],
-    "authenticators_k8s": [
-      "K8s Authenticator - ${env.STAGE_NAME}": {
-        sh 'ci/test authenticators_k8s'
       }
     ],
     "rspec_audit": [
