@@ -8,7 +8,7 @@ Feature: Custom ownership can be assigned to a policy object.
   policy.
 
   Scenario: The default owner of a policy-scoped object is the policy.
-    Given a policy:
+    Given I load a policy:
     """
     - !user bob
 
@@ -21,7 +21,7 @@ Feature: Custom ownership can be assigned to a policy object.
     And  the owner of variable "db/password" is policy "db"
 
   Scenario: The owner of a policy-scoped object can be changed.
-    Given a policy:
+    Given I load a policy:
     """
     - !group secrets-managers
 

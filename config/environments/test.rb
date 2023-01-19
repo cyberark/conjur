@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require './config/conjur_log_formatter'
+require 'logger/formatter/conjur_formatter'
 
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
@@ -17,7 +17,7 @@ Rails.application.configure do
   config.eager_load = true
 
   # Configure static file server for tests with Cache-Control for performance.
-  config.serve_static_files   = false
+  config.public_file_server.enabled = false
   config.static_cache_control = 'public, max-age=3600'
 
   # Show full error reports and disable caching.
@@ -43,12 +43,16 @@ Rails.application.configure do
 
   # Use the lowest log level to ensure availability of diagnostic information
   # when problems arise.
-  config.log_level = :debug
-  config.log_formatter = ConjurLogFormatter.new
+  config.log_level = ENV['CONJUR_LOG_LEVEL'] || :debug
+  config.log_formatter = ConjurFormatter.new
 
   # Raises error for missing translations
   # config.action_view.raise_on_missing_translations = true
 
   # TODO: figure out how to make it work in a spring environment
   config.audit_socket = Test::AuditSink.instance.address
+
+  # We don't want to cache TRUSTED_PROXIES for tests so that these may
+  # be modified for different test scenarios.
+  config.conjur_disable_trusted_proxies_cache = true
 end

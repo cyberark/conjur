@@ -3,7 +3,7 @@
 class RolesController < RestController
   include AuthorizeResource
 
-  before_filter :current_user
+  before_action :current_user
 
   def show
     render json: role.as_json.merge(members: role.memberships)
@@ -70,11 +70,14 @@ class RolesController < RestController
     # If membership is already granted, grant_to will return nil.
     # In this case, don't emit an audit record.
     if (membership = role.grant_to member)
-      Audit::Event::Policy.new(
-        operation: :add,
-        subject: Audit::Subject::RoleMembership.new(membership.pk_hash),
-        user: current_user
-      ).log_to Audit.logger
+      Audit.logger.log(
+        Audit::Event::Policy.new(
+          operation: :add,
+          subject: Audit::Subject::RoleMembership.new(membership.pk_hash),
+          user: current_user,
+          client_ip: request.ip
+        )
+      )
     end
 
     head :no_content
@@ -93,11 +96,14 @@ class RolesController < RestController
 
     membership.destroy
 
-    Audit::Event::Policy.new(
-      operation: :remove,
-      subject: Audit::Subject::RoleMembership.new(membership.pk_hash),
-      user: current_user
-    ).log_to Audit.logger
+    Audit.logger.log(
+      Audit::Event::Policy.new(
+        operation: :remove,
+        subject: Audit::Subject::RoleMembership.new(membership.pk_hash),
+        user: current_user,
+        client_ip: request.ip
+      )
+    )
 
     head :no_content
   end
@@ -127,7 +133,11 @@ class RolesController < RestController
   end
   
   def render_params
-    params.slice(:limit, :offset).symbolize_keys
+    # Rails 5 requires parameters to be explicitly permitted before converting
+    # to Hash.  See: https://stackoverflow.com/a/46029524
+    allowed_params = %i(limit offset)
+    params.permit(*allowed_params)
+      .slice(*allowed_params).to_h.symbolize_keys
   end
 
   def membership_filter        

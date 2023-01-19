@@ -10,14 +10,26 @@ Feature: Change the password of a role
 
   Scenario: With basic authentication, users can update their own password using the current password.
 
-    Given I set the password for "alice" to "my-password"
-    When I successfully PUT "/authn/cucumber/password" with username "alice" and password "my-password" and plain text body "new-password"
-    Then I can GET "/authn/cucumber/login" with username "alice" and password "new-password"
+    Given I set the password for "alice" to "My-Password1"
+    When I successfully PUT "/authn/cucumber/password" with username "alice" and password "My-Password1" and plain text body "New-Password1"
+    Then I can GET "/authn/cucumber/login" with username "alice" and password "New-Password1"
 
   Scenario: With basic authentication, users can update their own password using the current API key.
 
-    When I successfully PUT "/authn/cucumber/password" with username "alice" and password ":alice_api_key" and plain text body "new-password"
-    Then I can GET "/authn/cucumber/login" with username "alice" and password "new-password"
+    When I successfully PUT "/authn/cucumber/password" with username "alice" and password ":cucumber:user:alice_api_key" and plain text body "New-Password1"
+    Then I can GET "/authn/cucumber/login" with username "alice" and password "New-Password1"
+
+  Scenario: Succeed to set password with escaped special character applying to password complexity.
+
+    Given I set the password for "alice" to "My-Password1"
+    When I successfully PUT "/authn/cucumber/password" with username "alice" and password "My-Password1" and plain text body "NewPassword1/"
+    Then I can GET "/authn/cucumber/login" with username "alice" and password "NewPassword1/"
+
+  Scenario: Fail to set password with 11 characters not applying to password complexity.
+
+    Given I set the password for "alice" to "My-Password1"
+    When I PUT "/authn/cucumber/password" with username "alice" and password "My-Password1" and plain text body "My-Passwor1"
+    Then the HTTP response status code is 422
 
   Scenario: Bearer token cannot be used to change the password
 

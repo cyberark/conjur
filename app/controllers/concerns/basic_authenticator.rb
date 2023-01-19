@@ -19,7 +19,7 @@ module BasicAuthenticator
       raise ApplicationController::Unauthorized, "Invalid username or password"
     rescue Errors::Authentication::InvalidOrigin
       raise ApplicationController::Forbidden, "User is not authorized to login from the current origin"
-    rescue Errors::Authentication::Security::UserNotAuthorizedInConjur
+    rescue Errors::Authentication::Security::RoleNotAuthorizedOnResource
       raise ApplicationController::Forbidden, "User is not authorized to login to Conjur"
     end
   end
@@ -29,7 +29,8 @@ module BasicAuthenticator
   def authenticator_login(username, password)
     ::Authentication::Login.new.(
       authenticator_input: login_input(username, password),
-        authenticators: installed_login_authenticators
+      authenticators: installed_login_authenticators,
+      enabled_authenticators: Authentication::InstalledAuthenticators.enabled_authenticators_str(ENV)
     )
   end
 
@@ -39,8 +40,8 @@ module BasicAuthenticator
       service_id:         params[:service_id],
       account:            params[:account],
       username:           username,
-      password:           password,
-      origin:             request.ip,
+      credentials:        password,
+      client_ip:          request.ip,
       request:            request
     )
   end

@@ -6,7 +6,7 @@ class SecretsController < RestController
   include FindResource
   include AuthorizeResource
   
-  before_filter :current_user
+  before_action :current_user
   
   def create
     authorize :update
@@ -20,10 +20,15 @@ class SecretsController < RestController
 
     head :created
   ensure
-    Audit::Event::Update.new(error_info.merge(
-      resource: resource,
-      user: @current_user
-    )).log_to Audit.logger
+    update_info = error_info.merge(
+      resource: resource, 
+      user: @current_user,
+      client_ip: request.ip
+    )
+
+    Audit.logger.log(
+      Audit::Event::Update.new(update_info)
+    )
   end
   
   def show
@@ -72,13 +77,16 @@ class SecretsController < RestController
     # don't audit the fetch if the resource doesn't exist
     return unless resource
 
-    Audit::Event::Fetch.new(
-      error_info.merge(
-        resource: resource,
-        version: version,
-        user: current_user
-      )
-    ).log_to Audit.logger
+    fetch_info = error_info.merge(
+      resource: resource,
+      version: version,
+      user: current_user,
+      client_ip: request.ip
+    )
+
+    Audit.logger.log(
+      Audit::Event::Fetch.new(fetch_info)
+    )
   end
 
   def error_info
@@ -119,7 +127,10 @@ class SecretsController < RestController
   private
 
   def variable_ids
-    @variable_ids ||= (params[:variable_ids] || '').split(',').compact
-      .tap { |ids| raise ArgumentError, 'variable_ids' if ids.empty? }
+    return @variable_ids if @variable_ids
+
+    @variable_ids = (params[:variable_ids] || '').split(',').compact
+    raise ArgumentError, 'variable_ids' if @variable_ids.empty?
+    @variable_ids
   end
 end

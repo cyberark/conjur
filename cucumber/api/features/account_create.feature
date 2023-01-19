@@ -1,14 +1,13 @@
 Feature: Create a new account
 
-  Conjur supports multiple accounts in a single database. Each account is a separate
-  "tenant" with its own set of data. 
+  Conjur supports multiple accounts in a single database. Each account is a
+  separate "tenant" with its own set of data.
 
   Importantly, each account also uses its own token-signing key, so that tokens
   created by one account won't be accepted by a different account.
 
   Accounts are managed through a standard REST interface.  The "accounts" routes
   are authorized via privileges on the resource "!:webservice:accounts".
-
 
   Scenario: POST /accounts to create a new account.
 
@@ -19,6 +18,7 @@ Feature: Create a new account
     1. **id** The account id.
     2. **api_key** The API key of the account "admin" user. 
 
+    # Note: "!" is the default account
     Given I create a new user "admin" in account "!"
     And I permit role "!:user:admin" to "execute" resource "!:webservice:accounts"
     And I login as "!:user:admin"

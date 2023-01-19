@@ -9,9 +9,10 @@ Feature: Rotate the API key of a role
     Given I create a new user "alice"
 
   Scenario: Password can be used to rotate API key
-    Given I set the password for "alice" to "my-password"
-    Then I can PUT "/authn/cucumber/api_key" with username "alice" and password "my-password"
+    Given I set the password for "alice" to "My-Password1"
+    When I can PUT "/authn/cucumber/api_key" with username "alice" and password "My-Password1"
     Then the result is the API key for user "alice"
+    And the HTTP response content type is "text/plain"
 
   @logged-in
   Scenario: The API key cannot be rotated by foreign role without 'update' privilege
@@ -25,3 +26,4 @@ Feature: Rotate the API key of a role
     And I login as "alice"
     When I PUT "/authn/cucumber/api_key?role=user:bob"
     Then the result is the API key for user "bob"
+    And the HTTP response content type is "text/plain"

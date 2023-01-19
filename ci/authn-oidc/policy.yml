@@ -8,20 +8,42 @@
     annotations:
       description: Authentication service for Keycloak, based on Open ID Connect.
 
+  - !webservice
+    id: status
+    annotations:
+      description: Status service to verify the authenticator is configured correctly
+
   - !variable
     id: provider-uri
 
   - !variable
     id: id-token-user-property
 
-  - !group users
+  - !group
+    id: users
+    annotations:
+      description: Group of users who can authenticate using the authn-oidc/keycloak authenticator
+
+  - !group
+    id: managers
+    annotations:
+      description: Group of users who can check the status of the authn-oidc/keycloak authenticator
 
   - !permit
     role: !group users
     privilege: [ read, authenticate ]
     resource: !webservice
 
+  - !permit
+    role: !group managers
+    privilege: [ read ]
+    resource: !webservice status
+
 - !grant
   role: !group conjur/authn-oidc/keycloak/users
+  member: !user alice
+
+- !grant
+  role: !group conjur/authn-oidc/keycloak/managers
   member: !user alice
 

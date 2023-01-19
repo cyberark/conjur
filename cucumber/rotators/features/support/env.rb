@@ -5,6 +5,7 @@ $LOAD_PATH.unshift(Dir.pwd)
 require 'config/environment'
 
 ENV['RAILS_ENV'] ||= 'test'
+ENV['CONJUR_LOG_LEVEL'] ||= 'debug'
 
-Conjur.configuration.appliance_url = ENV['CONJUR_APPLIANCE_URL'] || 'http://possum'
+Conjur.configuration.appliance_url = ENV['CONJUR_APPLIANCE_URL'] || 'http://conjur'
 Conjur.configuration.account = ENV['CONJUR_ACCOUNT'] || 'cucumber'

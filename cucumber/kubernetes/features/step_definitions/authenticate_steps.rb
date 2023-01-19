@@ -3,20 +3,14 @@ def conjur_resource_id(namespace, resource_id)
 end
 
 def gen_cert(host_id)
-  id = 'conjur/authn-k8s/minikube'
-  conjur_account = ENV['CONJUR_ACCOUNT']
-  subject = "/CN=#{id.tr('/', '.')}/OU=Conjur Kubernetes CA/O=#{conjur_account}"
-  ca = ::Util::OpenSsl::CA.from_subject(subject)
-
-  metadata = @pod.metadata
-  spiffe_id = "URI:spiffe://cluster.local/namespace/#{metadata.namespace}/pod/#{metadata.name}"
-
   username = [namespace, host_id].join('/')
   webservice_resource_id = "#{ENV['CONJUR_ACCOUNT']}:webservice:#{username}"
   ::Repos::ConjurCA.create(webservice_resource_id)
 end
 
 def authenticate_k8s(host, cert, key, conjur_id)
+  conjur_id = substitute!(conjur_id)
+
   RestClient::Resource.new(
     host,
     ssl_ca_file: './nginx.crt',
@@ -56,10 +50,13 @@ Then(/^I( can)? authenticate with authn-k8s as "([^"]*)"( without cert and key)?
   end
 end
 
-Then(/^I( can)? authenticate pod matching "([^"]*)" with authn-k8s as "([^"]*)"( without cert and key)?$/) do |success, objectid, hostid, nocertkey|
+Then(/^I( can)? authenticate pod matching "([^"]*)" with authn-k8s as "([^"]*)"(?: with prefix "([^"]*)")?( without cert and key)?$/) do |success, objectid, hostid_suffix, hostid_prefix, nocertkey|
   @request_ip ||= detect_request_ip(objectid)
 
-  conjur_id = conjur_resource_id(namespace, hostid)
+  conjur_id = conjur_resource_id(namespace, hostid_suffix)
+  if hostid_prefix
+    conjur_id = "#{hostid_prefix}/#{hostid_suffix}"
+  end
 
   cert = nocertkey ? nil : OpenSSL::X509::Certificate.new(@cert)
   key = nocertkey ? nil : @pkey

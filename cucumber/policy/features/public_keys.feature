@@ -1,7 +1,7 @@
 Feature: Public keys can be associated with user records.
 
   Scenario: Public keys can be managed through policy.
-    Possum can store public keys for each of your users. To store a public key, use the
+    Conjur can store public keys for each of your users. To store a public key, use the
     `public_keys` attribute on the `!user` record. When you load a user policy containing
     public keys, any existing public keys that aren't in the new policy will be removed.
     
@@ -11,7 +11,7 @@ Feature: Public keys can be associated with user records.
     
     The comment is required, so that multiple public keys can be distinguished from each other.
 
-    Given a policy:
+    Given I load a policy:
     """
     - !user
       id: alice
@@ -36,7 +36,7 @@ Feature: Public keys can be associated with user records.
     
     In the case that a key is loaded multiple times with the same comment, the last public key loaded is the one returned by the pubkeys API.
 
-    Given a policy:
+    Given I load a policy:
     """
     - !user
       id: alice

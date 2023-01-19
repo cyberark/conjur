@@ -8,10 +8,10 @@
 # doesn't exist, it is ignored. As a result, SQL and DDL operations normally apply 
 # to the "public" schema unless a schema is indicated specifically (e.g. "myschema.mytable").
 #
-# Possum can be configure with an alternative search path, such as "possum, public". In this case,
-# DDL and SQL will be applied to the primary schema (in this example, "possum").
+# Conjur can be configured with an alternative search path, such as "conjur, public". In this case,
+# DDL and SQL will be applied to the primary schema (in this example, "conjur").
 #
-# If Possum is run with an alternative primary schema, it's the responsibility of the
+# If Conjur is run with an alternative primary schema, it's the responsibility of the
 # operator to create that schema and grant the necessary privileges to the database user.
 class Schemata
   attr_reader :search_path, :primary_schema
@@ -29,7 +29,7 @@ class Schemata
     primary_schema = db.select(Sequel::function(:current_schema)).single_value
     raise "No primary schema is available from search path #{search_path.inspect}" if primary_schema.nil?
 
-    Rails.logger.info "Primary schema is #{primary_schema.inspect}"
+    Rails.logger.info(LogMessages::Conjur::PrimarySchema.new(primary_schema.inspect))
     @primary_schema = primary_schema.to_sym
   end
 

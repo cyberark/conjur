@@ -79,25 +79,23 @@ module Loader
       policy_version.policy.id
     end
 
-    def load
+    def setup_db_for_new_policy
       perform_deletion
 
       create_schema
 
       load_records
+    end
 
-      if policy_version.perform_automatic_deletion?
-        delete_removed
-      end
-
+    # TODO: consider renaming this method
+    def delete_shadowed_and_duplicate_rows
       eliminate_shadowed
 
       eliminate_duplicates_exact
+    end
 
-      if policy_version.update_permitted?
-        update_changed
-      end
-
+    # TODO: consider renaming this method
+    def store_policy_in_db
       eliminate_duplicates_pk
 
       insert_new
@@ -114,7 +112,9 @@ module Loader
     end
 
     def emit_audit
-      policy_version.policy_log.lazy.map(&:to_audit_event).each { |event| event.log_to Audit.logger }
+      policy_version.policy_log.lazy.map(&:to_audit_event).each do |event|
+        Audit.logger.log(event)
+      end
     end
 
     def table_data schema = ""
@@ -152,8 +152,6 @@ module Loader
         io.read
       end
     end
-
-    protected
 
     # Delete rows in the existing policy which do not exist in the new policy.
     # Matching rows are selected by primary keys only, using a LEFT JOIN between the

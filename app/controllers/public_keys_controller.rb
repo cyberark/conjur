@@ -9,6 +9,6 @@ class PublicKeysController < ApplicationController
     values.sort! if %w(test development).member?(Rails.env)
     result = values.map(&:strip).join("\n").strip + "\n"
 
-    render text: result, content_type: "text/plain"
+    render plain: result, content_type: "text/plain"
   end
 end

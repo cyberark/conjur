@@ -5,7 +5,11 @@ class ResourcesController < RestController
   include AssumedRole
   
   def index
-    options = params.slice(:account, :kind, :limit, :offset, :search).symbolize_keys
+    # Rails 5 requires parameters to be explicitly permitted before converting 
+    # to Hash.  See: https://stackoverflow.com/a/46029524
+    allowed_params = %i(account kind limit offset search)
+    options = params.permit(*allowed_params)
+      .slice(*allowed_params).to_h.symbolize_keys
     
     if params[:owner]
       ownerid = Role.make_full_id(params[:owner], account)
@@ -51,13 +55,16 @@ class ResourcesController < RestController
 
     result = assumed_role.allowed_to?(privilege, resource)
 
-    Audit::Event::Check.new(
-      user: current_user,
-      resource: resource,
-      privilege: privilege,
-      role: assumed_role,
-      success: result
-    ).log_to Audit.logger
+    Audit.logger.log(
+      Audit::Event::Check.new(
+        user: current_user,
+        client_ip: request.ip,
+        resource: resource,
+        privilege: privilege,
+        role: assumed_role,
+        success: result
+      )
+    )
 
     head(result ? :no_content : :not_found)
   end

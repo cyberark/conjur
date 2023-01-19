@@ -2,6 +2,8 @@
 
 module Audit
   # RFC5424 structured data IDs for Conjur-specific audit fields.
+  # NOTE: SDID is a container of constants for audit and so exhibits
+  # :reek:TooManyConstants.
   module SDID
     # Conjur's Private Enterprise Number
     # cf. https://pen.iana.org
@@ -14,5 +16,6 @@ module Audit
     AUTH = conjur_sdid 'auth'
     SUBJECT = conjur_sdid 'subject'
     ACTION = conjur_sdid 'action'
+    CLIENT = conjur_sdid 'client'
   end
 end

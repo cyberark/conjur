@@ -3,6 +3,8 @@ apiVersion: v1
 kind: Service
 metadata:
   name: postgres
+  labels:
+    app: postgres
 spec:
   ports:
   - port: 5432
@@ -14,6 +16,8 @@ apiVersion: v1
 kind: Service
 metadata:
   name: conjur
+  labels:
+    app: conjur
 spec:
   ports:
   - port: 80
@@ -27,6 +31,8 @@ apiVersion: v1
 kind: Service
 metadata:
   name: nginx
+  labels:
+    app: nginx
 spec:
   ports:
   - port: 443
@@ -34,12 +40,17 @@ spec:
   selector:
     app: nginx-authn-k8s
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: postgres
+  labels:
+    app: postgres
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
   template:
     metadata:
       labels:
@@ -49,13 +60,21 @@ spec:
       - image: postgres:9.4
         imagePullPolicy: Always
         name: postgres
+        env:
+        - name: POSTGRES_HOST_AUTH_METHOD
+          value: trust
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: conjur
+  name: conjur-authn-k8s
+  labels:
+    app: conjur-authn-k8s
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      app: conjur-authn-k8s
   template:
     metadata:
       labels:
@@ -77,6 +96,17 @@ spec:
           value: "{{ DATA_KEY }}"
         - name: RAILS_ENV
           value: test
+        # Enable coverage tracking.
+        - name: REQUIRE_SIMPLECOV
+          value: "true"
+        # Sleep after generating the coverage report to keep the pod alive
+        # so the report can be retrieved.
+        - name: SIMPLECOV_SLEEP
+          value: "true"
+        - name: WEB_CONCURRENCY
+          value: "0"
+        - name: RAILS_MAX_THREADS
+          value: "10"
         - name: CONJUR_AUTHENTICATORS
           value: authn-k8s/minikube
         volumeMounts:
@@ -87,12 +117,17 @@ spec:
           emptyDir:
             medium: Memory
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: cucumber
+  name: cucumber-authn-k8s
+  labels:
+    app: cucumber-authn-k8s
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      app: cucumber-authn-k8s
   template:
     metadata:
       labels:
@@ -117,12 +152,17 @@ spec:
         - name: CONJUR_AUTHN_K8S_TEST_NAMESPACE
           value: {{CONJUR_AUTHN_K8S_TEST_NAMESPACE}}
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: conjur-cli
+  labels:
+    app: conjur-cli
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      app: conjur-cli
   template:
     metadata:
       labels:
@@ -142,12 +182,17 @@ spec:
         - name: CONJUR_AUTHN_LOGIN
           value: admin
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: nginx
+  name: nginx-authn-k8s
+  labels:
+    app: nginx-authn-k8s
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      app: nginx-authn-k8s
   template:
     metadata:
       labels:

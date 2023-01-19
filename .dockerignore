@@ -24,7 +24,12 @@ spec/reports
 spec/reports-audit
 tmp
 
-docs/_site
+# Ignore directories that are only relevant in gh
+Contributing_OSS
+apidocs
+design
+docs
+docs/**/*
 
 # Ignore the scripts that are used by the Jenkinsfile
 build.sh

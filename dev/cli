@@ -30,31 +30,88 @@ GLOBAL OPTIONS
     --help                                    - Show this message
 COMMANDS
     --authn-oidc    Enables OIDC features
+    --authn-azure   Enables Azure features
+    --authn-gcp     Enables GCP features
 EOF
 exit
+}
+
+function enable_gcp() {
+  local gce_instance_name="$1"
+
+  if [ -z "$gce_instance_name" ]; then
+    echo "--authn-gcp mode requires a GCE instance name argument."
+    echo "Usage ./cli exec --authn-gcp [GCE_INSTANCE_NAME]"
+    exit 1
+  fi
+
+ "../ci/authn-gcp/get_gcp_id_tokens.sh" "$gce_instance_name"
+
+  gce_token_file="../ci/authn-gcp/tokens/gce_token_valid"
+
+  if ! [ -f "$gce_token_file" ]; then
+    echo "GCP token file $gce_token_file does not exist."
+    exit 1
+  fi
+
+  decoded_gcp_token_payload=$(_get_gcp_token_payload "$gce_token_file")
+
+  echo "Setting GCP details as env variables"
+  local gcp_project_id="$(echo "$decoded_gcp_token_payload" | jq -r '.google.compute_engine.project_id')"
+  local gcp_instance_name="$(echo "$decoded_gcp_token_payload" | jq -r '.google.compute_engine.instance_name')"
+  local gcp_service_account_id="$(echo "$decoded_gcp_token_payload" | jq -r '.sub')"
+  local gcp_service_account_email="$(echo "$decoded_gcp_token_payload" | jq -r '.email')"
+
+  local gcp_env_args="-e GCP_INSTANCE_NAME=$gcp_instance_name \
+                      -e GCP_SERVICE_ACCOUNT_ID=$gcp_service_account_id \
+                      -e GCP_SERVICE_ACCOUNT_EMAIL=$gcp_service_account_email \
+                      -e GCP_PROJECT_ID=$gcp_project_id"
+
+  env_args="$env_args $gcp_env_args"
+}
+
+_get_gcp_token_payload() {
+  local gcp_token_file="$1"
+
+  # read token and set env vars
+  gcp_token=$(cat "$gcp_token_file")
+
+  source ../ci/jwt/decode_token.sh
+
+  decoded_gcp_token_payload=$(decode_jwt_payload "$gcp_token")
+
+  echo "$decoded_gcp_token_payload"
 }
 
 function enable_oidc() {
   echo "Extracting keycloak variables & setting as env variables"
 
-  env_args="$env_args -e CLIENT_ID=$(docker-compose exec oidc-keycloak printenv CLIENT_ID | tr -d '\r')"
-  env_args="$env_args -e CLIENT_SECRET=$(docker-compose exec oidc-keycloak printenv CLIENT_SECRET | tr -d '\r')"
-  env_args="$env_args -e REDIRECT_URI=$(docker-compose exec oidc-keycloak printenv REDIRECT_URI | tr -d '\r')"
-  env_args="$env_args -e KEYCLOAK_USER=$(docker-compose exec oidc-keycloak printenv KEYCLOAK_USER | tr -d '\r')"
-  env_args="$env_args -e KEYCLOAK_PASSWORD=$(docker-compose exec oidc-keycloak printenv KEYCLOAK_PASSWORD | tr -d '\r')"
-  env_args="$env_args -e KEYCLOAK_APP_USER=$(docker-compose exec oidc-keycloak printenv KEYCLOAK_APP_USER | tr -d '\r')"
-  env_args="$env_args -e KEYCLOAK_APP_USER_PASSWORD=$(docker-compose exec oidc-keycloak printenv KEYCLOAK_APP_USER_PASSWORD | tr -d '\r')"
-  env_args="$env_args -e KEYCLOAK_APP_USER_EMAIL=$(docker-compose exec oidc-keycloak printenv KEYCLOAK_APP_USER_EMAIL | tr -d '\r')"
-  env_args="$env_args -e KEYCLOAK_SECOND_APP_USER=$(docker-compose exec oidc-keycloak printenv KEYCLOAK_SECOND_APP_USER | tr -d '\r')"
-  env_args="$env_args -e KEYCLOAK_SECOND_APP_USER_PASSWORD=$(docker-compose exec oidc-keycloak printenv KEYCLOAK_SECOND_APP_USER_PASSWORD | tr -d '\r')"
-  env_args="$env_args -e KEYCLOAK_SECOND_APP_USER_EMAIL=$(docker-compose exec oidc-keycloak printenv KEYCLOAK_SECOND_APP_USER_EMAIL | tr -d '\r')"
-  env_args="$env_args -e KEYCLOAK_NON_CONJUR_APP_USER=$(docker-compose exec oidc-keycloak printenv KEYCLOAK_NON_CONJUR_APP_USER | tr -d '\r')"
-  env_args="$env_args -e KEYCLOAK_NON_CONJUR_APP_USER_PASSWORD=$(docker-compose exec oidc-keycloak printenv KEYCLOAK_NON_CONJUR_APP_USER_PASSWORD | tr -d '\r')"
-  env_args="$env_args -e KEYCLOAK_NON_CONJUR_APP_USER_EMAIL=$(docker-compose exec oidc-keycloak printenv KEYCLOAK_NON_CONJUR_APP_USER_EMAIL | tr -d '\r')"
-  env_args="$env_args -e SCOPE=$(docker-compose exec oidc-keycloak printenv SCOPE | tr -d '\r')"
-  env_args="$env_args -e PROVIDER_URI="https://keycloak:8443/auth/realms/master""
-  env_args="$env_args -e PROVIDER_INTERNAL_URI="http://keycloak:8080/auth/realms/master/protocol/openid-connect""
-  env_args="$env_args -e ID_TOKEN_USER_PROPERTY="preferred_username""
+  local keycloak_env_args=''
+  keycloak_env_args="$(set -o pipefail; docker-compose exec -T oidc-keycloak printenv | grep KEYCLOAK | sed 's/.*/-e &/') \
+                     -e PROVIDER_URI=https://keycloak:8443/auth/realms/master \
+                     -e PROVIDER_INTERNAL_URI=http://keycloak:8080/auth/realms/master/protocol/openid-connect \
+                     -e ID_TOKEN_USER_PROPERTY=preferred_username"
+
+  env_args="$env_args $keycloak_env_args"
+}
+
+function enable_azure() {
+
+  ../ci/authn-azure/check_dependencies.sh
+
+  echo "Setting Azure details as env variables"
+
+  local azure_env_args="-e AZURE_TENANT_ID=$AZURE_TENANT_ID \
+                        -e AZURE_AUTHN_INSTANCE_IP=$AZURE_AUTHN_INSTANCE_IP \
+                        -e AZURE_AUTHN_INSTANCE_USERNAME=$AZURE_AUTHN_INSTANCE_USERNAME \
+                        -e AZURE_AUTHN_INSTANCE_PASSWORD=$AZURE_AUTHN_INSTANCE_PASSWORD \
+                        -e AZURE_SUBSCRIPTION_ID=$AZURE_SUBSCRIPTION_ID \
+                        -e AZURE_RESOURCE_GROUP=$AZURE_RESOURCE_GROUP \
+                        -e USER_ASSIGNED_IDENTITY=$USER_ASSIGNED_IDENTITY \
+                        -e USER_ASSIGNED_IDENTITY_CLIENT_ID=$USER_ASSIGNED_IDENTITY_CLIENT_ID \
+                        -e SYSTEM_ASSIGNED_IDENTITY=$SYSTEM_ASSIGNED_IDENTITY"
+
+  env_args="$env_args $azure_env_args"
 }
 
 unset COMPOSE_PROJECT_NAME
@@ -69,6 +126,8 @@ while true ; do
       case "$2" in
         -h | --help ) print_exec_help ; shift ;;
         --authn-oidc ) enable_oidc ; shift ;;
+        --authn-azure ) enable_azure ; shift ;;
+        --authn-gcp ) enable_gcp "$3"; shift 2;;
         * ) if [ -z "$2" ]; then shift ; else echo "$2 is not a valid option"; exit 1; fi;;
       esac
 

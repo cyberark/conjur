@@ -72,6 +72,9 @@ command :server do |c|
     end
 
     Process.fork do
+      conjur_version = File.read(File.expand_path("../VERSION", File.dirname(__FILE__))).strip
+      puts "Conjur v#{conjur_version} starting up..."
+
       exec "rails server -p #{options[:port]} -b #{options[:'bind-address']}"
     end
     Process.fork do

@@ -3,19 +3,24 @@ apiVersion: v1
 kind: Service
 metadata:
   name: inventory
+  labels:
+    app: inventory
 spec:
   ports:
   - port: 80
     name: http
   selector:
-    app: inventory
+    app: inventory-deployment
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: inventory-deployment
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      app: inventory-deployment
   template:
     metadata:
       labels:

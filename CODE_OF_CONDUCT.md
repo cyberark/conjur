@@ -137,7 +137,7 @@ might be "on the line" between appropriate and inappropriate content. We are
 happy to provide guidance to help you be a successful part of our community. Our
 [community chat][chat] is open.
 
-[chat]: https://slackin-conjur.herokuapp.com
+[chat]: https://discuss.cyberarkcommons.org/
 
 ## Credit and License
 

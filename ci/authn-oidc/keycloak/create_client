@@ -6,8 +6,13 @@ keycloak/bin/kcreg.sh config credentials \
   --realm master \
   --user "$KEYCLOAK_USER" \
   --password "$KEYCLOAK_PASSWORD"
+
 keycloak/bin/kcreg.sh create \
-  -s clientId="$CLIENT_ID" \
-  -s "redirectUris=[\"$REDIRECT_URI\"]" \
-  -s "secret=$CLIENT_SECRET"
-keycloak/bin/kcreg.sh get "$CLIENT_ID" | jq '.secret'
+  -s clientId="$KEYCLOAK_CLIENT_ID" \
+  -s "redirectUris=[\"$KEYCLOAK_REDIRECT_URI\"]" \
+  -s "secret=$KEYCLOAK_CLIENT_SECRET"
+
+# Enable direct access to get an id token with username & password
+keycloak/bin/kcreg.sh update conjurClient -s directAccessGrantsEnabled=true
+
+keycloak/bin/kcreg.sh get "$KEYCLOAK_CLIENT_ID" | jq '.secret'

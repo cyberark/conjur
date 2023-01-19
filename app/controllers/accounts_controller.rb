@@ -23,7 +23,7 @@ class AccountsController < ApplicationController
 
     Account.new(account_name).delete
 
-    render nothing: true, status: :no_content
+    head :no_content
   end
 
   protected
@@ -33,6 +33,8 @@ class AccountsController < ApplicationController
   end
 
   def account_name
-    params[:id]
+    # Rails 5 requires parameters to be explicitly permitted before converting 
+    # to Hash.  See: https://stackoverflow.com/a/46029524
+    params.permit(:id)[:id]
   end
 end

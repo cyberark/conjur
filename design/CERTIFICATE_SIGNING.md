@@ -5,7 +5,7 @@ host certificates using a CA certificate and private key stored in
 Conjur.
 
 A primary use case this supports is configuring mutual TLS between
-hosts with machine identity provisioned in Conjur. In this scenario,
+hosts with resource restrictions provisioned in Conjur. In this scenario,
 Conjur operators can configure a signing CA in conjur with a key and
 issuer certificate created outside of Conjur. Hosts may be granted
 the privilege to sign their own short-lived certificate through the CA.

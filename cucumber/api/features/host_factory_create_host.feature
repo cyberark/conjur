@@ -9,7 +9,7 @@ Feature: Create a host using the host factory.
 
     Given I authorize the request with the host factory token
     When I successfully POST "/host_factories/hosts?id=host-01"
-    Then the JSON should be:
+    Then our JSON should be:
     """
     {
       "annotations" : [],
@@ -27,7 +27,7 @@ Feature: Create a host using the host factory.
     """
     id=host-01
     """
-    Then the JSON should be:
+    Then our JSON should be:
     """
     {
       "annotations" : [],
@@ -42,7 +42,7 @@ Feature: Create a host using the host factory.
   @logged-in-admin
   Scenario: Invalid tokens are rejected.
 
-    Given I successfully DELETE "/host_factory_tokens/@host_factory_token_token@"
+    Given I do DELETE "/host_factory_tokens/@host_factory_token@"
     And I log out
     And I authorize the request with the host factory token
     When I POST "/host_factories/hosts?id=host-01"

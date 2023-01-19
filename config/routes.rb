@@ -13,6 +13,7 @@ end
 Rails.application.routes.draw do
   scope format: false do
     get '/' => 'status#index'
+    get '/whoami' => 'status#whoami'
     get '/authenticators' => 'authenticate#index'
 
     constraints id: /[^\/\?]+/ do
@@ -21,12 +22,17 @@ Rails.application.routes.draw do
 
     constraints account: /[^\/\?]+/ do
       constraints authenticator: /authn-?[^\/]*/, id: /[^\/\?]+/ do
+        get '/:authenticator(/:service_id)/:account/status' => 'authenticate#status'
+        
+        patch '/:authenticator/:service_id/:account' => 'authenticate#update_config'
+
         get '/:authenticator(/:service_id)/:account/login' => 'authenticate#login'
         # authn-oidc login & authenticate are currently for future use only
         #post '/authn-oidc(/:service_id)/:account/login' => 'authenticate#login_oidc'
 
         # authn-oidc has to be first as it can be ambgiuous with the optional :service_id & :id
         post '/authn-oidc(/:service_id)/:account/authenticate' => 'authenticate#authenticate_oidc'
+        post '/authn-gcp/:account/authenticate' => 'authenticate#authenticate_gcp'
         post '/:authenticator(/:service_id)/:account/:id/authenticate' => 'authenticate#authenticate'
 
         # Update password is only relevant when using the default authenticator

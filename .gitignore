@@ -4,10 +4,17 @@
 # or operating system, you probably want to add a global ignore instead:
 #   git config --global core.excludesfile '~/.gitignore_global'
 
+
 # Ignore bundler config.
 .bundle
 
+# Ignore rbenv
+.ruby-version
+
 id_rsa*
+
+# Ignore generated debify script
+docker-debify
 
 # Ignore all logfiles and tempfiles.
 /log
@@ -38,6 +45,7 @@ api.html
 
 brakeman-output.*
 .idea
+.vscode
 TEMP_NOTES.txt
 awstest
 
@@ -47,11 +55,9 @@ ci/authn-k8s/dev/*.yaml
 ci/authn-k8s/dev/policies/*.yml
 !ci/authn-k8s/dev/policies/*template*
 
-# authn-oidc phantomjs temp files
-**/authn-oidc/phantomjs/authorization_code
-**/authn-oidc/phantomjs/keycloak_login_tmp.js
-
 # Vim backup files
 *.sw[po]
 
-
+# GitHub landing page
+docs/_site/
+docs/.sass-cache

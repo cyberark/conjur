@@ -1,0 +1,25 @@
+section:
+  description: Many of our internal development tools are also open source. Take
+    a look - we're happy to share. They might just solve a need that you have.
+  categories:
+  - name: Development Tools
+    description:
+    repos:
+      - name: cyberark/bash-lib
+        url: https://github.com/cyberark/bash-lib
+        description: Bash library for functions and scripts that are used in
+          pipelines and utilities in multiple repos.
+      - name: cyberark/helm-charts
+        url: https://github.com/cyberark/helm-charts
+        description: Helm charts repository for installing select Conjur suite
+          components.
+      - name: cyberark/homebrew-tools
+        url: https://github.com/cyberark/homebrew-tools
+        description: Homebrew formulas for installing select Conjur suite tools.
+      - name: cyberark/parse-a-changelog
+        url: https://github.com/cyberark/parse-a-changelog
+        description: A validator for changelogs using the Keep a Changelog standard
+          (http://keepachangelog.com).
+      - name: conjurdemos/pet-store-demo
+        url: https://github.com/conjurdemos/pet-store-demo
+        description: Small sample spring pet store app for demos and tutorials.

@@ -8,19 +8,18 @@ require 'spec_helper'
 
 describe 'POST handler', type: :request do
   it 'does not interpret an urlencoded body' do
-    post '/the/path/does/not/really/matter', 'secret-api-key'
-    expect(request.params.to_s).to_not include 'secret-api-key'
+    some_secret = 'my-secret-api-key'
+    post('/doesnt/matter', params: some_secret, as: :text)
+    expect(secret_logged?(some_secret)).to be false
   end
 
   it 'does not interpret a JSON body' do
-    post '/some/path', '{ "secretkey": "here" }',
-      'Content-Type': 'application/json'
-    expect(request.params.to_s).to_not include 'secretkey'
-  end
-
-  it 'does not interpret a body with multipart/mixed type' do
-    post '/some/path', '{ "secretkey": "here" }',
-      'Content-Type': 'multipart/mixed'
-    expect(request.params.to_s).to_not include 'secretkey'
+    some_secret = 'my-secret-api-key'
+    post(
+      '/doesnt/matter',
+      params: "{ \"secretkey\": \"#{some_secret}\" }",
+      as: :json
+    )
+    expect(secret_logged?(some_secret)).to be false
   end
 end

@@ -1,9 +1,15 @@
-#!/bin/bash -e
-# shellcheck disable=SC1091
+#!/usr/bin/env bash
+
+# TODO: This script is need of a full cleanup.  Issue captured here:
+#   https://github.com/cyberark/conjur/issues/1471
+
+# TODO: Currently adding the -u and -o pipefail options breaks
+# this script.  We should fix these errors and turn them on.
+set -e
 
 export REPORT_ROOT=/src/conjur-server
-# Setup to allow compose to run in an isolated namespace
-: ${COMPOSE_PROJECT_NAME="$(openssl rand -hex 3)"}
+# Create default value if not set: allows compose to run in isolated namespace
+: "${COMPOSE_PROJECT_NAME:="$(openssl rand -hex 3)"}"
 export COMPOSE_PROJECT_NAME
 
 ### Subcommands
@@ -30,41 +36,54 @@ all() {
   done
 }
 
-cucumber_authenticators() {
-  : DOC - Runs Cucumber Authenticator features
+cucumber_authenticators_config() {
+  : DOC - Runs Cucumber Authenticator configuration features
 
-  _prepare_env_auth_oidc
+  _run_cucumber_tests authenticators_config
+}
 
-  local vars="
-    KEYCLOAK_USER
-    KEYCLOAK_PASSWORD
-    KEYCLOAK_APP_USER
-    KEYCLOAK_APP_USER_PASSWORD
-    KEYCLOAK_APP_USER_EMAIL
-    KEYCLOAK_SECOND_APP_USER
-    KEYCLOAK_SECOND_APP_USER_PASSWORD
-    KEYCLOAK_SECOND_APP_USER_EMAIL
-    KEYCLOAK_NON_CONJUR_APP_USER
-    KEYCLOAK_NON_CONJUR_APP_USER_PASSWORD
-    KEYCLOAK_NON_CONJUR_APP_USER_EMAIL
-    CLIENT_ID
-    REDIRECT_URI
-    CLIENT_SECRET
-    SCOPE
-  "
+cucumber_authenticators_status() {
+  : DOC - Runs Cucumber Authenticator status features
 
-  # for each of $vars, exec into oid-keycloak and get the value of the
-  # variable. Collect all the variables in $cucumber_env_args
-  local cucumber_env_args=''
-  for v in $vars; do
-    cucumber_env_args="$cucumber_env_args -e $v=$(set -o pipefail; docker-compose exec -T oidc-keycloak printenv $v | tr -d '\r')"
-  done
-  cucumber_env_args="$cucumber_env_args -e PROVIDER_URI=https://keycloak:8443/auth/realms/master"
-  cucumber_env_args="$cucumber_env_args -e PROVIDER_INTERNAL_URI=http://keycloak:8080/auth/realms/master/protocol/openid-connect"
-  cucumber_env_args="$cucumber_env_args -e ID_TOKEN_USER_PROPERTY=preferred_username"
+  _run_cucumber_tests authenticators_status
+}
+
+cucumber_authenticators_ldap() {
+  : DOC - Runs Cucumber LDAP Authenticator features
 
   _prepare_env_auth_ldap
-  _run_cucumber_tests authenticators 'oidc-keycloak ldap-server' "$cucumber_env_args"
+  _run_cucumber_tests authenticators_ldap 'ldap-server'
+}
+
+cucumber_authenticators_azure() {
+  : DOC - Runs Cucumber Azure Authenticator features
+
+  ./authn-azure/check_dependencies.sh
+
+  _run_cucumber_tests authenticators_azure "" "$(_get_azure_env_args)"
+}
+
+cucumber_authenticators_gcp() {
+  : DOC - Runs Cucumber GCP Authenticator features
+
+  # Validate that token files are available
+    gcp_token_file="authn-gcp/tokens/gce_token_valid"
+    if ! [ -f "$gcp_token_file" ]; then
+      echo "GCP token file ''$gcp_token_file' not found."
+      exit 1
+    fi
+
+  _run_cucumber_tests authenticators_gcp "" "$(_get_gcp_env_args)"
+}
+
+cucumber_authenticators_oidc() {
+  : DOC - Runs Cucumber OIDC Authenticator features
+
+  # We also run an ldap-server container for testing the OIDC & LDAP combined use-case.
+  # Note: We can't run the above use-case in a separate Jenkins step because we'll have a port bind for keycloak
+  _prepare_env_auth_ldap
+  _prepare_env_auth_oidc
+  _run_cucumber_tests authenticators_oidc 'ldap-server oidc-keycloak' "$(_get_oidc_env_args)"
 }
 
 cucumber_api() {
@@ -170,13 +189,51 @@ _build_conjur() (
   cd "${testdir}/.."
   
   # Create Conjur Image
-  ./build.sh -j >&2
+  ./build.sh --jenkins >&2
   # Grab the build tag so we launch the correct version of Conjur
   . version_utils.sh
   version_tag
 )
 
+# TODO: Possibly move this into bash-lib: will be useful elsewhere
+
+# NOTE: See linked to issue at top of file.  This code in particular is can be
+#   simplified, and we need to figure out if we want it to run by default.
+docker_diagnostics() {
+  local testSet="${1}"
+  # Read the running containers names into an array.
+  #
+  # Note on bash trickiness: The backslash is required in \$NF because we want
+  # $NF to be passed literally to awk -- so awk can interpret it -- whereas we
+  # want the shell to interpret and expand ${COMPOSE_PROJECT_NAME}, so awk sees
+  # its _value_ in the regex.
+  #
+  # Docker Note: container name is always the last field.  Hence $NF gets it.
+  local cont_names
+  readarray -t cont_names < <(docker ps --all | \
+    awk "/${COMPOSE_PROJECT_NAME}/{print \$NF}")
+
+  # Store container logs for archiving
+  echo "Writing Container logs to container_logs/<testset>/container[-inspect].log"
+  container_log_dir="$(git rev-parse --show-toplevel)/container_logs/${testSet}"
+  mkdir -p "${container_log_dir}"
+  for name in "${cont_names[@]}"; do
+    docker inspect "$name" > "${container_log_dir}/${name}-inspect.log"
+    docker logs "$name" > "${container_log_dir}/${name}.log"
+
+    # For the conjur container, we want the development.log too
+    if [[ "$name" =~ conjur ]]; then
+      docker cp "$name:/opt/conjur-server/log/development.log" \
+        "${container_log_dir}/development.log"
+    fi
+  done
+}
+
 _finish() {
+  local testSet="${1}"
+  docker_diagnostics "${testSet}"
+  # Give SimpleCov time to generate reports.
+  sleep 15
   docker-compose down --rmi 'local' --volumes || true
 }
 
@@ -185,12 +242,64 @@ _find_cucumber_network() {
   docker network inspect $net --format '{{range .IPAM.Config}}{{.Subnet}}{{end}}'
 }
 
-_keycloak_isready?() {
+_get_oidc_env_args() {
+  local oidc_env_args=''
+  oidc_env_args="$(set -o pipefail; docker-compose exec -T oidc-keycloak printenv | grep KEYCLOAK | sed 's/.*/-e &/') \
+                 -e PROVIDER_URI=https://keycloak:8443/auth/realms/master \
+                 -e PROVIDER_INTERNAL_URI=http://keycloak:8080/auth/realms/master/protocol/openid-connect \
+                 -e ID_TOKEN_USER_PROPERTY=preferred_username"
+
+  echo "${oidc_env_args}"
+}
+
+_get_azure_env_args() {
+  local azure_env_args="-e AZURE_TENANT_ID=$AZURE_TENANT_ID \
+                        -e AZURE_SUBSCRIPTION_ID=$AZURE_SUBSCRIPTION_ID \
+                        -e AZURE_RESOURCE_GROUP=$AZURE_RESOURCE_GROUP \
+                        -e AZURE_AUTHN_INSTANCE_IP=$AZURE_AUTHN_INSTANCE_IP \
+                        -e AZURE_AUTHN_INSTANCE_USERNAME=$AZURE_AUTHN_INSTANCE_USERNAME \
+                        -e AZURE_AUTHN_INSTANCE_PASSWORD=$AZURE_AUTHN_INSTANCE_PASSWORD \
+                        -e USER_ASSIGNED_IDENTITY=$USER_ASSIGNED_IDENTITY \
+                        -e USER_ASSIGNED_IDENTITY_CLIENT_ID=$USER_ASSIGNED_IDENTITY_CLIENT_ID \
+                        -e SYSTEM_ASSIGNED_IDENTITY=$SYSTEM_ASSIGNED_IDENTITY"
+
+  echo "${azure_env_args}"
+}
+
+_get_gcp_env_args() {
+  decoded_gcp_token_payload=$(_get_gcp_token_payload "$gcp_token_file")
+
+  GCP_PROJECT_ID="$(echo "$decoded_gcp_token_payload" | jq -r '.google.compute_engine.project_id')"
+  GCP_INSTANCE_NAME="$(echo "$decoded_gcp_token_payload" | jq -r '.google.compute_engine.instance_name')"
+  GCP_SERVICE_ACCOUNT_ID="$(echo "$decoded_gcp_token_payload" | jq -r '.sub')"
+  GCP_SERVICE_ACCOUNT_EMAIL="$(echo "$decoded_gcp_token_payload" | jq -r '.email')"
+
+  local gcp_env_args="-e GCP_INSTANCE_NAME=$GCP_INSTANCE_NAME \
+                      -e GCP_SERVICE_ACCOUNT_ID=$GCP_SERVICE_ACCOUNT_ID \
+                      -e GCP_SERVICE_ACCOUNT_EMAIL=$GCP_SERVICE_ACCOUNT_EMAIL \
+                      -e GCP_PROJECT_ID=$GCP_PROJECT_ID"
+
+  echo "${gcp_env_args}"
+}
+
+_get_gcp_token_payload() {
+  local gcp_token_file="$1"
+
+  # read token and set env vars
+  gcp_token=$(cat "$gcp_token_file")
+
+  source jwt/decode_token.sh
+
+  decoded_gcp_token_payload=$(decode_jwt_payload "$gcp_token")
+
+  echo "$decoded_gcp_token_payload"
+}
+
+_wait_for_keycloak() {
   for i in {1..20}
   do
    sleep=10
    echo "keycloak starting logs:"
-   echo "$(docker-compose logs oidc-keycloak)"
    output=$(docker-compose logs oidc-keycloak | grep "started" | wc -l)
    if [ $output -ne 0 ]; then
         echo "Keycloak server is up and ready"
@@ -205,18 +314,18 @@ _keycloak_isready?() {
 }
 
 _main() {
-  local testdir="$1"; shift
-  
+  local testdir="${1}"; shift
+  local testSet="${1}"
+
   # If there are no arguments, show help
   if [[ "${#@}" -eq 0 || "$1" == 'help' ]]; then
     help
     exit 1
   fi
-
-  [[ -z "$KEEP_CONTAINERS" ]] && trap _finish EXIT
+  # shellcheck disable=SC2064
+  [[ -z "$KEEP_CONTAINERS" ]] && trap "_finish ${testSet}" EXIT
 
   export TAG=$(_build_conjur "$testdir")
-  
   cd "${testdir}"
   "$@"
 }
@@ -240,39 +349,24 @@ _prepare_env_auth_oidc() {
   docker-compose up --no-deps -d pg conjur oidc-keycloak
 
   # Check if keycloak is up
-  _keycloak_isready?
-
-  echo "Extracting keycloak parameters"
-  KEYCLOAK_APP_USER="$(set -o pipefail; docker-compose exec -T oidc-keycloak printenv KEYCLOAK_APP_USER | tr -d '\r')"
-  KEYCLOAK_APP_USER_PASSWORD="$(set -o pipefail; docker-compose exec -T oidc-keycloak printenv KEYCLOAK_APP_USER_PASSWORD | tr -d '\r')"
-  KEYCLOAK_APP_USER_EMAIL="$(set -o pipefail; docker-compose exec -T oidc-keycloak printenv KEYCLOAK_APP_USER_EMAIL | tr -d '\r')"
-
-  KEYCLOAK_SECOND_APP_USER="$(set -o pipefail; docker-compose exec -T oidc-keycloak printenv KEYCLOAK_SECOND_APP_USER | tr -d '\r')"
-  KEYCLOAK_SECOND_APP_USER_PASSWORD="$(set -o pipefail; docker-compose exec -T oidc-keycloak printenv KEYCLOAK_SECOND_APP_USER_PASSWORD | tr -d '\r')"
-  KEYCLOAK_SECOND_APP_USER_EMAIL="$(set -o pipefail; docker-compose exec -T oidc-keycloak printenv KEYCLOAK_SECOND_APP_USER_EMAIL | tr -d '\r')"
-
-  KEYCLOAK_NON_CONJUR_APP_USER="$(set -o pipefail; docker-compose exec -T oidc-keycloak printenv KEYCLOAK_NON_CONJUR_APP_USER | tr -d '\r')"
-  KEYCLOAK_NON_CONJUR_APP_USER_PASSWORD="$(set -o pipefail; docker-compose exec -T oidc-keycloak printenv KEYCLOAK_NON_CONJUR_APP_USER_PASSWORD | tr -d '\r')"
-  KEYCLOAK_NON_CONJUR_APP_USER_EMAIL="$(set -o pipefail; docker-compose exec -T oidc-keycloak printenv KEYCLOAK_NON_CONJUR_APP_USER_EMAIL | tr -d '\r')"
+  _wait_for_keycloak
 
   # Define oidc-keycloak client
   echo "Defining oidc-keycloak client"
   docker-compose exec -T oidc-keycloak /scripts/create_client
 
   echo "Creating user 'alice' in Keycloak"
-  docker-compose exec -T oidc-keycloak /scripts/create_user $KEYCLOAK_APP_USER $KEYCLOAK_APP_USER_PASSWORD $KEYCLOAK_APP_USER_EMAIL
+  docker-compose exec -T oidc-keycloak bash -c '/scripts/create_user "$KEYCLOAK_APP_USER" "$KEYCLOAK_APP_USER_PASSWORD" "$KEYCLOAK_APP_USER_EMAIL"'
 
   echo "Creating second user 'bob' in Keycloak"
-  docker-compose exec -T oidc-keycloak /scripts/create_user $KEYCLOAK_SECOND_APP_USER $KEYCLOAK_SECOND_APP_USER_PASSWORD $KEYCLOAK_SECOND_APP_USER_EMAIL
+  docker-compose exec -T oidc-keycloak bash -c '/scripts/create_user "$KEYCLOAK_SECOND_APP_USER" "$KEYCLOAK_SECOND_APP_USER_PASSWORD" "$KEYCLOAK_SECOND_APP_USER_EMAIL"'
 
   echo "Creating user in Keycloak that will not exist in conjur"
-  docker-compose exec -T oidc-keycloak /scripts/create_user $KEYCLOAK_NON_CONJUR_APP_USER $KEYCLOAK_NON_CONJUR_APP_USER_PASSWORD $KEYCLOAK_NON_CONJUR_APP_USER_EMAIL
+  docker-compose exec -T oidc-keycloak bash -c '/scripts/create_user "$KEYCLOAK_NON_CONJUR_APP_USER" "$KEYCLOAK_NON_CONJUR_APP_USER_PASSWORD" "$KEYCLOAK_NON_CONJUR_APP_USER_EMAIL"'
 
   echo "Initialize keycloak certificate in conjur server"
   docker-compose exec -T conjur /authn-oidc/keycloak/scripts/fetchCertificate
 }
-
-
 
 # Setup and run Cucumber tests, first starting any other services required
 # args: <profile name> <extra services>
@@ -289,7 +383,6 @@ _setup_for_cucumber() {
   # Make sure all the services are up
   docker-compose up --no-deps --no-recreate -d pg conjur $services
 
-  
   docker-compose exec -T conjur conjurctl wait
   docker-compose exec -T conjur conjurctl account create cucumber
 }
@@ -306,7 +399,7 @@ _run_cucumber() {
   # If there's no tty (e.g. we're running as a Jenkins job, pass -T to
   # docker-compose)
   local notty=$(tty -s || echo '-T' && true)
-  
+
   docker-compose run --no-deps $notty --rm $cucumber_env_args \
      -e CONJUR_AUTHN_API_KEY=$api_key \
      -e CUCUMBER_NETWORK=$(_find_cucumber_network) \
@@ -314,24 +407,33 @@ _run_cucumber() {
 }
 
 _run_cucumber_tests() {
-  local profile="$1"; shift
-  if [[ ! -z "$1" ]]; then
-    local services="$1"; shift
+  local profile="$1"
+  if [[ ! -z "$2" ]]; then
+    local services="$2"
   fi
-  if [[ ! -z "$1" ]]; then
-    local cucumber_env_args="$1"; shift
+  if [[ ! -z "$3" ]]; then
+    local cucumber_env_args="$3"
   fi
-  
+
   _setup_for_cucumber "$services"
   
   # Grab the admin user API key
   local api_key=$(_get_api_key)
-  
+
   # Run the tests
   _run_cucumber "$cucumber_env_args" \
-     "bundle exec cucumber -p $profile --format junit --out cucumber/$profile/features/reports"
+     "bundle exec cucumber \
+     --strict \
+     -p $profile \
+     --format json --out cucumber/$profile/cucumber_results.json \
+     --format html --out cucumber/$profile/cucumber_results.html \
+     --format junit --out cucumber/$profile/features/reports"
 
-  docker-compose down --rmi 'local' --volumes
+  # Simplecov writes its report using an at_exit ruby hook. If the container
+  # is killed before ruby, the report doesn't get written. So here we
+  # kill the process to write the report. The container is kept alive
+  # using an infinite sleep in the at_exit hook (see .simplecov).
+  docker-compose exec -T conjur bash -c "pkill -f 'puma 3'"
 }
 
 _run_cucumber_shell() {
@@ -369,6 +471,5 @@ _wait_for_pg() {
 
   until docker-compose exec -T $svc psql -U postgres -c "select 1" -d postgres; do sleep 1; done
 }
-
 
 _main "$(dirname $0)" "$@"

@@ -54,6 +54,7 @@ Feature: Rules which govern the visibility of resources to roles.
 
     When I login as "bob"
     And I successfully GET "/resources/cucumber"
+    Then the HTTP response content type is "application/json"
 
     Then the resource list should include the newest resource
 

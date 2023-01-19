@@ -21,7 +21,13 @@ module AuthorizeResource
 
   def auth(user, privilege, resource)
     unless user.allowed_to?(privilege, resource)
-      logger.info "Current user '#{user.role_id}' is not permitted to '#{privilege}' resource '#{resource.resource_id}'"
+      logger.info(
+        Errors::Authentication::Security::RoleNotAuthorizedOnResource.new(
+          user.role_id,
+          privilege,
+          resource.resource_id
+        )
+      )
       raise ApplicationController::Forbidden
     end
   end

@@ -1,0 +1,311 @@
+// ***********************
+// Top Nav
+// ***********************
+
+#top-navigation {
+  background-color: $cybr-dkblue;
+  margin-bottom: 0px;
+  border-radius: 0px;
+  border: 0px;
+
+  .navbar-header {
+    a.navbar-brand {
+      color: #ffffff;
+      font-size: 2rem;
+      margin: 24px 0 0 0;
+      margin-right: 35px;
+      display: inline-block;
+      width: 220px;
+      background: url($baseurl + "/img/Conjur_4C_KO.svg") no-repeat top left;
+      padding: 0px;
+    }
+  }
+
+  .nav.navbar-nav {
+    margin: 15px 0;
+    float: right;
+  }
+
+  #top-search {
+    margin: 15px 0;
+    padding: 8px 0;
+  }
+
+  .nav-item.dropdown,
+  .nav-item.dropdown li.submenu {
+    &:hover {
+      > ul.dropdown-menu {
+        display: block;
+        background-color: darken($cybr-dkblue,04);
+        color: #ffffff;
+
+        li {
+          display: block;
+          margin: 3px 0;
+          transition: all 0.4s;
+
+          a {
+            color: rgba(255, 255, 255, 0.90);
+            font-weight: 400;
+            padding: 10px 35px 10px 20px;
+            font-size: 14px;
+
+            &:hover {
+              background-color: darken($cybr-dkblue,04);
+              color: $cybr-ltblue;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .nav-item.dropdown li.submenu {
+    position: relative;
+
+    &:after {
+      content: "\f0da";
+      font-family: 'FontAwesome'; 
+      position: absolute;
+      right: 10px;
+      top: 7px;
+    }
+
+    &:hover > a  {
+      color: $cybr-ltblue !important;
+    }
+
+    > ul.dropdown-menu {
+      position: absolute;
+      left: 99%;
+      top: -11px;
+    }
+
+    > a {
+      padding-right: 30px;
+    }
+  }
+
+}
+
+@media (min-width: 1200px) {
+  /* Bootstrap Overrides */
+  .navbar-default .navbar-nav > .active > a,
+  .navbar-default .navbar-nav > .active > a:hover,
+  .navbar-default .navbar-nav > .active > a:focus {
+    background-color: darken($cybr-dkblue,04);
+    color: $cybr-ltblue;
+  }
+
+  .navbar-default .navbar-nav > li > a,
+  .navbar-default .navbar-nav > li > a:hover,
+  .navbar-default .navbar-nav > li > a:focus {
+  	color: rgba(255, 255, 255, 0.90);
+    letter-spacing: .3px;
+    font-weight: 400;
+    font-size: 14px;
+  }
+
+  .navbar-default .navbar-nav > li:hover > a,
+  .navbar-default .navbar-nav > li > a:hover,
+  .navbar-default .navbar-nav > li > a:focus {
+    background-color: darken($cybr-dkblue,04);
+  }
+
+  .container > .navbar-header,
+  .container > .navbar-collapse,
+  .container-fluid > .navbar-header,
+  .container-fluid > .navbar-collapse {
+    margin-right: -15px;
+  }
+
+  .container {
+    padding-left: 0px;
+    padding-right: 0px;
+  }
+
+}
+
+/* collapse hamburger menu */
+@media (max-width: 1200px) {
+  #top-navigation {
+    .navbar-toggle {
+      margin-top: 1.8em;
+      margin-bottom: 1.8em;
+      border: none;
+      &:hover {
+        background-color: transparent;
+      }
+      &:focus {
+        background-color: transparent;
+      }
+      .icon-bar {
+        background-color: lighten($cybr-blue,08);
+      }
+    }
+
+    .nav.navbar-nav {
+      float: none;
+    }
+
+    .navbar-nav {
+      > li {
+        margin-bottom: 5px;
+        > a {
+          background-color: rgba(0,0,0,0.15);
+          color: #ffffff;
+        }
+      }
+    }
+
+    .navbar-header {
+      a.navbar-brand {
+        color: #ffffff;
+        font-size: 2rem;
+        margin: 24px 0 0 33px;
+        margin-right: 35px;
+        display: inline-block;
+        width: 220px;
+        margin-top: 1em;
+        background: url($baseurl + "/img/Conjur_4C_KO.svg") no-repeat top left;
+        padding: 0px;
+      }
+    }
+
+    .nav-item.dropdown:hover > ul.dropdown-menu li.active a,
+    .nav-item.dropdown:hover > ul.dropdown-menu li a.active {
+      color: $cybr-ltblue;
+    }
+
+    .dropdown-menu {
+      display: none; //block;
+      position: static;
+      float: none;
+      background-color: transparent;
+      border-radius: 0px;
+      box-shadow: none;
+      font-weight: 400;
+      line-height: 20px;
+
+      li {
+        &.active a,
+        &.active a:hover {
+          color: $cybr-ltblue;
+          line-height: 20px;
+        }
+        a {
+          background-color: transparent;
+          color: #ffffff;
+          font-weight: 300;
+          line-height: 20px;
+
+          &.dropdown-header {
+            font-size: inherit;
+            &::after {
+              border-bottom: #5a5a5a;
+            }
+          }
+
+          &.active,
+          &.active:hover {
+            color: $cybr-ltblue;
+            line-height: 20px;
+          }
+        }
+      }
+    }
+
+    .nav-item.dropdown li.submenu {
+      > ul.dropdown-menu {
+        display: block;
+        position: static;
+        float: none;
+        background-color: transparent;
+        border-radius: 0px;
+        box-shadow: none;
+        font-weight: 300;
+        border: none;
+        margin-left: 25px;
+      }
+
+      &:after {
+        content: "";
+        position: static;
+      }
+
+    }
+
+  }
+}
+
+// ***********************
+// Sidebar
+// ***********************
+
+.sidebar.page {
+    padding-right: 35px;
+}
+
+ul.sidebar-nav {
+  li {
+    margin-bottom: 4px;
+    padding: 2px 4px;
+    border-radius: 3px;
+    transition: all 0.4s;
+
+    &:hover {
+      background-color: $conjur-softgray;
+    }
+
+    &.section a {
+      font-weight: bold;
+      color: $conjur-text;
+    }
+
+    a {
+      color: darken($conjur-medgray,10);
+
+      &:hover {
+        text-decoration: none;
+      }
+    }
+
+    &.sub-item {
+      margin-left: 10px;
+      font-size: 95%;
+      padding: 2px 4px;
+      border-radius: 3px;
+
+      &:hover {
+        background-color: $conjur-softgray;
+      }
+
+      &:before {
+        content: "\f105";
+        font-family: 'FontAwesome';
+        margin-right: 5px;
+        font-size: 95%;
+        color: lighten($conjur-medgray,20); //$bs-ltgray;
+      }
+    }
+  }
+
+  &:last-of-type li a {
+    color: $conjur-text;
+    font-weight: 400;
+  }
+
+  .coming-soon {
+    font-weight: 400;
+    span {
+      font-weight: 300;
+      font-style:italic;
+    }
+  }
+}
+
+svg.nav-icon {
+    font-size: 20px;
+    margin-right: 5px;
+    width: 25px !important;
+}

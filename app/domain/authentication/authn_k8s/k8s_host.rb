@@ -1,10 +1,9 @@
 # Represents a K8s host, typically created from a CSR or a Cert.
 #
 # This is not to be confused with Conjur model host.  It exists purely to
-# encapsulate logic about how to translate K8s host info into a Conjur host id,
-# and how to break a K8s host into its component parts: namespace, controller,
-# object
+# encapsulate logic about how to translate K8s host info into a Conjur host id.
 #
+
 require 'forwardable'
 
 # NOTE: these are here for when we gemify this
@@ -14,25 +13,32 @@ require 'forwardable'
 
 module Authentication
   module AuthnK8s
+
     class K8sHost
       extend Forwardable
 
       attr_reader :account, :service_name, :csr
 
-      def_delegators :@common_name, :namespace, :controller, :object,
-        :k8s_host_name
-
       def self.from_csr(account:, service_name:, csr:)
-        cn = Util::OpenSsl::X509::SmartCsr.new(csr).common_name
-        raise ArgumentError, 'CSR must have a CN entry' unless cn
-
+        cn = csr.common_name
+        unless cn
+          raise Errors::Authentication::AuthnK8s::CSRMissingCNEntry.new(
+            csr.subject_to_s,
+            csr.spiffe_id.to_s
+          )
+        end
         new(account: account, service_name: service_name, common_name: cn)
       end
 
       def self.from_cert(account:, service_name:, cert:)
-        cn = Util::OpenSsl::X509::SmartCert.new(cert).common_name
-        raise ArgumentError, 'Certificate must have a CN entry' unless cn
-
+        smart_cert = ::Util::OpenSsl::X509::SmartCert.new(cert)
+        cn = smart_cert.common_name
+        unless cn
+          raise Errors::Authentication::AuthnK8s::CertMissingCNEntry.new(
+            smart_cert.smart_subject.to_s,
+            smart_cert.san.to_s
+          )
+        end
         new(account: account, service_name: service_name, common_name: cn)
       end
 
@@ -43,33 +49,16 @@ module Authentication
       end
 
       def conjur_host_id
-        host_id_prefix + '/' + host_name
+        host_id = "#{@account}:" + @common_name.k8s_host_name.sub('host/', 'host:')
+        Rails.logger.debug(
+          LogMessages::Authentication::AuthnK8s::HostIdFromCommonName.new(host_id)
+        )
+        host_id
       end
 
-      def host_name
+      def k8s_host_name
         @common_name.k8s_host_name
       end
-
-      def namespace_scoped?
-        controller == '*' && object == '*'
-      end
-
-      def permitted_scope?
-        permitted_controllers.include?(controller)
-      end
-
-      private
-
-      def permitted_controllers
-        @permitted_controllers ||= %w(
-          pod service_account deployment stateful_set deployment_config
-        )
-      end
-
-      def host_id_prefix
-        "#{@account}:host:conjur/authn-k8s/#{@service_name}/apps"
-      end
-
     end
   end
 end

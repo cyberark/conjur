@@ -2,7 +2,7 @@ Feature: Policies can be organized into hierarchies with specific update permiss
 
   Scenario: Define a root policy with sub-policies
   
-    Given a policy:
+    Given I load a policy:
     """
     - !policy
       id: teams

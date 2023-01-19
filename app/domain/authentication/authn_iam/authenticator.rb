@@ -6,16 +6,12 @@ module Authentication
   module AuthnIam
     class Authenticator
 
-      Err = Errors::Authentication::AuthnIam
-      # Possible Errors Raised:
-      # InvalidAWSHeaders
-
       def initialize(env:)
         @env = env
       end
 
       def valid?(input)
-        signed_aws_headers = JSON.parse input.password # input.password is JSON holding the AWS signed headers
+        signed_aws_headers = JSON.parse input.credentials # input.credentials is JSON holding the AWS signed headers
 
         response_hash = identity_hash(response_from_signed_request(signed_aws_headers))
         trusted = response_hash != false
@@ -24,12 +20,20 @@ module Authentication
       end
 
       def identity_hash(response)
-        Rails.logger.debug("AWS IAM get_caller_identity body\n#{response.body} ")
+        Rails.logger.debug(
+          LogMessages::Authentication::AuthnIam::GetCallerIdentityBody.new(
+            response.body
+          )
+        )
 
         if response.code < 300
           Hash.from_xml(response.body)
         else
-          Rails.logger.error("Verification of IAM identity failed with HTTP code: #{response.code}")
+          Rails.logger.error(
+            Errors::Authentication::AuthnIam::IdentityVerificationErrorCode.new(
+              response.code
+            )
+          )
           false
         end
       end
@@ -44,7 +48,12 @@ module Authentication
         aws_user_id = response_hash["GetCallerIdentityResponse"]["GetCallerIdentityResult"]["UserId"]
         host_to_match = "#{host_prefix}/#{aws_account_id}/#{aws_role_name}"
 
-        Rails.logger.debug("IAM Role authentication attempt by AWS user #{aws_user_id} with host to match = #{host_to_match}")
+        Rails.logger.debug(
+          LogMessages::Authentication::AuthnIam::AttemptToMatchHost.new(
+            aws_user_id,
+            host_to_match
+          )
+        )
 
         login.eql? host_to_match
       end
@@ -54,12 +63,12 @@ module Authentication
       end
 
       def response_from_signed_request(aws_headers)
-        Rails.logger.debug("Retrieving IAM identity")
+        Rails.logger.debug(LogMessages::Authentication::AuthnIam::RetrieveIamIdentity.new)
         begin
           RestClient.get(aws_signed_url, headers = aws_headers)
         rescue RestClient::ExceptionWithResponse => e
-          Rails.logger.error("Verification of IAM identity Exception #{e.to_s}")
-          raise Err::InvalidAWSHeaders, e.to_s
+          Rails.logger.error(Errors::Authentication::AuthnIam::VerificationError.new(e.to_s))
+          raise Errors::Authentication::AuthnIam::InvalidAWSHeaders, e.to_s
         end
       end
     end

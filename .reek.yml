@@ -311,6 +311,7 @@ detectors:
     exclude:
     - initialize
     - RootLoader#load
+    - RootLoader#policy_version
     - PossumWorld#authn_local_request
     - PossumWorld#create_user
     - PossumWorld#denormalize
@@ -374,7 +375,7 @@ detectors:
     - HostBuilder#create
     - HostBuilder#find_and_rotate
     - Loader::Orchestrate#create_schema
-    - Loader::Orchestrate#load
+    - Loader::Orchestrate#store_policy_in_db
     - Loader::Orchestrate#load_records
     - Loader::Handlers::Password#store_passwords
     - Loader::Orchestrate#table_data
@@ -467,6 +468,8 @@ detectors:
     - conjur_api
     - RestHelpers
     - CAHelpers
+    - PoliciesController#create_roles
+    - PoliciesController#actor_roles
 
   LongParameterList:
     exclude:

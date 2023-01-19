@@ -22,6 +22,12 @@ class ApplicationController < ActionController::API
   class BadRequest < RuntimeError
   end
 
+  class InternalServerError < RuntimeError
+  end
+
+  class ServiceUnavailable < RuntimeError
+  end
+
   class Forbidden < Exceptions::Forbidden
     def message
       'Forbidden'
@@ -39,6 +45,8 @@ class ApplicationController < ActionController::API
   rescue_from Exceptions::Forbidden, with: :forbidden
   rescue_from BadRequest, with: :bad_request
   rescue_from Unauthorized, with: :unauthorized
+  rescue_from InternalServerError, with: :internal_server_error
+  rescue_from ServiceUnavailable, with: :service_unavailable
   rescue_from GatewayTimeout, with: :gateway_timeout
   rescue_from BadGateway, with: :bad_gateway
   rescue_from Exceptions::NotImplemented, with: :not_implemented
@@ -51,6 +59,12 @@ class ApplicationController < ActionController::API
   rescue_from ActionController::ParameterMissing, with: :argument_error
 
   around_action :run_with_transaction
+
+  # sets the default content type header on incoming requests that match the
+  # path_match regex
+  def self.set_default_content_type_for_path(path_match, content_type)
+    ::Rack::DefaultContentType.content_type_by_path[path_match] = content_type
+  end
 
   private
 
@@ -163,6 +177,7 @@ class ApplicationController < ActionController::API
 
   def argument_error e
     logger.debug "#{e}\n#{e.backtrace.join "\n"}"
+
     render json: {
       error: {
         code: error_code_of_exception_class(e.class),
@@ -209,6 +224,16 @@ class ApplicationController < ActionController::API
     else
       head :unauthorized
     end
+  end
+
+  def internal_server_error e
+    logger.debug "#{e}\n#{e.backtrace.join "\n"}"
+    head :internal_server_error
+  end
+
+  def service_unavailable e
+    logger.debug "#{e}\n#{e.backtrace.join "\n"}"
+    head :service_unavailable
   end
 
   def gateway_timeout e

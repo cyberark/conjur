@@ -27,9 +27,9 @@ describe Schemata do
       specify { expect(schemata.primary_schema).to eq(:public) }
     end
   end
-  describe "with search path possum_%rand, publc" do
+  describe "with search path conjur_%rand, publc" do
     let(:rand) { SecureRandom.hex(5) }
-    let(:search_path) { [ "possum_#{rand}", "public" ] }
+    let(:search_path) { [ "conjur_#{rand}", "public" ] }
     before do
       db["CREATE SCHEMA #{search_path.first}"].update
     end

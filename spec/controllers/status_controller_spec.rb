@@ -19,7 +19,9 @@ describe StatusController, :type => :controller do
 
       it 'includes the version' do
         get :index
-        expect(response.body).to include("Version #{ENV["POSSUM_VERSION_APPLIANCE"]}")
+        expect(response.body).to include(
+          "Version #{ENV["CONJUR_VERSION_DISPLAY"]}".strip
+        )
       end
     end
   end

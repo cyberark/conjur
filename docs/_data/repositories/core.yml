@@ -1,0 +1,36 @@
+section:
+  description: These are the primary repositories for Conjur Core and its SDK.
+  categories:
+  - name: Conjur Server
+    description: Conjur Core and Deployment Tools.
+    repos:
+      - name: cyberark/conjur
+        url: https://github.com/cyberark/conjur
+        description: Conjur Core web service. Conjur comes built-in with custom authenticators
+          for Kubernetes, OpenShift, AWS IAM, OIDC, and more.
+        thumb: CyberArk_Conjur_logo.svg
+        #image-alt:
+      - name: cyberark/conjur-oss-helm-chart
+        url: https://github.com/cyberark/conjur-oss-helm-chart
+        description: Helm chart for deploying the Conjur server.
+  - name: Conjur SDK
+    description: Conjur Command Line Interface (CLI) and Client Libraries.
+    repos:
+      - name: cyberark/conjur-cli
+        url: https://github.com/cyberark/conjur-cli
+        description: Conjur Ruby CLI.
+      - name: cyberark/conjur-api-dotnet
+        url: https://github.com/cyberark/conjur-api-dotnet
+        description: Conjur .Net Client Library.
+      - name: cyberark/conjur-api-go
+        url: https://github.com/cyberark/conjur-api-go
+        description: Conjur Golang Client Library.
+      - name: cyberark/conjur-api-java
+        url: https://github.com/cyberark/conjur-api-java
+        description: Conjur Java Client Library.
+      - name: cyberark/conjur-api-python3
+        url: https://github.com/cyberark/conjur-api-python3
+        description: Conjur Python Client Library.
+      - name: cyberark/conjur-api-ruby
+        url: https://github.com/cyberark/conjur-api-ruby
+        description: Conjur Ruby Client Library.

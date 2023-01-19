@@ -16,7 +16,7 @@ namespace :"account" do
     begin
       api_key = Account.create args[:account]
       account = Account.new args[:account]
-      $stderr.puts "Created new account account '#{account.id}'"
+      $stderr.puts "Created new account '#{account.id}'"
       puts "Token-Signing Public Key: #{account.token_key.to_s}"
       puts "API key for admin: #{api_key}"
     rescue Exceptions::RecordExists

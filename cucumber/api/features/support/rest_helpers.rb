@@ -4,8 +4,6 @@
 #
 module RestHelpers
 
-  USER_NAMES = %w[auto-larry auto-mike auto-norbert auto-otto].freeze
-
   def headers
     @headers ||= {}
   end
@@ -45,9 +43,32 @@ module RestHelpers
     set_result result
   end
 
-  def get_json path, options = {}
+  def get_json(path, options = {})
     path = denormalize(path)
     result = rest_resource(options)[path].get
+    set_result result
+  end
+
+  # TODO: Add proper fix for this with real refactor of test code
+  #
+  # NOTE: The way this works is tricky.  We are relying on a behavior of
+  # RestClient, which will automatically add a Basic Auth header to your
+  # request, if you've set the user and password fields on its Request object:
+  #
+  # See: https://github.com/rest-client/rest-client/blob/f450a0f086f1cd1049abbef2a2c66166a1a9ba71/spec/unit/request_spec.rb#L442
+  #
+  # However, it will only do this IF the request does not already have its
+  # Authorization header set.  Because we wish to use this behavior to construct
+  # our Basic Auth header, we explicitly delete the ":authorization" header.
+  # Our own "rest_resource" method ensures that "user" and "password" are set
+  # on the request.
+  #
+  def get_json_with_basic_auth(path, options = {})
+    path = denormalize(path)
+    resource = rest_resource(options)[path]
+    # TODO: Add proper fix for this with real refactor of test code
+    resource.options[:headers].delete(:authorization)
+    result = resource.get
     set_result result
   end
 
@@ -77,7 +98,8 @@ module RestHelpers
 
   def set_result result
     @response_api_key = nil
-    @status = result.code
+    @http_status = result.code
+
     @content_type = result.headers[:content_type]
     if /^application\/json/.match?(@content_type)
       @result = JSON.parse(result)
@@ -123,6 +145,13 @@ module RestHelpers
     end
   end
 
+  def authn_request(url:, api_key:, encoding:, can:)
+    headers["Accept-Encoding"] = encoding
+    try_request can do
+      post_json(url, api_key)
+    end
+  end
+
   def authn_params
     raise 'No selected user' unless @selected_user
     @authn_params = {
@@ -135,25 +164,39 @@ module RestHelpers
     JSON.pretty_generate(@result)
   end
 
-  def users
-    @users ||= {}
+  def roles
+    @roles ||= {}
+  end
+
+  def lookup_host login, account = 'cucumber'
+    roleid = "#{account}:host:#{login}"
+    lookup_role roleid
   end
 
   def lookup_user login, account = 'cucumber'
     roleid = "#{account}:user:#{login}"
+    lookup_role roleid
+  end
+
+  def lookup_group login, account = 'cucumber'
+    roleid = "#{account}:group:#{login}"
+    lookup_role roleid
+  end
+
+  def lookup_role roleid
     existing = begin
                  Role[roleid]
-               rescue StandardError
+               rescue
                  nil
                end
     if existing
       Credentials.new(role: existing).save unless existing.credentials
-      users[login] = existing
+      roles[roleid] = existing
       existing
     else
-      users[login]
-    end.tap do |user|
-      raise "No such user '#{login}'" unless user
+      roles[roleid]
+    end.tap do |role|
+      raise "No such role '#{roleid}'" unless role
     end
   end
 
@@ -168,23 +211,35 @@ module RestHelpers
 
   # Create a regular user, owned by the admin user
   def create_user login, owner
-    unless login
-      login = USER_NAMES[@user_index]
-      @user_index += 1
-    end
-
-    return if users[login]
-
     roleid = "cucumber:user:#{login}"
-    Role.create(role_id: roleid).tap do |user|
-      Credentials[role: user] || Credentials.new(role: user).save(raise_on_save_failure: true)
+    create_role(roleid, owner)
+  end
+
+  # Create a regular host, owned by the admin user
+  def create_host login, owner
+    roleid = "cucumber:host:#{login}"
+    create_role(roleid, owner)
+  end
+
+  def create_role roleid, owner
+    return if roles[roleid]
+    Role.create(role_id: roleid).tap do |role|
+      Credentials[role: role] || Credentials.new(role: role).save(raise_on_save_failure: true)
       Resource.create(resource_id: roleid, owner: owner)
-      users[login] = user
+      roles[roleid] = role
     end
   end
 
+  # TODO: This isn't a RestHelper
+  #   We probably want an object encapsulating DB interactions like a
+  #   UserRepo or db.User... TBD
   def user_exists? login
     roleid = "cucumber:user:#{login}"
+    Role[role_id: roleid]
+  end
+
+  def host_exists? login
+    roleid = "cucumber:host:#{login}"
     Role[role_id: roleid]
   end
 
@@ -221,12 +276,16 @@ module RestHelpers
     RestClient::Resource.new(Conjur::Authn::API.host, current_user_basic_auth(password))
   end
 
+  def full_conjur_url(path)
+    URI.parse(Conjur.configuration.appliance_url + path)
+  end
+
   def try_request can
     yield
   rescue RestClient::Exception
     puts $ERROR_INFO
     @exception = $ERROR_INFO
-    @status = $ERROR_INFO.http_code
+    @http_status = $ERROR_INFO.http_code
     raise if can
     set_result @exception.response  
   end
@@ -242,6 +301,10 @@ module RestHelpers
 
   protected
 
+  def api_key_for_role_id(role_id)
+    roles[role_id].credentials.api_key
+  end
+
   def denormalize str
     return unless str
     return if str.is_a?(Hash)
@@ -252,7 +315,7 @@ module RestHelpers
       patterns['resource_id'] = @current_resource.identifier
       patterns['resource_kind'] = @current_resource.kind
     end
-    users.each do |key, val|
+    roles.each do |key, val|
       patterns["#{key}_api_key"] = val.credentials.api_key
     end
     patterns.each do |key, val|
@@ -266,7 +329,6 @@ module RestHelpers
 
   def rest_resource options
     args = [Conjur.configuration.appliance_url]
-
     if options[:token]
       args << user_credentials(options[:token].username, options[:token].token)
     elsif current_user?
@@ -276,6 +338,7 @@ module RestHelpers
     args <<({}) if args.length == 1
     args.last[:headers] ||= {}
     args.last[:headers].merge(headers) if headers
+
     RestClient::Resource.new(*args).tap do |request|
       headers.each do |key, val|
         request.headers[key] = val

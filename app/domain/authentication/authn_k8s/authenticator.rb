@@ -5,11 +5,7 @@ require 'command_class'
 module Authentication
   module AuthnK8s
 
-    Err = Errors::Authentication::AuthnK8s
-    # Possible Errors Raised:
-    # MissingClientCertificate, UntrustedClientCertificate, CommonNameDoesntMatchHost, ClientCertificateExpired
-
-    Authenticator = CommandClass.new(
+    Authenticator ||= CommandClass.new(
       dependencies: {validate_pod_request: ValidatePodRequest.new},
       inputs: [:authenticator_input]
     ) do
@@ -37,24 +33,27 @@ module Authentication
       end
 
       def validate_cert_exists
-        raise Err::MissingClientCertificate unless header_cert_str
+        raise Errors::Authentication::AuthnK8s::MissingClientCertificate unless header_cert_str
       end
 
       def validate_cert_is_trusted
-        raise Err::UntrustedClientCertificate unless ca_can_verify_cert?
+        raise Errors::Authentication::AuthnK8s::UntrustedClientCertificate unless ca_can_verify_cert?
       end
 
       def validate_common_name_matches
         return if host_and_cert_cn_match?
-        raise Err::CommonNameDoesntMatchHost.new(cert.common_name, host_common_name)
+        raise Errors::Authentication::AuthnK8s::CommonNameDoesntMatchHost.new(
+          cert.common_name,
+          host_common_name
+        )
       end
 
       def validate_cert_isnt_expired
-        raise Err::ClientCertificateExpired if cert_expired?
+        raise Errors::Authentication::AuthnK8s::ClientCertificateExpired if cert_expired?
       end
 
       def cert
-        @cert ||= Util::OpenSsl::X509::SmartCert.new(header_cert_str)
+        @cert ||= ::Util::OpenSsl::X509::SmartCert.new(header_cert_str)
       end
 
       def ca_can_verify_cert?
@@ -102,27 +101,6 @@ module Authentication
           spiffe_id: spiffe_id
         )
       end
-
-      #TODO: pull this code out of strategy into a separate object
-      #      then use that object here and in Strategy.
-      #
-      # def validate_authenticator_enabled(service_name)
-      #   authenticator_name = "authn-k8s/#{service_name}"
-      #   valid = available_authenticators.include?(authenticator_name)
-      #   raise Errors::Authentication::AuthenticatorNotFound, authenticator_name unless valid
-      # end
-
-      # def available_authenticators
-      #   (conjur_authenticators || '').split(',').map(&:strip)
-      # end
-
-      # def conjur_authenticators
-      #   env['CONJUR_AUTHENTICATORS']
-      # end
-
-      # def conjur_account
-      #   env['CONJUR_ACCOUNT']
-      # end
     end
 
     class Authenticator

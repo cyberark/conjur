@@ -21,7 +21,7 @@ module AuthnK8sWorld
     last_response.body
   end
 
-  def substitute pattern
+  def substitute! pattern
     pattern.gsub! "@pod_ip@", @pod.status.podIP if @pod
     pattern.gsub! "@pod_ip_dashes@", @pod.status.podIP.gsub('.', '-') if @pod
     pattern.gsub! "@namespace@", @pod.metadata.namespace if @pod
@@ -95,11 +95,13 @@ module AuthnK8sWorld
     raise "#{objectid.inspect} not found" unless controller
 
     @pod = pod = kubectl_client.get_pods(namespace: namespace).find do |pod|
-      resolver = Authentication::AuthnK8s::K8sResolver.for_controller(controller_type).new(controller, pod, k8s_object_lookup)
+      resolver = Authentication::AuthnK8s::K8sResolver.for_resource(controller_type).new(controller, pod, k8s_object_lookup)
       begin
         resolver.validate_pod
         true
-      rescue Authentication::AuthnK8s::K8sResolver::ValidationError
+      rescue Errors::Authentication::AuthnK8s::PodNameMismatchError,
+             Errors::Authentication::AuthnK8s::PodRelationMismatchError,
+             Errors::Authentication::AuthnK8s::PodMissingRelationError
         false
       end
     end
@@ -115,7 +117,7 @@ module AuthnK8sWorld
 
   def gen_csr(id, signing_key, altnames)
     # create certificate subject
-    common_name = id.gsub('/', '.')
+    common_name = id.tr('/', '.')
     subject = OpenSSL::X509::Name.new(
       [
         ['CN', common_name],

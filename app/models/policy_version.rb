@@ -10,6 +10,7 @@
 #
 # * +role+ the authenticated role who performed the policy load.
 # * +created_at+ a timestamp.
+# * +client_ip+ the IP address of the client that loaded the policy.
 # * +policy_text+ the text of the policy itself.
 # * +policy_sha256+ the SHA-256 of the policy in hex digest form.
 #
@@ -30,7 +31,7 @@ class PolicyVersion < Sequel::Model(:policy_versions)
 
   one_to_many :policy_log, key: %i(policy_id version)
 
-  attr_accessor :parse_error, :policy_filename, :perform_automatic_deletion, :delete_permitted, :update_permitted
+  attr_accessor :parse_error, :policy_filename, :delete_permitted
 
   alias id resource_id
   alias current_user role
@@ -56,20 +57,9 @@ class PolicyVersion < Sequel::Model(:policy_versions)
     policy.kind == "policy" && policy.identifier == "root"
   end
 
-  # Indicates whether records that exist in the database but not in the policy 
-  # update should be deleted.
-  def perform_automatic_deletion?
-    !!@perform_automatic_deletion
-  end
-
   # Indicates whether explicit deletion is permitted.
   def delete_permitted?
     !!@delete_permitted
-  end
-
-  # Indicates whether updates to existing data fields are permitted.
-  def update_permitted?
-    !!@update_permitted
   end
 
   def validate

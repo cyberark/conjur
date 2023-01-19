@@ -4,7 +4,7 @@ Feature: Deleting objects and relationships.
   !revoke, and !deny statements.
 
   Scenario: The !delete statement can be used to delete an object.
-    Given a policy:
+    Given I load a policy:
     """
     - !group developers
     """
@@ -17,7 +17,7 @@ Feature: Deleting objects and relationships.
     Then group "developers" does not exist
 
   Scenario: The !revoke statement can be used to revoke a role grant.
-    Given a policy:
+    Given I load a policy:
     """
     - !group developers
     - !group employees
@@ -38,7 +38,7 @@ Feature: Deleting objects and relationships.
 
 
   Scenario: The !deny statement can be used to revoke a permission.
-    Given a policy:
+    Given I load a policy:
     """
     - !variable db/password
     - !host host-01

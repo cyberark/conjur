@@ -1,0 +1,266 @@
+body.lp
+{
+  color:#424143;
+  font-size:14px;
+  p
+  {
+    font-size:14px;
+  }
+  h1
+  {
+    text-transform:uppercase;
+    text-align:center;
+    padding-top: 30px;
+  }
+  h2
+  {
+    text-transform: uppercase;
+    text-align: center;
+    color:#424143;
+   }
+
+  #top-navigation
+  {
+    .container.lp-container
+    {
+      padding:0 0 10px 0;
+    }
+  }
+  .lp-hero
+  {
+    background: url($baseurl + "/img/lp/hero_banner.jpg");
+    height: calc(100vh - 127px);
+    background-size: cover;
+    h1,h2,h3,p
+    {
+      color: #fff;
+      text-align:center;
+    }
+    h1
+    {
+      margin-bottom:0px;
+    }
+    p
+    {
+      margin-bottom:35px;
+      font-size: 20px;
+    }
+    .container
+    {
+      top: calc(50% - 197px);
+      position: relative;
+    }
+  }
+  .cyber_box
+  {
+    border-right: 1px solid #ccc;
+    padding: 25px 24px;
+    margin-top:30px;
+    margin-bottom:30px;
+    text-align: center;
+    img
+    {
+      margin: 20px auto;
+      width: auto;
+      height: 41px;
+    }
+    h3
+    {
+      height: 46px;
+    }
+  }
+  .cyber_box:last-child
+  {
+    border-right: none;
+    padding-right:0px;
+  }
+  .img_integrations
+  {
+    width:60%;
+    height: auto;
+    margin:50px auto;
+  }
+  .dark_bg
+  {
+    background: url($baseurl + "/img/lp/Texture-01.png");
+    color: #fff;
+    padding-bottom:60px;
+
+    h1,h2,h3,p
+    {
+      padding-bottom:30px;
+      margin:0;
+    }
+    *
+    {
+      color:#fff;
+    }
+  }
+  .button
+  {
+    padding:10px 40px;
+    background:#69Ae44;
+    color: #fff;
+    text-decoration:none;
+    margin:10px 0;
+  }
+  .button:hover
+  {
+    text-decoration:none;
+    color:#fff;
+  }
+  .container
+  {
+    padding:30px 0;
+  }
+  .text-center
+  {
+    text-align:center;
+  }
+  .explore
+  {
+    text-align: center;
+    text-transform: uppercase;
+    color: #d0d2d3;
+    padding: 5px 0;
+    border-bottom: 3px solid #d0d2d3;
+    position: relative;
+    font-weight: bold;
+    cursor:pointer;
+  }
+  .explore:after
+  {
+    content: ' ';
+    position: absolute;
+    left: calc(50% - 5px);
+    bottom: -7px;
+    -webkit-transform: rotate(45deg);
+    -moz-transform: rotate(45deg);
+    -o-transform: rotate(45deg);
+    -ms-transform: rotate(45deg);
+    border-right: 3px solid #d0d2d3;
+    width: 10px;
+    height: 10px;
+    background: #fff;
+    border-bottom: 3px solid #d0d2d3;
+  }
+  .single_resource
+  {
+    text-align:center;
+    width:300px;
+    margin:0 auto;
+    img
+    {
+      max-width:100%;
+      height:auto;
+      vertical-align:middle;
+      border:1px solid #ccc;
+      margin:0 auto;
+    }
+    *
+    {
+      text-align:center;
+    }
+  }
+  .close_modal
+  {
+    position: absolute;
+    right: -16px;
+    top: -27px;
+    color: #fff;
+    font-weight: bold;
+    font-size: 28px;
+  }
+  .close_modal:hover
+  {
+    text-decoration:none;
+  }
+  .modal-body:after
+  {
+    content:' ';
+    display:block;
+    clear:both;
+  }
+  .hosted-account-credentials {
+    background-color: #f1f1f1;
+    padding: 1.5em 2em;
+    border-radius: 4px;
+  }
+}
+
+body.lp_ty
+{
+  h2{
+    margin-bottom:20px;
+  }
+  .lp-hero
+  {
+    height: 300px;
+    .container
+    {
+      top:0;
+    }
+  }
+}
+
+.tos
+{
+  margin-bottom:20px;
+}
+
+.tos:before
+{
+  content:' ';
+  display:block;
+  clear:both;
+}
+
+@media screen and (max-width:780px)
+{
+  .img_integrations
+  {
+    width:95%;
+  }
+  body.lp .lp-hero .container
+  {
+    top:0;
+  }
+  .cyber_box
+  {
+    margin-top:0px;
+    border-right:none;
+  }
+  .single_resource p
+  {
+    padding-bottom:10px;
+  }
+  .single_resource h4
+  {
+    margin-top:0px;
+    margin-bottom:30px;
+  }
+  .modal-dialog
+  {
+    margin: 31px 21px;
+  }
+}
+
+@media screen and (max-width:400px)
+{
+  body.lp .lp-hero .container h1
+  {
+    margin-top: 0;
+    padding-top: 0;
+    font-size: 45px;
+  }
+}
+
+@media screen and (max-width:340px)
+{
+  body.lp .lp-hero .container h1
+  {
+    margin-top: 0;
+    padding-top: 0;
+    font-size: 33px;
+  }
+}

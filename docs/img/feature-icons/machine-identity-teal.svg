@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="50px" height="50px" viewBox="0 0 50 50" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 47 (45396) - http://www.bohemiancoding.com/sketch -->
+    <title>icon/machine-identity-teal</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Symbols" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="icon/machine-identity-teal" fill-rule="nonzero" fill="#35B89F">
+            <polygon id="Shape" points="5.00103329 4.99856032 24.9994082 4.99856032 24.9994082 0 5.00103329 0 0 0 0 24.9985603 5.00103329 24.9985603"></polygon>
+            <polygon id="Shape" points="5.00103329 30 0 30 0 50 5.00103329 50 39.9996289 50 39.9996289 45.0014397 5.00103329 45.0014397"></polygon>
+            <polygon id="Shape" points="44.9977831 7.1e-15 29.9975624 7.1e-15 29.9975624 4.99856032 44.9977831 4.99856032 44.9977831 40 49.9988164 40 49.9988164 7.1e-15"></polygon>
+            <polygon id="Shape" points="9.99918745 35.0014397 9.99918745 40 24.9994082 40 24.9994082 35.0014397 15.0002207 35.0014397 15.0002207 15.0014397 34.9985956 15.0014397 34.9985956 35.0014397 29.9975624 35.0014397 29.9975624 40 39.9996289 40 39.9996289 35.0014397 39.9996289 15.0014397 39.9996289 10 9.99918745 10 9.99918745 15.0014397"></polygon>
+            <polygon id="Shape" points="29.9975624 20 24.9994082 20 24.9994082 24.9985603 20.001254 24.9985603 20.001254 30 29.9975624 30"></polygon>
+        </g>
+    </g>
+</svg>

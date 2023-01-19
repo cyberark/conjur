@@ -3,14 +3,16 @@
 require 'types'
 
 module Authentication
+
+  # :reek:InstanceVariableAssumption
   class AuthenticatorInput < ::Dry::Struct
 
     attribute :authenticator_name, ::Types::NonEmptyString
     attribute :service_id, ::Types::NonEmptyString.optional
     attribute :account, ::Types::NonEmptyString
     attribute :username, ::Types::NonEmptyString.optional
-    attribute :password, ::Types::String.optional
-    attribute :origin, ::Types::NonEmptyString
+    attribute :credentials, ::Types::Any.optional
+    attribute :client_ip, ::Types::NonEmptyString
     attribute :request, ::Types::Any
 
     # Creates a copy of this object with the attributes updated by those
@@ -26,6 +28,13 @@ module Authentication
         authenticator_name: @authenticator_name,
         service_id:         @service_id
       )
+    end
+
+    # :reek:NilCheck
+    def role
+      return nil if @username.nil?
+
+      ::Role.by_login(@username, account: @account)
     end
   end
 end

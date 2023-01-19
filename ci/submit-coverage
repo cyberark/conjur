@@ -1,0 +1,88 @@
+#!/bin/bash
+
+# Script to submit simplecov coverage report to Code Climate.
+# Only one report can be submitted per commit, so this can only
+# run once pre build, not for each test set.
+
+# The rspec and cucumber reports are all written to repo_root/coverage
+# Simplecov handles locking and merging for parallel tests.
+# The GKE tests can't mount that dir, so they produce a separate report
+# which is merged into repo_root/coverage by this script.
+
+set -eux
+
+DIR="coverage"
+BIN="cc-test-reporter"
+REPORT="${DIR}/.resultset.json"
+# GKE tests are being temporarily turned off per Jason V
+#
+# GKE_REPORT="ci/authn-k8s/output/simplecov-resultset-authnk8s-gke.json"
+
+if [[ ! -e ${REPORT} ]]; then
+    echo "SimpleCov report (${REPORT}) not found"
+    ls -laR ${DIR}
+    exit 1
+fi
+
+if ! grep -q SimpleCov "${REPORT}"; then
+    echo "SimpleCov report (${REPORT}) does not contain any SimpleCov data: $(cat ${REPORT})"
+    exit 1
+fi
+
+# GKE tests are being temporarily turned off per Jason V
+#
+# if [[ ! -e "${GKE_REPORT}" ]]; then
+#     echo "GKE SimpleCov report not found :("
+#     ls -laR ci/authn-k8s/output
+#     exit 1
+# fi
+
+# if ! grep -q SimpleCov "${GKE_REPORT}"; then
+#     echo "SimpleCov report (${GKE_REPORT}) does not contain any SimpleCov data: $(cat ${GKE_REPORT})"
+#     exit 1
+# fi
+
+# echo "SimpleCov Reports Found: ${REPORT}, ${GKE_REPORT}"
+echo "SimpleCov Reports Found: ${REPORT}"
+
+if [[ ! -x ${BIN} ]]; then
+    echo "cc-test-reporter binary not found, not reporting coverage data to code climate"
+    ls -laR ${DIR}
+    # report is present but reporter binary is not, definitely a bug, exit error.
+    exit 1
+fi
+
+
+# Preserve a pre-merge version of the results from the non gke test branches.
+cp "${REPORT}" "${DIR}/.resultset-non-gke.json"
+
+# GKE tests are being temporarily turned off per Jason V
+#
+# Merge GKE report with the already combined cucumber and rspec results.
+# -s loads input files into an array
+# * merges objects
+# jq -s '.[0] * .[1]' "${REPORT}" "${GKE_REPORT}" > simplecov_combined
+# This mv is safe as it happens after all the parallel tests are complete.
+# mv simplecov_combined "${REPORT}"
+
+# Simplecov excludes files not within the current repo, it also needs to
+# be able to read all the files referenced within the report. As the reports
+# are generated in containers, the absolute paths contained in the report
+# are not valid outside that container. This sed fixes the paths
+# So they are correct relative to the Jenkins workspace.
+sed -i -E "s+/(opt|src)/conjur-server+${WORKSPACE}+g" "${REPORT}"
+
+# Now need to regenerate the html report, as it was generated before
+# the GKE results were merged in.
+pushd ci/coverage-report-generator
+    ./run.sh
+popd
+
+echo "Coverage reports prepared, submitting to CodeClimate."
+# vars GIT_COMMIT, GIT_BRANCH & TRID are set by ccCoverage.dockerPrep
+
+./${BIN} after-build \
+    --coverage-input-type "simplecov"\
+    --id "${TRID}"
+
+echo "Successfully Reported Coverage Data"

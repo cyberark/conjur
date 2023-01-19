@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require './config/conjur_log_formatter'
+require 'logger/formatter/conjur_formatter'
 
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
@@ -13,9 +13,9 @@ Rails.application.configure do
   # eager_load needed to make authentication work without the hacky
   # loading code...
   #
-  config.serve_static_files = true
+  config.public_file_server.enabled = true
   config.eager_load = true
-  config.assets.digest = false
+  # config.assets.digest = false
 
   # Show full error reports and disable caching.
   config.consider_all_requests_local       = true
@@ -23,8 +23,8 @@ Rails.application.configure do
 
   # Use the lowest log level to ensure availability of diagnostic information
   # when problems arise.
-  config.log_level = :debug
-  config.log_formatter = ConjurLogFormatter.new
+  config.log_level = ENV['CONJUR_LOG_LEVEL'] || :debug
+  config.log_formatter = ConjurFormatter.new
 
   # Don't care if the mailer can't send.
   # config.action_mailer.raise_delivery_errors = false

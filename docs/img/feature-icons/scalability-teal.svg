@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="50px" height="50px" viewBox="0 0 50 50" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 47 (45396) - http://www.bohemiancoding.com/sketch -->
+    <title>icon/scalability-teal</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Symbols" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="icon/scalability-teal" fill="#36B69E">
+            <polygon id="Fill-1" points="26.7803278 26.6570395 23.5201744 23.3992753 35.7347982 11.191875 38.9949517 14.4502153"></polygon>
+            <path d="M0,49.6876851 L27.3239596,49.6876851 L27.3239596,22.38375 L0,22.38375 L0,49.6876851 Z M4.61124961,45.0798149 L22.7132864,45.0798149 L22.7132864,26.9916203 L4.61124961,26.9916203 L4.61124961,45.0798149 Z" id="Fill-2"></path>
+            <path d="M0,50 L50,50 L50,0 L0,0 L0,50 Z M4.60781716,45.3915538 L45.3916069,45.3915538 L45.3916069,4.60729426 L4.60781716,4.60729426 L4.60781716,45.3915538 Z" id="Fill-3"></path>
+            <polygon id="Fill-4" points="24.6401827 12.1518869 36.602917 24.1081582 40.9236579 7.83431251"></polygon>
+        </g>
+    </g>
+</svg>

@@ -10,12 +10,12 @@ RSpec.describe Authentication::AuthnLdap::Authenticator do
   let(:input) do
     ::Authentication::AuthenticatorInput.new(
       authenticator_name: 'ldap',
-      service_id: 'test',
-      account: 'test',
-      username: username,
-      password: password,
-      origin: '127.0.0.1',
-      request: nil
+      service_id:         'test',
+      account:            'test',
+      username:           username,
+      credentials:        password,
+      client_ip:          '127.0.0.1',
+      request:            nil
     )
   end
 

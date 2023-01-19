@@ -2,13 +2,12 @@
 
 module Test
   class AuditSink
-    SOCKET_PATH="audit.sock"
-
     def initialize
       delete_socket
 
       begin
-        @socket = UNIXServer.new SOCKET_PATH
+        STDERR.puts "Creating socket: #{socket_path}"
+        @socket = UNIXServer.new socket_path
       ensure
         at_exit { delete_socket }
       end
@@ -19,7 +18,7 @@ module Test
 
     def delete_socket
       @socket.close if @socket
-      File.delete(SOCKET_PATH) if File.exist?(SOCKET_PATH)
+      File.delete(socket_path) if File.exist?(socket_path)
     end
 
     def listen backlog = 1
@@ -34,6 +33,10 @@ module Test
 
     def address
       socket.addr[1]
+    end
+
+    def socket_path
+      @socket_path ||= "audit_test_#{Process.pid}_#{Thread.current.object_id}.sock"
     end
 
     attr_reader :socket, :messages

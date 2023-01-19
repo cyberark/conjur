@@ -76,5 +76,4 @@ module Rotation
       ::Rotation::NextExpiration.new(@rotated_variable)
     end
   end
-
 end

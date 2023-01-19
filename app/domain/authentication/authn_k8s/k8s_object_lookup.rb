@@ -5,17 +5,15 @@
 #
 module Authentication
   module AuthnK8s
+
+    VARIABLE_BEARER_TOKEN ||= 'kubernetes/service-account-token'
+    VARIABLE_CA_CERT ||= 'kubernetes/ca-cert'
+    VARIABLE_API_URL ||= 'kubernetes/api-url'
+    SERVICEACCOUNT_DIR ||= '/var/run/secrets/kubernetes.io/serviceaccount'
+    SERVICEACCOUNT_CA_PATH ||= File.join(SERVICEACCOUNT_DIR, 'ca.crt').freeze
+    SERVICEACCOUNT_TOKEN_PATH ||= File.join(SERVICEACCOUNT_DIR, 'token').freeze
+
     #TODO: rename to K8sApiFacade
-
-    VARIABLE_BEARER_TOKEN = 'kubernetes/service-account-token'
-    VARIABLE_CA_CERT = 'kubernetes/ca-cert'
-    VARIABLE_API_URL = 'kubernetes/api-url'
-    SERVICEACCOUNT_DIR = '/var/run/secrets/kubernetes.io/serviceaccount'
-    SERVICEACCOUNT_CA_PATH = File.join(SERVICEACCOUNT_DIR, 'ca.crt').freeze
-    SERVICEACCOUNT_TOKEN_PATH = File.join(SERVICEACCOUNT_DIR, 'token').freeze
-
-    Err = Errors::Authentication::AuthnK8s
-
     class K8sObjectLookup
 
       class K8sForbiddenError < RuntimeError; end
@@ -24,7 +22,7 @@ module Authentication
         @webservice = webservice
         @cert_store = OpenSSL::X509::Store.new
         @cert_store.set_default_paths
-        @cert_store.add_cert(ca_cert)
+        ::Conjur::CertUtils.add_chained_cert(@cert_store, ca_cert)
       end
 
       def bearer_token
@@ -42,8 +40,8 @@ module Authentication
           VARIABLE_CA_CERT
         )
 
-        raise Err::MissingCertificate if cert.blank?
-        OpenSSL::X509::Certificate.new(cert)
+        raise Errors::Authentication::AuthnK8s::MissingCertificate if cert.blank?
+        cert
       end
 
       def options
@@ -104,17 +102,17 @@ module Authentication
         k8s_client_for_method("get_pods").get_pods(label_selector: label_selector, namespace: namespace)
       end
 
-      # Look up an object according to the controller name. In Kubernetes, the 
-      # "controller" means something like ReplicaSet, Job, Deployment, etc.
+      # Look up an object according to the resource name. In Kubernetes, the
+      # "resource" means something like ReplicaSet, Job, Deployment, etc.
       #
-      # Here, controller_name should be the underscore-ized controller, e.g.
+      # Here, resource_name should be the underscore-ized resource, e.g.
       # "replica_set".
       #
       # @return nil if no such object exists.
-      def find_object_by_name controller_name, name, namespace
+      def find_object_by_name resource_name, name, namespace
         begin
           handle_object_not_found do
-            invoke_k8s_method "get_#{controller_name}", name, namespace
+            invoke_k8s_method "get_#{resource_name}", name, namespace
           end
         rescue KubeException => e
           # This error message can be a bit confusing when multiple authorizers are
@@ -140,7 +138,8 @@ module Authentication
         k8s_clients.find do |client|
           begin
             client.respond_to?(method_name)
-          rescue KubeException
+          rescue KubeException => e
+            raise e unless e.error_code == 404
             false
           end
         end
@@ -151,13 +150,36 @@ module Authentication
       def k8s_clients
         @clients ||= [
           kubectl_client,
-          KubeClientFactory.client(api: 'apis/apps', version: 'v1beta2', host_url: api_url, options: options),
-          KubeClientFactory.client(api: 'apis/apps', version: 'v1beta1', host_url: api_url, options: options),
-          KubeClientFactory.client(api: 'apis/extensions', version: 'v1beta1', host_url: api_url, options: options),
+          KubeClientFactory.client(
+            api: 'apis/apps', version: 'v1', host_url: api_url,
+            options: options
+          ),
+          KubeClientFactory.client(
+            api: 'apis/apps', version: 'v1beta2', host_url: api_url,
+            options: options
+          ),
+          KubeClientFactory.client(
+            api: 'apis/apps', version: 'v1beta1', host_url: api_url,
+            options: options
+          ),
+          KubeClientFactory.client(
+            api: 'apis/extensions', version: 'v1', host_url: api_url,
+            options: options
+          ),
+          KubeClientFactory.client(
+            api: 'apis/extensions', version: 'v1beta1', host_url: api_url,
+            options: options
+          ),
           # OpenShift 3.3 DeploymentConfig
-          KubeClientFactory.client(api: 'oapi', version: 'v1', host_url: api_url, options: options),
+          KubeClientFactory.client(
+            api: 'oapi', version: 'v1', host_url: api_url,
+            options: options
+          ),
           # OpenShift 3.7 DeploymentConfig
-          KubeClientFactory.client(api: 'apis/apps.openshift.io', version: 'v1', host_url: api_url, options: options)
+          KubeClientFactory.client(
+            api: 'apis/apps.openshift.io', version: 'v1', host_url: api_url,
+            options: options
+          )
         ]
       end
 

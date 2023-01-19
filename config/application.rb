@@ -21,7 +21,7 @@ Bundler.require(*Rails.groups)
 $LOAD_PATH.push File.expand_path "../../engines/conjur_audit/lib", __FILE__
 require 'conjur_audit'
 
-module Possum
+module Conjur
   class Application < Rails::Application
     # Settings in config/environments/* take precedence over those specified here.
     # Application configuration should go into files in config/initializers
@@ -35,13 +35,14 @@ module Possum
     # config.i18n.load_path += Dir[Rails.root.join('my', 'locales', '*.{rb,yml}').to_s]
     # config.i18n.default_locale = :de
 
+    # Replace md5 with sha for FIPS compliance
+    config.active_support.use_sha1_digests = true
+
     config.autoload_paths << Rails.root.join('lib')
 
     config.sequel.after_connect = proc do
       Sequel.extension :core_extensions, :postgres_schemata
       Sequel::Model.db.extension :pg_array, :pg_inet, :pg_hstore
-    rescue
-      raise unless is_asset_precompile?
     end
 
     config.encoding = "utf-8"
@@ -50,30 +51,5 @@ module Possum
     # Whether to dump the schema after successful migrations.
     # Defaults to false in production and test, true otherwise.
     config.sequel.schema_dump = false
-
-    # Token authentication is optional for authn routes, and it's not applied at all to authentication.
-    config.middleware.use Conjur::Rack::Authenticator,
-      optional: [
-        /^\/authn-[^\/]+\//,
-        /^\/authn\//,
-        /^\/public_keys\//
-      ],
-      except: [
-        /^\/authn-[^\/]+\/.*\/authenticate$/,
-        /^\/authn\/.*\/authenticate$/,
-        /^\/host_factories\/hosts$/,
-        /^\/assets\/.*/,
-        /^\/authenticators$/,
-        /^\/$/
-      ]
-
-    # NOTE: removing this middleware is important for security.
-    # ParamsParser can cause data from the body to end up in params and then
-    # in logs. It's better to explicitly parse the body where needed.
-    config.middleware.delete ActionDispatch::ParamsParser
-
-    def self.is_asset_precompile?
-      /assets:precompile/.match?(ARGV.join(' '))
-    end
   end
 end

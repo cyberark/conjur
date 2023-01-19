@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 ENV['RAILS_ENV'] ||= 'test'
+ENV['CONJUR_LOG_LEVEL'] ||= 'debug'
 require File.expand_path('../dummy/config/environment', __FILE__)
 
 # Prevent database truncation if the environment is production
@@ -18,4 +19,5 @@ RSpec.configure do |config|
   config.infer_spec_type_from_file_location!
   config.filter_rails_from_backtrace!
   config.include_context "engine routes", type: :controller
+  config.include ConjurAudit::Engine.routes.url_helpers
 end

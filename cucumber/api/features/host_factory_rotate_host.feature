@@ -61,7 +61,7 @@ Feature: Rotate a host api key using the host factory.
     And I authorize the request with the host factory token
     And I successfully POST "/host_factories/hosts?id=brand-new-host"
     Then the HTTP response status code is 201
-    And the JSON should be:
+    And our JSON should be:
     """
     {
       "annotations" : [],

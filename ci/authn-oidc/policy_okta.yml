@@ -13,7 +13,10 @@
   - !variable
     id: id-token-user-property
 
-  - !group users
+  - !group
+    id: users
+    annotations:
+      description: Group of users who can authenticate using the authn-oidc/okta authenticator
 
   - !permit
     role: !group users

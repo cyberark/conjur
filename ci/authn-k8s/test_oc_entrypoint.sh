@@ -18,6 +18,7 @@ function finish {
   echo '-----'
 
   {
+    pod_name=$(retrieve_pod conjur-authn-k8s)
     if [[ "$pod_name" != "" ]]; then
       echo "Grabbing output from $pod_name"
       echo '-----'
@@ -26,6 +27,14 @@ function finish {
 
       echo "Logs from Conjur Pod $pod_name:"
       oc logs $pod_name > "output/$PLATFORM-authn-k8s-logs.txt"
+
+      # Rails.logger writes the logs to the environment log file
+      oc exec $pod_name -- bash -c "cat /opt/conjur-server/log/test.log" >> "output/$PLATFORM-authn-k8s-logs.txt"
+
+      echo "Printing Logs from Conjur to the console"
+      echo "==========================="
+      cat "output/$PLATFORM-authn-k8s-logs.txt"
+      echo "==========================="
     fi
   } || {
     echo "Logs could not be extracted from $pod_name"
@@ -47,7 +56,7 @@ function main() {
   sourceFunctions
   renderResourceTemplates
   
-  initialize
+  initialize_oc
   createNamespace
 
   pushDockerImages
@@ -70,12 +79,6 @@ function sourceFunctions() {
 function renderResourceTemplates() {
   cleanuptemplatescmd $TEMPLATE_TAG
   compiletemplatescmd <(echo '') $TEMPLATE_TAG
-}
-
-function initialize() {
-  # setup kubectl, oc and docker
-  oc login $OPENSHIFT_URL --username=$OPENSHIFT_USERNAME --password=$OPENSHIFT_PASSWORD --insecure-skip-tls-verify=true
-  docker login -u _ -p $(oc whoami -t) $OPENSHIFT_REGISTRY_URL
 }
 
 function createNamespace() {
@@ -119,12 +122,13 @@ function launchConjurMaster() {
     sed -e "s#{{ CONJUR_AUTHN_K8S_TEST_NAMESPACE }}#$CONJUR_AUTHN_K8S_TEST_NAMESPACE#g" |
     oc create -f -
 
-  conjur_pod=$(oc get pods -l app=conjur-authn-k8s -o=jsonpath='{.items[].metadata.name}')
+  conjur_pod=$(retrieve_pod conjur-authn-k8s)
   
   wait_for_it 300 "oc describe po $conjur_pod | grep Status: | grep -q Running"
 
   # wait for the 'conjurctl server' entrypoint to finish
-  oc exec $conjur_pod -- bash -c "while ! curl -sI localhost:80 > /dev/null; do sleep 1; done"
+  local wait_command="while ! curl -sI localhost:80 > /dev/null; do sleep 1; done"
+  oc exec $conjur_pod -- bash -c "$wait_command"
 
   export API_KEY=$(oc exec $conjur_pod -- conjurctl account create cucumber | tail -n 1 | awk '{ print $NF }')
 }
@@ -141,7 +145,7 @@ function createSSLCertConfigMap() {
 }
 
 function copyConjurPolicies() {
-  cli_pod=$(oc get pod -l app=conjur-cli --no-headers | grep Running | awk '{ print $1 }')
+  cli_pod=$(retrieve_pod conjur-cli)
 
   oc exec $cli_pod -- mkdir /policies
   oc rsync ./dev/policies $cli_pod:/
@@ -150,16 +154,16 @@ function copyConjurPolicies() {
 function loadConjurPolicies() {
   echo 'Loading the policies and data'
 
-  cli_pod=$(oc get pod -l app=conjur-cli --no-headers | grep Running | awk '{ print $1 }')
+  cli_pod=$(retrieve_pod conjur-cli)
   
   oc exec $cli_pod -- conjur init -u conjur -a cucumber
   sleep 5
   oc exec $cli_pod -- conjur authn login -u admin -p $API_KEY
 
-  oc exec $cli_pod -- conjur policy load root /policies/policy.${TEMPLATE_TAG}yml
+  wait_for_it 300 "oc exec $cli_pod -- conjur policy load root /policies/policy.${TEMPLATE_TAG}yml"
 
   # init ca certs
-  conjur_pod=$(oc get pod -l app=conjur-authn-k8s --no-headers | grep Running | awk '{ print $1 }')
+  conjur_pod=$(retrieve_pod conjur-authn-k8s)
   oc exec $conjur_pod -- rake authn_k8s:ca_init["conjur/authn-k8s/minikube"]
 
   # set test password value
@@ -190,6 +194,10 @@ function runTests() {
   conjurcmd mkdir -p /opt/conjur-server/output
 
   echo "./bin/cucumber K8S_VERSION=$K8S_VERSION PLATFORM=openshift --no-color --format pretty --format junit --out /opt/conjur-server/output -r ./cucumber/kubernetes/features/step_definitions/ -r ./cucumber/kubernetes/features/support/world.rb -r ./cucumber/kubernetes/features/support/hooks.rb -r ./cucumber/kubernetes/features/support/conjur_token.rb --tags ~@skip ./cucumber/kubernetes/features" | conjurcmd -i bash
+}
+
+retrieve_pod() {
+  oc get pods -l app=$1 -o=jsonpath='{.items[].metadata.name}'
 }
 
 main

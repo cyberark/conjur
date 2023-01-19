@@ -1,34 +1,64 @@
 version: "3"
 services:
   pg:
-    image: postgres:9.3
+    image: postgres:9.4
+    environment:
+      # To avoid the following error:
+      #
+      #   Error: Database is uninitialized and superuser password is not
+      #   specified.  You must specify POSTGRES_PASSWORD for the superuser. Use
+      #   "-e POSTGRES_PASSWORD=password" to set it in "docker run".
+      #
+      #   You may also use POSTGRES_HOST_AUTH_METHOD=trust to allow all
+      #   connections without a password. This is *not* recommended. See
+      #   PostgreSQL documentation about "trust"
+      POSTGRES_HOST_AUTH_METHOD: trust
 
   audit:
     image: postgres:9.4
+    environment: 
+      # See description on `pg` service for use of POSTGRES_HOST_AUTH_METHOD
+      POSTGRES_HOST_AUTH_METHOD: trust
 
   testdb:
-    image: postgres:9.3
+    image: postgres:9.4
+    environment:
+      # To avoid the following error:
+      #
+      #   Error: Database is uninitialized and superuser password is not
+      #   specified.  You must specify POSTGRES_PASSWORD for the superuser. Use
+      #   "-e POSTGRES_PASSWORD=password" to set it in "docker run".
+      #
+      #   You may also use POSTGRES_HOST_AUTH_METHOD=trust to allow all
+      #   connections without a password. This is *not* recommended. See
+      #   PostgreSQL documentation about "trust"
+      POSTGRES_HOST_AUTH_METHOD: trust
 
   conjur:
     image: "conjur:${TAG}"
     environment:
       DATABASE_URL: postgres://postgres@pg/postgres
-      CONJUR_ADMIN_PASSWORD: admin
+      CONJUR_ADMIN_PASSWORD: ADmin123!!!!
       CONJUR_ACCOUNT: cucumber
       CONJUR_DATA_KEY:
       RAILS_ENV:
-      CONJUR_AUTHENTICATORS: authn-ldap/test,authn-ldap/secure,authn-oidc/keycloak
+      REQUIRE_SIMPLECOV: "true"
+      CONJUR_LOG_LEVEL: debug
+      CONJUR_AUTHENTICATORS: authn-ldap/test,authn-ldap/secure,authn-oidc/keycloak,authn-config/env,authn-azure/prod,authn-gcp
       LDAP_URI: ldap://ldap-server:389
       LDAP_BASE: dc=conjur,dc=net
       LDAP_FILTER: '(uid=%s)'
       LDAP_BINDDN: cn=admin,dc=conjur,dc=net
       LDAP_BINDPW: ldapsecret
+      WEB_CONCURRENCY: 0
+      RAILS_MAX_THREADS: 10
     command: server
     volumes:
       - authn-local:/run/authn-local
       - ./authn-oidc/keycloak:/authn-oidc/keycloak/scripts
       - ./ldap-certs:/ldap-certs:ro
       - log-volume:/opt/conjur-server/log
+      - ../coverage:/opt/conjur-server/coverage
     expose:
       - "80"
     links:
@@ -46,13 +76,16 @@ services:
       DATABASE_URL: postgres://postgres@pg/postgres
       AUDIT_DATABASE_URL:
       RAILS_ENV: test
+      CONJUR_LOG_LEVEL: debug
       CONJUR_DATA_KEY:
       REPORT_ROOT:
       CUCUMBER_NETWORK:
+      # TODO: Where should we be running rspec tests from, ideally?
+      # See https://github.com/DatabaseCleaner/database_cleaner#safeguards
+      DATABASE_CLEANER_ALLOW_REMOTE_DATABASE_URL: "true"
     volumes:
       - ..:/src/conjur-server
       - authn-local:/run/authn-local
-      - ./authn-oidc/phantomjs:/authn-oidc/phantomjs/scripts
       - ./ldap-certs:/ldap-certs:ro
       - log-volume:/src/conjur-server/log
     links:
@@ -93,10 +126,10 @@ services:
       - KEYCLOAK_NON_CONJUR_APP_USER_PASSWORD=not_in_conjur
       - KEYCLOAK_NON_CONJUR_APP_USER_EMAIL=not_in_conjur
       - DB_VENDOR=H2
-      - CLIENT_ID=conjurClient
-      - REDIRECT_URI=http://locallhost.com/
-      - CLIENT_SECRET=d7047915-9029-45b8-9bd6-7ec5c2f75e5b
-      - SCOPE=openid,profile,email
+      - KEYCLOAK_CLIENT_ID=conjurClient
+      - KEYCLOAK_REDIRECT_URI=http://locallhost.com/
+      - KEYCLOAK_CLIENT_SECRET=d7047915-9029-45b8-9bd6-7ec5c2f75e5b
+      - KEYCLOAK_SCOPE=openid
     ports:
       - "7777:8080"
     volumes:

@@ -1,4 +1,5 @@
-Feature: An authorized client can authenticate as a permitted role
+Feature: A permitted Conjur host can authenticate with a valid resource restrictions
+  that is defined in the id
 
   Scenario: Authenticate as a Pod.
     Given I login to authn-k8s as "pod/inventory-pod"
@@ -22,3 +23,11 @@ Feature: An authorized client can authenticate as a permitted role
 
   Scenario: Authenticate using a certificate signed by a different CA
     Then I cannot authenticate with pod matching "pod/inventory-pod" as "service_account/inventory-pod-only" using a cert signed by a different CA
+
+  Scenario: Authenticate as a host defined under the root policy
+    Given I login to pod matching "app=inventory-pod" to authn-k8s as "@namespace@/*/*" with prefix "host"
+    Then I can authenticate pod matching "pod/inventory-pod" with authn-k8s as "@namespace@/*/*" with prefix "host"
+
+  Scenario: Authenticate without the "authentication-container-name" annotation defaults to "authenticator" and succeeds
+    Given I login to pod matching "app=inventory-pod" to authn-k8s as "@namespace@/*/*" with prefix "host/host-without-container-name"
+    Then I can authenticate pod matching "pod/inventory-pod" with authn-k8s as "@namespace@/*/*" with prefix "host/host-without-container-name"

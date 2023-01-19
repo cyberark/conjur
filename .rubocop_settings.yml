@@ -12,8 +12,8 @@ Style/RescueStandardError:
   EnforcedStyle: implicit
 Style/AndOr:
   EnforcedStyle: conditionals
-Layout/IndentHeredoc:
-  EnforcedStyle: squiggly
+Layout/HeredocIndentation:
+  Enabled: true
 Layout/MultilineMethodCallBraceLayout:
   EnforcedStyle: symmetrical
 Layout/SpaceAroundBlockParameters:
@@ -35,7 +35,7 @@ Layout/SpaceInsideParens:
 Layout/SpaceInsideReferenceBrackets:
   EnforcedStyle: no_space
   EnforcedStyleForEmptyBrackets: no_space
-Layout/TrailingBlankLines:
+Layout/TrailingEmptyLines:
   EnforcedStyle: final_newline
 Style/BarePercentLiterals:
   EnforcedStyle: percent_q
@@ -55,9 +55,7 @@ Layout/SpaceInsideArrayLiteralBrackets:
   EnforcedStyleForEmptyBrackets: no_space
 
 # The default configuration of these makes it hard to use proportional fonts.
-Layout/MultilineMethodCallIndentation:
-  EnforcedStyle: indented
-Layout/AlignParameters:
+Layout/ParameterAlignment:
   EnforcedStyle: with_fixed_indentation
 Layout/EndAlignment:
   EnforcedStyleAlignWith: start_of_line
@@ -65,7 +63,7 @@ Layout/ExtraSpacing:
   AllowForAlignment: false
 Layout/FirstParameterIndentation:
   EnforcedStyle: consistent
-Layout/IndentHash:
+Layout/FirstHashElementIndentation:
   EnforcedStyle: consistent
 Layout/MultilineMethodCallIndentation:
   EnforcedStyle: indented

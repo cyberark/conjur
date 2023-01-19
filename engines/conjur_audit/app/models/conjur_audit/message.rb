@@ -1,7 +1,11 @@
 # frozen_string_literal: true
 
 module ConjurAudit
-  class Message < Sequel::Model
+  # We split up how we define the Message class for audit to avoid
+  # Sequel errors for a detached data model. See this discussion
+  # for more information: https://groups.google.com/forum/#!topic/sequel-talk/0cluxoO6sV4
+  Message = Class.new(Sequel::Model)
+  class Message
     dataset_module do
       def matching_sdata filter
         where Filter.sdata filter

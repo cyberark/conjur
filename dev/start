@@ -15,7 +15,11 @@ Usage: start [options]
 
     --authn-iam     Starts with authn-iam/prod as authenticator
 
+    --authn-azure   Starts with authn-azure/prod as authenticator
+
     --authn-oidc    Starts with authn-oidc/keycloak as authenticator
+
+    --authn-gcp     Starts with authn-gcp as authenticator
 
     --oidc-adfs     Adds to authn-oidc adfs static env configuration
 
@@ -73,7 +77,9 @@ unset COMPOSE_PROJECT_NAME
 # Determine which extra services should be loaded when working with authenticators
 ENABLE_AUTHN_LDAP=false
 ENABLE_AUTHN_IAM=false
+ENABLE_AUTHN_AZURE=false
 ENABLE_AUTHN_OIDC=false
+ENABLE_AUTHN_GCP=false
 ENABLE_OIDC_ADFS=false
 ENABLE_OIDC_OKTA=false
 ENABLE_ROTATORS=false
@@ -81,7 +87,9 @@ ENABLE_AUDIT=false
 while true ; do
   case "$1" in
     --authn-iam ) ENABLE_AUTHN_IAM=true ; shift ;;
+    --authn-azure ) ENABLE_AUTHN_AZURE=true ; shift ;;
     --authn-ldap ) ENABLE_AUTHN_LDAP=true ; shift ;;
+    --authn-gcp ) ENABLE_AUTHN_GCP=true ; shift ;;
     --authn-oidc ) ENABLE_AUTHN_OIDC=true ; shift ;;
     --oidc-adfs ) ENABLE_OIDC_ADFS=true ; shift ;;
     --oidc-okta ) ENABLE_OIDC_OKTA=true ; shift ;;
@@ -102,10 +110,25 @@ fi
 export CONJUR_DATA_KEY="$(cat data_key)"
 
 services="pg conjur client"
+
+if [[ $ENABLE_AUDIT = true ]]; then
+  services="$services audit"
+  export AUDIT_DATABASE_URL=postgres://postgres@audit
+fi
+
 docker-compose up -d --no-deps $services
 docker-compose exec conjur bundle
 docker-compose exec conjur conjurctl db migrate
 docker-compose exec conjur conjurctl account create cucumber || true
+
+if [[ $ENABLE_AUDIT = true ]]; then
+  # Run database migration to create audit database schema
+  docker-compose exec -T conjur bash -c '
+  BUNDLE_GEMFILE=/src/conjur-server/Gemfile \
+    bundle exec sequel $AUDIT_DATABASE_URL \
+    -E -m /src/conjur-server/engines/conjur_audit/db/migrate/
+  '
+fi
 
 echo "Starting Conjur server"
 docker-compose exec -d conjur conjurctl server
@@ -113,7 +136,8 @@ docker-compose exec -d conjur conjurctl server
 echo 'Checking if Conjur server is ready'
 conjur_isready?
 
-enabled_authenticators="authn"
+default_authenticators="authn,authn-config/env"
+enabled_authenticators="$default_authenticators"
 
 env_args=
 if [[ $ENABLE_AUTHN_LDAP = true ]]; then
@@ -129,13 +153,32 @@ if [[ $ENABLE_AUTHN_LDAP = true ]]; then
   docker-compose exec conjur conjurctl policy load cucumber /src/conjur-server/dev/files/authn-ldap/policy.yml
 fi
 
+if [[ $ENABLE_AUTHN_AZURE = true ]]; then
+  enabled_authenticators="$enabled_authenticators,authn-azure/prod"
+
+  ../ci/authn-azure/check_dependencies.sh
+
+  docker-compose exec client conjur policy load root /src/conjur-server/ci/authn-azure/policies/policy.yml
+  docker-compose exec client conjur variable values add conjur/authn-azure/prod/provider-uri "https://sts.windows.net/$AZURE_TENANT_ID/"
+
+  sed "s#{{ AZURE_SUBSCRIPTION_ID }}#$AZURE_SUBSCRIPTION_ID#g" ../ci/authn-azure/policies/azure-hosts.template.yml |
+    sed "s#{{ AZURE_RESOURCE_GROUP }}#$AZURE_RESOURCE_GROUP#g" > ../ci/authn-azure/policies/azure-hosts.yml
+  docker-compose exec client conjur policy load root /src/conjur-server/ci/authn-azure/policies/azure-hosts.yml
+
+  docker-compose exec client conjur policy load root /src/conjur-server/ci/authn-azure/policies/azure-operators.yml
+fi
+
+if [[ $ENABLE_AUTHN_GCP = true ]]; then
+  enabled_authenticators="$enabled_authenticators,authn-gcp"
+fi
+
 if [[ $ENABLE_AUTHN_OIDC = false && ($ENABLE_OIDC_ADFS = true || $ENABLE_OIDC_OKTA = true) ]]; then
     echo "Error: --oidc-adfs/--oidc-okta should be configured as part of --authn-oidc"
     exit 1
 fi
 
 if [[ $ENABLE_AUTHN_OIDC = true ]]; then
-  services="$services oidc-keycloak oidc-phantomjs"
+  services="$services oidc-keycloak"
   docker-compose up -d --no-deps $services
 
   echo "Configuring Keycloak as OpenID provider for automatic testing"
@@ -188,30 +231,14 @@ if [[ $ENABLE_AUTHN_OIDC = true ]]; then
   docker-compose exec oidc-keycloak /authn-oidc/keycloak/scripts/create_client
   echo "keycloak admin console url: http://0.0.0.0:7777/auth/admin"
 
-  echo "extracting keycloak parameters"
-  KEYCLOAK_APP_USER="$(docker-compose exec oidc-keycloak printenv KEYCLOAK_APP_USER | tr -d '\r')"
-  KEYCLOAK_APP_USER_PASSWORD="$(docker-compose exec oidc-keycloak printenv KEYCLOAK_APP_USER_PASSWORD | tr -d '\r')"
-  KEYCLOAK_APP_USER_EMAIL="$(docker-compose exec oidc-keycloak printenv KEYCLOAK_APP_USER_EMAIL | tr -d '\r')"
-
-  KEYCLOAK_SECOND_APP_USER="$(docker-compose exec oidc-keycloak printenv KEYCLOAK_SECOND_APP_USER | tr -d '\r')"
-  KEYCLOAK_SECOND_APP_USER_PASSWORD="$(docker-compose exec oidc-keycloak printenv KEYCLOAK_SECOND_APP_USER_PASSWORD | tr -d '\r')"
-  KEYCLOAK_SECOND_APP_USER_EMAIL="$(docker-compose exec oidc-keycloak printenv KEYCLOAK_SECOND_APP_USER_EMAIL | tr -d '\r')"
-
-  KEYCLOAK_NON_CONJUR_APP_USER="$(docker-compose exec oidc-keycloak printenv KEYCLOAK_NON_CONJUR_APP_USER | tr -d '\r')"
-  KEYCLOAK_NON_CONJUR_APP_USER_PASSWORD="$(docker-compose exec oidc-keycloak printenv KEYCLOAK_NON_CONJUR_APP_USER_PASSWORD | tr -d '\r')"
-  KEYCLOAK_NON_CONJUR_APP_USER_EMAIL="$(docker-compose exec oidc-keycloak printenv KEYCLOAK_NON_CONJUR_APP_USER_EMAIL | tr -d '\r')"
-
   echo "Creating user 'alice' in Keycloak"
-  docker-compose exec oidc-keycloak /authn-oidc/keycloak/scripts/create_user $KEYCLOAK_APP_USER $KEYCLOAK_APP_USER_PASSWORD $KEYCLOAK_APP_USER_EMAIL
+  docker-compose exec oidc-keycloak bash -c '/authn-oidc/keycloak/scripts/create_user "$KEYCLOAK_APP_USER" "$KEYCLOAK_APP_USER_PASSWORD" "$KEYCLOAK_APP_USER_EMAIL"'
 
   echo "Creating second user 'bob' in Keycloak"
-  docker-compose exec oidc-keycloak /authn-oidc/keycloak/scripts/create_user $KEYCLOAK_SECOND_APP_USER $KEYCLOAK_SECOND_APP_USER_PASSWORD $KEYCLOAK_SECOND_APP_USER_EMAIL
+  docker-compose exec oidc-keycloak bash -c '/authn-oidc/keycloak/scripts/create_user "$KEYCLOAK_SECOND_APP_USER" "$KEYCLOAK_SECOND_APP_USER_PASSWORD" "$KEYCLOAK_SECOND_APP_USER_EMAIL"'
 
   echo "Creating user in Keycloak that will not exist in conjur"
-  docker-compose exec oidc-keycloak /authn-oidc/keycloak/scripts/create_user $KEYCLOAK_NON_CONJUR_APP_USER $KEYCLOAK_NON_CONJUR_APP_USER_PASSWORD $KEYCLOAK_NON_CONJUR_APP_USER_EMAIL
-
-  echo "Fetch OpenID authrization code from keycloak using phantomjs"
-  docker-compose exec oidc-phantomjs /authn-oidc/phantomjs/scripts/fetchAuthCode $KEYCLOAK_APP_USER $KEYCLOAK_APP_USER_PASSWORD
+  docker-compose exec oidc-keycloak bash -c '/authn-oidc/keycloak/scripts/create_user "$KEYCLOAK_NON_CONJUR_APP_USER" "$KEYCLOAK_NON_CONJUR_APP_USER_PASSWORD" "$KEYCLOAK_NON_CONJUR_APP_USER_EMAIL"'
 
   if [[ $ENABLE_AUTHN_LDAP = true && $ENABLE_OIDC_OKTA = true ]]; then
     echo "Building & configuring Okta-LDAP agent"
@@ -233,23 +260,18 @@ if [[ $ENABLE_AUTHN_IAM = true ]]; then
   docker-compose exec conjur conjurctl policy load cucumber /src/conjur-server/dev/files/authn-iam/policy.yml
 fi
 
-if [[ $ENABLE_AUDIT = true ]]; then
-  services="$services audit"
-  export AUDIT_DATABASE_URL=postgres://postgres@audit
-fi
-
 echo "Setting CONJUR_AUTHENTICATORS to: $enabled_authenticators"
 env_args="$env_args -e CONJUR_AUTHENTICATORS=$enabled_authenticators"
 
 docker-compose up -d --no-deps $services
 
-if [[ $ENABLE_AUDIT = true ]]; then
-  # Run database migration to create audit database schema
-  docker-compose exec -T conjur bash -c '
-  BUNDLE_GEMFILE=/src/conjur-server/Gemfile \
-    bundle exec sequel $AUDIT_DATABASE_URL \
-    -E -m /src/conjur-server/engines/conjur_audit/db/migrate/
-  '
+# If the enabled authenticators changed after initial Conjur configuration,
+# then docker-compose recreates the container to set the environment variable,
+# and we need to restart the Conjur server process.
+if [[ $enabled_authenticators != $default_authenticators ]]; then
+  echo "Starting Conjur server"
+  docker-compose exec -d conjur conjurctl server
+  conjur_isready?
 fi
 
 echo "Creating user alice"

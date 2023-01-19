@@ -6,7 +6,7 @@ pipeline {
   options {
     timestamps()
     buildDiscarder(logRotator(numToKeepStr: '30'))
-    skipDefaultCheckout()  // see 'Checkout SCM' below, once perms are fixed this is no longer needed
+    timeout(time: 1, unit: 'HOURS')
   }
 
   triggers {
@@ -29,9 +29,42 @@ pipeline {
       }
     }
 
-    stage('Build Docker image') {
+    stage('Build Docker Image') {
       steps {
-        sh './build.sh -j'
+        sh './build.sh --jenkins'
+      }
+    }
+
+    stage('Scan Docker Image') {
+      parallel {
+        stage("Scan Docker Image for fixable issues") {
+          steps {
+            script {
+              TAG = sh(returnStdout: true, script: 'echo $(< VERSION)-$(git rev-parse --short HEAD)')
+            }
+            scanAndReport("conjur:${TAG}", "HIGH", false)
+          }
+        }
+        stage("Scan Docker image for total issues") {
+          steps {
+            script {
+              TAG = sh(returnStdout: true, script: 'echo $(< VERSION)-$(git rev-parse --short HEAD)')
+            }
+            scanAndReport("conjur:${TAG}", "NONE", true)
+          }
+        }
+      }
+    }
+
+    stage('Prepare For CodeClimate Coverage Report Submission'){
+      steps {
+        catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+          script {
+            ccCoverage.dockerPrep()
+            sh 'mkdir -p coverage'
+            env.CODE_CLIMATE_PREPARED = "true"
+          }
+        }
       }
     }
 
@@ -40,8 +73,164 @@ pipeline {
         stage('RSpec') {
           steps { sh 'ci/test rspec' }
         }
-        stage('Authenticators') {
-          steps { sh 'ci/test cucumber_authenticators' }
+        stage('Authenticators Config') {
+          steps { sh 'ci/test cucumber_authenticators_config' }
+        }
+        stage('Authenticators Status') {
+          steps { sh 'ci/test cucumber_authenticators_status' }
+        }
+        stage('LDAP Authenticator') {
+          steps { sh 'ci/test cucumber_authenticators_ldap' }
+        }
+        stage('OIDC Authenticator') {
+          steps { sh 'ci/test cucumber_authenticators_oidc' }
+        }
+        stage('Azure Authenticator') {
+          steps {
+            script {
+              node('azure-linux') {
+                // get `ci/authn-azure/get_system_assigned_identity.sh` from scm
+                checkout scm
+                env.AZURE_AUTHN_INSTANCE_IP = sh(script: 'curl icanhazip.com', returnStdout: true).trim()
+                env.SYSTEM_ASSIGNED_IDENTITY = sh(script: 'ci/authn-azure/get_system_assigned_identity.sh', returnStdout: true).trim()
+
+                sh('summon -f ci/authn-azure/secrets.yml ci/test cucumber_authenticators_azure')
+              }
+            }
+          }
+        }
+        /**
+        * We have 3 stages for GCP Authenticator tests.
+        * In this stage, a GCE instance node is allocated, a script runs and retrieves all the tokens that will be
+        * used in authn-gcp tests.
+        * The token are stashed, and later un-stashed and used in the stage that runs the GCP Authenticator tests.
+        * This way we can have a light-weight GCE instance that has no dependency on conjurops
+        * or git identities and is not open for SSH.
+        */
+        stage('GCP Authenticator preparation - Allocate GCE Instance') {
+          steps {
+            echo '-- Allocating Google Compute Engine'
+            script {
+              dir('ci/authn-gcp') {
+                stash name: 'get_gce_tokens_script',
+                includes: 'get_gce_tokens_to_files.sh,get_tokens_to_files.sh,tokens_config.json'
+              }
+              node('executor-v2-gcp-small') {
+                echo '-- Google Compute Engine allocated'
+                echo '-- Get compute engine instance project name from Google metadata server.'
+                env.GCP_PROJECT = sh (
+                    script: 'curl -s -H "Metadata-Flavor: Google" \
+                    "http://metadata.google.internal/computeMetadata/v1/project/project-id"',
+                    returnStdout: true
+                ).trim()
+                unstash 'get_gce_tokens_script'
+                sh './get_gce_tokens_to_files.sh'
+                stash name: 'authnGceTokens', includes: 'gce_token_*', allowEmpty:false
+              }
+            }
+          }
+          post {
+           failure {
+            script {
+              env.GCP_ENV_ERROR = "true"
+            }
+           }
+           success {
+            script {
+              env.GCE_TOKENS_FETCHED = "true"
+            }
+            echo '-- Finished fetching GCE tokens.'
+           }
+          }
+        }
+        /**
+        * We have 3 stages for GCP Authenticator tests.
+        * In this stage, Google SDK container executes a script to deploy a function,
+        * the function accepts audience in query string and returns a token with that audience.
+        * All the tokens required for testings are obtained and written to function directory, the post stage branch
+        * deletes the function.
+        * This stage depends on stage: 'GCP Authenticator preparation - Allocate GCE Instance' to set
+        * the GCP project env var.
+        */
+        stage('GCP Authenticator preparation - Allocate Google Function') {
+          environment {
+            GCP_FETCH_TOKEN_FUNCTION = "fetch_token_${BUILD_NUMBER}"
+            IDENTITY_TOKEN_FILE = 'identity-token'
+            GCP_OWNER_SERVICE_KEY_FILE = "sa-key-file.json"
+            GCP_ZONE="us-central1"
+          }
+          steps {
+            echo "Waiting for GCP project name (Set by stage: 'GCP Authenticator preparation - Allocate GCE Instance')"
+            timeout(time: 10, unit: 'MINUTES') {
+              waitUntil {
+                script {
+                  return (env.GCP_PROJECT != null  || env.GCP_ENV_ERROR == "true")
+                }
+              }
+            }
+            script {
+              if (env.GCP_ENV_ERROR == "true") {
+                error('GCP_ENV_ERROR cannot deploy function')
+              }
+
+              dir('ci/authn-gcp') {
+                sh './deploy_function_and_get_tokens.sh'
+              }
+            }
+          }
+          post {
+            success {
+              echo "-- Google Cloud test env is ready"
+              script {
+                env.GCP_FUNC_TOKENS_FETCHED = "true"
+              }
+            }
+            failure {
+              echo "-- GCP function deployment stage failed"
+              script {
+                env.GCP_ENV_ERROR = "true"
+              }
+            }
+            always {
+              script {
+                dir('ci/authn-gcp') {
+                  sh '''
+                  # Cleanup Google function
+                  summon ./run_gcloud.sh cleanup_function.sh
+                  '''
+                }
+              }
+            }
+          }
+        }
+        /**
+        * We have two preparation stages before running the GCP Authenticator tests stage.
+        * This stage waits for GCP preparation stages to complete, un-stashes the tokens created in
+        * stage: 'GCP Authenticator preparation - Allocate GCE Instance' and runs the gcp-authn tests.
+        */
+        stage('GCP Authenticator - Run tests') {
+          steps {
+            echo 'Waiting for GCP Tokens. (Tokens are provisioned by GCP Authenticator preparation stages.)'
+            timeout(time: 10, unit: 'MINUTES') {
+              waitUntil {
+                script {
+                  return ( env.GCP_ENV_ERROR == "true"
+                    || (env.GCP_FUNC_TOKENS_FETCHED == "true" && GCE_TOKENS_FETCHED == "true"))
+                }
+              }
+            }
+            script {
+              if (env.GCP_ENV_ERROR == "true") {
+                error('GCP_ENV_ERROR: cannot run tests check the logs for errors in GCP stages A and B')
+              }
+            }
+            script {
+              dir('ci/authn-gcp/tokens') {
+                unstash 'authnGceTokens'
+              }
+              sh 'ci/test cucumber_authenticators_gcp'
+            }
+          }
         }
         stage('Policy') {
           steps { sh 'ci/test cucumber_policy' }
@@ -59,11 +248,16 @@ pipeline {
           steps { sh 'ci/test rspec_audit'}
         }
       }
-      post {
-        always {
-          junit 'spec/reports/*.xml,spec/reports-audit/*.xml,cucumber/api/features/reports/**/*.xml,cucumber/policy/features/reports/**/*.xml,cucumber/authenticators/features/reports/**/*.xml'
-          publishHTML([reportDir: 'coverage', reportFiles: 'index.html', reportName: 'Coverage Report', reportTitles: '', allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false])
+    }
+
+    stage('Submit Coverage Report'){
+      when {
+        expression {
+          env.CODE_CLIMATE_PREPARED == "true"
         }
+      }
+      steps{
+        sh 'ci/submit-coverage'
       }
     }
 
@@ -86,20 +280,30 @@ pipeline {
         sh './publish.sh'
       }
     }
-
-    stage('Publish Conjur to Heroku') {
-      when {
-        branch 'master'
-      }
-      steps {
-        build job: 'release-heroku', parameters: [string(name: 'APP_NAME', value: 'possum-conjur')]
-      }
-    }
   }
 
   post {
+    success {
+      script {
+        if (env.BRANCH_NAME == 'master') {
+          build (job:'../cyberark--secrets-provider-for-k8s/master', wait: false)
+        }
+      }
+    }
     always {
-      cleanupAndNotify(currentBuild.currentResult)
+      archiveArtifacts artifacts: "container_logs/*/*", fingerprint: false, allowEmptyArchive: true
+      archiveArtifacts artifacts: "coverage/.resultset*.json", fingerprint: false, allowEmptyArchive: true
+      archiveArtifacts artifacts: "ci/authn-k8s/output/simplecov-resultset-authnk8s-gke.json", fingerprint: false, allowEmptyArchive: true
+      archiveArtifacts artifacts: "cucumber/*/*.*", fingerprint: false, allowEmptyArchive: true
+      publishHTML([reportDir: 'cucumber', reportFiles: 'api/cucumber_results.html, 	authenticators_config/cucumber_results.html, \
+                               authenticators_azure/cucumber_results.html, authenticators_ldap/cucumber_results.html, \
+                               authenticators_oidc/cucumber_results.html, authenticators_status/cucumber_results.html,\
+                               policy/cucumber_results.html , rotators/cucumber_results.html',\
+                               reportName: 'Integration reports', reportTitles: '', allowMissing: false, alwaysLinkToLastBuild: true, keepAll: true])
+      publishHTML([reportDir: 'coverage', reportFiles: 'index.html', reportName: 'Coverage Report', reportTitles: '', allowMissing: false, alwaysLinkToLastBuild: true, keepAll: true])
+      junit 'spec/reports/*.xml,spec/reports-audit/*.xml,cucumber/*/features/reports/**/*.xml'
+      cucumber fileIncludePattern: '**/cucumber_results.json', sortingMethod: 'ALPHABETICAL'
+      cleanupAndNotify(currentBuild.currentResult, '#conjur-core', '', true)
     }
   }
 }

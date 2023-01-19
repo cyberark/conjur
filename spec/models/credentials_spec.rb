@@ -21,7 +21,7 @@ describe Credentials, :type => :model do
     describe '#encrypted_hash' do
       subject { the_user.credentials.encrypted_hash }
       context "when password is specified" do
-        let(:password) { "the-password" }
+        let(:password) { "The-Password1" }
         it { is_expected.not_to be_blank }
       end
       context "when password is not specified" do
@@ -47,8 +47,9 @@ describe Credentials, :type => :model do
     end
     
     describe '#password=' do
+      let(:insufficient_msg) { ::Errors::Conjur::InsufficientPasswordComplexity.new.to_s }
       context "with password" do
-        let(:password) { "the-password" }
+        let(:password) { "The-Password1" }
         it 'sets no password when given nil' do
           credentials.password = nil
           credentials.save
@@ -57,10 +58,70 @@ describe Credentials, :type => :model do
           expect(credentials.valid_password?(nil)).to be_falsey
         end
       end
+      it 'allows passwords with 128 characters long' do
+        credentials.password = "My Password134567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678"
+        expect { credentials.save }.not_to raise_error
+      end
+      it 'allows passwords with all acceptable special characters' do
+        credentials.password = "New-Password1 !\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~]"
+        expect { credentials.save }.not_to raise_error
+      end
+      it 'allows passwords with mixed languages (Russian and French)' do
+        credentials.password = "New!Password1БбИиàâæ"
+        expect { credentials.save }.not_to raise_error
+      end
       it 'disallows passwords with newlines' do
-        credentials.password = "foo\nbar"
+        credentials.password = "My-\nPasswor1"
         expect { credentials.save }.to raise_error(Sequel::ValidationFailed) do |e|
-          expect(e.errors.to_h).to eq({ password: [ "cannot contain a newline" ]})
+          expect(e.errors.to_h).to eq({ password: [ insufficient_msg ]})
+        end
+      end
+      it 'disallows passwords with 11 characters long' do
+        credentials.password = "My-Passwor1"
+        expect { credentials.save }.to raise_error(Sequel::ValidationFailed) do |e|
+          expect(e.errors.to_h).to eq({ password: [ insufficient_msg ]})
+        end
+      end
+      it 'disallows passwords with 129 characters long' do
+        credentials.password = "My-Password1345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789"
+        expect { credentials.save }.to raise_error(Sequel::ValidationFailed) do |e|
+          expect(e.errors.to_h).to eq({ password: [ insufficient_msg ]})
+        end
+      end
+      it 'disallows passwords with only 1 upper case character' do
+        credentials.password = "My-password12"
+        expect { credentials.save }.to raise_error(Sequel::ValidationFailed) do |e|
+          expect(e.errors.to_h).to eq({ password: [ insufficient_msg ]})
+        end
+      end
+      it 'disallows passwords with only 1 lower case character' do
+        credentials.password = "My-P12345671"
+        expect { credentials.save }.to raise_error(Sequel::ValidationFailed) do |e|
+          expect(e.errors.to_h).to eq({ password: [ insufficient_msg ]})
+        end
+      end
+      it 'disallows passwords without a digit' do
+        credentials.password = "My-Passworda"
+        expect { credentials.save }.to raise_error(Sequel::ValidationFailed) do |e|
+          expect(e.errors.to_h).to eq({ password: [ insufficient_msg ]})
+        end
+      end
+      it 'disallows passwords without a special character' do
+        credentials.password = "NewPassword1"
+        expect { credentials.save }.to raise_error(Sequel::ValidationFailed) do |e|
+          expect(e.errors.to_h).to eq({ password: [ insufficient_msg ]})
+        end
+      end
+      it 'disallows passwords with non supported special character' do
+        credentials.password = "New¶Password1"
+        expect { credentials.save }.to raise_error(Sequel::ValidationFailed) do |e|
+          expect(e.errors.to_h).to eq({ password: [ insufficient_msg ]})
+        end
+      end
+      it 'disallows passwords with empty password' do
+        credentials.password = ""
+        expect { credentials.save }.to raise_error(Sequel::ValidationFailed) do |e|
+          expect(e.errors.to_h).to eq({ password: [ insufficient_msg ]})
         end
       end
     end
@@ -69,7 +130,7 @@ describe Credentials, :type => :model do
   describe "authenticate" do
     before { credentials.save }
     context "with password" do
-      let(:password) { "the-password" }
+      let(:password) { "The-Password1" }
       it "returns true on good password" do
         expect(credentials.authenticate(password)).to be_truthy
         expect(credentials.valid_password?(password)).to be_truthy
@@ -100,7 +161,7 @@ describe Credentials, :type => :model do
         end
       end
       context "with password" do
-        let(:password) { "the-password" }
+        let(:password) { "The-Password1" }
         describe "when expired" do
           let(:expiration_time) { past }
           it "has a valid password" do

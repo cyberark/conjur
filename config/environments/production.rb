@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require './config/conjur_log_formatter'
+require 'logger/formatter/conjur_formatter'
 
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
@@ -26,11 +26,11 @@ Rails.application.configure do
 
   # Disable serving static files from the `/public` folder by default since
   # Apache or NGINX already handles this.
-  config.serve_static_files = ENV['RAILS_SERVE_STATIC_FILES'].present?
+  config.public_file_server.enabled = ENV['RAILS_SERVE_STATIC_FILES'].present?
 
   # Use log level "warn" in prod to avoid logging parameters.
-  config.log_level = :warn
-  config.log_formatter = ConjurLogFormatter.new
+  config.log_level = ENV['CONJUR_LOG_LEVEL'] || :info
+  config.log_formatter = ConjurFormatter.new
 
   # Specifies the header that your server uses for sending files.
   # config.action_dispatch.x_sendfile_header = 'X-Sendfile' # for Apache
@@ -63,6 +63,6 @@ Rails.application.configure do
   config.active_support.deprecation = :notify
 
   #Add support for asset compression in production
-  config.assets.css_compressor = :sass
-  config.assets.js_compressor = :uglifier
+  # config.assets.css_compressor = :sass
+  # config.assets.js_compressor = :uglifier
 end

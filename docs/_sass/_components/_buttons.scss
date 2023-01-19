@@ -1,0 +1,70 @@
+// ***********************
+// Buttons
+// ***********************
+
+.conjur-btn {
+  transition: all 0.4s;
+  color: #fff;
+  padding: .5em 1.3em;
+  text-transform: uppercase;
+  font-weight: 500;
+  border-radius: 3px;
+
+  &:hover, &:focus {
+    text-decoration: none;
+    color: #fff;
+    box-shadow: 0px 0px 5px rgba(165,165,165,0.8);
+  }
+
+  &.primary {
+    background-color: $cybr-blue;
+    border: 2px solid $cybr-blue;
+    &:hover {
+      background-color: darken($cybr-blue,08);
+      border-color: darken($cybr-blue,08);
+    }
+  }
+
+  &.secondary {
+    background-color: transparent;
+    border: 2px solid #fff;
+    &:hover {
+      background-color: rgba(255,255,255,0.25);
+    }
+  }
+
+  &.tertiary {
+    background-color: $conjur-teal;
+    border: 2px solid $conjur-teal;
+    &:hover {
+      background-color: darken($conjur-teal,08);
+      border-color: darken($conjur-teal,08);
+    }
+  }
+
+  &.ghost {
+    background-color: transparent;
+    border: 2px solid #fff;
+    &:hover {
+      background-color: rgba(255,255,255,0.25);
+    }
+  }
+
+  &.cancel {
+    background-color: transparent;
+    color: $conjur-medgray;
+    border: 0;
+    text-transform: capitalize;
+    &:hover {
+      color: darken($conjur-medgray,20);
+      box-shadow: none;
+    }
+  }
+
+}
+
+// Messages
+
+.success-msg {
+  color: $success;
+}

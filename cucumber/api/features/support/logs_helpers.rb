@@ -9,6 +9,9 @@
 # 2. be able to parallelize the tests in the future
 #
 module LogsHelpers
+  # NOTE: This path is coupled to the one created in "audit_socket.rb" that
+  # specifies where logs are written to in dev and ci environments.  See note
+  # there for more details.
   LOG_LOCATION = "/src/conjur-server/log/development.log"
 
   def num_log_lines
@@ -35,12 +38,15 @@ module LogsHelpers
   private
 
   def validate_savepoint_exists
-    raise "No savepoint exists.  'save_num_log_lines' must be called before this method" unless @saved_num_lines
+    return if @saved_num_lines
+    raise "No savepoint exists.  'save_num_log_lines' must be called " \
+      "before this method"
   end
 
   def validate_log_didnt_shrink(cur_num_lines)
     return if cur_num_lines >= @saved_num_lines
-    raise "The log has fewer lines (#{cur_num_lines}) than it did before (#{@saved_num_lines})"
+    raise "The log has fewer lines (#{cur_num_lines}) than it did before " \
+      "(#{@saved_num_lines})"
   end
 end
 

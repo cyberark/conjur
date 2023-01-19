@@ -1,0 +1,610 @@
+// ***********************
+// Icons
+// ***********************
+
+.icon-docker-hub {
+  background: url($baseurl + "/img/docker_icon.svg") no-repeat center center;
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+}
+
+#footer .icon-docker-hub {
+  background: url($baseurl + "/img/docker-blue.svg") no-repeat center center;
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+}
+
+
+// ***********************
+// Utilities
+// ***********************
+
+.mt-2 {
+  margin-top: 2em;
+}
+
+.equal {
+  display: flex;
+  align-items: stretch;
+}
+
+a.doc-switch {
+  background-color: #2f73b0;
+  padding: 4px 10px;
+  border-radius: 3px;
+  color: #fff;
+  transition: all 0.4s;
+}
+
+a.doc-switch:hover, a.doc-switch:focus {
+  text-decoration: none;
+  background-color: #244f75;
+  color: #fff;
+}
+
+a.doc-switch:after {
+  color: #a1c8e8;
+  content: "\f08e";
+  font-family: FontAwesome;
+  font-size: 75%;
+  padding-left: 10px;
+}
+
+
+
+// ***********************
+// Next Steps
+// ***********************
+
+.nextsteps {
+
+  .cta-box {
+    min-height: auto;
+  }
+
+  .cta-box ul.cta-links {
+    margin: 0 0 0 1em;
+  }
+}
+
+
+// ***********************
+// Copy to Clipboard
+// ***********************
+
+.hover-button {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  background: url($baseurl + "/img/copy-to-clipboard.svg");
+  background-repeat: no-repeat;
+  background-position: center;
+  border: none;
+  cursor: pointer;
+  right: 24px;
+}
+
+.tooltip-text {
+  visibility: hidden;
+  width: 120px;
+  background-color: $conjur-dark;
+  font-family: 'Open Sans';
+  font-size: 12px;
+  color: #fff;
+  text-align: center;
+  padding: 5px 0;
+  border-radius: 6px;
+  position: absolute;
+  right: -45px;
+  z-index: 1;
+  margin-top: 30px;
+}
+
+.hover-button:hover .tooltip-text {
+  visibility: visible;
+}
+
+.highlight pre button {
+  visibility: visible;
+}
+
+.arrow_box:after {
+  bottom: 100%;
+  left: 50%;
+  border: solid transparent;
+  content: " ";
+  height: 0;
+  width: 0;
+  position: absolute;
+  pointer-events: none;
+  border-color: rgba(0, 0, 0, 0);
+  border-bottom-color: $conjur-dark;
+  border-width: 10px;
+  margin-left: -10px;
+}
+
+
+// ***********************
+// Copy to Clipboard Code Boxes
+// ***********************
+
+.highlight pre {
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+pre > code {
+  width: 90%;
+  overflow: auto;
+  display: block;
+}
+
+// Code Block Title
+.code-title {
+  margin-bottom: -16px;
+  //font-weight: 800;
+  font-size: 14px;
+  color: $conjur-medgray;
+}
+
+
+// ***********************
+// AnchorJS Link placement and hover behavior
+// ***********************
+
+.anchorjs-link {
+  color: inherit !important;
+  text-decoration: none !important; /* do not underline */
+}
+
+@media (max-width: 768px) {
+  /* Do not display AnchorJS icon on less than 768px view point */
+  .anchorjs-link {
+    display: none;
+  }
+}
+
+*:hover > .anchorjs-link {
+  opacity: .75;
+  /* To fade links as they appear, change transition-property from 'color' to 'all' */
+  -webkit-transition: color .16s linear;
+  transition: color .16s linear;
+}
+
+*:hover > .anchorjs-link:hover,
+.anchorjs-link:focus {
+  text-decoration: none !important; /* do not underline */
+  opacity: 1;
+}
+
+
+// ***********************
+// Alert Info
+// ***********************
+
+.alert-info {
+  background-color: #e6f0f8;
+  border: none;
+  color: $cybr-blue;
+  margin-top: 2em;
+}
+
+.alert-warning {
+  background-color: $error;
+  border: none;
+  color: $cybr-blue;
+  margin-top: 2em;
+}
+
+
+// ***********************
+// Home
+// ***********************
+
+.home {
+  padding-top: 0;
+  margin-bottom: 1em;
+}
+
+// ***********************
+// Landing page
+// ***********************
+
+.landing-page-header {
+
+  h1 {
+    margin-top: 24px;
+    margin-bottom: 24px;
+  }
+
+  p {
+    font-size: 20px;
+  }
+
+  a {
+    font-size: 20px;
+  }
+}
+
+
+// ***********************
+// Features
+// ***********************
+
+.feature-wrap {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    grid-column-gap: 2rem;
+    grid-row-gap: 2rem;
+
+  img {
+    margin: 0;
+    width: 50px;
+    height: 50px;
+  }
+
+  h2 {
+    margin-top: .5em;
+    margin-bottom: .5em;
+    color: $conjur-dark;
+    font-weight: 800;
+  }
+}
+
+
+// ***********************
+// News
+// ***********************
+
+.container.news {
+  margin-bottom: 2em;
+}
+
+
+// ***********************
+// Blog
+// ***********************
+
+article {
+
+  header {
+    color: #ababab;
+    margin: 2em auto;
+    max-width: 730px;
+  }
+
+  .entry {
+    margin: 0 auto;
+    max-width: 730px;
+  }
+
+  h1 {
+    margin: 20px 0 0 0;
+  }
+
+  .date {
+    color: #ababab;
+    font-size: 14px;
+  }
+
+  .blog-subhead {
+    font-size: 30px;
+    font-weight: 500;
+    color: $cybr-ltblue;
+    margin: 10px 0;
+  }
+
+  img {
+    margin: 30px auto;
+    max-width: 80%;
+  }
+}
+
+.posts {
+  padding: 0;
+  margin: 0;
+
+  .card {
+    background-color: whitesmoke;
+    border: 0;
+    margin: 1em 0;
+    padding: 20px;
+    display: flex;
+    flex-direction: row;
+
+    h1 {
+      margin: 20px 0 0 0;
+    }
+
+    h2 { transition: all 0.3s; }
+
+    .blog-subhead {
+      font-size: 20px;
+      font-weight: 500;
+      margin: 10px 0;
+    }
+
+    a:hover {
+      text-decoration: none;
+      color: $cybr-ltblue;
+      h2 { color: $cybr-ltblue; }
+    }
+
+  }
+
+  .post {
+    .date {
+      color: #ababab;
+      font-size: 14px;
+      margin-top: 0;
+    }
+  }
+}
+
+.post-list-thumb {
+  width: 100%;
+  max-width: 200px;
+  float: left;
+  display: inline-block;
+  margin: 0 20px 0 0;
+  border-radius: 0;
+}
+
+.blog-code {
+  margin: 1em 0 4em 0;
+
+  pre {
+    padding: 3em;
+    margin: 0;
+  }
+}
+
+@media (max-width: 650px) {
+  .posts .card {
+    flex-direction: column;
+  }
+
+  .post-list-thumb {
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    margin-bottom: 1em;
+  }
+
+}
+
+// ***********************
+// Download link
+// **********************
+
+.file-download {
+  background-color: #e6f0f8;
+  border-radius: 3px;
+  color: $conjur-dark;
+  font-size: 14px;
+  font-weight: 800;
+  margin: 0 3px;
+  padding: 5px 10px;
+  transition: all 0.3s;
+  text-decoration: none;
+
+  &::before {
+    font-family: "Font Awesome 5 Free";
+    content: "\f0ab";
+    margin-right: 5px;
+  }
+
+  &:hover, &:focus, &:active {
+    background-color: darken(#e6f0f8,10);
+    text-decoration: none;
+    color: $conjur-dark;
+  }
+}
+
+.wrap.security-advisory {
+  margin-top: 2rem;
+}
+
+.card.security-advisory {
+  margin: 1rem 0;
+
+  p {
+    margin: .5rem 0 0 0;
+  }
+}
+
+// ***********************
+// Tabs
+// ***********************
+
+.tab-content {
+	display: none;
+}
+
+.ui-state-active, .ui-widget-content .ui-state-active, .ui-widget-header .ui-state-active, a.ui-button:active, .ui-button:active, .ui-button.ui-state-active:hover {
+	border: .1rem solid $cybr-blue;
+	background: $cybr-blue;
+	font-weight: normal;
+	color: #fff;
+}
+
+.ui-widget-header {
+	border: 0;
+	border-radius: 0;
+	background: none;
+	color: $sless-text;
+	font-weight: bold;
+}
+
+.ui-tabs.ui-tabs-panel {
+	background-color: $cybr-blue;
+}
+
+.ui-widget.ui-widget-content {
+	border: 0;
+}
+
+pre {
+	display: block;
+	padding: .95rem;
+	margin: 0 0 1rem;
+	font-size: 1.4rem;
+	line-height: 1.42857143;
+	color: #fffc;
+	word-break: break-all;
+	word-wrap: break-word;
+	background-color: $sless-dark-blue;
+	border: 0;
+	border-radius: .4rem;
+}
+
+.ui-tabs .ui-tabs-panel {
+	display: block;
+	border-width: 0;
+	padding: 2rem 2rem 2rem 0;
+	background: $cybr-blue;
+}
+
+.ui-tabs .ui-tabs-nav li {
+	margin: 0.1rem .8rem 0 0;
+}
+
+.ui-state-default, .ui-widget-content .ui-state-default, .ui-widget-header .ui-state-default, .ui-button, html .ui-button.ui-state-disabled:hover, html .ui-button.ui-state-disabled:active {
+	background: #fff;
+}
+
+.ui-state-default, .ui-widget-content .ui-state-default, .ui-widget-header .ui-state-default, .ui-button, html .ui-button.ui-state-disabled:hover, html .ui-button.ui-state-disabled:active {
+	border: .3rem solid $cybr-blue;
+}
+
+.ui-tabs .ui-tabs-nav li.ui-tabs-active {
+	background-color: $cybr-blue;
+	color: $cybr-blue;
+}
+
+.ui-state-active a, .ui-state-active a:link, .ui-state-active a:visited {
+	color: $cybr-blue;
+}
+
+.ui-tabs .ui-tabs-nav {
+	padding: 0;
+}
+
+.ui-tabs a:focus {
+	outline: none;
+}
+
+.ui-tabs .ui-tabs-nav .ui-tabs-anchor {
+	font-family: $sless-font-secondary;
+
+}
+
+.ui-tabs-panel {
+  height: 30rem;
+  overflow: auto;
+}
+
+.post-content {
+  h2 {
+    text-decoration: none;
+    color: $cybr-ltblue;
+  }
+
+  h2:hover {
+    text-decoration: underline;
+    color: $cybr-blue;
+  }
+}
+
+// ***********************
+// Copy to Clipboard
+// ***********************
+
+.copy-icon {
+	position: relative;
+	width: 1.5rem;
+	height: 2rem;
+	background: url($baseurl + "/img/clipboard.svg");
+	background-repeat: no-repeat;
+	background-position: center;
+	border: none;
+	cursor: pointer;
+	float: right;
+	&:hover {
+		background: url($baseurl + "/img/clipboard-hover.svg");
+		background-repeat: no-repeat;
+	}
+	&:active {
+		background: url($baseurl + "/img/clipboard-focus.svg");
+		background-repeat: no-repeat;
+	}
+}
+.copy-icon-hover {
+  position: relative;
+	width: 1.5rem;
+	height: 2rem;
+  background: url($baseurl + "/img/clipboard-hover.svg");
+  background-repeat: no-repeat;
+  background-position: center;
+  border: none;
+  cursor: pointer;
+	float: right;
+}
+
+.tooltip-text {
+  visibility: hidden;
+  width: 12rem;
+  background-color: $cybr-blue;
+  font-family: $sless-font-primary;
+  font-size: 1.2rem;
+  color: #fff;
+  text-align: center;
+  padding: .5rem 0;
+  border-radius: .6rem;
+  position: absolute;
+  right: -5.2rem;
+  z-index: 1;
+  margin-top: 3rem;
+}
+
+.hover-button:hover .tooltip-text {
+  visibility: visible;
+}
+figure.highlight {
+	background: none;
+}
+.highlight pre button {
+  visibility: visible;
+}
+
+.arrow_box:after {
+  bottom: 100%;
+  left: 50%;
+  border: solid transparent;
+  content: " ";
+  height: 0;
+  width: 0;
+  position: absolute;
+  pointer-events: none;
+  border-color: rgba(0, 0, 0, 0);
+  border-bottom-color: $cybr-blue;
+  border-width: 1rem;
+  margin-left: -1rem;
+}
+
+// ***********************
+// Banner
+// ***********************
+.banner {
+  margin: 1em 0 1em 0;
+  padding: 1em;
+  background: $conjur-teal;
+  color: #FFFFFF;
+  border-radius: 3px;
+
+  a {
+    color: $cybr-dkblue;
+  }
+}

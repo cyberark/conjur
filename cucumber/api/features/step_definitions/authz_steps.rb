@@ -67,7 +67,12 @@ Given(/^I permit user "([^"]*)" to "([^"]*)" user "([^"]*)"$/) do |grantee, priv
 end
 
 Given(/^I set annotation "([^"]*)" to "([^"]*)"$/) do |name, value|
-  @current_resource.add_annotation name: name, value: value
+  set_annotation_to_resource(name, value)
+end
+
+Given(/^I remove all annotations from (user|host) "([^"]*)"$/) do |role_type, role_name|
+  i_have_a_resource role_type, role_name
+  remove_resource_all_annotations
 end
 
 Given(/^I create (\d+) secret values?$/) do |n|
@@ -85,8 +90,9 @@ Given(/^I add the secret value(?: "([^"]*)")? to the resource(?: "([^"]*)")?$/) 
   Secret.create resource_id: resource_id, value: value
 end
 
-Given(/^I permit user "([^"]*)" to "([^"]*)" it$/) do |grantee, privilege|
-  grantee = lookup_user(grantee)
+Given(/^I permit (user|host) "([^"]*)" to "([^"]*)" it$/) do |role_type, grantee, privilege|
+  grantee = role_type == "user" ? lookup_user(grantee) : lookup_host(grantee)
+
   target = @current_resource
   unless grantee.allowed_to?(privilege, target)
     target.permit privilege, grantee
@@ -102,4 +108,11 @@ Given(/^I grant user "([^"]*)" to user "([^"]*)"$/) do |grantor, grantee|
   grantor = lookup_user(grantor)
   grantee = lookup_user(grantee)
   grantor.grant_to grantee
+end
+
+Given(/^I grant group "([^"]*)" to (user|host) "([^"]*)"$/) do |group_id, role_type, grantee|
+  group = lookup_group(group_id)
+
+  grantee = role_type == "user" ? lookup_user(grantee) : lookup_host(grantee)
+  group.grant_to grantee
 end

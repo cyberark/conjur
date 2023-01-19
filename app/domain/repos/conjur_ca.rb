@@ -14,12 +14,18 @@ module Repos
     #
     def self.ca(resource_id)
       ca_info = ::Conjur::CaInfo.new(resource_id)
-      stored_cert = Resource[ca_info.cert_id].last_secret.value
-      stored_key = Resource[ca_info.key_id].last_secret.value
+      ca_cert_id = ca_info.cert_id
+      ca_key_id = ca_info.key_id
+      ca_secrets = fetch_required_secrets.(resource_ids: [ca_cert_id, ca_key_id])
+      stored_cert = ca_secrets[ca_cert_id]
+      stored_key = ca_secrets[ca_key_id]
       ca_cert = OpenSSL::X509::Certificate.new(stored_cert)
       ca_key = OpenSSL::PKey::RSA.new(stored_key)
       ::Util::OpenSsl::CA.new(ca_cert, ca_key)
     end
 
+    def self.fetch_required_secrets
+      @fetch_required_secrets ||= ::Conjur::FetchRequiredSecrets.new
+    end
   end
 end

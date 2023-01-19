@@ -6,3 +6,11 @@ require 'conjur-api'
 
 Conjur.configuration.appliance_url = ENV['CONJUR_APPLIANCE_URL'] || 'http://conjur'
 Conjur.configuration.account = ENV['CONJUR_ACCOUNT'] || 'cucumber'
+
+# This is needed to run the cucumber --profile policy successfully
+# otherwise it fails due to the way root_loader sets its admin password
+ENV.delete('CONJUR_ADMIN_PASSWORD')
+
+# so that we can require relative to the project root
+$LOAD_PATH.unshift File.expand_path '../../../..', __dir__
+require 'config/environment'

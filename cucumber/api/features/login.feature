@@ -7,9 +7,10 @@ Feature: Exchange a role's password for its API key
     Given I create a new user "alice"
 
   Scenario: Password can be used to obtain API key
-    Given I set the password for "alice" to "my-password"
-    Then I can GET "/authn/cucumber/login" with username "alice" and password "my-password"
-    Then the result is the API key for user "alice"
+    Given I set the password for "alice" to "My-Password1"
+    When I can GET "/authn/cucumber/login" with username "alice" and password "My-Password1"
+    Then the HTTP response content type is "text/plain"
+    And the result is the API key for user "alice"
 
   @logged-in
   Scenario: Bearer token cannot be used to login

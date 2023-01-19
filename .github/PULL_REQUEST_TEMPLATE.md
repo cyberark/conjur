@@ -1,16 +1,21 @@
-#### What does this PR do?
-#### Any background context you want to provide?
-#### What ticket does this PR close?
-Connected to [relevant GitHub issues, eg #76]
-#### Where should the reviewer start?
-#### How should this be manually tested?
-#### Screenshots (if appropriate)
-#### Has the Version and Changelog been updated?
-#### Questions:
-> Does this work have automated integration and unit tests?
+### What does this PR do?
+- _What's changed? Why were these changes made?_
+- _How should the reviewer approach this PR, especially if manual tests are required?_
+- _Are there relevant screenshots you can add to the PR description?_
 
-> Can we make a blog post, video, or animated GIF of this?
+### What ticket does this PR close?
+Connected to #[relevant GitHub issues, eg 76]
 
-> Has this change been documented (Readme, docs, etc.)?
+### Checklists
 
-> Does the knowledge base need an update?
+#### Change log
+- [ ] The CHANGELOG has been updated, or
+- [ ] This PR does not include user-facing changes and doesn't require a CHANGELOG update
+
+#### Test coverage
+- [ ] This PR includes new unit and integration tests to go with the code changes, or
+- [ ] The changes in this PR do not require tests
+
+#### Documentation
+- [ ] Docs (e.g. `README`s) were updated in this PR, and/or there is a follow-on issue to update docs, or
+- [ ] This PR does not require updating any documentation

@@ -71,6 +71,11 @@
         annotations:
           kubernetes/authentication-container-name: authenticator
 
+      - !host
+        id: incorrect-namespace/*/*
+        annotations:
+          kubernetes/authentication-container-name: authenticator
+
     - !host
       id: {{CONJUR_AUTHN_K8S_TEST_NAMESPACE}}/pod/inventory-unauthorized
       annotations:
@@ -83,3 +88,160 @@
   - !grant
     role: !group clients
     member: !layer apps
+
+# This policy is for testing that we can authenticate from any policy branch &
+# that hosts can have their application ID defined in annotations
+- !policy
+  id: some-policy
+  body:
+  - !layer
+
+  - &some-policy-hosts
+    - !host
+      id: {{CONJUR_AUTHN_K8S_TEST_NAMESPACE}}/*/*
+      annotations:
+        kubernetes/authentication-container-name: authenticator
+
+    - !host
+      id: {{CONJUR_AUTHN_K8S_TEST_NAMESPACE}}/pod/inventory-pod
+      annotations:
+        kubernetes/authentication-container-name: authenticator
+
+    - !host
+      id: test-app-namespace
+      annotations:
+        authn-k8s/namespace: {{CONJUR_AUTHN_K8S_TEST_NAMESPACE}}
+        authn-k8s/authentication-container-name: authenticator
+
+    - !host
+      id: test-app-service-account
+      annotations:
+        authn-k8s/namespace: {{CONJUR_AUTHN_K8S_TEST_NAMESPACE}}
+        authn-k8s/service-account: inventory-pod-only
+        authn-k8s/authentication-container-name: authenticator
+
+    - !host
+      id: test-app-deployment
+      annotations:
+        authn-k8s/namespace: {{CONJUR_AUTHN_K8S_TEST_NAMESPACE}}
+        authn-k8s/deployment: inventory-deployment
+        authn-k8s/authentication-container-name: authenticator
+
+    - !host
+      id: test-app-deployment-config
+      annotations:
+        authn-k8s/namespace: {{CONJUR_AUTHN_K8S_TEST_NAMESPACE}}
+        authn-k8s/deployment-config: inventory-deployment-cfg
+        authn-k8s/authentication-container-name: authenticator
+
+    - !host
+      id: test-app-pod
+      annotations:
+        authn-k8s/namespace: {{CONJUR_AUTHN_K8S_TEST_NAMESPACE}}
+        authn-k8s/pod: inventory-pod
+        authn-k8s/authentication-container-name: authenticator
+
+    - !host
+      id: test-app-stateful-set
+      annotations:
+        authn-k8s/namespace: {{CONJUR_AUTHN_K8S_TEST_NAMESPACE}}
+        authn-k8s/stateful-set: inventory-stateful
+        authn-k8s/authentication-container-name: authenticator
+
+    - !host
+      id: test-app-non-permited-scope
+      annotations:
+        authn-k8s/namespace: {{CONJUR_AUTHN_K8S_TEST_NAMESPACE}}
+        authn-k8s/node: inventory-node
+        authn-k8s/authentication-container-name: authenticator
+
+    - !host
+      id: test-app-multiple-constraints
+      annotations:
+        authn-k8s/namespace: {{CONJUR_AUTHN_K8S_TEST_NAMESPACE}}
+        authn-k8s/service-account: inventory-pod-only
+        authn-k8s/pod: inventory-pod
+        authn-k8s/authentication-container-name: authenticator
+
+    - !host
+      id: test-app-service-id-constraint
+      annotations:
+        authn-k8s/minikube/namespace: {{CONJUR_AUTHN_K8S_TEST_NAMESPACE}}
+        authn-k8s/authentication-container-name: authenticator
+
+    - !host
+      id: test-app-incorrect-namespace
+      annotations:
+        authn-k8s/namespace: incorrect-namespace
+        authn-k8s/authentication-container-name: authenticator
+
+    - !host
+      id: test-app-non-existing-resource
+      annotations:
+        authn-k8s/namespace: {{CONJUR_AUTHN_K8S_TEST_NAMESPACE}}
+        authn-k8s/service-account: non-existing-service-account
+        authn-k8s/authentication-container-name: authenticator
+
+    - !host
+      id: test-app-incorrect-resource
+      annotations:
+        authn-k8s/namespace: {{CONJUR_AUTHN_K8S_TEST_NAMESPACE}}
+        authn-k8s/service-account: other-service-account
+        authn-k8s/authentication-container-name: authenticator
+
+    - !host
+      id: test-app-no-container-annotation
+      annotations:
+        authn-k8s/namespace: {{CONJUR_AUTHN_K8S_TEST_NAMESPACE}}
+
+  - !grant
+    role: !layer
+    members: *some-policy-hosts
+
+# Permit the host above to authenticate with authn-k8s
+- !grant
+  role: !group conjur/authn-k8s/minikube/clients
+  member: !layer some-policy
+
+# This policy is for testing that in case a host doesn't have any annotations defined
+# then the "authentication-container-name" annotation is defaulted to "authenticator"
+# and the host is authenticated.
+# We have a separate policy for this host so we can use the id '{{CONJUR_AUTHN_K8S_TEST_NAMESPACE}}/*/*'
+# without duplication.
+- !policy
+  id: host-without-container-name
+  body:
+    - !layer
+
+    - &host-without-container-name-hosts
+      - !host
+        id: {{CONJUR_AUTHN_K8S_TEST_NAMESPACE}}/*/*
+
+    - !grant
+      role: !layer
+      members: *host-without-container-name-hosts
+
+# Permit the host above to authenticate with authn-k8s
+- !grant
+  role: !group conjur/authn-k8s/minikube/clients
+  member: !layer host-without-container-name
+
+# Define hosts under root policy
+- &root-based-hosts
+  # Resource Restrictions defined in the host id
+  - !host
+    id: {{CONJUR_AUTHN_K8S_TEST_NAMESPACE}}/*/*
+    annotations:
+      kubernetes/authentication-container-name: authenticator
+
+  # Resource Restrictions defined in annotations
+  - !host
+    id: root-based-app
+    annotations:
+      authn-k8s/namespace: {{CONJUR_AUTHN_K8S_TEST_NAMESPACE}}
+      authn-k8s/authentication-container-name: authenticator
+
+# Permit the hosts above to authenticate with authn-k8s
+- !grant
+  role: !group conjur/authn-k8s/minikube/clients
+  member: *root-based-hosts

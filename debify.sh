@@ -14,4 +14,3 @@ mkdir -p opt/conjur/etc
 cp opt/conjur/possum/distrib/conjur/etc/* opt/conjur/etc/
 
 mkdir -p opt/conjur/possum/config
-ln -sf /opt/conjur/shared/config/database.yml opt/conjur/possum/config/database.yml

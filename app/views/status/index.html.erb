@@ -1,49 +1,83 @@
-<% content_for :title do %>Conjur Status<% end %>
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
 
-<div class="row">
-  <div class="col-md-8">
-    <h1 class="page-title">Status</h1>
-    <p class="font-large">Your Conjur server is running!</p>
-    <h2>Security Check:</h2>
-    <p>
-      Does your browser show a green lock icon on the left side of the address bar?
-      <dl>
-        <dt>Green lock:</dt>
-        <dd>Good, Conjur is secured and authenticated.</dd>
-        <dt>Yellow lock or green with warning sign:</dt>
-        <dd>
-          OK, Conjur is secured but not authenticated. Send your
-          Conjur admin to the
-            <a href="https://www.conjur.org/tutorials/nginx.html"
-               title="Tutorial - NGINX Proxy">
-              Conjur+TLS guide
-            </a>
+    <link rel="stylesheet" href="/css/status-page.css">
+    <title>Conjur Status</title>
+  </head>
+  <body>
+
+    <header>
+      <div class="logo-cont">
+        <img src="/img/conjur-logo-all-white.svg"/>
+      </div>
+      <div class="links-cont">
+        <a href="https://discuss.cyberarkcommons.org" target="_blank">Discourse</a>
+        |
+        <a href="https://github.com/cyberark/conjur" target="_blank">Github</a>
+      </div>
+    </header>
+
+    <main>
+      <div class="left-panel">
+        <h1>Status</h1>
+        <p class="status-text">Your Conjur server is running!</p>
+        
+        <h2>Security Check:</h2>
+        <p>Does your browser show a green lock icon on the left side of the address bar?</p>
+
+        <dl>
+          <dt>Green lock:</dt>
+          <dd>Good, Conjur is secured and authenticated.</dd>
+          <dt>Yellow lock or green with warning sign:</dt>
+          <dd>
+          OK, Conjur is secured but not authenticated. Send your Conjur admin to the
+          <a href="https://www.conjur.org/tutorials/nginx.html" title="Tutorial - NGINX Proxy">
+            Conjur+TLS guide
+          </a>
           to learn how to use your own certificate &amp; upgrade to green lock.
-        </dd>
-        <dt>Red broken lock or no lock:</dt>
-        <dd>
+          </dd>
+          <dt>Red broken lock or no lock:</dt>
+          <dd>
           Conjur is running in insecure development mode. Don't put any
           production secrets in there! Visit the
-            <a href="https://www.conjur.org/tutorials/nginx.html"
-               title="Tutorial - NGINX Proxy">
-                Conjur+TLS guide
-            </a>
+          <a href="https://www.conjur.org/tutorials/nginx.html" title="Tutorial - NGINX Proxy">
+            Conjur+TLS guide
+          </a>
           to learn how to deploy Conjur securely &amp;
-          <a href="https://conjur.org/support.html">contact CyberArk</a>
+          <a href="https://discuss.cyberarkcommons.org">contact CyberArk</a>
           with any questions.
-        </dd>
-      </dl>
-    </p>
-  </div>
-  <div class="col-md-4">
-    <strong>Details:</strong>
-    <p class="note">Version <%=ENV["POSSUM_VERSION_APPLIANCE"]%></p>
+          </dd>
+        </dl>
+      </div>
 
-    <strong>More Info:</strong>
-    <ul class="note">
-      <li><a href="https://www.conjur.org/reference/" target="_blank">Documentation</a></li>
-      <li><a href="https://www.cyberark.com/products/privileged-account-security-solution/cyberark-conjur/" target="_blank">Conjur Enterprise</a></li>
-      <li><a href="https://www.conjur.org/" target="_blank">Conjur.org</a></li>
-    </ul>
-  </div>
-</div>
+      <div class="right-panel">
+        <dl>
+          <dt>Details:</dt>
+          <dd>Version <%= ENV["CONJUR_VERSION_DISPLAY"] %></dd>
+          <dt>More Info:</dt>
+          <dd>
+            <ul>
+              <li><a href="https://docs.conjur.org/Latest/en/Content/Resources/_TopNav/cc_Home.htm" target="_blank">Documentation</a></li>
+              <li><a href="https://www.cyberark.com/products/privileged-account-security-solution/application-access-manager/" target="_blank">CyberArk Application Access Manager</a></li>
+              <li><a href="https://www.conjur.org/" target="_blank">Conjur.org</a></li>
+            </ul>
+          </dd>
+        </dl>
+
+      </div>
+    </main>
+    
+    <footer>
+      <div class="logo-cont">
+        <img src="/img/cyberark-white.png"/>
+      </div>
+      <p class="copyright">
+        Conjur Open Source copyright 2020 CyberArk. All rights reserved.
+      </p>
+    </footer>
+
+  </body>
+</html>

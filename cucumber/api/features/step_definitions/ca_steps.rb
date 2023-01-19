@@ -16,7 +16,7 @@ Given(/^I add the "([^"]*)" intermediate CA cert chain to the resource "([^"]*)"
 end
 
 When(/^I send a CSR for "([^"]*)" to the "([^"]*)" CA with a ttl of "([^"]*)" and CN of "([^"]*)"$/) do |_host_name, service_name, ttl, common_name|
-  host = create_host(common_name)
+  host = create_certificate_host(common_name)
   path = "/ca/cucumber/#{service_name}/sign"
 
   # TODO: It would be nice if this also worked with multipart/form-data

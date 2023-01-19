@@ -1,0 +1,32 @@
+---
+# Front matter comment to ensure Jekyll properly reads file.
+---
+
+/*
+*         ______              _
+*        / ____/___  ____    (_)_  _______
+*       / /   / __ \/ __ \  / / / / / ___/
+*      / /___/ /_/ / / / / / / /_/ / /
+*      \____/\____/_/ /_/_/ /\__,_/_/
+*                      /___/
+*
+*/
+
+// Set the base URL
+$baseurl: "{{ site.baseurl }}";
+
+@import
+  "bootstrap",
+  "variables",
+  "global",
+  "typography",
+  "_components/buttons",
+  "_components/hero",
+  "footer",
+  "elements",
+  "_components/cta",
+  "navigation",
+  "eval",
+  //LP - Landing Pages
+  "_lp/pages.scss",
+  "_marketo.scss";

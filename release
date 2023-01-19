@@ -1,5 +1,23 @@
 #!/bin/bash -e
 
+function print_help() {
+  cat << EOF
+
+Creates an Appliance release
+
+Usage: start [options]
+
+    -h, --help        Shows this help message.
+
+    -r, --revert      Removes the current version tags. This allows the appliance
+                      to be re-released.
+
+    -f, --force       Release even if there are no changes. This is necessary
+                      after a revert.
+
+EOF
+}
+
 function revert_tag {
   local tag="$1"
   echo "Revert tag: $tag"
@@ -13,30 +31,41 @@ git fetch --tags
 version="v$(< VERSION)"
 last_release=$(git describe --abbrev=0 --tags)
 
+FORCE_RELEASE=false
 while true ; do
   case "$1" in
-    --revert ) revert_tag $version ; exit 0 ;;
+    -r | --revert ) revert_tag $version ; exit 0 ;;
+    -h | --help ) print_help ; exit 0 ;;
+    -f | --force ) FORCE_RELEASE=true ; shift ;;
      * ) if [ -z "$1" ]; then break; else echo "$1 is not a valid option"; exit 1; fi;;
   esac
 done
-
-
-echo "The last release was: $last_release"
-echo "The next release will be: $version"
 
 if [ "$version" = "$last_release" ]; then
   echo 'To release, the VERSION file must be incremented to the latest release number.'
   exit 1
 fi
 
-if [[ ! $(git status --porcelain) ]]; then
-  echo 'Your Git is clean. Please update the VERSION, CHANGELOG.md, and optionally RELEASE_NOTES.md before releasing.  The script will handle commits and pushing.'
+if [[ ! $(git status --porcelain) && $FORCE_RELEASE = false ]]; then
+  cat << EOF
+
+    Your Git is clean. Please update the VERSION, CHANGELOG.md, and optionally
+    RELEASE_NOTES.md before releasing. The script will handle commits and pushing.
+
+    If you reverted a release, and are simply updating tags, the force tag can be used:
+
+    release --force
+
+EOF
   exit 1
 fi
 
+echo "The last release was: $last_release"
+echo "The next release will be: $version"
+
 # Make sure we have the most recent changes, without destroying local changes.
 git stash
-git pull --rebase origin master
+git pull --rebase origin $(git rev-parse --abbrev-ref HEAD)
 git stash pop
 
 # Perform a commit, tag, and push. The tag needs to be present before the commit

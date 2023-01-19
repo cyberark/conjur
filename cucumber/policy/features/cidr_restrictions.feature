@@ -5,7 +5,7 @@ from a particular network, defined by a CIDR in the policy
 
   Scenario: Loading users and hosts with CIDR restrictions
 
-    Given a policy:
+    Given I load a policy:
     """
     - !user
       id: alice
@@ -37,3 +37,41 @@ from a particular network, defined by a CIDR in the policy
     """
        ["192.168.0.1/32", "192.168.1.10/32"]
     """
+
+  Scenario: Invalid CIDR restriction string
+
+    When I load a policy:
+    """
+    - !host
+      id: serviceA
+      restricted_to: an_invalid_cidr_string
+    """
+    Then there is an error
+    And the error code is "validation_failed"
+    And the error message includes "Invalid IP address or CIDR range 'an_invalid_cidr_string'"
+    
+
+  Scenario: Domain name as CIDR restriction string
+
+    When I load a policy:
+    """
+    - !host
+      id: serviceA
+      restricted_to: dap.my-company.net
+    """
+    Then there is an error
+    And the error code is "validation_failed"
+    And the error message includes "Invalid IP address or CIDR range 'dap.my-company.net'"
+
+  Scenario: Load policy with invalid CIDR (Bits to the right of the mask)
+  Conjur strips the extra bits before storing the CIDR in the database.
+
+    Given I load a policy:
+    """
+    - !host
+      id: serviceA
+      restricted_to: 10.0.0.1/24
+    """
+    Then there is an error
+    And the error code is "validation_failed"
+    And the error message includes "Invalid IP address or CIDR range '10.0.0.1/24': Value has bits set to right of mask. Did you mean '10.0.0.0/24'"

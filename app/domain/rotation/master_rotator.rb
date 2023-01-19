@@ -18,6 +18,8 @@ module Rotation
       @rotation_model = rotation_model
       @secret_model = secret_model
       @facade_cls = facade_cls
+
+      Sequel::Model.db.extension :pg_advisory_locking
     end
 
     def rotate_every(seconds)
@@ -28,7 +30,14 @@ module Rotation
     end
 
     def rotate_all
-      scheduled_rotations.each(&:run)
+      # Attempt an advisory lock to prevent other servers from trying to rotate
+      # at the same time or immediately after another server rotated the secret.
+      # The same `id` needs to be used across all servers talking to the same
+      # database, but can be any unused integer.
+      id = Rails.configuration.rotator_lock_name.to_i(36)
+      Sequel::Model.db.try_advisory_lock(id) do
+        scheduled_rotations.each(&:run)
+      end
     end
 
     private

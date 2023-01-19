@@ -1,0 +1,13 @@
+github: [metadata]
+kramdown:
+  input: GFM
+  hard_wrap: false
+plugins:
+  - jekyll-paginate
+  - jekyll-redirect-from
+  - jekyll-sitemap
+title: CyberArk Conjur
+plugins_dir: ./_plugins
+url: https://www.conjur.org
+future: true
+# permalink: pretty

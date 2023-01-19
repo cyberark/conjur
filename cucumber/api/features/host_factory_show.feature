@@ -12,7 +12,7 @@ Feature: Display information about a host factory.
     
     Given I create a host factory token
     When I successfully GET "/resources/cucumber/host_factory/the-layer-factory"
-    Then the JSON should be:
+    Then the host factory JSON should be:
     """
     {
       "annotations" : [ ],
@@ -31,7 +31,7 @@ Feature: Display information about a host factory.
         {
           "cidr": [],
           "expiration": "@host_factory_token_expiration@",
-          "token": "@host_factory_token_token@"
+          "token": "@host_factory_token@"
         }
       ]
     }

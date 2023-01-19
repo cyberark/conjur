@@ -1,7 +1,7 @@
 Feature: Secrets can be managed through policies.
 
-  Each resource in Possum can have an associated list of secrets. Secrets on a resource
-  support two operations, which correspond to `execuet` and `update` privileges:
+  Each resource in Conjur can have an associated list of secrets. Secrets on a resource
+  support two operations, which correspond to `execute` and `update` privileges:
 
   - **update** Adds a new value to the secrets list.
   - **execute** Fetches a value from the secrets list.
@@ -10,14 +10,14 @@ Feature: Secrets can be managed through policies.
   Old secret values can still be obtained (up to a limit of retained history, which is currently
   20 values).
 
-  By convention, secrets are stored in Possum using a resource called a `variable`. 
+  By convention, secrets are stored in Conjur using a resource called a `variable`. 
 
   Scenario: The owner of a secret has full privileges to it.
 
     Because the owner of a resource has all privileges on the resource, the owner of a resource
     can both add and fetch secret values.
 
-    Given a policy:
+    Given I load a policy:
     """
     - !group secrets-managers
 
@@ -44,7 +44,7 @@ Feature: Secrets can be managed through policies.
     `execute` privilege convays the right to fetch a secret. Having `update` privilege
     does not give the privilege to `execute`, the permissions are managed separately.
 
-    Given a policy:
+    Given I load a policy:
     """
     - !group secrets-fetchers
 
@@ -75,12 +75,12 @@ Feature: Secrets can be managed through policies.
       privileges: [ read, update ]
       role: !group secrets-updaters
     """
-    And I log in as user "alice"
+    And I log in as user "bob"
+    Then I can add a secret to variable resource "db-password"
+    And I can not fetch a secret from variable resource "db-password"
+    When I log in as user "alice"
     Then I can not add a secret to variable resource "db-password"
     And I can fetch a secret from variable resource "db-password"
-    And I log in as user "bob"
-    And I can add a secret to variable resource "db-password"
-    And I can not fetch a secret from variable resource "db-password"
 
   Scenario: Defining secrets which are available to a Layer
 
@@ -91,7 +91,7 @@ Feature: Secrets can be managed through policies.
     given `read` and `execute` permission on the variable, and a `secrets-managers` group is typically
     created which has all privileges on the variable.
 
-    Given a policy:
+    Given I load a policy:
     """
     - !policy
       id: myapp
