@@ -1031,7 +1031,7 @@ def collateTests(jobs_per_agent=4) {
 }
 
 def defaultCucumberFilterTags(env) {
-  if(env.BRANCH_NAME == 'master' || env.TAG_NAME?.trim()) {
+  if(env.BRANCH_NAME == 'master' || env.BRANCH_NAME == 'conjur-cloud' || env.TAG_NAME?.trim()) {
     // If this is a master or tag build, we want to run all of the tests. So
     // we use an empty filter string.
     return ''
