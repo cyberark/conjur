@@ -28,8 +28,8 @@ cd "$(git rev-parse --show-toplevel)" || exit
 
 TAG="$(git rev-parse --short=8 HEAD)"
 export TAG="$TAG"
-docker build --no-cache -t "conjur:$TAG" .
-copy_cert "conjur:$TAG" "$sni_cert"
-docker build --no-cache -t "registry.tld/conjur:$TAG" .
-copy_cert "registry.tld/conjur:$TAG" "$sni_cert"
+docker build --no-cache -t "conjur-cloud:$TAG" .
+copy_cert "conjur-cloud:$TAG" "$sni_cert"
+docker build --no-cache -t "registry.tld/conjur-cloud:$TAG" .
+copy_cert "registry.tld/conjur-cloud:$TAG" "$sni_cert"
 docker build --no-cache --build-arg "VERSION=$TAG" -t "registry.tld/conjur-test:$TAG" -f Dockerfile.test .
