@@ -49,7 +49,7 @@ function setupTestEnvironment() {
 
   export PLATFORM
 
-  export CONJUR_AUTHN_K8S_TAG="${DOCKER_REGISTRY_PATH}/conjur:authn-k8s-$CONJUR_AUTHN_K8S_TEST_NAMESPACE"
+  export CONJUR_AUTHN_K8S_TAG="${DOCKER_REGISTRY_PATH}/conjur-cloud:authn-k8s-$CONJUR_AUTHN_K8S_TEST_NAMESPACE"
   export CONJUR_TEST_AUTHN_K8S_TAG="${DOCKER_REGISTRY_PATH}/conjur-test:authn-k8s-$CONJUR_AUTHN_K8S_TEST_NAMESPACE"
   export CONJUR_AUTHN_K8S_TESTER_TAG="${DOCKER_REGISTRY_PATH}/authn-k8s-tester:$CONJUR_AUTHN_K8S_TEST_NAMESPACE"
 
@@ -101,10 +101,10 @@ function buildDockerImages() {
   # If the Conjur images aren't present, attempt to pull them from the registry.
   # If we can't pull them from the registry, see if we have local images we can
   # tag appropriately.
-  if ! docker image inspect "$DOCKER_REGISTRY_PATH/conjur:$conjur_version" > /dev/null 2>&1; then
-    docker pull "$DOCKER_REGISTRY_PATH/conjur:$conjur_version" || \
-      docker image inspect "conjur:$conjur_version" > /dev/null && \
-        docker tag "conjur:$conjur_version" "$DOCKER_REGISTRY_PATH/conjur:$conjur_version"
+  if ! docker image inspect "$DOCKER_REGISTRY_PATH/conjur-cloud:$conjur_version" > /dev/null 2>&1; then
+    docker pull "$DOCKER_REGISTRY_PATH/conjur-cloud:$conjur_version" || \
+      docker image inspect "conjur-cloud:$conjur_version" > /dev/null && \
+        docker tag "conjur-cloud:$conjur_version" "$DOCKER_REGISTRY_PATH/conjur-cloud:$conjur_version"
   fi
   if ! docker image inspect "$DOCKER_REGISTRY_PATH/conjur-test:$conjur_version" > /dev/null 2>&1; then
     docker pull "$DOCKER_REGISTRY_PATH/conjur-test:$conjur_version" || \
@@ -112,10 +112,10 @@ function buildDockerImages() {
         docker tag "conjur-test:$conjur_version" "$DOCKER_REGISTRY_PATH/conjur-test:$conjur_version"
   fi
 
-  add_sni_cert_to_image "$DOCKER_REGISTRY_PATH/conjur:$conjur_version"
+  add_sni_cert_to_image "$DOCKER_REGISTRY_PATH/conjur-cloud:$conjur_version"
   add_sni_cert_to_image "$DOCKER_REGISTRY_PATH/conjur-test:$conjur_version"
 
-  docker tag "$DOCKER_REGISTRY_PATH/conjur:$conjur_version" "$CONJUR_AUTHN_K8S_TAG"
+  docker tag "$DOCKER_REGISTRY_PATH/conjur-cloud:$conjur_version" "$CONJUR_AUTHN_K8S_TAG"
 
   # cukes will be run from this image
   docker tag "$DOCKER_REGISTRY_PATH/conjur-test:$conjur_version" "$CONJUR_TEST_AUTHN_K8S_TAG"

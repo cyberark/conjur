@@ -232,22 +232,22 @@ pipeline {
           parallel {
             stage("Scan Docker Image for fixable issues") {
               steps {
-                scanAndReport("conjur:${tagWithSHA()}", "HIGH", false)
+                scanAndReport("conjur-cloud:${tagWithSHA()}", "HIGH", false)
               }
             }
             stage("Scan Docker image for total issues") {
               steps {
-                scanAndReport("conjur:${tagWithSHA()}", "NONE", true)
+                scanAndReport("conjur-cloud:${tagWithSHA()}", "NONE", true)
               }
             }
             stage("Scan UBI-based Docker Image for fixable issues") {
               steps {
-                scanAndReport("conjur-ubi:${tagWithSHA()}", "HIGH", false)
+                scanAndReport("conjur-ubi-cloud:${tagWithSHA()}", "HIGH", false)
               }
             }
             stage("Scan UBI-based Docker image for total issues") {
               steps {
-                scanAndReport("conjur-ubi:${tagWithSHA()}", "NONE", true)
+                scanAndReport("conjur-ubi-cloud:${tagWithSHA()}", "NONE", true)
               }
             }
           }
