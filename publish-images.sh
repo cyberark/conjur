@@ -47,7 +47,7 @@ for arg in "$@"; do
     esac
 done
 
-LOCAL_IMAGE="conjur:${LOCAL_TAG}"
+LOCAL_IMAGE="conjur-cloud:${LOCAL_TAG}"
 
 # Normalize version number in the case of '+' included
 VERSION="$(echo -n "${VERSION}" | tr "+" "_")"
@@ -57,11 +57,11 @@ if [[ "${PUBLISH_INTERNAL}" = true ]]; then
   echo "Pushing ${LOCAL_TAG} tagged images to registry.tld..."
   # Always push SHA versioned images internally
   tag_and_push "${VERSION}-${LOCAL_TAG}" "${LOCAL_IMAGE}" "registry.tld/conjur-cloud"
-  tag_and_push "${VERSION}-${LOCAL_TAG}" "conjur-test:${LOCAL_TAG}" "registry.tld/conjur-test-cloud"
-  tag_and_push "${VERSION}-${LOCAL_TAG}" "conjur-ubi:${LOCAL_TAG}" "registry.tld/conjur-ubi-cloud"
+  tag_and_push "${VERSION}-${LOCAL_TAG}" "conjur-test:${LOCAL_TAG}" "registry.tld/conjur-test"
+  tag_and_push "${VERSION}-${LOCAL_TAG}" "conjur-ubi-cloud:${LOCAL_TAG}" "registry.tld/conjur-ubi-cloud"
 
   # Push SHA only tagged images to our internal registry
   tag_and_push "${LOCAL_TAG}" "${LOCAL_IMAGE}" "registry.tld/conjur-cloud"
-  tag_and_push "${LOCAL_TAG}" "conjur-test:${LOCAL_TAG}" "registry.tld/conjur-test-cloud"
-  tag_and_push "${LOCAL_TAG}" "conjur-ubi:${LOCAL_TAG}" "registry.tld/conjur-ubi-cloud"
+  tag_and_push "${LOCAL_TAG}" "conjur-test:${LOCAL_TAG}" "registry.tld/conjur-test"
+  tag_and_push "${LOCAL_TAG}" "conjur-ubi-cloud:${LOCAL_TAG}" "registry.tld/conjur-ubi-cloud"
 fi
