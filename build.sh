@@ -74,9 +74,9 @@ if image_doesnt_exist "conjur-cloud:$TAG"; then
   flatten "conjur-cloud:$TAG"
 fi
 
-if image_doesnt_exist "conjur-test-cloud:$TAG"; then
-  echo "Building image conjur-test-cloud:$TAG container"
-  docker build --build-arg "VERSION=$TAG" -t "conjur-test-cloud:$TAG" -f Dockerfile.test .
+if image_doesnt_exist "conjur-test:$TAG"; then
+  echo "Building image conjur-test:$TAG container"
+  docker build --build-arg "VERSION=$TAG" -t "conjur-test:$TAG" -f Dockerfile.test .
 fi
 
 if image_doesnt_exist "conjur-ubi-cloud:$TAG"; then
