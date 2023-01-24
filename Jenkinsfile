@@ -101,6 +101,7 @@ pipeline {
       }
       steps {
         sh 'ci/parse-changelog'
+        echo "alon_test" 
       }
     }
 
