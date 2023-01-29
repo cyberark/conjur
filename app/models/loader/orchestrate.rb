@@ -439,19 +439,25 @@ module Loader
       # rubocop:enable Style/GuardClause
     end
 
+    $region = 'us-east-2'
+    $sqs_client = Aws::SQS::Client.new(region: $region, verify_checksums: false)
+    $message_id=0
+
     def publish_changes
-      transaction_message = "{"
+      $message_id = rand(1..100000)
+
+      transaction_message = "{ \"entities\": [ "
       @create_records = policy_version.create_records.map do |policy_object|
-        entity_message = "{ \"" + policy_object.class.name + "\" : { \"action\": \"set\", " + policy_object.to_json() + "}}"
+        entity_message = "{ \"" + policy_object.class.name + "\" : { \"action\": \"set\", \"data\": " + policy_object.to_json() + "}}"
         Rails.logger.info("+++++++++ publish_changes 1 entity_message = #{entity_message}")
         transaction_message = transaction_message + entity_message + ","
       end
       @delete_records = policy_version.delete_records.map do |policy_object|
-        entity_message = "{ \"" + policy_object.class.name + "\" : { \"action\": \"delete\", " + policy_object.to_json() + "}}"
+        entity_message = "{ \"" + policy_object.class.name + "\" : { \"action\": \"delete\", \"data\": " + policy_object.to_json() + "}}"
         Rails.logger.info("+++++++++ publish_changes 2 entity_message = #{entity_message}")
         transaction_message = transaction_message + entity_message + ","
       end
-      transaction_message = transaction_message + "\"end\": 1 }"
+      transaction_message = transaction_message + "{\"end\": " + $message_id.to_s + "} ] }"
 
       region = 'us-east-2'
       queue_name = 'OfiraConjurEdgeQueue.fifo'
@@ -464,25 +470,14 @@ module Loader
       queue_url = 'https://sqs.' + region + '.amazonaws.com/' +
         '238637036211' + '/' + queue_name
 
-      #queue_url = 'https://sqs.us-east-2.amazonaws.com/238637036211/OfiraConjurEdgeQueue.fifo'
-
-      #creds = JSON.load(File.read('secrets.json'))
-      #Aws.config.update({
-      #  credentials: Aws::Credentials.new(creds['AccessKeyId'], creds['SecretAccessKey'])
-      #})
-
-      sqs_client = Aws::SQS::Client.new(region: region)
-
       Rails.logger.info("+++++++++ Sending a message to the queue named '#{queue_name}'...")
 
-      begin
-        sqs_client.send_message(
+      resp1 = $sqs_client.send_message(
             queue_url: queue_url,
-            message_body: transaction_message,
+            message_body: transaction_message, # "transaction_message" + $message_id.to_s,
             message_group_id: 'message_group_id')
-      rescue OpenSSL::Digest::DigestError
-        Rails.logger.info("+++++++++ publish_changes 6")
-      end
+      Rails.logger.info("+++++++++ publish 5.1 resp1 = #{resp1}, message_id =#{$message_id}")
+      Rails.logger.info("+++++++++ Sending a message to the queue named '#{queue_name}'...")
       Rails.logger.info("+++++++++ publish_changes 7")
     end
 
