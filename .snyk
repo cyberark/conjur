@@ -1,0 +1,30 @@
+# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
+version: v1.25.0
+# ignores vulnerabilities until expiry date; change duration by modifying expiry date
+ignore:
+  SNYK-UBUNTU2004-OPENSSL-584147:
+    - '*':
+        reason: None Given
+        expires: 3023-03-01T10:38:01.256Z
+        created: 2023-01-30T10:38:01.264Z
+  SNYK-UBUNTU2004-OPENSSL-2426343:
+    - '*':
+        reason: None Given
+        expires: 3023-03-01T10:38:37.255Z
+        created: 2023-01-30T10:38:37.258Z
+  SNYK-UBUNTU2004-OPENSSL-1569470:
+    - '*':
+        reason: None Given
+        expires: 3023-03-01T10:40:41.054Z
+        created: 2023-01-30T10:40:41.058Z
+  SNYK-UBUNTU2004-OPENSSL-1049132:
+    - '*':
+        reason: None Given
+        expires: 3023-03-01T10:41:09.829Z
+        created: 2023-01-30T10:41:09.833Z
+  SNYK-UBUNTU2004-OPENSSL-1089071:
+    - '*':
+        reason: None Given
+        expires: 3023-03-01T10:41:50.249Z
+        created: 2023-01-30T10:41:50.253Z
+patch: {}
