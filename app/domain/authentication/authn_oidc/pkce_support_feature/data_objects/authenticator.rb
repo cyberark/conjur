@@ -4,7 +4,7 @@ module Authentication
       module DataObjects
         class Authenticator
 
-          TOKEN_TTL = 'PT1H'.freeze
+          AUTH_TOKEN_DEFAULT_TTL = 'PT1H'.freeze
 
           REQUIRED_VARIABLES = %i[provider_uri client_id client_secret claim_mapping].freeze
           OPTIONAL_VARIABLES = %i[redirect_uri response_type provider_scope name token_ttl].freeze
@@ -47,7 +47,7 @@ module Authentication
           end
 
           def default_ttl
-            ActiveSupport::Duration.parse(TOKEN_TTL).to_i
+            ActiveSupport::Duration.parse(AUTH_TOKEN_DEFAULT_TTL).to_i
           end
 
           def scope
@@ -65,6 +65,7 @@ module Authentication
           # Returns the validity duration, in seconds, of an instance's access tokens.
           def token_ttl
             return 0 if @token_ttl.nil?
+
             ActiveSupport::Duration.parse(@token_ttl).to_i
             # ActiveSupport::Duration.parse(@token_ttl)
           rescue ActiveSupport::Duration::ISO8601Parser::ParsingError
