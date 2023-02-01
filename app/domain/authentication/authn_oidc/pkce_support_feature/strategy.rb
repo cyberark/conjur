@@ -1,11 +1,10 @@
-
 module Authentication
   module AuthnOidc
-    module V2
+    module PkceSupportFeature
       class Strategy
         def initialize(
           authenticator:,
-          client: Authentication::AuthnOidc::V2::Client,
+          client: Authentication::AuthnOidc::PkceSupportFeature::Client,
           logger: Rails.logger
         )
           @authenticator = authenticator
@@ -14,12 +13,17 @@ module Authentication
         end
 
         def callback(args)
-          # TODO: Check that `code` and `state` attributes are present
-          raise Errors::Authentication::AuthnOidc::StateMismatch unless args[:state] == @authenticator.state
+          %i[code nonce].each do |param|
+            unless args[param].present?
+              raise Errors::Authentication::RequestBody::MissingRequestParam, param.to_s
+            end
+          end
 
           identity = resolve_identity(
             jwt: @client.callback(
-              code: args[:code]
+              code: args[:code],
+              nonce: args[:nonce],
+              code_verifier: args[:code_verifier]
             )
           )
           unless identity.present?

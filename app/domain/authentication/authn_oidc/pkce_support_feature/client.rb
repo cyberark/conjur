@@ -1,6 +1,6 @@
 module Authentication
   module AuthnOidc
-    module V2
+    module PkceSupportFeature
       class Client
         def initialize(
           authenticator:,
@@ -37,17 +37,27 @@ module Authentication
           end
         end
 
-        def callback(code:)
-          unless code.present?
-            raise Errors::Authentication::RequestBody::MissingRequestParam, 'code'
-          end
-
+        def callback(code:, nonce:, code_verifier: nil)
           oidc_client.authorization_code = code
-          bearer_token = oidc_client.access_token!(
-            scope: true,
-            client_auth_method: :basic,
-            nonce: @authenticator.nonce
-          )
+          access_token_args = { scope: true, client_auth_method: :basic }
+          access_token_args[:code_verifier] = code_verifier if code_verifier.present?
+          begin
+            bearer_token = oidc_client.access_token!(**access_token_args)
+          rescue Rack::OAuth2::Client::Error => e
+            # Only handle the expected errors related to access token retrieval.
+            case e.message
+            when /PKCE verification failed/
+              raise Errors::Authentication::AuthnOidc::TokenRetrievalFailed,
+                    'PKCE verification failed'
+            when /The authorization code is invalid or has expired/
+              raise Errors::Authentication::AuthnOidc::TokenRetrievalFailed,
+                    'Authorization code is invalid or has expired'
+            when /Code not valid/
+              raise Errors::Authentication::AuthnOidc::TokenRetrievalFailed,
+                    'Authorization code is invalid'
+            end
+            raise e
+          end
           id_token = bearer_token.id_token || bearer_token.access_token
 
           begin
@@ -67,14 +77,23 @@ module Authentication
             retry
           end
 
-          decoded_id_token.verify!(
-            issuer: @authenticator.provider_uri,
-            client_id: @authenticator.client_id,
-            nonce: @authenticator.nonce
-          )
+          begin
+            decoded_id_token.verify!(
+              issuer: @authenticator.provider_uri,
+              client_id: @authenticator.client_id,
+              nonce: nonce
+            )
+          rescue OpenIDConnect::ResponseObject::IdToken::InvalidNonce
+            raise Errors::Authentication::AuthnOidc::TokenVerificationFailed,
+                  'Provided nonce does not match the nonce in the JWT'
+          rescue OpenIDConnect::ResponseObject::IdToken::ExpiredToken
+            raise Errors::Authentication::AuthnOidc::TokenVerificationFailed,
+                  'JWT has expired'
+          rescue OpenIDConnect::ValidationFailed => e
+            raise Errors::Authentication::AuthnOidc::TokenVerificationFailed,
+                  e.message
+          end
           decoded_id_token
-        rescue OpenIDConnect::ValidationFailed => e
-          raise Errors::Authentication::AuthnOidc::TokenVerificationFailed, e.message
         end
 
         def discovery_information(invalidate: false)

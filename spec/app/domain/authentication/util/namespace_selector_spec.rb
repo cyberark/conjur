@@ -6,13 +6,26 @@ RSpec.describe(Authentication::Util::NamespaceSelector) do
   describe '#select' do
     context 'when type is a supported authenticator type' do
       context 'when type is `authn-oidc`' do
-        it 'returns the valid namespace' do
-          expect(
-            Authentication::Util::NamespaceSelector.select(
-              authenticator_type: 'authn-oidc',
-              pkce_support_enabled: false
-            )
-          ).to eq('Authentication::AuthnOidc::V2')
+        context 'when pkce support feature flag is enabled' do
+          it 'returns the valid namespace' do
+            expect(
+              Authentication::Util::NamespaceSelector.select(
+                authenticator_type: 'authn-oidc',
+                pkce_support_enabled: true
+              )
+            ).to eq('Authentication::AuthnOidc::PkceSupportFeature')
+          end
+        end
+
+        context 'when pkce support feature flag is disabled' do
+          it 'returns the valid namespace' do
+            expect(
+              Authentication::Util::NamespaceSelector.select(
+                authenticator_type: 'authn-oidc',
+                pkce_support_enabled: false
+              )
+            ).to eq('Authentication::AuthnOidc::V2')
+          end
         end
       end
     end
