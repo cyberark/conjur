@@ -68,7 +68,7 @@ RSpec.describe('Authentication::AuthnOidc::V2::Views::ProviderContext') do
     )
   end
 
-  describe('#call') do
+  describe('#call', :type => 'unit') do
     context 'when provider context is given multiple authenticators' do
       it 'returns the providers object with the redirect urls' do
         expect(provider_context.call(authenticators: authenticators))
@@ -84,4 +84,3 @@ RSpec.describe('Authentication::AuthnOidc::V2::Views::ProviderContext') do
     end
   end
 end
-

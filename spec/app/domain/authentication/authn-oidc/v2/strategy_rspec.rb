@@ -41,7 +41,7 @@ RSpec.describe(' Authentication::AuthnOidc::V2::Strategy') do
     )
   end
 
-  describe('#callback') do
+  describe('#callback', :type => 'unit') do
     context 'when a role_id matches the identity exist' do
       let(:mapping) { "claim_mapping" }
       it 'returns the role' do

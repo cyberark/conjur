@@ -17,7 +17,7 @@ RSpec.describe(Authentication::AuthnOidc::PkceSupportFeature::DataObjects::Authe
 
   let(:authenticator) { described_class.new(**args) }
 
-  describe '.scope' do
+  describe '.scope', :type => 'unit' do
     context 'with default initializer' do
       it { expect(authenticator.scope).to eq('openid email profile') }
     end
@@ -50,7 +50,7 @@ RSpec.describe(Authentication::AuthnOidc::PkceSupportFeature::DataObjects::Authe
     end
   end
 
-  describe '.name' do
+  describe '.name', :type => 'unit' do
     context 'when name is missing' do
       it { expect(authenticator.name).to eq('My Authenticator') }
     end
@@ -60,19 +60,19 @@ RSpec.describe(Authentication::AuthnOidc::PkceSupportFeature::DataObjects::Authe
     end
   end
 
-  describe '.resource_id' do
+  describe '.resource_id', :type => 'unit' do
     context 'correctly renders' do
       it { expect(authenticator.resource_id).to eq('default:webservice:conjur/authn-oidc/my-authenticator') }
     end
   end
 
-  describe '.response_type' do
+  describe '.response_type', :type => 'unit' do
     context 'with default initializer' do
       it { expect(authenticator.response_type).to eq('code') }
     end
   end
 
-  describe '.token_ttl' do
+  describe '.token_ttl', :type => 'unit' do
     context 'with default initializer' do
       it { expect(authenticator.token_ttl).to eq(8.minutes) }
     end
