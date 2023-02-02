@@ -75,6 +75,8 @@ Rails.application.routes.draw do
       get     "/secrets/:account/:kind/*identifier" => 'secrets#show'
       post    "/secrets/:account/:kind/*identifier" => 'secrets#create'
       get     "/secrets"                            => 'secrets#batch'
+      get     "/edge/secrets/:account"              => 'edge#all_secrets'
+      get     "/edge/hosts/:account"                => 'edge#all_hosts'
 
       put     "/policies/:account/:kind/*identifier" => 'policies#put'
       patch   "/policies/:account/:kind/*identifier" => 'policies#patch'
