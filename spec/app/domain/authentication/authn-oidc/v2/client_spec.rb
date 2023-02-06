@@ -23,7 +23,7 @@ RSpec.describe(Authentication::AuthnOidc::V2::Client) do
     )
   end
 
-  describe '.callback' do
+  describe '.callback', :type => 'unit' do
     context 'when credentials are valid' do
       it 'returns a valid JWT token', vcr: 'authenticators/authn-oidc/v2/client_callback-valid_oidc_credentials' do
         # Because JWT tokens have an expiration timeframe, we need to hold
@@ -99,7 +99,7 @@ RSpec.describe(Authentication::AuthnOidc::V2::Client) do
     end
   end
 
-  describe '.oidc_client' do
+  describe '.oidc_client', :type => 'unit' do
     context 'when credentials are valid' do
       it 'returns a valid oidc client', vcr: 'authenticators/authn-oidc/v2/client_initialization' do
         oidc_client = client.oidc_client
@@ -118,7 +118,7 @@ RSpec.describe(Authentication::AuthnOidc::V2::Client) do
     end
   end
 
-  describe '.discovery_information', vcr: 'authenticators/authn-oidc/v2/discovery_endpoint-valid_oidc_credentials' do
+  describe '.discovery_information', :type => 'unit', vcr: 'authenticators/authn-oidc/v2/discovery_endpoint-valid_oidc_credentials' do
     context 'when credentials are valid' do
       it 'endpoint returns valid data' do
         discovery_information = client.discovery_information(invalidate: true)
