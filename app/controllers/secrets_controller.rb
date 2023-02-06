@@ -19,7 +19,7 @@ class SecretsController < RestController
     resource.enforce_secrets_version_limit
 
     transaction_message = "{ \"entities\": [ "
-    entity_message = "{ \" secret \" : { \"action\": \"set\", \"data\": { \"name\": \"" + resource.id + "\",\"value\": \"" + value + "\"}}}"
+    entity_message = "{ \"secret\" : { \"action\": \"set\", \"data\": { \"name\": \"" + resource.id + "\",\"value\": \"" + value + "\"}}}"
     Rails.logger.info("+++++++++ publish_changes 1 entity_message = #{entity_message}")
     transaction_message = transaction_message + entity_message + "]}"
 
