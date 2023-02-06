@@ -1,0 +1,54 @@
+# frozen_string_literal: true
+
+require 'base64'
+
+module Factory
+  module Templates
+    module Core
+      class Group
+        class << self
+          def policy_template
+            <<~TEMPLATE
+              - !group
+                id: <%= id %>
+                <% if defined?(annotations) %>
+                annotations:
+                <% annotations.each do |key, value| -%>
+                  <%= key %>: <%= value %>
+                <% end -%>
+                <% end -%>
+            TEMPLATE
+          end
+
+          def data
+            Base64.encode64({
+              policy: Base64.encode64(policy_template),
+              schema: {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "$id": "https://example.com/product.schema.json",
+                "title": "Group Template",
+                "description": "Creates a Conjur Group",
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "description": "Group ID",
+                    "type": "string"
+                  },
+                  "branch": {
+                    "description": "Policy branch to load this group into",
+                    "type": "string"
+                  },
+                  "annotations": {
+                    "description": "Additional annotations to add to the group",
+                    "type": "object"
+                  }
+                },
+                "required": %w[id branch]
+              }
+            }.to_json)
+          end
+        end
+      end
+    end
+  end
+end
