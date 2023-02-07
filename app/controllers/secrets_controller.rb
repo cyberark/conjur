@@ -5,6 +5,7 @@ require 'English'
 class SecretsController < RestController
   include FindResource
   include AuthorizeResource
+  include BodyParser
 
   before_action :current_user
 
@@ -148,18 +149,14 @@ class SecretsController < RestController
   def variable_ids
     return @variable_ids if @variable_ids
 
-    # Parse variable IDs delivered as a querystring, formatted as
-    # ?variable_ids=<account>:<kind>:<id-1>,...,<account>:<kind>:<id-n>
-    @variable_ids = (params[:variable_ids] || '').split(',').compact
-    # Parse variable IDs delivered as JSON payload, formatted as
-    # {"variable_ids":["<account>:<kind>:<id-1>",...,"<account>:<kind>:<id-n>"]}
-    #
-    # This is only done if a variable_ids query parameter is not provided.
-    @variable_ids = JSON.parse(request.raw_post)["variable_ids"] if @variable_ids.empty?
+    @variable_ids = params[:variable_ids] || []
+    @variable_ids = @variable_ids.split(',').compact if @variable_ids.is_a?(String)
 
     # Checks that variable_ids is not empty and doesn't contain empty variable ids
     raise ArgumentError, 'variable_ids' if @variable_ids.empty? ||
-      @variable_ids.count != @variable_ids.reject(&:empty?).count
+      @variable_ids.count != @variable_ids.reject { |id|
+        !id.is_a?(String) || id.empty?
+      }.count
 
     @variable_ids
   end

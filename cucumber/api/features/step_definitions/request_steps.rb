@@ -133,12 +133,16 @@ When(/^I( (?:successfully|can))? authenticate Alice (?:(\d+) times? in (\d+) thr
   )
 end
 
-When(/^I( (?:can|successfully))? POST(( \d+) times)? "([^"]*)" with body:$/) do |can, requests_num, path, body|
+When(/^I( (?:can|successfully))? POST(( \d+) times)? "([^"]*)" with( JSON)? body:$/) do |can, requests_num, path, json, body|
   requests_num ||= 1
 
   (1..requests_num.to_i).each do
     try_request can do
-      post_json path, body
+      if json
+        post_json path, body, options = {:headers => {:content_type => 'application/json'}}
+      else
+        post_json path, body
+      end
     end
   end
 end
