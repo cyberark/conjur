@@ -1,5 +1,12 @@
 # frozen_string_literal: true
 
+# This file maintains the collection of possible logs emitted by Conjur using
+# the standard numbering scheme.
+#
+# For the next available code, use the command `rake error_code:next` in the
+# repo root.
+#
+# See also ./errors.rb
 module LogMessages
 
   module Conjur
