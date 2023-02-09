@@ -3,5 +3,7 @@ Rails.application.configure do
   # loads configuration on server startup. This prevents config values from
   # being loaded fresh every time a ConjurConfig object is instantiated, which
   # could lead to inconsistent behavior.
-  config.conjur_config = Conjur::ConjurConfig.new
+  config.conjur_config = Conjur::ConjurConfig.new(
+    logger: Rails.logger
+  )
 end

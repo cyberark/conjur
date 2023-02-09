@@ -11,6 +11,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [1.19.3] - 2023-01-26
 
+### Added
+- Conjur now logs when it detects that the Conjur configuration file
+  (conjur.yml) or directory permissions prevent the Conjur server from
+  successfully reading it. Conjur also now logs at the DEBUG level when it
+  detects that either the directory or file do not exist.
+  [cyberark/conjur#2715](https://github.com/cyberark/conjur/pull/2715)
+
 ## [1.19.2] - 2022-01-13
 
 ### Fixed
