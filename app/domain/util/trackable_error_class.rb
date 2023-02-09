@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative 'error_class'
+
 # A factory for creating an ErrorClass with an error code prefix
 #
 module Util
