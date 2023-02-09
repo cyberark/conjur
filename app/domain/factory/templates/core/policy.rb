@@ -26,9 +26,9 @@ module Factory
           def data
             Base64.encode64({
               policy: Base64.encode64(policy_template),
+              target_policy_namespace: "<%= branch %>",
               schema: {
-                "$schema": "https://json-schema.org/draft/2020-12/schema",
-                "$id": "https://example.com/product.schema.json",
+                "$schema": "http://json-schema.org/draft-06/schema#",
                 "title": "User Template",
                 "description": "Creates a Conjur Policy",
                 "type": "object",

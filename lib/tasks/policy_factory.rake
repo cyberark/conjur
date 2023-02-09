@@ -56,6 +56,8 @@ namespace :policy_factory do
     client.resource('cucumber:variable:conjur/factories/core/managed-policy').add_value(Factory::Templates::Core::ManagedPolicy.data)
     client.resource('cucumber:variable:conjur/factories/core/policy').add_value(Factory::Templates::Core::Policy.data)
     client.resource('cucumber:variable:conjur/factories/core/user').add_value(Factory::Templates::Core::User.data)
+    client.resource('cucumber:variable:conjur/factories/authenticators/authn-oidc').add_value(Factory::Templates::Authenticators::AuthnOidc.data)
+    client.resource('cucumber:variable:conjur/factories/connections/database').add_value(Factory::Templates::Connections::Database.data)
   end
 
   task retrieve_auth_token: :environment do

@@ -12,12 +12,14 @@ class PolicyFactoriesController < RestController
     factory_resource = load_factory(kind: params[:kind], id: params[:id], account: params[:account])
     authorize(:execute, factory_resource)
 
-    Factory::CreateFromPolicyFactory.new.call(
+    response = Factory::CreateFromPolicyFactory.new.call(
       account: params[:account],
       factory_template: JSON.parse(Base64.decode64(factory_resource.secret.value)),
       request_body: JSON.parse(request.body.read),
       authorization: request.headers["Authorization"]
     )
+
+    render(json: JSON.parse(response.body), status: :created) if response.code == 201
   end
 
   def info

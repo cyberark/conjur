@@ -15,24 +15,28 @@ module Factory
                   - !policy
                     id: core
                     body:
-                      - !variable user
-                      - !variable host
-                      - !variable group
-                      - !variable policy
-                      - !variable layer
-                      - !variable grant
-                      - !variable permit
-                      - !variable managed-policy
+                    - !variable user
+                    - !variable host
+                    - !variable group
+                    - !variable policy
+                    - !variable layer
+                    - !variable grant
+                    - !variable permit
+                    - !variable managed-policy
                   - !policy
                     id: authenticators
                     body:
-                      - !variable authn-azure
-                      - !variable authn-iam
-                      - !variable authn-oidc
-                      - !variable authn-ldap
-                      - !variable authn-k8s
-                      - !variable authn-gcp
-                      - !variable authn-jwt
+                    - !variable authn-azure
+                    - !variable authn-iam
+                    - !variable authn-oidc
+                    - !variable authn-ldap
+                    - !variable authn-k8s
+                    - !variable authn-gcp
+                    - !variable authn-jwt
+                  - !policy
+                    id: connections
+                    body:
+                    - !variable database
           TEMPLATE
         end
       end
