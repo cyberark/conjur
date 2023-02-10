@@ -3,7 +3,7 @@
 class PoliciesController < RestController
   include FindResource
   include AuthorizeResource
-  
+
   before_action :current_user
   before_action :find_or_create_root_policy
 

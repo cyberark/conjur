@@ -120,21 +120,21 @@ class SecretsController < RestController
     }
   end
 
-  # NOTE: We're following REST/http semantics here by representing this as 
+  # NOTE: We're following REST/http semantics here by representing this as
   #       an "expirations" that you POST to you.  This may seem strange given
   #       that what we're doing is simply updating an attribute on a secret.
-  #       But keep in mind this purely an implementation detail -- we could 
+  #       But keep in mind this purely an implementation detail -- we could
   #       have implemented expirations in many ways.  We want to expose the
-  #       concept of an "expiration" to the user.  And per standard rest, 
+  #       concept of an "expiration" to the user.  And per standard rest,
   #       we do that with a resource, "expirations."  Expiring a variable
   #       is then a matter of POSTing to create a new "expiration" resource.
-  #       
+  #
   #       It is irrelevant that the server happens to implement this request
   #       by assigning nil to `expires_at`.
   #
   #       Unfortuneatly, to be consistent with our other routes, we're abusing
   #       query strings to represent what is in fact a new resource.  Ideally,
-  #       we'd use a slash instead, but decided that consistency trumps 
+  #       we'd use a slash instead, but decided that consistency trumps
   #       correctness in this case.
   #
   def expire
