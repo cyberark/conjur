@@ -19,12 +19,13 @@ module Factory
                 - !variable client-secret
 
                 # URI of Conjur instance
-                - !variable redirect_uri
+                - !variable redirect-uri
 
                 # Defines the JWT claim to use as the Conjur identifier
                 - !variable claim-mapping
 
-                - !group authenticatable
+                - !group
+                  id: authenticatable
                   annotations:
                     description: Group with permission to authenticate using this authenticator
 
@@ -33,7 +34,8 @@ module Factory
                   privilege: [ read, authenticate ]
                   resource: !webservice
 
-                - !webservice status
+                - !webservice
+                  id: status
                   annotations:
                     description: Web service for checking authenticator status
 
@@ -44,7 +46,7 @@ module Factory
 
                 - !permit
                   role: !group operators
-                  privilege: read
+                  privilege: [ read ]
                   resource: !webservice status
             TEMPLATE
           end
@@ -56,8 +58,8 @@ module Factory
               target_variable_namespace: "conjur/authn-oidc/<%= service_id %>",
               schema: {
                 "$schema": "http://json-schema.org/draft-06/schema#",
-                "title": "Managed Policy Template",
-                "description": "Policy with an owner group",
+                "title": "Authn-OIDC Template",
+                "description": "Create a new Authn-OIDC Authenticator",
                 "type": "object",
                 "properties": {
                   "service-id": {

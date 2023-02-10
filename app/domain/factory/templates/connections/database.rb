@@ -70,7 +70,7 @@ module Factory
                       },
                       "port": {
                         "description": "Database Port",
-                        "type": "integer"
+                        "type": "string"
                       },
                       "username": {
                         "description": "Database Username",
