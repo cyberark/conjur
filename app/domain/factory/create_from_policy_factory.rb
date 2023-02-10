@@ -29,6 +29,7 @@ module Factory
     end
 
     def call(factory_template:, request_body:, account:, authorization:)
+      request_body = request_body.select{|_,v| v.present? }
       validate!(
         schema: factory_template['schema'],
         params: request_body
