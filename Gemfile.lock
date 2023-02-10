@@ -436,7 +436,7 @@ GEM
       simplecov_json_formatter (~> 0.1)
     simplecov-html (0.12.3)
     simplecov_json_formatter (0.1.4)
-    slosilo (3.0.0)
+    slosilo (3.0.1)
     spring (2.1.0)
     spring-commands-cucumber (1.0.1)
       spring (>= 0.9.1)

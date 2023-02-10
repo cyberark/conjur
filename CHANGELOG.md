@@ -18,6 +18,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   detects that either the directory or file do not exist.
   [cyberark/conjur#2715](https://github.com/cyberark/conjur/pull/2715)
 
+### Fixed
+- Fixed a thread-safety bug in secret retrieval when multiple threads attempt
+  to decrypt a secret value with Slosilo/OpenSSL.
+  [cyberark/slosilo#31](https://github.com/cyberark/slosilo/pull/31)
+  [cyberark/conjur#2718](https://github.com/cyberark/conjur/pull/2718)
+
 ## [1.19.2] - 2022-01-13
 
 ### Fixed
