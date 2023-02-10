@@ -15,6 +15,9 @@ class SecretsController < RestController
 
     raise ArgumentError, "'value' may not be empty" if value.blank?
 
+    # Lock on the resource to prevent two processes from adding secrets at
+    # the same time. This lock is released when the transaction ends.
+    resource.lock!
     Secret.create(resource_id: resource.id, value: value)
     resource.enforce_secrets_version_limit
 

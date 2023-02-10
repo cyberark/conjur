@@ -14,14 +14,17 @@ class PoliciesController < RestController
   set_default_content_type_for_path(%r{^/policies}, 'application/x-yaml')
 
   def put
+    resource.lock!
     load_policy(:update, Loader::ReplacePolicy, true)
   end
 
   def patch
+    resource.lock!
     load_policy(:update, Loader::ModifyPolicy, true)
   end
 
   def post
+    resource.lock!
     load_policy(:create, Loader::CreatePolicy, false)
   end
 
