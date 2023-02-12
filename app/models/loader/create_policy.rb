@@ -11,6 +11,10 @@ module Loader
       CreatePolicy.new(Loader::Orchestrate.new(policy_version))
     end
 
+    def set_pubsub(sqs_pubsub)
+      @loader.set_pubsub(sqs_pubsub)
+    end
+
     def call
       Rails.logger.info("+++++++++++ call 1")
       @loader.setup_db_for_new_policy

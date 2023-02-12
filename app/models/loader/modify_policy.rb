@@ -11,9 +11,14 @@ module Loader
       ModifyPolicy.new(Loader::Orchestrate.new(policy_version))
     end
 
+    def set_pubsub(sqs_pubsub)
+      @loader.set_pubsub(sqs_pubsub)
+    end
+
+
     def call
       @loader.setup_db_for_new_policy
-      
+
       @loader.delete_shadowed_and_duplicate_rows
 
       @loader.update_changed

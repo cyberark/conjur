@@ -7,6 +7,8 @@ class PoliciesController < RestController
   before_action :current_user
   before_action :find_or_create_root_policy
 
+  @publisher
+
   rescue_from Sequel::UniqueConstraintViolation, with: :concurrent_load
 
   # Conjur policies are YAML documents, so we assume that if no content-type
@@ -33,6 +35,10 @@ class PoliciesController < RestController
     policy_action.call
     new_actor_roles = actor_roles(policy_action.new_roles)
     create_roles(new_actor_roles)
+    Rails.logger.info("++++++++++ controller::load_policy 3.0")
+    publish_created_roles(new_actor_roles)
+    Rails.logger.info("++++++++++ controller::load_policy 4")
+
   end
 
   def find_or_create_root_policy
@@ -42,14 +48,16 @@ class PoliciesController < RestController
   private
 
   def load_policy(action, loader_class, delete_permitted)
-
+    Rails.logger.info("++++++++++ controller::load_policy 1")
     authorize(action)
+    @publisher = Conjur::SqsPublishUtils.new()
 
+    Rails.logger.info("++++++++++ controller::load_policy 2")
     policy = save_submitted_policy(delete_permitted: delete_permitted)
     loaded_policy = loader_class.from_policy(policy)
+    loaded_policy.set_pubsub(@publisher)
     created_roles = perform(loaded_policy)
     audit_success(policy)
-
     render(json: {
       created_roles: created_roles,
       version: policy[:version]
@@ -108,6 +116,21 @@ class PoliciesController < RestController
     roles.select do |role|
       %w[user host].member?(role.kind)
     end
+  end
+
+  def publish_created_roles(actor_roles)
+    Rails.logger.info("++++++++++ controller::publish_created_roles 1")
+    actor_roles.each_with_object({}) do |role, memo|
+      Rails.logger.info("++++++++++ controller::publish_created_roles 3.0")
+      credentials = Credentials[role: role] || Credentials.create(role: role)
+      role_id = role.id
+      Rails.logger.info("++++++++++ controller::publish_created_roles 4")
+      entity_message = "{ \"credentials\": { \"role_id\": \"" + role_id + "\",\"api_key\": \"" + credentials.api_key + "\"}}"
+      @publisher.add_to_message(entity_message)
+    end
+    Rails.logger.info("++++++++++ controller::publish_created_roles 7")
+    @publisher.send_message
+
   end
 
   def create_roles(actor_roles)

@@ -18,13 +18,14 @@ class SecretsController < RestController
     Secret.create(resource_id: resource.id, value: value)
     resource.enforce_secrets_version_limit
 
-    transaction_message = "{ \"entities\": [ "
-    entity_message = "{ \"secret\" : { \"action\": \"set\", \"data\": { \"name\": \"" + resource.id + "\",\"value\": \"" + value + "\"}}}"
+    versions = Secret.where(resource_id: resource.id).map(:version)
+    entity_message = "{ \"secret\" : { \"action\": \"set\", \"data\": { \"name\": \"" + resource.id +
+      "\",\"value\": \"" + value + "\", \"version\": \"" + versions[0].to_s + "\"}}}"
     Rails.logger.info("+++++++++ publish_changes 1 entity_message = #{entity_message}")
-    transaction_message = transaction_message + entity_message + "]}"
 
     publisher = Conjur::SqsPublishUtils.new()
-    publisher.send_message(transaction_message)
+    publisher.add_to_message(entity_message)
+    publisher.send_message#(transaction_message)
 
     head(:created)
   ensure
