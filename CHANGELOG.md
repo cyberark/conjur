@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
+## [0.0.2-cloud] - 2023-03-06
+### Added
+- Edge host endpoint and secret endpoint
+
 ## [0.0.1-cloud] - 2022-01-13
 ### Changed
 - Remove auto-release options to allow for a pseudo-fork development on a branch
