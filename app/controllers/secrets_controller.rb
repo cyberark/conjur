@@ -149,14 +149,16 @@ class SecretsController < RestController
   def variable_ids
     return @variable_ids if @variable_ids
 
+    # If the variable IDs are passed as a field on a JSON request body, the value
+    # stored in the params hash will be an array of ID strings.
     @variable_ids = params[:variable_ids] || []
+    # If the variable IDs are passed as a query parameter, the value stored in the
+    # params hash will be a string of comma-delimited IDs.
     @variable_ids = @variable_ids.split(',').compact if @variable_ids.is_a?(String)
 
     # Checks that variable_ids is not empty and doesn't contain empty variable ids
     raise ArgumentError, 'variable_ids' if @variable_ids.empty? ||
-      @variable_ids.count != @variable_ids.reject { |id|
-        !id.is_a?(String) || id.empty?
-      }.count
+      @variable_ids.count != @variable_ids.reject { |id| !id.is_a?(String) || id.empty? }.count
 
     @variable_ids
   end

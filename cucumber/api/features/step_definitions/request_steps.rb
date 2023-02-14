@@ -139,7 +139,7 @@ When(/^I( (?:can|successfully))? POST(( \d+) times)? "([^"]*)" with( JSON)? body
   (1..requests_num.to_i).each do
     try_request can do
       if json
-        post_json path, body, options = {:headers => {:content_type => 'application/json'}}
+        post_json path, body, { headers: { content_type: 'application/json' } }
       else
         post_json path, body
       end
