@@ -35,7 +35,7 @@ end
 
 Given("I login as {string}") do |login|
   if host?(login)
-    loginid = login.split('/')[1]
+    loginid = login.slice(login.index('/')+1, login.length)
     roleid = (login.include?(":") ? login : "cucumber:host:#{loginid}")
   else
     roleid = (login.include?(":") ? login : "cucumber:user:#{login}")
