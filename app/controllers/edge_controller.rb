@@ -7,6 +7,7 @@ class EdgeController < RestController
     options = params.permit(*allowed_params)
       .slice(*allowed_params).to_h.symbolize_keys
     begin
+      verify_edge_host(options)
       #scope = Resource.visible_to(current_user).search(options)
       #scope = Resource.visible_to(current_user).search
       offset = options[:offset]
@@ -41,6 +42,7 @@ class EdgeController < RestController
     allowed_params = %i[account limit offset]
     options = params.permit(*allowed_params)
                     .slice(*allowed_params).to_h.symbolize_keys
+    verify_edge_host(options)
     offset = options[:offset]
     limit = options[:limit]
     scope = Role.where(:role_id.like("conjur:host:data%"))
@@ -58,5 +60,13 @@ class EdgeController < RestController
       results  << hostToReturn
     end
     render(json: results)
+  end
+
+  private
+
+  def verify_edge_host(options)
+    raise Forbidden, 'Requestor is not a host' unless current_user.kind == 'host'
+    role = Role[options[:account] + ':group:edge/edge-admins']
+    raise Forbidden unless role && role.ancestor_of?(current_user)
   end
 end
