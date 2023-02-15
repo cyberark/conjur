@@ -2,6 +2,14 @@
 # rely on Rails autoloading to make the `Anyway::Config` constant available.
 require 'anyway_config'
 
+# It is a design smell that we have to require files from `app/domain` to use
+# in `/lib` (particularly that we traverse up to a common root directory). This
+# suggests that, if we want to continue using well-defined classes for logs and
+# errors, we should move those classes into `/lib` from `app/domain`. However,
+# that change greatly expands the scope of this PR and so, instead, I used a
+# relative require to include the log definitions here.
+require_relative '../../app/domain/logs'
+
 module Conjur
   # We are temporarily avoiding hooking into the application error system
   # because using it means you have to require about five classes when loading
@@ -33,8 +41,21 @@ module Conjur
       extensions: []
     )
 
-    def initialize(*args)
-      super(*args)
+    def initialize(
+      *args,
+      logger: Rails.logger,
+      **kwargs
+    )
+      # The permissions checks emit log messages, so we need to initialize the
+      # logger before verifying permissions.
+      @logger = logger
+
+      # First verify that we have the permissions necessary to read the config
+      # file.
+      verify_config_is_readable
+
+      # Initialize Anyway::Config
+      super(*args, **kwargs)
 
     # If the config file is not a valid YAML document, we want
     # to raise a user-friendly ConfigValidationError rather than
@@ -100,6 +121,88 @@ module Conjur
     end
 
     private
+
+    def verify_config_is_readable
+      return unless verify_config_directory_exists
+
+      return unless verify_config_directory_permissions
+
+      return unless verify_config_file_exists
+
+      return unless verify_config_file_permissions
+
+      # If no issues are detected, log where the config file is being read from.
+      @logger.info("Loading Conjur config file: #{config_path}")
+    end
+
+    def verify_config_directory_exists
+      return true if File.directory?(config_directory)
+
+      # It may be expected that the config directory not exist, so this is
+      # a log message for debugging the Conjur config, rather than alerting the
+      # user to an issue.
+      @logger.debug(
+        LogMessages::Config::DirectoryDoesNotExist.new(config_directory).to_s
+      )
+      false
+    end
+
+    def verify_config_directory_permissions
+      return true if File.executable?(config_directory)
+
+      # If the config direct does exist, we want to alert the user if the
+      # permissions will prevent Conjur from reading a config file in that
+      # directory.
+      @logger.warn(
+        LogMessages::Config::DirectoryInvalidPermissions.new(
+          config_directory
+        ).to_s
+      )
+
+      false
+    end
+
+    def verify_config_file_exists
+      return true if File.file?(config_path)
+
+      # Similar to the directory, if the config file doesn't exist, this becomes
+      # debugging information.
+      @logger.debug(
+        LogMessages::Config::FileDoesNotExist.new(config_path).to_s
+      )
+
+      false
+    end
+
+    def verify_config_file_permissions
+      return true if File.readable?(config_path)
+
+      # If the file exists but we can detect it's not readable, let the user
+      # know. Conjur will also fail to start in this configuration.
+      @logger.warn(
+        LogMessages::Config::FileInvalidPermissions.new(config_path).to_s
+      )
+
+      false
+    end
+
+    def config_directory
+      File.dirname(config_path)
+    end
+
+    # Because we call this before the base class initialized, we need to move the
+    # implementation here.
+    #
+    # Derived from:
+    # https://github.com/palkan/anyway_config/blob/83d79ccaf5619889c07c8ecdf8d66dcb22c9dc05/lib/anyway/config.rb#L358
+    #
+    # :reek:DuplicateMethodCall due to `self.class`
+    def config_path
+      @config_path ||= resolve_config_path(
+        self.class.config_name,
+        self.class.env_prefix
+      )
+    end
 
     def str_to_list(val)
       val.is_a?(String) ? val.split(',') : val
