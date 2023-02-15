@@ -18,11 +18,7 @@ module FindResource
   end
 
   def resource_exists?
-    begin
-      Resource[resource_id] ? true : false
-    rescue NotFound
-      false
-    end
+    Resource[resource_id] ? true : false
   end
 
   def resource_visible?

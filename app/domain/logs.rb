@@ -1,5 +1,15 @@
 # frozen_string_literal: true
 
+require_relative 'util/trackable_log_message_class'
+require_relative 'util/trackable_error_class'
+
+# This file maintains the collection of possible logs emitted by Conjur using
+# the standard numbering scheme.
+#
+# For the next available code, use the command `rake error_code:next` in the
+# repo root.
+#
+# See also ./errors.rb
 module LogMessages
 
   module Conjur
@@ -786,5 +796,32 @@ module LogMessages
       code: "CONJ00026D"
     )
 
+  end
+
+  module Config
+    DirectoryDoesNotExist = ::Util::TrackableLogMessageClass.new(
+      msg: "Conjur config directory doesn't exist or has " \
+           "insufficient permission to list it: {0-config-directory}",
+      code: "CONJ00147D"
+    )
+
+    DirectoryInvalidPermissions = ::Util::TrackableLogMessageClass.new(
+      msg: "Conjur config directory exists but is missing " \
+           "search/execute permission required to list the config file: " \
+           "{0-config-directory}",
+      code: "CONJ00148W"
+    )
+
+    FileDoesNotExist = ::Util::TrackableLogMessageClass.new(
+      msg: "Conjur config file doesn't exist or has insufficient " \
+           "permission to list it: {0-config-path}",
+      code: "CONJ00149D"
+    )
+
+    FileInvalidPermissions = ::Util::TrackableLogMessageClass.new(
+      msg: "Conjur config file exists but has insufficient permission to " \
+           "read it: {0-config-path}",
+      code: "CONJ00150W"
+    )
   end
 end

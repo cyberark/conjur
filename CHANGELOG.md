@@ -13,6 +13,21 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 - Remove auto-release options to allow for a pseudo-fork development on a branch
 
+## [1.19.3] - 2023-01-26
+
+### Added
+- Conjur now logs when it detects that the Conjur configuration file
+  (conjur.yml) or directory permissions prevent the Conjur server from
+  successfully reading it. Conjur also now logs at the DEBUG level when it
+  detects that either the directory or file do not exist.
+  [cyberark/conjur#2715](https://github.com/cyberark/conjur/pull/2715)
+
+### Fixed
+- Fixed a thread-safety bug in secret retrieval when multiple threads attempt
+  to decrypt a secret value with Slosilo/OpenSSL.
+  [cyberark/slosilo#31](https://github.com/cyberark/slosilo/pull/31)
+  [cyberark/conjur#2718](https://github.com/cyberark/conjur/pull/2718)
+
 ## [1.19.2] - 2022-01-13
 
 ### Fixed
