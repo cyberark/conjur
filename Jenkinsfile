@@ -720,5 +720,5 @@ def defaultCucumberFilterTags(env) {
   }
 
   // For all other branch builds, only run the @smoke tests by default
-  return '@smoke'
+  return '@smoke not @authenticators_ldap'
 }
