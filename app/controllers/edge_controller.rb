@@ -58,13 +58,17 @@ class EdgeController < RestController
       (offset || 0).to_i
     )
     results = []
-    hosts = scope.eager(:credentials).all
-    hosts.each do |host|
-      hostToReturn = {}
-      hostToReturn[:id] = host[:role_id]
-      hostToReturn[:api_key] =host.api_key
-      hostToReturn[:memberships] =host.all_roles.all.select{|h| h[:role_id] != (host[:role_id])}
-      results  << hostToReturn
+    if params[:count] == 'true'
+      results = { count: scope.count('*'.lit) }
+    else
+      hosts = scope.eager(:credentials).all
+      hosts.each do |host|
+        hostToReturn = {}
+        hostToReturn[:id] = host[:role_id]
+        hostToReturn[:api_key] =host.api_key
+        hostToReturn[:memberships] =host.all_roles.all.select{|h| h[:role_id] != (host[:role_id])}
+        results  << hostToReturn
+      end
     end
     render(json: results)
   end
