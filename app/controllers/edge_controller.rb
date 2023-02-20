@@ -23,10 +23,11 @@ class EdgeController < RestController
       raise ApplicationController::UnprocessableEntity, e.message
     end
 
-    results = []
     if params[:count] == 'true'
       results = { count: scope.count('*'.lit) }
+      render(json: results)
     else
+      results = []
       variables = scope.eager(:permissions).eager(:secrets).all
       variables.each do |variable|
         variableToReturn = {}
@@ -38,11 +39,9 @@ class EdgeController < RestController
           variableToReturn[:value] = variable.last_secret.value
         end
         results  << variableToReturn
-        #results2 = { secrets: results}
       end
+      render(json: {"secrets":results})
     end
-    render(json: results)
-    #render(json: results2)
   end
 
   def all_hosts
@@ -57,10 +56,11 @@ class EdgeController < RestController
       (limit || 1000).to_i,
       (offset || 0).to_i
     )
-    results = []
     if params[:count] == 'true'
       results = { count: scope.count('*'.lit) }
+      render(json: results)
     else
+      results = []
       hosts = scope.eager(:credentials).all
       hosts.each do |host|
         hostToReturn = {}
@@ -69,8 +69,8 @@ class EdgeController < RestController
         hostToReturn[:memberships] =host.all_roles.all.select{|h| h[:role_id] != (host[:role_id])}
         results  << hostToReturn
       end
+      render(json: {"hosts": results})
     end
-    render(json: results)
   end
 
   private
