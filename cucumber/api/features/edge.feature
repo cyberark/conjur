@@ -51,7 +51,7 @@ Feature: Fetching secrets from edge endpoint
     Then the HTTP response status code is 200
     And the JSON should be:
     """
-    [
+    {"secrets":[
       {
         "id": "cucumber:variable:data/secret1",
         "owner": "cucumber:policy:data",
@@ -92,7 +92,7 @@ Feature: Fetching secrets from edge endpoint
         "value": "s5",
         "version": 1
       }
-    ]
+    ]}
     """
 
   @negative @acceptance
@@ -117,7 +117,7 @@ Feature: Fetching secrets from edge endpoint
     Then the HTTP response status code is 200
     And the JSON should be:
     """
-    [
+    {"secrets":[
       {
         "id": "cucumber:variable:data/secret1",
         "owner": "cucumber:policy:data",
@@ -134,7 +134,7 @@ Feature: Fetching secrets from edge endpoint
         "value": "s2",
         "version": 1
       }
-    ]
+    ]}
     """
     When I GET "/edge/secrets/cucumber" with parameters:
     """
@@ -144,7 +144,7 @@ Feature: Fetching secrets from edge endpoint
     Then the HTTP response status code is 200
     And the JSON should be:
     """
-    [
+    {"secrets":[
       {
         "id": "cucumber:variable:data/secret3",
         "owner": "cucumber:policy:data",
@@ -161,7 +161,7 @@ Feature: Fetching secrets from edge endpoint
         "value": "s4",
         "version": 1
       }
-    ]
+    ]}
     """
     When I GET "/edge/secrets/cucumber" with parameters:
     """
@@ -171,7 +171,7 @@ Feature: Fetching secrets from edge endpoint
     Then the HTTP response status code is 200
     And the JSON should be:
     """
-    [
+    {"secrets":[
       {
         "id": "cucumber:variable:data/secret5",
         "owner": "cucumber:policy:data",
@@ -180,7 +180,7 @@ Feature: Fetching secrets from edge endpoint
         "value": "s5",
         "version": 1
       }
-    ]
+    ]}
     """
 
   @acceptance
