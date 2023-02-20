@@ -40,8 +40,11 @@ Feature: Fetching secrets from edge endpoint
     And I add the secret value "s5" to the resource "cucumber:variable:data/secret5"
     And I log out
 
+  # Secrets
+  #########
+
   @acceptance
-  Scenario: Fetching all secrets with edge host return 200 with right json
+  Scenario: Fetching all secrets with edge host return 200 OK with json results
 
     Given I login as "host/edge/edge-EDGE_IDENTIFIER/edge-host-EDGE_IDENTIFIER"
     When I GET "/edge/secrets/cucumber"
@@ -93,30 +96,13 @@ Feature: Fetching secrets from edge endpoint
     """
 
   @negative @acceptance
-  Scenario: Fetching secrets with non edge host return 403
+  Scenario: Fetching secrets with non edge host return 403 error
 
     Given I login as "some_user"
     When I GET "/edge/secrets/cucumber"
     Then the HTTP response status code is 403
     Given I login as "host/some_host"
     When I GET "/edge/secrets/cucumber"
-    Then the HTTP response status code is 403
-
-  @acceptance
-  Scenario: Fetching hosts with edge host return 200
-
-    Given I login as "host/edge/edge-EDGE_IDENTIFIER/edge-host-EDGE_IDENTIFIER"
-    When I GET "/edge/hosts/cucumber"
-    Then the HTTP response status code is 200
-
-  @negative @acceptance
-  Scenario: Fetching hosts with non edge host return 403
-
-    Given I login as "some_user"
-    When I GET "/edge/hosts/cucumber"
-    Then the HTTP response status code is 403
-    Given I login as "host/some_host"
-    When I GET "/edge/hosts/cucumber"
     Then the HTTP response status code is 403
 
   @acceptance
@@ -196,3 +182,31 @@ Feature: Fetching secrets from edge endpoint
       }
     ]
     """
+
+  @acceptance
+  Scenario: Fetching secrets count
+
+    Given I login as "host/edge/edge-EDGE_IDENTIFIER/edge-host-EDGE_IDENTIFIER"
+    When I successfully GET "/edge/secrets/cucumber?count=true"
+    Then I receive a count of 5
+
+  # Hosts
+  #######
+
+  @acceptance
+  Scenario: Fetching hosts with edge host return 200 OK
+
+    Given I login as "host/edge/edge-EDGE_IDENTIFIER/edge-host-EDGE_IDENTIFIER"
+    When I GET "/edge/hosts/cucumber"
+    Then the HTTP response status code is 200
+
+  @negative @acceptance
+  Scenario: Fetching hosts with non edge host return 403
+
+    Given I login as "some_user"
+    When I GET "/edge/hosts/cucumber"
+    Then the HTTP response status code is 403
+    Given I login as "host/some_host"
+    When I GET "/edge/hosts/cucumber"
+    Then the HTTP response status code is 403
+
