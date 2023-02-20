@@ -12,7 +12,7 @@ class EdgeController < RestController
       #scope = Resource.visible_to(current_user).search
       offset = options[:offset]
       limit = options[:limit]
-      scope = Resource.where(:resource_id.like("conjur:variable:data%"))
+      scope = Resource.where(:resource_id.like(options[:account]+":variable:data%"))
       scope = scope.order(:resource_id).limit(
         (limit || 1000).to_i,
         (offset || 0).to_i
@@ -22,20 +22,27 @@ class EdgeController < RestController
     rescue ArgumentError => e
       raise ApplicationController::UnprocessableEntity, e.message
     end
+
     results = []
-    variables = scope.eager(:permissions).eager(:secrets).all
-    variables.each do |variable|
-      variableToReturn = {}
-      variableToReturn[:id] = variable[:resource_id]
-      variableToReturn[:owner] = variable[:owner_id]
-      variableToReturn[:permissions] =  variable.permissions.select{|h| h[:privilege].eql?('execute')}
-      unless variable.last_secret.nil?
-        variableToReturn[:version] = variable.last_secret.version
-        variableToReturn[:value] = variable.last_secret.value
+    if params[:count] == 'true'
+      results = { count: scope.count('*'.lit) }
+    else
+      variables = scope.eager(:permissions).eager(:secrets).all
+      variables.each do |variable|
+        variableToReturn = {}
+        variableToReturn[:id] = variable[:resource_id]
+        variableToReturn[:owner] = variable[:owner_id]
+        variableToReturn[:permissions] =  variable.permissions.select{|h| h[:privilege].eql?('execute')}
+        unless variable.last_secret.nil?
+          variableToReturn[:version] = variable.last_secret.version
+          variableToReturn[:value] = variable.last_secret.value
+        end
+        results  << variableToReturn
+        #results2 = { secrets: results}
       end
-      results  << variableToReturn
     end
     render(json: results)
+    #render(json: results2)
   end
 
   def all_hosts
@@ -45,7 +52,7 @@ class EdgeController < RestController
     verify_edge_host(options)
     offset = options[:offset]
     limit = options[:limit]
-    scope = Role.where(:role_id.like("conjur:host:data%"))
+    scope = Role.where(:role_id.like(options[:account]+":host:data%"))
     scope = scope.order(:role_id).limit(
       (limit || 1000).to_i,
       (offset || 0).to_i
