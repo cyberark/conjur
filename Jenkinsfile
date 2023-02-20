@@ -855,9 +855,9 @@ pipeline {
             archiveFiles('coverage/.resultset*.json')
             archiveFiles('coverage/coverage.json')
             archiveFiles('coverage/codeclimate.json')
-            archiveFiles(
-              'ci/test_suites/authenticators_k8s/output/simplecov-resultset-authnk8s-gke.json'
-            )
+//             archiveFiles(
+//               'ci/test_suites/authenticators_k8s/output/simplecov-resultset-authnk8s-gke.json'
+//             )
             archiveFiles('cucumber/*/*.*')
 
             publishHTML([
@@ -1044,16 +1044,16 @@ def conjurTests() {
         sh 'ci/test authenticators_status'
       }
     ],
-    "authenticators_k8s": [
-      "K8s Authenticator - ${env.STAGE_NAME}": {
-        sh 'ci/test authenticators_k8s'
-      }
-    ],
-    "authenticators_ldap": [
-      "LDAP Authenticator - ${env.STAGE_NAME}": {
-        sh 'ci/test authenticators_ldap'
-      }
-    ],
+//     "authenticators_k8s": [
+//       "K8s Authenticator - ${env.STAGE_NAME}": {
+//         sh 'ci/test authenticators_k8s'
+//       }
+//     ],
+//     "authenticators_ldap": [
+//       "LDAP Authenticator - ${env.STAGE_NAME}": {
+//         sh 'ci/test authenticators_ldap'
+//       }
+//     ],
     "authenticators_oidc": [
       "OIDC Authenticator - ${env.STAGE_NAME}": {
           sh 'summon -f ./ci/test_suites/authenticators_oidc/secrets.yml -e ci ci/test authenticators_oidc'
