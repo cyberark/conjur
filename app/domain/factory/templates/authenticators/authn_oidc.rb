@@ -10,18 +10,14 @@ module Factory
           def policy_template
             <<~TEMPLATE
               - !policy
-                id: <%= service_id %>
+                id: <%= id %>
                 body:
                 - !webservice
 
                 - !variable provider-uri
                 - !variable client-id
                 - !variable client-secret
-
-                # URI of Conjur instance
                 - !variable redirect-uri
-
-                # Defines the JWT claim to use as the Conjur identifier
                 - !variable claim-mapping
 
                 - !group
@@ -54,15 +50,14 @@ module Factory
           def data
             Base64.encode64({
               policy: Base64.encode64(policy_template),
-              target_policy_namespace: "conjur/authn-oidc",
-              target_variable_namespace: "conjur/authn-oidc/<%= service_id %>",
+              policy_namespace: "conjur/authn-oidc",
               schema: {
                 "$schema": "http://json-schema.org/draft-06/schema#",
                 "title": "Authn-OIDC Template",
                 "description": "Create a new Authn-OIDC Authenticator",
                 "type": "object",
                 "properties": {
-                  "service-id": {
+                  "id": {
                     "description": "Service ID of the Authenticator",
                     "type": "string"
                   },
@@ -88,12 +83,12 @@ module Factory
                       "claim-mapping": {
                         "description": "OIDC JWT claim mapping. This value must match to a Conjur Host ID.",
                         "type": "string"
-                      },
+                      }
                     },
                     "required": %w[provider-uri client-id client-secret claim-mapping]
                   }
                 },
-                "required": %w[service-id]
+                "required": %w[id variables]
               }
             }.to_json)
           end

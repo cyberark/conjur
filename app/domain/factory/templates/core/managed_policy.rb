@@ -25,7 +25,7 @@ module Factory
           def data
             Base64.encode64({
               policy: Base64.encode64(policy_template),
-              target_policy_namespace: "<%= branch %>",
+              policy_namespace: "<%= branch %>",
               schema: {
                 "$schema": "http://json-schema.org/draft-06/schema#",
                 "title": "Managed Policy Template",

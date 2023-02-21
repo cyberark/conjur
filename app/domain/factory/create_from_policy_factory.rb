@@ -29,7 +29,7 @@ module Factory
     end
 
     def call(factory_template:, request_body:, account:, authorization:)
-      request_body = request_body.select{|_,v| v.present? }
+      request_body = request_body.select{|_, v| v.present? }
       validate!(
         schema: factory_template['schema'],
         params: request_body
@@ -43,15 +43,15 @@ module Factory
       policy_template = @base64.decode64(factory_template['policy'])
 
       # Push rendered policy to the desired policy branch
-      policy_load_path = @renderer.render(policy_template: factory_template['target_policy_namespace'], variables: template_variables)
+      policy_load_path = @renderer.render(template: factory_template['policy_namespace'], variables: template_variables)
       response = @http.post(
         "http://localhost:3000/policies/#{account}/policy/#{policy_load_path}",
-        @renderer.render(policy_template: policy_template, variables: template_variables),
+        @renderer.render(template: policy_template, variables: template_variables),
         'Authorization' => authorization
       )
 
       if factory_template['schema']['properties'].key?('variables')
-        variable_path = @renderer.render(policy_template: factory_template['target_variable_namespace'], variables: template_variables)
+        variable_path = @renderer.render(template: "#{factory_template['policy_namespace']}/<%= id %>", variables: template_variables)
         factory_template['schema']['properties']['variables']['properties'].each_key do |factory_variable|
           variable_id = URI.encode_www_form_component("#{variable_path}/#{factory_variable}")
 
