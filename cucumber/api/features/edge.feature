@@ -3,7 +3,11 @@ Feature: Fetching secrets from edge endpoint
 
   Background:
     Given I create a new user "some_user"
-    And I have host "some_host"
+    And I have host "data/some_host1"
+    And I have host "data/some_host2"
+    And I have host "data/some_host3"
+    And I have host "data/some_host4"
+    And I have host "data/some_host5"
     And I am the super-user
     And I successfully PUT "/policies/cucumber/policy/root" with body:
     """
@@ -101,9 +105,10 @@ Feature: Fetching secrets from edge endpoint
     Given I login as "some_user"
     When I GET "/edge/secrets/cucumber"
     Then the HTTP response status code is 403
-    Given I login as "host/some_host"
+    Given I login as "host/data/some_host1"
     When I GET "/edge/secrets/cucumber"
     Then the HTTP response status code is 403
+
 
   @acceptance
   Scenario: Fetching secrets by batch with edge host return right json every batch call
@@ -184,6 +189,56 @@ Feature: Fetching secrets from edge endpoint
     """
 
   @acceptance
+  Scenario: Fetching secrets by batch with edge host return right number of results
+
+    Given I login as "host/edge/edge-EDGE_IDENTIFIER/edge-host-EDGE_IDENTIFIER"
+    When I GET "/edge/secrets/cucumber" with parameters:
+    """
+    limit: 2
+    offset: 0
+    """
+    Then the HTTP response status code is 200
+    And the JSON at "secrets" should have 2 entries
+    When I GET "/edge/secrets/cucumber" with parameters:
+    """
+    limit: 10
+    offset: 2
+    """
+    Then the HTTP response status code is 200
+    And the JSON at "secrets" should have 3 entries
+    Given I login as "host/edge/edge-EDGE_IDENTIFIER/edge-host-EDGE_IDENTIFIER"
+    When I GET "/edge/secrets/cucumber" with parameters:
+    """
+    offset: 0
+    """
+    Then the HTTP response status code is 200
+    And the JSON at "secrets" should have 5 entries
+    When I GET "/edge/secrets/cucumber" with parameters:
+    """
+    offset: 2
+    """
+    Then the HTTP response status code is 200
+    And the JSON at "secrets" should have 3 entries
+    When I GET "/edge/secrets/cucumber" with parameters:
+    """
+    limit: 2
+    """
+    Then the HTTP response status code is 200
+    And the JSON at "secrets" should have 2 entries
+    When I GET "/edge/secrets/cucumber" with parameters:
+    """
+    limit: 5
+    """
+    Then the HTTP response status code is 200
+    And the JSON at "secrets" should have 5 entries
+    When I GET "/edge/secrets/cucumber" with parameters:
+    """
+    limit: 10
+    """
+    Then the HTTP response status code is 200
+    And the JSON at "secrets" should have 5 entries
+
+  @acceptance
   Scenario: Fetching secrets count
 
     Given I login as "host/edge/edge-EDGE_IDENTIFIER/edge-host-EDGE_IDENTIFIER"
@@ -199,6 +254,66 @@ Feature: Fetching secrets from edge endpoint
     Given I login as "host/edge/edge-EDGE_IDENTIFIER/edge-host-EDGE_IDENTIFIER"
     When I GET "/edge/hosts/cucumber"
     Then the HTTP response status code is 200
+    And the JSON response at "hosts" should have 5 entries
+
+  @acceptance
+  Scenario: Fetching hosts by batch with edge host return right number of results
+
+    Given I login as "host/edge/edge-EDGE_IDENTIFIER/edge-host-EDGE_IDENTIFIER"
+    When I GET "/edge/hosts/cucumber" with parameters:
+    """
+    limit: 2
+    offset: 0
+    """
+    Then the HTTP response status code is 200
+    And the JSON at "hosts" should have 2 entries
+    When I GET "/edge/hosts/cucumber" with parameters:
+    """
+    limit: 10
+    offset: 2
+    """
+    Then the HTTP response status code is 200
+    And the JSON at "hosts" should have 3 entries
+    Given I login as "host/edge/edge-EDGE_IDENTIFIER/edge-host-EDGE_IDENTIFIER"
+    When I GET "/edge/hosts/cucumber" with parameters:
+    """
+    offset: 0
+    """
+    Then the HTTP response status code is 200
+    And the JSON at "hosts" should have 5 entries
+    When I GET "/edge/hosts/cucumber" with parameters:
+    """
+    offset: 2
+    """
+    Then the HTTP response status code is 200
+    And the JSON at "hosts" should have 3 entries
+    When I GET "/edge/hosts/cucumber" with parameters:
+    """
+    limit: 2
+    """
+    Then the HTTP response status code is 200
+    And the JSON at "hosts" should have 2 entries
+    When I GET "/edge/hosts/cucumber" with parameters:
+    """
+    limit: 5
+    """
+    Then the HTTP response status code is 200
+    And the JSON at "hosts" should have 5 entries
+    When I GET "/edge/hosts/cucumber" with parameters:
+    """
+    limit: 10
+    """
+    Then the HTTP response status code is 200
+    And the JSON at "hosts" should have 5 entries
+
+
+  @acceptance
+  Scenario: Fetching hosts count
+
+    Given I login as "host/edge/edge-EDGE_IDENTIFIER/edge-host-EDGE_IDENTIFIER"
+    When I successfully GET "/edge/hosts/cucumber?count=true"
+    Then I receive a count of 5
+
 
   @negative @acceptance
   Scenario: Fetching hosts with non edge host return 403
@@ -206,7 +321,7 @@ Feature: Fetching secrets from edge endpoint
     Given I login as "some_user"
     When I GET "/edge/hosts/cucumber"
     Then the HTTP response status code is 403
-    Given I login as "host/some_host"
+    Given I login as "host/data/some_host1"
     When I GET "/edge/hosts/cucumber"
     Then the HTTP response status code is 403
 
