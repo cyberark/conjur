@@ -93,11 +93,11 @@ For example we this complex token
   "iat": 1516239022,
   "platform":"linux"
   "details": [ # NEW: This is example of nested array in JWT token
-    { "identity":"myapp"}, # NEW: This is example of nested identity in token
-    { "branch":"main"},
+    { "identity": "myapp"}, # NEW: This is example of nested identity in token
+    { "branch": "main"},
     { 
       "subdomains": ["facebook.com","google.com","amazon.com"], # NEW: This is example of listed values
-      "lood_balancers":"ec2-address"
+      "load_balancers": "ec2-address"
     }
   ] 
 }
@@ -109,12 +109,12 @@ For example we this complex token
 - !host:
   id: myapp
   annotations: 
-    authn-jwt/vednor/detaiils[2]/load_balancers: ec2-address # NEW: This is example of aliased claim. See example below
-    authn-jwt/vednor/details[1]/branch: main # NEW: This is example of JSON array in token stracture
-    authn-jwt/vednor/details[2]/subdomains: # NEW: This is example for array in host annotation. Each one should be included in token
+    authn-jwt/vendor/detaiils[2]/load_balancers: ec2-address # NEW: This is example of aliased claim. See example below
+    authn-jwt/vendor/details[1]/branch: main # NEW: This is example of JSON array in token stracture
+    authn-jwt/vendor/details[2]/subdomains: # NEW: This is example for array in host annotation. Each one should be included in token
       - google.com 
       - amazon.com
-    authn-jwt/vednor/details[2]/subdomains: facebook.com # NEW: This is another example for include relationship between host annotation and value in token both cases work.
+    authn-jwt/vendor/details[2]/subdomains: facebook.com # NEW: This is another example for include relationship between host annotation and value in token both cases work.
 ```
 
 #### Variable Values Example
