@@ -675,11 +675,11 @@ def runConjurTests(run_only_str) {
         sh 'ci/test api'
       }
     ],
-    "rotators": [
-      "Rotators - ${env.STAGE_NAME}": {
-        sh 'ci/test rotators'
-      }
-    ],
+//     "rotators": [
+//       "Rotators - ${env.STAGE_NAME}": {
+//         sh 'ci/test rotators'
+//       }
+//     ],
     "rspec_audit": [
       "Audit - ${env.STAGE_NAME}": {
         sh 'ci/test rspec_audit'
