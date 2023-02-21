@@ -109,7 +109,7 @@ For example we this complex token
 - !host:
   id: myapp
   annotations: 
-    authn-jwt/vendor/detaiils[2]/load_balancers: ec2-address # NEW: This is example of aliased claim. See example below
+    authn-jwt/vendor/details[2]/load_balancers: ec2-address # NEW: This is example of aliased claim. See example below
     authn-jwt/vendor/details[1]/branch: main # NEW: This is example of JSON array in token stracture
     authn-jwt/vendor/details[2]/subdomains: # NEW: This is example for array in host annotation. Each one should be included in token
       - google.com 
