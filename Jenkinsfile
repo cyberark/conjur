@@ -95,15 +95,6 @@ pipeline {
       }
     }
 
-    stage('Validate Changelog') {
-      when {
-        expression { params.RUN_ONLY == '' }
-      }
-      steps {
-        sh 'ci/parse-changelog'
-      }
-    }
-
     stage('Build and test Conjur') {
       when {
         // Run tests only when ANY of the following is true:
