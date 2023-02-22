@@ -7,7 +7,17 @@ Feature: OIDC Authenticator V2 - Users can authenticate with OIDC authenticator
   Authenticator, but that it can retrieve a secret using the Conjur access token.
 
   Background:
-    Given I load a policy:
+    Given the following environment variables are available:
+      | context_variable           | environment_variable   | default_value                                                   |
+      | oidc_provider_internal_uri | PROVIDER_INTERNAL_URI  | http://keycloak:8080/auth/realms/master/protocol/openid-connect |
+      | oidc_scope                 | KEYCLOAK_SCOPE         | openid                                                          |
+      | oidc_client_id             | KEYCLOAK_CLIENT_ID     | conjurClient                                                    |
+      | oidc_client_secret         | KEYCLOAK_CLIENT_SECRET | 1234                                                            |
+      | oidc_provider_uri          | PROVIDER_URI           | https://keycloak:8443/auth/realms/master                        |
+      | oidc_claim_mapping         | ID_TOKEN_USER_PROPERTY | preferred_username                                              |
+      | oidc_redirect_url          | KEYCLOAK_REDIRECT_URI  | http://conjur:3000/authn-oidc/keycloak2/cucumber/authenticate   |
+
+    And I load a policy:
     """
       - !policy
         id: conjur/authn-oidc/keycloak2
@@ -64,10 +74,22 @@ Feature: OIDC Authenticator V2 - Users can authenticate with OIDC authenticator
         role: !group conjur/authn-oidc/keycloak2-long-lived/users
         member: !user alice
     """
-    And I am the super-user
-    And I successfully set OIDC V2 variables for "keycloak2"
-    And I successfully set OIDC V2 variables for "keycloak2-long-lived"
-    And I set a custom token TTL of "PT2H" for "keycloak2-long-lived"
+
+    And I set the following conjur variables:
+      | variable_id                                           | context_variable    | default_value |
+      | conjur/authn-oidc/keycloak2/provider-uri              | oidc_provider_uri   |               |
+      | conjur/authn-oidc/keycloak2/client-id                 | oidc_client_id      |               |
+      | conjur/authn-oidc/keycloak2/client-secret             | oidc_client_secret  |               |
+      | conjur/authn-oidc/keycloak2/claim-mapping             | oidc_claim_mapping  |               |
+      | conjur/authn-oidc/keycloak2/redirect-uri              | oidc_redirect_url   |               |
+      | conjur/authn-oidc/keycloak2/response-type             |                     | code          |
+      | conjur/authn-oidc/keycloak2-long-lived/provider-uri   | oidc_provider_uri   |               |
+      | conjur/authn-oidc/keycloak2-long-lived/client-id      | oidc_client_id      |               |
+      | conjur/authn-oidc/keycloak2-long-lived/client-secret  | oidc_client_secret  |               |
+      | conjur/authn-oidc/keycloak2-long-lived/claim-mapping  | oidc_claim_mapping  |               |
+      | conjur/authn-oidc/keycloak2-long-lived/redirect-uri   | oidc_redirect_url   |               |
+      | conjur/authn-oidc/keycloak2-long-lived/response-type  |                     | code          |
+      | conjur/authn-oidc/keycloak2-long-lived/token-ttl      |                     | PT2H          |
 
   @smoke
   Scenario: A valid code to get Conjur access token from webservice with default token TTL
@@ -243,7 +265,6 @@ Feature: OIDC Authenticator V2 - Users can authenticate with OIDC authenticator
     Errors::Conjur::RequestedResourceNotFound: CONJ00123E Resource
     """
 
-
   @smoke
   Scenario: provider-uri dynamic change
     And I fetch a code for username "alice" and password "alice" from "keycloak2"
@@ -254,7 +275,7 @@ Feature: OIDC Authenticator V2 - Users can authenticate with OIDC authenticator
     And I authenticate via OIDC V2 with code
     Then it is unauthorized
     # Check recovery to a valid provider uri
-    When I successfully set OIDC V2 variables for "keycloak2"
+    And I revert the value of the resource "cucumber:variable:conjur/authn-oidc/keycloak2/provider-uri"
     And I fetch a code for username "alice" and password "alice" from "keycloak2"
     And I authenticate via OIDC V2 with code
     Then user "alice" has been authorized by Conjur

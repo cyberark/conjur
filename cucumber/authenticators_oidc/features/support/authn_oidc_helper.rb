@@ -32,15 +32,9 @@ module AuthnOidcHelper
     post(path, {}, headers)
   end
 
-  def authenticate_code_with_oidc(service_id:, account:)
+  def authenticate_code_with_oidc(service_id:, account:, code:, nonce:, code_verifier:)
     path = create_auth_url(service_id: service_id, account: account, user_id: nil).to_s
-    params = {
-      path: path,
-      code: @scenario_context.get(:code),
-      nonce: @scenario_context.get(:nonce),
-      code_verifier: @scenario_context.get(:code_verifier)
-    }
-    get(url_with_params(**params))
+    get(url_with_params(path: path, code: code, nonce: nonce, code_verifier: code_verifier))
   end
 
   def create_auth_url(service_id:, account:, user_id:)
@@ -130,9 +124,9 @@ module AuthnOidcHelper
 
   def parse_oidc_code(url)
     params = CGI::parse(URI(url).query)
-    if params.key?("code")
-      @url_oidc_code = params["code"][0]
-      @scenario_context.set(:code, params["code"][0])
+    {}.tap do |response|
+      response[:code] = params["code"][0] if params.key?("code")
+      response[:state] =  params["state"][0] if params.key?("state")
     end
     if params.key?("state")
       @url_oidc_state = params["state"][0]

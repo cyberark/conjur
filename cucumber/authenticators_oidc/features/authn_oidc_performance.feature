@@ -7,7 +7,16 @@ Feature: OIDC Authenticator - Performance tests
   We test both successful requests and unsuccessful requests.
 
   Background:
-    Given I load a policy:
+    Given the following environment variables are available:
+      | context_variable            | environment_variable   | default_value                            |
+      | oidc_provider_internal_uri  | PROVIDER_INTERNAL_URI  | http://keycloak:8080/auth/realms/master/protocol/openid-connect |
+      | oidc_scope                  | KEYCLOAK_SCOPE         | openid                                                          |
+      | oidc_client_id              | KEYCLOAK_CLIENT_ID     | conjurClient                                                    |
+      | oidc_client_secret          | KEYCLOAK_CLIENT_SECRET | 1234                                                            |
+      | oidc_provider_uri           | PROVIDER_URI           | https://keycloak:8443/auth/realms/master                        |
+      | oidc_id_token_user_property | ID_TOKEN_USER_PROPERTY | preferred_username                                              |
+
+    And I load a policy:
     """
     - !policy
       id: conjur/authn-oidc/keycloak
@@ -35,8 +44,10 @@ Feature: OIDC Authenticator - Performance tests
       role: !group conjur/authn-oidc/keycloak/users
       member: !user alice
     """
-    And I am the super-user
-    And I successfully set OIDC variables
+    And I set the following conjur variables:
+      | variable_id                                       | context_variable            |
+      | conjur/authn-oidc/keycloak/id-token-user-property | oidc_id_token_user_property |
+      | conjur/authn-oidc/keycloak/provider-uri           | oidc_provider_uri           |
 
   @performance
   Scenario: successful requests
