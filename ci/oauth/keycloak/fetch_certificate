@@ -15,4 +15,4 @@ openssl s_client \
 
 hash=$(openssl x509 -hash -in /etc/ssl/certs/keycloak.pem -out /dev/null)
 
-ln -s /etc/ssl/certs/keycloak.pem "/etc/ssl/certs/${hash}.0"
+ln -s /etc/ssl/certs/keycloak.pem "/etc/ssl/certs/${hash}.0" || true
