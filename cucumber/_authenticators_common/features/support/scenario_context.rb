@@ -15,6 +15,8 @@ module Utilities
     end
 
     def get(key)
+      raise "Scenario Context: '#{key}' has not been defined" unless key?(key)
+
       @context[key]
     end
 
