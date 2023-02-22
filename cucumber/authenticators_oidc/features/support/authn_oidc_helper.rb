@@ -58,68 +58,16 @@ module AuthnOidcHelper
     @oidc_id_token.to_s
   end
 
-  def oidc_code(oidc_code:)
-    @oidc_code = oidc_code
-  end
-
   def invalid_id_token
     "invalididtoken"
   end
 
   private
 
-  def oidc_client_id
-    @oidc_client_id ||= validated_env_var('KEYCLOAK_CLIENT_ID')
-  end
-
-  def oidc_client_secret
-    @oidc_client_secret ||= validated_env_var('KEYCLOAK_CLIENT_SECRET')
-  end
-
-  def oidc_provider_uri
-    @oidc_provider_uri ||= validated_env_var('PROVIDER_URI')
-  end
-
-  def oidc_provider_internal_uri
-    @oidc_provider_internal_uri ||= validated_env_var('PROVIDER_INTERNAL_URI')
-  end
-
-  def oidc_id_token_user_property
-    @oidc_id_token_user_property ||= validated_env_var('ID_TOKEN_USER_PROPERTY')
-  end
-
-  def oidc_scope
-    @oidc_scope ||= validated_env_var('KEYCLOAK_SCOPE')
-  end
-
-  def oidc_required_request_parameters
-    @oidc_required_request_parameters ||= 'code state'
-  end
-
   def parse_oidc_id_token
     @oidc_id_token = (JSON.parse(@response_body))["id_token"]
   rescue => e
     raise "Failed to fetch id_token from HTTP response: #{@response_body} with Reason: #{e}"
-  end
-
-  def oidc_response_type
-    @oidc_response_type ||= 'code'
-  end
-
-  def oidc_claim_mapping
-    @oidc_claim_mapping ||= 'preferred_username'
-  end
-
-  def oidc_state
-    @oidc_state ||= SecureRandom.uuid
-  end
-
-  def oidc_nonce
-    @oidc_nonce ||= SecureRandom.uuid
-  end
-
-  def oidc_redirect_uri
-    @oidc_redirect_uri ||= 'http://conjur:3000/authn-oidc/keycloak2/cucumber/authenticate'
   end
 
   def parse_oidc_code(url)
@@ -128,18 +76,6 @@ module AuthnOidcHelper
       response[:code] = params["code"][0] if params.key?("code")
       response[:state] =  params["state"][0] if params.key?("state")
     end
-    if params.key?("state")
-      @url_oidc_state = params["state"][0]
-      @scenario_context.set(:state, params["state"][0])
-    end
-  end
-
-  def url_oidc_code
-    @url_oidc_code
-  end
-
-  def url_oidc_state
-    @url_oidc_state
   end
 end
 
