@@ -9,6 +9,12 @@ end
 # Prior to this hook, our tests had hidden coupling.  This ensures each test is
 # run independently.
 Before do
+  # The development.log is used to detect audit events and error messages. Due to the verbosity
+  # of our logging, this file can get quite long. We truncate this log before each scenario run
+  # in order to minimize the time spent parsing the log for length.
+  log_file = '/src/conjur-server/log/development.log'
+  File.truncate(log_file, 5) if File.exist?(log_file)
+
   @user_index = 0
   @host_index = 0
 
@@ -21,7 +27,7 @@ Before do
       Slosilo.send(:keystore).adapter.model[k].delete
     end
   end
-  
+
   Account.find_or_create_accounts_resource
   admin_role = Role.create(role_id: "cucumber:user:admin")
   creds = Credentials.new(role: admin_role)
