@@ -69,7 +69,7 @@ class EdgeController < RestController
       hosts.each do |host|
         hostToReturn = {}
         hostToReturn[:id] = host[:role_id]
-        hostToReturn[:api_key] =host.api_key
+        hostToReturn[:api_key] = hmac_api_key(host)
         hostToReturn[:memberships] =host.all_roles.all.select{|h| h[:role_id] != (host[:role_id])}
         results  << hostToReturn
       end
@@ -84,5 +84,15 @@ class EdgeController < RestController
     raise Forbidden unless current_user.role_id.include? "host:edge/edge"
     role = Role[options[:account] + ':group:edge/edge-admins']
     raise Forbidden unless role && role.ancestor_of?(current_user)
+  end
+
+  def hmac_api_key(host)
+    pass = host.api_key
+    # salt will use 16 bytes from the edge host name.
+    # in case host name is less then 16 bytes it will add '+' padding at the end
+    salt = current_user.role_id[ current_user.role_id.rindex("/")+1 .. ][0..15].ljust(16, '+')
+    iter = 20_000
+    key_len = 16
+    Base64.encode64(OpenSSL::KDF.pbkdf2_hmac(pass, salt: salt, iterations: iter, length: key_len, hash: "sha256"))
   end
 end
