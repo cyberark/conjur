@@ -344,4 +344,6 @@ Feature: Fetching secrets from edge endpoint
     Given I login as "host/data/some_host1"
     When I GET "/edge/hosts/cucumber"
     Then the HTTP response status code is 403
-
+    Given I am the super-user
+    When I GET "/edge/hosts/cucumber"
+    Then the HTTP response status code is 403
