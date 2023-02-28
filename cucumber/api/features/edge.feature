@@ -244,7 +244,7 @@ Feature: Fetching secrets from edge endpoint
     And the JSON at "secrets" should have 6 entries
     When I GET "/edge/secrets/cucumber" with parameters:
     """
-    limit: 10
+    limit: 2000
     """
     Then the HTTP response status code is 200
     And the JSON at "secrets" should have 6 entries
@@ -252,7 +252,12 @@ Feature: Fetching secrets from edge endpoint
     """
     limit: 0
     """
-    Then the HTTP response status code is 500
+    Then the HTTP response status code is 422
+    When I GET "/edge/secrets/cucumber" with parameters:
+    """
+    limit: 2001
+    """
+    Then the HTTP response status code is 422
 
   @acceptance
   Scenario: Fetching secrets count
@@ -317,7 +322,7 @@ Feature: Fetching secrets from edge endpoint
     And the JSON at "hosts" should have 5 entries
     When I GET "/edge/hosts/cucumber" with parameters:
     """
-    limit: 10
+    limit: 2000
     """
     Then the HTTP response status code is 200
     And the JSON at "hosts" should have 5 entries
@@ -325,7 +330,12 @@ Feature: Fetching secrets from edge endpoint
     """
     limit: 0
     """
-    Then the HTTP response status code is 500
+    Then the HTTP response status code is 422
+    When I GET "/edge/hosts/cucumber" with parameters:
+    """
+    limit: 2001
+    """
+    Then the HTTP response status code is 422
 
   @acceptance
   Scenario: Fetching hosts count
