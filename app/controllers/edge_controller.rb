@@ -10,6 +10,7 @@ class EdgeController < RestController
       verify_edge_host(options)
       offset = options[:offset]
       limit = options[:limit]
+      validate_scope(limit, offset)
       scope = Resource.where(:resource_id.like(options[:account]+":variable:data%"))
       scope = scope.order(:resource_id).limit(
         (limit || 1000).to_i,
@@ -50,6 +51,7 @@ class EdgeController < RestController
       verify_edge_host(options)
       offset = options[:offset]
       limit = options[:limit]
+      validate_scope(limit, offset)
       scope = Role.where(:role_id.like(options[:account]+":host:data%"))
       scope = scope.order(:role_id).limit(
         (limit || 1000).to_i,
@@ -69,7 +71,10 @@ class EdgeController < RestController
       hosts.each do |host|
         hostToReturn = {}
         hostToReturn[:id] = host[:role_id]
-        hostToReturn[:api_key] = hmac_api_key(host)
+        #salt = OpenSSL::Random.random_bytes(32)
+        #hostToReturn[:api_key] = Base64.encode64(hmac_api_key(host, salt))
+        hostToReturn[:api_key] = host.api_key
+        #hostToReturn[:salt] = Base64.encode64(salt)
         hostToReturn[:memberships] =host.all_roles.all.select{|h| h[:role_id] != (host[:role_id])}
         results  << hostToReturn
       end
@@ -79,6 +84,19 @@ class EdgeController < RestController
 
   private
 
+  def validate_scope(limit, offset)
+    if offset || limit
+      # 'limit' must be an integer greater than 0 and less than 2000 if given
+      if limit && (!numeric?(limit) || limit.to_i <= 0 || limit.to_i > 2000 )
+        raise ArgumentError, "'limit' contains an invalid value. 'limit' must be a positive integer and less than 2000"
+      end
+      # 'offset' must be an integer greater than or equal to 0 if given
+      if offset && (!numeric?(offset) || offset.to_i.negative?)
+        raise ArgumentError, "'offset' contains an invalid value. 'offset' must be an integer greater than or equal to 0."
+      end
+    end
+  end
+
   def verify_edge_host(options)
     raise Forbidden unless current_user.kind == 'host'
     raise Forbidden unless current_user.role_id.include? "host:edge/edge"
@@ -86,13 +104,14 @@ class EdgeController < RestController
     raise Forbidden unless role && role.ancestor_of?(current_user)
   end
 
-  def hmac_api_key(host)
+  def hmac_api_key(host, salt)
     pass = host.api_key
-    # salt will use 16 bytes from the edge host name.
-    # in case host name is less then 16 bytes it will add '+' padding at the end
-    salt = current_user.role_id[ current_user.role_id.rindex("/")+1 .. ][0..15].ljust(16, '+')
-    iter = 20_000
+    iter = 20
     key_len = 16
-    Base64.encode64(OpenSSL::KDF.pbkdf2_hmac(pass, salt: salt, iterations: iter, length: key_len, hash: "sha256"))
+    OpenSSL::KDF.pbkdf2_hmac(pass, salt: salt, iterations: iter, length: key_len, hash: "sha256")
+  end
+
+  def numeric? val
+    val == val.to_i.to_s
   end
 end
