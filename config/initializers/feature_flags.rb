@@ -28,14 +28,6 @@ Rails.application.configure do
     # before/after events when role memberships are added or removed
     # through the REST API.
     roles_api_extensions: false,
-
-    # If enabled, the V2 OIDC authenticator will be updated to support PKCE by
-    # default. This change is backward breaking as it moves State generation to
-    # the client and requires Nonce and PKCE to be provided to the OIDC Authenticator.
-    #
-    # Once the change is made on the UI (which is the intended target), the behavior
-    # enabled by the flag should be made the default behavior.
-    pkce_support: true
   }.freeze
 
   config.feature_flags = Conjur::FeatureFlags::Features.new(

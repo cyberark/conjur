@@ -10,15 +10,13 @@ module Authentication
         authn_repo: DB::Repository::AuthenticatorRepository,
         namespace_selector: Authentication::Util::NamespaceSelector,
         logger: Rails.logger,
-        authentication_error: LogMessages::Authentication::AuthenticationError,
-        pkce_support_enabled: Rails.configuration.feature_flags.enabled?(:pkce_support)
+        authentication_error: LogMessages::Authentication::AuthenticationError
       )
         @role = role
         @resource = resource
         @authenticator_type = authenticator_type
         @logger = logger
         @authentication_error = authentication_error
-        @pkce_support_enabled = pkce_support_enabled
 
         # Dynamically load authenticator specific classes
         namespace = namespace_selector.select(
@@ -33,15 +31,6 @@ module Authentication
       end
 
       def call(parameters:, request_ip:)
-        unless @pkce_support_enabled
-          required_parameters = %i[state code]
-          required_parameters.each do |parameter|
-            if !parameters.key?(parameter) || parameters[parameter].strip.empty?
-              raise Errors::Authentication::RequestBody::MissingRequestParam, parameter
-            end
-          end
-        end
-
         # Load Authenticator policy and values (validates data stored as variables)
         authenticator = @authn_repo.find(
           type: @authenticator_type,
@@ -106,10 +95,6 @@ module Authentication
 
         when Errors::Authentication::Jwt::TokenExpired
           raise ApplicationController::Unauthorized.new(err.message, true)
-
-        when Errors::Authentication::AuthnOidc::StateMismatch,
-          Errors::Authentication::Security::RoleNotFound
-          raise ApplicationController::BadRequest
 
         when Errors::Authentication::Security::MultipleRoleMatchesFound
           raise ApplicationController::Forbidden

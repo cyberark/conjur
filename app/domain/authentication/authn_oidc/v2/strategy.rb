@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 
 module Authentication
   module AuthnOidc
@@ -14,12 +15,18 @@ module Authentication
         end
 
         def callback(args)
-          # TODO: Check that `code` and `state` attributes are present
-          raise Errors::Authentication::AuthnOidc::StateMismatch unless args[:state] == @authenticator.state
+          # Note: `code_verifier` param is optional
+          %i[code nonce].each do |param|
+            unless args[param].present?
+              raise Errors::Authentication::RequestBody::MissingRequestParam, param.to_s
+            end
+          end
 
           identity = resolve_identity(
             jwt: @client.callback(
-              code: args[:code]
+              code: args[:code],
+              nonce: args[:nonce],
+              code_verifier: args[:code_verifier]
             )
           )
           unless identity.present?
