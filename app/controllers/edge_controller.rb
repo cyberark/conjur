@@ -71,10 +71,9 @@ class EdgeController < RestController
       hosts.each do |host|
         hostToReturn = {}
         hostToReturn[:id] = host[:role_id]
-        #salt = OpenSSL::Random.random_bytes(32)
-        #hostToReturn[:api_key] = Base64.encode64(hmac_api_key(host, salt))
-        hostToReturn[:api_key] = host.api_key
-        #hostToReturn[:salt] = Base64.encode64(salt)
+        salt = OpenSSL::Random.random_bytes(32)
+        hostToReturn[:salt] = Base64.encode64(salt)
+        hostToReturn[:api_key] = Base64.encode64(hmac_api_key(host, salt))
         hostToReturn[:memberships] =host.all_roles.all.select{|h| h[:role_id] != (host[:role_id])}
         results  << hostToReturn
       end
@@ -107,7 +106,7 @@ class EdgeController < RestController
   def hmac_api_key(host, salt)
     pass = host.api_key
     iter = 20
-    key_len = 16
+    key_len = 32
     OpenSSL::KDF.pbkdf2_hmac(pass, salt: salt, iterations: iter, length: key_len, hash: "sha256")
   end
 
