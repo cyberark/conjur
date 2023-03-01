@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-require './spec/app/domain/factory/shared.rb'
+require './spec/app/domain/factory/shared'
 
 RSpec.describe(Factory::Templates::Authenticators::AuthnOidc) do
   subject { Factory::Templates::Authenticators::AuthnOidc }
