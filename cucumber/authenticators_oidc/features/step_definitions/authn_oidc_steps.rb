@@ -1,7 +1,16 @@
 Given(/I fetch an ID Token for username "([^"]*)" and password "([^"]*)"/) do |username, password|
-  path = "#{oidc_provider_internal_uri}/token"
-  payload = { grant_type: 'password', username: username, password: password, scope: oidc_scope }
-  options = { user: oidc_client_id, password: oidc_client_secret }
+  path = "#{@scenario_context.get(:oidc_provider_internal_uri)}/token"
+  payload = {
+    grant_type: 'password',
+    username: username,
+    password: password,
+    scope: @scenario_context.get(:oidc_scope)
+  }
+  options = {
+    user: @scenario_context.get(:oidc_client_id),
+    password: @scenario_context.get(:oidc_client_secret)
+  }
+
   execute(:post, path, payload, options)
 
   parse_oidc_id_token
@@ -20,7 +29,7 @@ Given(/I fetch a code for username "([^"]*)" and password "([^"]*)" from "([^"]*
   @scenario_context.add(:nonce, provider['nonce'])
 
   # The version of Keycloak we're using does not accept PKCE. We need
-  # to strip code challenge and code challenge args from the redirect
+  # to strip code challenge and code challenge method from the redirect
   # URI
   redirect_uri = URI.parse(provider['redirect_uri'])
   params = URI.decode_www_form(redirect_uri.query).to_h
@@ -49,17 +58,19 @@ Given(/I fetch a code for username "([^"]*)" and password "([^"]*)" from "([^"]*
   response = http.request(request)
 
   if response.is_a?(Net::HTTPRedirection)
-    parse_oidc_code(response['location'])
+    parse_oidc_code(response['location']).each do |key, value|
+      @scenario_context.set(key, value)
+    end
   end
 end
 
-Given(/^I load a policy with okta user:/) do |policy|
+Given(/^I load a policy and enable an oidc user into group "([^"]*)":/) do |group, policy|
   user_policy = """
-  - !user #{ENV['OKTA_USERNAME']}
+  - !user #{@scenario_context.get(:oidc_username)}
 
   - !grant
-    role: !group conjur/authn-oidc/okta-2/users
-    member: !user #{ENV['OKTA_USERNAME']}"""
+    role: !group #{group}
+    member: !user #{@scenario_context.get(:oidc_username)}"""
 
   load_root_policy(policy + user_policy)
 end
@@ -76,8 +87,8 @@ Given(/^I retrieve OIDC configuration from the provider endpoint for "([^"]*)"/)
 end
 
 Given(/^I authenticate and fetch a code from Okta/) do
-  uri = URI("https://#{URI(okta_provider_uri).host}/api/v1/authn")
-  body = JSON.generate({ username: ENV['OKTA_USERNAME'], password: ENV['OKTA_PASSWORD'] })
+  uri = URI("https://#{URI(@scenario_context.get(:redirect_uri)).host}/api/v1/authn")
+  body = JSON.generate({ username: @scenario_context.get(:oidc_username), password: @scenario_context.get(:oidc_password) })
 
   http = Net::HTTP.new(uri.host, uri.port)
   http.use_ssl = true
@@ -94,65 +105,42 @@ Given(/^I authenticate and fetch a code from Okta/) do
   response = http.request(request)
 
   if response.is_a?(Net::HTTPRedirection)
-    parse_oidc_code(response['location'])
+    parse_oidc_code(response['location']).each do |key, value|
+      @scenario_context.set(key, value)
+    end
   else
     raise "Failed to retrieve OIDC code status: #{response.code}"
   end
 end
 
-Given(/^I successfully set OIDC variables$/) do
-  create_oidc_secret("provider-uri", oidc_provider_uri)
-  create_oidc_secret("id-token-user-property", oidc_id_token_user_property)
-end
-
 When(/^I authenticate via OIDC V2 with code$/) do
   authenticate_code_with_oidc(
     service_id: "#{AuthnOidcHelper::SERVICE_ID}2",
-    account: AuthnOidcHelper::ACCOUNT
+    account: AuthnOidcHelper::ACCOUNT,
+    code: @scenario_context.get(:code),
+    nonce: @scenario_context.get(:nonce),
+    code_verifier: @scenario_context.key?(:code_verifier) ? @scenario_context.get(:code_verifier) : nil
   )
 end
 
-Given(/^I successfully set Okta OIDC V2 variables$/) do
-  create_oidc_secret("provider-uri", okta_provider_uri, "okta-2")
-  create_oidc_secret("client-id", okta_client_id, "okta-2")
-  create_oidc_secret("client-secret", okta_client_secret, "okta-2")
-  create_oidc_secret("claim-mapping", oidc_claim_mapping, "okta-2")
-  create_oidc_secret("state", oidc_state, "okta-2")
-  create_oidc_secret("nonce", oidc_nonce, "okta-2")
-  create_oidc_secret("redirect-uri", okta_redirect_uri, "okta-2")
-end
-
-Given(/^I successfully set OIDC variables without a service-id$/) do
-  create_oidc_secret("provider-uri", oidc_provider_uri, "")
-  create_oidc_secret("id-token-user-property", oidc_id_token_user_property, "")
-end
-
-Given(/^I successfully set provider-uri variable$/) do
-  create_oidc_secret("provider-uri", oidc_provider_uri)
-end
-
 When(/^I authenticate via OIDC V2 with code "([^"]*)"$/) do |code|
-  @scenario_context.add(:code, code)
   authenticate_code_with_oidc(
     service_id: "#{AuthnOidcHelper::SERVICE_ID}2",
-    account: AuthnOidcHelper::ACCOUNT
+    account: AuthnOidcHelper::ACCOUNT,
+    code: code,
+    nonce: @scenario_context.get(:nonce),
+    code_verifier: @scenario_context.get(:code_verifier)
   )
 end
 
 When(/^I authenticate via OIDC V2 with no code in the request$/) do
-  @scenario_context.add(:code, nil)
   authenticate_code_with_oidc(
     service_id: "#{AuthnOidcHelper::SERVICE_ID}2",
-    account: AuthnOidcHelper::ACCOUNT
+    account: AuthnOidcHelper::ACCOUNT,
+    code: nil,
+    nonce: @scenario_context.get(:nonce),
+    code_verifier: @scenario_context.get(:code_verifier)
   )
-end
-
-Given(/^I successfully set provider-uri variable to value "([^"]*)"$/) do |provider_uri|
-  create_oidc_secret("provider-uri", provider_uri)
-end
-
-Given(/^I successfully set id-token-user-property variable$/) do
-  create_oidc_secret("id-token-user-property", oidc_id_token_user_property)
 end
 
 When(/^I authenticate via OIDC with id token$/) do
@@ -169,31 +157,18 @@ When(/^I authenticate via OIDC with id token in header$/) do
   )
 end
 
-Given(/^I successfully set OIDC V2 variables for "([^"]*)"$/) do |service_id|
-  create_oidc_secret("provider-uri", oidc_provider_uri, service_id)
-  create_oidc_secret("response-type", oidc_response_type, service_id)
-  create_oidc_secret("client-id", oidc_client_id, service_id)
-  create_oidc_secret("client-secret", oidc_client_secret, service_id)
-  create_oidc_secret("claim-mapping", oidc_claim_mapping, service_id)
-  create_oidc_secret("state", oidc_state, service_id)
-  create_oidc_secret("nonce", oidc_nonce, service_id)
-  create_oidc_secret("redirect-uri", oidc_redirect_uri, service_id)
-  create_oidc_secret("provider-scope", oidc_scope, service_id)
-end
-
-Given(/^I set a custom token TTL of "([^"]*)" for "([^"]*)"$/) do |duration_iso8601, service_id|
-  create_oidc_secret("token-ttl", duration_iso8601, service_id)
-end
-
 When(/^I authenticate via OIDC V2 with code and service-id "([^"]*)"$/) do |service_id|
   authenticate_code_with_oidc(
     service_id: service_id,
-    account: AuthnOidcHelper::ACCOUNT
+    account: AuthnOidcHelper::ACCOUNT,
+    code: @scenario_context.get(:code),
+    nonce: @scenario_context.get(:nonce),
+    code_verifier: @scenario_context.key?(:code_verifier) ? @scenario_context.get(:code_verifier) : nil
   )
 end
 
 Then(/^the okta user has been authorized by conjur/) do
-  username = ENV['OKTA_USERNAME']
+  username = @scenario_context.get(:oidc_username)
   expect(retrieved_access_token.username).to eq(username)
 end
 
@@ -229,14 +204,20 @@ end
 When(/^I authenticate via OIDC V2 with code and account "([^"]*)"$/) do |account|
   authenticate_code_with_oidc(
     service_id: "#{AuthnOidcHelper::SERVICE_ID}2",
-    account: account
+    account: account,
+    code: @scenario_context.get(:code),
+    nonce: @scenario_context.get(:nonce),
+    code_verifier: @scenario_context.get(:code_verifier)
   )
 end
 
 When(/^I authenticate via OIDC with code and service_id "([^"]*)"$/) do |service_id|
   authenticate_code_with_oidc(
     service_id: service_id,
-    account: AuthnOidcHelper::ACCOUNT
+    account: AuthnOidcHelper::ACCOUNT,
+    code: @scenario_context.get(:code),
+    nonce: @scenario_context.get(:nonce),
+    code_verifier: @scenario_context.get(:code_verifier)
   )
 end
 

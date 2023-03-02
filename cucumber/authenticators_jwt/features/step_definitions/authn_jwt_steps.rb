@@ -27,6 +27,11 @@ Given(/I successfully set authn-jwt public-keys variable with value from "([^"]*
   create_public_keys_from_response_body
 end
 
+Given(/^I retrieve the public keys from remote JWKS endpoint "([^"]*)" and alg "([^"]*)"$/) do |file_name, alg|
+  init_jwks_remote_file(file_name, alg)
+  @scenario_context.set(:public_keys, retrieve_public_keys)
+end
+
 Given(/^I successfully set authn-jwt public-keys variable to value from remote JWKS endpoint "([^"]*)" and alg "([^"]*)"$/) do |file_name, alg|
   init_jwks_remote_file(file_name, alg)
   create_public_keys_from_response_body

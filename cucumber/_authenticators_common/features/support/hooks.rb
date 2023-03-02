@@ -21,7 +21,7 @@ Before do
       Slosilo.send(:keystore).adapter.model[k].delete
     end
   end
-  
+
   Account.find_or_create_accounts_resource
   admin_role = Role.create(role_id: "cucumber:user:admin")
   creds = Credentials.new(role: admin_role)
@@ -35,9 +35,16 @@ Before do
   ENV.each do |key, value|
     @env[key] = value
   end
+
+  # Create a new Scenario Context to use for sharing
+  # data between scenario steps.
+  @scenario_context = Utilities::ScenarioContext.new
 end
 
 After do
+  # Reset scenario context
+  @scenario_context.reset!
+
   # Revert to original env
   @env.each do |key, value|
     ENV[key] = value
