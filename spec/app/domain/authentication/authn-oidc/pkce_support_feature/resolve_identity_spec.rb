@@ -2,12 +2,12 @@
 
 require 'spec_helper'
 
-RSpec.describe('Authentication::AuthnOidc::V2::ResolveIdentity', type: 'unit') do
+RSpec.describe(' Authentication::AuthnOidc::PkceSupportFeature::ResolveIdentity') do
   let(:resolve_identity) do
-    Authentication::AuthnOidc::V2::ResolveIdentity.new
+    Authentication::AuthnOidc::PkceSupportFeature::ResolveIdentity.new
   end
 
-  describe('#call') do
+  describe('#call', :type => 'unit') do
     let(:valid_role) do
       instance_double(::Role).tap do |double|
         allow(double).to receive(:id).and_return('rspec:user:alice')
@@ -91,5 +91,6 @@ RSpec.describe('Authentication::AuthnOidc::V2::ResolveIdentity', type: 'unit') d
         )
       end
     end
+
   end
 end

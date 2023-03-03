@@ -1,6 +1,6 @@
 module Authentication
   module AuthnOidc
-    module V2
+    module PkceSupportFeature
       class ResolveIdentity
         def call(identity:, account:, allowed_roles:)
           # make sure role has a resource (ex. user, host)

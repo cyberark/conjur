@@ -29,8 +29,13 @@ module Authentication
         # is done, the following check can be removed.
 
         # Attempt to load the V2 version of the OIDC Authenticator
+        data_object = if Rails.configuration.feature_flags.enabled?(:pkce_support)
+          Authentication::AuthnOidc::PkceSupportFeature::DataObjects::Authenticator
+        else
+          Authentication::AuthnOidc::V2::DataObjects::Authenticator
+        end
         authenticator = DB::Repository::AuthenticatorRepository.new(
-          data_object: Authentication::AuthnOidc::V2::DataObjects::Authenticator
+          data_object: data_object
         ).find(
           type: authenticator_status_input.authenticator_name,
           account: authenticator_status_input.account,

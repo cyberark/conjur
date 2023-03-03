@@ -4,11 +4,13 @@ module DB
       def initialize(
         data_object:,
         resource_repository: ::Resource,
-        logger: Rails.logger
+        logger: Rails.logger,
+        pkce_support_enabled: Rails.configuration.feature_flags.enabled?(:pkce_support)
       )
         @resource_repository = resource_repository
         @data_object = data_object
         @logger = logger
+        @pkce_support_enabled = pkce_support_enabled
       end
 
       def find_all(type:, account:)
