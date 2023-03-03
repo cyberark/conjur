@@ -212,6 +212,16 @@ module Errors
         code: "CONJ00016E"
       )
 
+      TokenInvalidIAT = ::Util::TrackableErrorClass.new(
+        msg: 'Token iat has not yet occured',
+        code: 'CONJ00151'
+      )
+
+      TokenInvalidNBF = ::Util::TrackableErrorClass.new(
+        msg: 'Token nbf has not been reached',
+        code: 'CONJ00152'
+      )
+
       TokenDecodeFailed = ::Util::TrackableErrorClass.new(
         msg: "Failed to decode token (3rdPartyError ='{0}')",
         code: "CONJ00035E"

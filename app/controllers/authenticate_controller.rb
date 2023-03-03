@@ -119,20 +119,40 @@ class AuthenticateController < ApplicationController
   end
 
   def authenticate_jwt
+    params.permit!
+
     params[:authenticator] = "authn-jwt"
-    authn_token = Authentication::AuthnJwt::OrchestrateAuthentication.new.call(
-      authenticator_input: authenticator_input_without_credentials,
-      enabled_authenticators: Authentication::InstalledAuthenticators.enabled_authenticators_str
+
+    # binding.pry
+
+    auth_token = Authentication::Handler::AuthenticationHandler.new(
+      authenticator_type: params[:authenticator]
+    ).call(
+      parameters: params.to_hash.symbolize_keys,
+      request_body: request.body.read,
+      request_ip: request.ip
     )
-    render_authn_token(authn_token)
+
+    render_authn_token(auth_token)
   rescue => e
-    # At this point authenticator_input.username is always empty (e.g. cucumber:user:USERNAME_MISSING)
-    log_audit_failure(
-      authn_params: authenticator_input,
-      audit_event_class: Audit::Event::Authn::Authenticate,
-      error: e
-    )
-    handle_authentication_error(e)
+    log_backtrace(e)
+    raise e
+
+
+  #   params[:authenticator] = "authn-jwt"
+  #   authn_token = Authentication::AuthnJwt::OrchestrateAuthentication.new.call(
+  #     authenticator_input: authenticator_input_without_credentials,
+  #     enabled_authenticators: Authentication::InstalledAuthenticators.enabled_authenticators_str
+  #   )
+  #   render_authn_token(authn_token)
+  # rescue => e
+  #   # At this point authenticator_input.username is always empty (e.g. cucumber:user:USERNAME_MISSING)
+  #   log_audit_failure(
+  #     authn_params: authenticator_input,
+  #     audit_event_class: Audit::Event::Authn::Authenticate,
+  #     error: e
+  #   )
+  #   handle_authentication_error(e)
   end
 
   # Update the input to have the username from the token and authenticate

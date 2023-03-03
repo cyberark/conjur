@@ -236,6 +236,11 @@ Feature: JWT Authenticator - Fetch identity from decoded token
     cucumber:host:myapp successfully authenticated with authenticator authn-jwt service cucumber:webservice:conjur/authn-jwt/raw
     """
 
+  # We're explicitely throwing an exception if `token-app-property` has
+  # any "illegal" values like "[" or "]". These characters are already
+  # excluded as part of the JWT specification, so it feels like we can
+  # assume the JWT issuer won't include them, thus we can fall back to
+  # simply matching strings exactly.
   @negative @acceptance
   Scenario: ONYX-13711: Token-app-property does not accept array reference
     Given I successfully set authn-jwt "token-app-property" variable to value "account[0]/project/id"
@@ -262,6 +267,7 @@ Feature: JWT Authenticator - Fetch identity from decoded token
     CONJ00117E Failed to parse 'token-app-property' value. Error: '#<Errors::Authentication::AuthnJwt::InvalidClaimPath: CONJ00116E
     """
 
+  # This is the scenario we're looking to fix... :P
   @negative @acceptance
   Scenario: ONYX-13713: Token-app-property does not accept array reference
     Given I successfully set authn-jwt "token-app-property" variable to value "account/projects"
