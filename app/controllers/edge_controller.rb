@@ -11,7 +11,7 @@ class EdgeController < RestController
       offset = options[:offset]
       limit = options[:limit]
       validate_scope(limit, offset)
-      scope = Resource.where(:resource_id.like(options[:account]+":variable:data%"))
+      scope = Resource.where(:resource_id.like(options[:account]+":variable:data/%"))
       scope = scope.order(:resource_id).limit(
         (limit || 1000).to_i,
         (offset || 0).to_i
@@ -52,7 +52,7 @@ class EdgeController < RestController
       offset = options[:offset]
       limit = options[:limit]
       validate_scope(limit, offset)
-      scope = Role.where(:role_id.like(options[:account]+":host:data%"))
+      scope = Role.where(:role_id.like(options[:account]+":host:data/%"))
       scope = scope.order(:role_id).limit(
         (limit || 1000).to_i,
         (offset || 0).to_i

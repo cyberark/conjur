@@ -9,6 +9,7 @@ Feature: Fetching secrets from edge endpoint
     And I have host "data/some_host4"
     And I have host "data/some_host5"
     And I have host "other_host1"
+    And I have host "database/other_host2"
     And I have a "variable" resource called "other_sec"
     And I am the super-user
     And I successfully PUT "/policies/cucumber/policy/root" with body:
@@ -276,6 +277,8 @@ Feature: Fetching secrets from edge endpoint
     When I GET "/edge/hosts/cucumber"
     Then the HTTP response status code is 200
     And the JSON response at "hosts" should have 5 entries
+    And the JSON response should not have "database"
+    And the JSON response should not have "other_host"
 
   @acceptance
   Scenario: Fetching hosts with parameters
