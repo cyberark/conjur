@@ -17,7 +17,7 @@ Feature: Fetching secrets from edge endpoint
     - !policy
       id: edge
       body:
-        - !group edge-admins
+        - !group edge-hosts
         - !policy
             id: edge-abcd1234567890
             body:
@@ -27,7 +27,7 @@ Feature: Fetching secrets from edge endpoint
                 authn/api-key: true
 
     - !grant
-      role: !group edge/edge-admins
+      role: !group edge/edge-hosts
       members:
         - !host edge/edge-abcd1234567890/edge-host-abcd1234567890
 

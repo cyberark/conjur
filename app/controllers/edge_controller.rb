@@ -100,7 +100,7 @@ class EdgeController < RestController
   def verify_edge_host(options)
     raise Forbidden unless current_user.kind == 'host'
     raise Forbidden unless current_user.role_id.include? "host:edge/edge"
-    role = Role[options[:account] + ':group:edge/edge-admins']
+    role = Role[options[:account] + ':group:edge/edge-hosts']
     raise Forbidden unless role && role.ancestor_of?(current_user)
   end
 
