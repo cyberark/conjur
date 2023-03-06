@@ -338,6 +338,7 @@ Feature: JWT Authenticator - Validate restrictions
       |CONJ00030D Resource restrictions validated                           |
       |CONJ00103D 'validate_restrictions' passed successfully               |
 
+  # NOTE: This will need to be changed for array lookup...
   @negative @acceptance
   Scenario: ONYX-13722: Annotation with invalid claim path format, 401 Error
     And I successfully set authn-jwt "token-app-property" variable to value "host"

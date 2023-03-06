@@ -10,15 +10,19 @@ module Authentication
         authn_repo: DB::Repository::AuthenticatorRepository,
         namespace_selector: Authentication::Util::NamespaceSelector,
         logger: Rails.logger,
+        audit_logger: ::Audit.logger,
         authentication_error: LogMessages::Authentication::AuthenticationError,
+        available_authenticators: Authentication::InstalledAuthenticators,
         pkce_support_enabled: Rails.configuration.feature_flags.enabled?(:pkce_support)
       )
         @role = role
         @resource = resource
         @authenticator_type = authenticator_type
         @logger = logger
+        @audit_logger = audit_logger
         @authentication_error = authentication_error
         @pkce_support_enabled = pkce_support_enabled
+        @available_authenticators = available_authenticators
 
         # Dynamically load authenticator specific classes
         namespace = namespace_selector.select(
@@ -32,7 +36,7 @@ module Authentication
         )
       end
 
-      def call(parameters:, request_ip:)
+      def call(request_ip:, parameters: nil, request_body: nil, action: nil)
         unless @pkce_support_enabled
           required_parameters = %i[state code]
           required_parameters.each do |parameter|
@@ -40,6 +44,11 @@ module Authentication
               raise Errors::Authentication::RequestBody::MissingRequestParam, parameter
             end
           end
+        end
+
+        # verify authenticator is whitelisted....
+        unless @available_authenticators.enabled_authenticators.include?("#{parameters[:authenticator]}/#{parameters[:service_id]}")
+          raise Errors::Authentication::Security::AuthenticatorNotWhitelisted, "#{parameters[:authenticator]}/#{parameters[:service_id]}"
         end
 
         # Load Authenticator policy and values (validates data stored as variables)
@@ -56,15 +65,17 @@ module Authentication
           )
         end
 
-        role = @identity_resolver.new.call(
-          identity: @strategy.new(
+        # binding.pry
+
+        role = @identity_resolver.new(authenticator: authenticator).call(
+          identifier: @strategy.new(
             authenticator: authenticator
-          ).callback(parameters),
+          ).callback(parameters: parameters, request_body: request_body),
           account: parameters[:account],
           allowed_roles: @role.that_can(
             :authenticate,
             @resource[authenticator.resource_id]
-          ).all
+          ).all.select(&:resource?)
         )
 
         # TODO: Add an error message
@@ -74,20 +85,29 @@ module Authentication
           raise Errors::Authentication::InvalidOrigin
         end
 
-        log_audit_success(authenticator, role, request_ip, @authenticator_type)
+        log_audit_success(authenticator, role.role_id, request_ip, @authenticator_type)
 
         TokenFactory.new.signed_token(
           account: parameters[:account],
-          username: role.role_id.split(':').last,
+          username: role.login,  # role.role_id.split(':').last,
           user_ttl: authenticator.token_ttl
         )
       rescue => e
-        log_audit_failure(parameters[:account], parameters[:service_id], request_ip, @authenticator_type, e)
+
+          #   log_audit_failure(
+  #     authn_params: authenticator_input,
+  #     audit_event_class: Audit::Event::Authn::Authenticate,
+  #     error: e
+  #   )
+
+        log_audit_failure(authenticator, role&.role_id, request_ip, @authenticator_type, e)
         handle_error(e)
       end
 
       def handle_error(err)
         @logger.info("#{err.class.name}: #{err.message}")
+        # binding.pry
+        err.backtrace.each {|l| @logger.info(l) }
 
         case err
         when Errors::Authentication::Security::RoleNotAuthorizedOnResource
@@ -99,7 +119,8 @@ module Authentication
           raise ApplicationController::BadRequest
 
         when Errors::Conjur::RequestedResourceNotFound
-          raise ApplicationController::RecordNotFound.new(err.message)
+          raise ApplicationController::Unauthorized
+          # raise ApplicationController::RecordNotFound.new(err.message)
 
         when Errors::Authentication::AuthnOidc::IdTokenClaimNotFoundOrEmpty
           raise ApplicationController::Unauthorized
@@ -121,37 +142,30 @@ module Authentication
         end
       end
 
-      def log_audit_success(authenticator, conjur_role, client_ip, type)
-        ::Authentication::LogAuditEvent.new.call(
-          authentication_params:
-            Authentication::AuthenticatorInput.new(
-              authenticator_name: "#{type}",
-              service_id: authenticator.service_id,
-              account: authenticator.account,
-              username: conjur_role.role_id,
-              client_ip: client_ip,
-              credentials: nil,
-              request: nil
-            ),
-          audit_event_class: Audit::Event::Authn::Authenticate,
-          error: nil
+      def log_audit_success(service, role_id, client_ip, type)
+        @audit_logger.log(
+          ::Audit::Event::Authn::Authenticate.new(
+            authenticator_name: type,
+            service: service,
+            role_id: role_id,
+            client_ip: client_ip,
+            success: true,
+            error_message: nil
+          )
         )
       end
 
-      def log_audit_failure(account, service_id, client_ip, type, error)
-        ::Authentication::LogAuditEvent.new.call(
-          authentication_params:
-            Authentication::AuthenticatorInput.new(
-              authenticator_name: "#{type}",
-              service_id: service_id,
-              account: account,
-              username: nil,
-              client_ip: client_ip,
-              credentials: nil,
-              request: nil
-            ),
-          audit_event_class: Audit::Event::Authn::Authenticate,
-          error: error
+      def log_audit_failure(service, role_id, client_ip, type, error)
+        # binding.pry
+        @audit_logger.log(
+          ::Audit::Event::Authn::Authenticate.new(
+            authenticator_name: type,
+            service: service,
+            role_id: role_id,
+            client_ip: client_ip,
+            success: false,
+            error_message: error.message
+          )
         )
       end
     end
