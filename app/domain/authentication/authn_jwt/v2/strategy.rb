@@ -27,7 +27,9 @@ module Authentication
           # Notes - in accordance with best practices, we REALLY should be verify that
           # the following claims are present:
           # - issuer
-          #  audience
+          # - audience
+
+          # binding.pry
 
           if @authenticator.jwks_uri.present?
             additional_params = {
@@ -64,20 +66,11 @@ module Authentication
               raise Errors::Authentication::Jwt::TokenDecodeFailed, e.inspect
             rescue => e
               raise Errors::Authentication::Jwt::TokenVerificationFailed, e.inspect
-
-# @jwt.decode(jwt_token, nil, true, **additional_params)
-
-              # rescue JWT::InvalidIatError
-            #   raise Errors::Authentication::Jwt::TokenInvalidIAT
-            # rescue JWT::ImmatureSignature
-            #   raise Errors::Authentication::Jwt::TokenInvalidNBF
-            # rescue Exception => e
-            #   raise Errors::Authentication::Jwt::TokenDecodeFailed, e.inspect
             end
             if @authenticator.audience.present?
               manditory_claims = %w[exp aud]
             else
-              # Lots of tests pass because we don't set audience...
+              # Lots of tests pass because we don't set audience :( ...
               manditory_claims = %w[exp]
             end
             (manditory_claims - token.keys).each do |missing_claim|
@@ -99,10 +92,27 @@ module Authentication
         end
 
         def fetch_jwks
-          # TODO: support adding `ca-cert`
           uri = URI(@authenticator.jwks_uri)
+          http = @http.new(uri.host, uri.port)
+          if uri.instance_of?(URI::HTTPS)
+            # Enable SSL support
+            http.use_ssl = true
+            http.verify_mode = OpenSSL::SSL::VERIFY_PEER
+
+            store = OpenSSL::X509::Store.new
+            # Auto-include system CAs
+            store.set_default_paths
+
+            if @authenticator.ca_cert.present?
+              store.add_cert(OpenSSL::X509::Certificate.new(@authenticator.ca_cert))
+            end
+
+            http.cert_store = store
+          end
+
           begin
-            response = @http.get_response(uri)
+            # response = @http.get_response(uri)
+            response = http.request(@http::Get.new(uri.path))
           rescue Exception => e
             # binding.pry
             raise Errors::Authentication::AuthnJwt::FetchJwksKeysFailed.new(
@@ -111,14 +121,15 @@ module Authentication
             )
           end
           return unless response.code.to_i == 200
-
+          # binding.pry
           @json.parse(response.body)
         end
 
         def jwks(force: false)
-          @cache.fetch(@cache_key, force: force, skip_nil: true) do
-            fetch_jwks
-          end&.deep_symbolize_keys
+          # @cache.fetch(@cache_key, force: force, skip_nil: true) do
+          #   fetch_jwks
+          # end&.deep_symbolize_keys
+          fetch_jwks&.deep_symbolize_keys
         end
       end
     end

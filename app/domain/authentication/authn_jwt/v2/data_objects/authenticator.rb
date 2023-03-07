@@ -6,6 +6,7 @@ module Authentication
       module DataObjects
         class Authenticator
 
+          DENYLIST = %w[iss exp nbf iat jti aud].freeze
           # Notes:
           #  - Starting with support for JWKS.  Local public keys will be added later.
 
@@ -21,9 +22,11 @@ module Authentication
             :token_app_property,
             :identity_path,
             :issuer,
-            :enforced_claims,
             :claim_aliases,
             :audience
+
+            # :enforced_claims,
+
             # :client_id,
             # :client_secret,
             # :claim_mapping,
@@ -56,7 +59,8 @@ module Authentication
             @identity_path = identity_path
             @issuer = issuer
             @enforced_claims = enforced_claims
-            @claim_aliases = claim_aliases
+            # ensure we have a string so we can split safely to generate the hash lookup
+            @claim_aliases = claim_aliases.to_s
             @audience = audience
             @token_ttl = token_ttl
           end
@@ -71,6 +75,68 @@ module Authentication
             raise Errors::Authentication::DataObjects::InvalidTokenTTL.new(resource_id, @token_ttl)
           end
 
+          def enforced_claims
+            @claims ||= begin
+              claims = @enforced_claims.to_s.split(',').map(&:strip)
+
+              claims.each do |claim|
+                # Ensure claim contain only "allowed" characters (alpha-numeric, plus: "-", "_", "/", ".")
+                unless claim.count('a-zA-Z0-9\/\-_\.') == claim.length
+                  raise Errors::Authentication::AuthnJwt::FailedToValidateClaimForbiddenClaimName.new(
+                    claim,
+                    '[a-zA-Z0-9\/\-_\.]+'
+                  )
+                end
+              end
+              claims
+            end
+          end
+
+          def denylist
+            DENYLIST
+          end
+
+          # TODO: The raise here feels super dirty. I need to find a cleaner solution...
+          def claim_aliases_lookup
+            @claim_aliases_lookup ||= begin
+              {}.tap do |rtn|
+                @claim_aliases.split(',').each do |claim_alias|
+                  key, value = claim_alias.split(':').map(&:strip)
+
+                  # If alias is defined multiple times
+                  if rtn.key?(key)
+                    raise Errors::Authentication::AuthnJwt::ClaimAliasDuplicationError.new('annotation name', key)
+
+                    # If alias target is defined multiple times
+                  elsif rtn.invert.key?(value)
+                    raise Errors::Authentication::AuthnJwt::ClaimAliasDuplicationError.new('claim name', value)
+
+                  # Ensure alias contains only "allowed" characters (alpha-numeric, plus: "-", "_", ".")
+                  #
+                  # TODO: This error needs to be updated to show the invalid character(s)
+                  elsif key.count('a-zA-Z0-9\-_\.') != key.length
+                    raise Errors::Authentication::AuthnJwt::ClaimAliasNameInvalidCharacter, key
+
+                  # Ensure target claim contain only "allowed" characters (alpha-numeric, plus: "-", "_", "/", ".")
+                  elsif value.count('a-zA-Z0-9\/\-_\.') != value.length
+                    raise Errors::Authentication::AuthnJwt::FailedToValidateClaimForbiddenClaimName.new(
+                      value,
+                      '[a-zA-Z0-9\/\-_\.]+'
+                    )
+                  end
+
+                  # If alias or target is in denylist
+                  if DENYLIST.include?(key)
+                    raise Errors::Authentication::AuthnJwt::FailedToValidateClaimClaimNameInDenyList.new(key, DENYLIST)
+                  elsif DENYLIST.include?(value)
+                    raise Errors::Authentication::AuthnJwt::FailedToValidateClaimClaimNameInDenyList.new(value, DENYLIST)
+                  end
+
+                  rtn[key] = value
+                end
+              end
+            end
+          end
         end
       end
     end

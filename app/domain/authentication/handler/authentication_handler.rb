@@ -72,6 +72,7 @@ module Authentication
             authenticator: authenticator
           ).callback(parameters: parameters, request_body: request_body),
           account: parameters[:account],
+          id: parameters[:id],
           allowed_roles: @role.that_can(
             :authenticate,
             @resource[authenticator.resource_id]
@@ -118,7 +119,8 @@ module Authentication
           Errors::Authentication::AuthnOidc::TokenRetrievalFailed
           raise ApplicationController::BadRequest
 
-        when Errors::Conjur::RequestedResourceNotFound
+        when Errors::Conjur::RequestedResourceNotFound,
+          Errors::Authentication::Security::RoleNotFound
           raise ApplicationController::Unauthorized
           # raise ApplicationController::RecordNotFound.new(err.message)
 
