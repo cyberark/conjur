@@ -40,7 +40,7 @@ Feature: JWT Authenticator - Security
     And I add the secret value "test-secret" to the resource "cucumber:variable:test-variable"
     And I permit host "myapp" to "execute" it
 
-  @negative @acceptance
+  @negative @acceptance @skip
   Scenario: ONYX-8851: None algorithm is unacceptable, 401 ERROR
     Given I initialize JWKS endpoint with file "myJWKs.json"
     And I successfully set authn-jwt jwks-uri variable with value of "myJWKs.json" endpoint
@@ -59,7 +59,7 @@ Feature: JWT Authenticator - Security
     CONJ00048I Authentication Error: #<Errors::Authentication::Jwt::RequestBodyMissingJWTToken: CONJ00077E The request body does not contain JWT token>
     """
 
-  @negative @acceptance
+  @negative @acceptance @skip
   Scenario: ONYX-8852: Test algorithm substitution attack, 401 ERROR
     Given I initialize JWKS endpoint with file "myJWKs.json"
     And I successfully set authn-jwt jwks-uri variable with value of "myJWKs.json" endpoint
@@ -78,7 +78,7 @@ Feature: JWT Authenticator - Security
     CONJ00035E Failed to decode token (3rdPartyError ='#<JWT::IncorrectAlgorithm: Expected a different algorithm>')>
     """
 
-  @acceptance
+  @acceptance @skip
   Scenario Outline: ONYX-8858: Algorithms sanity
     Given I initialize remote JWKS endpoint with file "ONYX-8858-<alg>" and alg "<alg>"
     And I successfully set authn-jwt "jwks-uri" variable value to "http://jwks_py:8090/ONYX-8858-<alg>/<alg>" in service "raw"

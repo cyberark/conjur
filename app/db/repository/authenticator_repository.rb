@@ -38,7 +38,9 @@ module DB
             "#{account}:webservice:conjur/#{type}/#{service_id}"
           )
         ).first
-        return unless webservice
+        unless webservice
+          raise Errors::Authentication::Security::WebserviceNotFound, "#{type}/#{service_id}"
+        end
 
         load_authenticator(account: account, service_id: service_id, type: type)
       end

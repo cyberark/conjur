@@ -116,5 +116,5 @@ Feature: JWT Authenticator - Input Validation
     Then the HTTP response status code is 401
     And The following appears in the log after my savepoint:
     """
-    CONJ00004E 'authn-jwt/wrong-id' is not enabled>
+    CONJ00004E 'authn-jwt/wrong-id' is not enabled
     """

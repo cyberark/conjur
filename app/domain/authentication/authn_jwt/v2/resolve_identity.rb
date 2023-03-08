@@ -4,7 +4,6 @@ module Authentication
   module AuthnJwt
     module V2
       class ResolveIdentity
-        # DENYLIST = %w[iss exp nbf iat jti aud]
 
         def initialize(authenticator:, logger: Rails.logger)
           @authenticator = authenticator
@@ -14,11 +13,8 @@ module Authentication
         def call(identifier:, account:, allowed_roles:, id: nil)
           # Verify that none of the core claims are defined. TODO: This would be much
           # better handled when an authenticator is defined...
-          # binding.pry
-          # if @authenticator.enforced_claims.present?
+
           if @authenticator.enforced_claims.any?
-            # enforced_claims = @authenticator.enforced_claims.split(',').map(&:strip)
-            # binding.pry
             (@authenticator.enforced_claims & @authenticator.denylist).each do |claim|
               raise Errors::Authentication::AuthnJwt::FailedToValidateClaimClaimNameInDenyList.new(
                 claim,
@@ -27,12 +23,15 @@ module Authentication
             end
           end
 
+          # User ID should only be present without `token-app-property` because
+          # we'll use the id to lookup the host/user
+          if id.present? && @authenticator.token_app_property.present?
+            raise Errors::Authentication::AuthnJwt::IdentityMisconfigured
+          end
+
           # NOTE: `token_app_property` maps the specified jwt claim to a host of the
           # same name.
-          # binding.pry
           if @authenticator.token_app_property.present?
-            # binding.pry
-
             # Handle nested claim lookups
             identity = identifier.dig(*@authenticator.token_app_property.split('/'))
 
@@ -54,11 +53,9 @@ module Authentication
           elsif id.present?
             identity = id
           else
-            binding.pry
-            raise(Errors::Authentication::Security::RoleNotFound, identifier)
+            raise Errors::Authentication::AuthnJwt::IdentityMisconfigured
           end
 
-          # binding.pry
           allowed_roles.each do |role|
             # If provided identity is a host, it'll starty with "host/". We need to match
             # on the type as well as acount and role id.
@@ -83,24 +80,15 @@ module Authentication
               .select { |a| a.name.match(/^authn-jwt\/#{@authenticator.service_id}\//) }
 
             # Validate that defined enforced claims are present
-            # if @authenticator.enforced_claims.present?
             if @authenticator.enforced_claims.any?
 
               # Gather relevant host annotations
               host_claims = service_id_annotations.map { |a| a.name.gsub(/^authn-jwt\/#{@authenticator.service_id}\//, '')}
 
-              # binding.pry
               # Gather and handle any aliases
               host_claims = host_claims.map { |a| @authenticator.claim_aliases_lookup[a] || a }
 
               # At this point we have a list of JWT claims based on host annotations and host annotation aliasing
-
-              # missing_required_claims = (@authenticator.enforced_claims.split(',').map(&:strip) - host_claims)
-
-              # Resolve host annotation aliases so we can verify the correct error message
-              # aliased_enforced_claims = @authenticator.enforced_claims #.map { |a| @authenticator.claim_aliases_lookup.invert[a] || a }
-              # @authenticator.enforced_claims
-              # missing_required_claims = (aliased_enforced_claims - host_claims)
               missing_required_claims = (@authenticator.enforced_claims - host_claims)
 
               if missing_required_claims.count.positive?
@@ -136,6 +124,7 @@ module Authentication
 
             return role
           end
+
           # If there's an id provided, this is likely a user
           if id.present?
             raise(Errors::Authentication::Security::RoleNotFound, identity)
@@ -175,25 +164,17 @@ module Authentication
             if @authenticator.claim_aliases_lookup.key?(claim)
               aliased_claim = @authenticator.claim_aliases_lookup[claim]
 
-            # # If aliased, but looking up using original claim, force the use of the alias
-            # elsif @authenticator.claim_aliases_lookup.invert.key?(claim)
-            #   aliased_claim = @authenticator.claim_aliases_lookup.invert[claim]
-
-            # binding.pry
-            # # If the alias isn't in the claim alias, use the provided claim
-              # unless identifier.key?(aliased_claim)
               unless identifier.dig(*aliased_claim.split('/')).present?
                 raise Errors::Authentication::AuthnJwt::JwtTokenClaimIsMissing,
                   "#{aliased_claim} (annotation: #{claim})"
               end
+
+            # If the alias isn't in the claim alias, use the provided claim
             else
               aliased_claim = claim
             end
 
-              # identity_value = identifier.dig(*aliased_claim.split('/'))
-
             identity_value = identifier.dig(*aliased_claim.split('/'))
-            # end
           else
             identity_value = identifier.dig(*claim.split('/'))
           end
@@ -201,7 +182,7 @@ module Authentication
           if identity_value.blank?
             raise Errors::Authentication::AuthnJwt::JwtTokenClaimIsMissing, claim
           end
-          # binding.pry
+
           unless identity_value == value
             raise Errors::Authentication::ResourceRestrictions::InvalidResourceRestrictions, claim
           end

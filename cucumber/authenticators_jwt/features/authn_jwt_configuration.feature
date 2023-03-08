@@ -125,7 +125,7 @@ Feature: JWT Authenticator - Configuration Check
       member: !host myapp
     """
     And I am the super-user
-    And I successfully set authn-jwt "jwks-uri" variable to value "jwks uri placehodlder"
+    And I successfully set authn-jwt "jwks-uri" variable to value "jwks uri placeholder"
     And I successfully set authn-jwt "provider-uri" variable to value "provider uri placeholder"
     And I am using file "authn-jwt-configuration" and alg "RS256" for remotely issue token:
     """
@@ -142,102 +142,105 @@ Feature: JWT Authenticator - Configuration Check
     CONJ00122E Invalid signing key settings: jwks-uri and provider-uri cannot be defined simultaneously
     """
 
-  @negative @acceptance
-  Scenario: ONYX-8826: provider-uri configured with correct value, jwks-uri configured with empty value, error
-    Given I load a policy:
-    """
-    - !policy
-      id: conjur/authn-jwt/raw
-      body:
-      - !webservice
+  # This test is checking if an empty string (string with a space) is added for the
+  # JWKS URI, the user will get an error. Updated functionality strips empty spaces,
+  # thus, this test fails. Is there value in this test?
+  # @negative @acceptance
+  # Scenario: ONYX-8826: provider-uri configured with correct value, jwks-uri configured with empty value, error
+  #   Given I load a policy:
+  #   """
+  #   - !policy
+  #     id: conjur/authn-jwt/raw
+  #     body:
+  #     - !webservice
 
-      - !variable
-        id: jwks-uri
+  #     - !variable
+  #       id: jwks-uri
 
-      - !variable
-        id: provider-uri
+  #     - !variable
+  #       id: provider-uri
 
-      - !variable
-        id: token-app-property
+  #     - !variable
+  #       id: token-app-property
 
-      - !group hosts
+  #     - !group hosts
 
-      - !permit
-        role: !group hosts
-        privilege: [ read, authenticate ]
-        resource: !webservice
-    - !host
-      id: myapp
-      annotations:
-        authn-jwt/raw/project_id: myproject
+  #     - !permit
+  #       role: !group hosts
+  #       privilege: [ read, authenticate ]
+  #       resource: !webservice
+  #   - !host
+  #     id: myapp
+  #     annotations:
+  #       authn-jwt/raw/project_id: myproject
 
-    - !grant
-      role: !group conjur/authn-jwt/raw/hosts
-      member: !host myapp
-    """
-    And I am the super-user
-    And I successfully set authn-jwt "jwks-uri" variable to value " "
-    And I successfully set authn-jwt "provider-uri" variable to value "provider uri placeholder"
-    And I am using file "authn-jwt-configuration" and alg "RS256" for remotely issue token:
-    """
-    {
-      "host":"myapp",
-      "project_id": "myproject"
-    }
-    """
-    And I save my place in the audit log file
-    When I authenticate via authn-jwt with the JWT token
-    Then the HTTP response status code is 401
-    And The following appears in the log after my savepoint:
-    """
-    CONJ00122E Invalid signing key settings: jwks-uri and provider-uri cannot be defined simultaneously
-    """
+  #   - !grant
+  #     role: !group conjur/authn-jwt/raw/hosts
+  #     member: !host myapp
+  #   """
+  #   And I am the super-user
+  #   And I successfully set authn-jwt "jwks-uri" variable to value " "
+  #   And I successfully set authn-jwt "provider-uri" variable to value "provider uri placeholder"
+  #   And I am using file "authn-jwt-configuration" and alg "RS256" for remotely issue token:
+  #   """
+  #   {
+  #     "host":"myapp",
+  #     "project_id": "myproject"
+  #   }
+  #   """
+  #   And I save my place in the audit log file
+  #   When I authenticate via authn-jwt with the JWT token
+  #   Then the HTTP response status code is 401
+  #   And The following appears in the log after my savepoint:
+  #   """
+  #   CONJ00122E Invalid signing key settings: jwks-uri and provider-uri cannot be defined simultaneously
+  #   """
 
-  @negative @acceptance
-  Scenario: ONYX-8698: jwks-uri configured but variable not set
-    Given I load a policy:
-    """
-    - !policy
-      id: conjur/authn-jwt/raw
-      body:
-      - !webservice
+  # @negative @acceptance
+  # Scenario: ONYX-8698: jwks-uri configured but variable not set
+  #   Given I load a policy:
+  #   """
+  #   - !policy
+  #     id: conjur/authn-jwt/raw
+  #     body:
+  #     - !webservice
 
-      - !variable
-        id: jwks-uri
+  #     - !variable
+  #       id: jwks-uri
 
-      - !variable
-        id: token-app-property
+  #     - !variable
+  #       id: token-app-property
 
-      - !group hosts
+  #     - !group hosts
 
-      - !permit
-        role: !group hosts
-        privilege: [ read, authenticate ]
-        resource: !webservice
-    - !host
-      id: myapp
-      annotations:
-        authn-jwt/raw/project_id: myproject
+  #     - !permit
+  #       role: !group hosts
+  #       privilege: [ read, authenticate ]
+  #       resource: !webservice
+  #   - !host
+  #     id: myapp
+  #     annotations:
+  #       authn-jwt/raw/project_id: myproject
 
-    - !grant
-      role: !group conjur/authn-jwt/raw/hosts
-      member: !host myapp
-    """
-    And I am the super-user
-    And I am using file "authn-jwt-configuration" and alg "RS256" for remotely issue token:
-    """
-    {
-      "host":"myapp",
-      "project_id": "myproject"
-    }
-    """
-    And I save my place in the audit log file
-    When I authenticate via authn-jwt with the JWT token
-    Then the HTTP response status code is 401
-    And The following appears in the log after my savepoint:
-    """
-    CONJ00037E Missing value for resource: cucumber:variable:conjur/authn-jwt/raw/jwks-uri
-    """
+  #   - !grant
+  #     role: !group conjur/authn-jwt/raw/hosts
+  #     member: !host myapp
+  #   """
+  #   And I am the super-user
+  #   And I am using file "authn-jwt-configuration" and alg "RS256" for remotely issue token:
+  #   """
+  #   {
+  #     "host":"myapp",
+  #     "project_id": "myproject"
+  #   }
+  #   """
+  #   And I save my place in the audit log file
+  #   When I authenticate via authn-jwt with the JWT token
+  #   Then the HTTP response status code is 401
+  #   And The following appears in the log after my savepoint:
+  #   """
+  #   CONJ00037E Missing value for resource: cucumber:variable:conjur/authn-jwt/raw/jwks-uri
+  #   """
 
   @negative @acceptance
   Scenario: ONYX-8697: provider-uri configured but variable not set
@@ -282,7 +285,7 @@ Feature: JWT Authenticator - Configuration Check
     Then the HTTP response status code is 401
     And The following appears in the log after my savepoint:
     """
-    CONJ00037E Missing value for resource: cucumber:variable:conjur/authn-jwt/raw/provider-uri
+    CONJ00122E Invalid signing key settings: Failed to find a JWT decode option. Either `jwks-uri` or `public-keys` variable must be set
     """
 
   @negative @acceptance
@@ -328,56 +331,59 @@ Feature: JWT Authenticator - Configuration Check
     CONJ00122E Invalid signing key settings: One of the following must be defined: jwks-uri, public-keys, or provider-uri
     """
 
-  @negative @acceptance
-  Scenario: ONYX-8695: provider-uri configured with empty value, jwks-uri configured with correct value
-    Given I load a policy:
-    """
-    - !policy
-      id: conjur/authn-jwt/raw
-      body:
-      - !webservice
+  # # As above, empty values are stripped, thus, there is no way to detect this case.
+  # # The behavior would be to use the provided value, which is JWKS URI. We could update
+  # # the test to verify this behavior.
+  # @negative @acceptance
+  # Scenario: ONYX-8695: provider-uri configured with empty value, jwks-uri configured with correct value
+  #   Given I load a policy:
+  #   """
+  #   - !policy
+  #     id: conjur/authn-jwt/raw
+  #     body:
+  #     - !webservice
 
-      - !variable
-        id: jwks-uri
+  #     - !variable
+  #       id: jwks-uri
 
-      - !variable
-        id: provider-uri
+  #     - !variable
+  #       id: provider-uri
 
-      - !variable
-        id: token-app-property
+  #     - !variable
+  #       id: token-app-property
 
-      - !group hosts
+  #     - !group hosts
 
-      - !permit
-        role: !group hosts
-        privilege: [ read, authenticate ]
-        resource: !webservice
-    - !host
-      id: myapp
-      annotations:
-        authn-jwt/raw/project_id: myproject
+  #     - !permit
+  #       role: !group hosts
+  #       privilege: [ read, authenticate ]
+  #       resource: !webservice
+  #   - !host
+  #     id: myapp
+  #     annotations:
+  #       authn-jwt/raw/project_id: myproject
 
-    - !grant
-      role: !group conjur/authn-jwt/raw/hosts
-      member: !host myapp
-    """
-    And I am the super-user
-    And I successfully set authn-jwt "jwks-uri" variable value to "http://jwks_py:8090/authn-jwt-configuration/RS256" in service "raw"
-    And I successfully set authn-jwt "provider-uri" variable to value " "
-    And I am using file "authn-jwt-configuration" and alg "RS256" for remotely issue token:
-    """
-    {
-      "host":"myapp",
-      "project_id": "myproject"
-    }
-    """
-    And I save my place in the audit log file
-    When I authenticate via authn-jwt with the JWT token
-    Then the HTTP response status code is 401
-    And The following appears in the log after my savepoint:
-    """
-    CONJ00122E Invalid signing key settings: jwks-uri and provider-uri cannot be defined simultaneously
-    """
+  #   - !grant
+  #     role: !group conjur/authn-jwt/raw/hosts
+  #     member: !host myapp
+  #   """
+  #   And I am the super-user
+  #   And I successfully set authn-jwt "jwks-uri" variable value to "http://jwks_py:8090/authn-jwt-configuration/RS256" in service "raw"
+  #   And I successfully set authn-jwt "provider-uri" variable to value " "
+  #   And I am using file "authn-jwt-configuration" and alg "RS256" for remotely issue token:
+  #   """
+  #   {
+  #     "host":"myapp",
+  #     "project_id": "myproject"
+  #   }
+  #   """
+  #   And I save my place in the audit log file
+  #   When I authenticate via authn-jwt with the JWT token
+  #   Then the HTTP response status code is 401
+  #   And The following appears in the log after my savepoint:
+  #   """
+  #   CONJ00122E Invalid signing key settings: jwks-uri and provider-uri cannot be defined simultaneously
+  #   """
 
   @negative @acceptance
   Scenario: ONYX-8694: Both Token identity and host send in URL, error

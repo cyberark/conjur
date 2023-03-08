@@ -7,39 +7,32 @@ module Authentication
         class Authenticator
 
           DENYLIST = %w[iss exp nbf iat jti aud].freeze
-          # Notes:
-          #  - Starting with support for JWKS.  Local public keys will be added later.
 
           REQUIRED_VARIABLES = %i[].freeze
-          OPTIONAL_VARIABLES = %i[jwks_uri public_keys ca_cert token_app_property identity_path issuer enforced_claims claim_aliases audience token_ttl].freeze
+          OPTIONAL_VARIABLES = %i[jwks_uri public_keys ca_cert token_app_property identity_path issuer enforced_claims claim_aliases audience token_ttl provider_uri].freeze
 
           attr_reader(:account, :service_id)
 
           attr_reader(
             :jwks_uri,
+            :provider_uri,
             :public_keys,
             :ca_cert,
-            :token_app_property,
             :identity_path,
             :issuer,
             :claim_aliases,
             :audience
 
+            # moved to methods below to allow for "validation"
             # :enforced_claims,
-
-            # :client_id,
-            # :client_secret,
-            # :claim_mapping,
-            # :account,
-            # :service_id,
-            # :redirect_uri,
-            # :response_type
+            # :token_app_property,
           )
 
           def initialize(
             account:,
             service_id:,
             jwks_uri: nil,
+            provider_uri: nil,
             public_keys: nil,
             ca_cert: nil,
             token_app_property: nil,
@@ -53,6 +46,7 @@ module Authentication
             @service_id = service_id
             @account = account
             @jwks_uri = jwks_uri
+            @provider_uri = provider_uri
             @public_keys = public_keys
             @ca_cert = ca_cert
             @token_app_property = token_app_property
@@ -73,6 +67,17 @@ module Authentication
             ActiveSupport::Duration.parse(@token_ttl)
           rescue ActiveSupport::Duration::ISO8601Parser::ParsingError
             raise Errors::Authentication::DataObjects::InvalidTokenTTL.new(resource_id, @token_ttl)
+          end
+
+          def token_app_property
+            token_app_property = @token_app_property.to_s
+            # Ensure claim contain only "allowed" characters (alpha-numeric, and: "-", "_", "/", ".")
+            unless token_app_property.count('a-zA-Z0-9\/\-_\.') == token_app_property.length
+              raise Errors::Authentication::AuthnJwt::InvalidTokenAppPropertyValue,
+                "token-app-property can only contain alpha-numeric characters, '-', '_', '/', and '.'"
+            end
+
+            token_app_property
           end
 
           def enforced_claims

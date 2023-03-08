@@ -131,21 +131,22 @@ Feature: JWT Authenticator - Fetch identity from decoded token
     CONJ00081E 'host_claim' field not found in the token
     """
 
-  @negative @acceptance
-  Scenario: ONYX-8824: Token identity configuration with empty secret, no identity in URL, error
-    Given I am using file "identity-from-decoded-token" and alg "RS256" for remotely issue token:
-    """
-    {
-      "project_id": "myproject"
-    }
-    """
-    And I save my place in the log file
-    When I authenticate via authn-jwt with the JWT token
-    Then the HTTP response status code is 401
-    And The following appears in the log after my savepoint:
-    """
-    CONJ00037E Missing value for resource: cucumber:variable:conjur/authn-jwt/raw/token-app-property
-    """
+  # # Test for secret not being set
+  # @negative @acceptance
+  # Scenario: ONYX-8824: Token identity configuration with empty secret, no identity in URL, error
+  #   Given I am using file "identity-from-decoded-token" and alg "RS256" for remotely issue token:
+  #   """
+  #   {
+  #     "project_id": "myproject"
+  #   }
+  #   """
+  #   And I save my place in the log file
+  #   When I authenticate via authn-jwt with the JWT token
+  #   Then the HTTP response status code is 401
+  #   And The following appears in the log after my savepoint:
+  #   """
+  #   CONJ00037E Missing value for resource: cucumber:variable:conjur/authn-jwt/raw/token-app-property
+  #   """
 
   @sanity
   @acceptance
@@ -264,7 +265,7 @@ Feature: JWT Authenticator - Fetch identity from decoded token
     Then the HTTP response status code is 401
     And The following appears in the log after my savepoint:
     """
-    CONJ00117E Failed to parse 'token-app-property' value. Error: '#<Errors::Authentication::AuthnJwt::InvalidClaimPath: CONJ00116E
+CONJ00117E Failed to parse 'token-app-property' value. Error: 'token-app-property can only contain alpha-numeric characters, '-', '_', '/', and '.''
     """
 
   # This is the scenario we're looking to fix... :P

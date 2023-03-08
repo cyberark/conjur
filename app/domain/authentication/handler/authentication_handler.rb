@@ -66,20 +66,45 @@ module Authentication
         end
 
         # binding.pry
+        begin
+          role = @identity_resolver.new(authenticator: authenticator).call(
+            identifier: @strategy.new(
+              authenticator: authenticator
+            ).callback(parameters: parameters, request_body: request_body),
+            account: parameters[:account],
+            id: parameters[:id],
+            allowed_roles: @role.that_can(
+              :authenticate,
+              @resource[authenticator.resource_id]
+            ).all.select(&:resource?)
+          )
+        rescue Errors::Authentication::Security::RoleNotFound => e
 
-        role = @identity_resolver.new(authenticator: authenticator).call(
-          identifier: @strategy.new(
-            authenticator: authenticator
-          ).callback(parameters: parameters, request_body: request_body),
-          account: parameters[:account],
-          id: parameters[:id],
-          allowed_roles: @role.that_can(
-            :authenticate,
-            @resource[authenticator.resource_id]
-          ).all.select(&:resource?)
-        )
+          # This is a bit dirty, but now that we've shifted from looking up to
+          # selecting, this is needed to see if the role actually has permission
+          missing_role = e.message.scan(/'(.+)'/).flatten.first
+          identity = if missing_role.match(/^host\//)
+            "#{parameters[:account]}:host:#{missing_role.gsub(/^host\//, '')}"
+          else
+            "#{parameters[:account]}:user:#{missing_role}"
+          end
+          if role = @role[identity]
+            if webservice = @resource["#{parameters[:account]}:webservice:conjur/#{@authenticator_type}/#{parameters[:service_id]}"]
+              unless  @role[identity].allowed_to?(:authenticate, webservice)
+                raise Errors::Authentication::Security::RoleNotAuthorizedOnResource.new(
+                  missing_role,
+                  :authenticate,
+                  webservice.resource_id
+                )
+              end
+            end
+          end
+          # If role or authenticator isn't present, raise the original exception
+          raise e
+        end
 
-        # TODO: Add an error message
+        # TODO: Add an error message (this may actually never be hit as we raise
+        #   upstream if there is a problem with authentication & lookup)
         raise 'failed to authenticate' unless role
 
         unless role.valid_origin?(request_ip)
@@ -94,7 +119,7 @@ module Authentication
           user_ttl: authenticator.token_ttl
         )
       rescue => e
-
+        # binding.pry
           #   log_audit_failure(
   #     authn_params: authenticator_input,
   #     audit_event_class: Audit::Event::Authn::Authenticate,

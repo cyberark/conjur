@@ -81,41 +81,40 @@ Feature: JWT Authenticator - Check registered claim
     And I permit host "myapp" to "execute" it
     And I permit host "alice" to "execute" it
 
-  # This is testing makes no sense.  It's verifying that a JWT authenticator
-  # configured with an incorrect issuer will be successful.  We really want the opposite...
-  @acceptance
-  Scenario: ONYX-8727: Issuer configured with incorrect value, iss claim not exists in token, 200 ok
-    Given I extend the policy with:
-    """
-    - !policy
-      id: conjur/authn-jwt/raw
-      body:
-      - !variable
-        id: jwks-uri
+  # # This is testing makes no sense.  It's verifying that a JWT authenticator
+  # # configured with an incorrect issuer will be successful.  We really want the opposite...
+  # @acceptance
+  # Scenario: ONYX-8727: Issuer configured with incorrect value, iss claim not exists in token, 200 ok
+  #   Given I extend the policy with:
+  #     """
+  #     - !policy
+  #     id: conjur/authn-jwt/raw
+  #     body:
+  #     - !variable
+  #     id: jwks-uri
+  #     - !variable
+  #     id: issuer
+  #     """
+  #   And I set the following conjur variables:
+  #     | variable_id                   | default_value                                             |
+  #     | conjur/authn-jwt/raw/jwks-uri | http://jwks_py:8090/authn-jwt-check-standard-claims/RS256 |
+  #     | conjur/authn-jwt/raw/issuer   | incorrect-value                                           |
 
-      - !variable
-        id: issuer
-    """
-    And I set the following conjur variables:
-      | variable_id                         | default_value                                             |
-      | conjur/authn-jwt/raw/jwks-uri       | http://jwks_py:8090/authn-jwt-check-standard-claims/RS256 |
-      | conjur/authn-jwt/raw/issuer         | incorrect-value                                       |
-
-    And I am using file "authn-jwt-check-standard-claims" and alg "RS256" for remotely issue token:
-    """
-    {
-      "host":"myapp",
-      "project_id": "myproject"
-    }
-    """
-    And I save my place in the audit log file
-    When I authenticate via authn-jwt with raw service ID
-    Then host "myapp" has been authorized by Conjur
-    And I successfully GET "/secrets/cucumber/variable/test-variable" with authorized user
-    And The following appears in the log after my savepoint:
-    """
-    cucumber:host:myapp successfully authenticated with authenticator authn-jwt service cucumber:webservice:conjur/authn-jwt/raw
-    """
+  #   And I am using file "authn-jwt-check-standard-claims" and alg "RS256" for remotely issue token:
+  #     """
+  #     {
+  #       "host": "myapp",
+  #       "project_id": "myproject"
+  #     }
+  #     """
+  #   And I save my place in the audit log file
+  #   When I authenticate via authn-jwt with raw service ID
+  #   Then host "myapp" has been authorized by Conjur
+  #   And I successfully GET "/secrets/cucumber/variable/test-variable" with authorized user
+  #   And The following appears in the log after my savepoint:
+  #     """
+  #     cucumber:host:myapp successfully authenticated with authenticator authn-jwt service cucumber:webservice:conjur/authn-jwt/raw
+  #     """
 
   @negative @acceptance
   Scenario: ONYX-8714: JWT token with past exp claim value, 401 Error
@@ -203,7 +202,7 @@ Feature: JWT Authenticator - Check registered claim
     Then the HTTP response status code is 401
     And The following appears in the log after my savepoint:
     """
-    CONJ00151 Token iat has not yet occured
+CONJ00035E Failed to decode token (3rdPartyError ='#<JWT::InvalidIatError: Invalid iat>')
     """
 
   @negative @acceptance
@@ -233,7 +232,7 @@ Feature: JWT Authenticator - Check registered claim
     Then the HTTP response status code is 401
     And The following appears in the log after my savepoint:
     """
-    CONJ00152 Token nbf has not been reached
+    CONJ00035E Failed to decode token (3rdPartyError ='#<JWT::ImmatureSignature: Signature nbf has not been reached>')
     """
 
   # # This is technically allowed... I don't think this should be enforced.
@@ -458,7 +457,7 @@ Feature: JWT Authenticator - Check registered claim
     Then the HTTP response status code is 401
     And The following appears in the log after my savepoint:
     """
-    CONJ00035E Failed to decode token (3rdPartyError ='#<JWT::InvalidIssuerError: Invalid issuer. Expected invalid-issuer, received valid-issuer>')>
+    CONJ00035E Failed to decode token (3rdPartyError ='#<JWT::InvalidIssuerError: Invalid issuer. Expected invalid-issuer, received valid-issuer>')
     """
 
   @sanity
@@ -500,6 +499,6 @@ Feature: JWT Authenticator - Check registered claim
     """
     Examples:
       | Test       | audience         | aud                                         | http_code | log                                                                                                                                       |
-      | ONYX-11154 | valid-audience   | "other":"claim"                             | 401       | CONJ00091E Failed to validate token: mandatory claim 'aud' is missing.                                                                    |
+      | ONYX-11154 | valid-audience   | "other":"claim"                             | 401       | CONJ00035E Failed to decode token (3rdPartyError ='#<JWT::InvalidAudError: Invalid audience. Expected valid-audience, received <none>>')  |
       | ONYX-11156 | valid-audience   | "aud":"invalid"                             | 401       | CONJ00035E Failed to decode token (3rdPartyError ='#<JWT::InvalidAudError: Invalid audience. Expected valid-audience, received invalid>') |
       | ONYX-11158 | valid-audience   | "aud": ["value1","valid-audience","value2"] | 200       | cucumber:host:aud-test-app successfully authenticated with authenticator authn-jwt service cucumber:webservice:conjur/authn-jwt/raw       |
