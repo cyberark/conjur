@@ -155,7 +155,12 @@ RSpec.describe('DB::Repository::AuthenticatorRepository') do
 
       describe('#find') do
         context 'when webservice is not present' do
-          it { expect(repo.find(type: 'authn-oidc', account: 'rspec', service_id: 'abc123')).to be(nil) }
+          it { expect {
+            repo.find(type: 'authn-oidc', account: 'rspec', service_id: 'abc123')
+          }.to raise_exception(
+              Errors::Authentication::Security::WebserviceNotFound
+            )
+          }
         end
 
         context 'when webservice is present' do
