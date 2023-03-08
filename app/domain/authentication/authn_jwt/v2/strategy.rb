@@ -37,7 +37,7 @@ module Authentication
 
           if @authenticator.jwks_uri.blank? && @authenticator.provider_uri.blank? && @authenticator.public_keys.blank?
             raise Errors::Authentication::AuthnJwt::InvalidSigningKeySettings,
-              'One of the following must be defined: jwks-uri, public-keys, or provider-uri'
+              'Failed to find a JWT decode option. Either `jwks-uri` or `public-keys` variable must be set'
           end
 
           additional_params = {
