@@ -63,7 +63,7 @@ Feature: JWT Authenticator - Fetch signing key
     When I authenticate via authn-jwt with the ID token
     Then host "alice" has been authorized by Conjur
 
-  @negative @acceptance @skip
+  @negative @acceptance
   Scenario: ONYX-8704: provider uri configured with bad value
     Given I load a policy:
     """
@@ -265,7 +265,7 @@ Feature: JWT Authenticator - Fetch signing key
     cucumber:host:alice successfully authenticated with authenticator authn-jwt service cucumber:webservice:conjur/authn-jwt/keycloak
     """
 
-  @acceptance @skip
+  @acceptance
   Scenario: jwks uri configured dynamically changed to provider uri
     Given I load a policy:
     """
@@ -364,7 +364,7 @@ Feature: JWT Authenticator - Fetch signing key
     And I authenticate via authn-jwt with the ID token
     Then host "alice" has been authorized by Conjur
 
-  @sanity @acceptance @skip
+  @sanity @acceptance
   Scenario: ONYX-8709: provider-uri dynamically changed, 502 ERROR resolves to 200 OK
     Given I load a policy:
     """
@@ -607,7 +607,7 @@ Feature: JWT Authenticator - Fetch signing key
     CONJ00035E Failed to decode token (3rdPartyError ='#<JWT::VerificationError: Signature verification raised>')
     """
 
-  @negative @acceptance @skip
+  @negative @acceptance
   Scenario: ONYX-8914: provider-uri with untrusted self sign certificate
     Given I load a policy:
     """
@@ -632,7 +632,7 @@ Feature: JWT Authenticator - Fetch signing key
     CONJ00011E Failed to discover Identity Provider (Provider URI: 'https://jwks'). Reason: '#<OpenIDConnect::Discovery::DiscoveryFailed: SSL_connect returned=1 errno=0 state=error: certificate verify failed (self signed certificate)>
     """
 
-  @negative @acceptance @skip
+  @negative @acceptance
   Scenario: ONYX-8913: jwks-uri with untrusted self sign certificate
     Given I load a policy:
     """
@@ -728,7 +728,7 @@ Feature: JWT Authenticator - Fetch signing key
     CONJ00035E Failed to decode token (3rdPartyError ='#<JWT::DecodeError: No key id (kid) found from token headers>')
     """
 
-  @sanity @smoke @skip
+  @sanity @smoke
   Scenario: ONYX-15322: public-keys happy path
     Given I load a policy:
     """

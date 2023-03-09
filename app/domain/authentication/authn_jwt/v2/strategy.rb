@@ -12,7 +12,8 @@ module Authentication
           jwt: JWT,
           http: Net::HTTP, # check that this is needed
           json: JSON,
-          cache: Rails.cache
+          cache: Rails.cache,
+          oidc_discovery_configuration: ::OpenIDConnect::Discovery::Provider::Config
         )
           @authenticator = authenticator
           @logger = logger
@@ -21,6 +22,7 @@ module Authentication
           @json = json
           @http = http
           @cache = cache
+          @oidc_discovery_configuration = oidc_discovery_configuration
         end
 
         def callback(parameters:, request_body:)
@@ -53,7 +55,7 @@ module Authentication
                 hash[:aud] = @authenticator.audience
                 hash[:verify_aud] = true
               end
-              hash[:jwks] = jwk_loader
+              hash[:jwks] = jwk_loader(@authenticator.jwks_uri)
             elsif @authenticator.public_keys.present?
               hash[:iss] = @authenticator.issuer
               hash[:verify_iss] = true
@@ -61,6 +63,24 @@ module Authentication
               # a JWKS endpoint from a local source.
               keys = @json.parse(@authenticator.public_keys)&.deep_symbolize_keys
               hash[:jwks] = keys[:value]
+            elsif @authenticator.provider_uri.present?
+              begin
+                if @authenticator.issuer.present?
+                  hash[:iss] = @authenticator.issuer
+                  hash[:verify_iss] = true
+                end
+                if @authenticator.audience.present?
+                  hash[:aud] = @authenticator.audience
+                  hash[:verify_aud] = true
+                end
+                hash[:jwks] = jwk_loader(
+                  @oidc_discovery_configuration.discover!(
+                    @authenticator.provider_uri
+                  )&.jwks_uri
+                )
+              rescue Exception => e
+                raise Errors::Authentication::OAuth::ProviderDiscoveryFailed.new(@authenticator.provider_uri, e.inspect)
+              end
             else
               raise Errors::Authentication::AuthnJwt::InvalidSigningKeySettings,
                 'Failed to find a JWT decode option. Either `jwks-uri` or `public-keys` variable must be set.'
@@ -92,9 +112,9 @@ module Authentication
             # Looks like only the "malformed JWT" decode error has a unique custom exception
             if e.message == 'Not enough or too many segments'
               raise Errors::Authentication::Jwt::RequestBodyMissingJWTToken
-            else
-              raise Errors::Authentication::Jwt::TokenDecodeFailed, e.inspect
             end
+
+            raise Errors::Authentication::Jwt::TokenDecodeFailed, e.inspect
           rescue => e
             raise Errors::Authentication::Jwt::TokenVerificationFailed, e.inspect
           end
@@ -115,14 +135,14 @@ module Authentication
 
         private
 
-        def jwk_loader
+        def jwk_loader(jwks_url)
           ->(options) do
-            jwks(force: options[:invalidate]) || {}
+            jwks(jwks_url: jwks_url, force: options[:invalidate]) || {}
           end
         end
 
-        def fetch_jwks
-          uri = URI(@authenticator.jwks_uri)
+        def fetch_jwks(url)
+          uri = URI(url)
           http = @http.new(uri.host, uri.port)
           if uri.instance_of?(URI::HTTPS)
             # Enable SSL support
@@ -140,11 +160,13 @@ module Authentication
             http.cert_store = store
           end
 
+          # If path is an empty string, the get request will fail. We set it default to a slash.
+          path = uri.path.empty? ? '/' : uri.path
           begin
-            response = http.request(@http::Get.new(uri.path))
+            response = http.request(@http::Get.new(path))
           rescue Exception => e
             raise Errors::Authentication::AuthnJwt::FetchJwksKeysFailed.new(
-              @authenticator.jwks_uri,
+              url,
               e.inspect
             )
           end
@@ -154,14 +176,14 @@ module Authentication
           @json.parse(response.body)
         end
 
-        def jwks(force: false)
+        def jwks(jwks_url:, force: false)
           # TODO: Need a mechanism to allow us to expire cache from Cucumber tests
           # so that we can include tests with different JWKS certificates.
           #
           # @cache.fetch(@cache_key, force: force, skip_nil: true) do
-          #   fetch_jwks
+          #   fetch_jwks(jwks_url)
           # end&.deep_symbolize_keys
-          fetch_jwks&.deep_symbolize_keys
+          fetch_jwks(jwks_url)&.deep_symbolize_keys
         end
       end
     end

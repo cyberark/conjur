@@ -65,7 +65,6 @@ module Authentication
           )
         end
 
-        # binding.pry
         begin
           role = @identity_resolver.new(authenticator: authenticator).call(
             identifier: @strategy.new(
@@ -115,24 +114,16 @@ module Authentication
 
         TokenFactory.new.signed_token(
           account: parameters[:account],
-          username: role.login,  # role.role_id.split(':').last,
+          username: role.login,
           user_ttl: authenticator.token_ttl
         )
       rescue => e
-        # binding.pry
-          #   log_audit_failure(
-  #     authn_params: authenticator_input,
-  #     audit_event_class: Audit::Event::Authn::Authenticate,
-  #     error: e
-  #   )
-
         log_audit_failure(authenticator, role&.role_id, request_ip, @authenticator_type, e)
         handle_error(e)
       end
 
       def handle_error(err)
         @logger.info("#{err.class.name}: #{err.message}")
-        # binding.pry
         err.backtrace.each {|l| @logger.info(l) }
 
         case err
@@ -183,7 +174,6 @@ module Authentication
       end
 
       def log_audit_failure(service, role_id, client_ip, type, error)
-        # binding.pry
         @audit_logger.log(
           ::Audit::Event::Authn::Authenticate.new(
             authenticator_name: type,
