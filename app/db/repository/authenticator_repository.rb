@@ -77,11 +77,21 @@ module DB
         end
 
         begin
-          allowed_args = %i[account service_id] +
-                        @data_object.const_get(:REQUIRED_VARIABLES) +
-                        @data_object.const_get(:OPTIONAL_VARIABLES)
-          args_list = args_list.select { |key, value| allowed_args.include?(key) && value.present? }
-          @data_object.new(**args_list)
+          # Load the params into the authenticator contract
+          contract = Authentication::AuthnJwt::V2::DataObjects::AuthenticatorContract.new
+          result = contract.call(args_list)
+          if result.success?
+            @data_object.new(**args_list)
+          else
+            # If contract fails, raise the defined exception...
+            errors = result.errors.to_h
+            @logger.info(errors.inspect)
+
+            _, key_errors = errors.first
+            key_error = key_errors.first
+            raise(key_error[:exception], key_error[:text])
+          end
+
         rescue ArgumentError => e
           @logger.debug("DB::Repository::AuthenticatorRepository.load_authenticator - exception: #{e}")
           nil

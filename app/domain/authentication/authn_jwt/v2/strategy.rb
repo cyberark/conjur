@@ -31,37 +31,6 @@ module Authentication
           # - issuer
           # - audience
 
-          # Validations....
-          if @authenticator.jwks_uri.present? && @authenticator.provider_uri.present?
-            raise Errors::Authentication::AuthnJwt::InvalidSigningKeySettings,
-              "jwks-uri and provider-uri cannot be defined simultaneously"
-          end
-
-          if @authenticator.issuer == ''
-            raise Errors::Conjur::RequiredSecretMissing,
-              "#{@authenticator.account}:variable:conjur/authn-jwt/#{@authenticator.service_id}/issuer"
-          end
-
-          # Need to trigger an error if this variable is present, but has not been set...
-          # TODO: fix with validation
-          @authenticator.claim_aliases
-          # binding.pry
-
-          if @authenticator.jwks_uri == '' && @authenticator.provider_uri.nil? && @authenticator.public_keys.nil?
-            raise Errors::Conjur::RequiredSecretMissing,
-              "#{@authenticator.account}:variable:conjur/authn-jwt/#{@authenticator.service_id}/jwks-uri"
-          end
-
-          if @authenticator.jwks_uri.blank? && @authenticator.provider_uri.blank? && @authenticator.public_keys.blank?
-            if @authenticator.jwks_uri.nil? && @authenticator.provider_uri.nil? && @authenticator.public_keys.nil?
-              raise Errors::Authentication::AuthnJwt::InvalidSigningKeySettings,
-                'One of the following must be defined: jwks-uri, public-keys, or provider-uri'
-            end
-
-            raise Errors::Authentication::AuthnJwt::InvalidSigningKeySettings,
-              'Failed to find a JWT decode option. Either `jwks-uri` or `public-keys` variable must be set'
-          end
-
           additional_params = {
             algorithms: %w[RS256 RS384 RS512],
             verify_iat: true
