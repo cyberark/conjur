@@ -11,11 +11,9 @@ Feature: JWT Authenticator - Token Schema
       body:
       - !webservice
 
-      - !variable
-        id: jwks-uri
+      - !variable jwks-uri
 
-      - !variable
-        id: token-app-property
+      - !variable token-app-property
 
       - !group hosts
 
@@ -227,41 +225,40 @@ Feature: JWT Authenticator - Token Schema
     | claim   |
     |   iat   |
 
-  # # This scenario deals with unset variables
-  # @negative @acceptance
-  # Scenario: ONYX-10860 - Enforced claims configured but not populated - 401 Error
-  #   Given I extend the policy with:
-  #   """
-  #   - !variable conjur/authn-jwt/raw/enforced-claims
-  #   - !variable conjur/authn-jwt/raw/claim-aliases
+  # This scenario deals with unset variables
+  @negative @acceptance
+  Scenario: ONYX-10860 - Enforced claims configured but not populated - 401 Error
+    Given I extend the policy with:
+    """
+    - !variable conjur/authn-jwt/raw/enforced-claims
+    - !variable conjur/authn-jwt/raw/claim-aliases
 
-  #   - !host
-  #     id: myapp
-  #     annotations:
-  #       authn-jwt/raw/sub: valid
+    - !host
+      id: myapp
+      annotations:
+        authn-jwt/raw/sub: valid
 
-  #   - !grant
-  #     role: !group conjur/authn-jwt/raw/hosts
-  #     member: !host myapp
-  #   """
-  #   And I successfully set authn-jwt "claim-aliases" variable to value "branch:ref"
-  #   And I am using file "authn-jwt-token-schema" and alg "RS256" for remotely issue token:
-  #   """
-  #   {
-  #     "ref":"valid",
-  #     "host":"myapp"
-  #   }
-  #   """
-  #   And I save my place in the log file
-  #   When I authenticate via authn-jwt with the JWT token
-  #   Then the HTTP response status code is 401
-  #   And The following appears in the log after my savepoint:
-  #   """
-  #    CONJ00037E Missing value for resource: cucumber:variable:conjur/authn-jwt/raw/enforced-claims
-  #   """
+    - !grant
+      role: !group conjur/authn-jwt/raw/hosts
+      member: !host myapp
+    """
+    And I successfully set authn-jwt "claim-aliases" variable to value "branch:ref"
+    And I am using file "authn-jwt-token-schema" and alg "RS256" for remotely issue token:
+    """
+    {
+      "ref":"valid",
+      "host":"myapp"
+    }
+    """
+    And I save my place in the log file
+    When I authenticate via authn-jwt with the JWT token
+    Then the HTTP response status code is 401
+    And The following appears in the log after my savepoint:
+    """
+     CONJ00037E Missing value for resource: cucumber:variable:conjur/authn-jwt/raw/enforced-claims
+    """
 
-  @sanity
-  @acceptance
+  @sanity @acceptance
   Scenario: ONYX-10891 - Complex Case - Adding Enforced Claim after host configuration
     Given I extend the policy with:
     """
@@ -303,7 +300,7 @@ Feature: JWT Authenticator - Token Schema
     """
     CONJ00057E Role does not have the required constraints: '["ref"]'
     """
-    When I replace the "root" policy with:
+    When I extend the policy with:
     """
     - !variable conjur/authn-jwt/raw/enforced-claims
 
@@ -527,37 +524,37 @@ Feature: JWT Authenticator - Token Schema
     """
 
   # # This scenario deals with unset variables
-  # @negative @acceptance
-  # Scenario: ONYX-10861 - Claim aliases configured but not populated - 401 Error
-  #   Given I extend the policy with:
-  #   """
-  #   - !variable conjur/authn-jwt/raw/claim-aliases
-  #   - !variable conjur/authn-jwt/raw/enforced-claims
+  @negative @acceptance
+  Scenario: ONYX-10861 - Claim aliases configured but not populated - 401 Error
+    Given I extend the policy with:
+    """
+    - !variable conjur/authn-jwt/raw/claim-aliases
+    - !variable conjur/authn-jwt/raw/enforced-claims
 
-  #   - !host
-  #     id: myapp
-  #     annotations:
-  #       authn-jwt/raw/sub: valid
+    - !host
+      id: myapp
+      annotations:
+        authn-jwt/raw/sub: valid
 
-  #   - !grant
-  #     role: !group conjur/authn-jwt/raw/hosts
-  #     member: !host myapp
-  #   """
-  #   And I am using file "authn-jwt-token-schema" and alg "RS256" for remotely issue token:
-  #   """
-  #   {
-  #     "ref":"valid",
-  #     "host":"myapp"
-  #   }
-  #   """
-  #   And I successfully set authn-jwt "enforced-claims" variable to value "ref"
-  #   And I save my place in the log file
-  #   When I authenticate via authn-jwt with the JWT token
-  #   Then the HTTP response status code is 401
-  #   And The following appears in the log after my savepoint:
-  #   """
-  #    CONJ00037E Missing value for resource: cucumber:variable:conjur/authn-jwt/raw/claim-aliases
-  #   """
+    - !grant
+      role: !group conjur/authn-jwt/raw/hosts
+      member: !host myapp
+    """
+    And I am using file "authn-jwt-token-schema" and alg "RS256" for remotely issue token:
+    """
+    {
+      "ref":"valid",
+      "host":"myapp"
+    }
+    """
+    And I successfully set authn-jwt "enforced-claims" variable to value "ref"
+    And I save my place in the log file
+    When I authenticate via authn-jwt with the JWT token
+    Then the HTTP response status code is 401
+    And The following appears in the log after my savepoint:
+    """
+     CONJ00037E Missing value for resource: cucumber:variable:conjur/authn-jwt/raw/claim-aliases
+    """
 
   @sanity
   @acceptance

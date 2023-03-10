@@ -20,12 +20,12 @@ module Authentication
             :ca_cert,
             :identity_path,
             :issuer,
-            :claim_aliases,
             :audience
 
             # moved to methods below to allow for "validation"
             # :enforced_claims,
             # :token_app_property,
+            # :claim_aliases,
           )
 
           def initialize(
@@ -54,7 +54,7 @@ module Authentication
             @issuer = issuer
             @enforced_claims = enforced_claims
             # ensure we have a string so we can split safely to generate the hash lookup
-            @claim_aliases = claim_aliases.to_s
+            @claim_aliases = claim_aliases
             @audience = audience
             @token_ttl = token_ttl
           end
@@ -69,6 +69,15 @@ module Authentication
             raise Errors::Authentication::DataObjects::InvalidTokenTTL.new(resource_id, @token_ttl)
           end
 
+          def claim_aliases
+            if @claim_aliases == ''
+              raise Errors::Conjur::RequiredSecretMissing,
+                "#{@account}:variable:conjur/authn-jwt/#{@service_id}/claim-aliases"
+            end
+
+            @claim_aliases
+          end
+
           def token_app_property
             token_app_property = @token_app_property.to_s
             # Ensure claim contain only "allowed" characters (alpha-numeric, and: "-", "_", "/", ".")
@@ -81,6 +90,11 @@ module Authentication
           end
 
           def enforced_claims
+            if @enforced_claims == ''
+              raise Errors::Conjur::RequiredSecretMissing,
+                "#{@account}:variable:conjur/authn-jwt/#{@service_id}/enforced-claims"
+            end
+
             @claims ||= begin
               claims = @enforced_claims.to_s.split(',').map(&:strip)
 
@@ -105,8 +119,8 @@ module Authentication
           def claim_aliases_lookup
             @claim_aliases_lookup ||= begin
               {}.tap do |rtn|
-                @claim_aliases.split(',').each do |claim_alias|
-                  key, value = claim_alias.split(':').map(&:strip)
+                @claim_aliases.to_s.split(',').each do |claim_alias|
+                  key, value = claim_alias.to_s.split(':').map(&:strip)
 
                   # If alias is defined multiple times
                   if rtn.key?(key)

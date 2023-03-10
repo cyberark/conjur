@@ -63,14 +63,16 @@ module DB
             "#{account}:variable:conjur/#{type}/#{service_id}/%"
           )
         ).eager(:secrets).all
-
         args_list = {}.tap do |args|
           args[:account] = account
           args[:service_id] = service_id
           variables.each do |variable|
-            next unless variable.secret
 
-            args[variable.resource_id.split('/')[-1].underscore.to_sym] = variable.secret.value
+            # If variable exists but does not have a secret, set the value to an empty string.
+            # This is used downstream for validating if a variable has been set or not, and thus,
+            # what error to raise.
+            value = variable.secret ? variable.secret.value : ''
+            args[variable.resource_id.split('/')[-1].underscore.to_sym] = value
           end
         end
 

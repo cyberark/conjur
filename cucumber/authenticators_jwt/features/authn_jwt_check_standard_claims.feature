@@ -81,40 +81,40 @@ Feature: JWT Authenticator - Check registered claim
     And I permit host "myapp" to "execute" it
     And I permit host "alice" to "execute" it
 
-  # # This is testing makes no sense.  It's verifying that a JWT authenticator
-  # # configured with an incorrect issuer will be successful.  We really want the opposite...
-  # @acceptance
-  # Scenario: ONYX-8727: Issuer configured with incorrect value, iss claim not exists in token, 200 ok
-  #   Given I extend the policy with:
-  #     """
-  #     - !policy
-  #     id: conjur/authn-jwt/raw
-  #     body:
-  #     - !variable
-  #     id: jwks-uri
-  #     - !variable
-  #     id: issuer
-  #     """
-  #   And I set the following conjur variables:
-  #     | variable_id                   | default_value                                             |
-  #     | conjur/authn-jwt/raw/jwks-uri | http://jwks_py:8090/authn-jwt-check-standard-claims/RS256 |
-  #     | conjur/authn-jwt/raw/issuer   | incorrect-value                                           |
+  # This is testing makes no sense.  It's verifying that a JWT authenticator
+  # configured with an incorrect issuer will be successful.  We really want the opposite...
+  #
+  # I'd recommend we remove this test
+  @acceptance @skip
+  Scenario: ONYX-8727: Issuer configured with incorrect value, iss claim not exists in token, 200 ok
+    Given I extend the policy with:
+      """
+      - !policy
+        id: conjur/authn-jwt/raw
+        body:
+        - !variable jwks-uri
+        - !variable issuer
+      """
+    And I set the following conjur variables:
+      | variable_id                   | default_value                                             |
+      | conjur/authn-jwt/raw/jwks-uri | http://jwks_py:8090/authn-jwt-check-standard-claims/RS256 |
+      | conjur/authn-jwt/raw/issuer   | incorrect-value                                           |
 
-  #   And I am using file "authn-jwt-check-standard-claims" and alg "RS256" for remotely issue token:
-  #     """
-  #     {
-  #       "host": "myapp",
-  #       "project_id": "myproject"
-  #     }
-  #     """
-  #   And I save my place in the audit log file
-  #   When I authenticate via authn-jwt with raw service ID
-  #   Then host "myapp" has been authorized by Conjur
-  #   And I successfully GET "/secrets/cucumber/variable/test-variable" with authorized user
-  #   And The following appears in the log after my savepoint:
-  #     """
-  #     cucumber:host:myapp successfully authenticated with authenticator authn-jwt service cucumber:webservice:conjur/authn-jwt/raw
-  #     """
+    And I am using file "authn-jwt-check-standard-claims" and alg "RS256" for remotely issue token:
+      """
+      {
+        "host": "myapp",
+        "project_id": "myproject"
+      }
+      """
+    And I save my place in the audit log file
+    When I authenticate via authn-jwt with raw service ID
+    Then host "myapp" has been authorized by Conjur
+    And I successfully GET "/secrets/cucumber/variable/test-variable" with authorized user
+    And The following appears in the log after my savepoint:
+      """
+      cucumber:host:myapp successfully authenticated with authenticator authn-jwt service cucumber:webservice:conjur/authn-jwt/raw
+      """
 
   @negative @acceptance
   Scenario: ONYX-8714: JWT token with past exp claim value, 401 Error
@@ -123,8 +123,7 @@ Feature: JWT Authenticator - Check registered claim
     - !policy
       id: conjur/authn-jwt/raw
       body:
-      - !variable
-        id: jwks-uri
+      - !variable jwks-uri
     """
     And I set the following conjur variables:
       | variable_id                     | default_value                                             |
@@ -153,8 +152,7 @@ Feature: JWT Authenticator - Check registered claim
     - !policy
       id: conjur/authn-jwt/raw
       body:
-      - !variable
-        id: jwks-uri
+      - !variable jwks-uri
     """
     And I set the following conjur variables:
       | variable_id                   | default_value                                             |
@@ -182,8 +180,7 @@ Feature: JWT Authenticator - Check registered claim
     - !policy
       id: conjur/authn-jwt/raw
       body:
-      - !variable
-        id: jwks-uri
+      - !variable jwks-uri
     """
     And I set the following conjur variables:
       | variable_id                   | default_value                                             |
@@ -212,8 +209,7 @@ CONJ00035E Failed to decode token (3rdPartyError ='#<JWT::InvalidIatError: Inval
     - !policy
       id: conjur/authn-jwt/raw
       body:
-      - !variable
-        id: jwks-uri
+      - !variable jwks-uri
     """
     And I set the following conjur variables:
       | variable_id                   | default_value                                             |
@@ -236,70 +232,66 @@ CONJ00035E Failed to decode token (3rdPartyError ='#<JWT::InvalidIatError: Inval
     """
 
   # # This is technically allowed... I don't think this should be enforced.
-  # @negative @acceptance
-  # Scenario: ONYX-8718: issuer configured but not set, iss claim exists in token, 401 Error
-  #   Given I extend the policy with:
-  #     """
-  #     - !policy
-  #     id: conjur/authn-jwt/raw
-  #     body:
-  #     - !variable
-  #     id: jwks-uri
-  #     - !variable
-  #     id: issuer
-  #     """
-  #   And I set the following conjur variables:
-  #     | variable_id                   | default_value                                             |
-  #     | conjur/authn-jwt/raw/jwks-uri | http://jwks_py:8090/authn-jwt-check-standard-claims/RS256 |
+  # Also, seeing an issue where the second policy does not appear to be applied...
+  @negative @acceptance
+  Scenario: ONYX-8718: issuer configured but not set, iss claim exists in token, 401 Error
+    Given I extend the policy with:
+      """
+      - !policy
+        id: conjur/authn-jwt/raw
+        body:
+        - !variable jwks-uri
+        - !variable issuer
+      """
+    And I set the following conjur variables:
+      | variable_id                   | default_value                                             |
+      | conjur/authn-jwt/raw/jwks-uri | http://jwks_py:8090/authn-jwt-check-standard-claims/RS256 |
 
-  #   And I am using file "authn-jwt-check-standard-claims" and alg "RS256" for remotely issue token:
-  #     """
-  #     {
-  #       "host": "myapp",
-  #       "project_id": "myproject",
-  #       "iss": "issuer"
-  #     }
-  #     """
-  #   And I save my place in the audit log file
-  #   When I authenticate via authn-jwt with the JWT token
-  #   Then the HTTP response status code is 401
-  #   And The following appears in the log after my savepoint:
-  #     """
-  #     CONJ00037E Missing value for resource: cucumber:variable:conjur/authn-jwt/raw/issuer
-  #     """
+    And I am using file "authn-jwt-check-standard-claims" and alg "RS256" for remotely issue token:
+      """
+      {
+        "host": "myapp",
+        "project_id": "myproject",
+        "iss": "issuer"
+      }
+      """
+    And I save my place in the audit log file
+    When I authenticate via authn-jwt with the JWT token
+    Then the HTTP response status code is 401
+    And The following appears in the log after my savepoint:
+      """
+      CONJ00037E Missing value for resource: cucumber:variable:conjur/authn-jwt/raw/issuer
+      """
 
-  # # This is technically allowed... I don't think this should be enforced.
-  # # This is a weird variation of the above.
-  # @acceptance
-  # Scenario: ONYX-8719: issuer configured but not set, iss claim not exists in token, 200 ok
-  #   Given I extend the policy with:
-  #     """
-  #     - !policy
-  #     id: conjur/authn-jwt/raw
-  #     body:
-  #     - !variable
-  #     id: jwks-uri
-  #     - !variable
-  #     id: issuer
-  #     """
-  #   And I set the following conjur variables:
-  #     | variable_id                   | default_value                                             |
-  #     | conjur/authn-jwt/raw/jwks-uri | http://jwks_py:8090/authn-jwt-check-standard-claims/RS256 |
+  # # This kind of a weird test.  It checks for issuer being defined but not set.
+  @acceptance
+  Scenario: ONYX-8719: issuer configured but not set, iss claim not exists in token, 200 ok
+    Given I extend the policy with:
+      """
+      - !policy
+        id: conjur/authn-jwt/raw
+        body:
+        - !variable jwks-uri
+        - !variable issuer
+      """
+    And I set the following conjur variables:
+      | variable_id                   | default_value                                             |
+      | conjur/authn-jwt/raw/jwks-uri | http://jwks_py:8090/authn-jwt-check-standard-claims/RS256 |
 
-  #   And I am using file "authn-jwt-check-standard-claims" and alg "RS256" for remotely issue token:
-  #     """
-  #     {
-  #       "host": "myapp",
-  #       "project_id": "myproject"
-  #     }
-  #     """
-  #   And I save my place in the audit log file
-  #   When I authenticate via authn-jwt with the JWT token
-  #   Then the HTTP response status code is 401
-  #   And The following appears in the log after my savepoint:
-  #     """
-  #     CONJ00037E Missing value for resource: cucumber:variable:conjur/authn-jwt/raw/issuer
-  #     """
+    And I am using file "authn-jwt-check-standard-claims" and alg "RS256" for remotely issue token:
+      """
+      {
+        "host": "myapp",
+        "project_id": "myproject"
+      }
+      """
+    And I save my place in the audit log file
+    When I authenticate via authn-jwt with the JWT token
+    Then the HTTP response status code is 401
+    And The following appears in the log after my savepoint:
+      """
+      CONJ00037E Missing value for resource: cucumber:variable:conjur/authn-jwt/raw/issuer
+      """
 
   @acceptance
   Scenario: ONYX-8728: jwks-uri configured with correct value, issuer configured with correct value, iss claim with correct value, 200 OK
@@ -308,11 +300,8 @@ CONJ00035E Failed to decode token (3rdPartyError ='#<JWT::InvalidIatError: Inval
     - !policy
       id: conjur/authn-jwt/raw
       body:
-      - !variable
-        id: jwks-uri
-
-      - !variable
-        id: issuer
+      - !variable jwks-uri
+      - !variable issuer
     """
     And I set the following conjur variables:
       | variable_id                   | default_value                                             |
@@ -343,11 +332,8 @@ CONJ00035E Failed to decode token (3rdPartyError ='#<JWT::InvalidIatError: Inval
     - !policy
       id: conjur/authn-jwt/raw
       body:
-      - !variable
-        id: jwks-uri
-
-      - !variable
-        id: issuer
+      - !variable jwks-uri
+      - !variable issuer
     """
     And I set the following conjur variables:
       | variable_id                   | default_value                                             |
@@ -378,11 +364,8 @@ CONJ00035E Failed to decode token (3rdPartyError ='#<JWT::InvalidIatError: Inval
     - !policy
       id: conjur/authn-jwt/raw
       body:
-      - !variable
-        id: jwks-uri
-
-      - !variable
-        id: issuer
+      - !variable jwks-uri
+      - !variable issuer
     """
     And I set the following conjur variables:
       | variable_id                   | default_value   |

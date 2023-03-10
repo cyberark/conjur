@@ -37,7 +37,27 @@ module Authentication
               "jwks-uri and provider-uri cannot be defined simultaneously"
           end
 
+          if @authenticator.issuer == ''
+            raise Errors::Conjur::RequiredSecretMissing,
+              "#{@authenticator.account}:variable:conjur/authn-jwt/#{@authenticator.service_id}/issuer"
+          end
+
+          # Need to trigger an error if this variable is present, but has not been set...
+          # TODO: fix with validation
+          @authenticator.claim_aliases
+          # binding.pry
+
+          if @authenticator.jwks_uri == '' && @authenticator.provider_uri.nil? && @authenticator.public_keys.nil?
+            raise Errors::Conjur::RequiredSecretMissing,
+              "#{@authenticator.account}:variable:conjur/authn-jwt/#{@authenticator.service_id}/jwks-uri"
+          end
+
           if @authenticator.jwks_uri.blank? && @authenticator.provider_uri.blank? && @authenticator.public_keys.blank?
+            if @authenticator.jwks_uri.nil? && @authenticator.provider_uri.nil? && @authenticator.public_keys.nil?
+              raise Errors::Authentication::AuthnJwt::InvalidSigningKeySettings,
+                'One of the following must be defined: jwks-uri, public-keys, or provider-uri'
+            end
+
             raise Errors::Authentication::AuthnJwt::InvalidSigningKeySettings,
               'Failed to find a JWT decode option. Either `jwks-uri` or `public-keys` variable must be set'
           end
@@ -64,6 +84,8 @@ module Authentication
               keys = @json.parse(@authenticator.public_keys)&.deep_symbolize_keys
               hash[:jwks] = keys[:value]
             elsif @authenticator.provider_uri.present?
+              # If we're validating with Provider URI, it means we're operating
+              # against an OIDC enpoint.
               begin
                 if @authenticator.issuer.present?
                   hash[:iss] = @authenticator.issuer

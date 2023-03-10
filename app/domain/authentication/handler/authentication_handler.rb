@@ -123,6 +123,10 @@ module Authentication
       end
 
       def handle_error(err)
+        # Log authentication errors (but don't raise...)
+        authentication_error = LogMessages::Authentication::AuthenticationError.new(err.inspect)
+        @logger.info(authentication_error)
+
         @logger.info("#{err.class.name}: #{err.message}")
         err.backtrace.each {|l| @logger.info(l) }
 
