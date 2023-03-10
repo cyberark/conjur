@@ -4,6 +4,24 @@ module Authentication
   module AuthnJwt
     module V2
       module DataObjects
+        class AuthenticatorContract < Dry::Validation::Contract
+          schema do
+            required(:account).value(:string)
+            required(:service_id).value(:string)
+
+            optional(:jwks_uri).value(:string)
+            optional(:public_keys).value(:string)
+            optional(:ca_cert).value(:string)
+            optional(:token_app_property).value(:string)
+            optional(:identity_path).value(:string)
+            optional(:issuer).value(:string)
+            optional(:enforced_claims).value(:string)
+            optional(:claim_aliases).value(:string)
+            optional(:audience).value(:string)
+            optional(:token_ttl).value(:string)
+            optional(:provider_uri).value(:string)
+          end
+        end
         class Authenticator
 
           DENYLIST = %w[iss exp nbf iat jti aud].freeze
