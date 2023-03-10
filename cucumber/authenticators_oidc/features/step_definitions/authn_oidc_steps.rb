@@ -37,26 +37,35 @@ Given(/I fetch a code for username "([^"]*)" and password "([^"]*)" from "([^"]*
   params.delete('code_challenge_method')
   redirect_uri.query = URI.encode_www_form(params)
 
-  res = Net::HTTP.get_response(redirect_uri)
-  raise res if res.is_a?(Net::HTTPError) || res.is_a?(Net::HTTPClientError)
+  http = Net::HTTP.new(redirect_uri.host, redirect_uri.port)
+  # Enable SSL support
+  http.use_ssl = true
+  # Don't verify (to simplify self-signed certificate)
+  http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+  request = Net::HTTP::Get.new("#{redirect_uri.path}?#{redirect_uri.query}")
+  response = http.request(request)
 
-  all_cookies = res.get_fields('set-cookie')
+  raise response if response.is_a?(Net::HTTPError) || response.is_a?(Net::HTTPClientError)
+
+  all_cookies = response.get_fields('set-cookie')
   cookies_arrays = Array.new
   all_cookies.each do |cookie|
     cookies_arrays.push(cookie.split('; ')[0])
   end
 
-  html = Nokogiri::HTML(res.body)
+  html = Nokogiri::HTML(response.body)
   post_uri = URI(html.xpath('//form').first.attributes['action'].value)
 
   http = Net::HTTP.new(post_uri.host, post_uri.port)
   http.use_ssl = true
+  http.verify_mode = OpenSSL::SSL::VERIFY_NONE
   request = Net::HTTP::Post.new(post_uri.request_uri)
   request['Cookie'] = cookies_arrays.join('; ')
   request.set_form_data({ 'username' => username, 'password' => password })
 
   response = http.request(request)
 
+  @scenario_context.set(:code, nil)
   if response.is_a?(Net::HTTPRedirection)
     parse_oidc_code(response['location']).each do |key, value|
       @scenario_context.set(key, value)
@@ -129,7 +138,7 @@ When(/^I authenticate via OIDC V2 with code "([^"]*)"$/) do |code|
     account: AuthnOidcHelper::ACCOUNT,
     code: code,
     nonce: @scenario_context.get(:nonce),
-    code_verifier: @scenario_context.get(:code_verifier)
+    code_verifier: @scenario_context.key?(:code_verifier) ? @scenario_context.get(:code_verifier) : nil
   )
 end
 
@@ -139,7 +148,7 @@ When(/^I authenticate via OIDC V2 with no code in the request$/) do
     account: AuthnOidcHelper::ACCOUNT,
     code: nil,
     nonce: @scenario_context.get(:nonce),
-    code_verifier: @scenario_context.get(:code_verifier)
+    code_verifier: @scenario_context.key?(:code_verifier) ? @scenario_context.get(:code_verifier) : nil
   )
 end
 
