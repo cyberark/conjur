@@ -267,6 +267,13 @@ Feature: Fetching secrets from edge endpoint
     When I successfully GET "/edge/secrets/cucumber?count=true"
     Then I receive a count of 6
 
+  @acceptance
+  Scenario: Fetching secrets count with limit has no effect
+
+    Given I login as "host/edge/edge-abcd1234567890/edge-host-abcd1234567890"
+    When I successfully GET "/edge/secrets/cucumber?count=true&limit=2&offset=0"
+    Then I receive a count of 6
+
   # Hosts
   #######
 
@@ -345,6 +352,13 @@ Feature: Fetching secrets from edge endpoint
 
     Given I login as "host/edge/edge-abcd1234567890/edge-host-abcd1234567890"
     When I successfully GET "/edge/hosts/cucumber?count=true"
+    Then I receive a count of 5
+
+  @acceptance
+  Scenario: Fetching hosts count with limit has no effect
+
+    Given I login as "host/edge/edge-abcd1234567890/edge-host-abcd1234567890"
+    When I successfully GET "/edge/hosts/cucumber?count=true&limit=2&offset=0"
     Then I receive a count of 5
 
 
