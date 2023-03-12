@@ -8,14 +8,18 @@ class EdgeController < RestController
       .slice(*allowed_params).to_h.symbolize_keys
     begin
       verify_edge_host(options)
-      offset = options[:offset]
-      limit = options[:limit]
-      validate_scope(limit, offset)
       scope = Resource.where(:resource_id.like(options[:account]+":variable:data/%"))
-      scope = scope.order(:resource_id).limit(
-        (limit || 1000).to_i,
-        (offset || 0).to_i
-      )
+      if params[:count] == 'true'
+        sumItems = scope.count('*'.lit)
+      else
+        offset = options[:offset]
+        limit = options[:limit]
+        validate_scope(limit, offset)
+        scope = scope.order(:resource_id).limit(
+          (limit || 1000).to_i,
+          (offset || 0).to_i
+        )
+      end
     rescue ApplicationController::Forbidden
       raise
     rescue ArgumentError => e
@@ -23,7 +27,7 @@ class EdgeController < RestController
     end
 
     if params[:count] == 'true'
-      results = { count: scope.count('*'.lit) }
+      results = { count: sumItems }
       render(json: results)
     else
       results = []
@@ -49,21 +53,25 @@ class EdgeController < RestController
                     .slice(*allowed_params).to_h.symbolize_keys
     begin
       verify_edge_host(options)
-      offset = options[:offset]
-      limit = options[:limit]
-      validate_scope(limit, offset)
       scope = Role.where(:role_id.like(options[:account]+":host:data/%"))
-      scope = scope.order(:role_id).limit(
-        (limit || 1000).to_i,
-        (offset || 0).to_i
-      )
+      if params[:count] == 'true'
+        sumItems = scope.count('*'.lit)
+      else
+        offset = options[:offset]
+        limit = options[:limit]
+        validate_scope(limit, offset)
+        scope = scope.order(:role_id).limit(
+          (limit || 1000).to_i,
+          (offset || 0).to_i
+        )
+      end
     rescue ApplicationController::Forbidden
       raise
     rescue ArgumentError => e
       raise ApplicationController::UnprocessableEntity, e.message
     end
     if params[:count] == 'true'
-      results = { count: scope.count('*'.lit) }
+      results = { count: sumItems }
       render(json: results)
     else
       results = []
