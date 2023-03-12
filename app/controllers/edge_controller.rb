@@ -2,6 +2,30 @@
 
 class EdgeController < RestController
 
+  def slosilo_keys
+    allowed_params = %i[account]
+    options = params.permit(*allowed_params).to_h.symbolize_keys
+    begin
+      verify_edge_host(options)
+    rescue ApplicationController::Forbidden
+      raise
+    end
+    account = options[:account]
+    key_id = "authn:" + account
+
+    key = Slosilo[key_id]
+    if key.nil?
+      raise RecordNotFound, "No Slosilo key in DB"
+    end
+
+    private_key = key.to_der.unpack("H*")[0]
+    fingerprint = key.fingerprint
+    variable_to_return = {}
+    variable_to_return[:privateKey] = private_key
+    variable_to_return[:fingerprint] = fingerprint
+    render(json: {"slosiloKeys":[variable_to_return]})
+  end
+
   def all_secrets
     allowed_params = %i[account limit offset]
     options = params.permit(*allowed_params)
@@ -106,10 +130,11 @@ class EdgeController < RestController
   end
 
   def verify_edge_host(options)
+    raise Forbidden unless %w[conjur cucumber rspec].include?(options[:account])
     raise Forbidden unless current_user.kind == 'host'
-    raise Forbidden unless current_user.role_id.include? "host:edge/edge"
+    raise Forbidden unless current_user.role_id.include?("host:edge/edge")
     role = Role[options[:account] + ':group:edge/edge-hosts']
-    raise Forbidden unless role && role.ancestor_of?(current_user)
+    raise Forbidden unless role&.ancestor_of?(current_user)
   end
 
   def hmac_api_key(host, salt)
