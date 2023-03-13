@@ -11,18 +11,6 @@ module Authentication
         end
 
         def call(identifier:, account:, allowed_roles:, id: nil)
-          # Verify that none of the core claims are defined. TODO: This would be much
-          # better handled when an authenticator is defined...
-
-          if @authenticator.enforced_claims.any?
-            (@authenticator.enforced_claims & @authenticator.denylist).each do |claim|
-              raise Errors::Authentication::AuthnJwt::FailedToValidateClaimClaimNameInDenyList.new(
-                claim,
-                @authenticator.denylist
-              )
-            end
-          end
-
           # User ID should only be present without `token-app-property` because
           # we'll use the id to lookup the host/user
           if id.present? && @authenticator.token_app_property.present?

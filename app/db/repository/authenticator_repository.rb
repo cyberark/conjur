@@ -81,7 +81,7 @@ module DB
           contract = Authentication::AuthnJwt::V2::DataObjects::AuthenticatorContract.new
           result = contract.call(args_list)
           if result.success?
-            @data_object.new(**args_list)
+            @data_object.new(**result.to_h)
           else
             # If contract fails, raise the defined exception...
             errors = result.errors.to_h
@@ -89,6 +89,10 @@ module DB
 
             _, key_errors = errors.first
             key_error = key_errors.first
+            if key_error[:args].present?
+              raise(key_error[:exception].new(*key_error[:args].values))
+            end
+
             raise(key_error[:exception], key_error[:text])
           end
 
