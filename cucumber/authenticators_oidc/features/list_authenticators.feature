@@ -1,9 +1,13 @@
 @authenticators_oidc
 Feature: A user can view the various authenticators they can use.
 
+  Background:
+    Given the following environment variables are available:
+      | context_variable   | environment_variable | default_value |
+      | oidc_provider_uri  | OKTA_PROVIDER_URI    |               |
+
   @smoke
   Scenario: List readable authenticators
-
     Given I load a policy:
     """
     - !policy
@@ -74,20 +78,19 @@ Feature: A user can view the various authenticators they can use.
       role: !group conjur/authn-oidc/oidceast/authenticatable
       member: !group secrets-fetchers
     """
-    Then I can add a provider-url to variable resource "conjur/authn-oidc/oidceast/provider-uri"
-    Then I can add a secret to variable resource "conjur/authn-oidc/oidceast/client-id"
-    Then I can add a secret to variable resource "conjur/authn-oidc/oidceast/client-secret"
-    Then I can add the secret "oidceast" resource "conjur/authn-oidc/oidceast/name"
-    Then I can add a secret to variable resource "conjur/authn-oidc/oidceast/claim-mapping"
-    Then I can add a secret to variable resource "conjur/authn-oidc/oidceast/nonce"
-    Then I can add a secret to variable resource "conjur/authn-oidc/oidceast/state"
-    Then I can add a provider-url to variable resource "conjur/authn-oidc/okta/provider-uri"
-    Then I can add a secret to variable resource "conjur/authn-oidc/okta/client-id"
-    Then I can add the secret "okta" resource "conjur/authn-oidc/okta/name"
-    Then I can add a secret to variable resource "conjur/authn-oidc/okta/client-secret"
-    Then I can add a secret to variable resource "conjur/authn-oidc/okta/claim-mapping"
-    Then I can add a secret to variable resource "conjur/authn-oidc/okta/nonce"
-    Then I can add a secret to variable resource "conjur/authn-oidc/okta/state"
-    When I log in as user "admin"
+
+    And I set the following conjur variables:
+      | variable_id                               | context_variable  | default_value       |
+      | conjur/authn-oidc/oidceast/provider-uri   | oidc_provider_uri |                     |
+      | conjur/authn-oidc/oidceast/client-id      |                   | foo-bar             |
+      | conjur/authn-oidc/oidceast/client-secret  |                   | foo-bar             |
+      | conjur/authn-oidc/oidceast/name           |                   | oidceast            |
+      | conjur/authn-oidc/oidceast/claim-mapping  |                   | preferred_username  |
+      | conjur/authn-oidc/okta/provider-uri       | oidc_provider_uri |                     |
+      | conjur/authn-oidc/okta/client-id          |                   | foo-bar             |
+      | conjur/authn-oidc/okta/client-secret      |                   | foo-bar             |
+      | conjur/authn-oidc/okta/name               |                   | okta                |
+      | conjur/authn-oidc/okta/claim-mapping      |                   | preferred_username  |
+
     Then the list of authenticators contains the service-id "oidceast"
     Then the list of authenticators contains the service-id "okta"

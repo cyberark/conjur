@@ -47,7 +47,7 @@ module Conjur
       Sequel.extension(:core_extensions, :postgres_schemata)
       Sequel::Model.db.extension(:pg_array, :pg_inet)
     end
-    
+
     #The default connection pool does not support closing connections.
     # We must be able to close connections on demand to clear the connection cache
     # after policy loads [cyberark/conjur#2584](https://github.com/cyberark/conjur/pull/2584)
@@ -55,7 +55,7 @@ module Conjur
     # Sequel is configured to use the ShardedThreadedConnectionPool by setting the servers configuration on
     # the database connection [docs](https://www.rubydoc.info/github/jeremyevans/sequel/Sequel%2FShardedThreadedConnectionPool:servers)
     config.sequel.servers = {}
-    
+
     config.encoding = "utf-8"
     config.active_support.escape_html_entities_in_json = true
 
@@ -73,14 +73,5 @@ module Conjur
     config.anyway_config.future.unwrap_known_environments = true
 
     config.anyway_config.default_config_path = "/etc/conjur/config"
-
-    # Create a single instance of the ConjurConfig object for this process that
-    # loads configuration on server startup. This prevents config values from
-    # being loaded fresh every time a ConjurConfig object is instantiated, which
-    # could lead to inconsistent behavior.
-    #
-    # We create this in application.rb instead of an initializer so that it's
-    # guaranteed to be available for other initializers to use.
-    config.conjur_config = Conjur::ConjurConfig.new
   end
 end

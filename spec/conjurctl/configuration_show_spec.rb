@@ -33,8 +33,8 @@ describe "conjurctl configuration show" do
       "conjurctl configuration show --output invalid"
     )
 
-    expect(stderr).to eq(
-      "error: Unknown configuration output format 'invalid'\n"
+    expect(stderr).to include(
+      "error: Unknown configuration output format 'invalid'"
     )
   end
 
@@ -43,8 +43,8 @@ describe "conjurctl configuration show" do
       "CONJUR_TRUSTED_PROXIES=boop conjurctl configuration show"
     )
 
-    expect(stderr).to eq(
-      "Invalid values for configured attributes: trusted_proxies\n"
+    expect(stderr).to include(
+      "Invalid values for configured attributes: trusted_proxies"
     )
 
     expect(status.exitstatus).to eq(1)

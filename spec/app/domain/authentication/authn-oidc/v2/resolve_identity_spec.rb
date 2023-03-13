@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe(' Authentication::AuthnOidc::V2::ResolveIdentity') do
+RSpec.describe('Authentication::AuthnOidc::V2::ResolveIdentity', :type => 'unit') do
   let(:resolve_identity) do
     Authentication::AuthnOidc::V2::ResolveIdentity.new
   end
@@ -91,6 +91,5 @@ RSpec.describe(' Authentication::AuthnOidc::V2::ResolveIdentity') do
         )
       end
     end
-
   end
 end

@@ -7,7 +7,7 @@ RSpec.describe(' Authentication::AuthnOidc::PkceSupportFeature::ResolveIdentity'
     Authentication::AuthnOidc::PkceSupportFeature::ResolveIdentity.new
   end
 
-  describe('#call') do
+  describe('#call', :type => 'unit') do
     let(:valid_role) do
       instance_double(::Role).tap do |double|
         allow(double).to receive(:id).and_return('rspec:user:alice')

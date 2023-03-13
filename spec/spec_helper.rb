@@ -96,7 +96,6 @@ def secret_logged?(secret)
 
   # Remaining possibilities are 0 and 1, secret found or not found.
   exit_status == 0
-
 end
 
 # Creates valid access token for the given username.
@@ -149,4 +148,15 @@ def conjur_server_dir
 
   # Navigate from its directory (/bin) to the root Conjur server directory
   Pathname.new(File.join(File.dirname(conjurctl_path), '..')).cleanpath
+end
+
+# Allows running a block of test code as another user.
+# For example, to run a block without root privileges.
+def as_user(user, &block)
+  prev = Process.uid
+  u = Etc.getpwnam(user)
+  Process.uid = Process.euid = u.uid
+  block.call
+ensure
+  Process.uid = Process.euid = prev
 end
