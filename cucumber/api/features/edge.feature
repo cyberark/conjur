@@ -51,7 +51,7 @@ Feature: Fetching secrets from edge endpoint
   # Secrets
   #########
 
-  @acceptance
+  @acceptance @smoke
   Scenario: Fetching all secrets with edge host return 200 OK with json results
 
     Given I login as "host/edge/edge-abcd1234567890/edge-host-abcd1234567890"
@@ -277,7 +277,7 @@ Feature: Fetching secrets from edge endpoint
   # Hosts
   #######
 
-  @acceptance
+  @acceptance @smoke
   Scenario: Fetching hosts with edge host return 200 OK
 
     Given I login as "host/edge/edge-abcd1234567890/edge-host-abcd1234567890"
