@@ -12,7 +12,6 @@ describe EdgeController, :type => :request do
   let(:update_slosilo_key_url) do
     "/edge/slosilo_key/#{account}"
   end
-
   let(:token_auth_header) do
     bearer_token = Slosilo["authn:#{account}"].signed_token(current_user.login)
     token_auth_str =
@@ -22,6 +21,7 @@ describe EdgeController, :type => :request do
 
   context "slosilo key in DB" do
     it "Slosilo key equals to key in DB" do
+      #add edge host to group:edge
       Role.create(role_id: "#{account}:group:edge/edge-hosts")
       Role.create(role_id: "#{account}:host:edge/edge")
       RoleMembership.create(role_id: "#{account}:group:edge/edge-hosts", member_id: "#{account}:host:edge/edge", admin_option: false, ownership:false)
@@ -32,11 +32,11 @@ describe EdgeController, :type => :request do
       key = Slosilo["authn:#{account}"]
       private_key = key.to_der.unpack("H*")[0]
       fingerprint = key.fingerprint
-
       expected = {"slosiloKeys" => [{"privateKey"=> private_key,"fingerprint"=>fingerprint}]}
       response_json = JSON.parse(response.body)
+    
       expect(response_json).to include(expected)
     end
   end
-
 end
+
