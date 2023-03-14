@@ -2,6 +2,31 @@
 
 class EdgeController < RestController
 
+  def slosilo_key
+    allowed_params = %i[account]
+    options = params.permit(*allowed_params)
+                    .slice(*allowed_params).to_h.symbolize_keys
+    begin
+      verify_edge_host(options)
+    rescue ApplicationController::Forbidden
+      raise
+    end
+    account = options[:account]
+    keyId = "authn:" + account
+    
+    key = Slosilo[keyId]
+    if key.nil?
+      raise RecordNotFound, "No Slosilo key in DB"
+    end
+
+    private_key = key.to_der.unpack("H*")[0]
+    fingerprint = key.fingerprint
+    variableToReturn = {}
+    variableToReturn[:privateKey] = private_key
+    variableToReturn[:fingerprint] = fingerprint
+    render(json: {"slosiloKeys":[variableToReturn]})
+  end
+
   def all_secrets
     allowed_params = %i[account limit offset]
     options = params.permit(*allowed_params)
