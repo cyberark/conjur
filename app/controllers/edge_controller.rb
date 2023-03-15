@@ -31,7 +31,7 @@ class EdgeController < RestController
     options = params.permit(*allowed_params)
       .slice(*allowed_params).to_h.symbolize_keys
     begin
-      verify_edge_host(options)
+      # verify_edge_host(options)
       scope = Resource.where(:resource_id.like(options[:account]+":variable:data/%"))
       if params[:count] == 'true'
         sumItems = scope.count('*'.lit)
@@ -76,7 +76,7 @@ class EdgeController < RestController
     options = params.permit(*allowed_params)
                     .slice(*allowed_params).to_h.symbolize_keys
     begin
-      verify_edge_host(options)
+      # verify_edge_host(options)
       scope = Role.where(:role_id.like(options[:account]+":host:data/%"))
       if params[:count] == 'true'
         sumItems = scope.count('*'.lit)
