@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
+## [0.0.5-cloud] - 2023-03-15
+### Changed
+- Add get SlosiloKey api
+
 ## [0.0.4-cloud] - 2023-03-12
 ### Changed
 - Change count=true not to consider limit and sum all  
