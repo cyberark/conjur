@@ -95,6 +95,15 @@ Given(/^I add the secret value(?: "([^"]*)")? to the resource(?: "([^"]*)")?$/) 
   Secret.create(resource_id: resource_id, value: value)
 end
 
+Given(/^I revert the value of the resource(?: "([^"]*)")?$/) do |resource_id|
+  variable = Resource[resource_id]
+  # Create a new secret with the value of the previous secret
+  Secret.create(
+    resource_id: resource_id,
+    value: variable.secret(version: variable.last_secret.version - 1).value
+  )
+end
+
 Given(/^I permit (user|host) "([^"]*)" to "([^"]*)" it$/) do |role_type, grantee, privilege|
   grantee = role_type == "user" ? lookup_user(grantee) : lookup_host(grantee)
 

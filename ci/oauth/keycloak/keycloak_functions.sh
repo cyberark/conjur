@@ -18,7 +18,7 @@ function _hydrate_keycloak_env_args() {
   # shellcheck disable=SC2034
   arr=(
     "${keycloak_items[@]}"
-    "PROVIDER_URI=https://keycloak:8443/auth/realms/master"
+    "KEYCLOAK_PROVIDER_URI=https://keycloak:8443/auth/realms/master"
     "PROVIDER_INTERNAL_URI=http://keycloak:8080/auth/realms/master/protocol/openid-connect"
     "PROVIDER_ISSUER=http://keycloak:8080/auth/realms/master"
     "ID_TOKEN_USER_PROPERTY=preferred_username"

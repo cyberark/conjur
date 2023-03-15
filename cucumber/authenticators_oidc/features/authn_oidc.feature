@@ -7,7 +7,16 @@ Feature: OIDC Authenticator - Hosts can authenticate with OIDC authenticator
   Authenticator, but that it can retrieve a secret using the Conjur access token.
 
   Background:
-    Given I load a policy:
+    Given the following environment variables are available:
+      | context_variable            | environment_variable   | default_value                                                    |
+      | oidc_provider_internal_uri  | PROVIDER_INTERNAL_URI  | http://keycloak:8080/auth/realms/master/protocol/openid-connect  |
+      | oidc_scope                  | KEYCLOAK_SCOPE         | openid                                                           |
+      | oidc_client_id              | KEYCLOAK_CLIENT_ID     | conjurClient                                                     |
+      | oidc_client_secret          | KEYCLOAK_CLIENT_SECRET | 1234                                                             |
+      | oidc_provider_uri           | PROVIDER_URI           | https://keycloak:8443/auth/realms/master                         |
+      | oidc_id_token_user_property | ID_TOKEN_USER_PROPERTY | preferred_username                                               |
+
+    And I load a policy:
     """
     - !policy
       id: conjur/authn-oidc/keycloak
@@ -35,8 +44,10 @@ Feature: OIDC Authenticator - Hosts can authenticate with OIDC authenticator
       role: !group conjur/authn-oidc/keycloak/users
       member: !user alice
     """
-    And I am the super-user
-    And I successfully set OIDC variables
+    And I set the following conjur variables:
+      | variable_id                                       | context_variable            |
+      | conjur/authn-oidc/keycloak/id-token-user-property | oidc_id_token_user_property |
+      | conjur/authn-oidc/keycloak/provider-uri           | oidc_provider_uri           |
 
   @smoke
   Scenario: A valid id token in header to get Conjur access token
@@ -214,7 +225,7 @@ Feature: OIDC Authenticator - Hosts can authenticate with OIDC authenticator
     And I authenticate via OIDC with id token
     Then it is unauthorized
     # Check recovery to a valid provider uri
-    When I successfully set OIDC variables
+    And I revert the value of the resource "cucumber:variable:conjur/authn-oidc/keycloak/provider-uri"
     And I fetch an ID Token for username "alice" and password "alice"
     And I authenticate via OIDC with id token
     Then user "alice" has been authorized by Conjur

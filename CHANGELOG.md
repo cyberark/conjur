@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
+## [0.0.4-cloud] - 2023-03-12
+### Changed
+- Change count=true not to consider limit and sum all  
+
+## [0.0.3-cloud] - 2023-03-06
+### Changed
+- Change edge group name
+
+## [0.0.2-cloud] - 2023-03-06
+### Added
+- Edge host endpoint and secret endpoint
+
 ## [0.0.1-cloud] - 2022-01-13
 ### Changed
 - Remove auto-release options to allow for a pseudo-fork development on a branch
@@ -27,6 +39,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   to decrypt a secret value with Slosilo/OpenSSL.
   [cyberark/slosilo#31](https://github.com/cyberark/slosilo/pull/31)
   [cyberark/conjur#2718](https://github.com/cyberark/conjur/pull/2718)
+
+### Security
+- Updated github-pages version in docs/Gemfile to allow upgrading activesupport
+  to v7.0.4.2 to resolve CVE-2022-22796
+  [cyberark/conjur#2729](https://github.com/cyberark/conjur/pull/2729)
+- Upgraded rack to v2.2.6.3 to resolve CVE-2023-27530
+  [cyberark/conjur#2739](https://github.com/cyberark/conjur/pull/2739)
 
 ## [1.19.2] - 2022-01-13
 

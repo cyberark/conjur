@@ -1,6 +1,12 @@
 @authenticators_oidc
 Feature: OIDC Authenticator - Status Check
 
+  Background:
+    Given the following environment variables are available:
+      | context_variable           | environment_variable   | default_value                                                   |
+      | oidc_provider_uri          | PROVIDER_URI           | https://keycloak:8443/auth/realms/master                        |
+      | oidc_claim_mapping         | ID_TOKEN_USER_PROPERTY | preferred_username                                              |
+
   @smoke
   Scenario: A properly configured OIDC authenticator returns a successful response
     Given I load a policy:
@@ -50,8 +56,11 @@ Feature: OIDC Authenticator - Status Check
       role: !group conjur/authn-oidc/keycloak/managers
       member: !user alice
     """
-    And I am the super-user
-    And I successfully set OIDC variables
+    And I set the following conjur variables:
+      | variable_id                                       | context_variable   | default_value  |
+      | conjur/authn-oidc/keycloak/provider-uri           | oidc_provider_uri  |                |
+      | conjur/authn-oidc/keycloak/id-token-user-property | oidc_claim_mapping |                |
+
     And I login as "alice"
     When I GET "/authn-oidc/keycloak/cucumber/status"
     Then the HTTP response status code is 200
@@ -107,9 +116,11 @@ Feature: OIDC Authenticator - Status Check
       role: !group conjur/authn-oidc/keycloak/managers
       member: !user alice
     """
-    And I am the super-user
-    And I successfully set id-token-user-property variable
-    And I successfully set provider-uri variable to value "https://not-responsive.com"
+    And I set the following conjur variables:
+      | variable_id                                       | context_variable    | default_value               |
+      | conjur/authn-oidc/keycloak/provider-uri           |                     | https://not-responsive.com  |
+      | conjur/authn-oidc/keycloak/id-token-user-property | oidc_claim_mapping  |                             |
+
     And I login as "alice"
     When I GET "/authn-oidc/keycloak/cucumber/status"
     Then the HTTP response status code is 500
@@ -161,8 +172,9 @@ Feature: OIDC Authenticator - Status Check
       role: !group conjur/authn-oidc/keycloak/managers
       member: !user alice
     """
-    And I am the super-user
-    And I successfully set id-token-user-property variable
+    And I set the following conjur variables:
+      | variable_id                                       | context_variable   | default_value |
+      | conjur/authn-oidc/keycloak/id-token-user-property | oidc_claim_mapping |               |
     And I login as "alice"
     When I GET "/authn-oidc/keycloak/cucumber/status"
     Then the HTTP response status code is 500
@@ -214,8 +226,9 @@ Feature: OIDC Authenticator - Status Check
       role: !group conjur/authn-oidc/keycloak/managers
       member: !user alice
     """
-    And I am the super-user
-    And I successfully set provider-uri variable
+    And I set the following conjur variables:
+      | variable_id                                       | context_variable   | default_value |
+      | conjur/authn-oidc/keycloak/provider-uri           | oidc_provider_uri  |               |
     And I login as "alice"
     When I GET "/authn-oidc/keycloak/cucumber/status"
     Then the HTTP response status code is 500
@@ -268,13 +281,7 @@ Feature: OIDC Authenticator - Status Check
       role: !group conjur/authn-oidc/managers
       member: !user alice
     """
-    And I am the super-user
     And I login as "alice"
     When I GET "/authn-oidc/cucumber/status"
     Then the HTTP response status code is 500
     And the authenticator status check fails with error "Errors::Authentication::AuthnOidc::ServiceIdMissing"
-
-  # TODO: add these tests when issue #1085 is done
-#  Scenario: provider-uri value has not been set and a 500 error response is returned
-#  Scenario: id-token-user-property value has not been set and a 500 error response is returned
-

@@ -31,21 +31,13 @@ module Rotation
             .select { |x| x['access_key_id'] != creds.access_key_id }
             .each { |x| client.delete_access_key(access_key_id: x['access_key_id']) }
 
-          # New key on AWS
           new_key = client.create_access_key.access_key
-
-          # Old key on AWS
-          old_key = creds.conjur_ids[:access_key_id]
 
           # Update in conjur
           facade.update_variables(Hash[
             creds.conjur_ids[:access_key_id]    , new_key.access_key_id,
             creds.conjur_ids[:secret_access_key], new_key.secret_access_key
           ])
-
-          # Delete key just used for rotation
-          # This prevents leaving two active access keys
-          client.delete_access_key(access_key_id: old_key)
         end
 
         private 
