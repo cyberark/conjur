@@ -46,6 +46,7 @@ RSpec.describe('DB::Repository::AuthenticatorRepository') do
         DB::Repository::AuthenticatorRepository.new(
           resource_repository: resource_repository,
           data_object: data_object,
+          contract: Authentication::AuthnOidc::V2::DataObjects::AuthenticatorContract.new,
           pkce_support_enabled: pkce_flag_enabled
         )
       end
