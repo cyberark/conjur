@@ -6,7 +6,7 @@ class EdgeController < RestController
     allowed_params = %i[account]
     options = params.permit(*allowed_params).to_h.symbolize_keys
     begin
-      verify_edge_host(options)
+      # verify_edge_host(options)
     rescue ApplicationController::Forbidden
       raise
     end
