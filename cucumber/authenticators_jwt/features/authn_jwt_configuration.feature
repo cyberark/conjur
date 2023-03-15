@@ -284,8 +284,9 @@ Feature: JWT Authenticator - Configuration Check
     Then the HTTP response status code is 401
     And The following appears in the log after my savepoint:
     """
-    CONJ00122E Invalid signing key settings: Failed to find a JWT decode option. Either `jwks-uri` or `public-keys` variable must be set
+    CONJ00037E Missing value for resource: cucumber:variable:conjur/authn-jwt/raw/provider-uri
     """
+    # CONJ00122E Invalid signing key settings: Failed to find a JWT decode option. Either `jwks-uri` or `public-keys` variable must be set
 
   @negative @acceptance
   Scenario: ONYX-8696: None of provider-uri or jwks-uri are configured

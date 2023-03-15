@@ -41,7 +41,7 @@ module Authentication
           rule(:issuer, :account, :service_id) do
             if values[:issuer] == ''
               key.failure(
-                expeception: Errors::Conjur::RequiredSecretMissing,
+                exception: Errors::Conjur::RequiredSecretMissing,
                 text: "#{values[:account]}:variable:conjur/authn-jwt/#{values[:service_id]}/issuer"
               )
             end
@@ -53,6 +53,16 @@ module Authentication
               key.failure(
                 exception: Errors::Conjur::RequiredSecretMissing,
                 text: "#{values[:account]}:variable:conjur/authn-jwt/#{values[:service_id]}/claim-aliases"
+              )
+            end
+          end
+
+          # Verify that `provider_uri` has a secret value set if variable is present
+          rule(:provider_uri, :service_id, :account) do
+            if values[:provider_uri] == ''
+              key.failure(
+                exception: Errors::Conjur::RequiredSecretMissing,
+                text: "#{values[:account]}:variable:conjur/authn-jwt/#{values[:service_id]}/provider-uri"
               )
             end
           end
@@ -96,12 +106,52 @@ module Authentication
             end
           end
 
-          # Verify that `token_app_property` has a secret value set if variable is present
+          # Verify that `token_app_property` has a secret value set if the variable is present
+          rule(:token_app_property, :account, :service_id) do
+            if values[:token_app_property] == ''
+              key.failure(
+                exception: Errors::Conjur::RequiredSecretMissing,
+                text: "#{values[:account]}:variable:conjur/authn-jwt/#{values[:service_id]}/token-app-property"
+              )
+            end
+          end
+
+          # Verify that `token_app_property` includes only valid characters
           rule(:token_app_property) do
             unless values[:token_app_property].to_s.count('a-zA-Z0-9\/\-_\.') == values[:token_app_property].to_s.length
               key.failure(
                 exception: Errors::Authentication::AuthnJwt::InvalidTokenAppPropertyValue,
                 text: "token-app-property can only contain alpha-numeric characters, '-', '_', '/', and '.'"
+              )
+            end
+          end
+
+          # Verify that `token_app_property` does not include double slashes
+          rule(:token_app_property) do
+            if values[:token_app_property].to_s.match(/\/\//)
+              key.failure(
+                exception: Errors::Authentication::AuthnJwt::InvalidTokenAppPropertyValue,
+                text: "token-app-property includes `//`"
+              )
+            end
+          end
+
+          # Verify that `audience` has a secret value set if variable is present
+          rule(:audience, :service_id, :account) do
+            if values[:audience] == ''
+              key.failure(
+                exception: Errors::Conjur::RequiredSecretMissing,
+                text: "#{values[:account]}:variable:conjur/authn-jwt/#{values[:service_id]}/audience"
+              )
+            end
+          end
+
+          # Verify that `identity_path` has a secret value set if variable is present
+          rule(:identity_path, :service_id, :account) do
+            if values[:identity_path] == ''
+              key.failure(
+                exception: Errors::Conjur::RequiredSecretMissing,
+                text: "#{values[:account]}:variable:conjur/authn-jwt/#{values[:service_id]}/identity-path"
               )
             end
           end
@@ -187,13 +237,30 @@ module Authentication
             end
           end
 
+          # Check for "/" in claim keys
+          rule(:claim_aliases) do
+            claims = values[:claim_aliases].to_s.split(',').map{|s| s.split(':').map(&:strip)}.map(&:first)
+            claims.flatten.each do |claim|
+              if claim.match(/\//)
+                key.failure(
+                  exception: Errors::Authentication::AuthnJwt::ClaimAliasNameInvalidCharacter,
+                  text: claim
+                )
+              end
+            end
+          end
+
           # Check for invalid characters in keys
           rule(:claim_aliases) do
             claims = values[:claim_aliases].to_s.split(',').map{|s| s.split(':').map(&:strip)}.map(&:first)
             if (bad_claim = claims.find { |claim| claim.count('a-zA-Z0-9\-_\.') != claim.length })
               key.failure(
-                exception: Errors::Authentication::AuthnJwt::ClaimAliasNameInvalidCharacter,
-                text: bad_claim
+                exception: Errors::Authentication::AuthnJwt::FailedToValidateClaimForbiddenClaimName,
+                args: {
+                  arg1: bad_claim,
+                  arg2: '[a-zA-Z0-9\-_\.]+'
+                },
+                text: ''
               )
             end
           end
@@ -223,6 +290,16 @@ module Authentication
                   arg1: bad_item,
                   arg2: denylist
                 }
+              )
+            end
+          end
+
+          # If using public-keys, issuer is required
+          rule(:public_keys, :issuer, :account, :service_id) do
+            if values[:public_keys].present? && values[:issuer].empty?
+              key.failure(
+                exception: Errors::Conjur::RequiredSecretMissing,
+                text: "#{values[:account]}:variable:conjur/authn-jwt/#{values[:service_id]}/issuer"
               )
             end
           end

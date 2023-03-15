@@ -10,7 +10,7 @@ module Authentication
           authenticator:,
           logger: Rails.logger,
           jwt: JWT,
-          http: Net::HTTP, # check that this is needed
+          http: Net::HTTP,
           json: JSON,
           cache: Rails.cache,
           oidc_discovery_configuration: ::OpenIDConnect::Discovery::Provider::Config
@@ -25,7 +25,7 @@ module Authentication
           @oidc_discovery_configuration = oidc_discovery_configuration
         end
 
-        def callback(parameters:, request_body:)
+        def callback(request_body:, parameters: nil)
           # Notes - in accordance with best practices, we REALLY should be verify that
           # the following claims are present:
           # - issuer
@@ -33,48 +33,16 @@ module Authentication
 
           additional_params = {
             algorithms: %w[RS256 RS384 RS512],
-            verify_iat: true
+            verify_iat: true,
+            jwks: jwks_source
           }.tap do |hash|
-            if @authenticator.jwks_uri.present?
-              if @authenticator.issuer.present?
-                hash[:iss] = @authenticator.issuer
-                hash[:verify_iss] = true
-              end
-              if @authenticator.audience.present?
-                hash[:aud] = @authenticator.audience
-                hash[:verify_aud] = true
-              end
-              hash[:jwks] = jwk_loader(@authenticator.jwks_uri)
-            elsif @authenticator.public_keys.present?
+            if @authenticator.issuer.present?
               hash[:iss] = @authenticator.issuer
               hash[:verify_iss] = true
-              # Looks like loading from the public key is really just injesting
-              # a JWKS endpoint from a local source.
-              keys = @json.parse(@authenticator.public_keys)&.deep_symbolize_keys
-              hash[:jwks] = keys[:value]
-            elsif @authenticator.provider_uri.present?
-              # If we're validating with Provider URI, it means we're operating
-              # against an OIDC enpoint.
-              begin
-                if @authenticator.issuer.present?
-                  hash[:iss] = @authenticator.issuer
-                  hash[:verify_iss] = true
-                end
-                if @authenticator.audience.present?
-                  hash[:aud] = @authenticator.audience
-                  hash[:verify_aud] = true
-                end
-                hash[:jwks] = jwk_loader(
-                  @oidc_discovery_configuration.discover!(
-                    @authenticator.provider_uri
-                  )&.jwks_uri
-                )
-              rescue Exception => e
-                raise Errors::Authentication::OAuth::ProviderDiscoveryFailed.new(@authenticator.provider_uri, e.inspect)
-              end
-            else
-              raise Errors::Authentication::AuthnJwt::InvalidSigningKeySettings,
-                'Failed to find a JWT decode option. Either `jwks-uri` or `public-keys` variable must be set.'
+            end
+            if @authenticator.audience.present?
+              hash[:aud] = @authenticator.audience
+              hash[:verify_aud] = true
             end
           end
 
@@ -124,7 +92,41 @@ module Authentication
           token
         end
 
-        private
+        # Called by status handler. This handles checking as much of the strategy
+        # integrity as possible without performing an actual authentication.
+        def verify_status
+          jwks_source.call({})
+        end
+
+        def jwks_source
+          if @authenticator.jwks_uri.present?
+            jwk_loader(@authenticator.jwks_uri)
+          elsif @authenticator.public_keys.present?
+            # Looks like loading from the public key is really just injesting
+            # a JWKS endpoint from a local source.
+            # begin
+            keys = @json.parse(@authenticator.public_keys)&.deep_symbolize_keys
+            # hash[:jwks] = keys[:value]
+            # binding.pry
+            return keys[:value] unless keys[:value].blank?
+
+            raise Errors::Authentication::AuthnJwt::InvalidPublicKeys,
+              "Type can't be blank, Value can't be blank, and Type '' is not a valid public-keys type. Valid types are: jwks"
+
+          elsif @authenticator.provider_uri.present?
+            # If we're validating with Provider URI, it means we're operating
+            # against an OIDC enpoint.
+            begin
+              jwk_loader(
+                @oidc_discovery_configuration.discover!(
+                  @authenticator.provider_uri
+                )&.jwks_uri
+              )
+            rescue StandardError => e
+              raise Errors::Authentication::OAuth::ProviderDiscoveryFailed.new(@authenticator.provider_uri, e.inspect)
+            end
+          end
+        end
 
         def jwk_loader(jwks_url)
           ->(options) do
@@ -141,21 +143,30 @@ module Authentication
             http.verify_mode = OpenSSL::SSL::VERIFY_PEER
 
             store = OpenSSL::X509::Store.new
-            # Auto-include system CAs
-            store.set_default_paths
 
+            # If CA Certificate is available, we write it to a tempfile for import.
+            # This allows us to handle certificate chains.
             if @authenticator.ca_cert.present?
-              store.add_cert(OpenSSL::X509::Certificate.new(@authenticator.ca_cert))
+              ca_certificates = Tempfile.new('ca_certificates')
+              begin
+                ca_certificates.write(@authenticator.ca_cert)
+                ca_certificates.close
+                store.add_file(ca_certificates.path)
+              ensure
+                ca_certificates.unlink   # deletes the temp file
+              end
+            else
+              # Auto-include system CAs
+              store.set_default_paths
             end
 
             http.cert_store = store
           end
-
           # If path is an empty string, the get request will fail. We set it default to a slash.
           path = uri.path.empty? ? '/' : uri.path
           begin
             response = http.request(@http::Get.new(path))
-          rescue Exception => e
+          rescue StandardError => e
             raise Errors::Authentication::AuthnJwt::FetchJwksKeysFailed.new(
               url,
               e.inspect
@@ -171,10 +182,10 @@ module Authentication
           # TODO: Need a mechanism to allow us to expire cache from Cucumber tests
           # so that we can include tests with different JWKS certificates.
           #
-          # @cache.fetch(@cache_key, force: force, skip_nil: true) do
-          #   fetch_jwks(jwks_url)
-          # end&.deep_symbolize_keys
-          fetch_jwks(jwks_url)&.deep_symbolize_keys
+          @cache.fetch(@cache_key, force: force, skip_nil: true) do
+            fetch_jwks(jwks_url)
+          end&.deep_symbolize_keys
+          # fetch_jwks(jwks_url)&.deep_symbolize_keys
         end
       end
     end

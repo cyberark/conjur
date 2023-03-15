@@ -70,10 +70,27 @@ class AuthenticateController < ApplicationController
 
   def authn_jwt_status
     params[:authenticator] = "authn-jwt"
-    Authentication::AuthnJwt::ValidateStatus.new.call(
-      authenticator_status_input: status_input,
-      enabled_authenticators: Authentication::InstalledAuthenticators.enabled_authenticators_str
+
+    params.permit!
+    Authentication::Handler::StatusHandler.new(
+      authenticator_type: params[:authenticator]
+    ).call(
+      parameters: params.to_hash.symbolize_keys,
+      role: current_user,
+      request_ip: request.ip
     )
+    #     authenticator_name: params[:authenticator],
+    #   service_id: params[:service_id],
+    #   account: params[:account],
+    #   username: ::Role.username_from_roleid(current_user.role_id),
+    #   client_ip: request.ip
+
+
+
+    # Authentication::AuthnJwt::ValidateStatus.new.call(
+    #   authenticator_status_input: status_input,
+    #   enabled_authenticators: Authentication::InstalledAuthenticators.enabled_authenticators_str
+    # )
     render(json: { status: "ok" })
   rescue => e
     log_backtrace(e)
@@ -118,12 +135,26 @@ class AuthenticateController < ApplicationController
     handle_login_error(e)
   end
 
+  def authenticator_status
+    # params.permit!
+    # Authentication::Handler::StatusHandler.new(
+    #   authenticator_type: params[:authenticator]
+    # ).call(
+    #   parameters: params.to_hash.symbolize_keys,
+    #   request_body: request.body.read,
+    #   request_ip: request.ip
+    # )
+    #     authenticator_name: params[:authenticator],
+    #   service_id: params[:service_id],
+    #   account: params[:account],
+    #   username: ::Role.username_from_roleid(current_user.role_id),
+    #   client_ip: request.ip
+
+  end
+
   def authenticate_jwt
     params.permit!
-
     params[:authenticator] = "authn-jwt"
-
-    # binding.pry
 
     auth_token = Authentication::Handler::AuthenticationHandler.new(
       authenticator_type: params[:authenticator]

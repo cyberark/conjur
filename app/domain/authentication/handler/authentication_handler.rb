@@ -32,7 +32,8 @@ module Authentication
         @identity_resolver = "#{namespace}::ResolveIdentity".constantize
         @strategy = "#{namespace}::Strategy".constantize
         @authn_repo = authn_repo.new(
-          data_object: "#{namespace}::DataObjects::Authenticator".constantize
+          data_object: "#{namespace}::DataObjects::Authenticator".constantize,
+          contract: "#{namespace}::DataObjects::AuthenticatorContract".constantize.new
         )
       end
 
@@ -87,8 +88,8 @@ module Authentication
           else
             "#{parameters[:account]}:user:#{missing_role}"
           end
-          if role = @role[identity]
-            if webservice = @resource["#{parameters[:account]}:webservice:conjur/#{@authenticator_type}/#{parameters[:service_id]}"]
+          if (role = @role[identity])
+            if (webservice = @resource["#{parameters[:account]}:webservice:conjur/#{@authenticator_type}/#{parameters[:service_id]}"])
               unless  @role[identity].allowed_to?(:authenticate, webservice)
                 raise Errors::Authentication::Security::RoleNotAuthorizedOnResource.new(
                   missing_role,

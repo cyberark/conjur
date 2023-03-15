@@ -190,7 +190,7 @@ Feature: JWT Authenticator - Token Schema
     CONJ00105E Failed to validate claim: claim name '<err>' is in denylist '["iss", "exp", "nbf", "iat", "jti", "aud"]'
     """
     Examples:
-    | claims        | err |
+    | claims        | err    |
     |   iss         |  iss   |
     |   exp, iss    |  exp   |
     |   exp, branch |  exp   |
