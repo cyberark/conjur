@@ -93,6 +93,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   and commonmarker to 0.23.9 for CVE-2023-24824 and CVE-2023-26485 in docs/Gemfile.lock
   (all Medium severity issues flagged by Dependabot)
   [cyberark/conjur#2776](https://github.com/cyberark/conjur/pull/2776)
+- Upgraded rack to v2.2.6.4 to resolve CVE-2023-27539
+  [cyberark/conjur#2750](https://github.com/cyberark/conjur/pull/2750)
 
 ## [1.19.2] - 2022-01-13
 
