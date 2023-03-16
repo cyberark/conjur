@@ -79,6 +79,27 @@ Feature: List resources with various types of filtering
     When I successfully GET "/resources/cucumber/test-resource?search=target"
     Then the resource list should only include the searched resource
 
+  @smoke
+  Scenario: The resource list is searched and contains a resource with a suffix matching annotation.
+    Given I create a new resource
+    And I add an annotation value of "target" to the resource
+    When I successfully GET "/resources/cucumber/test-resource?search=get"
+    Then the resource list should only include the searched resource
+
+  @smoke
+  Scenario: The resource list is searched and contains a resource with a prefix matching annotation.
+    Given I create a new resource
+    And I add an annotation value of "target" to the resource
+    When I successfully GET "/resources/cucumber/test-resource?search=targ"
+    Then the resource list should only include the searched resource
+
+  @smoke
+  Scenario: The resource list is searched and contains a resource with a partial matching annotation.
+    Given I create a new resource
+    And I add an annotation value of "target" to the resource
+    When I successfully GET "/resources/cucumber/test-resource?search=arg"
+    Then the resource list should only include the searched resource
+
   @acceptance
   Scenario: The resource list is searched and the matched resource id contains a period.
     Given I create a new resource called "target.resource"
