@@ -5,18 +5,13 @@ require 'base64'
 module Factory
   module Templates
     module Core
-      class User
+      class Grant
         class << self
           def policy_template
             <<~TEMPLATE
-              - !user
-                id: <%= id %>
-                <% if defined?(annotations) %>
-                annotations:
-                <% annotations.each do |key, value| -%>
-                  <%= key %>: <%= value %>
-                <% end -%>
-                <% end -%>
+              - !grant
+                member: !<%= member_resource_type %> <%= member_resource_id %>
+                role: !<%= role_resource_type %> <%= role_resource_id %>
             TEMPLATE
           end
 
@@ -27,20 +22,20 @@ module Factory
               policy_namespace: "<%= branch %>",
               schema: {
                 "$schema": "http://json-schema.org/draft-06/schema#",
-                "title": "User Template",
-                "description": "Creates a Conjur User",
+                "title": "Group Template",
+                "description": "Creates a Conjur Group",
                 "type": "object",
                 "properties": {
                   "id": {
-                    "description": "User ID",
+                    "description": "Group ID",
                     "type": "string"
                   },
                   "branch": {
-                    "description": "Policy branch to load this user into",
+                    "description": "Policy branch to load this group into",
                     "type": "string"
                   },
                   "annotations": {
-                    "description": "Additional annotations to add to the user",
+                    "description": "Additional annotations to add to the group",
                     "type": "object"
                   }
                 },

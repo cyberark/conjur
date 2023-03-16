@@ -25,6 +25,7 @@ module Factory
 
           def data
             Base64.encode64({
+              version: 1,
               policy: Base64.encode64(policy_template),
               policy_namespace: "<%= branch %>",
               schema: {
