@@ -53,7 +53,7 @@ module Authentication
           end
 
           def resource_id
-            "#{account}:webservice:conjur/authn-jwt/#{service_id}"
+            "#{@account}:webservice:conjur/authn-jwt/#{@service_id}"
           end
 
           def token_ttl

@@ -85,17 +85,8 @@ module DB
           else
             @logger.info(result.errors.to_h.inspect)
 
-            # If contract fails, raise the defined exception...
-            error = result.errors.first
-
-            # For exceptions with multiple arguements, the args are passed
-            # as values in a hash. This is because the failure object only
-            # allows strings and hashes to be returned as meta-data.
-            if error.meta[:args].present?
-              raise(error.meta[:exception].new(*error.meta[:args].values))
-            end
-
-            raise(error.meta[:exception], error.text)
+            # If contract fails, raise the first defined exception...
+            raise(result.errors.first.meta[:exception])
           end
         rescue ArgumentError => e
           @logger.debug("DB::Repository::AuthenticatorRepository.load_authenticator - exception: #{e}")

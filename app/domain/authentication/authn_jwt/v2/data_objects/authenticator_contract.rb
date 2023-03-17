@@ -27,12 +27,19 @@ module Authentication
             optional(:provider_uri).value(:string)
           end
 
+          def response_from_exception(err)
+            { exception: err, text: err.message }
+          end
+
           # Verify that only one of `jwks-uri`, `public-keys`, and `provider-uri` are set
           rule(:jwks_uri, :public_keys, :provider_uri) do
             if %i[jwks_uri provider_uri public_keys].select { |key| values[key].present? }.count > 1
               key.failure(
-                exception: Errors::Authentication::AuthnJwt::InvalidSigningKeySettings,
-                text: 'jwks-uri and provider-uri cannot be defined simultaneously'
+                **response_from_exception(
+                  Errors::Authentication::AuthnJwt::InvalidSigningKeySettings.new(
+                    'jwks-uri and provider-uri cannot be defined simultaneously'
+                  )
+                )
               )
             end
           end
@@ -41,8 +48,11 @@ module Authentication
           rule(:issuer, :account, :service_id) do
             if values[:issuer] == ''
               key.failure(
-                exception: Errors::Conjur::RequiredSecretMissing,
-                text: "#{values[:account]}:variable:conjur/authn-jwt/#{values[:service_id]}/issuer"
+                **response_from_exception(
+                  Errors::Conjur::RequiredSecretMissing.new(
+                    "#{values[:account]}:variable:conjur/authn-jwt/#{values[:service_id]}/issuer"
+                  )
+                )
               )
             end
           end
@@ -51,8 +61,11 @@ module Authentication
           rule(:claim_aliases, :account, :service_id) do
             if values[:claim_aliases] == ''
               key.failure(
-                exception: Errors::Conjur::RequiredSecretMissing,
-                text: "#{values[:account]}:variable:conjur/authn-jwt/#{values[:service_id]}/claim-aliases"
+                **response_from_exception(
+                  Errors::Conjur::RequiredSecretMissing.new(
+                    "#{values[:account]}:variable:conjur/authn-jwt/#{values[:service_id]}/claim-aliases"
+                  )
+                )
               )
             end
           end
@@ -61,8 +74,11 @@ module Authentication
           rule(:provider_uri, :service_id, :account) do
             if values[:provider_uri] == ''
               key.failure(
-                exception: Errors::Conjur::RequiredSecretMissing,
-                text: "#{values[:account]}:variable:conjur/authn-jwt/#{values[:service_id]}/provider-uri"
+                **response_from_exception(
+                  Errors::Conjur::RequiredSecretMissing.new(
+                    "#{values[:account]}:variable:conjur/authn-jwt/#{values[:service_id]}/provider-uri"
+                  )
+                )
               )
             end
           end
@@ -72,17 +88,16 @@ module Authentication
             empty_variables = %i[jwks_uri provider_uri public_keys].select {|key, _| values[key] == '' && !values[key].nil? }
             if empty_variables.count == 1
               # Performing this insanity to match current functionality :P
-              if empty_variables.first == :provider_uri
-                key.failure(
-                  exception: Errors::Authentication::AuthnJwt::InvalidSigningKeySettings,
-                  text: 'Failed to find a JWT decode option. Either `jwks-uri` or `public-keys` variable must be set.'
+              e = if empty_variables.first == :provider_uri
+                Errors::Authentication::AuthnJwt::InvalidSigningKeySettings.new(
+                  'Failed to find a JWT decode option. Either `jwks-uri` or `public-keys` variable must be set.'
                 )
               else
-                key.failure(
-                  exception: Errors::Conjur::RequiredSecretMissing,
-                  text: "#{values[:account]}:variable:conjur/authn-jwt/#{values[:service_id]}/#{empty_variables.first.to_s.dasherize}"
+                Errors::Conjur::RequiredSecretMissing.new(
+                  "#{values[:account]}:variable:conjur/authn-jwt/#{values[:service_id]}/#{empty_variables.first.to_s.dasherize}"
                 )
               end
+              key.failure(**response_from_exception(e))
             end
           end
 
@@ -90,8 +105,11 @@ module Authentication
           rule(:jwks_uri, :public_keys, :provider_uri) do
             if %i[jwks_uri provider_uri public_keys].all? { |item| values[item].nil? }
               key.failure(
-                exception: Errors::Authentication::AuthnJwt::InvalidSigningKeySettings,
-                text: 'One of the following must be defined: jwks-uri, public-keys, or provider-uri'
+                **response_from_exception(
+                  Errors::Authentication::AuthnJwt::InvalidSigningKeySettings.new(
+                    'One of the following must be defined: jwks-uri, public-keys, or provider-uri'
+                  )
+                )
               )
             end
           end
@@ -100,8 +118,11 @@ module Authentication
           rule(:jwks_uri, :public_keys, :provider_uri) do
             if %i[jwks_uri provider_uri public_keys].all? { |item| values[item].blank? }
               key.failure(
-                exception: Errors::Authentication::AuthnJwt::InvalidSigningKeySettings,
-                text: 'Failed to find a JWT decode option. Either `jwks-uri` or `public-keys` variable must be set'
+                **response_from_exception(
+                  Errors::Authentication::AuthnJwt::InvalidSigningKeySettings.new(
+                    'Failed to find a JWT decode option. Either `jwks-uri` or `public-keys` variable must be set'
+                  )
+                )
               )
             end
           end
@@ -110,8 +131,11 @@ module Authentication
           rule(:token_app_property, :account, :service_id) do
             if values[:token_app_property] == ''
               key.failure(
-                exception: Errors::Conjur::RequiredSecretMissing,
-                text: "#{values[:account]}:variable:conjur/authn-jwt/#{values[:service_id]}/token-app-property"
+                **response_from_exception(
+                  Errors::Conjur::RequiredSecretMissing.new(
+                    "#{values[:account]}:variable:conjur/authn-jwt/#{values[:service_id]}/token-app-property"
+                  )
+                )
               )
             end
           end
@@ -120,8 +144,11 @@ module Authentication
           rule(:token_app_property) do
             unless values[:token_app_property].to_s.count('a-zA-Z0-9\/\-_\.') == values[:token_app_property].to_s.length
               key.failure(
-                exception: Errors::Authentication::AuthnJwt::InvalidTokenAppPropertyValue,
-                text: "token-app-property can only contain alpha-numeric characters, '-', '_', '/', and '.'"
+                **response_from_exception(
+                  Errors::Authentication::AuthnJwt::InvalidTokenAppPropertyValue.new(
+                    "token-app-property can only contain alpha-numeric characters, '-', '_', '/', and '.'"
+                  )
+                )
               )
             end
           end
@@ -130,8 +157,11 @@ module Authentication
           rule(:token_app_property) do
             if values[:token_app_property].to_s.match(/\/\//)
               key.failure(
-                exception: Errors::Authentication::AuthnJwt::InvalidTokenAppPropertyValue,
-                text: "token-app-property includes `//`"
+                **response_from_exception(
+                  Errors::Authentication::AuthnJwt::InvalidTokenAppPropertyValue.new(
+                    "token-app-property includes `//`"
+                  )
+                )
               )
             end
           end
@@ -140,8 +170,11 @@ module Authentication
           rule(:audience, :service_id, :account) do
             if values[:audience] == ''
               key.failure(
-                exception: Errors::Conjur::RequiredSecretMissing,
-                text: "#{values[:account]}:variable:conjur/authn-jwt/#{values[:service_id]}/audience"
+                **response_from_exception(
+                  Errors::Conjur::RequiredSecretMissing.new(
+                    "#{values[:account]}:variable:conjur/authn-jwt/#{values[:service_id]}/audience"
+                  )
+                )
               )
             end
           end
@@ -150,8 +183,11 @@ module Authentication
           rule(:identity_path, :service_id, :account) do
             if values[:identity_path] == ''
               key.failure(
-                exception: Errors::Conjur::RequiredSecretMissing,
-                text: "#{values[:account]}:variable:conjur/authn-jwt/#{values[:service_id]}/identity-path"
+                **response_from_exception(
+                  Errors::Conjur::RequiredSecretMissing.new(
+                    "#{values[:account]}:variable:conjur/authn-jwt/#{values[:service_id]}/identity-path"
+                  )
+                )
               )
             end
           end
@@ -160,8 +196,11 @@ module Authentication
           rule(:enforced_claims, :service_id, :account) do
             if values[:enforced_claims] == ''
               key.failure(
-                exception: Errors::Conjur::RequiredSecretMissing,
-                text: "#{values[:account]}:variable:conjur/authn-jwt/#{values[:service_id]}/enforced-claims"
+                **response_from_exception(
+                  Errors::Conjur::RequiredSecretMissing.new(
+                    "#{values[:account]}:variable:conjur/authn-jwt/#{values[:service_id]}/enforced-claims"
+                  )
+                )
               )
             end
           end
@@ -172,12 +211,9 @@ module Authentication
               next if claim.count('a-zA-Z0-9\/\-_\.') == claim.length
 
               key.failure(
-                exception: Errors::Authentication::AuthnJwt::FailedToValidateClaimForbiddenClaimName,
-                text: '',
-                args: {
-                  arg1: claim,
-                  arg2: '[a-zA-Z0-9\/\-_\.]+'
-                }
+                **response_from_exception(
+                  Errors::Authentication::AuthnJwt::FailedToValidateClaimForbiddenClaimName.new(claim, '[a-zA-Z0-9\/\-_\.]+')
+                )
               )
             end
           end
@@ -187,12 +223,9 @@ module Authentication
             denylist = %w[iss exp nbf iat jti aud]
             (values[:enforced_claims].to_s.split(',').map(&:strip) & denylist).each do |claim|
               key.failure(
-                exception: Errors::Authentication::AuthnJwt::FailedToValidateClaimClaimNameInDenyList,
-                args: {
-                  arg1: claim,
-                  arg2: denylist
-                },
-                text: ''
+                **response_from_exception(
+                  Errors::Authentication::AuthnJwt::FailedToValidateClaimClaimNameInDenyList.new(claim, denylist)
+                )
               )
             end
           end
@@ -202,12 +235,9 @@ module Authentication
             claims = values[:claim_aliases].to_s.split(',').map{|s| s.split(':').map(&:strip)}.map(&:first)
             if (duplicate = claims.detect { |claim| claims.count(claim) > 1 })
               key.failure(
-                exception: Errors::Authentication::AuthnJwt::ClaimAliasDuplicationError,
-                text: '',
-                args: {
-                  arg1: 'annotation name',
-                  arg2: duplicate
-                }
+                **response_from_exception(
+                  Errors::Authentication::AuthnJwt::ClaimAliasDuplicationError.new('annotation name', duplicate)
+                )
               )
             end
           end
@@ -217,12 +247,9 @@ module Authentication
             claims = values[:claim_aliases].to_s.split(',').map{|s| s.split(':').map(&:strip)}.map(&:last)
             if (duplicate = claims.detect { |claim| claims.count(claim) > 1 })
               key.failure(
-                exception: Errors::Authentication::AuthnJwt::ClaimAliasDuplicationError,
-                text: '',
-                args: {
-                  arg1: 'claim name',
-                  arg2: duplicate
-                }
+                **response_from_exception(
+                  Errors::Authentication::AuthnJwt::ClaimAliasDuplicationError.new('claim name', duplicate)
+                )
               )
             end
           end
@@ -231,8 +258,9 @@ module Authentication
           rule(:claim_aliases) do
             if (bad_claim = values[:claim_aliases].to_s.split(',').find { |item| item.count(':') != 1 })
               key.failure(
-                exception: Errors::Authentication::AuthnJwt::ClaimAliasNameInvalidCharacter,
-                text: bad_claim
+                **response_from_exception(
+                  Errors::Authentication::AuthnJwt::ClaimAliasNameInvalidCharacter.new(bad_claim)
+                )
               )
             end
           end
@@ -243,8 +271,9 @@ module Authentication
             claims.flatten.each do |claim|
               if claim.match(/\//)
                 key.failure(
-                  exception: Errors::Authentication::AuthnJwt::ClaimAliasNameInvalidCharacter,
-                  text: claim
+                  **response_from_exception(
+                    Errors::Authentication::AuthnJwt::ClaimAliasNameInvalidCharacter.new(claim)
+                  )
                 )
               end
             end
@@ -255,12 +284,9 @@ module Authentication
             claims = values[:claim_aliases].to_s.split(',').map{|s| s.split(':').map(&:strip)}.map(&:first)
             if (bad_claim = claims.find { |claim| claim.count('a-zA-Z0-9\-_\.') != claim.length })
               key.failure(
-                exception: Errors::Authentication::AuthnJwt::FailedToValidateClaimForbiddenClaimName,
-                args: {
-                  arg1: bad_claim,
-                  arg2: '[a-zA-Z0-9\-_\.]+'
-                },
-                text: ''
+                **response_from_exception(
+                  Errors::Authentication::AuthnJwt::FailedToValidateClaimForbiddenClaimName.new(bad_claim, '[a-zA-Z0-9\-_\.]+')
+                )
               )
             end
           end
@@ -270,12 +296,9 @@ module Authentication
             claims = values[:claim_aliases].to_s.split(',').map{|s| s.split(':').map(&:strip)}.map(&:last)
             if (bad_value = claims.find { |claim| claim.count('a-zA-Z0-9\/\-_\.') != claim.length })
               key.failure(
-                exception: Errors::Authentication::AuthnJwt::FailedToValidateClaimForbiddenClaimName,
-                text: '',
-                args: {
-                  arg1: bad_value,
-                  arg2: '[a-zA-Z0-9\/\-_\.]+'
-                }
+                **response_from_exception(
+                  Errors::Authentication::AuthnJwt::FailedToValidateClaimForbiddenClaimName.new(bad_value, '[a-zA-Z0-9\/\-_\.]+')
+                )
               )
             end
           end
@@ -284,12 +307,9 @@ module Authentication
             denylist = %w[iss exp nbf iat jti aud]
             if (bad_item = (values[:claim_aliases].to_s.split(',').map{|s| s.split(':').map(&:strip)}.flatten & denylist).first)
               key.failure(
-                exception: Errors::Authentication::AuthnJwt::FailedToValidateClaimClaimNameInDenyList,
-                text: '',
-                args: {
-                  arg1: bad_item,
-                  arg2: denylist
-                }
+                **response_from_exception(
+                  Errors::Authentication::AuthnJwt::FailedToValidateClaimClaimNameInDenyList.new(bad_item, denylist)
+                )
               )
             end
           end
@@ -298,8 +318,11 @@ module Authentication
           rule(:public_keys, :issuer, :account, :service_id) do
             if values[:public_keys].present? && values[:issuer].empty?
               key.failure(
-                exception: Errors::Conjur::RequiredSecretMissing,
-                text: "#{values[:account]}:variable:conjur/authn-jwt/#{values[:service_id]}/issuer"
+                **response_from_exception(
+                  Errors::Conjur::RequiredSecretMissing.new(
+                    "#{values[:account]}:variable:conjur/authn-jwt/#{values[:service_id]}/issuer"
+                  )
+                )
               )
             end
           end

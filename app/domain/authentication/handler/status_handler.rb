@@ -44,12 +44,12 @@ module Authentication
           raise Errors::Authentication::InvalidOrigin
         end
 
+        # Verify service_id is present in the request params
         unless parameters[:service_id].present?
-          # TODO: feels like this should include the service_id...
           raise Errors::Authentication::AuthnJwt::ServiceIdMissing
         end
 
-        # Verify webservices exist
+        # Verify webservices exists for authenticator and authenticator status
         authenticator_webservice = "#{parameters[:account]}:webservice:conjur/#{@authenticator_type}/#{parameters[:service_id]}"
         if @resource[authenticator_webservice].blank?
           raise Errors::Authentication::Security::WebserviceNotFound, authenticator_webservice
