@@ -10,54 +10,6 @@ The following is a high-level overview of how a request moves through the authen
 
 ![](readme_assets/authenticator-workflow-overview.png)
 
-```plantuml
-@startuml
-:Authentication request from client;
-package Authentication Handler {
-  if (Authenticator enabled?) then (no)
-    #pink:error;
-    detach
-  endif
-  package Authenticator Repository {
-    if (Webservice exists?) then (no)
-      #pink:error;
-      detach
-    endif
-    :Retrieve relevant variables;
-    package Contract {
-      if (Variable values valid?) then (no)
-        #pink:error;
-        detach
-      endif
-    }
-    :Populate Data Object;
-  }
-  package Strategy {
-    if (Identity token is valid?) then (no)
-      #pink:error;
-      detach
-    endif
-    :Extract relevant identifier;
-  }
-  package Resolve Identity {
-    if (Found relevant Role?) then (no)
-      #pink:error;
-      detach
-    endif
-    if (Identity attributes match\nrelevant Role annotations?) then (no)
-      #pink:error;
-      detach
-    endif
-  }
-  if (Role is allowed to authenticate\nfrom its origin?) then (no)
-    #pink:error;
-    detach
-  endif
-  #palegreen:Generate Conjur auth token;
-}
-@enduml
-```
-
 ## Architecture
 
 The new Authenticator Framework consists of several components, both authenticator agnostic and specific.
