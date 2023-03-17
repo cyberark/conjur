@@ -40,13 +40,21 @@ RSpec.describe('DB::Repository::AuthenticatorRepository') do
         end
       end
 
+      let(:contract) do
+        if pkce_flag_enabled
+          Authentication::AuthnOidc::PkceSupportFeature::DataObjects::AuthenticatorContract.new
+        else
+          Authentication::AuthnOidc::V2::DataObjects::AuthenticatorContract.new
+        end
+      end
+
       let(:resource_repository) { ::Resource }
 
       let(:repo) do
         DB::Repository::AuthenticatorRepository.new(
           resource_repository: resource_repository,
           data_object: data_object,
-          contract: Authentication::AuthnOidc::V2::DataObjects::AuthenticatorContract.new,
+          contract: contract,
           pkce_support_enabled: pkce_flag_enabled
         )
       end
@@ -102,6 +110,7 @@ RSpec.describe('DB::Repository::AuthenticatorRepository') do
               before(:each) do
                 services.each do |service|
                   arguments.each do |variable|
+                    # puts "Creating secret: 'rspec:variable:conjur/authn-oidc/#{service}/#{variable}' with value: '#{variable}'"
                     ::Secret.create(
                       resource_id: "rspec:variable:conjur/authn-oidc/#{service}/#{variable}",
                       value: "#{variable}"
@@ -176,7 +185,7 @@ RSpec.describe('DB::Repository::AuthenticatorRepository') do
           end
 
           context 'when no variables are set' do
-            it { expect(repo.find(type: 'authn-oidc', account: 'rspec', service_id: 'abc123')).to be(nil) }
+            it { expect { repo.find(type: 'authn-oidc', account: 'rspec', service_id: 'abc123') }.to raise_error(Errors::Conjur::RequiredSecretMissing) }
           end
 
           context 'when all variables are present' do
@@ -190,7 +199,7 @@ RSpec.describe('DB::Repository::AuthenticatorRepository') do
             end
 
             context 'are empty' do
-              it { expect(repo.find(type: 'authn-oidc', account: 'rspec', service_id: 'abc123')).to be(nil) }
+              it { expect { repo.find(type: 'authn-oidc', account: 'rspec', service_id: 'abc123') }.to raise_error(Errors::Conjur::RequiredSecretMissing) }
             end
 
             context 'are set' do
@@ -198,7 +207,7 @@ RSpec.describe('DB::Repository::AuthenticatorRepository') do
                 arguments.each do |variable|
                   ::Secret.create(
                     resource_id: "rspec:variable:conjur/authn-oidc/abc123/#{variable}",
-                    value: "#{variable}"
+                    value: variable.to_s
                   )
                 end
               end

@@ -16,21 +16,32 @@ module DB
       end
 
       def find_all(type:, account:)
-        @resource_repository.where(
-          Sequel.like(
-            :resource_id,
-            "#{account}:webservice:conjur/#{type}/%"
-          )
-        ).all.map do |webservice|
-          service_id = service_id_from_resource_id(webservice.id)
+        [].tap do |rtn|
+          @resource_repository.where(
+            Sequel.like(
+              :resource_id,
+              "#{account}:webservice:conjur/#{type}/%"
+            )
+          ).all.each do |webservice|
+            service_id = service_id_from_resource_id(webservice.id)
 
-          # Querying for the authenticator webservice above includes the webservices
-          # for the authenticator status. The filter below removes webservices that
-          # don't match the authenticator policy.
-          next unless webservice.id.split(':').last == "conjur/#{type}/#{service_id}"
+            # Querying for the authenticator webservice above includes the webservices
+            # for the authenticator status. The filter below removes webservices that
+            # don't match the authenticator policy.
+            next unless webservice.id.split(':').last == "conjur/#{type}/#{service_id}"
 
-          load_authenticator(account: account, service_id: service_id, type: type)
+            begin
+              authenticator = load_authenticator(account: account, service_id: service_id, type: type)
+              rtn << authenticator
+            rescue => e
+              # binding.pry
+              @logger.info("failed to load #{type} authenticator '#{service_id}' do to validation failure: #{e.message}")
+              # nil
+            end
+          end
         end.compact
+        # binding.pry
+        # result
       end
 
       def find(type:, account:,  service_id:)
@@ -44,7 +55,9 @@ module DB
           raise Errors::Authentication::Security::WebserviceNotFound, "#{type}/#{service_id}"
         end
 
-        load_authenticator(account: account, service_id: service_id, type: type)
+        result = load_authenticator(account: account, service_id: service_id, type: type)
+        # binding.pry
+        result
       end
 
       def exists?(type:, account:, service_id:)
@@ -77,21 +90,28 @@ module DB
           end
         end
 
-        begin
-          # Validate the variables against the authenticator contract
-          result = @contract.call(args_list)
-          if result.success?
-            @data_object.new(**result.to_h)
-          else
-            @logger.info(result.errors.to_h.inspect)
+        # begin
+        # Validate the variables against the authenticator contract
+        result = @contract.call(args_list)
+        # binding.pry
+        if result.success?
+          @data_object.new(**result.to_h)
+        else
+          @logger.info(result.errors.to_h.inspect)
 
-            # If contract fails, raise the first defined exception...
-            raise(result.errors.first.meta[:exception])
-          end
-        rescue ArgumentError => e
-          @logger.debug("DB::Repository::AuthenticatorRepository.load_authenticator - exception: #{e}")
-          nil
+          # If contract fails, raise the first defined exception...
+          error = result.errors.first
+          raise(error.meta[:exception]) if error.meta[:exception].present?
+
+          # Otherwise, it's a validation error so raise the appropriate exception
+          raise Errors::Conjur::RequiredSecretMissing.new(
+            "#{account}:variable:conjur/#{type}/#{service_id}/#{error.path.first.to_s.dasherize}"
+          )
         end
+        # rescue ArgumentError => e
+        #   @logger.debug("DB::Repository::AuthenticatorRepository.load_authenticator - exception: #{e}")
+        #   nil
+        # end
       end
     end
   end

@@ -2,7 +2,7 @@
 
 module Authentication
   module AuthnOidc
-    module V2
+    module PkceSupportFeature
       module DataObjects
 
         # This class handles all validation for the JWT authenticator. This contract
@@ -23,15 +23,13 @@ module Authentication
             optional(:provider_scope).value(:string)
             optional(:name).value(:string)
             optional(:token_ttl).value(:string)
-
-            optional(:nonce).value(:string)
-            optional(:state).value(:string)
           end
 
           def response_from_exception(err)
             { exception: err, text: err.message }
           end
 
+          # %i[provider_uri client_id client_secret claim_mapping]
           # Verify that `provider_uri` has a secret value set if variable is present
           rule(:provider_uri, :service_id, :account) do
             if values[:provider_uri] == ''
