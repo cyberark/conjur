@@ -17,7 +17,7 @@ services:
       - "5432:5432"
     expose:
       - "5432"
-
+    command: ["postgres", "-c", "log_statement=all"]
 
   audit:
     image: postgres:10.16

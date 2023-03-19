@@ -128,8 +128,9 @@ class Resource < Sequel::Model
 
     def textsearch input
       # If I use 3 literal spaces, it gets send to PG as one space.
+      search_word = '*' + input.to_s + '*'
       query = Sequel.function(:plainto_tsquery, 'english',
-                              Sequel.function(:translate, input.to_s, './-', '   '))
+                              Sequel.function(:translate, search_word, './-', '   '))
 
       # Default weights for ts_rank_cd are {0.1, 0.2, 0.4, 1.0} for DCBA resp.
       # Sounds just about right. A are name and id, B is rest of annotations, C is kind.
