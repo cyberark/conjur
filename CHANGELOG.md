@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
+## [0.0.6-cloud] - 2023-03-19
+### Security
+- Updated github-pages version in docs/Gemfile to allow upgrading activesupport
+  to v7.0.4.2 to resolve CVE-2022-22796
+  [cyberark/conjur#2729](https://github.com/cyberark/conjur/pull/2729)
+- Upgraded rack to v2.2.6.3 to resolve CVE-2023-27530
+  [cyberark/conjur#2739](https://github.com/cyberark/conjur/pull/2739)
+- Upgraded rack to v2.2.6.4 to resolve CVE-2023-27539
+  [cyberark/conjur#2750](https://github.com/cyberark/conjur/pull/2750)
+
 ## [0.0.5-cloud] - 2023-03-15
 ### Changed
 - Add get SlosiloKey api
