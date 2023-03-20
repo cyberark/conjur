@@ -9,7 +9,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
-## [1.19.3] - 2023-01-26
+## [1.19.3] - 2023-03-21
+
+### Changed
+- Removes support for disabling the `CONJUR_FEATURE_PKCE_SUPPORT_ENABLED` flag.
+  [cyberark/conjur#2713](https://github.com/cyberark/conjur/pull/2713)
+
+## [1.19.2] - 2023-02-01
 
 ### Added
 - Conjur now logs when it detects that the Conjur configuration file
