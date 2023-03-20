@@ -32,8 +32,7 @@ module Authentication
         @identity_resolver = "#{namespace}::ResolveIdentity".constantize
         @strategy = "#{namespace}::Strategy".constantize
         @authn_repo = authn_repo.new(
-          data_object: "#{namespace}::DataObjects::Authenticator".constantize,
-          contract: "#{namespace}::DataObjects::AuthenticatorContract".constantize.new
+          data_object: "#{namespace}::DataObjects::Authenticator".constantize
         )
       end
 

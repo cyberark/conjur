@@ -3,14 +3,13 @@ module DB
     class AuthenticatorRepository
       def initialize(
         data_object:,
-        contract:,
         resource_repository: ::Resource,
         logger: Rails.logger,
         pkce_support_enabled: Rails.configuration.feature_flags.enabled?(:pkce_support)
       )
         @resource_repository = resource_repository
         @data_object = data_object
-        @contract = contract
+        @contract = "#{data_object}Contract".constantize.new
         @logger = logger
         @pkce_support_enabled = pkce_support_enabled
       end
