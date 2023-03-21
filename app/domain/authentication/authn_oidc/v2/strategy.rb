@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 
 module Authentication
   module AuthnOidc
@@ -23,7 +24,9 @@ module Authentication
 
           identity = resolve_identity(
             jwt: @client.callback(
-              code: args[:code]
+              code: args[:code],
+              nonce: args[:nonce],
+              code_verifier: args[:code_verifier]
             )
           )
           unless identity.present?

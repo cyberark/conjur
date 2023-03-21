@@ -13,7 +13,6 @@ module Authentication
         audit_logger: ::Audit.logger,
         authentication_error: LogMessages::Authentication::AuthenticationError,
         available_authenticators: Authentication::InstalledAuthenticators,
-        pkce_support_enabled: Rails.configuration.feature_flags.enabled?(:pkce_support)
       )
         @role = role
         @resource = resource
@@ -21,7 +20,6 @@ module Authentication
         @logger = logger
         @audit_logger = audit_logger
         @authentication_error = authentication_error
-        @pkce_support_enabled = pkce_support_enabled
         @available_authenticators = available_authenticators
 
         # Dynamically load authenticator specific classes
@@ -37,15 +35,6 @@ module Authentication
       end
 
       def call(request_ip:, parameters: nil, request_body: nil, action: nil)
-        unless @pkce_support_enabled
-          required_parameters = %i[state code]
-          required_parameters.each do |parameter|
-            if !parameters.key?(parameter) || parameters[parameter].strip.empty?
-              raise Errors::Authentication::RequestBody::MissingRequestParam, parameter
-            end
-          end
-        end
-
         # verify authenticator is whitelisted....
         unless @available_authenticators.enabled_authenticators.include?("#{parameters[:authenticator]}/#{parameters[:service_id]}")
           raise Errors::Authentication::Security::AuthenticatorNotWhitelisted, "#{parameters[:authenticator]}/#{parameters[:service_id]}"
