@@ -14,6 +14,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 - Removes support for disabling the `CONJUR_FEATURE_PKCE_SUPPORT_ENABLED` flag.
   [cyberark/conjur#2713](https://github.com/cyberark/conjur/pull/2713)
+- Routes on the `/roles/` API endpoints now correctly verify the existing of
+  a Role and return `404` when it doesn't exist or the caller has insufficient
+  privilege.
+  [cyberark/conjur#2755](https://github.com/cyberark/conjur/pull/2755)
 
 ## [1.19.2] - 2023-02-01
 

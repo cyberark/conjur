@@ -6,6 +6,12 @@
 class RolesController < RestController
   include AuthorizeResource
 
+  # FindResource provides the #resource method
+  include FindResource
+
+  # FindRole provides the #role method
+  include FindRole
+
   ROLES_API_EXTENSION_KIND = :roles_api
 
   before_action :current_user
@@ -182,21 +188,6 @@ class RolesController < RestController
 
   def policy
     resource.policy
-  end
-
-  def resource
-    Resource[role_id]
-  end
-
-  def role
-    @role ||= Role[role_id]
-    raise Exceptions::RecordNotFound, role_id unless @role
-
-    return @role
-  end
-
-  def role_id
-    [ params[:account], params[:kind], params[:identifier] ].join(":")
   end
 
   def filter_params
