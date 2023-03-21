@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 module Authentication
   module AuthnOidc
     module V2

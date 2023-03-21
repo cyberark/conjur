@@ -15,7 +15,6 @@ RSpec.describe(Authentication::Util::NamespaceSelector) do
         end
       end
     end
-
     context 'when type is not supported' do
       context 'when type is `authn-k8s`' do
         it 'raises an error' do

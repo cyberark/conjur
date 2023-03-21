@@ -7,7 +7,7 @@ RSpec.describe('Authentication::AuthnOidc::V2::ResolveIdentity', type: 'unit') d
     Authentication::AuthnOidc::V2::ResolveIdentity.new
   end
 
-  describe('#call', type: 'unit') do
+  describe('#call') do
     let(:valid_role) do
       instance_double(::Role).tap do |double|
         allow(double).to receive(:id).and_return('rspec:user:alice')
@@ -91,6 +91,5 @@ RSpec.describe('Authentication::AuthnOidc::V2::ResolveIdentity', type: 'unit') d
         )
       end
     end
-
   end
 end
