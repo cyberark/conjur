@@ -10,6 +10,7 @@ Feature: Manage the role entitlements through the API
     """
     - !user alice
     - !user bob
+    - !user charlie
 
     - !policy
       id: dev
@@ -24,6 +25,16 @@ Feature: Manage the role entitlements through the API
       resource: !policy root
       privileges: [ create, update ]
       roles: !user alice
+
+    - !permit
+      resource: !group dev/developers
+      privileges: [ read ]
+      roles: !user alice
+
+    - !permit
+      resource: !group dev/developers
+      privileges: [ read ]
+      roles: !user charlie
     """
 
   @smoke
@@ -95,9 +106,16 @@ Feature: Manage the role entitlements through the API
     """
 
   @negative @acceptance
-  Scenario: Add a membership without permissions
+  Scenario: Add a membership without read permissions on the group
 
     Given I login as "bob"
+    When I POST "/roles/cucumber/group/dev%2Fdevelopers?members&member=cucumber:user:bob"
+    Then the HTTP response status code is 404
+
+  @negative @acceptance
+  Scenario: Add a membership without create/update permissions on the root policy
+
+    Given I login as "charlie"
     When I POST "/roles/cucumber/group/dev%2Fdevelopers?members&member=cucumber:user:bob"
     Then the HTTP response status code is 403
 
