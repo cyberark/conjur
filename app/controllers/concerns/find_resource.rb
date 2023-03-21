@@ -10,11 +10,9 @@ module FindResource
   protected
 
   def resource
-    if resource_visible?
-      resource!
-    else
-      raise Exceptions::RecordNotFound, resource_id
-    end
+    raise Exceptions::RecordNotFound, resource_id unless resource_visible?
+
+    resource!
   end
 
   def resource_exists?
