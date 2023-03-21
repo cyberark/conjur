@@ -160,3 +160,10 @@ def as_user(user, &block)
 ensure
   Process.uid = Process.euid = prev
 end
+
+def token_auth_header(role:, account: 'rspec')
+  bearer_token = Slosilo["authn:#{account}"].signed_token(role.login)
+  base64_token = Base64.strict_encode64(bearer_token.to_json)
+
+  { 'HTTP_AUTHORIZATION' => "Token token=\"#{base64_token}\"" }
+end
