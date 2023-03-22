@@ -12,7 +12,7 @@ module Authentication
         logger: Rails.logger,
         audit_logger: ::Audit.logger,
         authentication_error: LogMessages::Authentication::AuthenticationError,
-        available_authenticators: Authentication::InstalledAuthenticators,
+        available_authenticators: Authentication::InstalledAuthenticators
       )
         @role = role
         @resource = resource
