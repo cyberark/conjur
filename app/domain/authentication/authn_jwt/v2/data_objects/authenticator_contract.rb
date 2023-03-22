@@ -212,7 +212,7 @@ module Authentication
 
               key.failure(
                 **response_from_exception(
-                  Errors::Authentication::AuthnJwt::FailedToValidateClaimForbiddenClaimName.new(claim, '[a-zA-Z0-9\/\-_\.]+')
+                  Errors::Authentication::AuthnJwt::FailedToValidateClaimForbiddenClaimName.new(claim, "[a-zA-Z0-9\/\-_\.]+")
                 )
               )
             end
@@ -297,12 +297,13 @@ module Authentication
             if (bad_value = claims.find { |claim| claim.count('a-zA-Z0-9\/\-_\.') != claim.length })
               key.failure(
                 **response_from_exception(
-                  Errors::Authentication::AuthnJwt::FailedToValidateClaimForbiddenClaimName.new(bad_value, '[a-zA-Z0-9\/\-_\.]+')
+                  Errors::Authentication::AuthnJwt::FailedToValidateClaimForbiddenClaimName.new(bad_value, "[a-zA-Z0-9\/\-_\.]+")
                 )
               )
             end
           end
 
+          # check for claim aliases in keys or values
           rule(:claim_aliases) do
             denylist = %w[iss exp nbf iat jti aud]
             if (bad_item = (values[:claim_aliases].to_s.split(',').map{|s| s.split(':').map(&:strip)}.flatten & denylist).first)
@@ -316,11 +317,24 @@ module Authentication
 
           # If using public-keys, issuer is required
           rule(:public_keys, :issuer, :account, :service_id) do
-            if values[:public_keys].present? && values[:issuer].empty?
+            if values[:public_keys].present? && values[:issuer].blank?
               key.failure(
                 **response_from_exception(
                   Errors::Conjur::RequiredSecretMissing.new(
                     "#{values[:account]}:variable:conjur/authn-jwt/#{values[:service_id]}/issuer"
+                  )
+                )
+              )
+            end
+          end
+
+          # Verify that `ca_cert` has a secret value set if the variable is present
+          rule(:ca_cert, :account, :service_id) do
+            if values[:ca_cert] == ''
+              key.failure(
+                **response_from_exception(
+                  Errors::Conjur::RequiredSecretMissing.new(
+                    "#{values[:account]}:variable:conjur/authn-jwt/#{values[:service_id]}/ca-cert"
                   )
                 )
               )
