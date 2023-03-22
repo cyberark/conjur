@@ -125,8 +125,8 @@ module Authentication
         def validate_claim!(claim:, value:, identifier:)
           @logger.debug(LogMessages::Authentication::ResourceRestrictions::ValidatingResourceRestrictionOnRequest.new(claim))
 
-          # Verify claim annotation is not in the denylist
-          if @authenticator.denylist.include?(claim)
+          # Verify claim annotation is not in the reserved_claims list
+          if @authenticator.reserved_claims.include?(claim)
             raise Errors::Authentication::AuthnJwt::RoleWithRegisteredOrClaimAliasError, claim
           end
 

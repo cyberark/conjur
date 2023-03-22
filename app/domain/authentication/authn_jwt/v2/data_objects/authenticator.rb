@@ -6,7 +6,7 @@ module Authentication
       module DataObjects
         class Authenticator
 
-          DENYLIST = %w[iss exp nbf iat jti aud].freeze
+          RESERVED_CLAIMS = %w[iss exp nbf iat jti aud].freeze
 
           attr_reader(:account, :service_id)
 
@@ -57,7 +57,7 @@ module Authentication
           end
 
           def token_ttl
-            ActiveSupport::Duration.parse(@token_ttl)
+            ActiveSupport::Duration.parse(@token_ttl.to_s)
           rescue ActiveSupport::Duration::ISO8601Parser::ParsingError
             raise Errors::Authentication::DataObjects::InvalidTokenTTL.new(resource_id, @token_ttl)
           end
@@ -66,11 +66,13 @@ module Authentication
             @enforced_claims.to_s.split(',').map(&:strip)
           end
 
-          def denylist
-            DENYLIST
+          def reserved_claims
+            RESERVED_CLAIMS
           end
 
           def claim_aliases_lookup
+            return {} if @claim_aliases.nil?
+
             Hash[@claim_aliases.to_s.split(',').map{|s| s.split(':').map(&:strip)}]
           end
         end
