@@ -6,6 +6,8 @@ DatabaseCleaner.strategy = :truncation
 
 NONEXISTING_GROUP_URL = '/roles/rspec/group/none'
 UNPERMITTED_HOST_ID = 'rspec:host:none'
+ADMIN_HOST_ID = 'rspec:user:admin'
+ADMIN_HOST_URL = '/roles/rspec/user/admin'
 
 describe RolesController, type: :request do
   before do
@@ -76,7 +78,12 @@ describe RolesController, type: :request do
     # read privilege on.
     [
       {
-        user_id: 'rspec:host:none',
+        user_id: ADMIN_HOST_ID,
+        role_url: ADMIN_HOST_URL,
+        expected_response: :not_found
+      },
+      {
+        user_id: UNPERMITTED_HOST_ID,
         role_url: '/roles/rspec/group/a',
         expected_response: :not_found
       },
@@ -109,6 +116,11 @@ describe RolesController, type: :request do
   describe '#all_memberships' do
     # Test cases
     [
+      {
+        user_id: ADMIN_HOST_ID,
+        role_url: ADMIN_HOST_URL,
+        expected_response: :not_found
+      },
       {
         user_id: UNPERMITTED_HOST_ID,
         role_url: '/roles/rspec/group/d',
@@ -144,6 +156,11 @@ describe RolesController, type: :request do
     # Test cases
     [
       {
+        user_id: ADMIN_HOST_ID,
+        role_url: ADMIN_HOST_URL,
+        expected_response: :not_found
+      },
+      {
         user_id: UNPERMITTED_HOST_ID,
         role_url: '/roles/rspec/group/d',
         expected_response: :not_found
@@ -178,6 +195,11 @@ describe RolesController, type: :request do
     # Test cases
     [
       {
+        user_id: ADMIN_HOST_ID,
+        role_url: ADMIN_HOST_URL,
+        expected_response: :not_found
+      },
+      {
         user_id: UNPERMITTED_HOST_ID,
         role_url: '/roles/rspec/group/a',
         expected_response: :not_found
@@ -211,6 +233,11 @@ describe RolesController, type: :request do
   describe '#graph' do
     # Test cases
     [
+      {
+        user_id: ADMIN_HOST_ID,
+        role_url: ADMIN_HOST_URL,
+        expected_response: :not_found
+      },
       {
         user_id: UNPERMITTED_HOST_ID,
         role_url: '/roles/rspec/group/c',

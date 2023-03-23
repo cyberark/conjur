@@ -27,6 +27,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   successfully reading it. Conjur also now logs at the DEBUG level when it
   detects that either the directory or file do not exist.
   [cyberark/conjur#2715](https://github.com/cyberark/conjur/pull/2715)
+- Account admin roles now have a corresponding resource. This ensures that
+  access controls work as expected for this role to access itself.
+  [cyberark/conjur#2757](https://github.com/cyberark/conjur/pull/2757)
 
 ### Fixed
 - Fixed a thread-safety bug in secret retrieval when multiple threads attempt
