@@ -10,7 +10,7 @@ module Authentication
           @logger = logger
         end
 
-        def call(identifier:, account:, allowed_roles:, id: nil)
+        def call(identifier:, allowed_roles:, id: nil)
           # User ID should only be present without `token-app-property` because
           # we'll use the id to lookup the host/user
           if id.present? && @authenticator.token_app_property.present?
@@ -36,7 +36,8 @@ module Authentication
 
             # If identity path is present, prefix it to the identity
             if @authenticator.identity_path.present?
-              identity = [@authenticator.identity_path, identity].join('')
+              # Make sure we allow flexibility for optionally included trailing slash on identity_path
+              identity = (@authenticator.identity_path.split('/').compact << identity).join('/')
             end
           elsif id.present?
             identity = id
@@ -44,20 +45,21 @@ module Authentication
             raise Errors::Authentication::AuthnJwt::IdentityMisconfigured
           end
 
+
           allowed_roles.each do |role|
             # If provided identity is a host, it'll starty with "host/". We need to match
             # on the type as well as acount and role id.
             if identity.match(/^host\//)
-              role_account, role_type, role_id = role.id.split(':')
-              identity = identity.gsub(/^host\//, '')
-              next unless role_account == account && identity == role_id && role_type == 'host'
+              role_account, role_type, role_id = role[:role_id].split(':')
+              host_identity = identity.gsub(/^host\//, '')
+              next unless role_account == @authenticator.account && host_identity == role_id && role_type == 'host'
             else
-              role_account, _, role_id = role.id.split(':')
-              next unless role_account == account && identity == role_id
+              role_account, _, role_id = role[:role_id].split(':')
+              next unless role_account == @authenticator.account && identity == role_id
             end
 
             # Gather Authenticator specific annotations
-            authenticator_annotations = role.resource.annotations.select { |a| a.name.match(/^authn-jwt\//) }
+            authenticator_annotations = role[:annotations].select { |k, _| k.match(/^authn-jwt\//) }
 
             # At least one relevant annotation is required
             if authenticator_annotations.empty?
@@ -65,16 +67,21 @@ module Authentication
             end
 
             service_id_annotations = authenticator_annotations
-              .select { |a| a.name.match(/^authn-jwt\/#{@authenticator.service_id}\//) }
+              .select { |k, _| k.match(/^authn-jwt\/#{@authenticator.service_id}\//) }
+
+            if service_id_annotations.empty?
+              raise Errors::Authentication::Constraints::RoleMissingAnyRestrictions
+            end
 
             # Validate that defined enforced claims are present
             if @authenticator.enforced_claims.any?
 
               # Gather relevant host annotations
-              host_claims = service_id_annotations.map { |a| a.name.gsub(/^authn-jwt\/#{@authenticator.service_id}\//, '')}
-
+              host_claims = service_id_annotations
+                .map { |k, _| k.gsub(/^authn-jwt\/#{@authenticator.service_id}\//, '')}
+                .map { |a| @authenticator.claim_aliases_lookup[a] || a }
               # Gather and handle any aliases
-              host_claims = host_claims.map { |a| @authenticator.claim_aliases_lookup[a] || a }
+              # host_claims = host_claims.map { |a| @authenticator.claim_aliases_lookup[a] || a }
 
               # At this point we have a list of JWT claims based on host annotations and host annotation aliasing
               missing_required_claims = (@authenticator.enforced_claims - host_claims)
@@ -84,33 +91,31 @@ module Authentication
               end
             end
 
-            if service_id_annotations.empty?
-              raise Errors::Authentication::Constraints::RoleMissingAnyRestrictions
-            end
-
             # Ensure service specific annotations match
-            service_id_annotations.each do |service_id_annotation|
-              claim = service_id_annotation.name.gsub(/^authn-jwt\/#{@authenticator.service_id}\//, '')
-              validate_claim!(claim: claim, value: service_id_annotation.value, identifier: identifier)
+            service_id_annotations.each do |key, value| #|service_id_annotation|
+              # move to hash lookup
+              claim = key.gsub(/^authn-jwt\/#{@authenticator.service_id}\//, '')
+              validate_claim!(claim: claim, value: value, identifier: identifier)
             end
 
             # Ensure general restrictions match
-            (authenticator_annotations - service_id_annotations).each do |authenticator_annotation|
+            # (authenticator_annotations - service_id_annotations)
+            authenticator_annotations.select{|k,_| !service_id_annotations.key?(k) }.each do |key, value| #|authenticator_annotation|
               # ignore invalid service ID annotations (ex. authn-jwt/<service-id>:)
-              next if authenticator_annotation.name == "authn-jwt/#{@authenticator.service_id}"
+              next if key == "authn-jwt/#{@authenticator.service_id}"
 
-              # ignore annotations for differen service IDs
-              next if authenticator_annotation.name.split('/').length > 2
+              # ignore annotations for different service IDs
+              next if key.split('/').length > 2
 
-              claim = authenticator_annotation.name.gsub(/^authn-jwt\//, '')
-              validate_claim!(claim: claim, value: authenticator_annotation.value, identifier: identifier)
+              claim = key.gsub(/^authn-jwt\//, '')
+              validate_claim!(claim: claim, value: value, identifier: identifier)
             end
 
             # I suspect this error message isn't suppose to be written in the past tense....
             @logger.debug(LogMessages::Authentication::ResourceRestrictions::ValidatedResourceRestrictions.new)
             @logger.debug(LogMessages::Authentication::AuthnJwt::ValidateRestrictionsPassed.new)
 
-            return role
+            return role[:role_id]
           end
 
           # If there's an id provided, this is likely a user
