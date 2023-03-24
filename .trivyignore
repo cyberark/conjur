@@ -87,5 +87,7 @@ CVE-2020-1971
 # Conjur does not use SM2 algorithm (https://www.openssl.org/docs/manmaster/man7/SM2.html)
 CVE-2021-3711
 
-# Temporarily ignore CVE-2023-0286 until OpenSSL is updated in the base image
+# We have the fix for CVE-2023-0286 in openssl 1.0.2zg, but because OpenSSL 1.0.2 
+# is only available in premium support, trivy thinks we should use something in the 1.1.1
+# line. We can't, due to FIPS compliance, so need to continue to ignore this issue.
 CVE-2023-0286
