@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'jwt'
+require 'openid_connect'
 
 module Authentication
   module AuthnJwt
@@ -17,7 +18,7 @@ module Authentication
         )
           @authenticator = authenticator
           @logger = logger
-          @cache_key = "authenticators/authn-jwt/#{authenticator.service_id}/jwks-json"
+          @cache_key = "authenticators/authn-jwt/#{authenticator.account}-#{authenticator.service_id}/jwks-json"
           @jwt = jwt
           @json = json
           @http = http
@@ -62,9 +63,6 @@ module Authentication
               true, # Verify the signature of this token
               **additional_params
             ).first
-            if token.empty?
-              raise Errors::Authentication::AuthnJwt::MissingToken
-            end
           rescue JWT::ExpiredSignature
             raise Errors::Authentication::Jwt::TokenExpired
           rescue JWT::DecodeError => e
@@ -75,20 +73,28 @@ module Authentication
 
             raise Errors::Authentication::Jwt::TokenDecodeFailed, e.inspect
           rescue => e
+            # Handle any unexpected exceptions in the decode section.
+            # NOTE: All errors resulting from a failure to decode are part of the
+            #   `JWT::DecodeError` family.
             raise Errors::Authentication::Jwt::TokenVerificationFailed, e.inspect
+          end
+
+          if token.empty?
+            raise Errors::Authentication::AuthnJwt::MissingToken
           end
 
           # The check for audience "should" go away if we force audience to be
           # required
           manditory_claims = if @authenticator.audience.present?
-            %w[exp aud]
+            %w[exp aud iat]
           else
             # Lots of tests pass because we don't set audience :( ...
-            %w[exp]
+            %w[exp iat]
           end
-          (manditory_claims - token.keys).each do |missing_claim|
+          if (missing_claim = (manditory_claims - token.keys).first)
             raise Errors::Authentication::AuthnJwt::MissingMandatoryClaim, missing_claim
           end
+
           token
         end
 
@@ -98,16 +104,15 @@ module Authentication
           jwks_source.call({})
         end
 
+        private
+
         def jwks_source
           if @authenticator.jwks_uri.present?
             jwk_loader(@authenticator.jwks_uri)
           elsif @authenticator.public_keys.present?
             # Looks like loading from the public key is really just injesting
             # a JWKS endpoint from a local source.
-            # begin
             keys = @json.parse(@authenticator.public_keys)&.deep_symbolize_keys
-            # hash[:jwks] = keys[:value]
-            # binding.pry
             return keys[:value] unless keys[:value].blank?
 
             raise Errors::Authentication::AuthnJwt::InvalidPublicKeys,
@@ -115,7 +120,7 @@ module Authentication
 
           elsif @authenticator.provider_uri.present?
             # If we're validating with Provider URI, it means we're operating
-            # against an OIDC enpoint.
+            # against an OIDC endpoint.
             begin
               jwk_loader(
                 @oidc_discovery_configuration.discover!(
@@ -156,13 +161,14 @@ module Authentication
                 ca_certificates.unlink   # deletes the temp file
               end
             else
-              # Auto-include system CAs
+              # Auto-include system CAs unless a CA has been defined
               store.set_default_paths
             end
 
             http.cert_store = store
           end
-          # If path is an empty string, the get request will fail. We set it default to a slash.
+
+          # If path is an empty string, the get request will fail. We set it to a slash if it is empty.
           path = uri.path.empty? ? '/' : uri.path
           begin
             response = http.request(@http::Get.new(path))
@@ -173,19 +179,20 @@ module Authentication
             )
           end
 
-          return unless response.code.to_i == 200
+          return @json.parse(response.body) if response.code.to_i == 200
 
-          @json.parse(response.body)
+          raise Errors::Authentication::AuthnJwt::FetchJwksKeysFailed.new(
+            url,
+            "response code: '#{response.code}' - #{response.body}"
+          )
         end
 
+        # Caches the JWKS response. This will be expired if the key has
+        # changed (and the signing key validation fails).
         def jwks(jwks_url:, force: false)
-          # TODO: Need a mechanism to allow us to expire cache from Cucumber tests
-          # so that we can include tests with different JWKS certificates.
-          #
           @cache.fetch(@cache_key, force: force, skip_nil: true) do
             fetch_jwks(jwks_url)
           end&.deep_symbolize_keys
-          # fetch_jwks(jwks_url)&.deep_symbolize_keys
         end
       end
     end
