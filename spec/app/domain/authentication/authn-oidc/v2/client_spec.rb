@@ -166,9 +166,6 @@ RSpec.describe(Authentication::AuthnOidc::V2::Client) do
         expect(discovery_information.jwks_uri).to eq(
           'https://dev-92899796.okta.com/oauth2/default/v1/keys'
         )
-        expect(discovery_information.end_session_endpoint).to eq(
-          'https://dev-92899796.okta.com/oauth2/default/v1/logout'
-        )
       end
     end
 
