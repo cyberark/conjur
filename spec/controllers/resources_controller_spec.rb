@@ -27,19 +27,16 @@ describe ResourcesController, type: :request do
       '/policies/rspec/policy/root'
     end
 
-    let(:token_auth_header) do
-      bearer_token = Slosilo["authn:rspec"].signed_token(current_user.login)
-      token_auth_str =
-        "Token token=\"#{Base64.strict_encode64(bearer_token.to_json)}\""
-      { 'HTTP_AUTHORIZATION' => token_auth_str }
-    end
-
     def list_resources(limit: nil, offset: nil, count: false)
       params = {}
       params.merge!({ :limit => limit }) if limit
       params.merge!({ :offset => offset }) if offset
       params.merge!({ :count => count }) if count
-      get(resources_url, env: token_auth_header, params: params)
+      get(
+        resources_url,
+        env: token_auth_header(role: current_user),
+        params: params
+      )
     end
 
     def count_resources(limit: nil)
@@ -48,7 +45,10 @@ describe ResourcesController, type: :request do
 
     def load_variables()
       payload = '[!variable a, !variable b, !variable c, !variable d, !host a, !host b, !host c, !host d, !layer a, !layer b, !layer c]'
-      put(policies_url, env: token_auth_header.merge({ 'RAW_POST_DATA' => payload }))
+      put(
+        policies_url,
+        env: token_auth_header(role: current_user).merge({ 'RAW_POST_DATA' => payload })
+      )
     end
 
     context 'with default configuration' do
