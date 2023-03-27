@@ -55,17 +55,14 @@ module Authentication
         end
 
         begin
-          role = @identity_resolver.new(authenticator: authenticator).call(
+          role_id = @identity_resolver.new(authenticator: authenticator).call(
             identifier: @strategy.new(
               authenticator: authenticator
             ).callback(parameters: parameters, request_body: request_body),
-            account: parameters[:account],
             id: parameters[:id],
-            allowed_roles: @role.that_can(
-              :authenticate,
-              @resource[authenticator.resource_id]
-            ).all.select(&:resource?)
+            allowed_roles: find_allowed_roles(authenticator.resource_id)
           )
+          role = ::Role[role_id]
         rescue Errors::Authentication::Security::RoleNotFound => e
 
           # This is a bit dirty, but now that we've shifted from looking up to
@@ -109,6 +106,18 @@ module Authentication
       rescue => e
         log_audit_failure(authenticator, role&.role_id, request_ip, @authenticator_type, e)
         handle_error(e)
+      end
+
+      def find_allowed_roles(resource_id)
+        @role.that_can(
+          :authenticate,
+          @resource[resource_id]
+        ).all.select(&:resource?).map do |role|
+          {
+            role_id: role.id,
+            annotations: {}.tap { |h| role.resource.annotations.each {|a| h[a.name] = a.value }}
+          }
+        end
       end
 
       def handle_error(err)
