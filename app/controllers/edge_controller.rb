@@ -103,10 +103,10 @@ class EdgeController < RestController
       hosts.each do |host|
         hostToReturn = {}
         hostToReturn[:id] = host[:role_id]
-        #salt = OpenSSL::Random.random_bytes(32)
-        #hostToReturn[:api_key] = Base64.encode64(hmac_api_key(host, salt))
-        hostToReturn[:api_key] = host.api_key
-        #hostToReturn[:salt] = Base64.encode64(salt)
+        salt = OpenSSL::Random.random_bytes(32)
+        hostToReturn[:api_key] = Base64.encode64(hmac_api_key(host, salt))
+        # hostToReturn[:api_key] = host.api_key
+        hostToReturn[:salt] = Base64.encode64(salt)
         hostToReturn[:memberships] =host.all_roles.all.select{|h| h[:role_id] != (host[:role_id])}
         results  << hostToReturn
       end
