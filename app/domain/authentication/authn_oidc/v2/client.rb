@@ -31,15 +31,14 @@ module Authentication
               authorization_endpoint: URI(discovery_information.authorization_endpoint).path,
               token_endpoint: URI(discovery_information.token_endpoint).path,
               userinfo_endpoint: URI(discovery_information.userinfo_endpoint).path,
-              jwks_uri: URI(discovery_information.jwks_uri).path,
-              end_session_endpoint: URI(discovery_information.end_session_endpoint).path
+              jwks_uri: URI(discovery_information.jwks_uri).path
             )
           end
         end
 
         def callback(code:, nonce:, code_verifier: nil)
           oidc_client.authorization_code = code
-          access_token_args = { scope: true, client_auth_method: :basic }
+          access_token_args = { client_auth_method: :basic }
           access_token_args[:code_verifier] = code_verifier if code_verifier.present?
           begin
             bearer_token = oidc_client.access_token!(**access_token_args)
