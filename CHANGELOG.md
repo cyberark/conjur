@@ -8,10 +8,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
+
 ## [99.99.99-cloud] - 2023-03-28
 ### Changed
 - test hash api key
-
 
 ## [0.0.7-cloud] - 2023-03-27
 ### Changed
