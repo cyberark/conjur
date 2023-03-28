@@ -113,11 +113,9 @@ module Authentication
             # Looks like loading from the public key is really just injesting
             # a JWKS endpoint from a local source.
             keys = @json.parse(@authenticator.public_keys)&.deep_symbolize_keys
-            return keys[:value] unless keys[:value].blank?
 
-            raise Errors::Authentication::AuthnJwt::InvalidPublicKeys,
-              "Type can't be blank, Value can't be blank, and Type '' is not a valid public-keys type. Valid types are: jwks"
-
+            # Presence of the `value` symbol is verified by the Authenticator Contract
+            keys[:value]
           elsif @authenticator.provider_uri.present?
             # If we're validating with Provider URI, it means we're operating
             # against an OIDC endpoint.

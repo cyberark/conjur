@@ -6,6 +6,10 @@
 # For the next available code, use the command `rake error_code:next` in the
 # repo root.
 #
+# IMPORTANT:
+#   - Code should be defined using double quotes
+#   - Add an 'E' to the end of the generated code (for Error)
+#
 # See also ./logs.rb
 module Errors
   module Conjur
@@ -57,6 +61,12 @@ module Errors
       msg: "Resource '{0-resource}' requested by role '{1-role}' not found",
       code: "CONJ00123E"
     )
+
+    MalformedJson = ::Util::TrackableErrorClass.new(
+      msg: "'{0-json}' is not valid JSON",
+      code: "CONJ00153E"
+    )
+
   end
 
   module Authorization
@@ -213,13 +223,13 @@ module Errors
       )
 
       TokenInvalidIAT = ::Util::TrackableErrorClass.new(
-        msg: 'Token iat has not yet occured',
-        code: 'CONJ00151'
+        msg: "Token iat has not yet occured",
+        code: "CONJ00151E"
       )
 
       TokenInvalidNBF = ::Util::TrackableErrorClass.new(
-        msg: 'Token nbf has not been reached',
-        code: 'CONJ00152'
+        msg: "Token nbf has not been reached",
+        code: "CONJ00152E"
       )
 
       TokenDecodeFailed = ::Util::TrackableErrorClass.new(
@@ -679,10 +689,9 @@ module Errors
         code: "CONJ00121E"
       )
 
-      # TODO: this code is a duplicate
       InvalidSigningKeySettings = ::Util::TrackableErrorClass.new(
         msg: "Invalid signing key settings: {0-validation-error}",
-        code: "CONJ00122E"
+        code: "CONJ00154E"
       )
 
       FailedToFetchJwksData = ::Util::TrackableErrorClass.new(

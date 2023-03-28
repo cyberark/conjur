@@ -5,42 +5,43 @@ require 'spec_helper'
 RSpec.describe(Authentication::AuthnOidc::V2::DataObjects::AuthenticatorContract) do
   subject { Authentication::AuthnJwt::V2::DataObjects::AuthenticatorContract.new.call(**params) }
   let(:default_args) { { account: 'foo', service_id: 'bar' } }
+  let(:public_keys) { '{"type":"jwks","value":{"keys":[{}]}}' }
 
   context 'when more than one of the following are set: jwks_uri, public_keys, and provider_uri' do
     context 'when jwks_uri and public_keys are set' do
       # TODO: this error message doesn't make sense...
-      let(:params) { default_args.merge(jwks_uri: 'foo', public_keys: 'bar') }
+      let(:params) { default_args.merge(jwks_uri: 'foo', public_keys: public_keys) }
       it 'is unsuccessful' do
         expect(subject.success?).to be(false)
         expect(subject.errors.first.text).to eq(
-          'CONJ00122E Invalid signing key settings: jwks-uri and provider-uri cannot be defined simultaneously'
+          'CONJ00154E Invalid signing key settings: jwks-uri and provider-uri cannot be defined simultaneously'
         )
       end
     end
     context 'when jwks_uri and provider_uri are set' do
-      let(:params) { default_args.merge(jwks_uri: 'foo', provider_uri: 'bar') }
+      let(:params) { default_args.merge(jwks_uri: 'foo', provider_uri: public_keys) }
       it 'is unsuccessful' do
         expect(subject.success?).to be(false)
         expect(subject.errors.first.text).to eq(
-          'CONJ00122E Invalid signing key settings: jwks-uri and provider-uri cannot be defined simultaneously'
+          'CONJ00154E Invalid signing key settings: jwks-uri and provider-uri cannot be defined simultaneously'
         )
       end
     end
     context 'when provider_uri and public_keys are set' do
       # TODO: this error message doesn't make sense...
-      let(:params) { default_args.merge(provider_uri: 'foo', public_keys: 'bar') }
+      let(:params) { default_args.merge(provider_uri: 'foo', public_keys: public_keys) }
       it 'is unsuccessful' do
         expect(subject.success?).to be(false)
         expect(subject.errors.first.text).to eq(
-          'CONJ00122E Invalid signing key settings: jwks-uri and provider-uri cannot be defined simultaneously'
+          'CONJ00154E Invalid signing key settings: jwks-uri and provider-uri cannot be defined simultaneously'
         )
       end
     end
   end
 
-  context 'when public_keys is defined' do
+  context 'when public_keys are defined' do
     context 'when issuer is missing' do
-      let(:params) { default_args.merge(public_keys: 'bar') }
+      let(:params) { default_args.merge(public_keys: public_keys) }
       it 'is unsuccessful' do
         expect(subject.success?).to be(false)
         expect(subject.errors.first.text).to eq(
@@ -49,12 +50,101 @@ RSpec.describe(Authentication::AuthnOidc::V2::DataObjects::AuthenticatorContract
       end
     end
     context 'when issuer is empty' do
-      let(:params) { default_args.merge(public_keys: 'bar', issuer: '') }
+      let(:params) { default_args.merge(public_keys: public_keys, issuer: '') }
       it 'is unsuccessful' do
         expect(subject.success?).to be(false)
         expect(subject.errors.first.text).to eq(
           'CONJ00037E Missing value for resource: foo:variable:conjur/authn-jwt/bar/issuer'
         )
+      end
+    end
+    context 'when public keys are malformed' do
+      # Public Keys are pretty finicky. They are required to be:
+      # - valid JSON
+      # - includes 'type' and 'value' keys
+      # - type must be 'jwks'
+      # - value needs to have a 'keys' value with a form like:
+      #   "keys": [{
+      #   	"e": "AQAB",
+      #   	"kty": "RSA",
+      #   	"n": "ugwppRMuZ0uROdbPewhNUS4219DlBiwXaZOje-PMXdfXRw8umH7IJ9bCIya6ayolap0YWyFSDTTGStRBIbmdY9HKJ25XqkRrVHlUAfBBS_K7zlfoF3wMxmc_sDyXBUET7R3VaDO6A1CuGYwQ5Shj-bSJa8RmOH0OlwSlhr0fKME",
+      #   	"kid": "FlpP5WEr5YFZtEYbGH6E-JtWOHk-edj4hPiGOvnU1fY"
+      #   }]
+      context 'when public keys are invalid JSON' do
+        let(:params) { default_args.merge(public_keys: 'bar', issuer: 'foo') }
+        it 'is unsuccessful' do
+          expect(subject.success?).to be(false)
+          expect(subject.errors.first.text).to eq(
+            "CONJ00153E 'bar' is not valid JSON"
+          )
+        end
+      end
+      context 'when attributes are invalid' do
+        context 'when value key is missing' do
+          let(:params) { default_args.merge(public_keys: '{"type":"jwks"}', issuer: 'foo') }
+          it 'is unsuccessful' do
+            expect(subject.success?).to be(false)
+            expect(subject.errors.first.text).to eq(
+              "CONJ00120E Failed to parse 'public-keys': Type can't be blank, Value can't be blank, and Type '' is not a valid public-keys type. Valid types are: jwks"
+            )
+          end
+        end
+        context 'when type key is missing' do
+          let(:params) { default_args.merge(public_keys: '{"value":{"keys":[]}}', issuer: 'foo') }
+          it 'is unsuccessful' do
+            expect(subject.success?).to be(false)
+            expect(subject.errors.first.text).to eq(
+              "CONJ00120E Failed to parse 'public-keys': Type can't be blank, Value can't be blank, and Type '' is not a valid public-keys type. Valid types are: jwks"
+            )
+          end
+        end
+        context 'when type key is not `jwks`' do
+          let(:params) { default_args.merge(public_keys: '{"type":"foo","value":{"keys":[]}}', issuer: 'foo') }
+          it 'is unsuccessful' do
+            expect(subject.success?).to be(false)
+            expect(subject.errors.first.text).to eq(
+              "CONJ00120E Failed to parse 'public-keys': Type can't be blank, Value can't be blank, and Type '' is not a valid public-keys type. Valid types are: jwks"
+            )
+          end
+        end
+        context 'when "value" is missing the key "keys"' do
+          context 'when value is empty' do
+            let(:params) { default_args.merge(public_keys: '{"type":"jwks","value":""}', issuer: 'foo') }
+            it 'is unsuccessful' do
+              expect(subject.success?).to be(false)
+              expect(subject.errors.first.text).to eq(
+                "CONJ00120E Failed to parse 'public-keys': Value must include the name/value pair 'keys', which is an array of valid JWKS public keys"
+              )
+            end
+          end
+          context 'when value is missing "keys" key' do
+            let(:params) { default_args.merge(public_keys: '{"type":"jwks","value":{"key":""}}', issuer: 'foo') }
+            it 'is unsuccessful' do
+              expect(subject.success?).to be(false)
+              expect(subject.errors.first.text).to eq(
+                "CONJ00120E Failed to parse 'public-keys': Value must include the name/value pair 'keys', which is an array of valid JWKS public keys"
+              )
+            end
+          end
+          context 'when value "keys" is not an array' do
+            let(:params) { default_args.merge(public_keys: '{"type":"jwks","value":{"keys":{}}}', issuer: 'foo') }
+            it 'is unsuccessful' do
+              expect(subject.success?).to be(false)
+              expect(subject.errors.first.text).to eq(
+                "CONJ00120E Failed to parse 'public-keys': Value must include the name/value pair 'keys', which is an array of valid JWKS public keys"
+              )
+            end
+          end
+          context 'when value "keys" is an empty array' do
+            let(:params) { default_args.merge(public_keys: '{"type":"jwks","value":{"keys":[]}}', issuer: 'foo') }
+            it 'is unsuccessful' do
+              expect(subject.success?).to be(false)
+              expect(subject.errors.first.text).to eq(
+                "CONJ00120E Failed to parse 'public-keys': Value must include the name/value pair 'keys', which is an array of valid JWKS public keys"
+              )
+            end
+          end
+        end
       end
     end
   end
@@ -97,7 +187,7 @@ RSpec.describe(Authentication::AuthnOidc::V2::DataObjects::AuthenticatorContract
     it 'is unsuccessful' do
       expect(subject.success?).to be(false)
       expect(subject.errors.first.text).to eq(
-        'CONJ00122E Invalid signing key settings: One of the following must be defined: jwks-uri, public-keys, or provider-uri'
+        'CONJ00154E Invalid signing key settings: One of the following must be defined: jwks-uri, public-keys, or provider-uri'
       )
     end
   end

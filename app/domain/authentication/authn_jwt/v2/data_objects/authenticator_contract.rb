@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'json'
 module Authentication
   module AuthnJwt
     module V2
@@ -325,6 +326,63 @@ module Authentication
                   )
                 )
               )
+            end
+          end
+
+          # Ensure public keys value is valid JSON
+          rule(:public_keys) do
+            begin
+              if values[:public_keys].present?
+                JSON.parse(values[:public_keys])
+              end
+            rescue JSON::ParserError
+              key.failure(
+                **response_from_exception(
+                  Errors::Conjur::MalformedJson.new(
+                    values[:public_keys]
+                  )
+                )
+              )
+            end
+          end
+
+          # Ensure 'type' and 'value' keys exist, and type is equal to 'jwks'
+          rule(:public_keys) do
+            if values[:public_keys].present?
+              begin
+                json = JSON.parse(values[:public_keys])
+                unless json.key?('value') && json.key?('type') && json['type'] == 'jwks'
+                  key.failure(
+                    **response_from_exception(
+                      Errors::Authentication::AuthnJwt::InvalidPublicKeys.new(
+                        "Type can't be blank, Value can't be blank, and Type '' is not a valid public-keys type. Valid types are: jwks"
+                      )
+                    )
+                  )
+                end
+              # Need to catch JSON parse exceptions because these rules are cumulative
+              rescue JSON::ParserError
+              end
+            end
+          end
+
+          # Ensure public keys has a "keys" value that is an array
+          rule(:public_keys) do
+            if values[:public_keys].present?
+              begin
+                json = JSON.parse(values[:public_keys])
+                unless json.key?('value') && json['value'].is_a?(Hash) && json['value'].key?('keys') && json['value']['keys'].is_a?(Array) && json['value']['keys'].count > 0
+                  key.failure(
+                    **response_from_exception(
+                      Errors::Authentication::AuthnJwt::InvalidPublicKeys.new(
+                        "Value must include the name/value pair 'keys', which is an array of valid JWKS public keys"
+                      )
+                    )
+                  )
+                end
+              # Need to catch JSON parse exceptions because these rules are cumulative
+              rescue JSON::ParserError
+              end
             end
           end
 
