@@ -139,7 +139,7 @@ Feature: JWT Authenticator - Configuration Check
     Then the HTTP response status code is 401
     And The following appears in the log after my savepoint:
     """
-    CONJ00122E Invalid signing key settings: jwks-uri and provider-uri cannot be defined simultaneously
+    CONJ00154E Invalid signing key settings: jwks-uri and provider-uri cannot be defined simultaneously
     """
 
   # This test is checking if an empty string (string with a space) is added for the
@@ -196,7 +196,7 @@ Feature: JWT Authenticator - Configuration Check
     Then the HTTP response status code is 401
     And The following appears in the log after my savepoint:
     """
-    CONJ00122E Invalid signing key settings: jwks-uri and provider-uri cannot be defined simultaneously
+    CONJ00154E Invalid signing key settings: jwks-uri and provider-uri cannot be defined simultaneously
     """
 
   @negative @acceptance
@@ -286,7 +286,7 @@ Feature: JWT Authenticator - Configuration Check
     """
     CONJ00037E Missing value for resource: cucumber:variable:conjur/authn-jwt/raw/provider-uri
     """
-    # CONJ00122E Invalid signing key settings: Failed to find a JWT decode option. Either `jwks-uri` or `public-keys` variable must be set
+    # CONJ00154E Invalid signing key settings: Failed to find a JWT decode option. Either `jwks-uri` or `public-keys` variable must be set
 
   @negative @acceptance
   Scenario: ONYX-8696: None of provider-uri or jwks-uri are configured
@@ -328,7 +328,7 @@ Feature: JWT Authenticator - Configuration Check
     Then the HTTP response status code is 401
     And The following appears in the log after my savepoint:
     """
-    CONJ00122E Invalid signing key settings: One of the following must be defined: jwks-uri, public-keys, or provider-uri
+    CONJ00154E Invalid signing key settings: One of the following must be defined: jwks-uri, public-keys, or provider-uri
     """
 
   # This test is checking if an empty string (string with a space) is added for the
@@ -385,7 +385,7 @@ Feature: JWT Authenticator - Configuration Check
     Then the HTTP response status code is 401
     And The following appears in the log after my savepoint:
     """
-    CONJ00122E Invalid signing key settings: jwks-uri and provider-uri cannot be defined simultaneously
+    CONJ00154E Invalid signing key settings: jwks-uri and provider-uri cannot be defined simultaneously
     """
 
   @negative @acceptance
