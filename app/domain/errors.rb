@@ -265,17 +265,6 @@ module Errors
         msg: "Access Token retrieval failure: '{0-error}'",
         code: "CONJ00133E"
       )
-
-      # TODO - this error comes from the current version of the OIDC
-      # authenticator. The second iteration (currently behind a flag)
-      # moves state generation and verification to the client. Once the
-      # 'pkce_support' feature flag functionality permanently replaces
-      # the initial implementation, this error message will no longer be
-      # used and should be removed.
-      StateMismatch = ::Util::TrackableErrorClass.new(
-        msg: "Conjur internal state doesn't match given state",
-        code: "CONJ00127E"
-      )
     end
 
     module AuthnIam

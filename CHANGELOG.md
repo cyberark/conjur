@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
+## [0.0.7-cloud] - 2023-03-27
+### Changed
+- Merge from master 2023-03-27 to 2023-03-26
+
 ## [0.0.6-cloud] - 2023-03-19
 ### Security
 - Updated github-pages version in docs/Gemfile to allow upgrading activesupport
@@ -39,7 +43,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 - Remove auto-release options to allow for a pseudo-fork development on a branch
 
-## [1.19.3] - 2023-01-26
+## [1.19.3] - 2023-03-21
+
+### Changed
+- Removes support for disabling the `CONJUR_FEATURE_PKCE_SUPPORT_ENABLED` flag.
+  [cyberark/conjur#2713](https://github.com/cyberark/conjur/pull/2713)
+- Routes on the `/roles/` API endpoints now correctly verify the existing of
+  a Role and return `404` when it doesn't exist or the caller has insufficient
+  privilege.
+  [cyberark/conjur#2755](https://github.com/cyberark/conjur/pull/2755)
+
+## [1.19.2] - 2023-02-01
 
 ### Added
 - Conjur now logs when it detects that the Conjur configuration file
