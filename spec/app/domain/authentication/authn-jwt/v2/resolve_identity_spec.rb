@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe(Authentication::AuthnOidc::V2::ResolveIdentity) do
+RSpec.describe(Authentication::AuthnJwt::V2::ResolveIdentity) do
   subject do
     Authentication::AuthnJwt::V2::ResolveIdentity.new(
       authenticator: Authentication::AuthnJwt::V2::DataObjects::Authenticator.new(
