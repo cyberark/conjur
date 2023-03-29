@@ -182,33 +182,7 @@ RSpec.describe(Authentication::AuthnOidc::V2::Strategy) do
     end
 
     context 'with public keys' do
-      context 'when public keys are invalid' do
-        let(:token) { 'eyJhbGciOiJSUzI1NiIsImtpZCI6IkZscFA1V0VyNVlGWnRFWWJHSDZFLUp0V09Iay1lZGo0aFBpR092blUxZlkifQ.eyJleHAiOjE2ODAyODkyODksImhvc3QiOiJteWFwcCIsImlhdCI6MTY3OTY4NDQ4OSwicHJvamVjdF9pZCI6Im15cHJvamVjdCJ9.g4CBtwxSTcdvOWnlQTutqlYHD23bEA9LVLU2MS8UDW2pZSIucw_Dem0_2u3iJNZbTqATMpcFXxn2oi7VrsZbpl9pQ6PWSo4WwTHXoztWae4OInJ29cSQko0K4IExRSxyD3kM14eOp5ueaesa53O-8557fSUGq0qPcLqAxSgY31Y' }
-        context 'when empty hash' do
-          let(:authenticator_params) { { public_keys: '{}' } }
-          it 'raises an error' do
-            expect { subject.callback(request_body: "jwt=#{token}") }.to raise_error(
-              Errors::Authentication::AuthnJwt::InvalidPublicKeys
-            )
-          end
-        end
-        context 'when value is empty' do
-          let(:authenticator_params) { { public_keys: '{"type": "jwks", "value": {}}' } }
-          it 'raises an error' do
-            expect { subject.callback(request_body: "jwt=#{token}") }.to raise_error(
-              Errors::Authentication::AuthnJwt::InvalidPublicKeys
-            )
-          end
-        end
-        context 'when no keys are present' do
-          let(:authenticator_params) { { public_keys: '{"type": "jwks", "value": {"keys": []}}' } }
-          it 'raises an error' do
-            expect { subject.callback(request_body: "jwt=#{token}") }.to raise_error(
-              Errors::Authentication::Jwt::TokenDecodeFailed
-            )
-          end
-        end
-      end
+      # NOTE: Public key format validation how happens using the contract
       context 'when public keys are valid' do
         let(:authenticator_params) { { public_keys: '{"type": "jwks", "value": {"keys": [{"e": "AQAB", "kty": "RSA", "n": "ugwppRMuZ0uROdbPewhNUS4219DlBiwXaZOje-PMXdfXRw8umH7IJ9bCIya6ayolap0YWyFSDTTGStRBIbmdY9HKJ25XqkRrVHlUAfBBS_K7zlfoF3wMxmc_sDyXBUET7R3VaDO6A1CuGYwQ5Shj-bSJa8RmOH0OlwSlhr0fKME","kid": "FlpP5WEr5YFZtEYbGH6E-JtWOHk-edj4hPiGOvnU1fY"}]}}' } }
         let(:token) { 'eyJhbGciOiJSUzI1NiIsImtpZCI6IkZscFA1V0VyNVlGWnRFWWJHSDZFLUp0V09Iay1lZGo0aFBpR092blUxZlkifQ.eyJleHAiOjE2ODAyODkyODksImhvc3QiOiJteWFwcCIsImlhdCI6MTY3OTY4NDQ4OSwicHJvamVjdF9pZCI6Im15cHJvamVjdCJ9.g4CBtwxSTcdvOWnlQTutqlYHD23bEA9LVLU2MS8UDW2pZSIucw_Dem0_2u3iJNZbTqATMpcFXxn2oi7VrsZbpl9pQ6PWSo4WwTHXoztWae4OInJ29cSQko0K4IExRSxyD3kM14eOp5ueaesa53O-8557fSUGq0qPcLqAxSgY31Y' }
