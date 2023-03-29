@@ -23,9 +23,6 @@ module Authentication
             optional(:provider_scope).value(:string)
             optional(:name).value(:string)
             optional(:token_ttl).value(:string)
-
-            optional(:nonce).value(:string)
-            optional(:state).value(:string)
           end
 
           def response_from_exception(err)
