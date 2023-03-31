@@ -118,7 +118,11 @@ RSpec.describe('DB::Repository::AuthenticatorRepository') do
 
   describe('#find') do
     context 'when webservice is not present' do
-      it { expect(repo.find(type: 'authn-oidc', account: 'rspec', service_id: 'abc123')).to be(nil) }
+      it 'raise an error' do
+        expect { repo.find(type: 'authn-oidc', account: 'rspec', service_id: 'abc123') }.to raise_error(
+          Errors::Authentication::Security::WebserviceNotFound
+        )
+      end
     end
 
     context 'when webservice is present' do
@@ -133,7 +137,11 @@ RSpec.describe('DB::Repository::AuthenticatorRepository') do
       end
 
       context 'when no variables are set' do
-        it { expect(repo.find(type: 'authn-oidc', account: 'rspec', service_id: 'abc123')).to be(nil) }
+        it 'raises an error' do
+          expect { repo.find(type: 'authn-oidc', account: 'rspec', service_id: 'abc123') }.to raise_error(
+            Errors::Conjur::RequiredSecretMissing
+          )
+        end
       end
 
       context 'when all variables are present' do
@@ -146,11 +154,15 @@ RSpec.describe('DB::Repository::AuthenticatorRepository') do
           end
         end
 
-        context 'are empty' do
-          it { expect(repo.find(type: 'authn-oidc', account: 'rspec', service_id: 'abc123')).to be(nil) }
+        context 'and variables are empty' do
+          it 'raises an error' do
+            expect { repo.find(type: 'authn-oidc', account: 'rspec', service_id: 'abc123') }.to raise_error(
+              Errors::Conjur::RequiredSecretMissing
+            )
+          end
         end
 
-        context 'are set' do
+        context 'and variables are set' do
           before(:each) do
             arguments.each do |variable|
               ::Secret.create(

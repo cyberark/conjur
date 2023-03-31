@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Authentication
   module AuthnOidc
     module V2
@@ -12,19 +14,19 @@ module Authentication
           @logger = logger
         end
 
-        def callback(args)
+        def callback(parameters:, request_body: nil)
           # NOTE: `code_verifier` param is optional
           %i[code nonce].each do |param|
-            unless args[param].present?
+            unless parameters[param].present?
               raise Errors::Authentication::RequestBody::MissingRequestParam, param.to_s
             end
           end
 
           identity = resolve_identity(
             jwt: @client.callback(
-              code: args[:code],
-              nonce: args[:nonce],
-              code_verifier: args[:code_verifier]
+              code: parameters[:code],
+              nonce: parameters[:nonce],
+              code_verifier: parameters[:code_verifier]
             )
           )
           unless identity.present?

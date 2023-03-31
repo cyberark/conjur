@@ -4,7 +4,7 @@ class AuthenticateController < ApplicationController
   include BasicAuthenticator
   include AuthorizeResource
 
-  def oidc_authenticate_code_redirect
+  def authenticate_via_get
     # TODO: need a mechanism for an authenticator strategy to define the required
     # params. This will likely need to be done via the Handler.
     params.permit!
