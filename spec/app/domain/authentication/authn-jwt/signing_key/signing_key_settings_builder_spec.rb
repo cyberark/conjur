@@ -93,7 +93,7 @@ adw3EjiIk0BWdAToCtSGB7FvdcOntgOsvhHrFQ==
             expect { subject }
               .to raise_error(
                     Errors::Authentication::AuthnJwt::InvalidSigningKeySettings,
-                    "CONJ00122E Invalid signing key settings: #{expected_error_message}")
+                    "CONJ00154E Invalid signing key settings: #{expected_error_message}")
           end
         end
       end

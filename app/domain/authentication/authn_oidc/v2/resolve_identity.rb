@@ -2,16 +2,20 @@ module Authentication
   module AuthnOidc
     module V2
       class ResolveIdentity
-        def call(identity:, account:, allowed_roles:)
-          # make sure role has a resource (ex. user, host)
-          roles = allowed_roles.select(&:resource?)
+        def initialize(authenticator:, logger: Rails.logger)
+          @authenticator = authenticator
+          @logger = logger
+        end
 
-          roles.each do |role|
-            role_account, _, role_id = role.id.split(':')
-            return role if role_account == account && identity == role_id
+        def call(identifier:, allowed_roles:, id: nil)
+          allowed_roles.each do |role|
+            role_account, _, role_id = role[:role_id].split(':')
+            next unless role_account == @authenticator.account
+
+            return role[:role_id] if identifier == role_id
           end
 
-          raise(Errors::Authentication::Security::RoleNotFound, identity)
+          raise(Errors::Authentication::Security::RoleNotFound, identifier)
         end
       end
     end

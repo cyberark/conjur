@@ -41,7 +41,10 @@ module Authentication
             @name = name
             @provider_scope = provider_scope
             @redirect_uri = redirect_uri
-            @token_ttl = token_ttl
+
+            # If variable is present but not set, token_ttl will come
+            # through as an empty string.
+            @token_ttl = token_ttl.present? ? token_ttl : 'PT8M'
           end
 
           def scope

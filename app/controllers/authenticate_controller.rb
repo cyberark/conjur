@@ -4,7 +4,7 @@ class AuthenticateController < ApplicationController
   include BasicAuthenticator
   include AuthorizeResource
 
-  def oidc_authenticate_code_redirect
+  def authenticate_via_get
     # TODO: need a mechanism for an authenticator strategy to define the required
     # params. This will likely need to be done via the Handler.
     params.permit!
@@ -20,6 +20,35 @@ class AuthenticateController < ApplicationController
   rescue => e
     log_backtrace(e)
     raise e
+  end
+
+  def authenticate_via_post
+    auth_token = Authentication::Handler::AuthenticationHandler.new(
+      authenticator_type: params[:authenticator]
+    ).call(
+      parameters: params,
+      request_body: request.body.read,
+      request_ip: request.ip
+    )
+
+    render_authn_token(auth_token)
+  rescue => e
+    log_backtrace(e)
+    raise e
+  end
+
+  def authenticator_status
+    Authentication::Handler::StatusHandler.new(
+      authenticator_type: params[:authenticator]
+    ).call(
+      parameters: params,
+      role: current_user,
+      request_ip: request.ip
+    )
+    render(json: { status: "ok" })
+  rescue => e
+    log_backtrace(e)
+    render(status_failure_response(e))
   end
 
   def index
@@ -68,18 +97,6 @@ class AuthenticateController < ApplicationController
     )
   end
 
-  def authn_jwt_status
-    params[:authenticator] = "authn-jwt"
-    Authentication::AuthnJwt::ValidateStatus.new.call(
-      authenticator_status_input: status_input,
-      enabled_authenticators: Authentication::InstalledAuthenticators.enabled_authenticators_str
-    )
-    render(json: { status: "ok" })
-  rescue => e
-    log_backtrace(e)
-    render(status_failure_response(e))
-  end
-
   def update_config
     Authentication::UpdateAuthenticatorConfig.new.(
       update_config_input: update_config_input
@@ -116,23 +133,6 @@ class AuthenticateController < ApplicationController
     render(plain: result.authentication_key)
   rescue => e
     handle_login_error(e)
-  end
-
-  def authenticate_jwt
-    params[:authenticator] = "authn-jwt"
-    authn_token = Authentication::AuthnJwt::OrchestrateAuthentication.new.call(
-      authenticator_input: authenticator_input_without_credentials,
-      enabled_authenticators: Authentication::InstalledAuthenticators.enabled_authenticators_str
-    )
-    render_authn_token(authn_token)
-  rescue => e
-    # At this point authenticator_input.username is always empty (e.g. cucumber:user:USERNAME_MISSING)
-    log_audit_failure(
-      authn_params: authenticator_input,
-      audit_event_class: Audit::Event::Authn::Authenticate,
-      error: e
-    )
-    handle_authentication_error(e)
   end
 
   # Update the input to have the username from the token and authenticate
