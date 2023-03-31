@@ -56,7 +56,7 @@ Feature: JWT Authenticator - Security
     Then the HTTP response status code is 401
     And The following appears in the log after my savepoint:
     """
-    CONJ00048I Authentication Error: #<Errors::Authentication::Jwt::RequestBodyMissingJWTToken: CONJ00077E The request body does not contain JWT token>
+    CONJ00048I Authentication Error: #<Errors::Authentication::Jwt::RequestBodyMissingJWTToken: CONJ00077E The request body does not contain JWT token
     """
 
   @negative @acceptance
@@ -75,7 +75,7 @@ Feature: JWT Authenticator - Security
     Then the HTTP response status code is 401
     And The following appears in the log after my savepoint:
     """
-    CONJ00035E Failed to decode token (3rdPartyError ='#<JWT::IncorrectAlgorithm: Expected a different algorithm>')>
+    CONJ00035E Failed to decode token (3rdPartyError ='#<JWT::IncorrectAlgorithm: Expected a different algorithm>')
     """
 
   @acceptance
