@@ -115,6 +115,10 @@ required for Conjur's AuthnOIDC V2 flow.
    to send the required parameters as part of the request body, which is also
    accepted by Okta.
 
+   Update: After setting up Conjur UI with an AuthnOIDC V2 instance backed by
+   Identity, this concern does not require any changes to Conjur's OIDC client.
+   The client successfully authenticates with Identity as currently implemented.
+
 ### User Interface
 [//]: # "Describe user interface (including command structure, inputs/outputs, etc where relevant)"
 
@@ -259,6 +263,6 @@ See **API Differences: Okta vs Identity** subsection [**Important Notes**](#impo
 |--------------------|---------------------------------|--------------|
 | Team leader        | John Tuttle (@jtuttle)          |    |
 | Product owner      | Nitesh Taneja (@niteshtaneja)   | ✅ |
-| System architect   | Jason Vanderhoof (@jvanderhoof) |    |
+| System architect   | Jason Vanderhoof (@jvanderhoof) | ✅ |
 | Security architect | Andy Tinkham (@andytinkham)     | ✅ |
-| QA architect       | Adam Ouamani (@adamoumani)      |    |
+| QA architect       | Adam Ouamani (@adamoumani)      | ✅ |
