@@ -3,6 +3,7 @@
 class EdgeController < RestController
 
   def slosilo_keys
+    logger.info(LogMessages::Conjur::EndpointRequested.new("slosilo_keys"))
     allowed_params = %i[account]
     options = params.permit(*allowed_params).to_h.symbolize_keys
     begin
@@ -23,10 +24,13 @@ class EdgeController < RestController
     variable_to_return = {}
     variable_to_return[:privateKey] = private_key
     variable_to_return[:fingerprint] = fingerprint
+    logger.info(LogMessages::Conjur::EndpointFinishedSuccessfully.new("slosilo_keys"))
     render(json: {"slosiloKeys":[variable_to_return]})
   end
 
   def all_secrets
+    logger.info(LogMessages::Conjur::EndpointRequested.new("all_secrets"))
+
     allowed_params = %i[account limit offset]
     options = params.permit(*allowed_params)
       .slice(*allowed_params).to_h.symbolize_keys
@@ -52,6 +56,7 @@ class EdgeController < RestController
 
     if params[:count] == 'true'
       results = { count: sumItems }
+      logger.info(LogMessages::Conjur::EndpointFinishedSuccessfully.new("all_secrets:count"))
       render(json: results)
     else
       results = []
@@ -67,11 +72,14 @@ class EdgeController < RestController
         end
         results  << variableToReturn
       end
+      logger.info(LogMessages::Conjur::EndpointFinishedSuccessfully.new("all_secrets"))
       render(json: {"secrets":results})
     end
   end
 
   def all_hosts
+    logger.info(LogMessages::Conjur::EndpointRequested.new("all_hosts"))
+
     allowed_params = %i[account limit offset]
     options = params.permit(*allowed_params)
                     .slice(*allowed_params).to_h.symbolize_keys
@@ -96,6 +104,7 @@ class EdgeController < RestController
     end
     if params[:count] == 'true'
       results = { count: sumItems }
+      logger.info(LogMessages::Conjur::EndpointFinishedSuccessfully.new("all_hosts:count"))
       render(json: results)
     else
       results = []
@@ -110,6 +119,7 @@ class EdgeController < RestController
         hostToReturn[:memberships] =host.all_roles.all.select{|h| h[:role_id] != (host[:role_id])}
         results  << hostToReturn
       end
+      logger.info(LogMessages::Conjur::EndpointFinishedSuccessfully.new("all_hosts"))
       render(json: {"hosts": results})
     end
   end
@@ -130,12 +140,36 @@ class EdgeController < RestController
   end
 
   def verify_edge_host(options)
-    raise Forbidden unless %w[conjur cucumber rspec].include?(options[:account])
-    raise Forbidden unless current_user.kind == 'host'
-    raise Forbidden unless current_user.role_id.include?("host:edge/edge")
-    role = Role[options[:account] + ':group:edge/edge-hosts']
-    raise Forbidden unless role&.ancestor_of?(current_user)
+    msg = ""
+    raise_excep = false
+
+    if %w[conjur cucumber rspec].exclude?(options[:account])
+      raise_excep = true
+      msg = "Account is: #{options[:account]}. Should be one of the following: [conjur cucumber rspec]"
+    elsif current_user.kind != 'host'
+      raise_excep = true
+      msg = "User kind is: #{current_user.kind}. Should be: 'host'"
+    elsif current_user.role_id.exclude?("host:edge/edge")
+      raise_excep = true
+      msg = "Role is: #{current_user.role_id}. Should include: 'host:edge/edge'"
+    else
+      role = Role[options[:account] + ':group:edge/edge-hosts']
+      unless role&.ancestor_of?(current_user)
+        raise_excep = true
+        msg = "Curren user is: #{current_user}. should be member of #{role}"
+      end
+    end
+
+    if raise_excep
+      logger.error(
+        Errors::Authorization::EndpointNotVisibleToRole.new(
+          msg
+        )
+      )
+      raise Forbidden
+    end
   end
+
 
   def hmac_api_key(host, salt)
     pass = host.api_key
