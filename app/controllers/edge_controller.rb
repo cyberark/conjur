@@ -3,6 +3,8 @@
 class EdgeController < RestController
 
   def slosilo_keys
+    url = "edge/slosilo_keys:account"
+    Rails.logger.info(LogMessages::Conjur::UrlRequested.new(url))
     allowed_params = %i[account]
     options = params.permit(*allowed_params).to_h.symbolize_keys
     begin
@@ -23,10 +25,14 @@ class EdgeController < RestController
     variable_to_return = {}
     variable_to_return[:privateKey] = private_key
     variable_to_return[:fingerprint] = fingerprint
+    Rails.logger.info(LogMessages::Conjur::UrlFinishedSuccessfully.new(url))
     render(json: {"slosiloKeys":[variable_to_return]})
   end
 
   def all_secrets
+    url = "edge/secrets:account"
+    Rails.logger.info(LogMessages::Conjur::UrlRequested.new(url))
+
     allowed_params = %i[account limit offset]
     options = params.permit(*allowed_params)
       .slice(*allowed_params).to_h.symbolize_keys
@@ -52,6 +58,7 @@ class EdgeController < RestController
 
     if params[:count] == 'true'
       results = { count: sumItems }
+      Rails.logger.info(LogMessages::Conjur::UrlFinishedSuccessfully.new(url))
       render(json: results)
     else
       results = []
@@ -67,11 +74,15 @@ class EdgeController < RestController
         end
         results  << variableToReturn
       end
+      Rails.logger.info(LogMessages::Conjur::UrlFinishedSuccessfully.new(url))
       render(json: {"secrets":results})
     end
   end
 
   def all_hosts
+    url = "edge/hosts:account"
+    Rails.logger.info(LogMessages::Conjur::UrlRequested.new(url))
+
     allowed_params = %i[account limit offset]
     options = params.permit(*allowed_params)
                     .slice(*allowed_params).to_h.symbolize_keys
@@ -112,6 +123,8 @@ class EdgeController < RestController
       end
       render(json: {"hosts": results})
     end
+
+    Rails.logger.info(LogMessages::Conjur::UrlFinishedSuccessfully.new(url))
   end
 
   private
@@ -130,12 +143,44 @@ class EdgeController < RestController
   end
 
   def verify_edge_host(options)
-    raise Forbidden unless %w[conjur cucumber rspec].include?(options[:account])
-    raise Forbidden unless current_user.kind == 'host'
-    raise Forbidden unless current_user.role_id.include?("host:edge/edge")
+    unless %w[conjur cucumber rspec].include?(options[:account])
+      Rails.logger.info(
+        Errors::Authorization::EndpointNotVisibleToRole.new(
+          "Account is: #{options[:account]}. Should be one of the following: [conjur cucumber rspec]"
+        ).message
+      )
+      raise Forbidden
+    end
+
+    unless current_user.kind == 'host'
+      Rails.logger.info(
+        Errors::Authorization::EndpointNotVisibleToRole.new(
+          "User kind is: #{current_user.kind}. Should be: 'host'"
+        )
+      )
+      raise Forbidden
+    end
+
+    unless current_user.role_id.include?("host:edge/edge")
+      Rails.logger.info(
+        Errors::Authorization::EndpointNotVisibleToRole.new(
+          "Role is: #{current_user.role_id}. Should include: 'host:edge/edge'"
+        )
+      )
+      raise Forbidden
+    end
+
     role = Role[options[:account] + ':group:edge/edge-hosts']
-    raise Forbidden unless role&.ancestor_of?(current_user)
+    unless role&.ancestor_of?(current_user)
+      Rails.logger.info(
+        Errors::Authorization::EndpointNotVisibleToRole.new(
+          "Curren user is not under #{role}"
+        )
+      )
+      raise Forbidden
+    end
   end
+
 
   def hmac_api_key(host, salt)
     pass = host.api_key

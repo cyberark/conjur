@@ -65,6 +65,11 @@ module Errors
       code: "CONJ00125E"
     )
 
+    EndpointNotVisibleToRole = ::Util::TrackableErrorClass.new(
+      msg: "The requested endpoint '{0-resource}' is forbidden",
+      code: "CONJ00151"
+    )
+
     AccessToResourceIsForbiddenForRole = ::Util::TrackableErrorClass.new(
       msg: "Role '{0-role}' does not have permissions to access the requested resource '{1-resource}'",
       code: "CONJ00122E"

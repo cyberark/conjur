@@ -24,6 +24,16 @@ module LogMessages
       code: "CONJ00038I"
     )
 
+    UrlRequested = ::Util::TrackableLogMessageClass.new(
+      msg: "{0} URL is called",
+      code: "CONJ00152"
+    )
+
+    UrlFinishedSuccessfully = ::Util::TrackableLogMessageClass.new(
+      msg: "{0} URL is finished successfully",
+      code: "CONJ00153"
+    )
+
   end
 
   module Authentication
