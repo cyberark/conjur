@@ -24,6 +24,16 @@ module LogMessages
       code: "CONJ00038I"
     )
 
+    EndpointRequested = ::Util::TrackableLogMessageClass.new(
+      msg: "{0} endpoint is called",
+      code: "CONJ00152"
+    )
+
+    EndpointFinishedSuccessfully = ::Util::TrackableLogMessageClass.new(
+      msg: "{0} endpoint is finished successfully",
+      code: "CONJ00153"
+    )
+
   end
 
   module Authentication
