@@ -152,6 +152,13 @@ module Errors
         code: "CONJ00040E"
       )
 
+      module V2
+        MissingAuthenticatorComponents = ::Util::TrackableErrorClass.new(
+          msg: "'{0-authenticator-parent-name}' is not a valid authenticator "\
+            "because it does not include the class '{1-class-name}'",
+          code: "CONJ00155E"
+        )
+      end
     end
 
     module Security
