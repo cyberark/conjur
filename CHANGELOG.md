@@ -19,6 +19,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   privilege.
   [cyberark/conjur#2755](https://github.com/cyberark/conjur/pull/2755)
 
+### Fixed
+- Incomplete HTTP proxy support in the Kubernetes Authenticator is fixed. This
+  allows for an HTTP proxy between Conjur and the Kubernetes API.
+  [cyberark/conjur#2766](https://github.com/cyberark/conjur/pull/2766)
+
 ## [1.19.2] - 2023-02-01
 
 ### Added

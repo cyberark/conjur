@@ -3,6 +3,7 @@
 # Run this file by calling:
 # bundle exec rspec spec/app/domain/authentication/authn_k8s/web_socket_client_spec_spec.rb --format documentation
 
+require 'spec_helper'
 require 'openssl'
 
 require 'domain/authentication/authn_k8s/web_socket_client'
@@ -21,20 +22,20 @@ describe 'Authentication::AuthnK8s::WebSocketClient' do
 end
 
 describe 'Authentication::AuthnK8s::WebSocketClient' do
-  context 'server running' do  
+  context 'server running' do
     context 'without TLS' do
       before(:example) do
         @test_server = WebSocketTestServer.new
         @client = nil
       end
-  
+
       after(:example) do
         @test_server.close
         @client && @client.close
         @test_server = nil
         @client = nil
       end
-  
+
       it 'has good handshake with no options' do
         @test_server.add_websocket
         @test_server.run
@@ -43,7 +44,7 @@ describe 'Authentication::AuthnK8s::WebSocketClient' do
         expect(@test_server.good_handshake?).to be_truthy
         expect(@client.open?).to be_truthy
       end
-  
+
       it 'has good handshake with options' do
         @test_server.add_websocket
         @test_server.run
@@ -53,7 +54,7 @@ describe 'Authentication::AuthnK8s::WebSocketClient' do
         expect(@test_server.good_handshake?).to be_truthy
         expect(@client.open?).to be_truthy
       end
-  
+
       it 'is not open for communication without a good handshake' do
         @test_server.add_bad_websocket
         @test_server.run
@@ -80,13 +81,13 @@ describe 'Authentication::AuthnK8s::WebSocketClient' do
       it 'fails cert verification without options' do
         @test_server.add_websocket
         @test_server.run
-        expect { 
+        expect {
           @client = Authentication::AuthnK8s::WebSocketClient.connect("wss://localhost:#{@test_server.port}")
         }.to raise_error(OpenSSL::SSL::SSLError, nil) {  |error|
-           expect(error.message).to eq("SSL_connect returned=1 errno=0 state=error: certificate verify failed (unable to get local issuer certificate)") 
+           expect(error.message).to eq("SSL_connect returned=1 errno=0 state=error: certificate verify failed (unable to get local issuer certificate)")
         }
       end
-  
+
       it 'passes all TLS verifications with good options' do
         @test_server.add_websocket
         @test_server.run
@@ -152,10 +153,10 @@ describe 'Authentication::AuthnK8s::WebSocketClient' do
       it 'fails cert verification without options' do
         @test_server.add_websocket
         @test_server.run
-        expect { 
+        expect {
           @client = Authentication::AuthnK8s::WebSocketClient.connect("wss://localhost:#{@test_server.port}")
         }.to raise_error(OpenSSL::SSL::SSLError, nil) {  |error|
-           expect(error.message).to eq("SSL_connect returned=1 errno=0 state=error: certificate verify failed (unable to get local issuer certificate)") 
+           expect(error.message).to eq("SSL_connect returned=1 errno=0 state=error: certificate verify failed (unable to get local issuer certificate)")
         }
       end
 
