@@ -7,7 +7,7 @@ Account = Struct.new(:id) do
         pkey = Slosilo::Key.new
         Slosilo["authn:!"] = pkey
       end
-  
+
       role_id     = "!:!:root"
       resource_id = "!:webservice:accounts"
       (role = Role[role_id]) || Role.create(role_id: role_id)
@@ -26,17 +26,15 @@ Account = Struct.new(:id) do
 
       Role.db.transaction do
         Slosilo["authn:#{id}"] = Slosilo::Key.new
-        
+
         role_id = "#{id}:user:admin"
         admin_user = Role.create(role_id: role_id)
 
-        # Create an owner resource that will allow another user to rotate this
-        # account's API key. This is used by the CPanel to enable the accounts
-        # admin credentials to be used for API key rotation.
-        unless owner_id.nil?
-          Resource.create(resource_id: role_id, owner_id: owner_id)
-        end
-        
+        # Ensure a resource record exists for the admin role so that permissions
+        # work as expected. If one isn't given, the admin will own itself.
+        owner_id ||= role_id
+        Resource.create(resource_id: role_id, owner_id: owner_id)
+
         admin_user.api_key
       end
     end
