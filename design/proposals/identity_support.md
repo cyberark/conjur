@@ -11,7 +11,6 @@
 
 - [Solution Design - Identity Support](#solution-design---identity-support)
   - [Table of Contents](#table-of-contents)
-  - [Useful Links](#useful-links)
   - [Background](#background)
   - [Issue Description](#issue-description)
   - [Solution](#solution)
@@ -37,13 +36,6 @@
   - [Solution Review](#solution-review)
 
 <small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
-
-## Useful Links
-[//]: # "Add links that may be useful for the reader"
-
-|  **Name**   | **Link** |
-|-------------|----------|
-| Functional Spec | https://ca-il-confluence.il.cyber-ark.com/display/rndp/OIDC+Authenticator%3A+CyberArk+Identity+Support+Functional+Specification |
 
 ## Background
 [//]: # "Give relevant background for the designed feature. What is the motivation for this solution?"
