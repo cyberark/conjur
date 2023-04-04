@@ -45,10 +45,8 @@ module Authentication
       def ws_client
         @ws_client ||= @websocket_client.connect(
           ws_exec_url,
-          {
-            headers: headers,
-            cert_store: @k8s_object_lookup.cert_store
-          }
+          headers: headers,
+          cert_store: @k8s_object_lookup.cert_store
         )
       end
 
