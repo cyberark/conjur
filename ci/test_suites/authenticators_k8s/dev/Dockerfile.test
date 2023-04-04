@@ -1,12 +1,7 @@
-FROM google/cloud-sdk:388.0.0
+FROM google/cloud-sdk:424.0.0
 
 RUN mkdir -p /src
 WORKDIR /src
-
-# Install gcloud authentication plugin
-RUN apt-get update && \
-    apt-get install -y google-cloud-sdk-gke-gcloud-auth-plugin && \
-    apt-get clean
 
 # Install Docker client
 RUN apt-get update && \
