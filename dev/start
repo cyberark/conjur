@@ -34,6 +34,7 @@ ENABLE_AUTHN_JWT=false
 ENABLE_AUTHN_LDAP=false
 ENABLE_AUTHN_OIDC=false
 ENABLE_OIDC_ADFS=false
+ENABLE_OIDC_KEYCLOAK=false
 ENABLE_OIDC_OKTA=false
 ENABLE_ROTATORS=false
 
@@ -91,9 +92,13 @@ Usage: start [options]
     --authn-ldap    Starts OpenLDAP server and loads a demo policy to enable 
                     authentication via:
                     'curl -X POST -d "alice" http://localhost:3000/authn-ldap/test/cucumber/alice/authenticate'
-    --authn-oidc    Starts with authn-oidc/keycloak as authenticator
     -h, --help      Shows this help message.
     --oidc-adfs     Adds to authn-oidc adfs static env configuration
+    --oidc-keycloak Starts with authn-oidc/keycloak and authn-oidc/keycloak2 as
+                    available authenticators. Service authn-oidc/keycloak uses
+                    AuthnOIDC V1 (based on ID token property validation), and
+                    authn-oidc/keycloak2 uses AuthnOIDC V2 (based on the Authz
+                    Code with PKCE flow).
     --oidc-okta     Adds to authn-oidc okta static env configuration
     --rotators      Starts a cucumber and test postgres container.
                     Drops you into the cucumber container.
@@ -111,10 +116,10 @@ parse_options() {
       --authn-iam ) ENABLE_AUTHN_IAM=true ; shift ;;
       --authn-jwt ) ENABLE_AUTHN_JWT=true ; shift ;;
       --authn-ldap ) ENABLE_AUTHN_LDAP=true ; shift ;;
-      --authn-oidc ) ENABLE_AUTHN_OIDC=true ; shift ;;
       -h | --help ) print_help ; shift ;;
-      --oidc-adfs ) ENABLE_OIDC_ADFS=true ; shift ;;
-      --oidc-okta ) ENABLE_OIDC_OKTA=true ; shift ;;
+      --oidc-adfs ) ENABLE_AUTHN_OIDC=true ; ENABLE_OIDC_ADFS=true ; shift ;;
+      --oidc-keycloak ) ENABLE_AUTHN_OIDC=true ; ENABLE_OIDC_KEYCLOAK=true ; shift ;;
+      --oidc-okta ) ENABLE_AUTHN_OIDC=true ; ENABLE_OIDC_OKTA=true ; shift ;;
       --rotators ) ENABLE_ROTATORS=true ; shift ;;
        * )
          if [ -z "$1" ]; then
@@ -142,18 +147,6 @@ client_add_secret() {
     conjur variable values add "$variable" "$value"
 }
 
-configure_oidc_providers() {
-  # Start conjur again, since it is recreating by docker-compose because of
-  # dependency with keycloak
-  start_conjur_server
-  wait_for_keycloak_server
-  fetch_oidc_certificates
-  configure_oidc_authenticators
-  enable_oidc_authenticators
-  create_keycloak_users
-  echo "keycloak admin console url: http://0.0.0.0:7777/auth/admin"
-}
-
 start_conjur_server() {
   echo "Starting Conjur server"
   docker-compose exec -d conjur conjurctl server
@@ -174,74 +167,97 @@ wait_for_conjur() {
 }
 
 configure_oidc_authenticators() {
-  # add variables' values for keycloak
-  echo "Setting keycloak variables values in conjur"
-  client_load_policy \
-    "/src/conjur-server/ci/test_suites/authenticators_oidc/policy.yml"
-
-  client_add_secret \
-    "conjur/authn-oidc/keycloak/provider-uri" \
-    "https://keycloak:8443/auth/realms/master"
-
-  client_add_secret \
-    "conjur/authn-oidc/keycloak/id-token-user-property" "preferred_username"
-
-  # Specific for Keycloak Authenticator (for full flow)
-    client_load_policy '/src/conjur-server/dev/policies/authenticators/authn-oidc/keycloak2.yml'
-    client_add_secret 'conjur/authn-oidc/keycloak2/provider-uri' 'https://keycloak:8443/auth/realms/master'
-    client_add_secret 'conjur/authn-oidc/keycloak2/client-id' 'conjurClient'
-    client_add_secret 'conjur/authn-oidc/keycloak2/client-secret' '1234'
-    client_add_secret 'conjur/authn-oidc/keycloak2/claim-mapping' 'email'
-    client_add_secret 'conjur/authn-oidc/keycloak2/nonce' 'af88d8f8ff6631fb4cf0'
-    client_add_secret 'conjur/authn-oidc/keycloak2/state' 'd38e57e0fd47ccffa9c2'
-    client_add_secret 'conjur/authn-oidc/keycloak2/redirect_uri' 'http://localhost:3000/authn-oidc/keycloak2/cucumber/authenticate'
-
-    client_load_policy '/src/conjur-server/dev/policies/authenticators/authn-oidc/keycloak2-users.yml'
-
-
+  if [[ $ENABLE_OIDC_KEYCLOAK = true ]]; then
+    setup_keycloak
+  fi
 
   if [[ $ENABLE_OIDC_OKTA = true ]]; then
-    # Specific for new OIDC Authenticator
-    client_load_policy '/src/conjur-server/dev/policies/authenticators/authn-oidc/okta-2.yml'
-    client_add_secret 'conjur/authn-oidc/okta-2/provider-uri' 'https://dev-92899796.okta.com/oauth2/default'
-    client_add_secret 'conjur/authn-oidc/okta-2/client-id' '0oa3w3xig6rHiu9yT5d7'
-    client_add_secret 'conjur/authn-oidc/okta-2/client-secret' 'e349BMTTIpLO-rPuPqLLkLyH_pO-loUzhIVJCrHj'
-    client_add_secret 'conjur/authn-oidc/okta-2/claim-mapping' 'preferred_username'
-    client_add_secret 'conjur/authn-oidc/okta-2/nonce' '1656b4264b60af659fce'
-    client_add_secret 'conjur/authn-oidc/okta-2/state' '4f413476ef7e2395f0af'
-    client_add_secret 'conjur/authn-oidc/okta-2/redirect_uri' 'http://localhost:3000/authn-oidc/okta-2/cucumber/authenticate'
-
-    client_load_policy '/src/conjur-server/dev/policies/authenticators/authn-oidc/okta-users.yml'
+    setup_okta
   fi
 
   if [[ $ENABLE_OIDC_ADFS = true ]]; then
-    # add variables' values for ADFS
-    client_load_policy "/src/conjur-server/ci/authn-oidc/policy_adfs.yml"
-
-    client_add_secret \
-      "conjur/authn-oidc/adfs/provider-uri" \
-      "https://adfs4win2016.northeurope.cloudapp.azure.com"
-
-    client_add_secret \
-      "conjur/authn-oidc/adfs/id-token-user-property" "unique_name"
+    setup_adfs
   fi
 }
 
-fetch_oidc_certificates() {
+setup_keycloak() {
+  # Start keycloak docker-compose service
+  services+=(keycloak)
+  docker-compose up -d --no-deps "${services[@]}"
+
+  # Start conjur again, since it is recreating by docker-compose because of
+  # dependency with keycloak
+  start_conjur_server
+  wait_for_keycloak_server
+
   fetch_keycloak_certificate
 
-  if [[ $ENABLE_OIDC_ADFS = true ]]; then
-    echo "Initialize ADFS certificate in conjur server"
-    docker-compose exec conjur \
-      /src/conjur-server/dev/files/authn-oidc/adfs/fetchCertificate
-  fi
+  # Create Conjur AuthnOIDC services and users
+  configure_oidc_v1 \
+    'keycloak' 'https://keycloak:8443/auth/realms/master' \
+    'preferred_username' 'ci/test_suites/authenticators_oidc/policy.yml'
+  configure_oidc_v2 \
+    'keycloak2' 'https://keycloak:8443/auth/realms/master' \
+    'conjurClient' '1234' 'email'
+
+  # Create users in Keycloak
+  create_keycloak_users
+
+  echo "keycloak admin console url: http://0.0.0.0:7777/auth/admin"
+}
+
+setup_okta() {
+  configure_oidc_v2 \
+    'okta-2' 'https://dev-92899796.okta.com/oauth2/default' \
+    '0oa3w3xig6rHiu9yT5d7' 'e349BMTTIpLO-rPuPqLLkLyH_pO-loUzhIVJCrHj' \
+    'preferred_username'
+}
+
+setup_adfs() {
+  echo "Initialize ADFS certificate in conjur server"
+  docker-compose exec conjur \
+    /src/conjur-server/dev/files/authn-oidc/adfs/fetchCertificate
+
+  configure_oidc_v1 \
+    'adfs' 'https://adfs4win2016.northeurope.cloudapp.azure.com' \
+    'unique_name' 'ci/authn-oidc/policy_adfs.yml'
+}
+
+configure_oidc_v1() {
+  service_id="$1"
+  provider_uri="$2"
+  token_property="$3"
+  policy_path="$4"
+
+  client_load_policy "/src/conjur-server/$policy_path"
+  client_add_secret "conjur/authn-oidc/$service_id/provider-uri" "$provider_uri"
+  client_add_secret "conjur/authn-oidc/$service_id/id-token-user-property" "$token_property"
+}
+
+configure_oidc_v2() {
+  service_id="$1"
+  provider_uri="$2"
+  client_id="$3"
+  client_secret="$4"
+  claim_mapping="$5"
+
+  client_load_policy "/src/conjur-server/dev/policies/authenticators/authn-oidc/$service_id.yml"
+  client_add_secret "conjur/authn-oidc/$service_id/provider-uri" "$provider_uri"
+  client_add_secret "conjur/authn-oidc/$service_id/client-id" "$client_id"
+  client_add_secret "conjur/authn-oidc/$service_id/client-secret" "$client_secret"
+  client_add_secret "conjur/authn-oidc/$service_id/claim-mapping" "$claim_mapping"
+  client_add_secret "conjur/authn-oidc/$service_id/redirect_uri" "http://localhost:3000/authn-oidc/$service_id/cucumber/authenticate"
+
+  client_load_policy "/src/conjur-server/dev/policies/authenticators/authn-oidc/$service_id-users.yml"
 }
 
 enable_oidc_authenticators() {
-  echo "Configuring Keycloak as OpenID provider for automatic testing"
-  # We enable an OIDC authenticator without a service-id to test that it's
-  # invalid.
-  enabled_authenticators="$enabled_authenticators,authn-oidc/keycloak,authn-oidc,authn-oidc/keycloak2"
+  if [[ $ENABLE_OIDC_KEYCLOAK = true ]]; then
+    echo "Configuring Keycloak as OpenID provider for manual testing"
+    # We enable an OIDC authenticator without a service-id to test that it's
+    # invalid.
+    enabled_authenticators="$enabled_authenticators,authn-oidc/keycloak,authn-oidc,authn-oidc/keycloak2"
+  fi
 
   if [[ $ENABLE_OIDC_OKTA = true ]]; then
     echo "Configuring OKTA as OpenID provider for manual testing"
@@ -361,22 +377,12 @@ init_jwt() {
 }
 
 init_oidc() {
-  # ADFS and OKTA make no sense without OIDC.
-  if [[ $ENABLE_AUTHN_OIDC = false &&
-    ($ENABLE_OIDC_ADFS = true || $ENABLE_OIDC_OKTA = true) ]]
-  then
-    echo "Error: --oidc-adfs and --oidc-okta both require --authn-oidc"
-    exit 1
-  fi
-
   if [[ $ENABLE_AUTHN_OIDC != true ]]; then
     return
   fi
 
-  services+=(keycloak)
-  docker-compose up -d --no-deps "${services[@]}"
-
-  configure_oidc_providers
+  configure_oidc_authenticators
+  enable_oidc_authenticators
 
   if [[ $ENABLE_AUTHN_LDAP = true && $ENABLE_OIDC_OKTA = true ]]; then
     echo "Building & configuring Okta-LDAP agent"
