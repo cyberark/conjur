@@ -146,6 +146,7 @@ function createNamespace() {
   fi
 
   kubectl create namespace "$CONJUR_AUTHN_K8S_TEST_NAMESPACE"
+
   kubectl config set-context \
     "$(kubectl config current-context)" \
     "--namespace=$CONJUR_AUTHN_K8S_TEST_NAMESPACE"
@@ -165,6 +166,7 @@ function pushDockerImages() {
   docker push "$INVENTORY_TAG"
   docker push "$INVENTORY_BASE_TAG"
   docker push "$NGINX_TAG"
+  docker push "$TINYPROXY_TAG"
 }
 
 function launchConjurMaster() {
@@ -251,22 +253,34 @@ function runTests() {
     cucumber_tags_arg="--tags \"$CUCUMBER_FILTER_TAGS\""
   fi
 
+  # Run standard k8s authenticator tests
   run_cucumber "--tags 'not @skip' --tags 'not @k8s_skip' --tags 'not @sni_fails' --tags 'not @sni_success' $cucumber_tags_arg"
+
+  # Run k8s authenticator tests with an HTTP proxy
+  run_conjur_master "dev_conjur_http_proxy" --disable-k8s-api-dns
+  run_cucumber "--tags 'not @skip' --tags 'not @k8s_skip' --tags '@http_proxy'"
 }
 
 retrieve_pod() {
-  kubectl get pods -l "app=$1" -o=jsonpath='{.items[].metadata.name}'
+  # Return the most recent pod name
+  kubectl get pods \
+    -l "app=$1" \
+    --field-selector=status.phase!=Terminating \
+    --sort-by=.metadata.creationTimestamp \
+    --no-headers |
+      tail -n 1 |
+      awk '{print $1}'
 }
 
 function run_conjur_master() {
-  filename=$1
+  filename=$1; shift
 
   sed -e "s#{{ CONJUR_AUTHN_K8S_TAG }}#$CONJUR_AUTHN_K8S_TAG#g" "dev/$filename.${TEMPLATE_TAG}yaml" |
     sed -e "s#{{ CONJUR_TEST_AUTHN_K8S_TAG }}#$CONJUR_TEST_AUTHN_K8S_TAG#g" |
     sed -e "s#{{ NGINX_TAG }}#$NGINX_TAG#g" |
     sed -e "s#{{ DATA_KEY }}#$DATA_KEY#g" |
     sed -e "s#{{ CONJUR_AUTHN_K8S_TEST_NAMESPACE }}#$CONJUR_AUTHN_K8S_TEST_NAMESPACE#g" |
-    kubectl create -f -
+    kubectl apply -f -
 
   # Turn off -e since we expect failures when retrieving pod before it's ready.
   set +e
@@ -301,6 +315,19 @@ function run_conjur_master() {
   local wait_command="while ! curl --silent --head --fail \
     localhost:80 > /dev/null; do sleep 1; done"
   kubectl exec "$conjur_pod" -- bash -c "$wait_command"
+
+  # Handle flags
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --disable-k8s-api-dns)
+        # Add a host entry to blackhole the kubernetes API endpoint
+        kubectl exec "$conjur_pod" -- \
+          bash -c "echo '0.0.0.0 kubernetes.default.svc' >> /etc/hosts"
+        shift ;;
+      *)
+        echo "Unknown option: $1"
+    esac
+  done
 }
 
 function run_cucumber() {
