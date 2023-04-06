@@ -46,6 +46,8 @@ spec:
               value: authn-k8s/minikube
             - name: https_proxy
               value: 'http://tinyproxy:8888'
+            - name: KUBERNETES_SERVICE_HOST
+              value: kubernetes.default.svc
           volumeMounts:
             - mountPath: /run/authn-local
               name: authn-local
