@@ -34,9 +34,11 @@ ENABLE_AUTHN_JWT=false
 ENABLE_AUTHN_LDAP=false
 ENABLE_AUTHN_OIDC=false
 ENABLE_OIDC_ADFS=false
+ENABLE_OIDC_IDENTITY=false
 ENABLE_OIDC_KEYCLOAK=false
 ENABLE_OIDC_OKTA=false
 ENABLE_ROTATORS=false
+IDENTITY_USER=""
 
 main() {
   unset COMPOSE_PROJECT_NAME
@@ -93,7 +95,10 @@ Usage: start [options]
                     authentication via:
                     'curl -X POST -d "alice" http://localhost:3000/authn-ldap/test/cucumber/alice/authenticate'
     -h, --help      Shows this help message.
+    --identity-user Identity user to create in Conjur
     --oidc-adfs     Adds to authn-oidc adfs static env configuration
+    --oidc-identity Starts with authn-oidc/identity as available authenticator.
+                    Must be paired with --identity-user flag.
     --oidc-keycloak Starts with authn-oidc/keycloak and authn-oidc/keycloak2 as
                     available authenticators. Service authn-oidc/keycloak uses
                     AuthnOIDC V1 (based on ID token property validation), and
@@ -117,7 +122,9 @@ parse_options() {
       --authn-jwt ) ENABLE_AUTHN_JWT=true ; shift ;;
       --authn-ldap ) ENABLE_AUTHN_LDAP=true ; shift ;;
       -h | --help ) print_help ; shift ;;
+      --identity-user ) IDENTITY_USER="$2" ; shift ; shift ;;
       --oidc-adfs ) ENABLE_AUTHN_OIDC=true ; ENABLE_OIDC_ADFS=true ; shift ;;
+      --oidc-identity ) ENABLE_AUTHN_OIDC=true ; ENABLE_OIDC_IDENTITY=true; shift ;;
       --oidc-keycloak ) ENABLE_AUTHN_OIDC=true ; ENABLE_OIDC_KEYCLOAK=true ; shift ;;
       --oidc-okta ) ENABLE_AUTHN_OIDC=true ; ENABLE_OIDC_OKTA=true ; shift ;;
       --rotators ) ENABLE_ROTATORS=true ; shift ;;
@@ -130,6 +137,11 @@ parse_options() {
          fi ;;
     esac
   done
+
+  if [[ $ENABLE_OIDC_IDENTITY = true && -z "$IDENTITY_USER" ]]; then
+    echo "Flag --oidc-identity must be paired with --identity-user. See --help."
+    exit 1
+  fi
 }
 
 client_load_policy() {
@@ -178,6 +190,10 @@ configure_oidc_authenticators() {
   if [[ $ENABLE_OIDC_ADFS = true ]]; then
     setup_adfs
   fi
+
+  if [[ $ENABLE_OIDC_IDENTITY = true ]]; then
+    setup_identity
+  fi
 }
 
 setup_keycloak() {
@@ -221,6 +237,17 @@ setup_adfs() {
   configure_oidc_v1 \
     'adfs' 'https://adfs4win2016.northeurope.cloudapp.azure.com' \
     'unique_name' 'ci/authn-oidc/policy_adfs.yml'
+}
+
+setup_identity() {
+  policy_dir="policies/authenticators/authn-oidc"
+  rm -f "$policy_dir/identity-users.yml"
+  sed -e "s#{{ IDENTITY_USER }}#$IDENTITY_USER#g" "$policy_dir/identity-users.template.yml" > "$policy_dir/identity-users.yml"
+
+  configure_oidc_v2 \
+    'identity' "$IDENTITY_PROVIDER_URI" \
+    "$IDENTITY_CLIENT_ID" "$IDENTITY_CLIENT_SECRET" \
+    'email'
 }
 
 configure_oidc_v1() {
@@ -267,6 +294,11 @@ enable_oidc_authenticators() {
   if [[ $ENABLE_OIDC_ADFS = true ]]; then
     echo "Configuring ADFS as OpenID provider for manual testing"
     enabled_authenticators="$enabled_authenticators,authn-oidc/adfs"
+  fi
+
+  if [[ $ENABLE_OIDC_IDENTITY = true ]]; then
+    echo "Configuring Identity as OpenID provider for manual testing"
+    enabled_authenticators="$enabled_authenticators,authn-oidc/identity"
   fi
 }
 

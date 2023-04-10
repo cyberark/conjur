@@ -1,0 +1,38 @@
+- !policy
+  id: conjur/authn-oidc/identity
+  body:
+  - !webservice
+
+  # Identity connection details
+  - !variable provider-uri
+  - !variable client-id
+  - !variable client-secret
+
+  # URI of Conjur instance
+  - !variable redirect_uri
+
+  # Defines the JWT claim to use as the Conjur identifier
+  - !variable claim-mapping
+
+  # Group with permission to authenticate
+  - !group
+    id: authenticatable
+    annotations:
+      description: Users who can authenticate using this authenticator
+
+  - !permit
+    role: !group authenticatable
+    privilege: [ read, authenticate ]
+    resource: !webservice
+
+  # Create a web service for checking status
+  - !webservice status
+
+  # Group of users who can check the status
+  - !group operators
+
+  # Permit group to check the status
+  - !permit
+    role: !group operators
+    privilege: read
+    resource: !webservice status
