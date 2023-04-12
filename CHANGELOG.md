@@ -9,29 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
-## [1.19.3] - 2023-03-21
-
-### Changed
-- Removes support for disabling the `CONJUR_FEATURE_PKCE_SUPPORT_ENABLED` flag.
-  [cyberark/conjur#2713](https://github.com/cyberark/conjur/pull/2713)
-- Routes on the `/roles/` API endpoints now correctly verify the existing of
-  a Role and return `404` when it doesn't exist or the caller has insufficient
-  privilege.
-  [cyberark/conjur#2755](https://github.com/cyberark/conjur/pull/2755)
-
-### Fixed
-- Incomplete HTTP proxy support in the Kubernetes Authenticator is fixed. This
-  allows for an HTTP proxy between Conjur and the Kubernetes API.
-  [cyberark/conjur#2766](https://github.com/cyberark/conjur/pull/2766)
-
-### Security
-- Updated nokogiri to 1.14.3 for CVE-2023-29469 and CVE-2023-28484 and rails to 
-  6.1.7.3 for CVE-2023-28120 in Gemfile.lock, nokogiri to 1.1.4.3 for CVE-2023-29469
-  and commonmarker to 0.23.9 for CVE-2023-24824 and CVE-2023-26485 in docs/Gemfile.lock
-  (all Medium severity issues flagged by Dependabot)
-  [cyberark/conjur#2776](https://github.com/cyberark/conjur/pull/2776)
-
-## [1.19.2] - 2023-02-01
+## [1.19.3] - 2023-04-17
 
 ### Added
 - Conjur now logs when it detects that the Conjur configuration file
@@ -43,11 +21,22 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   access controls work as expected for this role to access itself.
   [cyberark/conjur#2757](https://github.com/cyberark/conjur/pull/2757)
 
+### Changed
+- Removes support for disabling the `CONJUR_FEATURE_PKCE_SUPPORT_ENABLED` flag.
+  [cyberark/conjur#2713](https://github.com/cyberark/conjur/pull/2713)
+- Routes on the `/roles/` API endpoints now correctly verify the existing of
+  a Role and return `404` when it doesn't exist or the caller has insufficient
+  privilege.
+  [cyberark/conjur#2755](https://github.com/cyberark/conjur/pull/2755)
+
 ### Fixed
 - Fixed a thread-safety bug in secret retrieval when multiple threads attempt
   to decrypt a secret value with Slosilo/OpenSSL.
   [cyberark/slosilo#31](https://github.com/cyberark/slosilo/pull/31)
   [cyberark/conjur#2718](https://github.com/cyberark/conjur/pull/2718)
+- Incomplete HTTP proxy support in the Kubernetes Authenticator is fixed. This
+  allows for an HTTP proxy between Conjur and the Kubernetes API.
+  [cyberark/conjur#2766](https://github.com/cyberark/conjur/pull/2766)
 
 ### Security
 - Updated github-pages version in docs/Gemfile to allow upgrading activesupport
@@ -57,6 +46,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   [cyberark/conjur#2739](https://github.com/cyberark/conjur/pull/2739)
 - Upgraded rack to v2.2.6.4 to resolve CVE-2023-27539
   [cyberark/conjur#2750](https://github.com/cyberark/conjur/pull/2750)
+- Updated nokogiri to 1.14.3 for CVE-2023-29469 and CVE-2023-28484 and rails to 
+  6.1.7.3 for CVE-2023-28120 in Gemfile.lock, nokogiri to 1.1.4.3 for CVE-2023-29469
+  and commonmarker to 0.23.9 for CVE-2023-24824 and CVE-2023-26485 in docs/Gemfile.lock
+  (all Medium severity issues flagged by Dependabot)
+  [cyberark/conjur#2776](https://github.com/cyberark/conjur/pull/2776)
 
 ## [1.19.2] - 2022-01-13
 
@@ -126,7 +120,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 - List resources request (`GET /resources`) now produce audit events.
-  ([cyberark/conjur#2652](https://github.com/cyberark/conjur/pull/2652)
+  [cyberark/conjur#2652](https://github.com/cyberark/conjur/pull/2652)
 
 ### Changed
 - AWS Access Key Rotation now preserves only one key
@@ -1033,7 +1027,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - The first tagged version.
 
-[Unreleased]: https://github.com/cyberark/conjur/compare/v1.19.0...HEAD
+[Unreleased]: https://github.com/cyberark/conjur/compare/v1.19.3...HEAD
+[1.19.3]: https://github.com/cyberark/conjur/compare/v1.19.2...v1.19.3
+[1.19.2]: https://github.com/cyberark/conjur/compare/v1.19.1...v1.19.2
+[1.19.1]: https://github.com/cyberark/conjur/compare/v1.19.0...v1.19.1
 [1.19.0]: https://github.com/cyberark/conjur/compare/v1.18.5...v1.19.0
 [1.18.5]: https://github.com/cyberark/conjur/compare/v1.18.4...v1.18.5
 [1.18.4]: https://github.com/cyberark/conjur/compare/v1.18.3...v1.18.4
