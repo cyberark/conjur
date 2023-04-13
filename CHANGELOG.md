@@ -58,6 +58,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   allows for an HTTP proxy between Conjur and the Kubernetes API.
   [cyberark/conjur#2766](https://github.com/cyberark/conjur/pull/2766)
 
+### Security
+- Updated nokogiri to 1.14.3 for CVE-2023-29469 and CVE-2023-28484 and rails to 
+  6.1.7.3 for CVE-2023-28120 in Gemfile.lock, nokogiri to 1.1.4.3 for CVE-2023-29469
+  and commonmarker to 0.23.9 for CVE-2023-24824 and CVE-2023-26485 in docs/Gemfile.lock
+  (all Medium severity issues flagged by Dependabot)
+  [cyberark/conjur#2776](https://github.com/cyberark/conjur/pull/2776)
+
 ## [1.19.2] - 2023-02-01
 
 ### Added
