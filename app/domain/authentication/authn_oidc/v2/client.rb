@@ -45,10 +45,12 @@ module Authentication
           rescue Rack::OAuth2::Client::Error => e
             # Only handle the expected errors related to access token retrieval.
             case e.message
-            when /PKCE verification failed/
+            when /PKCE verification failed/, # Okta's PKCE failure msg
+                 /challenge mismatch/        # Identity's PKCE failure msg
               raise Errors::Authentication::AuthnOidc::TokenRetrievalFailed,
                     'PKCE verification failed'
-            when /The authorization code is invalid or has expired/
+            when /The authorization code is invalid or has expired/, # Okta's reused code msg
+                 /supplied code does not match known request/        # Identity's reused code msg
               raise Errors::Authentication::AuthnOidc::TokenRetrievalFailed,
                     'Authorization code is invalid or has expired'
             when /Code not valid/

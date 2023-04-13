@@ -5,7 +5,7 @@ http_interactions:
     uri: https://dev-92899796.okta.com/oauth2/default/v1/token
     body:
       encoding: UTF-8
-      string: grant_type=authorization_code&code=GV48_SF4a19ghvBhVbbSG3Lr8BuFl8PhWVPZSbokV2o&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fauthn-oidc%2Fokta-2%2Fcucumber%2Fauthenticate&nonce=3e6bd5235e4692b37ca1f04cb01b6e0cb177aa20dcef19e89f&code_verifier=bad-code-verifier
+      string: grant_type=authorization_code&code=-QGREc_SONbbJIKdbpyYudA13c9PZlgqdxowkf45LOw&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fauthn-oidc%2Fokta-2%2Fcucumber%2Fauthenticate&scope=true&nonce=7efcbba36a9b96fdb5285a159665c3d382abd8b6b3288fcc8d&code_verifier=bad-code-verifier
     headers:
       User-Agent:
       - Rack::OAuth2 (1.19.0) (2.8.3, ruby 3.0.4 (2022-04-12))
