@@ -11,6 +11,12 @@ module Factory
             <<~TEMPLATE
               - !policy
                 id: <%= id %>
+                <% if defined?(annotations) %>
+                annotations:
+                <% annotations.each do |key, value| -%>
+                  <%= key %>: <%= value %>
+                <% end -%>
+                <% end -%>
                 body:
                 - !webservice
 
@@ -49,7 +55,7 @@ module Factory
 
           def data
             Base64.encode64({
-              version: 1,
+              version: 'v1',
               policy: Base64.encode64(policy_template),
               policy_namespace: "conjur/authn-oidc",
               schema: {
@@ -61,6 +67,10 @@ module Factory
                   "id": {
                     "description": "Service ID of the Authenticator",
                     "type": "string"
+                  },
+                  "annotations": {
+                    "description": "Additional authenticator annotations",
+                    "type": "object"
                   },
                   "variables": {
                     "type": "object",

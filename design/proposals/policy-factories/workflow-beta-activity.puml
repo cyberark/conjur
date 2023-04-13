@@ -1,0 +1,177 @@
+@startuml
+(*)  --> "Identify Factory variable based on request params"
+if "Does factory variable exist?" then
+  --> [<color:green>yes] if "Can role load factory variable?"
+    --> [<color:green>yes] if "Does factory variable have a value?"
+      --> [<color:green>yes] "Load Factory"
+      --> "Extract Schema from Factory Variable"
+      --> "Parse [POST] JSON Request body"
+      --> if "is JSON valid?"
+        --> [<color:green>yes] if "Required keys present?"
+          --> [<color:green>yes] if "Required values present?"
+            --> [<color:green>yes] if "Policy rendered successfully?"
+              --> [<color:green>yes] if "Policy namespace path rendered successfully?"
+                --> [<color:green>yes] if "Policy successfully applied"
+                  --> [<color:green>yes] if "Factory has variables?"
+                    --> [<color:green>yes] if "Variables set successfully set?"
+                      --> "<color:green>Return Policy and Variable response"
+                      note left
+                        Response Code: 200
+                        Response: {"response": {
+                          "code": 200,
+                          "created_resources": [
+                            "<account>:<type>:<identifier>",
+                            {"<account>:host:<identifier>": {"api_key": "<api-key>"}},
+                            "<account>:variable:<identifier>"
+                          ]
+                        }}
+                      end note
+                      --> (*)
+                    else
+                      --> [<color:red>no] "<color:red>[Error] Setting Variable(s) not Permitted"
+                      note right
+                        Response Code: 401
+                        Response {"error": {
+                          "code": 401,
+                          "error": "Role is not permitted to set the following secrets in this factory: 'secret-1', 'secret-2'",
+                          "fields": [
+                            "secret-1",
+                            "secret-2"
+                          ]
+                        }}
+                        Log Level: Error
+                        Log Message: Role '<role-identifier>' is not permitted to create the following factory variables the '<target-namespace>': 'secret-1', 'secret-2'
+                      end note
+                    endif
+                  else
+                    --> [<color:red>no] "<color:green> Return Policy response"
+                    note left
+                      Response Code: 200
+                      Response: {"response": {
+                        "code": 200,
+                        "created_resources": [
+                          "<account>:<type>:<identifier>",
+                          {"<account>:host:<identifier>": {"api_key": "<api-key>"}}
+                        ]
+                      }}
+                    end note
+                  endif
+                else
+                  --> [<color:red>no] "<color:red>[Error] Policy Creation not Permitted"
+                  note left
+                    Response Code: 401
+                    Response {"error": {
+                      "code": 401,
+                      "error": "Role is not permitted to create a factory in this policy"
+                    }}
+                    Log Level: Error
+                    Log Message: Role '<role-identifier>' is not permitted to create a factory in the '<target-namespace>'
+                  end note
+                endif
+              else
+                --> [<color:red>no] "<color:red>[Error] Invalid Policy Namespace ERB"
+                note left
+                  Response Code: 400
+                  Response: {"error": {
+                    "code": 400,
+                    "error": "Policy Factory Namespace Template contains invalid ERB"
+                  }}
+                  Log Level: Error
+                  Log Message Policy Factory 'conjur/factories/core/<name>' Namespace Template contains invalid ERB
+                end note
+              endif
+            else
+              --> [<color:red>no] "<color:red>[Error] Invalid Policy ERB"
+              note left
+                Response Code: 400
+                Response: {"error": {
+                  "code": 400,
+                  "error": "Policy Factory Policy Template contains invalid ERB"
+                }}
+                Log Level: Error
+                Log Message Policy Factory 'conjur/factories/core/<name>' Policy Template contains invalid ERB
+              end note
+            endif
+          else
+            --> [<color:red>no] "<color:red>[Error] Missing Values"
+            note left
+              Response Code: 400
+              Response: {"error": {
+                "code": 400,
+                "message": "The following fields are missing values: 'field-1', 'field-2'",
+                "fields": [
+                  {"field-1": { "error": "cannot be empty" }},
+                  {"field-2": { "error": "cannot be empty" }}
+                ]}}
+              Log Level: Error
+              Log Message: The following fields are missing values in the request JSON body: 'field-1', 'field-2'
+            end note
+          endif
+        else
+          --> [<color:red>no] "<color:red>[Error] Missing Keys"
+          note left
+            Response Code: 400
+            Response: {"error": {
+              "code": 400,
+              "message": "The following fields are missing: 'field-1', 'field-2'",
+              "fields": [
+                {"field-1": { "error": "must be present" }},
+                {"field-2": { "error": "must be present" }}
+              ]
+            }}
+            Log Level: Error
+            Log Message: The following fields are missing from the request JSON body: 'field-1', 'field-2'
+          end note
+        endif
+      else
+        --> [<color:red>no] "<color:red>[Error] Malformed JSON"
+        note left
+          Response Code: 400
+          Response: {"error": {
+            "code": 400,
+            "message": "Request JSON contains invalid syntax"
+          }}
+          Log Level: Error
+          Log Message: Request JSON contains invalid syntax
+        end note
+      endif
+    else
+      --> [<color:red>no] "<color:red>[Error] Factory Variable empty"
+      note left
+        Response Code: 400
+        Response: {"error": {
+          "code": 400,
+          "resource": "conjur/factories/core/<name>",
+          "message": "Requested Policy Factory is empty"
+        }}
+        Log Level: Error
+        Log Message: Policy Factory Variable "conjur/factories/core/<name>" is empty
+      end note
+    endif
+  else
+    --> [<color:red>no] "<color:red>[Error] Factory not available"
+    note left
+      Response Code: 403
+      Response: {"error": {
+        "code": 403,
+        "resource": "core/<name>",
+        "message": "Factory is not available"
+      }}
+      Log Level: Error
+      Log Message: Policy Factory "core/<name>" is not available
+    end note
+  endif
+else
+  --> [<color:red>no] "<color:red>[Error] Factory Variable not present"
+  note left
+    Response Code: 404
+    Response: {"error": {
+        "code": 404,
+        "resource": "conjur/factories/core/<name>",
+        "message": "Requested Policy Factory does not exist"
+      }}
+    Log Level: Error
+    Log Message: Policy Factory Variable "conjur/factories/core/<name>" does not exist
+  end note
+endif
+@enduml@enduml

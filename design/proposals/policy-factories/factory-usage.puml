@@ -1,0 +1,52 @@
+@startuml
+(*)  --> "Identify Factory variable based on request params"
+if "Does factory variable exist?" then
+  --> [<color:green>yes] if "Can role load factory variable?"
+    --> [<color:green>yes] if "Does factory variable have a value?"
+      --> [<color:green>yes] "Load Factory"
+      --> "Extract Schema from Factory Variable"
+      --> "Parse [POST] JSON Request body"
+      --> if "is JSON valid?"
+        --> [<color:green>yes] if "Required keys present?"
+          --> [<color:green>yes] if "Required values present?"
+            --> [<color:green>yes] if "Policy rendered successfully?"
+              --> [<color:green>yes] if "Policy namespace path rendered successfully?"
+                --> [<color:green>yes] if "Policy successfully applied"
+                  --> [<color:green>yes] if "Factory has variables?"
+                    --> [<color:green>yes] if "Variables set successfully set?"
+                      --> "<color:green>Return Policy and Variable response"
+                      --> (*)
+                    else
+                      --> [<color:red>no] "<color:red>[Error] Setting Variable(s) not Permitted"
+                    endif
+                  else
+                    --> [<color:red>no] "<color:green> Return Policy response"
+                  endif
+                else
+                  --> [<color:red>no] "<color:red>[Error] Policy Creation not Permitted"
+                endif
+              else
+                --> [<color:red>no] "<color:red>[Error] Invalid Policy Namespace ERB"
+              endif
+            else
+              --> [<color:red>no] "<color:red>[Error] Invalid Policy ERB"
+            endif
+          else
+            --> [<color:red>no] "<color:red>[Error] Missing Values"
+          endif
+        else
+          --> [<color:red>no] "<color:red>[Error] Missing Keys"
+        endif
+      else
+        --> [<color:red>no] "<color:red>[Error] Malformed JSON"
+      endif
+    else
+      --> [<color:red>no] "<color:red>[Error] Factory Variable empty"
+    endif
+  else
+    --> [<color:red>no] "<color:red>[Error] Factory not available"
+  endif
+else
+  --> [<color:red>no] "<color:red>[Error] Factory Variable not present"
+endif
+@enduml
