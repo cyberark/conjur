@@ -25,7 +25,7 @@ class EdgeController < RestController
     variable_to_return[:privateKey] = private_key
     variable_to_return[:fingerprint] = fingerprint
     logger.info(LogMessages::Conjur::EndpointFinishedSuccessfully.new("slosilo_keys"))
-    render(json: {"slosiloKeys":[variable_to_return]})
+    render(json: { "slosiloKeys": [variable_to_return] })
   end
 
   def all_secrets
@@ -33,10 +33,10 @@ class EdgeController < RestController
 
     allowed_params = %i[account limit offset]
     options = params.permit(*allowed_params)
-      .slice(*allowed_params).to_h.symbolize_keys
+                    .slice(*allowed_params).to_h.symbolize_keys
     begin
       verify_edge_host(options)
-      scope = Resource.where(:resource_id.like(options[:account]+":variable:data/%"))
+      scope = Resource.where(:resource_id.like(options[:account] + ":variable:data/%"))
       if params[:count] == 'true'
         sumItems = scope.count('*'.lit)
       else
@@ -57,7 +57,6 @@ class EdgeController < RestController
     if params[:count] == 'true'
       results = { count: sumItems }
       logger.info(LogMessages::Conjur::EndpointFinishedSuccessfully.new("all_secrets:count"))
-      render(json: results)
     else
       results = []
       variables = scope.eager(:permissions).eager(:secrets).all
@@ -65,16 +64,20 @@ class EdgeController < RestController
         variableToReturn = {}
         variableToReturn[:id] = variable[:resource_id]
         variableToReturn[:owner] = variable[:owner_id]
-        variableToReturn[:permissions] =  variable.permissions.select{|h| h[:privilege].eql?('execute')}
+        variableToReturn[:permissions] = variable.permissions.select { |h| h[:privilege].eql?('execute') }
         unless variable.last_secret.nil?
           variableToReturn[:version] = variable.last_secret.version
           variableToReturn[:value] = variable.last_secret.value
         end
-        results  << variableToReturn
+        results << variableToReturn
       end
       logger.info(LogMessages::Conjur::EndpointFinishedSuccessfully.new("all_secrets"))
-      render(json: {"secrets":results})
+      render(json: { "secrets": results })
     end
+  rescue JSON::GeneratorError
+    raise Errors::Conjur::BadSecretEncoding, results
+  rescue Encoding::UndefinedConversionError
+    raise Errors::Conjur::BadSecretEncoding, results
   end
 
   def all_hosts
@@ -85,7 +88,7 @@ class EdgeController < RestController
                     .slice(*allowed_params).to_h.symbolize_keys
     begin
       verify_edge_host(options)
-      scope = Role.where(:role_id.like(options[:account]+":host:data/%"))
+      scope = Role.where(:role_id.like(options[:account] + ":host:data/%"))
       if params[:count] == 'true'
         sumItems = scope.count('*'.lit)
       else
@@ -112,15 +115,15 @@ class EdgeController < RestController
       hosts.each do |host|
         hostToReturn = {}
         hostToReturn[:id] = host[:role_id]
-        #salt = OpenSSL::Random.random_bytes(32)
-        #hostToReturn[:api_key] = Base64.encode64(hmac_api_key(host, salt))
+        # salt = OpenSSL::Random.random_bytes(32)
+        # hostToReturn[:api_key] = Base64.encode64(hmac_api_key(host, salt))
         hostToReturn[:api_key] = host.api_key
-        #hostToReturn[:salt] = Base64.encode64(salt)
-        hostToReturn[:memberships] =host.all_roles.all.select{|h| h[:role_id] != (host[:role_id])}
-        results  << hostToReturn
+        # hostToReturn[:salt] = Base64.encode64(salt)
+        hostToReturn[:memberships] = host.all_roles.all.select { |h| h[:role_id] != (host[:role_id]) }
+        results << hostToReturn
       end
       logger.info(LogMessages::Conjur::EndpointFinishedSuccessfully.new("all_hosts"))
-      render(json: {"hosts": results})
+      render(json: { "hosts": results })
     end
   end
 
@@ -129,7 +132,7 @@ class EdgeController < RestController
   def validate_scope(limit, offset)
     if offset || limit
       # 'limit' must be an integer greater than 0 and less than 2000 if given
-      if limit && (!numeric?(limit) || limit.to_i <= 0 || limit.to_i > 2000 )
+      if limit && (!numeric?(limit) || limit.to_i <= 0 || limit.to_i > 2000)
         raise ArgumentError, "'limit' contains an invalid value. 'limit' must be a positive integer and less than 2000"
       end
       # 'offset' must be an integer greater than or equal to 0 if given
@@ -169,7 +172,6 @@ class EdgeController < RestController
       raise Forbidden
     end
   end
-
 
   def hmac_api_key(host, salt)
     pass = host.api_key
