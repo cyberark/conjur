@@ -155,6 +155,7 @@ function test_gke() {
     -e INVENTORY_TAG \
     -e INVENTORY_BASE_TAG \
     -e NGINX_TAG \
+    -e TINYPROXY_TAG \
     -e CONJUR_AUTHN_K8S_TEST_NAMESPACE \
     -e USE_GKE_GCLOUD_AUTH_PLUGIN=True \
     -e GCLOUD_CLUSTER_NAME \
