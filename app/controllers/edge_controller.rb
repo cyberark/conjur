@@ -3,7 +3,7 @@
 class EdgeController < RestController
 
   def slosilo_keys
-    logger.info(LogMessages::Conjur::EndpointRequested.new("slosilo_keys"))
+    logger.info(LogMessages::Endpoints::EndpointRequested.new("slosilo_keys"))
     allowed_params = %i[account]
     options = params.permit(*allowed_params).to_h.symbolize_keys
     begin
@@ -24,12 +24,12 @@ class EdgeController < RestController
     variable_to_return = {}
     variable_to_return[:privateKey] = private_key
     variable_to_return[:fingerprint] = fingerprint
-    logger.info(LogMessages::Conjur::EndpointFinishedSuccessfully.new("slosilo_keys"))
+    logger.info(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("slosilo_keys"))
     render(json: {"slosiloKeys":[variable_to_return]})
   end
 
   def all_secrets
-    logger.info(LogMessages::Conjur::EndpointRequested.new("all_secrets"))
+    logger.info(LogMessages::Endpoints::EndpointRequested.new("all_secrets"))
 
     allowed_params = %i[account limit offset]
     options = params.permit(*allowed_params)
@@ -56,7 +56,7 @@ class EdgeController < RestController
 
     if params[:count] == 'true'
       results = { count: sumItems }
-      logger.info(LogMessages::Conjur::EndpointFinishedSuccessfully.new("all_secrets:count"))
+      logger.info(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("all_secrets:count"))
       render(json: results)
     else
       results = []
@@ -72,13 +72,13 @@ class EdgeController < RestController
         end
         results  << variableToReturn
       end
-      logger.info(LogMessages::Conjur::EndpointFinishedSuccessfully.new("all_secrets"))
+      logger.info(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("all_secrets"))
       render(json: {"secrets":results})
     end
   end
 
   def all_hosts
-    logger.info(LogMessages::Conjur::EndpointRequested.new("all_hosts"))
+    logger.info(LogMessages::Endpoints::EndpointRequested.new("all_hosts"))
 
     allowed_params = %i[account limit offset]
     options = params.permit(*allowed_params)
@@ -104,7 +104,7 @@ class EdgeController < RestController
     end
     if params[:count] == 'true'
       results = { count: sumItems }
-      logger.info(LogMessages::Conjur::EndpointFinishedSuccessfully.new("all_hosts:count"))
+      logger.info(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("all_hosts:count"))
       render(json: results)
     else
       results = []
@@ -119,7 +119,7 @@ class EdgeController < RestController
         hostToReturn[:memberships] =host.all_roles.all.select{|h| h[:role_id] != (host[:role_id])}
         results  << hostToReturn
       end
-      logger.info(LogMessages::Conjur::EndpointFinishedSuccessfully.new("all_hosts"))
+      logger.info(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("all_hosts"))
       render(json: {"hosts": results})
     end
   end
