@@ -18,8 +18,6 @@ Feature: Fetching edge host
     Then the HTTP response status code is 200
     And the JSON at "hosts" should have 0 entries
 
-
-
   Scenario: Fetching edge hosts when 2 edge hosts exists
     Given I log in as user "alice"
     When I GET "/edge/edge_hosts/cucumber"

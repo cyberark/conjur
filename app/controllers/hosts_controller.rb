@@ -32,7 +32,6 @@ class HostsController < RestController
     if %w[conjur cucumber rspec].exclude?(options[:account])
       raise_excep = true
       msg = "Account is: #{options[:account]}. Should be one of the following: [conjur cucumber rspec]"
-    
     else
       role = Role[options[:account] + ':group:Conjur_Cloud_Admins']
       unless role&.ancestor_of?(current_user)
