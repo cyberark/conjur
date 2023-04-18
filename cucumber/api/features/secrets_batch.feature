@@ -147,6 +147,7 @@ Feature: Batch retrieval of secrets
   @acceptance
   Scenario: Omit the Accept-Encoding header entirely from batch secrets request
     Given I add the secret value "!@#$%^&*()_-+±~" to the resource "cucumber:variable:secret2"
+    And I set the "Accept-Encoding" header to "Base64"
     When I GET "/secrets?variable_ids=cucumber:variable:secret2" with no default headers
     Then the JSON should be:
     """

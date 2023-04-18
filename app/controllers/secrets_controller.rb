@@ -71,7 +71,10 @@ class SecretsController < RestController
       audit_fetch(variable.resource_id)
     end
 
-    render(json: result)
+    Encoding.default_external = 'UTF-8'
+    my_hash = {'my_key' => 'my_value with special character: !@#$%^&*()_-+±~'}
+    render(json: JSON.generate(my_hash, ascii_only: false))
+    # The JSON.generate method is trying to convert the hash to a JSON string, but it is encountering a character that cannot be represented in ASCII encoding.
   rescue JSON::GeneratorError
     raise Errors::Conjur::BadSecretEncoding, result
   rescue Encoding::UndefinedConversionError
