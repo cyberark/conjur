@@ -13,7 +13,6 @@ describe EdgeController, :type => :request do
     @other_user = Role.find_or_create(role_id: other_host_id)
   end
 
-
   let(:update_slosilo_keys_url) do
     "/edge/slosilo_keys/#{account}"
   end

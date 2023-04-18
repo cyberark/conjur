@@ -173,13 +173,6 @@ class EdgeController < RestController
     end
   end
 
-  def hmac_api_key(host, salt)
-    pass = host.api_key
-    iter = 20
-    key_len = 16
-    OpenSSL::KDF.pbkdf2_hmac(pass, salt: salt, iterations: iter, length: key_len, hash: "sha256")
-  end
-
   def numeric? val
     val == val.to_i.to_s
   end
