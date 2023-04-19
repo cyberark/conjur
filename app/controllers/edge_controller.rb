@@ -72,7 +72,19 @@ class EdgeController < RestController
         results << variableToReturn
       end
       logger.info(LogMessages::Conjur::EndpointFinishedSuccessfully.new("all_secrets"))
-      render(json: { "secrets": results })
+
+      results.each do |hash|
+        hash.each do |key, value|
+          if value.is_a?(String)
+            value.force_encoding('UTF-8')
+          end
+        end
+      end
+
+      result = { "secrets": results }
+      json_string_result = JSON.generate(result, ascii_only: false)
+
+      render(json: json_string_result)
     end
   rescue JSON::GeneratorError
     raise Errors::Conjur::BadSecretEncoding, results

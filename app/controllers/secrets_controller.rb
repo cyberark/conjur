@@ -72,10 +72,11 @@ class SecretsController < RestController
     end
 
     # Convert ASCII-8BIT to UTF-8
-    result.each { |k, v| v.force_encoding('UTF-8') }
-    result_test_debug = JSON.generate(result, ascii_only: false)
-    render(json: result_test_debug)
+    # result.each { |k, v| v.force_encoding('UTF-8') }
     # The JSON.generate method is trying to convert the hash to a JSON string, but it is encountering a character that cannot be represented in ASCII encoding.
+    # result_test_debug = JSON.generate(result, ascii_only: false)
+
+    render(json: result)
   rescue JSON::GeneratorError
     raise Errors::Conjur::BadSecretEncoding, result
   rescue Encoding::UndefinedConversionError
