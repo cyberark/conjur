@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [0.0.8-cloud] - 2023-04-30
 ### Added
 - New edge-hosts endpoints for edge
+- Api change. Host API key is return as hashed
+  https://ca-il-jira.il.cyber-ark.com:8443/browse/ONYX-35892
 
 ## [0.0.7-cloud] - 2023-03-27
 ### Changed
