@@ -40,9 +40,15 @@ ENABLE_OIDC_OKTA=false
 ENABLE_ROTATORS=false
 IDENTITY_USER=""
 
+declare -A required_envvars
+required_envvars[identity]="IDENTITY_CLIENT_ID IDENTITY_CLIENT_SECRET IDENTITY_PROVIDER_URI"
+required_envvars[azure]="AZURE_TENANT_ID AZURE_SUBSCRIPTION_ID AZURE_RESOURCE_GROUP"
+
 main() {
   unset COMPOSE_PROJECT_NAME
   parse_options "$@"
+
+  check_env_vars
 
   if ! docker info >/dev/null 2>&1; then
     echo "Docker does not seem to be running, run it first and retry"
@@ -140,6 +146,31 @@ parse_options() {
 
   if [[ $ENABLE_OIDC_IDENTITY = true && -z "$IDENTITY_USER" ]]; then
     echo "Flag --oidc-identity must be paired with --identity-user. See --help."
+    exit 1
+  fi
+}
+
+check_env_vars() {
+  envvars=""
+
+  if [[ $ENABLE_OIDC_IDENTITY = true ]]; then
+    envvars="$envvars ${required_envvars[identity]}"
+  fi
+  if [[ $ENABLE_AUTHN_AZURE = true ]]; then
+    envvars="$envvars ${required_envvars[azure]}"
+  fi
+
+  IFS=' ' read -r -a envvars <<< "$envvars"
+
+  envvar_message="Required environment variables not set:"
+  for envvar in "${envvars[@]}"; do
+    if [[ -z "${!envvar}" ]]; then
+      envvar_message="$envvar_message $envvar"
+    fi
+  done
+
+  if [[ "$envvar_message" =~ .*"IDENTITY".* ]]; then
+    echo "$envvar_message"
     exit 1
   fi
 }
