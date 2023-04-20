@@ -19,6 +19,7 @@ module HostValidator
           "Curren user is: #{current_user}. should be member of #{role}"
         )
       )
+      raise Forbidden
     end
   end
 end
