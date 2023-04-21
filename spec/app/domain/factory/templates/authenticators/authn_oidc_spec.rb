@@ -4,8 +4,8 @@ require 'spec_helper'
 
 require './spec/app/domain/factory/shared'
 
-RSpec.describe(Factory::Templates::Authenticators::AuthnOidc) do
-  subject { Factory::Templates::Authenticators::AuthnOidc }
+RSpec.describe(Factories::Templates::Authenticators::AuthnOidc) do
+  subject { Factories::Templates::Authenticators::AuthnOidc }
   let(:available_properties) { %w[id variables] }
   let(:required_properties) { available_properties }
 

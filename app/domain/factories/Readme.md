@@ -488,3 +488,53 @@ else (<color:red>no)
 endif
 @enduml
 ```
+
+### UI Workflow
+
+```plantuml
+@startuml factory-setup
+start
+:Login;
+:Navigate to "Policy Factories" page;
+if (Can view Factories) then (yes)
+  :Show Factory Groupings;
+  :Navigate to Factory Grouping;
+  :Select a Factory;
+  if ("Can view Factory") then (yes)
+    :View Factory form;
+    if ("Factory successfully created") then (yes)
+      :Redirect
+    else
+    end
+  else
+  end
+else (no)
+  :Show empty Factories page\nwith "No Factories Available";
+end
+@enduml
+```
+
+
+
+## Code Architecture
+
+```plantuml
+@startuml Basic Sample
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+Component(controller, "PolicyFactoryController", "Rails", "Routes requests to Business Logic and renders results")
+
+Component(repository, "PolicyFactoryRepository", "Ruby", "Retrieves Factories from Conjur Variables")
+
+Component(data_object, "DataObjects::PolicyFactory", "Ruby")
+
+Component(create, "CreateFromPolicyFactory", "Ruby", "Generates Conjur elements using a Policy Factory")
+
+Rel(repository, controller, "loads factory from")
+
+' Component(repository 'PolicyFactoryRepository')
+
+' component PolicyFactoryController
+' component PolicyFactoryRepository
+@enduml
+```

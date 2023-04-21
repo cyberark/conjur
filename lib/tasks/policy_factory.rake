@@ -1,11 +1,9 @@
 # frozen_string_literal: true
 
-require 'base64'
-
 module Factory
   module Templates
     class ValidateTemplate
-      def initialize(renderer: Factory::RenderPolicy.new)
+      def initialize(renderer: Factories::RenderPolicy.new)
         @renderer = renderer
       end
 
@@ -39,25 +37,25 @@ namespace :policy_factory do
   end
 
   task test: :environment do
-    tester = Factory::Templates::ValidateTemplate.new
+    tester = Factories::Templates::ValidateTemplate.new
     tester.test(
-      factory: Factory::Templates::Core::Group,
+      factory: Factories::Templates::Core::Group,
       template_params: { "id"=>"test-group", "branch"=>"root", "annotations"=>{ "one"=>1, "two"=>2, "test/three"=>3 } }
     )
     tester.test(
-      factory: Factory::Templates::Core::Group,
+      factory: Factories::Templates::Core::Group,
       template_params: { "id"=>"test-group", "branch"=>"root" }
     )
   end
 
   task load: :environment do
-    client.load_policy('root', Factory::Templates::BasePolicy.policy)
-    client.resource('cucumber:variable:conjur/factories/core/group').add_value(Factory::Templates::Core::Group.data)
-    client.resource('cucumber:variable:conjur/factories/core/managed-policy').add_value(Factory::Templates::Core::ManagedPolicy.data)
-    client.resource('cucumber:variable:conjur/factories/core/policy').add_value(Factory::Templates::Core::Policy.data)
-    client.resource('cucumber:variable:conjur/factories/core/user').add_value(Factory::Templates::Core::User.data)
-    client.resource('cucumber:variable:conjur/factories/authenticators/authn-oidc').add_value(Factory::Templates::Authenticators::AuthnOidc.data)
-    client.resource('cucumber:variable:conjur/factories/connections/database').add_value(Factory::Templates::Connections::Database.data)
+    client.load_policy('root', Factories::Templates::Base::V1::BasePolicy.policy)
+    client.resource('cucumber:variable:conjur/factories/core/v1/group').add_value(Factories::Templates::Core::V1::Group.data)
+    client.resource('cucumber:variable:conjur/factories/core/v1/managed-policy').add_value(Factories::Templates::Core::V1::ManagedPolicy.data)
+    client.resource('cucumber:variable:conjur/factories/core/v1/policy').add_value(Factories::Templates::Core::V1::Policy.data)
+    client.resource('cucumber:variable:conjur/factories/core/v1/user').add_value(Factories::Templates::Core::V1::User.data)
+    client.resource('cucumber:variable:conjur/factories/authenticators/v1/authn-oidc').add_value(Factories::Templates::Authenticators::V1::AuthnOidc.data)
+    client.resource('cucumber:variable:conjur/factories/connections/v1/database').add_value(Factories::Templates::Connections::V1::Database.data)
   end
 
   task retrieve_auth_token: :environment do

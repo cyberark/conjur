@@ -2,15 +2,15 @@
 
 require 'spec_helper'
 
-RSpec.describe(Factory::CreateFromPolicyFactory) do
+RSpec.describe(Factories::CreateFromPolicyFactory) do
   let(:rest_client) { spy(RestClient) }
-  let(:factory) { Factory::CreateFromPolicyFactory.new(http: rest_client) }
+  let(:factory) { Factories::CreateFromPolicyFactory.new(http: rest_client) }
 
   describe('.validate_and_transform_request') do
     context 'with a simple factory' do
       let(:validated) do
         factory.validate_and_transform_request(
-          schema: JSON.parse(Base64.decode64(Factory::Templates::Core::User.data))['schema'],
+          schema: JSON.parse(Base64.decode64(Factories::Templates::Core::User.data))['schema'],
           params: params
         )
       end
@@ -57,13 +57,13 @@ RSpec.describe(Factory::CreateFromPolicyFactory) do
   end
 
   describe('.render_and_apply_policy') do
-    # Technically we should mock the Factory::Renderer to make this truely a unit
+    # Technically we should mock the Factories::Renderer to make this truely a unit
     # test. I'm including it here to avoid needing to maintain an extra interface.
     context 'The expected data is posted to the Conjur API' do
       it 'loads the approprate policy' do
         factory.render_and_apply_policy(
           policy_load_path: 'bar',
-          policy_template: Base64.decode64(JSON.parse(Base64.decode64(Factory::Templates::Core::User.data))['policy']),
+          policy_template: Base64.decode64(JSON.parse(Base64.decode64(Factories::Templates::Core::User.data))['policy']),
           variables: { 'id' => 'foo', 'branch' => 'bar' },
           account: 'cucumber',
           authorization: 'bar'
@@ -86,7 +86,7 @@ RSpec.describe(Factory::CreateFromPolicyFactory) do
       it 'returns successfully' do
         response = factory.render_and_apply_policy(
           policy_load_path: 'bar',
-          policy_template: Base64.decode64(JSON.parse(Base64.decode64(Factory::Templates::Core::User.data))['policy']),
+          policy_template: Base64.decode64(JSON.parse(Base64.decode64(Factories::Templates::Core::User.data))['policy']),
           variables: { 'id' => 'foo', 'branch' => 'bar' },
           account: 'cucumber',
           authorization: 'bar'
@@ -219,7 +219,7 @@ RSpec.describe(Factory::CreateFromPolicyFactory) do
     context 'when policy factory is only a policy' do
       it 'loads the appropriate policy' do
         factory.call(
-          factory_template: JSON.parse(Base64.decode64(Factory::Templates::Core::User.data)),
+          factory_template: JSON.parse(Base64.decode64(Factories::Templates::Core::User.data)),
           request_body: { 'id' => 'foo', 'branch' => 'bar' }.to_json,
           account: 'cucumber',
           authorization: 'bar'
@@ -276,7 +276,7 @@ RSpec.describe(Factory::CreateFromPolicyFactory) do
         end
       end
 
-      let(:factory_template) { JSON.parse(Base64.decode64(Factory::Templates::Authenticators::AuthnOidc.data)) }
+      let(:factory_template) { JSON.parse(Base64.decode64(Factories::Templates::Authenticators::AuthnOidc.data)) }
       it 'returns successfully' do
         result = factory.call(
           factory_template: factory_template,

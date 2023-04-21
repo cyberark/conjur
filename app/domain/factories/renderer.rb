@@ -1,4 +1,4 @@
-module Factory
+module Factories
   class Renderer
     def initialize(render_engine: ERB, success: SuccessResponse, failure: FailureResponse)
       @render_engine = render_engine
