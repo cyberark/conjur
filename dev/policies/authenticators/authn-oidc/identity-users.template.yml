@@ -1,0 +1,6 @@
+- !user {{ IDENTITY_USER }}
+
+- !grant
+  members:
+    - !user {{ IDENTITY_USER }}
+  role: !group conjur/authn-oidc/identity/authenticatable
