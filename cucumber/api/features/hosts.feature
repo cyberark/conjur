@@ -34,8 +34,13 @@ Feature: Fetching edge host
         - !host edge/edge-abcd1234567890/edge-host-abcd1234567891
     # Create data tree
     - !policy
-      id: data
-      owner: !group Conjur_Cloud_Admins
+        id: data
+        owner: !group Conjur_Cloud_Admins
+        body:
+        - !group Conjur_Cloud_Admins
+    - !grant
+      role: !group data/Conjur_Cloud_Admins
+      member: !user bob
     """
 
 
@@ -68,17 +73,5 @@ Feature: Fetching edge host
 
   Scenario: Fetching edge host credentials without permission
     Given I login as "bob"
-    And I successfully PUT "/policies/cucumber/policy/data" with body:
-    """
-    - !group Conjur_Cloud_Admins
-    - !grant
-      role: !group Conjur_Cloud_Admins
-      member: !user bob
-    """
-
-    When I GET "/edge/edge-hosts/cucumber"
-    Then the HTTP response status code is 200
-
-
-
-
+    When I GET "/edge/host/cucumber/edge%2Dhost%2Dabcd1234567891"
+    Then the HTTP response status code is 403

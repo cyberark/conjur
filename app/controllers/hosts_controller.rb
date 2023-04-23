@@ -4,7 +4,6 @@ class HostsController < RestController
   include HostValidator
   def edge_hosts
     logger.info(LogMessages::Endpoints::EndpointRequestedByUser.new("edge-hosts", Role.username_from_roleid(current_user.role_id)))
-
     allowed_params = %i[account]
     options = params.permit(*allowed_params).to_h.symbolize_keys
     begin
@@ -12,7 +11,6 @@ class HostsController < RestController
     rescue ApplicationController::Forbidden
       raise
     end
-
     results = []
     hosts = Role.where(:role_id.like(options[:account]+":host:edge/%"))
     hosts.each do |host|
@@ -30,13 +28,13 @@ class HostsController < RestController
 
   def host_credential
     logger.info(LogMessages::Endpoints::EndpointRequested.new("host", Role.username_from_roleid(current_user.role_id)))
-    allowed_params = %i[account host-name]
+    allowed_params = %i[account host_name]
     options = params.permit(*allowed_params)
                     .slice(*allowed_params).to_h.symbolize_keys
     begin
       verify_host(options)
-      host = Credentials.where(:role_id.like("%/"+options[:host-name])).all
-      validate_edge_host_name(host)
+      host = Credentials.where(:role_id.like("%/"+options[:host_name])).all
+      validate_edge_host_name(options[:account], host)
     rescue ApplicationController::Forbidden
       raise
     rescue ArgumentError => e
@@ -45,8 +43,8 @@ class HostsController < RestController
 
 
     api_key = host[0][:api_key].unpack("H*")[0]
+    host_id = host[0][:role_id]
     result = Base64.strict_encode64(host_id+"-"+api_key)
-
     logger.info(LogMessages::Endpoints::EndpointRequested.new("host"))
     response.set_header("Content-Encoding", "base64")
     render(plain: result, content_type: "text/plain")
@@ -54,12 +52,12 @@ class HostsController < RestController
   end
 
 
-  def validate_edge_host_name(host)
+  def validate_edge_host_name(account, host)
     unless host.length == 1
       raise ArgumentError, "Edge host not found"
     end
     host_id = host[0][:role_id]
-    unless is_host_member_of_edge_group(options[:account], host_id)
+    unless is_host_member_of_edge_group(account, host_id)
       logger.error(
         Errors::Authorization::EndpointNotVisibleToRole.new(
           "Current host is not a member of edge host group"
