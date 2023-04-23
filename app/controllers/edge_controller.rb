@@ -36,6 +36,7 @@ class EdgeController < RestController
                     .slice(*allowed_params).to_h.symbolize_keys
     begin
       verify_edge_host(options)
+
       scope = Resource.where(:resource_id.like(options[:account]+":variable:data/%"))
       if params[:count] == 'true'
         sumItems = scope.count('*'.lit)
@@ -61,14 +62,28 @@ class EdgeController < RestController
     else
       results = []
       variables = scope.eager(:permissions).eager(:secrets).all
+
+      dictionary = { }
+
+      Sequel::Model.db.fetch("SELECT * FROM secrets JOIN (SELECT * FROM resources WHERE (resource_id LIKE '" + options[:account]+":variable:data/%') ORDER BY resource_id LIMIT " + (limit || 1000).to_s + " OFFSET " + (offset || 0).to_s + ") AS res ON (res.resource_id = secrets.resource_id)") do |row|
+        if dictionary.key?(row[:resource_id])
+          if row[:version] > dictionary[row[:resource_id]][:version]
+            dictionary[row[:resource_id]] = row
+          end
+        else
+          dictionary[row[:resource_id]] = row
+        end
+      end
+
       variables.each do |variable|
         variableToReturn = {}
         variableToReturn[:id] = variable[:resource_id]
         variableToReturn[:owner] = variable[:owner_id]
-        variableToReturn[:permissions] =  variable.permissions.select{|h| h[:privilege].eql?('execute')}
-        unless variable.last_secret.nil?
-          variableToReturn[:version] = variable.last_secret.version
-          variableToReturn[:value] = variable.last_secret.value
+        variableToReturn[:permissions] =  variable.permissions.select{|h| h[:privilege].eql?('execute')}    #variable.permissions
+
+        unless dictionary[variableToReturn[:id]].nil?
+          variableToReturn[:value] = Slosilo::EncryptedAttributes.decrypt(dictionary[variableToReturn[:id]][:value], aad: variableToReturn[:id])
+          variableToReturn[:version] = dictionary[variableToReturn[:id]][:version]
         end
         results  << variableToReturn
       end
