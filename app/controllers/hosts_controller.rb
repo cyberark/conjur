@@ -51,7 +51,6 @@ class HostsController < RestController
   end
 
   def _validate_edge_host_name(account, host)
-    puts("validate_edge_host_name")
     unless host.length == 1
       raise ArgumentError, "Edge host not found"
     end
@@ -66,12 +65,8 @@ class HostsController < RestController
     end
   end
 
-
   def _verify_host(options)
     account = options[:account]
-    puts("in verify host!")
-    puts("account is: #{account}")
-
     validate_conjur_account(account)
     validate_conjur_admin_group(account)
   end
