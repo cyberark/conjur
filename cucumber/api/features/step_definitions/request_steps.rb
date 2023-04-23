@@ -212,6 +212,14 @@ Then(/^the HTTP response is base64 encoded$/) do
   expect(JSON.parse(@response_body).is_a?(Hash)).to be(true)
 end
 
+Then(/^the HTTP response is plain text and base64 encoded$/) do
+  expect(@result.headers[:content_encoding]).to eq("base64")
+
+  # Override encoded response with decode one to use other helpers
+  @response_body = Base64.strict_decode64(@result)
+  expect(@response_body.is_a?(String)).to be(true)
+end
+
 Then(/^the result is true$/) do
   expect(@result).to be(true)
 end
