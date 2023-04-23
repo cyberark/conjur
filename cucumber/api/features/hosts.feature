@@ -38,12 +38,13 @@ Feature: Fetching edge host
         owner: !group Conjur_Cloud_Admins
         body:
         - !group Conjur_Cloud_Admins
+        - !host not-edge-host
     - !grant
       role: !group data/Conjur_Cloud_Admins
       member: !user bob
     """
 
-
+  @acceptance @smoke
   Scenario: Fetching edge hosts when 2 edge hosts exists
     Given I login as "alice"
     When I GET "/edge/edge-hosts/cucumber"
@@ -63,6 +64,26 @@ Feature: Fetching edge host
     ]
     """
 
+  @negative @acceptance
+  Scenario: Fetching edge host without group permission
+    Given I login as "bob"
+    When I GET "/edge/edge-hosts/cucumber"
+    Then the HTTP response status code is 403
+
+  @negative @acceptance
+  Scenario: Fetching edge host wrong account
+    Given I login as "bob"
+    When I GET "/edge/edge-hosts/cucumber1"
+    Then the HTTP response status code is 403
+
+    #todebug!!!
+  @negative @acceptance
+  Scenario: Fetching edge host credentials for not an Edge host
+    Given I login as "alice"
+    When I GET "/edge/host/cucumber/data%2fnot-edge-host"
+    Then the HTTP response status code is 404
+
+  @acceptance @smoke
   Scenario: Fetching edge host credentials
     Given I login as "alice"
     When I GET "/edge/host/cucumber/edge%2Dhost%2Dabcd1234567891"
@@ -70,8 +91,14 @@ Feature: Fetching edge host
     And the HTTP response content type is "text/plain"
     And the HTTP response is plain text and base64 encoded
 
-
-  Scenario: Fetching edge host credentials without permission
+  @negative @acceptance
+  Scenario: Fetching edge host credentials without group permission
     Given I login as "bob"
     When I GET "/edge/host/cucumber/edge%2Dhost%2Dabcd1234567891"
+    Then the HTTP response status code is 403
+
+  @negative @acceptance
+  Scenario: Fetching edge host credentials with wrong account
+    Given I login as "bob"
+    When I GET "/edge/host/cucumber1/edge%2Dhost%2Dabcd1234567891"
     Then the HTTP response status code is 403
