@@ -29,6 +29,7 @@ class EdgeController < RestController
     render(json: {"slosiloKeys":[variable_to_return]})
   end
 
+  # Return all secrets within offset-limit frame. Default is 0-1000
   def all_secrets
     logger.info(LogMessages::Endpoints::EndpointRequested.new("all_secrets"))
 
@@ -37,17 +38,14 @@ class EdgeController < RestController
                     .slice(*allowed_params).to_h.symbolize_keys
     begin
       verify_edge_host(options)
+
       scope = Resource.where(:resource_id.like(options[:account]+":variable:data/%"))
       if params[:count] == 'true'
         sumItems = scope.count('*'.lit)
       else
-        offset = options[:offset]
-        limit = options[:limit]
+        offset = options[:offset] || "0"
+        limit = options[:limit] || "1000"
         validate_scope(limit, offset)
-        scope = scope.order(:resource_id).limit(
-          (limit || 1000).to_i,
-          (offset || 0).to_i
-        )
       end
     rescue ApplicationController::Forbidden
       raise
@@ -61,27 +59,30 @@ class EdgeController < RestController
       render(json: results)
     else
       results = []
-      variables = scope.eager(:permissions).eager(:secrets).all
       accepts_base64 = String(request.headers['Accept-Encoding']).casecmp?('base64')
       if accepts_base64
         response.set_header("Content-Encoding", "base64")
       end
-      variables.each do |variable|
+
+      variables = build_variables_map(limit, offset, options)
+
+      variables.each do |id, variable|
         variableToReturn = {}
-        variableToReturn[:id] = variable[:resource_id]
+        variableToReturn[:id] = id
         variableToReturn[:owner] = variable[:owner_id]
-        variableToReturn[:permissions] =  variable.permissions.select{|h| h[:privilege].eql?('execute')}
-        unless variable.last_secret.nil?
-          variableToReturn[:version] = variable.last_secret.version
-          secret_value = variable.last_secret.value
-          variableToReturn[:value] =  accepts_base64 ? Base64.strict_encode64(secret_value) : secret_value
-          variableToReturn[:versions] = []
-          value = {
-            "version": variableToReturn[:version],
-            "value": variableToReturn[:value]
-          }
-          variableToReturn[:versions] << value
+        variableToReturn[:permissions] = []
+        Sequel::Model.db.fetch("SELECT role_id from permissions where resource_id='" + id + "' AND privilege = 'execute'") do |row|
+          variableToReturn[:permissions].append(row[:role_id])
         end
+        secret_value = Slosilo::EncryptedAttributes.decrypt(variable[:value], aad: id)
+        variableToReturn[:value] = accepts_base64 ? Base64.strict_encode64(secret_value) : secret_value
+        variableToReturn[:version] = variable[:version]
+        variableToReturn[:versions] = []
+        value = {
+          "version": variableToReturn[:version],
+          "value": variableToReturn[:value]
+        }
+        variableToReturn[:versions] << value
         results  << variableToReturn
       end
       logger.info(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("all_secrets"))
@@ -137,6 +138,22 @@ class EdgeController < RestController
 
 
   private
+
+  def build_variables_map(limit, offset, options)
+    variables = {}
+
+    Sequel::Model.db.fetch("SELECT * FROM secrets JOIN (SELECT resource_id, owner_id FROM resources WHERE (resource_id LIKE '" + options[:account] + ":variable:data/%') ORDER BY resource_id LIMIT " + limit.to_s + " OFFSET " + offset.to_s + ") AS res ON (res.resource_id = secrets.resource_id)") do |row|
+      if variables.key?(row[:resource_id])
+        if row[:version] > variables[row[:resource_id]][:version]
+          variables[row[:resource_id]] = row
+        end
+      else
+        variables[row[:resource_id]] = row
+      end
+    end
+    variables
+  end
+
   def validate_scope(limit, offset)
     if offset || limit
       # 'limit' must be an integer greater than 0 and less than 2000 if given
