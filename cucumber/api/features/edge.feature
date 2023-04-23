@@ -41,7 +41,7 @@ Feature: Fetching secrets from edge endpoint
         - !variable secret5
         - !variable secret6
     """
-    And I add the secret value "s1" to the resource "cucumber:variable:data/secret1"
+    And I add the secret value "helloWorld!?/>,.[]{}:;'@|<#$%^&*()_-+~123" to the resource "cucumber:variable:data/secret1"
     And I add the secret value "s2" to the resource "cucumber:variable:data/secret2"
     And I add the secret value "s3" to the resource "cucumber:variable:data/secret3"
     And I add the secret value "s4" to the resource "cucumber:variable:data/secret4"
@@ -94,7 +94,7 @@ Feature: Fetching secrets from edge endpoint
         "id": "cucumber:variable:data/secret1",
         "owner": "cucumber:policy:data",
         "permissions": [],
-        "value": "s1",
+        "value": "helloWorld!?/>,.[]{}:;'@|<#$%^&*()_-+~123",
         "version": 1
       },
       {
@@ -165,7 +165,7 @@ Feature: Fetching secrets from edge endpoint
         "owner": "cucumber:policy:data",
         "permissions": [
         ],
-        "value": "s1",
+        "value": "helloWorld!?/>,.[]{}:;'@|<#$%^&*()_-+~123",
         "version": 1
       },
       {
