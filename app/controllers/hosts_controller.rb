@@ -30,33 +30,43 @@ class HostsController < RestController
 
   def host_credential
     logger.info(LogMessages::Endpoints::EndpointRequested.new("host", Role.username_from_roleid(current_user.role_id)))
-    allowed_params = %i[account name]
+    allowed_params = %i[account host-name]
     options = params.permit(*allowed_params)
                     .slice(*allowed_params).to_h.symbolize_keys
     begin
       verify_host(options)
+      host = Credentials.where(:role_id.like("%/"+options[:host-name])).all
+      validate_edge_host_name(host)
     rescue ApplicationController::Forbidden
       raise
-    end
-
-    host = Credentials.where(:role_id.like("%/"+options[:name])).all
-
-    unless host.length == 1
-      raise RecordNotFound, "Edge host not found"
-    end
-    host_id = host[0][:role_id]
-    unless is_host_member_of_edge_group(options[:account], host_id)
-      raise ApplicationController::Forbidden
+    rescue ArgumentError => e
+      raise ApplicationController::RecordNotFound, e.message
     end
 
 
     api_key = host[0][:api_key].unpack("H*")[0]
-    result = Base64.encode64(host_id+"-"+api_key)
+    result = Base64.strict_encode64(host_id+"-"+api_key)
 
     logger.info(LogMessages::Endpoints::EndpointRequested.new("host"))
     response.set_header("Content-Encoding", "base64")
     render(plain: result, content_type: "text/plain")
 
+  end
+
+
+  def validate_edge_host_name(host)
+    unless host.length == 1
+      raise ArgumentError, "Edge host not found"
+    end
+    host_id = host[0][:role_id]
+    unless is_host_member_of_edge_group(options[:account], host_id)
+      logger.error(
+        Errors::Authorization::EndpointNotVisibleToRole.new(
+          "Current host is not a member of edge host group"
+        )
+      )
+      raise ApplicationController::Forbidden
+    end
   end
 
   def is_host_member_of_edge_group(account, hostId)

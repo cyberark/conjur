@@ -2,11 +2,11 @@
 Feature: Fetching edge host
   Background:
     Given I am the super-user
+    And I create a new user "alice"
+    And I create a new user "bob"
     And I successfully PUT "/policies/cucumber/policy/root" with body:
     """
     - !group Conjur_Cloud_Admins
-    - !user bob
-    - !user alice
     - !grant
       role: !group Conjur_Cloud_Admins
       member: !user alice
@@ -63,4 +63,22 @@ Feature: Fetching edge host
     When I GET "/edge/host/cucumber/edge%2Dhost%2Dabcd1234567891"
     Then the HTTP response status code is 200
     And the HTTP response content type is "text/plain"
-    And the HTTP response is base64 encoded
+    And the HTTP response is plain text and base64 encoded
+
+
+  Scenario: Fetching edge host credentials without permission
+    Given I login as "bob"
+    And I successfully PUT "/policies/cucumber/policy/data" with body:
+    """
+    - !group Conjur_Cloud_Admins
+    - !grant
+      role: !group Conjur_Cloud_Admins
+      member: !user bob
+    """
+
+    When I GET "/edge/edge-hosts/cucumber"
+    Then the HTTP response status code is 200
+
+
+
+
