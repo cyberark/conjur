@@ -1,20 +1,37 @@
 # frozen_string_literal: true
 
+require 'logger'
+
 module Error
   # helps get information regarding current error codes.
   class ConjurCode
-    def initialize(path)
-      @path = path
-      validate
+    def initialize(
+      *paths,
+      # Injected dependencies
+      logger: Logger.new($stdout),
+      output: $stdout
+    )
+      @logger = logger
+      @output = output
+
+      @paths = valid_paths(paths)
     end
 
     def print_next_available
       id = next_code_id
+
       unless id
-        $stderr.puts("The path doesn't contain any files with Conjur error codes")
+        @logger.error(
+          "The path doesn't contain any files with Conjur error codes"
+        )
         return
       end
-      puts(format("The next available error number is %d ( CONJ%05dE )", id, id))
+
+      @output.puts(
+        format("The next available error number is %d ( CONJ%05d )", id, id)
+      )
+
+      id
     end
 
     # separate data-gathering from printing
@@ -23,18 +40,26 @@ module Error
       max_code ? max_code + 1 : nil
     end
 
+    # This is reported as :reek:NestedIterators, but splitting this apart
+    # does not make it more readable.
     def existing_codes
-      codes = File.foreach(@path).map do |line|
-        match = /code: "CONJ(?<num>[0-9]+)E"/.match(line)
-        match ? match[:num].to_i : nil
-      end
-      codes.compact
+      # For each file given
+      @paths.map do |path|
+        # Convert the lines into codes, if present
+        File.foreach(path).map do |line|
+          match = /code: "CONJ(?<num>[0-9]+)[DIWE]"/.match(line)
+          match ? match[:num].to_i : nil
+        end.compact
+      end.flatten
     end
 
-    def validate
-      return if File.file?(@path)
+    def valid_paths(paths)
+      paths.select do |path|
+        next true if File.file?(path)
 
-      raise format("The following path:%s was not found", @path)
+        @logger.warn("The following path was not found: #{path}")
+        false
+      end
     end
   end
 end

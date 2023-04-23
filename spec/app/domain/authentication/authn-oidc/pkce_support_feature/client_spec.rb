@@ -29,7 +29,7 @@ RSpec.describe(Authentication::AuthnOidc::PkceSupportFeature::Client) do
     end
   end
 
-  describe '.callback' do
+  describe '.callback', :type => 'unit' do
     context 'when credentials are valid' do
       it 'returns a valid JWT token', vcr: 'authenticators/authn-oidc/pkce_support_feature/client_callback-valid_oidc_credentials' do
         # Because JWT tokens have an expiration timeframe, we need to hold
@@ -149,7 +149,7 @@ RSpec.describe(Authentication::AuthnOidc::PkceSupportFeature::Client) do
     end
   end
 
-  describe '.discovery_information', vcr: 'authenticators/authn-oidc/pkce_support_feature/discovery_endpoint-valid_oidc_credentials' do
+  describe '.discovery_information', :type => 'unit', vcr: 'authenticators/authn-oidc/pkce_support_feature/discovery_endpoint-valid_oidc_credentials' do
     context 'when credentials are valid' do
       it 'endpoint returns valid data' do
         discovery_information = client.discovery_information(invalidate: true)

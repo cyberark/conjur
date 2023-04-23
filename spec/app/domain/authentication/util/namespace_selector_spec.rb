@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 RSpec.describe(Authentication::Util::NamespaceSelector) do
-  describe '#select' do
+  describe '#select', :type => 'unit' do
     context 'when type is a supported authenticator type' do
       context 'when type is `authn-oidc`' do
         context 'when pkce support feature flag is enabled' do
