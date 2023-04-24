@@ -20,7 +20,7 @@ class HostsController < RestController
       host_name = id.split('/').last
       host_to_return[:id] = id
       host_to_return[:name] = host_name
-      results  << host_to_return
+      results << host_to_return
     end
     logger.info(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("edge-hosts"))
     render(json:{"hosts": results})
@@ -43,7 +43,7 @@ class HostsController < RestController
 
     api_key = host[0][:api_key].unpack("H*")[0]
     host_id = host[0][:role_id]
-    result = Base64.strict_encode64(host_id+"-"+api_key)
+    result = Base64.strict_encode64(host_id+":"+api_key)
     logger.info(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("host"))
     response.set_header("Content-Encoding", "base64")
     render(plain: result, content_type: "text/plain")
