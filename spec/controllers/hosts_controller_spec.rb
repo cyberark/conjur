@@ -6,6 +6,8 @@ describe HostsController, :type => :request do
   let(:host_name) {"edge-host-6d50922eedee3fa58b8f20f675fc11a3"}
   let(:id) {"edge/#{host_name}/#{host_name}"}
   let(:host_id) {"#{account}:host:#{id}"}
+  let(:admins_group) {"Conjur_Cloud_Admins"}
+  let(:edge_hosts_group) {"edge/edge-hosts"}
 
   before do
     Slosilo["authn:#{account}"] ||= Slosilo::Key.new
@@ -25,13 +27,11 @@ describe HostsController, :type => :request do
 
     it "Returned API key equals to key in DB" do
       # add user to Conjur_Cloud_Admins group
-      admins_group= "Conjur_Cloud_Admins"
       Role.create(role_id: "#{account}:group:#{admins_group}")
       RoleMembership.create(role_id: "#{account}:group:#{admins_group}", member_id: user_id, admin_option: true, ownership:true)
       #add edge-hosts to edge/edge-hosts group
-      edge_group = "edge/edge-hosts"
-      Role.create(role_id: "#{account}:group:#{edge_group}")
-      RoleMembership.create(role_id: "#{account}:group:#{edge_group}", member_id: the_host.role_id, admin_option: true, ownership:true)
+      Role.create(role_id: "#{account}:group:#{edge_hosts_group}")
+      RoleMembership.create(role_id: "#{account}:group:#{edge_hosts_group}", member_id: the_host.role_id, admin_option: true, ownership:true)
 
       get("/edge/host/#{account}/#{host_name}", env: token_auth_header)
       expect(response.code).to eq("200")
@@ -49,8 +49,8 @@ describe HostsController, :type => :request do
       Role.create(role_id: "#{account}:group:#{group_name}")
       RoleMembership.create(role_id: "#{account}:group:#{group_name}", member_id: user_id, admin_option: true, ownership:true)
       #add edge-hosts to edge/edge-hosts group
-      Role.create(role_id: "#{account}:group:edge/edge-hosts")
-      RoleMembership.create(role_id: "#{account}:group:edge/edge-hosts", member_id: the_host.role_id, admin_option: true, ownership:true)
+      Role.create(role_id: "#{account}:group:#{edge_hosts_group}")
+      RoleMembership.create(role_id: "#{account}:group:#{edge_hosts_group}", member_id: the_host.role_id, admin_option: true, ownership:true)
 
       get("/edge/host/#{account}/#{host_name}", env: token_auth_header)
       expect(response.code).to eq("403")
@@ -58,7 +58,6 @@ describe HostsController, :type => :request do
 
     it "Edge host in wrong group" do
       # add user to Conjur_Cloud_Admins group
-      admins_group = "Conjur_Cloud_Admins"
       Role.create(role_id: "#{account}:group:#{admins_group}")
       RoleMembership.create(role_id: "#{account}:group:#{admins_group}", member_id: user_id, admin_option: true, ownership:true)
 
@@ -69,6 +68,5 @@ describe HostsController, :type => :request do
       get("/edge/host/#{account}/#{host_name}", env: token_auth_header)
       expect(response.code).to eq("403")
     end
-
   end
 end
