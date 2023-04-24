@@ -32,40 +32,12 @@ module Authentication
       end
 
       def call(parameters:, request_ip:, role:)
-        # verify authenticator is whitelisted....
-        unless @available_authenticators.enabled_authenticators.include?("#{parameters[:authenticator]}/#{parameters[:service_id]}")
-          raise Errors::Authentication::Security::AuthenticatorNotWhitelisted, "#{parameters[:authenticator]}/#{parameters[:service_id]}"
-        end
-
-        # Verify request IP is valid
-        # TODO: this really should be happening upstream
-        unless role.valid_origin?(request_ip)
-          raise Errors::Authentication::InvalidOrigin
-        end
-
         # Verify service_id is present in the request params
-        unless parameters[:service_id].present?
-          raise Errors::Authentication::AuthnJwt::ServiceIdMissing
-        end
+        raise Errors::Authentication::AuthnJwt::ServiceIdMissing unless parameters[:service_id].present?
 
-        # Verify webservices exists for authenticator and authenticator status
-        authenticator_webservice = "#{parameters[:account]}:webservice:conjur/#{@authenticator_type}/#{parameters[:service_id]}"
-        if @resource[authenticator_webservice].blank?
-          raise Errors::Authentication::Security::WebserviceNotFound, authenticator_webservice
-        end
+        identifier = "#{@authenticator_type}/#{parameters[:service_id]}"
 
-        unless (status_webservice = @resource["#{authenticator_webservice}/status"])
-          raise Errors::Authentication::Security::WebserviceNotFound, "#{@authenticator_type}/#{parameters[:service_id]}/status"
-        end
-
-        # Verify role is allowed to use the Status endpoint
-        unless role.allowed_to?(:read, status_webservice)
-          raise Errors::Authentication::Security::RoleNotAuthorizedOnResource.new(
-            role.identifier,
-            :read,
-            status_webservice.id
-          )
-        end
+        role_permitted?(role: role, authenticator_identifier: identifier, request_ip: request_ip, account: parameters[:account])
 
         # Load Authenticator policy and values (validates data stored as variables)
         unless (authenticator = @authn_repo.find(type: @authenticator_type, account: parameters[:account], service_id: parameters[:service_id]))
@@ -79,6 +51,40 @@ module Authentication
         @strategy.new(
           authenticator: authenticator
         ).verify_status
+      end
+
+      private
+
+      def role_permitted?(authenticator_identifier:, request_ip:, account:, role:)
+        # verify authenticator is whitelisted....
+        unless @available_authenticators.enabled_authenticators.include?(authenticator_identifier)
+          raise Errors::Authentication::Security::AuthenticatorNotWhitelisted, authenticator_identifier
+        end
+
+        # Verify request IP is valid
+        # TODO: this really should be happening upstream
+        unless role.valid_origin?(request_ip)
+          raise Errors::Authentication::InvalidOrigin
+        end
+
+        # Verify webservices exists for authenticator and authenticator status
+        authenticator_webservice = "#{account}:webservice:conjur/#{authenticator_identifier}"
+        if @resource[authenticator_webservice].blank?
+          raise Errors::Authentication::Security::WebserviceNotFound, authenticator_webservice
+        end
+
+        unless (status_webservice = @resource["#{authenticator_webservice}/status"])
+          raise Errors::Authentication::Security::WebserviceNotFound, "#{authenticator_identifier}/status"
+        end
+
+        # Verify role is allowed to use the Status endpoint
+        return true if role.allowed_to?(:read, status_webservice)
+
+        raise Errors::Authentication::Security::RoleNotAuthorizedOnResource.new(
+          role.identifier,
+          :read,
+          status_webservice.id
+        )
       end
     end
   end
