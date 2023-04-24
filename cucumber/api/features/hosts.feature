@@ -76,7 +76,6 @@ Feature: Fetching edge host
     When I GET "/edge/edge-hosts/cucumber1"
     Then the HTTP response status code is 403
 
-    #todebug!!!
   @negative @acceptance
   Scenario: Fetching edge host credentials for not an Edge host
     Given I login as "alice"
