@@ -5,11 +5,17 @@ require 'json_schemer'
 require 'factories/renderer'
 
 module Factories
+  class Utilities
+    def self.filter_input(str)
+      str.gsub(/[^0-9a-z\-_]/i, '')
+    end
+  end
   class CreateFromPolicyFactory
-    def initialize(renderer: Factories::Renderer.new, http: RestClient, schema_validator: JSONSchemer)
+    def initialize(renderer: Factories::Renderer.new, http: RestClient, schema_validator: JSONSchemer, utilities: Factories::Utilities)
       @renderer = renderer
       @http = http
       @schema_validator = schema_validator
+      @utilities = utilities
 
       # JSON, URI, and Base64 are defined here for visibility. They
       # are not currently mocked in testing, thus, we're not setting
@@ -29,7 +35,10 @@ module Factories
       ).bind do |body_variables|
         # Convert `dashed` keys to `underscored`.  This only occurs for top-level parameters.
         # Conjur variables should be use dashes rather than underscores.
-        template_variables = body_variables.transform_keys { |key| key.to_s.underscore }
+        # Filter non-alpha-numeric, dash or underscore characters from inputs values (to prevent injection attacks).
+        template_variables = body_variables
+          .transform_keys { |key| key.to_s.underscore }
+          .transform_values { |value| @utilities.filter_input(value.to_s) }
 
         # Push rendered policy to the desired policy branch
         @renderer.render(template: factory_template.policy_namespace, variables: template_variables)

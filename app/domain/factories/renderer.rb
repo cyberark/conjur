@@ -1,12 +1,15 @@
+require 'responses'
+
 module Factories
   class Renderer
-    def initialize(render_engine: ERB, success: SuccessResponse, failure: FailureResponse)
+    def initialize(render_engine: ERB)
       @render_engine = render_engine
-      @success = success
-      @failure = failure
+      @success = ::SuccessResponse
+      @failure = ::FailureResponse
     end
 
     def render(template:, variables:)
+      binding.pry
       @success.new(@render_engine.new(template, nil, '-').result_with_hash(variables))
     rescue StandardError => e
       # Need to add tests to understand what exceptions are thrown when

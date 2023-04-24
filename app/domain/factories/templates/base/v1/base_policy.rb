@@ -42,3 +42,4 @@ module Factories
       end
     end
   end
+end

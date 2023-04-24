@@ -8,17 +8,20 @@ class PolicyFactoriesController < RestController
   before_action :current_user
 
   def create
-    response = DB::Repository::PolicyFactoryRepository.new.find(
-      role: current_user,
-      **relevant_params(%i[account kind version id])
-    ).bind do |factory|
-      Factories::CreateFromPolicyFactory.new.call(
-        account: params[:account],
-        factory_template: factory,
-        request_body: request.body.read,
-        authorization: request.headers["Authorization"]
-      )
-    end
+    response = request_body_to_json(request.body.read)
+      .bind do |request_args|
+        DB::Repository::PolicyFactoryRepository.new.find(
+          role: current_user,
+          **relevant_params(%i[account kind version id])
+        ).bind do |factory|
+          Factories::CreateFromPolicyFactory.new.call(
+            account: params[:account],
+            factory_template: factory,
+            request_body: request_args,
+            authorization: request.headers["Authorization"]
+          )
+        end
+      end
 
     render_response(response) do
       render(json: response.result)
@@ -73,5 +76,15 @@ class PolicyFactoriesController < RestController
 
   def relevant_params(allowed_params)
     params.permit(*allowed_params).slice(*allowed_params).to_h.symbolize_keys
+  end
+
+  def request_body_to_json(request_body)
+    return ::FailureResponse.new("Request body must be JSON", status: :bad_request) if request_body.blank?
+
+    begin
+      ::SuccessResponse.new(JSON.parse(request_body))
+    rescue
+      ::FailureResponse.new("Request body must be valid JSON", status: :bad_request)
+    end
   end
 end

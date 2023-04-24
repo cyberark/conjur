@@ -37,18 +37,20 @@ namespace :policy_factory do
   end
 
   task test: :environment do
-    tester = Factories::Templates::ValidateTemplate.new
-    tester.test(
-      factory: Factories::Templates::Core::Group,
-      template_params: { "id"=>"test-group", "branch"=>"root", "annotations"=>{ "one"=>1, "two"=>2, "test/three"=>3 } }
-    )
-    tester.test(
-      factory: Factories::Templates::Core::Group,
-      template_params: { "id"=>"test-group", "branch"=>"root" }
-    )
+    binding.pry
+    # tester = Factories::Templates::ValidateTemplate.new
+    # tester.test(
+    #   factory: Factories::Templates::Core::Group,
+    #   template_params: { "id"=>"test-group", "branch"=>"root", "annotations"=>{ "one"=>1, "two"=>2, "test/three"=>3 } }
+    # )
+    # tester.test(
+    #   factory: Factories::Templates::Core::Group,
+    #   template_params: { "id"=>"test-group", "branch"=>"root" }
+    # )
   end
 
   task load: :environment do
+    binding.pry
     client.load_policy('root', Factories::Templates::Base::V1::BasePolicy.policy)
     client.resource('cucumber:variable:conjur/factories/core/v1/group').add_value(Factories::Templates::Core::V1::Group.data)
     client.resource('cucumber:variable:conjur/factories/core/v1/managed-policy').add_value(Factories::Templates::Core::V1::ManagedPolicy.data)

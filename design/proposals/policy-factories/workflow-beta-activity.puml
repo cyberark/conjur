@@ -15,17 +15,6 @@ if "Does factory variable exist?" then
                   --> [<color:green>yes] if "Factory has variables?"
                     --> [<color:green>yes] if "Variables set successfully set?"
                       --> "<color:green>Return Policy and Variable response"
-                      note left
-                        Response Code: 200
-                        Response: {"response": {
-                          "code": 200,
-                          "created_resources": [
-                            "<account>:<type>:<identifier>",
-                            {"<account>:host:<identifier>": {"api_key": "<api-key>"}},
-                            "<account>:variable:<identifier>"
-                          ]
-                        }}
-                      end note
                       --> (*)
                     else
                       --> [<color:red>no] "<color:red>[Error] Setting Variable(s) not Permitted"
