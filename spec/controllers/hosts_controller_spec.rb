@@ -28,10 +28,10 @@ describe HostsController, :type => :request do
     it "Returned API key equals to key in DB" do
       # add user to Conjur_Cloud_Admins group
       Role.create(role_id: "#{account}:group:#{admins_group}")
-      RoleMembership.create(role_id: "#{account}:group:#{admins_group}", member_id: user_id, admin_option: true, ownership:true)
+      RoleMembership.create(role_id: "#{account}:group:#{admins_group}", member_id: user_id)
       #add edge-hosts to edge/edge-hosts group
       Role.create(role_id: "#{account}:group:#{edge_hosts_group}")
-      RoleMembership.create(role_id: "#{account}:group:#{edge_hosts_group}", member_id: the_host.role_id, admin_option: true, ownership:true)
+      RoleMembership.create(role_id: "#{account}:group:#{edge_hosts_group}", member_id: the_host.role_id)
 
       get("/edge/host/#{account}/#{host_name}", env: token_auth_header)
       expect(response.code).to eq("200")
@@ -47,10 +47,10 @@ describe HostsController, :type => :request do
       # add user to Conjur_Cloud_Admins group
       group_name = "rspec"
       Role.create(role_id: "#{account}:group:#{group_name}")
-      RoleMembership.create(role_id: "#{account}:group:#{group_name}", member_id: user_id, admin_option: true, ownership:true)
+      RoleMembership.create(role_id: "#{account}:group:#{group_name}", member_id: user_id)
       #add edge-hosts to edge/edge-hosts group
       Role.create(role_id: "#{account}:group:#{edge_hosts_group}")
-      RoleMembership.create(role_id: "#{account}:group:#{edge_hosts_group}", member_id: the_host.role_id, admin_option: true, ownership:true)
+      RoleMembership.create(role_id: "#{account}:group:#{edge_hosts_group}", member_id: the_host.role_id)
 
       get("/edge/host/#{account}/#{host_name}", env: token_auth_header)
       expect(response.code).to eq("403")
@@ -59,12 +59,12 @@ describe HostsController, :type => :request do
     it "Edge host in wrong group" do
       # add user to Conjur_Cloud_Admins group
       Role.create(role_id: "#{account}:group:#{admins_group}")
-      RoleMembership.create(role_id: "#{account}:group:#{admins_group}", member_id: user_id, admin_option: true, ownership:true)
+      RoleMembership.create(role_id: "#{account}:group:#{admins_group}", member_id: user_id)
 
       #add edge-hosts to edge/edge-host group
       group_name = "edge/edge-host"
       Role.create(role_id: "#{account}:group:#{group_name}")
-      RoleMembership.create(role_id: "#{account}:group:#{group_name}", member_id: the_host.role_id, admin_option: true, ownership:true)
+      RoleMembership.create(role_id: "#{account}:group:#{group_name}", member_id: the_host.role_id)
       get("/edge/host/#{account}/#{host_name}", env: token_auth_header)
       expect(response.code).to eq("403")
     end
