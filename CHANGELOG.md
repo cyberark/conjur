@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
-## [9.9.9.9-cloud] - 2023-04-25
+## [9.9.9-cloud] - 2023-04-25
 ### Added
 - Edge host and edge-hosts endpoints for edge
 
