@@ -30,7 +30,7 @@ RSpec.describe('Authentication::AuthnOidc::V2::ResolveIdentity', type: 'unit') d
         ).to eq('rspec:user:alice')
       end
 
-      context 'when allowed roles includes the same usernam in a different account' do
+      context 'when allowed roles includes the same username in a different account' do
         it 'returns the matching role' do
           expect(
             subject.call(
