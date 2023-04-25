@@ -78,7 +78,6 @@ Rails.application.routes.draw do
       get     "/edge/secrets/:account"              => 'edge#all_secrets'
       get     "/edge/hosts/:account"                => 'edge#all_hosts'
       get     "/edge/slosilo_keys/:account"         => 'edge#slosilo_keys'
-      get     "/edge/edge-hosts/:account"           => 'hosts#edge_hosts'
       get     "/edge/host/:account/:host_name"      => 'hosts#host_credential'
 
       put     "/policies/:account/:kind/*identifier" => 'policies#put'

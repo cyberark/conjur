@@ -1,6 +1,7 @@
 require 'spec_helper'
 
 describe HostsController, :type => :request do
+  include_context "create host"
   let(:account) { "rspec" }
   let(:user_id) {"#{account}:user:admin"}
   let(:host_name) {"edge-host-6d50922eedee3fa58b8f20f675fc11a3"}
@@ -12,6 +13,7 @@ describe HostsController, :type => :request do
   before do
     Slosilo["authn:#{account}"] ||= Slosilo::Key.new
     @current_user = Role.find_or_create(role_id: user_id)
+    @edge_host = create_host(id)
   end
 
   let(:token_auth_header) do
@@ -22,16 +24,13 @@ describe HostsController, :type => :request do
   end
 
   context "Hosts creds in DB" do
-    include_context "create host"
-    let(:the_host) { create_host(id) }
-
     it "Returned API key equals to key in DB" do
       # add user to Conjur_Cloud_Admins group
       Role.create(role_id: "#{account}:group:#{admins_group}")
       RoleMembership.create(role_id: "#{account}:group:#{admins_group}", member_id: user_id)
       #add edge-hosts to edge/edge-hosts group
       Role.create(role_id: "#{account}:group:#{edge_hosts_group}")
-      RoleMembership.create(role_id: "#{account}:group:#{edge_hosts_group}", member_id: the_host.role_id)
+      RoleMembership.create(role_id: "#{account}:group:#{edge_hosts_group}", member_id: @edge_host.role_id)
 
       get("/edge/host/#{account}/#{host_name}", env: token_auth_header)
       expect(response.code).to eq("200")
@@ -50,7 +49,7 @@ describe HostsController, :type => :request do
       RoleMembership.create(role_id: "#{account}:group:#{group_name}", member_id: user_id)
       #add edge-hosts to edge/edge-hosts group
       Role.create(role_id: "#{account}:group:#{edge_hosts_group}")
-      RoleMembership.create(role_id: "#{account}:group:#{edge_hosts_group}", member_id: the_host.role_id)
+      RoleMembership.create(role_id: "#{account}:group:#{edge_hosts_group}", member_id: @edge_host.role_id)
 
       get("/edge/host/#{account}/#{host_name}", env: token_auth_header)
       expect(response.code).to eq("403")
@@ -64,7 +63,7 @@ describe HostsController, :type => :request do
       #add edge-hosts to edge/edge-host group
       group_name = "edge/edge-host"
       Role.create(role_id: "#{account}:group:#{group_name}")
-      RoleMembership.create(role_id: "#{account}:group:#{group_name}", member_id: the_host.role_id)
+      RoleMembership.create(role_id: "#{account}:group:#{group_name}", member_id: @edge_host.role_id)
       get("/edge/host/#{account}/#{host_name}", env: token_auth_header)
       expect(response.code).to eq("403")
     end

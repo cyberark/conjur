@@ -44,38 +44,6 @@ Feature: Fetching edge host
       member: !user bob
     """
 
-  @acceptance @smoke
-  Scenario: Fetching edge hosts when 2 edge hosts exists
-    Given I login as "alice"
-    When I GET "/edge/edge-hosts/cucumber"
-    Then the HTTP response status code is 200
-    And the JSON at "hosts" should have 2 entries
-    Then the JSON at "hosts" should be:
-    """
-    [
-      {
-      "id": "cucumber:host:edge/edge-abcd1234567890/edge-host-abcd1234567890",
-      "name": "edge-host-abcd1234567890"
-      },
-      {
-      "id": "cucumber:host:edge/edge-abcd1234567890/edge-host-abcd1234567891",
-      "name": "edge-host-abcd1234567891"
-      }
-    ]
-    """
-
-  @negative @acceptance
-  Scenario: Fetching edge host without group permission
-    Given I login as "bob"
-    When I GET "/edge/edge-hosts/cucumber"
-    Then the HTTP response status code is 403
-
-  @negative @acceptance
-  Scenario: Fetching edge host wrong account
-    Given I login as "bob"
-    When I GET "/edge/edge-hosts/cucumber1"
-    Then the HTTP response status code is 403
-
   @negative @acceptance
   Scenario: Fetching edge host credentials for not an Edge host
     Given I login as "alice"
