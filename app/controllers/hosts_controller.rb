@@ -18,7 +18,7 @@ class HostsController < RestController
       raise ApplicationController::RecordNotFound, e.message
     end
 
-    api_key = host[0][:api_key].unpack("H*")[0]
+    api_key = host[0].api_key
     host_id = host[0][:role_id]
     result = Base64.strict_encode64(host_id+":"+api_key)
     logger.info(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("host"))

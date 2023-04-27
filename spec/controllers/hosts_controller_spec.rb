@@ -34,8 +34,7 @@ describe HostsController, :type => :request do
 
       get("/edge/host/#{account}/#{host_name}", env: token_auth_header)
       expect(response.code).to eq("200")
-      host_cred = Credentials.where(:role_id.like(host_id)).all
-      key = host_cred[0][:api_key].unpack("H*")[0]
+      key = @edge_host.credentials.api_key
       expected = "#{host_id}:#{key}"
       response_body = response.body
       res_decoded = Base64.strict_decode64(response_body)
