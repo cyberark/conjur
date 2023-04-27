@@ -62,6 +62,33 @@ module AuthnOidcHelper
     "invalididtoken"
   end
 
+  def identity_request(uri, body)
+    http = Net::HTTP.new(uri.host, 443)
+    http.use_ssl = true
+
+    req = Net::HTTP::Post.new(uri.request_uri)
+    req['Accept'] = '*/*'
+    req['Content-Type'] = 'application/json'
+    req.body = body
+
+    http.request(req)
+  end
+
+  def start_auth_request(host, username)
+    body = JSON.generate({
+      "User": username,
+      "Version": "1.0"
+    })
+
+    uri = URI("https://#{host}/Security/StartAuthentication")
+    identity_request(uri, body)
+  end
+
+  def advance_auth_request(host, body)
+    uri = URI("https://#{host}/Security/AdvanceAuthentication")
+    identity_request(uri, body)
+  end
+
   private
 
   def parse_oidc_id_token
