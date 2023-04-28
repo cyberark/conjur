@@ -34,6 +34,10 @@ module Authentication
         )
       end
 
+      def params_allowed
+        @strategy.const_get(REQUIRED_PARAMS)
+      end
+
       def call(request_ip:, parameters:, request_body: nil, action: nil)
         # verify authenticator is whitelisted....
         unless @available_authenticators.enabled_authenticators.include?("#{parameters[:authenticator]}/#{parameters[:service_id]}")
@@ -129,32 +133,25 @@ module Authentication
         err.backtrace.each {|l| @logger.info(l) }
 
         case err
-        when Errors::Authentication::Security::RoleNotAuthorizedOnResource
+        when Errors::Authentication::Security::RoleNotAuthorizedOnResource,
+          Errors::Authentication::Security::MultipleRoleMatchesFound
           raise ApplicationController::Forbidden
 
         when Errors::Authentication::RequestBody::MissingRequestParam,
           Errors::Authentication::AuthnOidc::TokenVerificationFailed,
-          Errors::Authentication::AuthnOidc::TokenRetrievalFailed
+          Errors::Authentication::AuthnOidc::TokenRetrievalFailed,
+          Errors::Authentication::Security::RoleNotFound,
+          Errors::Authentication::Security::AuthenticatorNotWhitelisted,
+          Rack::OAuth2::Client::Error # Code value mismatch
           raise ApplicationController::BadRequest
 
-        when Errors::Conjur::RequestedResourceNotFound
-          raise ApplicationController::Unauthorized
-
-        when Errors::Authentication::AuthnOidc::IdTokenClaimNotFoundOrEmpty
+        when Errors::Conjur::RequestedResourceNotFound,
+          Errors::Authentication::AuthnOidc::IdTokenClaimNotFoundOrEmpty
           raise ApplicationController::Unauthorized
 
         when Errors::Authentication::Jwt::TokenExpired
           raise ApplicationController::Unauthorized.new(err.message, true)
 
-        when Errors::Authentication::Security::RoleNotFound,
-          Errors::Authentication::Security::AuthenticatorNotWhitelisted
-          raise ApplicationController::BadRequest
-
-        when Errors::Authentication::Security::MultipleRoleMatchesFound
-          raise ApplicationController::Forbidden
-          # Code value mismatch
-        when Rack::OAuth2::Client::Error
-          raise ApplicationController::BadRequest
         else
           raise ApplicationController::Unauthorized
         end
