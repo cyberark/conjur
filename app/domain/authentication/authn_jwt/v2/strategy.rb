@@ -190,7 +190,8 @@ module Authentication
         # Caches the JWKS response. This will be expired if the key has
         # changed (and the signing key validation fails).
         def jwks(jwks_url:, force: false)
-          @cache.fetch(@cache_key, force: force, skip_nil: true) do
+          # Include a digest of the url to ensure cache is expired if url changes
+          @cache.fetch("#{@cache_key}-#{Digest::SHA1.hexdigest(jwks_url)}", force: force, skip_nil: true) do
             fetch_jwks(jwks_url)
           end&.deep_symbolize_keys
         end

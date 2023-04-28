@@ -5,13 +5,14 @@ class AuthenticateController < ApplicationController
   include AuthorizeResource
 
   def authenticate_via_get
+    handler = Authentication::Handler::AuthenticationHandler.new(
+      authenticator_type: params[:authenticator]
+    )
     # TODO: need a mechanism for an authenticator strategy to define the required
     # params. This will likely need to be done via the Handler.
-    params.permit!
+    params.permit(handler.params_allowed)
 
-    auth_token = Authentication::Handler::AuthenticationHandler.new(
-      authenticator_type: params[:authenticator]
-    ).call(
+    auth_token = handler.call(
       parameters: params.to_hash.symbolize_keys,
       request_ip: request.ip
     )
@@ -38,10 +39,11 @@ class AuthenticateController < ApplicationController
   end
 
   def authenticator_status
+    # binding.pry
     Authentication::Handler::StatusHandler.new(
       authenticator_type: params[:authenticator]
     ).call(
-      parameters: params,
+      parameters: params.permit(:account, :service_id, :authenticator).to_hash.symbolize_keys,
       role: current_user,
       request_ip: request.ip
     )
