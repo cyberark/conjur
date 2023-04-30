@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe EdgeController, :type => :request do
+describe SecretsController, :type => :request do
   let(:account) { "rspec" }
   let(:host_id) {"#{account}:host:edge/edge"}
  

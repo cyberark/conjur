@@ -5,6 +5,8 @@ require 'English'
 class SecretsController < RestController
   include FindResource
   include AuthorizeResource
+  include HostValidator
+  include ValidateScope
 
   before_action :current_user
 
@@ -141,6 +143,81 @@ class SecretsController < RestController
     authorize(:update)
     Secret.update_expiration(resource.id, nil)
     head(:created)
+  end
+
+  def slosilo_keys
+    logger.info(LogMessages::Endpoints::EndpointRequested.new("slosilo_keys"))
+    allowed_params = %i[account]
+    options = params.permit(*allowed_params).to_h.symbolize_keys
+    begin
+      verify_edge_host(options)
+    rescue ApplicationController::Forbidden
+      raise
+    end
+    account = options[:account]
+    key_id = "authn:" + account
+
+    key = Slosilo[key_id]
+    if key.nil?
+      raise RecordNotFound, "No Slosilo key in DB"
+    end
+
+    private_key = key.to_der.unpack("H*")[0]
+    fingerprint = key.fingerprint
+    variable_to_return = {}
+    variable_to_return[:privateKey] = private_key
+    variable_to_return[:fingerprint] = fingerprint
+    logger.info(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("slosilo_keys"))
+    render(json: {"slosiloKeys":[variable_to_return]})
+  end
+
+  def all_secrets
+    logger.info(LogMessages::Endpoints::EndpointRequested.new("all_secrets"))
+
+    allowed_params = %i[account limit offset]
+    options = params.permit(*allowed_params)
+                    .slice(*allowed_params).to_h.symbolize_keys
+    begin
+      verify_edge_host(options)
+      scope = Resource.where(:resource_id.like(options[:account]+":variable:data/%"))
+      if params[:count] == 'true'
+        sumItems = scope.count('*'.lit)
+      else
+        offset = options[:offset]
+        limit = options[:limit]
+        validate_scope(limit, offset)
+        scope = scope.order(:resource_id).limit(
+          (limit || 1000).to_i,
+          (offset || 0).to_i
+        )
+      end
+    rescue ApplicationController::Forbidden
+      raise
+    rescue ArgumentError => e
+      raise ApplicationController::UnprocessableEntity, e.message
+    end
+
+    if params[:count] == 'true'
+      results = { count: sumItems }
+      logger.info(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("all_secrets:count"))
+      render(json: results)
+    else
+      results = []
+      variables = scope.eager(:permissions).eager(:secrets).all
+      variables.each do |variable|
+        variableToReturn = {}
+        variableToReturn[:id] = variable[:resource_id]
+        variableToReturn[:owner] = variable[:owner_id]
+        variableToReturn[:permissions] =  variable.permissions.select{|h| h[:privilege].eql?('execute')}
+        unless variable.last_secret.nil?
+          variableToReturn[:version] = variable.last_secret.version
+          variableToReturn[:value] = variable.last_secret.value
+        end
+        results  << variableToReturn
+      end
+      logger.info(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("all_secrets"))
+      render(json: {"secrets":results})
+    end
   end
 
   private
