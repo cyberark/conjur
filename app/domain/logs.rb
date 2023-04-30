@@ -23,17 +23,23 @@ module LogMessages
       msg: "OpenSSL FIPS mode set to {0}",
       code: "CONJ00038I"
     )
+  end
 
+  module Endpoints
     EndpointRequested = ::Util::TrackableLogMessageClass.new(
       msg: "{0} endpoint is called",
       code: "CONJ00152"
     )
 
-    EndpointFinishedSuccessfully = ::Util::TrackableLogMessageClass.new(
-      msg: "{0} endpoint is finished successfully",
+    EndpointRequestedByUser = ::Util::TrackableLogMessageClass.new(
+      msg: "{0} endpoint is called by {1} user",
       code: "CONJ00153"
     )
 
+    EndpointFinishedSuccessfully = ::Util::TrackableLogMessageClass.new(
+      msg: "{0} endpoint is finished successfully",
+      code: "CONJ00154"
+    )
   end
 
   module Authentication
