@@ -44,43 +44,22 @@ module Authentication
 
           # Verify that `issuer` has a secret value set if the variable is present
           rule(:issuer, :account, :service_id) do
-            if values[:issuer].empty?
-              utils.failed_response(
-                key: key,
-                error: Errors::Conjur::RequiredSecretMissing.new(
-                  "#{values[:account]}:variable:conjur/authn-jwt/#{values[:service_id]}/issuer"
-                )
-              )
-            end
+            variable_empty?(key: key, values: values, variable: 'issuer')
           end
 
           # Verify that `claim_aliases` has a secret value set if variable is present
           rule(:claim_aliases, :account, :service_id) do
-            if values[:claim_aliases].empty?
-              utils.failed_response(
-                key: key,
-                error: Errors::Conjur::RequiredSecretMissing.new(
-                  "#{values[:account]}:variable:conjur/authn-jwt/#{values[:service_id]}/claim-aliases"
-                )
-              )
-            end
+            variable_empty?(key: key, values: values, variable: 'claim-aliases')
           end
 
           # Verify that `provider_uri` has a secret value set if variable is present
           rule(:provider_uri, :service_id, :account) do
-            if values[:provider_uri].empty?
-              utils.failed_response(
-                key: key,
-                error: Errors::Conjur::RequiredSecretMissing.new(
-                  "#{values[:account]}:variable:conjur/authn-jwt/#{values[:service_id]}/provider-uri"
-                )
-              )
-            end
+            variable_empty?(key: key, values: values, variable: 'provider-uri')
           end
 
           # Verify that `jwks-uri`, `public-keys`, or `provider-uri` has a secret value set if a variable exists
           rule(:jwks_uri, :public_keys, :provider_uri, :account, :service_id) do
-            empty_variables = %i[jwks_uri provider_uri public_keys].select {|key, _| values[key].empty? && !values[key].nil? }
+            empty_variables = %i[jwks_uri provider_uri public_keys].select {|key, _| values[key] == '' && !values[key].nil? }
             if empty_variables.count == 1
               # Performing this insanity to match current functionality :P
               error = if empty_variables.first == :provider_uri
@@ -122,14 +101,7 @@ module Authentication
 
           # Verify that `token_app_property` has a secret value set if the variable is present
           rule(:token_app_property, :account, :service_id) do
-            if values[:token_app_property].empty?
-              utils.failed_response(
-                key: key,
-                error: Errors::Conjur::RequiredSecretMissing.new(
-                  "#{values[:account]}:variable:conjur/authn-jwt/#{values[:service_id]}/token-app-property"
-                )
-              )
-            end
+            variable_empty?(key: key, values: values, variable: 'token-app-property')
           end
 
           # Verify that `token_app_property` includes only valid characters
@@ -158,38 +130,17 @@ module Authentication
 
           # Verify that `audience` has a secret value set if variable is present
           rule(:audience, :service_id, :account) do
-            if values[:audience].empty?
-              utils.failed_response(
-                key: key,
-                error: Errors::Conjur::RequiredSecretMissing.new(
-                  "#{values[:account]}:variable:conjur/authn-jwt/#{values[:service_id]}/audience"
-                )
-              )
-            end
+            variable_empty?(key: key, values: values, variable: 'audience')
           end
 
           # Verify that `identity_path` has a secret value set if variable is present
           rule(:identity_path, :service_id, :account) do
-            if values[:identity_path].empty?
-              utils.failed_response(
-                key: key,
-                error: Errors::Conjur::RequiredSecretMissing.new(
-                  "#{values[:account]}:variable:conjur/authn-jwt/#{values[:service_id]}/identity-path"
-                )
-              )
-            end
+            variable_empty?(key: key, values: values, variable: 'identity-path')
           end
 
           # Verify that `enforced_claims` has a secret value set if variable is present
           rule(:enforced_claims, :service_id, :account) do
-            if values[:enforced_claims].empty?
-              utils.failed_response(
-                key: key,
-                error: Errors::Conjur::RequiredSecretMissing.new(
-                  "#{values[:account]}:variable:conjur/authn-jwt/#{values[:service_id]}/enforced-claims"
-                )
-              )
-            end
+            variable_empty?(key: key, values: values, variable: 'enforced-claims')
           end
 
           # Verify that claim values contain only "allowed" characters (alpha-numeric, plus: "-", "_", "/", ".")
@@ -217,7 +168,7 @@ module Authentication
 
           # Verify that claim alias lookup has aliases defined only once
           rule(:claim_aliases) do
-            claims = values[:claim_aliases].to_s.split(',').map{|s| s.split(':').map(&:strip)}.map(&:first)
+            claims = claim_as_array(values[:claim_aliases])
             if (duplicate = claims.detect { |claim| claims.count(claim) > 1 })
               utils.failed_response(
                 key: key,
@@ -249,7 +200,7 @@ module Authentication
 
           # Check for "/" in claim keys
           rule(:claim_aliases) do
-            claims = values[:claim_aliases].to_s.split(',').map{|s| s.split(':').map(&:strip)}.map(&:first)
+            claims = claim_as_array(values[:claim_aliases])
             claims.flatten.each do |claim|
               next unless claim.match(%r{/})
 
@@ -262,7 +213,7 @@ module Authentication
 
           # Check for invalid characters in keys
           rule(:claim_aliases) do
-            claims = values[:claim_aliases].to_s.split(',').map{|s| s.split(':').map(&:strip)}.map(&:first)
+            claims = claim_as_array(values[:claim_aliases])
             if (bad_claim = claims.find { |claim| claim.count('a-zA-Z0-9\-_\.') != claim.length })
               utils.failed_response(
                 key: key,
@@ -360,14 +311,22 @@ module Authentication
 
           # Verify that `ca_cert` has a secret value set if the variable is present
           rule(:ca_cert, :account, :service_id) do
-            if values[:ca_cert].empty?
-              utils.failed_response(
-                key: key,
-                error: Errors::Conjur::RequiredSecretMissing.new(
-                  "#{values[:account]}:variable:conjur/authn-jwt/#{values[:service_id]}/ca-cert"
-                )
+            variable_empty?(key: key, values: values, variable: 'ca-cert')
+          end
+
+          def claim_as_array(claim)
+            claim.to_s.split(',').map{|s| s.split(':').map(&:strip)}.map(&:first)
+          end
+
+          def variable_empty?(key:, values:, variable:)
+            return unless values[variable.underscore.to_sym] == ''
+
+            utils.failed_response(
+              key: key,
+              error: Errors::Conjur::RequiredSecretMissing.new(
+                "#{values[:account]}:variable:conjur/authn-jwt/#{values[:service_id]}/#{variable}"
               )
-            end
+            )
           end
         end
       end
