@@ -9,13 +9,17 @@ module Authentication
 
         def call(identifier:, allowed_roles:, id: nil)
           allowed_roles.each do |role|
-            role_account, _, role_id = role[:role_id].split(':')
-            next unless role_account == @authenticator.account
+            next unless match?(identifier: identifier, role: role)
 
-            return role[:role_id] if identifier == role_id
+            return role[:role_id]
           end
 
           raise(Errors::Authentication::Security::RoleNotFound, identifier)
+        end
+
+        def match?(identifier:, role:)
+          role_account, _, role_id = role[:role_id].split(':')
+          role_account == @authenticator.account && identifier == role_id
         end
       end
     end
