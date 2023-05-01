@@ -8,7 +8,7 @@ module DB
       )
         @resource_repository = resource_repository
         @data_object = data_object
-        @contract = "#{data_object}Contract".constantize.new
+        @contract = "#{data_object}Contract".constantize.new(utils: ::Util::ContractUtils)
         @logger = logger
       end
 
@@ -18,7 +18,6 @@ module DB
 
           begin
             load_authenticator(account: account, service_id: service_id, type: type)
-            # rtn << authenticator
           rescue => e
             @logger.info("failed to load #{type} authenticator '#{service_id}' do to validation failure: #{e.message}")
             nil

@@ -10,6 +10,8 @@ module Authentication
         # is loaded via the AuthenticatorRepository.
 
         class AuthenticatorContract < Dry::Validation::Contract
+          option :utils
+
           schema do
             required(:account).value(:string)
             required(:service_id).value(:string)
@@ -25,18 +27,13 @@ module Authentication
             optional(:token_ttl).value(:string)
           end
 
-          def response_from_exception(err)
-            { exception: err, text: err.message }
-          end
-
           # Verify that `provider_uri` has a secret value set if variable is present
           rule(:provider_uri, :service_id, :account) do
-            if values[:provider_uri] == ''
-              key.failure(
-                **response_from_exception(
-                  Errors::Conjur::RequiredSecretMissing.new(
-                    "#{values[:account]}:variable:conjur/authn-jwt/#{values[:service_id]}/provider-uri"
-                  )
+            if values[:provider_uri].empty?
+              utils.failed_response(
+                key: key,
+                error: Errors::Conjur::RequiredSecretMissing.new(
+                  "#{values[:account]}:variable:conjur/authn-jwt/#{values[:service_id]}/provider-uri"
                 )
               )
             end

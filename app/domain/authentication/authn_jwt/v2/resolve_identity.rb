@@ -7,6 +7,7 @@ module Authentication
       # Contract for validating role claim mapping
       class ClaimContract < Dry::Validation::Contract
         option :authenticator
+        option :utils
 
         params do
           required(:claim).value(:string)
@@ -88,10 +89,6 @@ module Authentication
           value = jwt.dig(*resolved_claim.split('/'))
 
           return_resolved_claim ? [value, resolved_claim] : value
-        end
-
-        def failed_response(error:, key:)
-          key.failure(exception: error, text: error.message)
         end
       end
 
@@ -246,14 +243,12 @@ module Authentication
         def validate_claim!(claim:, value:, jwt:)
           @logger.debug(LogMessages::Authentication::ResourceRestrictions::ValidatingResourceRestrictionOnRequest.new(claim))
 
-          # binding.pry
-          claim_valid = ClaimContract.new(authenticator: @authenticator).call(
+          claim_valid = ClaimContract.new(authenticator: @authenticator, utils: ::Util::ContractUtils).call(
             claim: claim,
             jwt: jwt,
             claim_value: value
           )
 
-          # binding.pry
           unless claim_valid.success?
             raise(claim_valid.errors.first.meta[:exception])
           end
