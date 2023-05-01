@@ -153,7 +153,18 @@ module Authentication
           end
         end
 
-        def fetch_jwks(url)
+        def temp_ca_certificate(certificate_content, &block)
+          ca_certificate = Tempfile.new('ca_certificates')
+          begin
+            ca_certificate.write(certificate_content)
+            ca_certificate.close
+            block.call(ca_certificate)
+          ensure
+            ca_certificate.unlink   # deletes the temp file
+          end
+        end
+
+        def configured_http_client(url)
           uri = URI(url)
           http = @http.new(uri.host, uri.port)
           if uri.instance_of?(URI::HTTPS)
@@ -166,14 +177,17 @@ module Authentication
             # If CA Certificate is available, we write it to a tempfile for import.
             # This allows us to handle certificate chains.
             if @authenticator.ca_cert.present?
-              ca_certificates = Tempfile.new('ca_certificates')
-              begin
-                ca_certificates.write(@authenticator.ca_cert)
-                ca_certificates.close
-                store.add_file(ca_certificates.path)
-              ensure
-                ca_certificates.unlink   # deletes the temp file
+              temp_ca_certificate(@authenticator.ca_cert) do |file|
+                store.add_file(file.path)
               end
+              # ca_certificates = Tempfile.new('ca_certificates')
+              # begin
+              #   ca_certificates.write(@authenticator.ca_cert)
+              #   ca_certificates.close
+              #   store.add_file(ca_certificates.path)
+              # ensure
+              #   ca_certificates.unlink   # deletes the temp file
+              # end
             else
               # Auto-include system CAs unless a CA has been defined
               store.set_default_paths
@@ -181,11 +195,17 @@ module Authentication
 
             http.cert_store = store
           end
+        end
 
+        def jwks_url_path(url)
           # If path is an empty string, the get request will fail. We set it to a slash if it is empty.
-          path = uri.path.empty? ? '/' : uri.path
+          uri = URI(url)
+          uri.path.empty? ? '/' : uri.path
+        end
+
+        def fetch_jwks(url)
           begin
-            response = http.request(@http::Get.new(path))
+            response = configured_http_client(url).request(@http::Get.new(jwks_url_path(url)))
           rescue StandardError => e
             raise Errors::Authentication::AuthnJwt::FetchJwksKeysFailed.new(
               url,
@@ -193,7 +213,7 @@ module Authentication
             )
           end
 
-          return @json.parse(response.body) if response.code.to_i == 200
+          return @json.parse(response.body) if response.code == '200'
 
           raise Errors::Authentication::AuthnJwt::FetchJwksKeysFailed.new(
             url,
