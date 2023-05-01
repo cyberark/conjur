@@ -33,7 +33,7 @@ class EdgeController < RestController
 
     allowed_params = %i[account limit offset]
     options = params.permit(*allowed_params)
-      .slice(*allowed_params).to_h.symbolize_keys
+                    .slice(*allowed_params).to_h.symbolize_keys
     begin
       verify_edge_host(options)
       scope = Resource.where(:resource_id.like(options[:account]+":variable:data/%"))
@@ -112,10 +112,9 @@ class EdgeController < RestController
       hosts.each do |host|
         hostToReturn = {}
         hostToReturn[:id] = host[:role_id]
-        #salt = OpenSSL::Random.random_bytes(32)
-        #hostToReturn[:api_key] = Base64.encode64(hmac_api_key(host, salt))
-        hostToReturn[:api_key] = host.api_key
-        #hostToReturn[:salt] = Base64.encode64(salt)
+        salt = OpenSSL::Random.random_bytes(32)
+        hostToReturn[:api_key] = Base64.strict_encode64(hmac_api_key(host.api_key, salt))
+        hostToReturn[:salt] = Base64.strict_encode64(salt)
         hostToReturn[:memberships] =host.all_roles.all.select{|h| h[:role_id] != (host[:role_id])}
         results  << hostToReturn
       end
@@ -124,8 +123,13 @@ class EdgeController < RestController
     end
   end
 
-  private
+  def hmac_api_key(pass, salt)
+    iter = 20
+    key_len = 32
+    OpenSSL::KDF.pbkdf2_hmac(pass, salt: salt, iterations: iter, length: key_len, hash: "sha256")
+  end
 
+  private
   def validate_scope(limit, offset)
     if offset || limit
       # 'limit' must be an integer greater than 0 and less than 2000 if given
@@ -138,7 +142,6 @@ class EdgeController < RestController
       end
     end
   end
-
   def verify_edge_host(options)
     msg = ""
     raise_excep = false
@@ -168,14 +171,6 @@ class EdgeController < RestController
       )
       raise Forbidden
     end
-  end
-
-
-  def hmac_api_key(host, salt)
-    pass = host.api_key
-    iter = 20
-    key_len = 16
-    OpenSSL::KDF.pbkdf2_hmac(pass, salt: salt, iterations: iter, length: key_len, hash: "sha256")
   end
 
   def numeric? val
