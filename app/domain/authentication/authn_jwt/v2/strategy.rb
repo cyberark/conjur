@@ -26,39 +26,31 @@ module Authentication
           @oidc_discovery_configuration = oidc_discovery_configuration
         end
 
+        def parse_body(request_body)
+          # Request body comes in in the form 'jwt=<token>'
+          jwt = {}.tap do |hsh|
+            parts = request_body.split('=')
+            hsh[parts[0]] = parts[1]
+          end['jwt']
+
+          return jwt if jwt.present?
+
+          # unless request_hash['jwt'].present?
+          raise Errors::Authentication::RequestBody::MissingRequestParam, 'jwt'
+          # end
+        end
+
         def callback(request_body:, parameters: nil)
           # Notes - in accordance with best practices, we REALLY should be verify that
           # the following claims are present:
           # - issuer
           # - audience
 
-          additional_params = {
-            algorithms: %w[RS256 RS384 RS512],
-            verify_iat: true,
-            jwks: jwks_source
-          }.tap do |hash|
-            if @authenticator.issuer.present?
-              hash[:iss] = @authenticator.issuer
-              hash[:verify_iss] = true
-            end
-            if @authenticator.audience.present?
-              hash[:aud] = @authenticator.audience
-              hash[:verify_aud] = true
-            end
-          end
-
-          # Request body comes in in the form 'jwt=<token>'
-          request_hash = {}.tap do |hsh|
-            parts = request_body.split('=')
-            hsh[parts[0]] = parts[1]
-          end
-          unless request_hash['jwt'].present?
-            raise Errors::Authentication::RequestBody::MissingRequestParam, 'jwt'
-          end
+          jwt = parse_body(request_body)
 
           begin
             token = @jwt.decode(
-              request_hash['jwt'],
+              jwt,
               nil,
               true, # Verify the signature of this token
               **additional_params
@@ -72,6 +64,9 @@ module Authentication
             end
 
             raise Errors::Authentication::Jwt::TokenDecodeFailed, e.inspect
+          # Allow Provider Discovery exception to bubble up
+          rescue Errors::Authentication::OAuth::ProviderDiscoveryFailed => e
+            raise e
           rescue => e
             # Handle any unexpected exceptions in the decode section.
             # NOTE: All errors resulting from a failure to decode are part of the
@@ -83,19 +78,7 @@ module Authentication
             raise Errors::Authentication::AuthnJwt::MissingToken
           end
 
-          # TODO: Should `iat` be required?
-          #
-          # The check for audience "should" go away if we force audience to be
-          # required
-          manditory_claims = if @authenticator.audience.present?
-            %w[exp aud]
-          else
-            # Lots of tests pass because we don't set audience :( ...
-            %w[exp]
-          end
-          if (missing_claim = (manditory_claims - token.keys).first)
-            raise Errors::Authentication::AuthnJwt::MissingMandatoryClaim, missing_claim
-          end
+          required_claims_present?(token)
 
           token
         end
@@ -107,6 +90,37 @@ module Authentication
         end
 
         private
+
+        def additional_params
+          {
+            algorithms: %w[RS256 RS384 RS512],
+            verify_iat: true,
+            jwks: jwks_source
+          }.tap do |hash|
+            if @authenticator.issuer.present?
+              hash[:iss] = @authenticator.issuer
+              hash[:verify_iss] = true
+            end
+            if @authenticator.audience.present?
+              hash[:aud] = @authenticator.audience
+              hash[:verify_aud] = true
+            end
+          end
+        end
+
+        def required_claims_present?(token)
+          # The check for audience "should" go away if we force audience to be
+          # required
+          manditory_claims = if @authenticator.audience.present?
+            %w[exp aud]
+          else
+            # Lots of tests pass because we don't set audience :( ...
+            %w[exp]
+          end
+          return unless (missing_claim = (manditory_claims - token.keys).first)
+
+          raise Errors::Authentication::AuthnJwt::MissingMandatoryClaim, missing_claim
+        end
 
         def jwks_source
           if @authenticator.jwks_uri.present?
