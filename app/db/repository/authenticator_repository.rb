@@ -13,26 +13,15 @@ module DB
       end
 
       def find_all(type:, account:)
-        [].tap do |rtn|
-          @resource_repository.where(
-            Sequel.like(
-              :resource_id,
-              "#{account}:webservice:conjur/#{type}/%"
-            )
-          ).all.each do |webservice|
-            service_id = service_id_from_resource_id(webservice.id)
+        authenticator_webservices(type: type, account: account).map do |webservice|
+          service_id = service_id_from_resource_id(webservice.id)
 
-            # Querying for the authenticator webservice above includes the webservices
-            # for the authenticator status. The filter below removes webservices that
-            # don't match the authenticator policy.
-            next unless webservice.id.split(':').last == "conjur/#{type}/#{service_id}"
-
-            begin
-              authenticator = load_authenticator(account: account, service_id: service_id, type: type)
-              rtn << authenticator
-            rescue => e
-              @logger.info("failed to load #{type} authenticator '#{service_id}' do to validation failure: #{e.message}")
-            end
+          begin
+            load_authenticator(account: account, service_id: service_id, type: type)
+            # rtn << authenticator
+          rescue => e
+            @logger.info("failed to load #{type} authenticator '#{service_id}' do to validation failure: #{e.message}")
+            nil
           end
         end.compact
       end
@@ -56,6 +45,20 @@ module DB
       end
 
       private
+
+      def authenticator_webservices(type:, account:)
+        @resource_repository.where(
+          Sequel.like(
+            :resource_id,
+            "#{account}:webservice:conjur/#{type}/%"
+          )
+        ).all.select do |webservice|
+          # Querying for the authenticator webservice above includes the webservices
+          # for the authenticator status. The filter below removes webservices that
+          # don't match the authenticator policy.
+          webservice.id.split(':').last.match?(%r{^conjur/#{type}/[\w\-_]+$})
+        end
+      end
 
       def service_id_from_resource_id(id)
         full_id = id.split(':').last
