@@ -7,6 +7,7 @@ api: >
   --format pretty
   -r cucumber/api/features/support/logs_helpers.rb
   -r cucumber/api/features/step_definitions/logs_steps.rb
+  -r cucumber/features/support/hooks.rb
   -r cucumber/_authenticators_common/features/support/conjur_token.rb
   -r cucumber/_authenticators_common/features/support/authenticator_helpers.rb
   -r cucumber/_authenticators_common/features/step_definitions/authn_common_steps.rb
@@ -27,6 +28,7 @@ authenticators_config: >
   -r cucumber/api/features/step_definitions/user_steps.rb
   -r cucumber/api/features/support/logs_helpers.rb
   -r cucumber/api/features/step_definitions/logs_steps.rb
+  -r cucumber/features/support/hooks.rb
   -r cucumber/policy/features/support/policy_helpers.rb
   -r cucumber/policy/features/step_definitions/policy_steps.rb
   -r cucumber/_authenticators_common
@@ -43,6 +45,7 @@ authenticators_status: >
   -r cucumber/api/features/step_definitions/logs_steps.rb
   -r cucumber/api/features/support/authz_helpers.rb
   -r cucumber/api/features/step_definitions/authz_steps.rb
+  -r cucumber/features/support/hooks.rb
   -r cucumber/policy/features/support/policy_helpers.rb
   -r cucumber/policy/features/step_definitions/policy_steps.rb
   -r cucumber/_authenticators_common
@@ -59,6 +62,7 @@ authenticators_ldap: >
   -r cucumber/api/features/step_definitions/logs_steps.rb
   -r cucumber/api/features/support/authz_helpers.rb
   -r cucumber/api/features/step_definitions/authz_steps.rb
+  -r cucumber/features/support/hooks.rb
   -r cucumber/policy/features/support/policy_helpers.rb
   -r cucumber/policy/features/step_definitions/policy_steps.rb
   -r cucumber/_authenticators_common
@@ -76,6 +80,7 @@ authenticators_oidc: >
   -r cucumber/policy/features/step_definitions/login_steps.rb
   -r cucumber/api/features/support/authz_helpers.rb
   -r cucumber/api/features/step_definitions/authz_steps.rb
+  -r cucumber/features/support/hooks.rb
   -r cucumber/policy/features/support/policy_helpers.rb
   -r cucumber/policy/features/step_definitions/policy_steps.rb
   -r cucumber/policy/features/step_definitions/secrets_steps.rb
@@ -97,6 +102,7 @@ authenticators_gcp: >
   -r cucumber/api/features/step_definitions/logs_steps.rb
   -r cucumber/api/features/support/authz_helpers.rb
   -r cucumber/api/features/step_definitions/authz_steps.rb
+  -r cucumber/features/support/hooks.rb
   -r cucumber/policy/features/support/policy_helpers.rb
   -r cucumber/policy/features/step_definitions/policy_steps.rb
   -r cucumber/_authenticators_common
@@ -115,6 +121,7 @@ authenticators_azure: >
   -r cucumber/api/features/step_definitions/logs_steps.rb
   -r cucumber/api/features/support/authz_helpers.rb
   -r cucumber/api/features/step_definitions/authz_steps.rb
+  -r cucumber/features/support/hooks.rb
   -r cucumber/policy/features/support/policy_helpers.rb
   -r cucumber/policy/features/step_definitions/policy_steps.rb
   -r cucumber/_authenticators_common
@@ -134,6 +141,7 @@ authenticators_jwt: >
   -r cucumber/api/features/step_definitions/logs_steps.rb
   -r cucumber/api/features/support/authz_helpers.rb
   -r cucumber/api/features/step_definitions/authz_steps.rb
+  -r cucumber/features/support/hooks.rb
   -r cucumber/policy/features/support/policy_helpers.rb
   -r cucumber/policy/features/step_definitions/policy_steps.rb
   -r cucumber/_authenticators_common
@@ -155,6 +163,7 @@ rotators: >
   -r cucumber/api/features/support/rest_helpers.rb
   -r cucumber/api/features/step_definitions/request_steps.rb
   -r cucumber/api/features/step_definitions/user_steps.rb
+  -r cucumber/features/support/hooks.rb
   -r cucumber/policy/features/step_definitions/policy_steps.rb
   -r cucumber/policy/features/support/policy_helpers.rb
   -r cucumber/rotators
@@ -163,6 +172,7 @@ rotators: >
 manual-rotators: >
   --format pretty
   --tags @manual
+  -r cucumber/features/support/hooks.rb
   -r cucumber/rotators/features/support
   -r cucumber/rotators/features/step_definitions
   cucumber/rotators
