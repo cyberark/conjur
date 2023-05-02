@@ -86,9 +86,12 @@ docker_diagnostics() {
   # its _value_ in the regex.
   #
   # Docker Note: container name is always the last field.  Hence $NF gets it.
-  readarray -t cont_names < <(
-    docker ps --all | awk "/${COMPOSE_PROJECT_NAME}/{print \$NF}"
-  )
+  declare -a cont_names
+  while IFS=$'\n' read -r line; do cont_names+=("$line"); done < <(docker ps --all | awk "/${COMPOSE_PROJECT_NAME}/{print \$NF}")
+  echo "CONT NAMES FOUND: ${cont_names[*]}"
+  #readarray -t cont_names < <(
+    #docker ps --all | awk "/${COMPOSE_PROJECT_NAME}/{print \$NF}"
+  #)
 
   # Store container logs for archiving.
   echo "Writing Container logs to" \
@@ -103,7 +106,7 @@ docker_diagnostics() {
     docker logs "$name" > "${cont_log_dir}/${name}.log"
 
     # For the conjur container, we want the development.log too
-    if [[ "$name" =~ conjur ]]; then
+    if [[ "$name" =~ conjur_* ]]; then
       docker cp "$name:/opt/conjur-server/log/development.log" \
         "${cont_log_dir}/development.log"
     fi

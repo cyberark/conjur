@@ -13,6 +13,10 @@ services:
       #   connections without a password. This is *not* recommended. See
       #   PostgreSQL documentation about "trust"
       POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - "8100-8101:5432"
+    deploy:
+      replicas: 1
 
   audit:
     image: postgres:10.16
@@ -60,12 +64,14 @@ services:
       - ./ldap-certs:/ldap-certs:ro
       - log-volume:/opt/conjur-server/log
       - ../coverage:/opt/conjur-server/coverage
-    expose:
-      - "80"
+    ports:
+      - "8000-8001:80"
     links:
       - pg
       - ldap-server
       - keycloak
+    deploy:
+      replicas: 1
 
   cucumber:
     image: conjur-test:$TAG

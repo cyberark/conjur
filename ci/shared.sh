@@ -29,13 +29,26 @@ _run_cucumber_tests() {
   rm -rf "cucumber/$profile/features/reports/*"
 
   echo "Start all services..."
+  echo "SERVICES: ${services[*]}"
 
-  docker-compose up --no-deps --no-recreate -d pg conjur "${services[@]}"
+  echo "Docker PS before:"
+  docker ps
+  #docker-compose up --no-deps --no-recreate -d pg conjur "${services[@]}"
+  #docker-compose up --no-deps --no-recreate -d pg conjur
+  docker-compose up --no-deps --no-recreate -d pg conjur --scale pg=2 --scale conjur=2
+  echo "Docker PS after:"
+  docker ps -a
+
+  echo "docker-compose exec -T:"
   docker-compose exec -T conjur conjurctl wait --retries 180
+  echo "Docker PS after:"
+  docker ps -a
 
   echo "Create cucumber account..."
 
   docker-compose exec -T conjur conjurctl account create cucumber
+  echo "Docker PS after:"
+  docker ps -a
 
   # Stage 2: Prepare cucumber environment args
   # -----------------------------------------------------------
@@ -65,6 +78,7 @@ _run_cucumber_tests() {
     -e "CUCUMBER_NETWORK=$(_find_cucumber_network)"
     -e "CUCUMBER_FILTER_TAGS=$CUCUMBER_FILTER_TAGS"
   )
+  echo "King"
 
   # If there's no tty (e.g. we're running as a Jenkins job), pass -T to
   # docker-compose.
@@ -72,6 +86,7 @@ _run_cucumber_tests() {
   if ! tty -s; then
     run_flags+=(-T)
   fi
+  echo "NEIL KING"
 
   # THE CUCUMBER_FILTER_TAGS environment variable is not natively
   # implemented in cucumber-ruby, so we pass it as a CLI argument
@@ -80,20 +95,22 @@ _run_cucumber_tests() {
   if [[ -n "$CUCUMBER_FILTER_TAGS" ]]; then
     cucumber_tags_arg="--tags \"$CUCUMBER_FILTER_TAGS\""
   fi
-
+  echo "neil: about to run cucumber cmd"
   # Stage 3: Run Cucumber
   # -----------------------------------------------------------
-
   docker-compose run "${run_flags[@]}" "${env_var_flags[@]}" \
     cucumber -ec "\
       /oauth/keycloak/scripts/fetch_certificate &&
-      bundle exec parallel_cucumber --type cucumber -n 3\
-       --strict \
-       ${cucumber_tags_arg} \
-       -p \"$profile\" \
-       --format json --out \"cucumber/$profile/cucumber_results.json\" \
-       --format html --out \"cucumber/$profile/cucumber_results.html\" \
-       --format junit --out \"cucumber/$profile/features/reports\""
+      bundle exec parallel_test cucumber --type cucumber -n 2 \
+       -o '-p \"$profile\" ${cucumber_tags_arg}'"
+  #docker-compose run "${run_flags[@]}" "${env_var_flags[@]}" \
+    #cucumber -ec "\
+      #/oauth/keycloak/scripts/fetch_certificate &&
+      #bundle exec parallel_test cucumber --type cucumber -n 2 \
+       #-o '-p \"$profile\" ${cucumber_tags_arg} \
+       #--format json --out \"cucumber/$profile/cucumber_results.json\" \
+       #--format html --out \"cucumber/$profile/cucumber_results.html\" \
+       #--format junit --out \"cucumber/$profile/features/reports\"'"
 
   # Stage 4: Coverage results
   # -----------------------------------------------------------

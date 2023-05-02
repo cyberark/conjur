@@ -1,4 +1,5 @@
 @api
+@neil
 Feature: Delete an account
 
   Accounts can be deleted through the API.
@@ -42,21 +43,32 @@ Feature: Delete an account
   @acceptance
   Scenario: Root policy can be reloaded after DELETE
 
-    Given I login as "new.account:user:admin"
-    And I successfully PUT "/policies/new.account/policy/root" with body:
+    Given I create a new user "reloader" in account "!"
+    And I permit role "!:user:reloader" to "execute" resource "!:webservice:accounts"
+    And I permit role "!:user:reloader" to "read" resource "!:webservice:accounts"
+    And I permit role "!:user:reloader" to "update" resource "!:webservice:accounts"
+
+    And I login as "!:user:reloader"
+    Then I successfully POST "/accounts" with body:
+    """
+    id=new.account2
+    """
+
+    Given I login as "new.account2:user:admin"
+    And I successfully PUT "/policies/new.account2/policy/root" with body:
     """
     - !variable var
     """
 
-    Then I login as "!:user:privileged"
-    And I successfully DELETE "/accounts/new.account"
+    Then I login as "!:user:reloader"
+    And I successfully DELETE "/accounts/new.account2"
     When I successfully POST "/accounts" with body:
     """
-    id=new.account
+    id=new.account2
     """
 
-    When I login as "new.account:user:admin"
-    Then I successfully PUT "/policies/new.account/policy/root" with body:
+    When I login as "new.account2:user:admin"
+    Then I successfully PUT "/policies/new.account2/policy/root" with body:
     """
     - !variable var
     """

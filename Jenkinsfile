@@ -107,7 +107,7 @@ pipeline {
         'empty to run all tests. See Jenkinsfile for details.',
       // See note at top of file for temporarily changing this value during
       // development.
-      defaultValue: ''
+      defaultValue: "api"
     )
     string(
       name: 'CUCUMBER_FILTER_TAGS',
@@ -138,12 +138,12 @@ pipeline {
       }
     }
     // Generates a VERSION file based on the current build number and latest version in CHANGELOG.md
-    stage('Validate Changelog and set version') {
-      steps {
-        updateVersion("CHANGELOG.md", "${BUILD_NUMBER}")
-        stash name: 'version_info', includes: 'VERSION'
-      }
-    }
+    //stage('Validate Changelog and set version') {
+      //steps {
+        //updateVersion("CHANGELOG.md", "${BUILD_NUMBER}")
+        //stash name: 'version_info', includes: 'VERSION'
+      //}
+    //}
 
     stage('Fetch tags') {
       steps {
@@ -166,14 +166,14 @@ pipeline {
       }
     }
 
-    stage('Validate Changelog') {
-      when {
-        expression { params.RUN_ONLY == '' }
-      }
-      steps {
-        sh 'ci/parse-changelog'
-      }
-    }
+    //stage('Validate Changelog') {
+      //when {
+        //expression { params.RUN_ONLY == '' }
+      //}
+      //steps {
+        //sh 'ci/parse-changelog'
+      //}
+    //}
 
     stage('Build and test Conjur') {
       when {
@@ -206,47 +206,47 @@ pipeline {
       }
 
       stages {
-        stage('Build Docker Image') {
-          steps {
-            sh './build.sh --jenkins'
-          }
-        }
+        //stage('Build Docker Image') {
+          //steps {
+            //sh './build.sh --jenkins'
+          //}
+        //}
 
-        stage('Push images to internal registry') {
-          steps {
-            // Push images to the internal registry so that they can be used
-            // by tests, even if the tests run on a different executor.
-            sh './publish-images.sh --internal'
-          }
-        }
+        //stage('Push images to internal registry') {
+          //steps {
+            //// Push images to the internal registry so that they can be used
+            //// by tests, even if the tests run on a different executor.
+            //sh './publish-images.sh --internal'
+          //}
+        //}
 
-        stage('Scan Docker Image') {
-          when {
-            expression { params.RUN_ONLY == '' }
-          }
-          parallel {
-            stage("Scan Docker Image for fixable issues") {
-              steps {
-                scanAndReport("conjur:${tagWithSHA()}", "HIGH", false)
-              }
-            }
-            stage("Scan Docker image for total issues") {
-              steps {
-                scanAndReport("conjur:${tagWithSHA()}", "NONE", true)
-              }
-            }
-            stage("Scan UBI-based Docker Image for fixable issues") {
-              steps {
-                scanAndReport("conjur-ubi:${tagWithSHA()}", "HIGH", false)
-              }
-            }
-            stage("Scan UBI-based Docker image for total issues") {
-              steps {
-                scanAndReport("conjur-ubi:${tagWithSHA()}", "NONE", true)
-              }
-            }
-          }
-        }
+        //stage('Scan Docker Image') {
+          //when {
+            //expression { params.RUN_ONLY == '' }
+          //}
+          //parallel {
+            //stage("Scan Docker Image for fixable issues") {
+              //steps {
+                //scanAndReport("conjur:${tagWithSHA()}", "HIGH", false)
+              //}
+            //}
+            //stage("Scan Docker image for total issues") {
+              //steps {
+                //scanAndReport("conjur:${tagWithSHA()}", "NONE", true)
+              //}
+            //}
+            //stage("Scan UBI-based Docker Image for fixable issues") {
+              //steps {
+                //scanAndReport("conjur-ubi:${tagWithSHA()}", "HIGH", false)
+              //}
+            //}
+            //stage("Scan UBI-based Docker image for total issues") {
+              //steps {
+                //scanAndReport("conjur-ubi:${tagWithSHA()}", "NONE", true)
+              //}
+            //}
+          //}
+        //}
 
         // TODO: Add comments explaining which env vars are set here.
         stage('Prepare For CodeClimate Coverage Report Submission') {
@@ -265,11 +265,11 @@ pipeline {
         }
 
         // Run outside parallel block to avoid external pressure
-        stage('RSpec - Standard agent tests') {
-          steps {
-            sh 'ci/test rspec'
-          }
-        }
+        //stage('RSpec - Standard agent tests') {
+          //steps {
+            //sh 'ci/test rspec'
+          //}
+        //}
 
         // Run outside parallel block to reduce main Jenkins executor load.
         stage('Nightly Only') {

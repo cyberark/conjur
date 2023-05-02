@@ -1,4 +1,5 @@
 @api
+@neil
 Feature: Exchange a role's password for its API key
 
   Roles which have passwords can use the `login` method to obtain their API key.
