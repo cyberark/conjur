@@ -28,7 +28,6 @@ RSpec.describe('Authentication::AuthnJwt::InputValidation::ValidateClaimName') d
     "When claim name is 1 dot character '.'": [".", Errors::Authentication::AuthnJwt::FailedToValidateClaimForbiddenClaimName],
     "When claim name is just 1 forbidden character '*'": ["*", Errors::Authentication::AuthnJwt::FailedToValidateClaimForbiddenClaimName],
     "When claim name contains 1 forbidden character '*'": ["a*b", Errors::Authentication::AuthnJwt::FailedToValidateClaimForbiddenClaimName],
-    "When claim name contains 1 forbidden character '-": ["a-b", Errors::Authentication::AuthnJwt::FailedToValidateClaimForbiddenClaimName],
     "When claim name contains 1 forbidden character '%'": ["a%b", Errors::Authentication::AuthnJwt::FailedToValidateClaimForbiddenClaimName],
     "When claim name contains 1 forbidden character '!'": ["a!b", Errors::Authentication::AuthnJwt::FailedToValidateClaimForbiddenClaimName],
     "When claim name contains 1 forbidden character '('": ["a(b", Errors::Authentication::AuthnJwt::FailedToValidateClaimForbiddenClaimName],
@@ -44,7 +43,6 @@ RSpec.describe('Authentication::AuthnJwt::InputValidation::ValidateClaimName') d
     "When claim name contains spaces": ["claim  name", Errors::Authentication::AuthnJwt::FailedToValidateClaimForbiddenClaimName],
     "When input has illegal [ character in claim name": ["my[claim", Errors::Authentication::AuthnJwt::FailedToValidateClaimForbiddenClaimName],
     "When input has illegal [ ] characters in claim name": ["my[1]claim", Errors::Authentication::AuthnJwt::FailedToValidateClaimForbiddenClaimName],
-    "When input has illegal - character in claim name": ["my-claim", Errors::Authentication::AuthnJwt::FailedToValidateClaimForbiddenClaimName],
     "When input has illegal : character in claim name": ["a:", Errors::Authentication::AuthnJwt::FailedToValidateClaimForbiddenClaimName]
   }
 
@@ -53,6 +51,7 @@ RSpec.describe('Authentication::AuthnJwt::InputValidation::ValidateClaimName') d
     "When claim name contains 1 allowed char 'f'": "f",
     "When claim name contains 1 allowed char '_'": "_",
     "When claim name contains value with allowed char '/'": "a/a",
+    "When claim name contains value with allowed char '-'": "a-b",
     "When claim name contains value with multiple allowed chars '/'": "a/a/a/a",
     "When claim name contains 1 allowed char '$'": "$",
     "When claim name contains digits in the middle": "$2w",

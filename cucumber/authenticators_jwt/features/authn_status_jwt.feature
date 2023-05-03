@@ -1108,7 +1108,7 @@ Feature: JWT Authenticator - Status Check
     And I save my place in the log file
     When I GET "/authn-jwt/raw/cucumber/status"
     Then the HTTP response status code is 500
-    And the authenticator status check fails with error "does not match regular expression: '(?-mix:^[a-zA-Z|$|_][a-zA-Z|$|_|0-9|.]*(\/[a-zA-Z|$|_][a-zA-Z|$|_|0-9|.]*)*$)"
+    And the authenticator status check fails with error "does not match regular expression: '(?-mix:^[a-zA-Z|$|_][a-zA-Z|$|_|-|0-9|.]*(\/[a-zA-Z|$|_][a-zA-Z|$|_|-|0-9|.]*)*$)"
 
   @negative @acceptance
   Scenario Outline: ONYX-10958: claim-aliases configured with invalid value, 500 Error
