@@ -112,6 +112,7 @@ group :development, :test do
   gem 'vcr'
   gem 'webmock'
   gem 'webrick'
+  gem 'parallel_tests'
 end
 
 group :development do
