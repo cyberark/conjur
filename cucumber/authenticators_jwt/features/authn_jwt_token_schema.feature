@@ -869,6 +869,42 @@ Feature: JWT Authenticator - Token Schema
 
   @sanity
   @acceptance
+  Scenario: ONYX-29842 - Claims With In-Line Namespaces. Single enforced claim - 200 OK
+    Given I extend the policy with:
+    """
+    - !variable conjur/authn-jwt/raw/enforced-claims
+
+    - !host
+      id: myapp
+      annotations:
+        authn-jwt/raw/conjur.org/enforced-property: valid
+
+    - !grant
+      role: !group conjur/authn-jwt/raw/hosts
+      member: !host myapp
+    """
+    And I successfully set authn-jwt "enforced-claims" variable to value "conjur.org/enforced-property"
+    And I successfully set authn-jwt "token-app-property" variable to value "conjur.org/host-property"
+    And I add the secret value "test-secret" to the resource "cucumber:variable:test-variable"
+    And I permit host "myapp" to "execute" it
+    And I am using file "authn-jwt-token-schema" and alg "RS256" for remotely issue token:
+    """
+    {
+      "conjur.org/enforced-property":"valid",
+      "conjur.org/host-property":"myapp"
+    }
+    """
+    And I save my place in the log file
+    When I authenticate via authn-jwt with the JWT token
+    Then host "myapp" has been authorized by Conjur
+    And I successfully GET "/secrets/cucumber/variable/test-variable" with authorized user
+    And The following appears in the log after my savepoint:
+    """
+    cucumber:host:myapp successfully authenticated with authenticator authn-jwt service cucumber:webservice:conjur/authn-jwt/raw
+    """
+
+  @sanity
+  @acceptance
   Scenario: ONYX-13716 Claim Alias nested annotation - 200 OK
     Given I extend the policy with:
     """
