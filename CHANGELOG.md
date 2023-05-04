@@ -15,15 +15,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Update bundler to 2.2.33 to remove CVE-2021-43809
   [cyberark/conjur#2804](https://github.com/cyberark/conjur/pull/2804/files)
 
+### Fixed
+- AuthnJWT now supports claims that include hyphens and inline namespaces.
+  [cyberark/conjur#2792](https://github.com/cyberark/conjur/pull/2792)
+
 ## [1.19.4] - 2023-05-12
 
 ### Changed
 - OIDC tokens will now have a default ttl of 60 mins
   [cyberark/conjur#2800](https://github.com/cyberark/conjur/pull/2800)
-
-### Fixed
-- AuthnJWT can now support claims that include hyphens.
-  [cyberark/conjur#2792](https://github.com/cyberark/conjur/pull/2792)
 
 ## [1.19.3] - 2023-04-17
 

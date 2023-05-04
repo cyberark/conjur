@@ -12,6 +12,7 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::IdentityFromDecoded
   let(:token_app_property_secret_value_is_hash) { 'nested' }
   let(:token_app_property_nested_from_hash_value) { 'nested/single' }
   let(:token_app_property_nested_from_array_value) { 'nested/array[0]' }
+  let(:token_app_property_namespaced) { 'namespaced.com/key' }
   let(:decoded_token) {
     {
       "namespace_id" => "1",
@@ -36,7 +37,8 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::IdentityFromDecoded
       "nested" => {
         "single" => "n_value",
         "array" => %w[a_value_1 a_value_2 a_value_3]
-      }
+      },
+      "namespaced.com/key" => "namespaced-value"
     }
   }
 
@@ -85,6 +87,12 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::IdentityFromDecoded
     }
   }
 
+  let(:mocked_valid_secret_namespaced) {
+    {
+      "token-app-property" => token_app_property_namespaced
+    }
+  }
+
   let(:mocked_valid_secrets_which_missing_in_token) {
     {
       "token-app-property" => "missing"
@@ -98,13 +106,14 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::IdentityFromDecoded
   let(:mocked_resource) { double("MockedResource") }
   let(:non_existing_field_name) { "non existing field name" }
 
-  let(:mocked_fetch_authenticator_secrets_exist_values)  {  double("MochedFetchAuthenticatorSecrets") }
-  let(:mocked_fetch_authenticator_secrets_value_points_to_array)  {  double("MochedFetchAuthenticatorSecretsPointsToArray") }
-  let(:mocked_fetch_authenticator_secrets_value_points_to_hash)  {  double("MochedFetchAuthenticatorSecretsPointsToHash") }
-  let(:mocked_fetch_authenticator_secrets_value_hash) { double("MochedFetchAuthenticatorSecretsHash") }
-  let(:mocked_fetch_authenticator_secrets_value_array) { double("MochedFetchAuthenticatorSecretsArray") }
-  let(:mocked_fetch_authenticator_secrets_which_missing_in_token) {  double("MochedFetchAuthenticatorSecrets") }
-  let(:mocked_fetch_authenticator_secrets_empty_values)  {  double("MochedFetchAuthenticatorSecrets") }
+  let(:mocked_fetch_authenticator_secrets_exist_values)  {  double("MockedFetchAuthenticatorSecrets") }
+  let(:mocked_fetch_authenticator_secrets_value_points_to_array)  {  double("MockedFetchAuthenticatorSecretsPointsToArray") }
+  let(:mocked_fetch_authenticator_secrets_value_points_to_hash)  {  double("MockedFetchAuthenticatorSecretsPointsToHash") }
+  let(:mocked_fetch_authenticator_secrets_value_hash) { double("MockedFetchAuthenticatorSecretsHash") }
+  let(:mocked_fetch_authenticator_secrets_value_array) { double("MockedFetchAuthenticatorSecretsArray") }
+  let(:mocked_fetch_authenticator_secrets_value_namespaced) { double("MockedFetchAuthenticatorSecretsNamespaced") }
+  let(:mocked_fetch_authenticator_secrets_which_missing_in_token) {  double("MockedFetchAuthenticatorSecrets") }
+  let(:mocked_fetch_authenticator_secrets_empty_values)  {  double("MockedFetchAuthenticatorSecrets") }
   let(:required_secret_missing_error) { "required secret missing error" }
   let(:required_identity_path_secret_missing_error) { "required secret missing error" }
   let(:mocked_fetch_required_secrets_token_app_with_value_identity_path_empty) {  double("MockedFetchRequiredSecrets") }
@@ -129,6 +138,11 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::IdentityFromDecoded
     ::Authentication::AuthnJwt::IDENTITY_TYPE_HOST +
       ::Authentication::AuthnJwt::PATH_DELIMITER +
       "a_value_1"
+  }
+  let(:valid_jwt_identity_from_namespaced_claim) {
+    ::Authentication::AuthnJwt::IDENTITY_TYPE_HOST +
+      ::Authentication::AuthnJwt::PATH_DELIMITER +
+      "namespaced-value"
   }
   let(:valid_jwt_identity_with_path) {
     ::Authentication::AuthnJwt::IDENTITY_TYPE_HOST +
@@ -169,6 +183,10 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::IdentityFromDecoded
 
     allow(mocked_fetch_authenticator_secrets_value_array).to(
       receive(:call).and_return(mocked_valid_secret_array)
+    )
+
+    allow(mocked_fetch_authenticator_secrets_value_namespaced).to(
+      receive(:call).and_return(mocked_valid_secret_namespaced)
     )
 
     allow(mocked_fetch_authenticator_secrets_which_missing_in_token).to(
@@ -357,6 +375,22 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::IdentityFromDecoded
 
         it "jwt_identity returns host identity" do
           expect(subject).to eql(valid_jwt_identity_from_hash)
+        end
+      end
+
+      context "And 'identity-path' resource not exists, token-app-property with in-line namespace" do
+        subject do
+          ::Authentication::AuthnJwt::IdentityProviders::IdentityFromDecodedTokenProvider.new(
+            check_authenticator_secret_exists: mocked_authenticator_secret_exists,
+            fetch_authenticator_secrets: mocked_fetch_authenticator_secrets_value_namespaced,
+            fetch_identity_path: mocked_fetch_identity_path_valid_empty_path
+          ).call(
+            jwt_authenticator_input: jwt_authenticator_input
+          )
+        end
+
+        it "jwt_identity returns host identity" do
+          expect(subject).to eql(valid_jwt_identity_from_namespaced_claim)
         end
       end
 
