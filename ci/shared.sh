@@ -35,22 +35,17 @@ _run_cucumber_tests() {
   docker ps
   #docker-compose up --no-deps --no-recreate -d pg conjur "${services[@]}"
   #docker-compose up --no-deps --no-recreate -d pg conjur --scale pg=2 --scale conjur=2
-  docker-compose up --no-deps --no-recreate -d pg conjur pg2 conjur2
+  docker-compose up --no-deps --no-recreate -d pg conjur
   echo "Docker PS after:"
-  docker ps -a
+  docker-compose ps -a
 
-  echo "docker-compose exec -T:"
+  #read -p "Press key to continue.. " -n1 -s
+
   docker-compose exec -T conjur conjurctl wait --retries 180
-  docker-compose exec -T conjur2 conjurctl wait --retries 180
-  echo "Docker PS after:"
-  docker ps -a
 
   echo "Create cucumber account..."
 
-  docker-compose exec -T conjur conjurctl account create cucumber
-  docker-compose exec -T conjur2 conjurctl account create cucumber
-  echo "Docker PS after:"
-  docker ps -a
+  docker-compose exec -T conjur conjurctl account create cucumber || true
 
   # Stage 2: Prepare cucumber environment args
   # -----------------------------------------------------------
@@ -80,7 +75,6 @@ _run_cucumber_tests() {
     -e "CUCUMBER_NETWORK=$(_find_cucumber_network)"
     -e "CUCUMBER_FILTER_TAGS=$CUCUMBER_FILTER_TAGS"
   )
-  echo "King"
 
   # If there's no tty (e.g. we're running as a Jenkins job), pass -T to
   # docker-compose.
@@ -88,7 +82,6 @@ _run_cucumber_tests() {
   if ! tty -s; then
     run_flags+=(-T)
   fi
-  echo "NEIL KING"
 
   # THE CUCUMBER_FILTER_TAGS environment variable is not natively
   # implemented in cucumber-ruby, so we pass it as a CLI argument
@@ -97,20 +90,14 @@ _run_cucumber_tests() {
   if [[ -n "$CUCUMBER_FILTER_TAGS" ]]; then
     cucumber_tags_arg="--tags \"$CUCUMBER_FILTER_TAGS\""
   fi
-  echo "neil: about to run cucumber cmd"
   # Stage 3: Run Cucumber
   # -----------------------------------------------------------
   docker-compose run "${run_flags[@]}" "${env_var_flags[@]}" \
     cucumber -ec "\
       /oauth/keycloak/scripts/fetch_certificate &&
-      bundle exec parallel_test cucumber --type cucumber -n 2 \
+      bundle exec parallel_test cucumber --type cucumber -n 1 \
        -o '-p \"$profile\" ${cucumber_tags_arg}'"
 
-  docker-compose run "${run_flags[@]}" "${env_var_flags[@]}" \
-    cucumber2 -ec "\
-      /oauth/keycloak/scripts/fetch_certificate &&
-      bundle exec parallel_test cucumber --type cucumber -n 2 \
-       -o '-p \"$profile\" ${cucumber_tags_arg}'"
   #docker-compose run "${run_flags[@]}" "${env_var_flags[@]}" \
     #cucumber -ec "\
       #/oauth/keycloak/scripts/fetch_certificate &&
@@ -137,11 +124,12 @@ _get_api_key() {
 
 _find_cucumber_network() {
   local net
+  declare -a docker_ids
+  while IFS=$'\n' read -r line; do docker_ids+=("$line"); done < <(docker-compose ps -q conjur)
 
-  net=$(
-    docker inspect "$(docker-compose ps -q conjur)" \
-      --format '{{.HostConfig.NetworkMode}}'
-  )
+  for id in "${docker_ids[@]}"; do
+    net=$(docker inspect "${id}" --format '{{.HostConfig.NetworkMode}}')
+  done
 
   docker network inspect "$net" \
     --format '{{range .IPAM.Config}}{{.Subnet}}{{end}}'
