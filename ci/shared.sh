@@ -34,19 +34,21 @@ _run_cucumber_tests() {
   echo "Docker PS before:"
   docker ps
   #docker-compose up --no-deps --no-recreate -d pg conjur "${services[@]}"
-  #docker-compose up --no-deps --no-recreate -d pg conjur
-  docker-compose up --no-deps --no-recreate -d pg conjur --scale pg=2 --scale conjur=2
+  #docker-compose up --no-deps --no-recreate -d pg conjur --scale pg=2 --scale conjur=2
+  docker-compose up --no-deps --no-recreate -d pg conjur pg2 conjur2
   echo "Docker PS after:"
   docker ps -a
 
   echo "docker-compose exec -T:"
   docker-compose exec -T conjur conjurctl wait --retries 180
+  docker-compose exec -T conjur2 conjurctl wait --retries 180
   echo "Docker PS after:"
   docker ps -a
 
   echo "Create cucumber account..."
 
   docker-compose exec -T conjur conjurctl account create cucumber
+  docker-compose exec -T conjur2 conjurctl account create cucumber
   echo "Docker PS after:"
   docker ps -a
 
@@ -100,6 +102,12 @@ _run_cucumber_tests() {
   # -----------------------------------------------------------
   docker-compose run "${run_flags[@]}" "${env_var_flags[@]}" \
     cucumber -ec "\
+      /oauth/keycloak/scripts/fetch_certificate &&
+      bundle exec parallel_test cucumber --type cucumber -n 2 \
+       -o '-p \"$profile\" ${cucumber_tags_arg}'"
+
+  docker-compose run "${run_flags[@]}" "${env_var_flags[@]}" \
+    cucumber2 -ec "\
       /oauth/keycloak/scripts/fetch_certificate &&
       bundle exec parallel_test cucumber --type cucumber -n 2 \
        -o '-p \"$profile\" ${cucumber_tags_arg}'"
