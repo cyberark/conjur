@@ -41,7 +41,8 @@ _run_cucumber_tests() {
 
   docker network ls
 
-  read -p "Press key to continue.. " -n1 -s
+  #read -p "Press key to continue.. " -n1 -s
+  docker-compose ps -a
 
   docker-compose exec -T conjur conjurctl wait --retries 180
   docker-compose exec -T conjur2 conjurctl wait --retries 180
@@ -99,9 +100,13 @@ _run_cucumber_tests() {
   docker-compose run "${run_flags[@]}" "${env_var_flags[@]}" \
     cucumber -ec "\
       /oauth/keycloak/scripts/fetch_certificate &&
-      bundle exec parallel_test cucumber --type cucumber -n 2 \
-       -o '-p \"$profile\" --tags @neil'"
+      bundle exec parallel_test ./cucumber --type cucumber -n 1 --group-by scenarios\
+       -o '-p \"$profile\" --tags @api'"
+      #bundle exec parallel_test cucumber --type cucumber --group-by scenarios -n 2 \
        #-o '-p \"$profile\" ${cucumber_tags_arg} @neil'"
+
+
+      #bundle exec cucumber -p \"$profile\" --tags @neil"
 
   #docker-compose run "${run_flags[@]}" "${env_var_flags[@]}" \
     #cucumber -ec "\

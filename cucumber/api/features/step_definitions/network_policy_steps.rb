@@ -1,3 +1,8 @@
+
+#Before do
+  #ENV['TEST_ENV_NUMBER'] = "2"
+#end
+
 When(/^I load a network-restricted policy$/) do
   cuke_network = ENV['CUCUMBER_NETWORK'] || '172.0.0.0/8'
   policy = %Q(

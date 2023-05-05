@@ -104,6 +104,7 @@ module AuthenticatorHelpers
   end
 
   def conjur_hostname
+    puts "auth_helpers: APPLIANCE URL: #{ENV['CONJUR_APPLIANCE_URL']}"
     ENV.fetch('CONJUR_APPLIANCE_URL', 'http://conjur')
   end
 

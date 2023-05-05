@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
+#Before do
+  #ENV['TEST_ENV_NUMBER'] = "1"
+#end
+
 Given(/^I create a host factory for layer "([^"]*)"$/) do |layer_id|
   layer_p = Conjur::PolicyParser::Types::Layer.new(layer_id)
   layer_p.owner = Conjur::PolicyParser::Types::Role.new(admin_user.id)

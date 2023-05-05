@@ -18,6 +18,7 @@ end
 # Prior to this hook, our tests had hidden coupling.  This ensures each test is
 # run independently.
 Before do
+  puts " POLICY PROCESS #{ENV['TEST_ENV_NUMBER']} DATABASE: #{ENV['CONJUR_APPLIANCE_URL']}"
   @user_index = 0
 
   Role.truncate(cascade: true)

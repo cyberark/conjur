@@ -26,11 +26,12 @@ Given("I have host {string}") do |login|
 end
 
 Given("I create a new admin-owned user {string}") do |login|
+  #ENV['TEST_ENV_NUMBER'] = ""
   create_user login, admin_user
 end
 
 Given('I create a new user {string} in account {string}') do |login, account|
-  ENV['TEST_ENV_NUMBER'] = ""
+  create_user login, admin_user
   roleid = "#{account}:user:#{login}"
   Role.create(role_id: roleid)
 end

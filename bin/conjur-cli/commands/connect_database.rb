@@ -12,6 +12,8 @@ module Commands
     inputs: %i[]
   ) do
     def call
+      puts "DATABASE: #{ENV['TEST_ENV_NUMBER']}"
+      puts "NRK CONNECT DB CALL #{@database_url} process #{ENV['TEST_ENV_NUMBER']}"
       fail("DATABASE_URL not set") unless @database_url
 
       30.times do
@@ -29,6 +31,7 @@ module Commands
     private
 
     def test_select
+      puts "NRK TEST SELECT DB CALL #{@database_url} process #{ENV['TEST_ENV_NUMBER']}"
       db = Sequel::Model.db = Sequel.connect(@database_url)
       db['select 1'].first
     rescue

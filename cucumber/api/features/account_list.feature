@@ -1,5 +1,4 @@
 @api
-@neil
 Feature: List accounts
 
   The list of accounts, excluding the "!" special account, is available through the

@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
+#Before do
+  #ENV['TEST_ENV_NUMBER'] = ""
+#end
+
 # we actually don't do anything with the `_` param as audit messages
 # are written to the Rails log. We have this param for readability of the
 # cucumber steps

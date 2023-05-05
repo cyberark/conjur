@@ -2,6 +2,10 @@
 # cryptic names like `$CHILD_STATUS`
 require 'English'
 
+#Before do
+  #ENV['TEST_ENV_NUMBER'] = "1"
+#end
+
 When(/^I load a large policy with POST$/) do
   # Generate a large policy with 1000 variables, sampled from
   # an example PAS synchronizer policy

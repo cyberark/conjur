@@ -4,19 +4,8 @@ ENV['CONJUR_ACCOUNT'] = 'cucumber'
 ENV['RAILS_ENV'] ||= 'test'
 ENV['CONJUR_LOG_LEVEL'] ||= 'debug'
 
-if ENV['TEST_ENV_NUMBER'] < "2"
-    print "PROCESS IS: #{ENV['TEST_ENV_NUMBER']}"
-    print ""
-    ENV['CONJUR_APPLIANCE_URL'] = "http://conjur"
-    ENV['DATABASE_URL'] = "postgres://postgres@pg/postgres"
-    print "DATABASE_URL: #{ENV['DATABASE_URL']}"
-else
-    print "PROCESS IS: #{ENV['TEST_ENV_NUMBER']}"
-    print ""
-    ENV['CONJUR_APPLIANCE_URL'] = "http://conjur#{ENV['TEST_ENV_NUMBER']}"
-    ENV['DATABASE_URL'] = "postgres://postgres@pg#{ENV['TEST_ENV_NUMBER']}/postgres"
-    print "DATABASE_URL: #{ENV['DATABASE_URL']}"
-end
+ENV['CONJUR_APPLIANCE_URL'] = "http://conjur#{ENV['TEST_ENV_NUMBER']}"
+ENV['DATABASE_URL'] = "postgres://postgres@pg#{ENV['TEST_ENV_NUMBER']}/postgres"
 
 # so that we can require relative to the project root
 $LOAD_PATH.unshift(File.expand_path('../../../..', __dir__))

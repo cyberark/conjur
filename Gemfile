@@ -84,6 +84,7 @@ group :development, :test do
   gem 'conjur-debify', require: false
   gem 'csr'
   gem 'cucumber', '~> 7.1'
+  gem 'cuke_modeler', '~> 3.0'
   gem 'parallel_tests'
   gem 'database_cleaner', '~> 1.8'
   gem 'debase', '~> 0.2.5.beta2'

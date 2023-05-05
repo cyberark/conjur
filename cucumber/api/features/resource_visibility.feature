@@ -1,5 +1,6 @@
 @api
 @logged-in
+@neil
 Feature: Rules which govern the visibility of resources to roles.
 
   @acceptance

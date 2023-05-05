@@ -21,6 +21,7 @@ require 'pg'
 require 'syslog'
 
 DB = Sequel.connect(ENV['DATABASE_URL'])
+puts "NRK DB: #{DB}"
 
 def tag length = TAG_LEN
   alnum = [*"a".."z", *"0".."9"].freeze

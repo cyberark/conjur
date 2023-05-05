@@ -1,5 +1,6 @@
 @api
 @logged-in
+@neil
 Feature: Test to allow bad content types in
 
   @acceptance
