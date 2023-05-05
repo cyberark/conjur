@@ -9,6 +9,7 @@ When("I am a user named {string}") do |login|
 end
 
 Given("I create a new user {string}") do |login|
+  #ENV['TEST_ENV_NUMBER'] = "2"
   create_user login, @current_user || admin_user
 end
 
@@ -29,6 +30,7 @@ Given("I create a new admin-owned user {string}") do |login|
 end
 
 Given('I create a new user {string} in account {string}') do |login, account|
+  ENV['TEST_ENV_NUMBER'] = ""
   roleid = "#{account}:user:#{login}"
   Role.create(role_id: roleid)
 end

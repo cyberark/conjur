@@ -1,5 +1,4 @@
 @api
-@neil
 Feature: Delete an account
 
   Accounts can be deleted through the API.

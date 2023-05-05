@@ -9,6 +9,21 @@ require 'fileutils'
 #
 # Prior to this hook, our tests had hidden coupling.  This ensures each test is
 # run independently.
+#ENV['CONJUR_APPLIANCE_URL'] = "http://conjur-#{ENV['TEST_ENV_NUMBER']}"
+#ENV['DATABASE_URL'] = "postgres://postgres@pg-#{ENV['TEST_ENV_NUMBER']}/postgres"
+
+#if ENV['TEST_ENV_NUMBER'] < "2"
+    #print "PROCESS IS: #{ENV['TEST_ENV_NUMBER']}"
+    #print ""
+    #ENV['CONJUR_APPLIANCE_URL'] = "http://conjur"
+    #ENV['DATABASE_URL'] = "postgres://postgres@pg/postgres"
+#else
+    #print "PROCESS IS: #{ENV['TEST_ENV_NUMBER']}"
+    #print ""
+    #ENV['CONJUR_APPLIANCE_URL'] = "http://conjur#{ENV['TEST_ENV_NUMBER']}"
+    #ENV['DATABASE_URL'] = "postgres://postgres@pg#{ENV['TEST_ENV_NUMBER']}/postgres"
+#end
+
 Before do
   @user_index = 0
   @host_index = 0
