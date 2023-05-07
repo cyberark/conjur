@@ -26,6 +26,19 @@ Account = Struct.new(:id) do
 
       Role.db.transaction do
         Slosilo["authn:#{id}"] = Slosilo::Key.new
+        Slosilo.each do |k,v|
+          a = k
+          b = v
+        end
+        # obj = Object.new
+        # class << obj
+        #   def hello
+        #     puts "Hello!"
+        #   end
+        # end
+        # Slosilo["is_host"] = true
+        #Slosilo["authn:#{id}"] = Slosilo::Key.new
+        #Slosilo["is_host"] = false
 
         role_id = "#{id}:user:admin"
         admin_user = Role.create(role_id: role_id)
