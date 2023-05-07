@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
-## [0.0.9-cloud] - 2023-05-04
+## [0.0.9-index] - 2023-05-04
 ### Changed
 - Improve DB queries for Edge
 
