@@ -2,6 +2,37 @@
 
 export REPORT_ROOT=/src/conjur-server
 
+# Sets the number of parallel processes for cucumber tests
+# Due to naming conventions this begins at 1 NOT 0
+PARALLEL_PROCESSES=2
+
+get_parallel_services() {
+  # get_parallel_services converts docker service names
+  # to the appropriate naming conventions expected for
+  # parallel cucumber tests.
+
+  # Args:
+  #   $1: A string of space delimited docker service name(s)
+
+  # Returns:
+  #  An array of docker service names matching the expected
+  #  parallel cucumber naming convention.
+  local services
+  read -ra services <<< "$1"
+
+  for service in "${services[@]}"; do
+    for (( i=1; i<=PARALLEL_PROCESSES; i++ )); do
+      if (( i == 1 )) ; then
+        new_services+=("$service")
+      else
+        new_services+=("$service${i}")
+      fi
+    done
+  done
+
+  echo "${new_services[@]}"
+}
+
 # Note: This function is long but purposefully not split up.  None of its parts
 # are re-used, and the split-up version is harder to follow and duplicates
 # argument processing.
@@ -30,12 +61,28 @@ _run_cucumber_tests() {
 
   echo "Start all services..."
 
-  docker-compose up --no-deps --no-recreate -d pg conjur "${services[@]}"
-  docker-compose exec -T conjur conjurctl wait --retries 180
+  local parallel_services
+  read -ra parallel_services <<< "$(get_parallel_services 'conjur pg')"
+
+  echo "${parallel_services[@]}"
+  echo "${services[@]}"
+
+  if [[ -z ${services} ]]; then
+    docker-compose up --no-deps --no-recreate -d "${parallel_services[@]}"
+  else
+    docker-compose up --no-deps --no-recreate -d "${parallel_services[@]}" "${services[@]}"
+  fi
+
+  read -ra parallel_services <<< "$(get_parallel_services 'conjur')"
+  for parallel_service in "${parallel_services[@]}"; do
+    docker-compose exec -T "$parallel_service" conjurctl wait --retries 180
+  done
 
   echo "Create cucumber account..."
 
-  docker-compose exec -T conjur conjurctl account create cucumber
+  for parallel_service in "${parallel_services[@]}"; do
+    docker-compose exec -T "$parallel_service" conjurctl account create cucumber
+  done
 
   # Stage 2: Prepare cucumber environment args
   # -----------------------------------------------------------
@@ -56,15 +103,31 @@ _run_cucumber_tests() {
     env_var_flags+=(-e "$item")
   done
 
+  # Generate api key ENV variables based on the
+  # number of parallel processes.
+  i=1
+  for parallel_service in "${parallel_services[@]}"; do
+    if (( i == 1 )) ; then
+      api_keys+=("CONJUR_AUTHN_API_KEY=$(_get_api_key "$parallel_service")")
+    else
+      api_keys+=("CONJUR_AUTHN_API_KEY${i}=$(_get_api_key "$parallel_service")")
+    fi
+    ((i++))
+  done
+
   # Add the cucumber env vars that we always want to send.
   # Note: These are args for docker-compose run, and as such the right hand
   # sides of the = do NOT require escaped quotes.  docker-compose takes the
   # entire arg, splits on the =, and uses the rhs as the value,
   env_var_flags+=(
-    -e "CONJUR_AUTHN_API_KEY=$(_get_api_key)"
     -e "CUCUMBER_NETWORK=$(_find_cucumber_network)"
     -e "CUCUMBER_FILTER_TAGS=$CUCUMBER_FILTER_TAGS"
   )
+
+  # Add parallel process api_keys to the env_var_flags
+  for api_key in "${api_keys[@]}"; do
+    env_var_flags+=(-e "$api_key")
+  done
 
   # If there's no tty (e.g. we're running as a Jenkins job), pass -T to
   # docker-compose.
@@ -84,16 +147,23 @@ _run_cucumber_tests() {
   # Stage 3: Run Cucumber
   # -----------------------------------------------------------
 
+  echo "ENV_ARG_FN: ${env_arg_fn}" >&2
+  echo "RUN_FLAGS: ${run_flags[*]}" >&2
+  echo "ENV_VAR_FLAGS: ${env_var_flags[*]}" >&2
+  echo "CUCUMBER TAGS: ${cucumber_tags_arg}" >&2
+  echo "CUCUMBER PROFILE: ${profile}" >&2
+
+
+  # Have to add tags in profile for parallel to run properly
+  # ${cucumber_tags_arg} should overwrite the profile tags in a way for @smoke to work correctly
   docker-compose run "${run_flags[@]}" "${env_var_flags[@]}" \
     cucumber -ec "\
       /oauth/keycloak/scripts/fetch_certificate &&
-      bundle exec cucumber \
-       --strict \
-       ${cucumber_tags_arg} \
-       -p \"$profile\" \
+      bundle exec parallel_cucumber . -n ${PARALLEL_PROCESSES} \
+       -o '--strict --profile \"${profile}\" ${cucumber_tags_arg} \
        --format json --out \"cucumber/$profile/cucumber_results.json\" \
        --format html --out \"cucumber/$profile/cucumber_results.html\" \
-       --format junit --out \"cucumber/$profile/features/reports\""
+       --format junit --out \"cucumber/$profile/features/reports\"'"
 
   # Stage 4: Coverage results
   # -----------------------------------------------------------
@@ -102,21 +172,26 @@ _run_cucumber_tests() {
   # killed before ruby, the report doesn't get written. So here we kill the
   # process to write the report. The container is kept alive using an infinite
   # sleep in the at_exit hook (see .simplecov).
-  docker-compose exec -T conjur bash -c "pkill -f 'puma 5'"
+  for parallel_service in "${parallel_services[@]}"; do
+    docker-compose exec -T "$parallel_service" bash -c "pkill -f 'puma 5'"
+  done
 }
 
 _get_api_key() {
-  docker-compose exec -T conjur conjurctl \
+  local service=$1
+
+  docker-compose exec -T "${service}" conjurctl \
     role retrieve-key cucumber:user:admin | tr -d '\r'
 }
 
 _find_cucumber_network() {
   local net
 
-  net=$(
-    docker inspect "$(docker-compose ps -q conjur)" \
-      --format '{{.HostConfig.NetworkMode}}'
-  )
+  # Docker compose conjur/pg services use the same
+  # network for 1 or more instances so only conjur is passed
+  # and not other parallel services.
+  conjur_id=$(docker-compose ps -q conjur)
+  net=$(docker inspect "${conjur_id}" --format '{{.HostConfig.NetworkMode}}')
 
   docker network inspect "$net" \
     --format '{{range .IPAM.Config}}{{.Subnet}}{{end}}'
@@ -180,5 +255,6 @@ start_ldap_server() {
     echo 'LDAP server failed to start in time'
     exit 1
   fi
+
   echo "Done."
 }

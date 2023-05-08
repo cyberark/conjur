@@ -341,6 +341,10 @@ function run_conjur_master() {
   set -e
 
   kubectl wait --for=condition=Ready "pod/$conjur_pod" --timeout=5m
+  #kubectl wait --for=condition=Ready "pod/$conjur_pod" --timeout=5m
+  #sleep 15
+
+
 
   # wait for the 'conjurctl server' entrypoint to finish
   local wait_command="while ! curl --silent --head --fail \
