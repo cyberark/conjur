@@ -8,7 +8,9 @@ source "./shared.sh"
 source "./oauth/keycloak/keycloak_functions.sh"
 
 function main() {
-  docker-compose up --no-deps -d pg conjur jwks jwks_py keycloak
+  local parallel_services
+  read -ra parallel_services <<< "$(get_service_name_by_process 'conjur pg')"
+  docker-compose up --no-deps -d "${parallel_services[@]}" jwks jwks_py keycloak
 
   wait_for_keycloak_server
   create_keycloak_users

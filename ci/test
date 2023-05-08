@@ -86,9 +86,8 @@ docker_diagnostics() {
   # its _value_ in the regex.
   #
   # Docker Note: container name is always the last field.  Hence $NF gets it.
-  readarray -t cont_names < <(
-    docker ps --all | awk "/${COMPOSE_PROJECT_NAME}/{print \$NF}"
-  )
+  declare -a cont_names
+  while IFS=$'\n' read -r line; do cont_names+=("$line"); done < <(docker ps --all | awk "/${COMPOSE_PROJECT_NAME}/{print \$NF}")
 
   # Store container logs for archiving.
   echo "Writing Container logs to" \
