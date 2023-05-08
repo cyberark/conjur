@@ -90,6 +90,7 @@ group :development, :test do
   gem 'faye-websocket'
   gem 'net-ssh'
   gem 'parallel'
+  gem 'parallel_tests'
   gem 'pry-byebug'
   gem 'pry-rails'
   gem 'rails-controller-testing'
