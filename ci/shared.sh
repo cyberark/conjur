@@ -30,12 +30,24 @@ _run_cucumber_tests() {
 
   echo "Start all services..."
 
-  docker-compose up --no-deps --no-recreate -d pg conjur "${services[@]}"
+  #docker-compose up --no-deps --no-recreate -d pg conjur "${services[@]}"
+  docker-compose up --no-deps --no-recreate -d pg conjur pg2 conjur2
   docker-compose exec -T conjur conjurctl wait --retries 180
+  docker-compose exec -T conjur2 conjurctl wait --retries 180
 
   echo "Create cucumber account..."
 
   docker-compose exec -T conjur conjurctl account create cucumber
+  docker-compose exec -T conjur2 conjurctl account create cucumber
+
+  echo "Docker PS after:"
+  docker-compose ps -a
+
+  docker network ls
+
+  #read -p "Press key to continue.. " -n1 -s
+  docker-compose ps -a
+
 
   # Stage 2: Prepare cucumber environment args
   # -----------------------------------------------------------
@@ -62,6 +74,7 @@ _run_cucumber_tests() {
   # entire arg, splits on the =, and uses the rhs as the value,
   env_var_flags+=(
     -e "CONJUR_AUTHN_API_KEY=$(_get_api_key)"
+    -e "CONJUR_AUTHN_API_KEY2=$(_get_api_key2)"
     -e "CUCUMBER_NETWORK=$(_find_cucumber_network)"
     -e "CUCUMBER_FILTER_TAGS=$CUCUMBER_FILTER_TAGS"
   )
@@ -84,16 +97,38 @@ _run_cucumber_tests() {
   # Stage 3: Run Cucumber
   # -----------------------------------------------------------
 
+  echo "CUCUMBER TAGS: ${cucumber_tags_arg}"
+  echo "CUCUMBER PROFILE: ${profile}"
+
   docker-compose run "${run_flags[@]}" "${env_var_flags[@]}" \
     cucumber -ec "\
       /oauth/keycloak/scripts/fetch_certificate &&
-      bundle exec cucumber \
-       --strict \
-       ${cucumber_tags_arg} \
-       -p \"$profile\" \
+      bundle exec parallel_test cucumber --type cucumber -n 2 \
+       -o '-p \"$profile\" --tags @api \
        --format json --out \"cucumber/$profile/cucumber_results.json\" \
        --format html --out \"cucumber/$profile/cucumber_results.html\" \
-       --format junit --out \"cucumber/$profile/features/reports\""
+       --format junit --out \"cucumber/$profile/features/reports\"'"
+
+
+      #bundle exec parallel_test cucumber --type cucumber -n 2 \
+       #-o '-p \"$profile\" --tags @api \
+       #--format json --out \"cucumber/$profile/cucumber_results.json\" \
+       #--format html --out \"cucumber/$profile/cucumber_results.html\" \
+       #--format junit --out \"cucumber/$profile/features/reports\"'"
+
+      #bundle exec parallel_test cucumber --type cucumber -n 2 \
+       #-o '--strict -p \"$profile\" ${cucumber_tags_arg} \
+       #--format json --out \"cucumber/$profile/cucumber_results.json\" \
+       #--format html --out \"cucumber/$profile/cucumber_results.html\" \
+       #--format junit --out \"cucumber/$profile/features/reports\"'"
+
+      #bundle exec cucumber \
+       #--strict \
+       #${cucumber_tags_arg} \
+       #-p \"$profile\" \
+       #--format json --out \"cucumber/$profile/cucumber_results.json\" \
+       #--format html --out \"cucumber/$profile/cucumber_results.html\" \
+       #--format junit --out \"cucumber/$profile/features/reports\""
 
   # Stage 4: Coverage results
   # -----------------------------------------------------------
@@ -103,6 +138,7 @@ _run_cucumber_tests() {
   # process to write the report. The container is kept alive using an infinite
   # sleep in the at_exit hook (see .simplecov).
   docker-compose exec -T conjur bash -c "pkill -f 'puma 5'"
+  docker-compose exec -T conjur2 bash -c "pkill -f 'puma 5'"
 }
 
 _get_api_key() {
@@ -110,13 +146,22 @@ _get_api_key() {
     role retrieve-key cucumber:user:admin | tr -d '\r'
 }
 
+_get_api_key2() {
+  docker-compose exec -T conjur2 conjurctl \
+    role retrieve-key cucumber:user:admin | tr -d '\r'
+}
+
 _find_cucumber_network() {
   local net
 
-  net=$(
-    docker inspect "$(docker-compose ps -q conjur)" \
-      --format '{{.HostConfig.NetworkMode}}'
-  )
+  declare -a docker_ids
+  while IFS=$'\n' read -r line; do docker_ids+=("$line"); done < <(docker-compose ps -q conjur)
+  while IFS=$'\n' read -r line; do docker_ids+=("$line"); done < <(docker-compose ps -q conjur2)
+
+  for id in "${docker_ids[@]}"; do
+    net=$(docker inspect "${id}" --format '{{.HostConfig.NetworkMode}}')
+    #echo "NET IS: ${net}" >&2
+  done
 
   docker network inspect "$net" \
     --format '{{range .IPAM.Config}}{{.Subnet}}{{end}}'
