@@ -73,7 +73,7 @@ class EdgeController < RestController
         unless variable.last_secret.nil?
           variableToReturn[:version] = variable.last_secret.version
           secret_value = variable.last_secret.value
-          variableToReturn[:value] =  accepts_base64 ? Base64.encode64(secret_value) : secret_value
+          variableToReturn[:value] =  accepts_base64 ? Base64.strict_encode64(secret_value) : secret_value
         end
         results  << variableToReturn
       end
