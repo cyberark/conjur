@@ -5,5 +5,14 @@ set -e
 # shellcheck disable=SC1091
 source "./shared.sh"
 
-additional_services='testdb'
-_run_cucumber_tests rotators "$additional_services"
+read -ra parallel_services <<< "$(get_parallel_services 'testdb')"
+additional_services=''
+for service in "${parallel_services[@]}"; do
+    if [[ "$additional_services" == '' ]]; then
+        additional_services+="${service}"
+    else
+        additional_services+=" ${service}"
+    fi
+done
+
+_run_cucumber_tests rotators "${additional_services}"
