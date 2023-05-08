@@ -23,6 +23,13 @@ ENDOFLINE
 export LOCAL_DEV_VOLUME
 
 function finish {
+  # shellcheck disable=SC2181
+  if [ $? -eq 0 ]; then
+    echo "Test PASSED!!!!"
+  else
+    echo "Test FAILED!!!! Displaying Kubernetes Resources"
+    dump_pod_logs
+  fi
   echo 'Finishing'
   echo '-----'
 
@@ -97,6 +104,30 @@ function finish {
   delete_image "$NGINX_TAG"
   set -e
 }
+
+function get_pod_names(){
+    # get a list of pods except for Conjur
+    kubectl get pods -o json \
+    |jq -r '.items[].metadata.name' | grep -v conjur-authn-k8s
+}
+
+function get_pod_container_names(){
+  pod="${1}"
+  kubectl  get "pod/${pod}" -o json \
+    |jq -r '.spec.containers[].name'
+}
+
+function dump_pod_logs(){
+  kubectl get pods
+  get_pod_names | while read -r podname; do
+    get_pod_container_names "${podname}" | while read -r container_name; do
+      echo -e "\n\n ======= Container Logs Pod:${podname} Container:${container_name} ======="
+      kubectl logs "${podname}" --container "${container_name}" || true
+      echo -e " ======= End of Container Logs Pod:${podname} Container:${container_name} ======="
+    done
+  done
+}
+
 trap finish EXIT
 
 export TEMPLATE_TAG=gke.
