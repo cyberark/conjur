@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
+## [0.0.10-cloud] - 2023-05-16
+### Added
+- Implementation health endpoint
+  https://ca-il-jira.il.cyber-ark.com:8443/browse/ONYX-37338
+
 ## [0.0.9-cloud] - 2023-05-09
 ### Added
 - Add an option to get all secrets from edge api with encode bse64, by Accept-Encoding header
