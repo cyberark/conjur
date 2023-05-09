@@ -304,7 +304,7 @@ Feature: Fetching secrets from edge endpoint
     When I successfully GET "/edge/secrets/cucumber?count=true&limit=2&offset=0"
     Then I receive a count of 6
 
-  @acceptance @smoke
+  @acceptance
   Scenario: Fetching special characters secret with edge host and Accept-Encoding base64 return 200 OK with json results
 
     Given I login as "some_user"
@@ -329,7 +329,7 @@ Feature: Fetching secrets from edge endpoint
   ]}
   """
 
-  @acceptance
+  @negative @acceptance
   Scenario: Fetching all secrets with edge host without Accept-Encoding base64 and special character secret, return 500
 
     Given I login as "some_user"
@@ -339,7 +339,7 @@ Feature: Fetching secrets from edge endpoint
     Then the HTTP response status code is 500
 
   @acceptance
-  Scenario: Fetching special character secret1 with edge host without Accept-Encoding base64 return 200 and json result with the bad behavior of backslash character
+  Scenario: Fetching special character secret1 with edge host without Accept-Encoding base64, return 200 and json result with escaping
 
     Given I login as "some_user"
     And I add the secret value "s1\" to the resource "cucumber:variable:data/secret1"
