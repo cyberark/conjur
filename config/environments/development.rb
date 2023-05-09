@@ -18,6 +18,7 @@ Rails.application.configure do
 
   config.hosts << "conjur"
   config.hosts << "conjur2"
+  config.hosts << "conjur3"
 
   #config.hosts.clear
 
