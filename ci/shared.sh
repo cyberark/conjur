@@ -109,17 +109,17 @@ _run_cucumber_tests() {
 
   echo "CUCUMBER TAGS: ${cucumber_tags_arg}"
   echo "CUCUMBER PROFILE: ${profile}"
-  cucumber_tests_dir="$(git rev-parse --show-toplevel)/cucumber"
 
   docker-compose run "${run_flags[@]}" "${env_var_flags[@]}" \
     cucumber -ec "\
       /oauth/keycloak/scripts/fetch_certificate &&
-      bundle exec parallel_test ./cucumber --type cucumber -n 2 \
-       -o '-p \"$profile\" ${cucumber_tags_arg} \
+      bundle exec cucumber \
+       --strict \
+       ${cucumber_tags_arg} \
+       -p \"$profile\" \
        --format json --out \"cucumber/$profile/cucumber_results.json\" \
        --format html --out \"cucumber/$profile/cucumber_results.html\" \
-       --format junit --out \"cucumber/$profile/features/reports\"'"
-
+       --format junit --out \"cucumber/$profile/features/reports\""
 
       #bundle exec parallel_test cucumber --type cucumber -n 2 \
        #-o '-p \"$profile\" --tags @api \
