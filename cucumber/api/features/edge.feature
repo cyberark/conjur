@@ -78,109 +78,6 @@ Feature: Fetching secrets from edge endpoint
     When I GET "/edge/slosilo_keys/cucumber2"
     Then the HTTP response status code is 403
 
-
-  # Hosts
-  #######
-
-  @acceptance @smoke
-  Scenario: Fetching hosts with edge host return 200 OK
-
-    Given I login as "host/edge/edge-abcd1234567890/edge-host-abcd1234567890"
-    When I GET "/edge/hosts/cucumber"
-    Then the HTTP response status code is 200
-    And the JSON response at "hosts" should have 5 entries
-    And the JSON response should not have "database"
-    And the JSON response should not have "other_host"
-
-  @acceptance
-  Scenario: Fetching hosts with parameters
-
-    Given I login as "host/edge/edge-abcd1234567890/edge-host-abcd1234567890"
-    When I GET "/edge/hosts/cucumber" with parameters:
-    """
-    limit: 2
-    offset: 0
-    """
-    Then the HTTP response status code is 200
-    And the JSON at "hosts" should have 2 entries
-    When I GET "/edge/hosts/cucumber" with parameters:
-    """
-    limit: 10
-    offset: 2
-    """
-    Then the HTTP response status code is 200
-    And the JSON at "hosts" should have 3 entries
-    Given I login as "host/edge/edge-abcd1234567890/edge-host-abcd1234567890"
-    When I GET "/edge/hosts/cucumber" with parameters:
-    """
-    offset: 0
-    """
-    Then the HTTP response status code is 200
-    And the JSON at "hosts" should have 5 entries
-    When I GET "/edge/hosts/cucumber" with parameters:
-    """
-    offset: 2
-    """
-    Then the HTTP response status code is 200
-    And the JSON at "hosts" should have 3 entries
-    When I GET "/edge/hosts/cucumber" with parameters:
-    """
-    limit: 2
-    """
-    Then the HTTP response status code is 200
-    And the JSON at "hosts" should have 2 entries
-    When I GET "/edge/hosts/cucumber" with parameters:
-    """
-    limit: 5
-    """
-    Then the HTTP response status code is 200
-    And the JSON at "hosts" should have 5 entries
-    When I GET "/edge/hosts/cucumber" with parameters:
-    """
-    limit: 2000
-    """
-    Then the HTTP response status code is 200
-    And the JSON at "hosts" should have 5 entries
-    When I GET "/edge/hosts/cucumber" with parameters:
-    """
-    limit: 0
-    """
-    Then the HTTP response status code is 422
-    When I GET "/edge/hosts/cucumber" with parameters:
-    """
-    limit: 2001
-    """
-    Then the HTTP response status code is 422
-
-  @acceptance
-  Scenario: Fetching hosts count
-
-    Given I login as "host/edge/edge-abcd1234567890/edge-host-abcd1234567890"
-    When I successfully GET "/edge/hosts/cucumber?count=true"
-    Then I receive a count of 5
-
-  @acceptance
-  Scenario: Fetching hosts count with limit has no effect
-
-    Given I login as "host/edge/edge-abcd1234567890/edge-host-abcd1234567890"
-    When I successfully GET "/edge/hosts/cucumber?count=true&limit=2&offset=0"
-    Then I receive a count of 5
-
-
-  @negative @acceptance
-  Scenario: Fetching hosts with non edge host return 403
-
-    Given I login as "some_user"
-    When I GET "/edge/hosts/cucumber"
-    Then the HTTP response status code is 403
-    Given I login as "host/data/some_host1"
-    When I GET "/edge/hosts/cucumber"
-    Then the HTTP response status code is 403
-    Given I am the super-user
-    When I GET "/edge/hosts/cucumber"
-    Then the HTTP response status code is 403
-
-
 # Secrets
   #########
 
@@ -464,4 +361,107 @@ Feature: Fetching secrets from edge endpoint
       }
     ]}
     """
+
+    
+  # Hosts
+  #######
+
+  @acceptance @smoke
+  Scenario: Fetching hosts with edge host return 200 OK
+
+    Given I login as "host/edge/edge-abcd1234567890/edge-host-abcd1234567890"
+    When I GET "/edge/hosts/cucumber"
+    Then the HTTP response status code is 200
+    And the JSON response at "hosts" should have 5 entries
+    And the JSON response should not have "database"
+    And the JSON response should not have "other_host"
+
+  @acceptance
+  Scenario: Fetching hosts with parameters
+
+    Given I login as "host/edge/edge-abcd1234567890/edge-host-abcd1234567890"
+    When I GET "/edge/hosts/cucumber" with parameters:
+    """
+    limit: 2
+    offset: 0
+    """
+    Then the HTTP response status code is 200
+    And the JSON at "hosts" should have 2 entries
+    When I GET "/edge/hosts/cucumber" with parameters:
+    """
+    limit: 10
+    offset: 2
+    """
+    Then the HTTP response status code is 200
+    And the JSON at "hosts" should have 3 entries
+    Given I login as "host/edge/edge-abcd1234567890/edge-host-abcd1234567890"
+    When I GET "/edge/hosts/cucumber" with parameters:
+    """
+    offset: 0
+    """
+    Then the HTTP response status code is 200
+    And the JSON at "hosts" should have 5 entries
+    When I GET "/edge/hosts/cucumber" with parameters:
+    """
+    offset: 2
+    """
+    Then the HTTP response status code is 200
+    And the JSON at "hosts" should have 3 entries
+    When I GET "/edge/hosts/cucumber" with parameters:
+    """
+    limit: 2
+    """
+    Then the HTTP response status code is 200
+    And the JSON at "hosts" should have 2 entries
+    When I GET "/edge/hosts/cucumber" with parameters:
+    """
+    limit: 5
+    """
+    Then the HTTP response status code is 200
+    And the JSON at "hosts" should have 5 entries
+    When I GET "/edge/hosts/cucumber" with parameters:
+    """
+    limit: 2000
+    """
+    Then the HTTP response status code is 200
+    And the JSON at "hosts" should have 5 entries
+    When I GET "/edge/hosts/cucumber" with parameters:
+    """
+    limit: 0
+    """
+    Then the HTTP response status code is 422
+    When I GET "/edge/hosts/cucumber" with parameters:
+    """
+    limit: 2001
+    """
+    Then the HTTP response status code is 422
+
+  @acceptance
+  Scenario: Fetching hosts count
+
+    Given I login as "host/edge/edge-abcd1234567890/edge-host-abcd1234567890"
+    When I successfully GET "/edge/hosts/cucumber?count=true"
+    Then I receive a count of 5
+
+  @acceptance
+  Scenario: Fetching hosts count with limit has no effect
+
+    Given I login as "host/edge/edge-abcd1234567890/edge-host-abcd1234567890"
+    When I successfully GET "/edge/hosts/cucumber?count=true&limit=2&offset=0"
+    Then I receive a count of 5
+
+
+  @negative @acceptance
+  Scenario: Fetching hosts with non edge host return 403
+
+    Given I login as "some_user"
+    When I GET "/edge/hosts/cucumber"
+    Then the HTTP response status code is 403
+    Given I login as "host/data/some_host1"
+    When I GET "/edge/hosts/cucumber"
+    Then the HTTP response status code is 403
+    Given I am the super-user
+    When I GET "/edge/hosts/cucumber"
+    Then the HTTP response status code is 403
+
 
