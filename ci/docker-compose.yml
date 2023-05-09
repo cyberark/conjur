@@ -92,10 +92,10 @@ services:
       REQUIRE_SIMPLECOV: "true"
       CONJUR_LOG_LEVEL: debug
       CONJUR_AUTHENTICATORS: authn-ldap/test,authn-ldap/secure,authn-oidc/keycloak,authn-oidc,authn-k8s/test,authn-azure/prod,authn-gcp,authn-jwt/raw,authn-jwt/keycloak,authn-oidc/keycloak2,authn-oidc/okta-2
-      LDAP_URI: ldap://ldap-server:389
-      LDAP_BASE: dc=conjur,dc=net
+      LDAP_URI: ldap://ldap-server2:389
+      LDAP_BASE: dc=conjur2,dc=net
       LDAP_FILTER: '(uid=%s)'
-      LDAP_BINDDN: cn=admin,dc=conjur,dc=net
+      LDAP_BINDDN: cn=admin,dc=conjur2,dc=net
       LDAP_BINDPW: ldapsecret
       WEB_CONCURRENCY: 0
       RAILS_MAX_THREADS: 10
@@ -111,7 +111,7 @@ services:
       - "80"
     links:
       - pg2
-      - ldap-server
+      - ldap-server2
       - keycloak
 
   cucumber:
@@ -154,6 +154,23 @@ services:
     environment:
       LDAP_ORGANISATION: CyberArk
       LDAP_DOMAIN: conjur.net
+      LDAP_ADMIN_PASSWORD: ldapsecret
+      LDAP_TLS_DH_PARAM_FILENAME: "dhparam.pem"
+      LDAP_TLS_CA_CRT_FILENAME: "ca-chain.cert.pem"
+      LDAP_TLS_CRT_FILENAME: "ldap-server.cert.pem"
+      LDAP_TLS_KEY_FILENAME: "ldap-server.key.pem"
+      LDAP_TLS_VERIFY_CLIENT: try
+    volumes:
+      - ./test_suites/authenticators_ldap/ldap-data:/container/service/slapd/assets/config/bootstrap/ldif/custom
+      - ./ldap-certs:/container/service/slapd/assets/certs:ro
+
+  ldap-server2:
+    image: osixia/openldap
+    command: --copy-service --loglevel debug
+    hostname: ldap-server2
+    environment:
+      LDAP_ORGANISATION: CyberArk
+      LDAP_DOMAIN: conjur2.net
       LDAP_ADMIN_PASSWORD: ldapsecret
       LDAP_TLS_DH_PARAM_FILENAME: "dhparam.pem"
       LDAP_TLS_CA_CRT_FILENAME: "ca-chain.cert.pem"

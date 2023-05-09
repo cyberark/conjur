@@ -13,7 +13,13 @@ Rails.application.configure do
   # Whitelist conjur hostname for tests
   # For more information, refer to:
   # https://guides.rubyonrails.org/configuring.html#actiondispatch-hostauthorization
+
+  #config.hosts << /conjur[0-9]/
+
   config.hosts << "conjur"
+  config.hosts << "conjur2"
+
+  #config.hosts.clear
 
   # eager_load needed to make authentication work without the hacky
   # loading code...
