@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 class EdgeController < RestController
+  include Cryptography
 
   def slosilo_keys
     logger.info(LogMessages::Endpoints::EndpointRequested.new("slosilo_keys"))
@@ -123,11 +124,6 @@ class EdgeController < RestController
     end
   end
 
-  def hmac_api_key(pass, salt)
-    iter = 20
-    key_len = 32
-    OpenSSL::KDF.pbkdf2_hmac(pass, salt: salt, iterations: iter, length: key_len, hash: "sha256")
-  end
 
   private
   def validate_scope(limit, offset)
