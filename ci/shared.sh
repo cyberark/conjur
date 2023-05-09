@@ -33,16 +33,16 @@ _run_cucumber_tests() {
   #docker-compose up --no-deps --no-recreate -d pg conjur "${services[@]}"
   docker-compose up --no-deps --no-recreate -d pg conjur
   docker-compose up --no-deps --no-recreate -d pg2 conjur2
-  docker-compose up --no-deps --no-recreate -d pg3 conjur3
+  #docker-compose up --no-deps --no-recreate -d pg3 conjur3
   docker-compose exec -T conjur2 conjurctl wait --retries 180
   docker-compose exec -T conjur conjurctl wait --retries 180
-  docker-compose exec -T conjur3 conjurctl wait --retries 180
+  #docker-compose exec -T conjur3 conjurctl wait --retries 180
 
   echo "Create cucumber account..."
 
   docker-compose exec -T conjur2 conjurctl account create cucumber
   docker-compose exec -T conjur conjurctl account create cucumber
-  docker-compose exec -T conjur3 conjurctl account create cucumber
+  #docker-compose exec -T conjur3 conjurctl account create cucumber
 
   echo "Docker PS after:"
   docker-compose ps -a
@@ -81,7 +81,7 @@ _run_cucumber_tests() {
   env_var_flags+=(
     -e "CONJUR_AUTHN_API_KEY=$(_get_api_key)"
     -e "CONJUR_AUTHN_API_KEY2=$(_get_api_key2)"
-    -e "CONJUR_AUTHN_API_KEY3=$(_get_api_key3)"
+  #  -e "CONJUR_AUTHN_API_KEY3=$(_get_api_key3)"
     -e "CUCUMBER_NETWORK=$(_find_cucumber_network)"
     -e "CUCUMBER_FILTER_TAGS=$CUCUMBER_FILTER_TAGS"
   )
@@ -114,7 +114,7 @@ _run_cucumber_tests() {
   docker-compose run "${run_flags[@]}" "${env_var_flags[@]}" \
     cucumber -ec "\
       /oauth/keycloak/scripts/fetch_certificate &&
-      bundle exec parallel_test ./cucumber --type cucumber -n 3 \
+      bundle exec parallel_test ./cucumber --type cucumber -n 2 \
        -o '-p \"$profile\" ${cucumber_tags_arg} \
        --format json --out \"cucumber/$profile/cucumber_results.json\" \
        --format html --out \"cucumber/$profile/cucumber_results.html\" \
@@ -150,7 +150,7 @@ _run_cucumber_tests() {
   # sleep in the at_exit hook (see .simplecov).
   docker-compose exec -T conjur2 bash -c "pkill -f 'puma 5'"
   docker-compose exec -T conjur bash -c "pkill -f 'puma 5'"
-  docker-compose exec -T conjur3 bash -c "pkill -f 'puma 5'"
+  #docker-compose exec -T conjur3 bash -c "pkill -f 'puma 5'"
 }
 
 _get_api_key() {
@@ -174,7 +174,7 @@ _find_cucumber_network() {
   declare -a docker_ids
   while IFS=$'\n' read -r line; do docker_ids+=("$line"); done < <(docker-compose ps -q conjur)
   while IFS=$'\n' read -r line; do docker_ids+=("$line"); done < <(docker-compose ps -q conjur2)
-  while IFS=$'\n' read -r line; do docker_ids+=("$line"); done < <(docker-compose ps -q conjur3)
+  #while IFS=$'\n' read -r line; do docker_ids+=("$line"); done < <(docker-compose ps -q conjur3)
 
   for id in "${docker_ids[@]}"; do
     net=$(docker inspect "${id}" --format '{{.HostConfig.NetworkMode}}')
