@@ -79,7 +79,7 @@ Feature: Fetching secrets from edge endpoint
     Then the HTTP response status code is 403
 
 
-# Secrets
+  # Secrets
   #########
 
   @acceptance @smoke
