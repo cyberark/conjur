@@ -304,6 +304,64 @@ Feature: Fetching secrets from edge endpoint
     When I successfully GET "/edge/secrets/cucumber?count=true&limit=2&offset=0"
     Then I receive a count of 6
 
+  @acceptance @smoke
+  Scenario: Fetching special characters secret with edge host and Accept-Encoding base64 return 200 OK with json results
+
+    Given I login as "some_user"
+    And I add the secret value "s1±\" to the resource "cucumber:variable:data/secret1"
+    And I login as "host/edge/edge-abcd1234567890/edge-host-abcd1234567890"
+    And I set the "Accept-Encoding" header to "base64"
+    When I GET "/edge/secrets/cucumber" with parameters:
+  """
+  limit: 1
+  """
+    Then the HTTP response status code is 200
+    And the JSON should be:
+  """
+  {"secrets":[
+    {
+      "id": "cucumber:variable:data/secret1",
+      "owner": "cucumber:policy:data",
+      "permissions": [],
+      "value": "czHCsVw=",
+      "version": 2
+    }
+  ]}
+  """
+
+  @acceptance
+  Scenario: Fetching all secrets with edge host without Accept-Encoding base64 and special character secret, return 500
+
+    Given I login as "some_user"
+    And I add the secret value "s1±" to the resource "cucumber:variable:data/secret1"
+    And I login as "host/edge/edge-abcd1234567890/edge-host-abcd1234567890"
+    When I GET "/edge/secrets/cucumber"
+    Then the HTTP response status code is 500
+
+  @acceptance
+  Scenario: Fetching special character secret1 with edge host without Accept-Encoding base64 return 200 and json result with the bad behavior of backslash character
+
+    Given I login as "some_user"
+    And I add the secret value "s1\" to the resource "cucumber:variable:data/secret1"
+    And I login as "host/edge/edge-abcd1234567890/edge-host-abcd1234567890"
+    When I GET "/edge/secrets/cucumber" with parameters:
+  """
+  limit: 1
+  """
+    Then the HTTP response status code is 200
+    And the JSON should be:
+  """
+  {"secrets":[
+    {
+      "id": "cucumber:variable:data/secret1",
+      "owner": "cucumber:policy:data",
+      "permissions": [],
+      "value": "s1\\",
+      "version": 2
+    }
+  ]}
+  """
+
   # Hosts
   #######
 
