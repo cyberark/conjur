@@ -62,6 +62,10 @@ class EdgeController < RestController
     else
       results = []
       variables = scope.eager(:permissions).eager(:secrets).all
+      accepts_base64 = String(request.headers['Accept-Encoding']).casecmp?('base64')
+      if accepts_base64
+        response.set_header("Content-Encoding", "base64")
+      end
       variables.each do |variable|
         variableToReturn = {}
         variableToReturn[:id] = variable[:resource_id]
@@ -69,7 +73,8 @@ class EdgeController < RestController
         variableToReturn[:permissions] =  variable.permissions.select{|h| h[:privilege].eql?('execute')}
         unless variable.last_secret.nil?
           variableToReturn[:version] = variable.last_secret.version
-          variableToReturn[:value] = variable.last_secret.value
+          secret_value = variable.last_secret.value
+          variableToReturn[:value] =  accepts_base64 ? Base64.strict_encode64(secret_value) : secret_value
         end
         results  << variableToReturn
       end
