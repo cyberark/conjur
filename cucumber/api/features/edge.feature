@@ -78,6 +78,7 @@ Feature: Fetching secrets from edge endpoint
     When I GET "/edge/slosilo_keys/cucumber2"
     Then the HTTP response status code is 403
 
+
 # Secrets
   #########
 
@@ -362,7 +363,7 @@ Feature: Fetching secrets from edge endpoint
     ]}
     """
 
-    
+
   # Hosts
   #######
 
@@ -463,5 +464,3 @@ Feature: Fetching secrets from edge endpoint
     Given I am the super-user
     When I GET "/edge/hosts/cucumber"
     Then the HTTP response status code is 403
-
-
