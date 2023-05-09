@@ -5,6 +5,7 @@ set -e
 # shellcheck disable=SC1091
 source "./shared.sh"
 
+echo "NRK2 DOES THIS EVER RUN?" >&2
 start_ldap_server
 
 additional_services='ldap-server'

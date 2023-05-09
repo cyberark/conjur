@@ -7,5 +7,5 @@ require 'config/environment'
 ENV['RAILS_ENV'] ||= 'test'
 ENV['CONJUR_LOG_LEVEL'] ||= 'debug'
 
-Conjur.configuration.appliance_url = ENV['CONJUR_APPLIANCE_URL'] || 'http://conjur'
+Conjur.configuration.appliance_url = ENV['CONJUR_APPLIANCE_URL'] || "http://conjur#{ENV['TEST_ENV_NUMBER']}"
 Conjur.configuration.account = ENV['CONJUR_ACCOUNT'] || 'cucumber'

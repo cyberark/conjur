@@ -31,14 +31,14 @@ _run_cucumber_tests() {
   echo "Start all services..."
 
   #docker-compose up --no-deps --no-recreate -d pg conjur "${services[@]}"
-  docker-compose up --no-deps --no-recreate -d pg conjur pg2 conjur2
-  docker-compose exec -T conjur conjurctl wait --retries 180
+  docker-compose up --no-deps --no-recreate -d pg2 conjur2 pg conjur
   docker-compose exec -T conjur2 conjurctl wait --retries 180
+  docker-compose exec -T conjur conjurctl wait --retries 180
 
   echo "Create cucumber account..."
 
-  docker-compose exec -T conjur conjurctl account create cucumber
   docker-compose exec -T conjur2 conjurctl account create cucumber
+  docker-compose exec -T conjur conjurctl account create cucumber
 
   echo "Docker PS after:"
   docker-compose ps -a
@@ -60,12 +60,14 @@ _run_cucumber_tests() {
   env_vars=()
   if [[ -n "$env_arg_fn" ]]; then
     "$env_arg_fn" env_vars
+    echo "ENV_ARG_FN: ${env_arg_fn}" >&2
   fi
 
   # Add the -e flags before each of the var=val items.
   env_var_flags=()
   for item in "${env_vars[@]}"; do
     env_var_flags+=(-e "$item")
+    echo "ENV_VAR_FLAGS: ${env_var_flags[*]}" >&2
   done
 
   # Add the cucumber env vars that we always want to send.
@@ -79,11 +81,14 @@ _run_cucumber_tests() {
     -e "CUCUMBER_FILTER_TAGS=$CUCUMBER_FILTER_TAGS"
   )
 
+  echo "ENV_VAR_FLAGS2: ${env_var_flags[*]}" >&2
+
   # If there's no tty (e.g. we're running as a Jenkins job), pass -T to
   # docker-compose.
   run_flags=(--no-deps --rm)
   if ! tty -s; then
     run_flags+=(-T)
+    echo "RUN_FLAGS: ${run_flags[*]}" >&2
   fi
 
   # THE CUCUMBER_FILTER_TAGS environment variable is not natively
@@ -137,8 +142,8 @@ _run_cucumber_tests() {
   # killed before ruby, the report doesn't get written. So here we kill the
   # process to write the report. The container is kept alive using an infinite
   # sleep in the at_exit hook (see .simplecov).
-  docker-compose exec -T conjur bash -c "pkill -f 'puma 5'"
   docker-compose exec -T conjur2 bash -c "pkill -f 'puma 5'"
+  docker-compose exec -T conjur bash -c "pkill -f 'puma 5'"
 }
 
 _get_api_key() {
@@ -160,9 +165,10 @@ _find_cucumber_network() {
 
   for id in "${docker_ids[@]}"; do
     net=$(docker inspect "${id}" --format '{{.HostConfig.NetworkMode}}')
-    #echo "NET IS: ${net}" >&2
+    echo "NET IS: ${net}" >&2
   done
 
+  #read -p "Press key to continue.. " -n1 -s
   docker network inspect "$net" \
     --format '{{range .IPAM.Config}}{{.Subnet}}{{end}}'
 }

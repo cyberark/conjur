@@ -36,7 +36,8 @@ function _hydrate_all_env_args() {
 }
 
 function main() {
-  docker-compose up --no-deps -d pg conjur keycloak
+  echo "NRK DOES THIS EVER RUN?" >&2
+  docker-compose up --no-deps -d pg conjur pg2 conjur2 keycloak
 
   # We also run an ldap-server container for testing the OIDC & LDAP combined
   # use-case.  We can't run this use-case in a separate Jenkins step because
