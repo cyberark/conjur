@@ -41,8 +41,8 @@ Feature: Fetching secrets from edge endpoint with special characters
   Scenario: Fetching all secrets with edge host and Accept-Encoding base64 return 200 OK with json results
 
     Given I login as "host/edge/edge-abcd1234567890/edge-host-abcd1234567890"
-    When I GET "/edge/secrets/cucumber"
     And I set the "Accept-Encoding" header to "base64"
+    When I GET "/edge/secrets/cucumber"
     Then the HTTP response status code is 200
     And the JSON should be:
     """
