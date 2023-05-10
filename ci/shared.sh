@@ -117,8 +117,8 @@ _run_cucumber_tests() {
   docker-compose run "${run_flags[@]}" "${env_var_flags[@]}" \
     cucumber -ec "\
       /oauth/keycloak/scripts/fetch_certificate &&
-      bundle exec parallel_test . --type cucumber -n 2 \
-       -o '--strict ${cucumber_tags_arg} -p \"${profile}\" \
+      bundle exec parallel_cucumber . -n 2 \
+       -o '--strict --tags @${profile} -p ${profile} \
        --format json --out \"cucumber/$profile/cucumber_results.json\" \
        --format html --out \"cucumber/$profile/cucumber_results.html\" \
        --format junit --out \"cucumber/$profile/features/reports\"'"

@@ -7,6 +7,18 @@ Before('@k8s_skip') do
 end
 
 Before do
+  ENV['CONJUR_APPLIANCE_URL'] = "http://conjur#{ENV['TEST_ENV_NUMBER']}"
+  ENV['DATABASE_URL'] = "postgres://postgres@pg#{ENV['TEST_ENV_NUMBER']}/postgres"
+
+  api_string = "CONJUR_AUTHN_API_KEY#{ENV['TEST_ENV_NUMBER']}"
+  ENV['CONJUR_AUTHN_API_KEY'] = ENV[api_string]
+
+  puts "********"
+  puts "RUNNING ON PROCESS #{ENV['TEST_ENV_NUMBER']}:"
+  puts "CONJUR_URL: #{ENV['CONJUR_APPLIANCE_URL']}"
+  puts "DATABASE: #{ENV['DATABASE_URL']}"
+  puts "API KEY: #{ENV['CONJUR_AUTHN_API_KEY']}"
+  puts "********"
   # Erase the certificate and cert injection logs from each container.
   kube_client.get_pods(namespace: namespace).select{|p| p.metadata.namespace == namespace}.each do |pod|
     next unless (ready_status = pod.status.conditions.find { |c| c.type == "Ready" })

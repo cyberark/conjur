@@ -5,6 +5,18 @@
 # Prior to this hook, our tests had hidden coupling.  This ensures each test is
 # run independently.
 Before do
+  ENV['CONJUR_APPLIANCE_URL'] = "http://conjur#{ENV['TEST_ENV_NUMBER']}"
+  ENV['DATABASE_URL'] = "postgres://postgres@pg#{ENV['TEST_ENV_NUMBER']}/postgres"
+
+  api_string = "CONJUR_AUTHN_API_KEY#{ENV['TEST_ENV_NUMBER']}"
+  ENV['CONJUR_AUTHN_API_KEY'] = ENV[api_string]
+
+  puts "********"
+  puts "RUNNING ON PROCESS #{ENV['TEST_ENV_NUMBER']}:"
+  puts "CONJUR_URL: #{ENV['CONJUR_APPLIANCE_URL']}"
+  puts "DATABASE: #{ENV['DATABASE_URL']}"
+  puts "API KEY: #{ENV['CONJUR_AUTHN_API_KEY']}"
+  puts "********"
   @user_index = 0
 
   Role.truncate(cascade: true)

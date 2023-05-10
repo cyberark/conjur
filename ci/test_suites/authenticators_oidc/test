@@ -36,7 +36,6 @@ function _hydrate_all_env_args() {
 }
 
 function main() {
-  echo "NRK DOES THIS EVER RUN?" >&2
   docker-compose up --no-deps -d pg conjur pg2 conjur2 keycloak
 
   # We also run an ldap-server container for testing the OIDC & LDAP combined
