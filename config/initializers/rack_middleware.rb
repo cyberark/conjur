@@ -19,7 +19,8 @@ Rails.application.configure do
                           %r{^/host_factories/hosts$},
                           %r{^/assets/.*},
                           %r{^/authenticators$},
-                          %r{^/$}
+                          %r{^/$},
+                          %r{^/health$}
                         ])
 
   # We want to ensure requests have an expected content type

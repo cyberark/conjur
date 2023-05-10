@@ -14,6 +14,7 @@ Rails.application.routes.draw do
   scope format: false do
     get '/' => 'status#index'
     get '/whoami' => 'status#whoami'
+    get '/health' => 'health#health'
     get '/authenticators' => 'authenticate#index'
 
     constraints id: /[^\/?]+/ do
