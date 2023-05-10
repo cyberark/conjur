@@ -33,8 +33,10 @@ _run_cucumber_tests() {
   echo "COMPOSE CMD: docker-compose up --no-deps --no-recreate -d pg conjur pg2 conjur2 ${services[*]}" >&2
   #docker-compose up --no-deps --no-recreate -d pg conjur "${services[@]}"
   if [[ -z "${services[*]}" ]]; then
+    echo "NRK"
     docker-compose up --no-deps --no-recreate -d pg conjur pg2 conjur2
   else
+    echo "NRK2"
     docker-compose up --no-deps --no-recreate -d pg conjur pg2 conjur2 "${services[@]}"
   fi
   #docker-compose up --no-deps --no-recreate -d pg3 conjur3
