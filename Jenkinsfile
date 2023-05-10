@@ -357,12 +357,25 @@ pipeline {
         stage('Run environment tests in parallel') {
           parallel {
             stage('Standard agent tests') {
+
               environment {
                 CUCUMBER_FILTER_TAGS = "${params.CUCUMBER_FILTER_TAGS}"
               }
 
               steps {
                 runConjurTests(params.RUN_ONLY)
+              }
+            }
+
+            stage('Standard agent2 tests') {
+
+              agent { label 'executor-v2' }
+              environment {
+                CUCUMBER_FILTER_TAGS = "${params.CUCUMBER_FILTER_TAGS}"
+              }
+
+              steps {
+                runConjurTests2(params.RUN_ONLY)
               }
             }
 
@@ -766,48 +779,98 @@ def testShouldRun(run_only_str, test) {
 
 // "run_only_str" is a space-separated string specifying the subset of tests to
 // run.  If it's empty, all tests are run.
-def runConjurTests(run_only_str) {
+def runConjurTests2(run_only_str) {
 
   all_tests = [
     "authenticators_config": [
       "Authenticators Config - ${env.STAGE_NAME}": {
-        sh 'sleep $((1 + RANDOM % 15))'
+        sh 'sleep $((10 + RANDOM % 15))'
         sh 'ci/test authenticators_config'
-      }
-    ],
-    "authenticators_status": [
-      "Authenticators Status - ${env.STAGE_NAME}": {
-        sh 'sleep $((1 + RANDOM % 15))'
-        sh 'ci/test authenticators_status'
       }
     ],
     "authenticators_k8s": [
       "K8s Authenticator - ${env.STAGE_NAME}": {
-        sh 'sleep $((1 + RANDOM % 15))'
+        sh 'sleep $((10 + RANDOM % 15))'
         sh 'ci/test authenticators_k8s'
+      }
+    ],
+    "authenticators_jwt": [
+      "JWT Authenticator - ${env.STAGE_NAME}": {
+        sh 'sleep $((10 + RANDOM % 15))'
+        sh 'ci/test authenticators_jwt'
+      }
+    ],
+    "rotators": [
+      "Rotators - ${env.STAGE_NAME}": {
+        sh 'sleep $((10 + RANDOM % 15))'
+        sh 'ci/test rotators'
+      }
+    ],
+    "rspec_audit": [
+      "Audit - ${env.STAGE_NAME}": {
+        sh 'sleep $((10 + RANDOM % 15))'
+        sh 'ci/test rspec_audit'
+      }
+    ]
+  ]
+
+  // Filter for the tests we want run, if requested.
+  parallel_tests = all_tests
+  tests = run_only_str.split()
+
+  // TODO: Find a way to exit without failing in Jenkins
+
+  if (tests.size() > 0) {
+    for ( test in tests ) {
+      def x = parallel_tests.any{ it.key == test }?.value
+      if(x) {
+        break
+      } else {
+        return true
+      }
+    }
+    parallel_tests = all_tests.subMap(tests)
+  }
+
+  // Create the parallel pipeline.
+  //
+  // Since + merges two maps together, sum() combines the individual values of
+  // parallel_tests into one giant map whose keys are the stage names and
+  // whose values are the blocks to be run.
+
+  script {
+    parallel(
+      parallel_tests.values().sum(),
+    )
+  }
+}
+
+// "run_only_str" is a space-separated string specifying the subset of tests to
+// run.  If it's empty, all tests are run.
+def runConjurTests(run_only_str) {
+
+  all_tests = [
+    "authenticators_status": [
+      "Authenticators Status - ${env.STAGE_NAME}": {
+        sh 'sleep $((10 + RANDOM % 15))'
+        sh 'ci/test authenticators_status'
       }
     ],
     "authenticators_ldap": [
       "LDAP Authenticator - ${env.STAGE_NAME}": {
-        sh 'sleep $((1 + RANDOM % 15))'
+        sh 'sleep $((10 + RANDOM % 15))'
         sh 'ci/test authenticators_ldap'
       }
     ],
     "authenticators_oidc": [
       "OIDC Authenticator - ${env.STAGE_NAME}": {
-          sh 'sleep $((1 + RANDOM % 15))'
+          sh 'sleep $((10 + RANDOM % 15))'
           sh 'summon -f ./ci/test_suites/authenticators_oidc/secrets.yml -e ci ci/test authenticators_oidc'
-      }
-    ],
-    "authenticators_jwt": [
-      "JWT Authenticator - ${env.STAGE_NAME}": {
-        sh 'sleep $((1 + RANDOM % 15))'
-        sh 'ci/test authenticators_jwt'
       }
     ],
     "policy": [
       "Policy - ${env.STAGE_NAME}": {
-        sh 'sleep $((1 + RANDOM % 15))'
+        sh 'sleep $((10 + RANDOM % 15))'
         sh 'ci/test policy'
       }
     ],
@@ -816,21 +879,9 @@ def runConjurTests(run_only_str) {
         sh 'ci/test api'
       }
     ],
-    "rotators": [
-      "Rotators - ${env.STAGE_NAME}": {
-        sh 'sleep $((1 + RANDOM % 15))'
-        sh 'ci/test rotators'
-      }
-    ],
-    "rspec_audit": [
-      "Audit - ${env.STAGE_NAME}": {
-        sh 'sleep $((1 + RANDOM % 15))'
-        sh 'ci/test rspec_audit'
-      }
-    ],
     "policy_parser": [
       "Policy Parser - ${env.STAGE_NAME}": {
-        sh 'sleep $((1 + RANDOM % 15))'
+        sh 'sleep $((10 + RANDOM % 15))'
         sh 'cd gems/policy-parser && ./test.sh'
       }
     ]
@@ -849,9 +900,10 @@ def runConjurTests(run_only_str) {
   // Since + merges two maps together, sum() combines the individual values of
   // parallel_tests into one giant map whose keys are the stage names and
   // whose values are the blocks to be run.
+
   script {
     parallel(
-      parallel_tests.values().sum()
+      parallel_tests.values().sum(),
     )
   }
 }
