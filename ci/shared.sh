@@ -31,8 +31,7 @@ _run_cucumber_tests() {
   echo "Start all services..."
 
   #docker-compose up --no-deps --no-recreate -d pg conjur "${services[@]}"
-  docker-compose up --no-deps --no-recreate -d pg conjur
-  docker-compose up --no-deps --no-recreate -d pg2 conjur2
+  docker-compose up --no-deps --no-recreate -d pg conjur pg2 conjur2 "${services[@]}"
   #docker-compose up --no-deps --no-recreate -d pg3 conjur3
   docker-compose exec -T conjur conjurctl wait --retries 180
   docker-compose exec -T conjur2 conjurctl wait --retries 180
@@ -64,14 +63,12 @@ _run_cucumber_tests() {
   env_vars=()
   if [[ -n "$env_arg_fn" ]]; then
     "$env_arg_fn" env_vars
-    echo "ENV_ARG_FN: ${env_arg_fn}" >&2
   fi
 
   # Add the -e flags before each of the var=val items.
   env_var_flags=()
   for item in "${env_vars[@]}"; do
     env_var_flags+=(-e "$item")
-    echo "ENV_VAR_FLAGS: ${env_var_flags[*]}" >&2
   done
 
   # Add the cucumber env vars that we always want to send.
@@ -105,10 +102,11 @@ _run_cucumber_tests() {
   # Stage 3: Run Cucumber
   # -----------------------------------------------------------
 
+  echo "ENV_ARG_FN: ${env_arg_fn}" >&2
   echo "RUN_FLAGS: ${run_flags[*]}" >&2
-  echo "ENV_VAR_FLAGS2: ${env_var_flags[*]}" >&2
-  echo "CUCUMBER TAGS: ${cucumber_tags_arg}"
-  echo "CUCUMBER PROFILE: ${profile}"
+  echo "ENV_VAR_FLAGS: ${env_var_flags[*]}" >&2
+  echo "CUCUMBER TAGS: ${cucumber_tags_arg}" >&2
+  echo "CUCUMBER PROFILE: ${profile}" >&2
 
 
   docker-compose run "${run_flags[@]}" "${env_var_flags[@]}" \
