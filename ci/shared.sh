@@ -13,7 +13,10 @@ _run_cucumber_tests() {
   profile="$1"
 
   if [[ -n "$2" ]]; then
+    echo "SECOND ARG FOUND!!!!"
     read -ra services <<< "$2"
+  else
+    echo "SECOND ARG NOT FOUND!!!"
   fi
 
   if [[ -n "$3" ]]; then
@@ -32,11 +35,13 @@ _run_cucumber_tests() {
 
   echo "COMPOSE CMD: docker-compose up --no-deps --no-recreate -d pg conjur pg2 conjur2 ${services[*]}" >&2
   #docker-compose up --no-deps --no-recreate -d pg conjur "${services[@]}"
-  if [[ -z "${services[*]}" ]]; then
-    echo "NRK"
+  echo "SERVICES: ${services[*]}"
+  echo "SERVICES: $2"
+  if [[ -z ${services} ]]; then
+    echo "NRK NO ARG"
     docker-compose up --no-deps --no-recreate -d pg conjur pg2 conjur2
   else
-    echo "NRK2"
+    echo "NRK2 ARG"
     docker-compose up --no-deps --no-recreate -d pg conjur pg2 conjur2 "${services[@]}"
   fi
   #docker-compose up --no-deps --no-recreate -d pg3 conjur3
