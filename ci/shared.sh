@@ -30,7 +30,7 @@ _run_cucumber_tests() {
 
   echo "Start all services..."
 
-  echo "COMPOSE CMD: docker-compose up --no-deps --no-recreate -d pg conjur pg2 conjur2 ${services[*]}"
+  echo "COMPOSE CMD: docker-compose up --no-deps --no-recreate -d pg conjur pg2 conjur2 ${services[*]}" >&2
   #docker-compose up --no-deps --no-recreate -d pg conjur "${services[@]}"
   if [[ -z "${services[*]}" ]]; then
     docker-compose up --no-deps --no-recreate -d pg conjur pg2 conjur2
@@ -38,6 +38,15 @@ _run_cucumber_tests() {
     docker-compose up --no-deps --no-recreate -d pg conjur pg2 conjur2 "${services[@]}"
   fi
   #docker-compose up --no-deps --no-recreate -d pg3 conjur3
+
+  echo "Docker PS after:"
+  docker-compose ps -a
+
+  docker network ls
+
+  #read -p "Press key to continue.. " -n1 -s
+  docker-compose ps -a
+
   docker-compose exec -T conjur conjurctl wait --retries 180
   docker-compose exec -T conjur2 conjurctl wait --retries 180
   #docker-compose exec -T conjur3 conjurctl wait --retries 180
@@ -48,13 +57,6 @@ _run_cucumber_tests() {
   docker-compose exec -T conjur2 conjurctl account create cucumber
   #docker-compose exec -T conjur3 conjurctl account create cucumber
 
-  echo "Docker PS after:"
-  docker-compose ps -a
-
-  docker network ls
-
-  #read -p "Press key to continue.. " -n1 -s
-  docker-compose ps -a
 
 
   # Stage 2: Prepare cucumber environment args
