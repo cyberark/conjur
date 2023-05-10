@@ -34,14 +34,14 @@ _run_cucumber_tests() {
   docker-compose up --no-deps --no-recreate -d pg conjur
   docker-compose up --no-deps --no-recreate -d pg2 conjur2
   #docker-compose up --no-deps --no-recreate -d pg3 conjur3
-  docker-compose exec -T conjur2 conjurctl wait --retries 180
   docker-compose exec -T conjur conjurctl wait --retries 180
+  docker-compose exec -T conjur2 conjurctl wait --retries 180
   #docker-compose exec -T conjur3 conjurctl wait --retries 180
 
   echo "Create cucumber account..."
 
-  docker-compose exec -T conjur2 conjurctl account create cucumber
   docker-compose exec -T conjur conjurctl account create cucumber
+  docker-compose exec -T conjur2 conjurctl account create cucumber
   #docker-compose exec -T conjur3 conjurctl account create cucumber
 
   echo "Docker PS after:"
@@ -86,14 +86,12 @@ _run_cucumber_tests() {
     -e "CUCUMBER_FILTER_TAGS=$CUCUMBER_FILTER_TAGS"
   )
 
-  echo "ENV_VAR_FLAGS2: ${env_var_flags[*]}" >&2
 
   # If there's no tty (e.g. we're running as a Jenkins job), pass -T to
   # docker-compose.
   run_flags=(--no-deps --rm)
   if ! tty -s; then
     run_flags+=(-T)
-    echo "RUN_FLAGS: ${run_flags[*]}" >&2
   fi
 
   # THE CUCUMBER_FILTER_TAGS environment variable is not natively
@@ -107,19 +105,20 @@ _run_cucumber_tests() {
   # Stage 3: Run Cucumber
   # -----------------------------------------------------------
 
+  echo "RUN_FLAGS: ${run_flags[*]}" >&2
+  echo "ENV_VAR_FLAGS2: ${env_var_flags[*]}" >&2
   echo "CUCUMBER TAGS: ${cucumber_tags_arg}"
   echo "CUCUMBER PROFILE: ${profile}"
+
 
   docker-compose run "${run_flags[@]}" "${env_var_flags[@]}" \
     cucumber -ec "\
       /oauth/keycloak/scripts/fetch_certificate &&
-      bundle exec cucumber \
-       --strict \
-       ${cucumber_tags_arg} \
-       -p \"$profile\" \
+      bundle exec parallel_test cucumber --type cucumber -n 2 \
+       -o '--strict -p \"$profile\" ${cucumber_tags_arg} \
        --format json --out \"cucumber/$profile/cucumber_results.json\" \
        --format html --out \"cucumber/$profile/cucumber_results.html\" \
-       --format junit --out \"cucumber/$profile/features/reports\""
+       --format junit --out \"cucumber/$profile/features/reports\"'"
 
       #bundle exec parallel_test cucumber --type cucumber -n 2 \
        #-o '-p \"$profile\" --tags @api \
@@ -148,8 +147,8 @@ _run_cucumber_tests() {
   # killed before ruby, the report doesn't get written. So here we kill the
   # process to write the report. The container is kept alive using an infinite
   # sleep in the at_exit hook (see .simplecov).
-  docker-compose exec -T conjur2 bash -c "pkill -f 'puma 5'"
   docker-compose exec -T conjur bash -c "pkill -f 'puma 5'"
+  docker-compose exec -T conjur2 bash -c "pkill -f 'puma 5'"
   #docker-compose exec -T conjur3 bash -c "pkill -f 'puma 5'"
 }
 
@@ -171,15 +170,9 @@ _get_api_key3() {
 _find_cucumber_network() {
   local net
 
-  declare -a docker_ids
-  while IFS=$'\n' read -r line; do docker_ids+=("$line"); done < <(docker-compose ps -q conjur)
-  while IFS=$'\n' read -r line; do docker_ids+=("$line"); done < <(docker-compose ps -q conjur2)
-  #while IFS=$'\n' read -r line; do docker_ids+=("$line"); done < <(docker-compose ps -q conjur3)
-
-  for id in "${docker_ids[@]}"; do
-    net=$(docker inspect "${id}" --format '{{.HostConfig.NetworkMode}}')
-    echo "NET IS: ${net}" >&2
-  done
+  # Docker compose conjur/pg services use the same network for 1 or more instances
+  conjur_id=$(docker-compose ps -q conjur)
+  net=$(docker inspect "${conjur_id}" --format '{{.HostConfig.NetworkMode}}')
 
   #read -p "Press key to continue.. " -n1 -s
   docker network inspect "$net" \
