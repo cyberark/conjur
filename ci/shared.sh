@@ -30,8 +30,13 @@ _run_cucumber_tests() {
 
   echo "Start all services..."
 
+  echo "COMPOSE CMD: docker-compose up --no-deps --no-recreate -d pg conjur pg2 conjur2 ${services[*]}"
   #docker-compose up --no-deps --no-recreate -d pg conjur "${services[@]}"
-  docker-compose up --no-deps --no-recreate -d pg conjur pg2 conjur2 "${services[@]}"
+  if [[ -z "${services[*]}" ]]; then
+    docker-compose up --no-deps --no-recreate -d pg conjur pg2 conjur2
+  else
+    docker-compose up --no-deps --no-recreate -d pg conjur pg2 conjur2 "${services[@]}"
+  fi
   #docker-compose up --no-deps --no-recreate -d pg3 conjur3
   docker-compose exec -T conjur conjurctl wait --retries 180
   docker-compose exec -T conjur2 conjurctl wait --retries 180
@@ -112,20 +117,20 @@ _run_cucumber_tests() {
   docker-compose run "${run_flags[@]}" "${env_var_flags[@]}" \
     cucumber -ec "\
       /oauth/keycloak/scripts/fetch_certificate &&
-      bundle exec parallel_test cucumber --type cucumber -n 2 \
-       -o '--strict -p \"$profile\" ${cucumber_tags_arg} \
+      bundle exec parallel_test . --type cucumber -n 2 \
+       -o '--strict ${cucumber_tags_arg} -p \"${profile}\" \
        --format json --out \"cucumber/$profile/cucumber_results.json\" \
        --format html --out \"cucumber/$profile/cucumber_results.html\" \
        --format junit --out \"cucumber/$profile/features/reports\"'"
 
       #bundle exec parallel_test cucumber --type cucumber -n 2 \
-       #-o '-p \"$profile\" --tags @api \
+       #-o '--tags @api -p \"$profile\" \
        #--format json --out \"cucumber/$profile/cucumber_results.json\" \
        #--format html --out \"cucumber/$profile/cucumber_results.html\" \
        #--format junit --out \"cucumber/$profile/features/reports\"'"
 
-      #bundle exec parallel_test cucumber --type cucumber -n 2 \
-       #-o '--strict -p \"$profile\" ${cucumber_tags_arg} \
+      #bundle exec parallel_test . --type cucumber -n 2 \
+       #-o '--strict ${cucumber_tags_arg} -p \"${profile}\" \
        #--format json --out \"cucumber/$profile/cucumber_results.json\" \
        #--format html --out \"cucumber/$profile/cucumber_results.html\" \
        #--format junit --out \"cucumber/$profile/features/reports\"'"
