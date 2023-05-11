@@ -106,7 +106,7 @@ module Authentication
       def uri
         ConfigurationLoader.load(
           AnnotationLoader.new(@input, "uri"),
-          EnvironmentLoader.new(@env, "LDAP_URI#{ENV['TEST_ENV_NUMBER']}"),
+          EnvironmentLoader.new(@env, "LDAP_URI"),
           default: ''
         ) { |uri_str| URI(uri_str)}
       end

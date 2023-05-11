@@ -374,7 +374,6 @@ init_ldap() {
 
   services+=(ldap-server)
   env_args+=(-e "LDAP_URI=ldap://ldap-server:389")
-  env_args+=(-e "LDAP_URI2=ldap://ldap-server2:389")
   env_args+=(-e "LDAP_BASE=dc=conjur,dc=net")
   env_args+=(-e "LDAP_FILTER=(uid=%s)")
   env_args+=(-e "LDAP_BINDDN=cn=admin,dc=conjur,dc=net")
