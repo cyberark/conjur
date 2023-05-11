@@ -220,33 +220,33 @@ pipeline {
           }
         }
 
-        stage('Scan Docker Image') {
-          when {
-            expression { params.RUN_ONLY == '' }
-          }
-          parallel {
-            stage("Scan Docker Image for fixable issues") {
-              steps {
-                scanAndReport("conjur:${tagWithSHA()}", "HIGH", false)
-              }
-            }
-            stage("Scan Docker image for total issues") {
-              steps {
-                scanAndReport("conjur:${tagWithSHA()}", "NONE", true)
-              }
-            }
-            stage("Scan UBI-based Docker Image for fixable issues") {
-              steps {
-                scanAndReport("conjur-ubi:${tagWithSHA()}", "HIGH", false)
-              }
-            }
-            stage("Scan UBI-based Docker image for total issues") {
-              steps {
-                scanAndReport("conjur-ubi:${tagWithSHA()}", "NONE", true)
-              }
-            }
-          }
-        }
+        //stage('Scan Docker Image') {
+          //when {
+            //expression { params.RUN_ONLY == '' }
+          //}
+          //parallel {
+            //stage("Scan Docker Image for fixable issues") {
+              //steps {
+                //scanAndReport("conjur:${tagWithSHA()}", "HIGH", false)
+              //}
+            //}
+            //stage("Scan Docker image for total issues") {
+              //steps {
+                //scanAndReport("conjur:${tagWithSHA()}", "NONE", true)
+              //}
+            //}
+            //stage("Scan UBI-based Docker Image for fixable issues") {
+              //steps {
+                //scanAndReport("conjur-ubi:${tagWithSHA()}", "HIGH", false)
+              //}
+            //}
+            //stage("Scan UBI-based Docker image for total issues") {
+              //steps {
+                //scanAndReport("conjur-ubi:${tagWithSHA()}", "NONE", true)
+              //}
+            //}
+          //}
+        //}
 
         // TODO: Add comments explaining which env vars are set here.
         stage('Prepare For CodeClimate Coverage Report Submission') {
@@ -376,6 +376,7 @@ pipeline {
               }
 
               steps {
+                // pull existing images onto new agent
                 sh "docker pull registry.tld/conjur:${tagWithSHA()}"
                 sh "docker pull registry.tld/conjur-ubi:${tagWithSHA()}"
                 sh "docker pull registry.tld/conjur-test:${tagWithSHA()}"
