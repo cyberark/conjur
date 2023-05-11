@@ -367,6 +367,7 @@ pipeline {
               }
             }
 
+            // Run a subset of tests on a second agent to prevent oversubscribing the hardware
             stage('Standard agent2 tests') {
 
               agent { label 'executor-v2' }
@@ -375,6 +376,9 @@ pipeline {
               }
 
               steps {
+                sh "docker pull registry.tld/conjur:${tagWithSHA()}"
+                sh "docker pull registry.tld/conjur-ubi:${tagWithSHA()}"
+                sh "docker pull registry.tld/conjur-test:${tagWithSHA()}"
                 runConjurTests2(params.RUN_ONLY)
               }
             }
@@ -819,12 +823,11 @@ def runConjurTests2(run_only_str) {
   tests = run_only_str.split()
 
   // TODO: Find a way to exit without failing in Jenkins
-
   if (tests.size() > 0) {
     for ( test in tests ) {
       def x = parallel_tests.any{ it.key == test }?.value
       if(x) {
-        break
+        continue
       } else {
         return true
       }
