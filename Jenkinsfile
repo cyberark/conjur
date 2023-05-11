@@ -389,6 +389,28 @@ pipeline {
               }
             }
 
+            // Run a subset of tests on a second agent to prevent oversubscribing the hardware
+            stage('Standard agent3 tests') {
+
+              agent { label 'executor-v2' }
+              environment {
+                CUCUMBER_FILTER_TAGS = "${params.CUCUMBER_FILTER_TAGS}"
+              }
+
+              steps {
+                // Pull and retag existing images onto new Jenkins agent
+                sh "docker pull registry.tld/conjur:${tagWithSHA()}"
+                sh "docker pull registry.tld/conjur-ubi:${tagWithSHA()}"
+                sh "docker pull registry.tld/conjur-test:${tagWithSHA()}"
+                sh "docker tag registry.tld/conjur:${tagWithSHA()} conjur:${tagWithSHA()}"
+                sh "docker tag registry.tld/conjur-ubi:${tagWithSHA()} conjur-ubi:${tagWithSHA()}"
+                sh "docker tag registry.tld/conjur-test:${tagWithSHA()} conjur-test:${tagWithSHA()}"
+
+                unstash 'version_info'
+                runConjurTests3(params.RUN_ONLY)
+              }
+            }
+
             stage('Azure Authenticator') {
               when {
                 expression {
@@ -871,27 +893,55 @@ def runConjurTests(run_only_str) {
         sh 'ci/test authenticators_ldap'
       }
     ],
-    "authenticators_oidc": [
-      "OIDC Authenticator - ${env.STAGE_NAME}": {
-          sh 'sleep $((10 + RANDOM % 15))'
-          sh 'summon -f ./ci/test_suites/authenticators_oidc/secrets.yml -e ci ci/test authenticators_oidc'
-      }
-    ],
     "policy": [
       "Policy - ${env.STAGE_NAME}": {
         sh 'sleep $((10 + RANDOM % 15))'
         sh 'ci/test policy'
       }
     ],
-    "api": [
-      "API - ${env.STAGE_NAME}": {
-        sh 'ci/test api'
-      }
-    ],
     "policy_parser": [
       "Policy Parser - ${env.STAGE_NAME}": {
         sh 'sleep $((10 + RANDOM % 15))'
         sh 'cd gems/policy-parser && ./test.sh'
+      }
+    ]
+  ]
+
+  // Filter for the tests we want run, if requested.
+  parallel_tests = all_tests
+  tests = run_only_str.split()
+
+  if (tests.size() > 0) {
+    parallel_tests = all_tests.subMap(tests)
+  }
+
+  // Create the parallel pipeline.
+  //
+  // Since + merges two maps together, sum() combines the individual values of
+  // parallel_tests into one giant map whose keys are the stage names and
+  // whose values are the blocks to be run.
+
+  script {
+    parallel(
+      parallel_tests.values().sum(),
+    )
+  }
+}
+
+// "run_only_str" is a space-separated string specifying the subset of tests to
+// run.  If it's empty, all tests are run.
+def runConjurTests3(run_only_str) {
+
+  all_tests = [
+    "authenticators_oidc": [
+      "OIDC Authenticator - ${env.STAGE_NAME}": {
+          sh 'sleep $((10 + RANDOM % 15))'
+          sh 'summon -f ./ci/test_suites/authenticators_oidc/secrets.yml -e ci ci/test authenticators_oidc'
+      }
+    ],
+    "api": [
+      "API - ${env.STAGE_NAME}": {
+        sh 'ci/test api'
       }
     ]
   ]
