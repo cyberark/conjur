@@ -376,10 +376,15 @@ pipeline {
               }
 
               steps {
-                // pull existing images onto new agent
+                // Pull and retag existing images onto new Jenkins agent
                 sh "docker pull registry.tld/conjur:${tagWithSHA()}"
                 sh "docker pull registry.tld/conjur-ubi:${tagWithSHA()}"
                 sh "docker pull registry.tld/conjur-test:${tagWithSHA()}"
+                sh "docker tag registry.tld/conjur:${tagWithSHA()} conjur:${tagWithSHA()}"
+                sh "docker tag registry.tld/conjur-ubi:${tagWithSHA()} conjur-ubi:${tagWithSHA()}"
+                sh "docker tag registry.tld/conjur-test:${tagWithSHA()} conjur-test:${tagWithSHA()}"
+
+                unstash 'version_info'
                 runConjurTests2(params.RUN_ONLY)
               }
             }
@@ -766,7 +771,7 @@ pipeline {
 def tagWithSHA() {
   sh(
     returnStdout: true,
-    script: 'echo $(git rev-parse --short=8 HEAD)'
+    script: 'echo -n $(git rev-parse --short=8 HEAD)'
   )
 }
 
