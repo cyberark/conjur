@@ -232,9 +232,22 @@ is_ldap_up() {
   ) >/dev/null 2>&1
 }
 
+is_ldap_up2() {
+  local ldap_check_cmd="ldapsearch -x -ZZ -H ldapi:/// -b dc=conjur,dc=net \
+    -D \"cn=admin,dc=conjur,dc=net\" -w ldapsecret"
+
+  # Note: We need the subshell to group the commands.
+  (
+    set -o pipefail
+    docker-compose exec -T ldap-server2 bash -c "$ldap_check_cmd" |
+    grep '^search: 3$'
+  ) >/dev/null 2>&1
+}
+
 start_ldap_server() {
   # Start LDAP.
   docker-compose up --no-deps --detach ldap-server
+  docker-compose up --no-deps --detach ldap-server2
 
   # Wait for up to 90 seconds, since it's slow.
   echo "Ensuring that LDAP is up..."
@@ -242,5 +255,11 @@ start_ldap_server() {
     echo 'LDAP server failed to start in time'
     exit 1
   fi
+
+  #echo "Ensuring that LDAP2 is up..."
+  #if ! timeout_secs=90 wait_for_cmd is_ldap_up2; then
+    #echo 'LDAP2 server failed to start in time'
+    #exit 1
+  #fi
   echo "Done."
 }
