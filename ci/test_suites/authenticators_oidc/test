@@ -10,17 +10,17 @@ source "./shared.sh"
 source "./oauth/keycloak/keycloak_functions.sh"
 
 function _hydrate_all_env_args() {
-  #local -n arr=$1
+  local -n arr=$1
   local keycloak_items
 
-  declare -a arr=$1
-  while IFS=$'\n' read -r line; do keycloak_items+=("$line"); done < <(set -o pipefail; docker-compose exec -T "${KEYCLOAK_SERVICE_NAME}" printenv | awk '/KEYCLOAK/')
-  #readarray -t keycloak_items < <(
-    #set -o pipefail
-    ## Note: This prints all lines that look like:
-    ## KEYCLOAK_XXX=someval
-    #docker-compose exec -T "${KEYCLOAK_SERVICE_NAME}" printenv | awk '/KEYCLOAK/'
-  #)
+  #declare -a arr=$1
+  #while IFS=$'\n' read -r line; do keycloak_items+=("$line"); done < <(set -o pipefail; docker-compose exec -T "${KEYCLOAK_SERVICE_NAME}" printenv | awk '/KEYCLOAK/')
+  readarray -t keycloak_items < <(
+    set -o pipefail
+    # Note: This prints all lines that look like:
+    # KEYCLOAK_XXX=someval
+    docker-compose exec -T "${KEYCLOAK_SERVICE_NAME}" printenv | awk '/KEYCLOAK/'
+  )
 
   # shellcheck disable=SC2034
   arr=(
