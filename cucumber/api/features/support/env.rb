@@ -10,7 +10,7 @@ ENV['DATABASE_URL'] = "postgres://postgres@pg#{ENV['TEST_ENV_NUMBER']}/postgres"
 api_string = "CONJUR_AUTHN_API_KEY#{ENV['TEST_ENV_NUMBER']}"
 ENV['CONJUR_AUTHN_API_KEY'] = ENV[api_string]
 
-ENV['KEYCLOAK_REDIRECT_URI'] = "http://conjur#{ENV['TEST_ENV_NUMBER']}:3000/authn-oidc/keycloak2/cucumber/authenticate"
+#ENV['KEYCLOAK_REDIRECT_URI'] = "http://conjur#{ENV['TEST_ENV_NUMBER']}:3000/authn-oidc/keycloak2/cucumber/authenticate"
 
 # so that we can require relative to the project root
 $LOAD_PATH.unshift(File.expand_path('../../../..', __dir__))
