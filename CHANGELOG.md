@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
+## [1.19.4] - 2023-05-12
+
+### Changed
+- OIDC tokens will now have a default ttl of 60 mins
+  [cyberark/conjur#2800](https://github.com/cyberark/conjur/pull/2800)
+
 ## [1.19.3] - 2023-04-17
 
 ### Added
