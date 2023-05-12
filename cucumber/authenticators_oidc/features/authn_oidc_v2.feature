@@ -100,7 +100,7 @@ Feature: OIDC Authenticator V2 - Users can authenticate with OIDC authenticator
     And I fetch a code for username "alice" and password "alice" from "keycloak2"
     And I save my place in the audit log file
     And I authenticate via OIDC V2 with code and service-id "keycloak2"
-    Then user "alice" has been authorized by Conjur for 8 minutes
+    Then user "alice" has been authorized by Conjur for 60 minutes
     And I successfully GET "/secrets/cucumber/variable/test-variable" with authorized user
     And The following appears in the audit log after my savepoint:
     """
