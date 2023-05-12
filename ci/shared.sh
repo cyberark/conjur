@@ -116,14 +116,20 @@ _run_cucumber_tests() {
   echo "CUCUMBER PROFILE: ${profile}" >&2
 
 
+  # Have to add tags in profile for parallel to run properly
+  # ${cucumber_tags_arg} should overwrite the profile tags in a way for @smoke to work correctly
   docker-compose run "${run_flags[@]}" "${env_var_flags[@]}" \
     cucumber -ec "\
       /oauth/keycloak/scripts/fetch_certificate &&
       bundle exec parallel_cucumber . -n 2 \
-       -o '--strict --tags @${profile} -p ${profile} \
+       -o '--strict --profile \"${profile}\" \
        --format json --out \"cucumber/$profile/cucumber_results.json\" \
        --format html --out \"cucumber/$profile/cucumber_results.html\" \
        --format junit --out \"cucumber/$profile/features/reports\"'"
+
+        ### TODO: SHOULD BE THE COMMAND THAT GOES INTO THE PR
+        ### Testing will not include cucumber_tags_arg so all tests run similar to master
+       #-o '--strict --profile \"${profile}\" ${cucumber_tags_arg} \
 
       #bundle exec parallel_test cucumber --type cucumber -n 2 \
        #-o '--tags @api -p \"$profile\" \
