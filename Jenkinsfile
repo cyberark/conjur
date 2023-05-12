@@ -826,12 +826,6 @@ def runConjurTests2(run_only_str) {
         sh 'ci/test authenticators_k8s'
       }
     ],
-    "authenticators_jwt": [
-      "JWT Authenticator - ${env.STAGE_NAME}": {
-        sh 'sleep $((10 + RANDOM % 15))'
-        sh 'ci/test authenticators_jwt'
-      }
-    ],
     "rotators": [
       "Rotators - ${env.STAGE_NAME}": {
         sh 'sleep $((10 + RANDOM % 15))'
@@ -891,6 +885,12 @@ def runConjurTests(run_only_str) {
       "LDAP Authenticator - ${env.STAGE_NAME}": {
         sh 'sleep $((10 + RANDOM % 15))'
         sh 'ci/test authenticators_ldap'
+      }
+    ],
+    "authenticators_jwt": [
+      "JWT Authenticator - ${env.STAGE_NAME}": {
+        sh 'sleep $((10 + RANDOM % 15))'
+        sh 'ci/test authenticators_jwt'
       }
     ],
     "policy": [

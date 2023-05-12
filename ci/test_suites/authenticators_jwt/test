@@ -8,7 +8,7 @@ source "./shared.sh"
 source "./oauth/keycloak/keycloak_functions.sh"
 
 function main() {
-  docker-compose up --no-deps -d pg conjur jwks jwks_py keycloak
+  docker-compose up --no-deps -d pg conjur pg2 conjur2 jwks jwks_py keycloak
 
   wait_for_keycloak_server
   create_keycloak_users
