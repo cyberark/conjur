@@ -86,4 +86,6 @@ function fetch_keycloak_certificate() {
   echo "Initialize keycloak certificate in conjur server"
   docker-compose exec -T \
     conjur /oauth/keycloak/scripts/fetch_certificate
+  docker-compose exec -T \
+    conjur2 /oauth/keycloak/scripts/fetch_certificate
 }

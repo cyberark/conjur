@@ -31,7 +31,7 @@ Given(/I fetch a code for username "([^"]*)" and password "([^"]*)" from "([^"]*
   # The version of Keycloak we're using does not accept PKCE. We need
   # to strip code challenge and code challenge method from the redirect
   # URI
-  redirect_uri = URI.parse(provider["redirect_uri#{ENV['TEST_ENV_NUMBER']}"])
+  redirect_uri = URI.parse(provider['redirect_uri'])
   params = URI.decode_www_form(redirect_uri.query).to_h
   params.delete('code_challenge')
   params.delete('code_challenge_method')
@@ -92,7 +92,7 @@ Given(/^I retrieve OIDC configuration from the provider endpoint for "([^"]*)"/)
   ).first { |p| p['service_id'] == service_id }
   @scenario_context.add(:nonce, provider['nonce'])
   @scenario_context.add(:code_verifier, provider['code_verifier'])
-  @scenario_context.add(:redirect_uri, provider["redirect_uri#{ENV['TEST_ENV_NUMBER']}"])
+  @scenario_context.add(:redirect_uri, provider['redirect_uri'])
 end
 
 Given(/^I authenticate and fetch a code from Okta/) do
