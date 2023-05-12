@@ -22,6 +22,7 @@ RSpec.describe('Authentication::AuthnOidc::V2::Views::ProviderContext') do
       account: "cucumber",
       service_id: "foo",
       redirect_uri: "http://conjur/authn-oidc/cucumber/authenticate",
+      redirect_uri2: "http://conjur2/authn-oidc/cucumber/authenticate",
       provider_uri: "http://foo",
       name: "foo",
       client_id: "ConjurClient",
@@ -36,6 +37,7 @@ RSpec.describe('Authentication::AuthnOidc::V2::Views::ProviderContext') do
       service_id: "bar",
       provider_uri: "http://bar",
       redirect_uri: "http://conjur/authn-oidc/cucumber/authenticate",
+      redirect_uri2: "http://conjur2/authn-oidc/cucumber/authenticate",
       name: "bar",
       client_id: "ConjurClient",
       client_secret: 'client_secret',
@@ -51,6 +53,8 @@ RSpec.describe('Authentication::AuthnOidc::V2::Views::ProviderContext') do
         name: "foo",
         redirect_uri: "\"http://test\"?client_id=ConjurClient&response_type=code&scope=openid%20email%20profile" \
          "&nonce=random-string&code_challenge=random-sha&code_challenge_method=S256&redirect_uri=http%3A%2F%2Fconjur%2Fauthn-oidc%2Fcucumber%2Fauthenticate",
+        redirect_uri2: "\"http://test\"?client_id=ConjurClient&response_type=code&scope=openid%20email%20profile" \
+         "&nonce=random-string&code_challenge=random-sha&code_challenge_method=S256&redirect_uri2=http%3A%2F%2Fconjur%2Fauthn-oidc%2Fcucumber%2Fauthenticate",
         service_id: "foo",
         type: "authn-oidc",
         nonce: 'random-string',
@@ -59,6 +63,8 @@ RSpec.describe('Authentication::AuthnOidc::V2::Views::ProviderContext') do
         name: "bar",
         redirect_uri: "\"http://test\"?client_id=ConjurClient&response_type=code&scope=openid%20email%20profile" \
          "&nonce=random-string&code_challenge=random-sha&code_challenge_method=S256&redirect_uri=http%3A%2F%2Fconjur%2Fauthn-oidc%2Fcucumber%2Fauthenticate",
+        redirect_uri2: "\"http://test\"?client_id=ConjurClient&response_type=code&scope=openid%20email%20profile" \
+         "&nonce=random-string&code_challenge=random-sha&code_challenge_method=S256&redirect_uri2=http%3A%2F%2Fconjur%2Fauthn-oidc%2Fcucumber%2Fauthenticate",
         service_id: "bar",
         type: "authn-oidc",
         nonce: 'random-string',
