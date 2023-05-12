@@ -131,7 +131,7 @@ authenticators_azure: >
   cucumber/authenticators_azure
 
 authenticators_jwt: >
-  --tags "@authenticators_jwt not @skip"
+  --tags "not @skip and @authenticators_jwt"
   --format pretty
   -r cucumber/api/features/step_definitions/user_steps.rb
   -r cucumber/api/features/step_definitions/request_steps.rb
