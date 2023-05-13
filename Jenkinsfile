@@ -265,17 +265,17 @@ pipeline {
         }
 
          //Run outside parallel block to avoid external pressure
-        //stage('RSpec - Standard agent tests') {
-          //steps {
-            //sh 'ci/test rspec'
-          //}
-        //}
+        stage('RSpec - Standard agent tests') {
+          steps {
+            sh 'ci/test rspec'
+          }
+        }
 
         // Run outside parallel block to reduce main Jenkins executor load.
         stage('Nightly Only') {
-          when {
-            expression { params.NIGHTLY }
-          }
+          //when {
+            //expression { params.NIGHTLY }
+          //}
 
           environment {
             CUCUMBER_FILTER_TAGS = "${params.CUCUMBER_FILTER_TAGS}"

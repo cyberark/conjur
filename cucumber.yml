@@ -156,7 +156,7 @@ authenticators_jwt: >
 #       profiles need to be thought through better and refactored most likely.
 #       
 rotators: >
-  --tags '@rotators not @manual'
+  --tags 'not @manual and @rotators'
   --format pretty
   -r cucumber/authenticators/features/support/hooks.rb
   -r cucumber/api/features/support/step_def_transforms.rb
