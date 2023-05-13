@@ -14,6 +14,10 @@ module RotatorHelpers
     system("PGPASSWORD=#{pw} psql -h testdb -U #{user} -c \"#{sql}\"")
   end
 
+  def run_sql_in_testdb2(sql, user="postgres", pw="postgres_secret")
+    system("PGPASSWORD=#{pw} psql -h testdb2 -U #{user} -c \"#{sql}\"")
+  end
+
   def variable(id)
     @client.fetch_secret(id: id)
   end
@@ -76,6 +80,9 @@ module RotatorHelpers
     # need to make it dynamic.
     def pg_login_result(user, pw)
       system("PGPASSWORD=#{pw} psql -c \"\\q\" -h testdb -U #{user}")
+    end
+    def pg_login_result2(user, pw)
+      system("PGPASSWORD=#{pw} psql -c \"\\q\" -h testdb2 -U #{user}")
     end
   end
 

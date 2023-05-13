@@ -2,10 +2,11 @@
 
 Then(/^I create a db user "(.*?)" with password "(.*?)"$/) do |user, pw|
   # drop them first, in case we're re-running during dev
-  run_sql_in_testdb("DROP DATABASE #{user};")
-  run_sql_in_testdb("DROP USER #{user};")
-  run_sql_in_testdb("CREATE USER #{user} WITH PASSWORD '#{pw}';")
-  run_sql_in_testdb("CREATE DATABASE #{user};")
+  run_sql_in_testdb_function = "run_sql_in_testdb#{ENV['TEST_ENV_NUMBER']}"
+  run_sql_in_testdb_function("DROP DATABASE #{user};")
+  run_sql_in_testdb_function("DROP USER #{user};")
+  run_sql_in_testdb_function("CREATE USER #{user} WITH PASSWORD '#{pw}';")
+  run_sql_in_testdb_function("CREATE DATABASE #{user};")
 end
 
 regex = /^I moniter "(.+)" and db user "(.+)" for (\d+) values in (\d+) seconds$/
