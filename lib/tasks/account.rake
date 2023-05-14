@@ -17,7 +17,7 @@ namespace :"account" do
       api_key = Account.create(args[:account])
       account = Account.new(args[:account])
       $stderr.puts("Created new account '#{account.id}'")
-      puts("Token-Signing Public Key: #{account.token_key.to_s}")
+      puts("Token-Signing Public Key: #{account.token_key_host.to_s}")
       puts("API key for admin: #{api_key}")
     rescue Exceptions::RecordExists
       $stderr.puts("Account '#{args[:account]}' already exists")
@@ -37,7 +37,7 @@ namespace :"account" do
       Account.create(args[:account])
       account = Account.new(args[:account])
       $stderr.puts "Created new account '#{account.id}'"
-      puts "Token-Signing Public Key: #{account.token_key.to_s}"
+      puts "Token-Signing Public Key: #{account.token_key_host.to_s}"
 
       role_id = "#{args[:account]}:user:admin"
       Role[role_id].password = args[:password]

@@ -494,7 +494,7 @@ start_auth_services() {
 
 create_alice() {
   echo "Creating user alice"
-  client_load_policy "/src/conjur-server/dev/files/policy.yml"
+  #client_load_policy "/src/conjur-server/dev/files/policy.yml"
 }
 
 kill_conjur() {
