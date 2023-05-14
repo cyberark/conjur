@@ -21,7 +21,7 @@ class TokenFactory < Dry::Struct
                    host_ttl: Rails.application.config.conjur_config.host_authorization_token_ttl,
                    user_ttl: Rails.application.config.conjur_config.user_authorization_token_ttl)
     account_with_type = account.starts_with?('host/') ? account + ":host" : account + ":user"
-    signing_key(account).issue_jwt(
+    signing_key(account_with_type).issue_jwt(
       sub: username,
       exp: Time.now + offset(
         ttl: username.starts_with?('host/') ? host_ttl : user_ttl
