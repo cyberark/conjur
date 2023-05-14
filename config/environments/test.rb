@@ -3,6 +3,13 @@
 require 'logger/formatter/conjur_formatter'
 require 'test/audit_sink'
 
+# Might only need to place the ENV vars in this file instead of throughout the cucumber env.rb files
+ENV['CONJUR_APPLIANCE_URL'] = "http://conjur#{ENV['TEST_ENV_NUMBER']}"
+ENV['DATABASE_URL'] = "postgres://postgres@pg#{ENV['TEST_ENV_NUMBER']}/postgres"
+
+api_string = "CONJUR_AUTHN_API_KEY#{ENV['TEST_ENV_NUMBER']}"
+ENV['CONJUR_AUTHN_API_KEY'] = ENV[api_string]
+
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
 
