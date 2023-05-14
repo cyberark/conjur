@@ -11,7 +11,7 @@ module RotatorHelpers
   # Utility for the postgres rotator
 
   def run_sql_in_testdb(sql, user="postgres", pw="postgres_secret")
-    system("PGPASSWORD=#{pw} psql -h testdb#{ENV['TEST_ENV_NUMBER']} -U #{user} -c \"#{sql}\"")
+    system("PGPASSWORD=#{pw} psql -h testdb -U #{user} -c \"#{sql}\"")
   end
 
   def variable(id)
@@ -75,7 +75,7 @@ module RotatorHelpers
     # is hardcoded here.  This shouldn't be problematic as there's likely no
     # need to make it dynamic.
     def pg_login_result(user, pw)
-      system("PGPASSWORD=#{pw} psql -c \"\\q\" -h testdb#{ENV['TEST_ENV_NUMBER']} -U #{user}")
+      system("PGPASSWORD=#{pw} psql -c \"\\q\" -h testdb -U #{user}")
     end
   end
 
