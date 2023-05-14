@@ -271,88 +271,98 @@ pipeline {
           }
         }
 
-        // Run outside parallel block to reduce main Jenkins executor load.
-        stage('Nightly Only') {
-          //when {
-            //expression { params.NIGHTLY }
+        //// Run outside parallel block to reduce main Jenkins executor load.
+        //stage('Nightly Only') {
+          ////when {
+            ////expression { params.NIGHTLY }
+          ////}
+
+          //environment {
+            //CUCUMBER_FILTER_TAGS = "${params.CUCUMBER_FILTER_TAGS}"
           //}
 
-          environment {
-            CUCUMBER_FILTER_TAGS = "${params.CUCUMBER_FILTER_TAGS}"
-          }
+          ////TODO: Need to split this stage into 3 agents
+          //stages {
+            //stage('EE FIPS agent tests') {
+              //agent { label 'executor-v2-rhel-ee' }
 
-          stages {
-            stage('EE FIPS agent tests') {
-              agent { label 'executor-v2-rhel-ee' }
+              //steps {
+                //unstash 'version_info'
+                //// Catch errors so remaining steps always run.
+                //catchError {
+                  //// Run outside parallel block to avoid external pressure
+                  //script {
+                    //stage("RSpec - EE FIPS agent tests") {
+                      //sh "ci/test rspec"
+                    //}
+                  //}
 
-              steps {
-                unstash 'version_info'
-                // Catch errors so remaining steps always run.
-                catchError {
-                  // Run outside parallel block to avoid external pressure
-                  script {
-                    stage("RSpec - EE FIPS agent tests") {
-                      sh "ci/test rspec"
-                    }
-                  }
+                  //runConjurTests(params.RUN_ONLY)
+                  ////// Pull and retag existing images onto new Jenkins agent
+                  ////sh "docker pull registry.tld/conjur:${tagWithSHA()}"
+                  ////sh "docker pull registry.tld/conjur-ubi:${tagWithSHA()}"
+                  ////sh "docker pull registry.tld/conjur-test:${tagWithSHA()}"
+                  ////sh "docker tag registry.tld/conjur:${tagWithSHA()} conjur:${tagWithSHA()}"
+                  ////sh "docker tag registry.tld/conjur-ubi:${tagWithSHA()} conjur-ubi:${tagWithSHA()}"
+                  ////sh "docker tag registry.tld/conjur-test:${tagWithSHA()} conjur-test:${tagWithSHA()}"
 
-                  runConjurTests(params.RUN_ONLY)
-                }
+                  ////runConjurTests2(params.RUN_ONLY)
+                //}
 
-                stash(
-                  name: 'testResultEE',
-                  includes: '''
-                    cucumber/*/*.*,
-                    container_logs/*/*,
-                    spec/reports/*.xml,
-                    spec/reports-audit/*.xml,
-                    cucumber/*/features/reports/**/*.xml
-                  '''
-                )
-              }
+                //stash(
+                  //name: 'testResultEE',
+                  //includes: '''
+                    //cucumber/*/*.*,
+                    //container_logs/*/*,
+                    //spec/reports/*.xml,
+                    //spec/reports-audit/*.xml,
+                    //cucumber/*/features/reports/**/*.xml
+                  //'''
+                //)
+              //}
 
-              post {
-                always {
-                  dir('ee-test'){
-                    unstash 'testResultEE'
-                  }
+              //post {
+                //always {
+                  //dir('ee-test'){
+                    //unstash 'testResultEE'
+                  //}
 
-                  archiveArtifacts(
-                    artifacts: "ee-test/cucumber/*/*.*",
-                    fingerprint: false,
-                    allowEmptyArchive: true
-                  )
+                  //archiveArtifacts(
+                    //artifacts: "ee-test/cucumber/*/*.*",
+                    //fingerprint: false,
+                    //allowEmptyArchive: true
+                  //)
 
-                  archiveArtifacts(
-                    artifacts: "ee-test/container_logs/*/*",
-                    fingerprint: false,
-                    allowEmptyArchive: true
-                  )
+                  //archiveArtifacts(
+                    //artifacts: "ee-test/container_logs/*/*",
+                    //fingerprint: false,
+                    //allowEmptyArchive: true
+                  //)
 
-                  publishHTML(
-                    reportDir: 'ee-test/cucumber',
-                    reportFiles: '''
-                      api/cucumber_results.html,
-                      authenticators_config/cucumber_results.html,
-                      authenticators_azure/cucumber_results.html,
-                      authenticators_ldap/cucumber_results.html,
-                      authenticators_oidc/cucumber_results.html,
-                      authenticators_jwt/cucumber_results.html,
-                      authenticators_status/cucumber_results.html
-                      policy/cucumber_results.html,
-                      rotators/cucumber_results.html
-                    ''',
-                    reportName: 'EE Integration reports',
-                    reportTitles: '',
-                    allowMissing: false,
-                    alwaysLinkToLastBuild: true,
-                    keepAll: true
-                  )
-                }
-              }
-            }
-          }
-        }
+                  //publishHTML(
+                    //reportDir: 'ee-test/cucumber',
+                    //reportFiles: '''
+                      //api/cucumber_results.html,
+                      //authenticators_config/cucumber_results.html,
+                      //authenticators_azure/cucumber_results.html,
+                      //authenticators_ldap/cucumber_results.html,
+                      //authenticators_oidc/cucumber_results.html,
+                      //authenticators_jwt/cucumber_results.html,
+                      //authenticators_status/cucumber_results.html
+                      //policy/cucumber_results.html,
+                      //rotators/cucumber_results.html
+                    //''',
+                    //reportName: 'EE Integration reports',
+                    //reportTitles: '',
+                    //allowMissing: false,
+                    //alwaysLinkToLastBuild: true,
+                    //keepAll: true
+                  //)
+                //}
+              //}
+            //}
+          //}
+        //}
 
         stage('Run environment tests in parallel') {
           parallel {
