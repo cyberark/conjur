@@ -1,0 +1,14 @@
+apiVersion: skaffold/v4beta5
+kind: Config
+metadata:
+  name: conjur
+#build image and pushes by type skaffold build, need to have AWS CLI installed and configured first and install skaffold
+build:
+  artifacts:
+    - image: 238637036211.dkr.ecr.us-east-1.amazonaws.com/mgmt-conjur-dev-repository-conjur
+      hooks:
+        before:
+          - command: ["sh", "-c", "./dev/skaffold/aws-dev.sh"]
+      docker:
+        dockerfile: Dockerfile
+

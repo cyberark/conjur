@@ -615,3 +615,15 @@ tag. In general, deleting and changing tags should be avoided.
 
 Visit the [Red Hat project page](https://connect.redhat.com/project/5899451/images) once
 the images have been pushed and manually choose to publish the latest release.
+
+#### Publishing to ECR - Cyberark
+steps:
+* install AWS cli and configure the cli to access Cyberark account
+* install docker
+* install skaffold
+
+run:
+```shell
+skaffold build
+```
+
