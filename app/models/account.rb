@@ -70,15 +70,15 @@ Account = Struct.new(:id) do
 
   def delete
     # Ensure the signing key exists
-    slosilo_keystore.adapter.model.with_pk!("authn:#{id}")
-
+    slosilo_keystore.adapter.model.with_pk!(token_key_host)
+    slosilo_keystore.adapter.model.with_pk!(token_key_user)
     Role["#{id}:user:admin"].destroy
     Role["#{id}:policy:root"].try(:destroy)
     Resource["#{id}:user:admin"].try(:destroy)
     Credentials.where(Sequel.lit("account(role_id)") => id).delete
     Secret.where(Sequel.lit("account(resource_id)") => id).delete
-    slosilo_keystore.adapter.model[host_key(id)].destroy
-    slosilo_keystore.adapter.model[user_key(id)].destroy
+    slosilo_keystore.adapter.model[token_key_host].destroy
+    slosilo_keystore.adapter.model[token_key_user].destroy
     true
   end
 
