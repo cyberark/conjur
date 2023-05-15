@@ -61,11 +61,11 @@ Account = Struct.new(:id) do
   end
 
   def token_key_host
-    Slosilo[host_key(id)]
+    Slosilo["authn:#{id}:host"]
   end
 
   def token_key_user
-    Slosilo[user_key(id)]
+    Slosilo["authn:#{id}:user"]
   end
 
   def delete
