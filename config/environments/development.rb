@@ -2,6 +2,12 @@
 
 require 'logger/formatter/conjur_formatter'
 
+ENV['CONJUR_APPLIANCE_URL'] = "http://conjur#{ENV['TEST_ENV_NUMBER']}"
+ENV['DATABASE_URL'] = "postgres://postgres@pg#{ENV['TEST_ENV_NUMBER']}/postgres"
+
+api_string = "CONJUR_AUTHN_API_KEY#{ENV['TEST_ENV_NUMBER']}"
+ENV['CONJUR_AUTHN_API_KEY'] = ENV[api_string]
+
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
 
@@ -37,6 +43,9 @@ Rails.application.configure do
   # when problems arise.
   config.log_level = ENV['CONJUR_LOG_LEVEL'] || :debug
   config.log_formatter = ConjurFormatter.new
+
+  config.appliance_url = ENV['CONJUR_APPLIANCE_URL']
+  config.database = ENV['DATABASE_URL']
 
   # Don't care if the mailer can't send.
   # config.action_mailer.raise_delivery_errors = false
