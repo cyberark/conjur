@@ -7,12 +7,15 @@ Before('@k8s_skip') do
 end
 
 Before do
-  ENV['CONJUR_APPLIANCE_URL'] = "http://conjur#{ENV['TEST_ENV_NUMBER']}"
-  ENV['DATABASE_URL'] = "postgres://postgres@pg#{ENV['TEST_ENV_NUMBER']}/postgres"
+  puts "NRK"
+  puts ENV['CONJUR_APPLIANCE_URL']
+  puts ENV['DATABASE_URL']
+  puts "NRK"
+  #ENV['CONJUR_APPLIANCE_URL'] = "http://conjur#{ENV['TEST_ENV_NUMBER']}"
+  #ENV['DATABASE_URL'] = "postgres://postgres@postgres#{ENV['TEST_ENV_NUMBER']}/postgres"
 
-  api_string = "CONJUR_AUTHN_API_KEY#{ENV['TEST_ENV_NUMBER']}"
-  ENV['CONJUR_AUTHN_API_KEY'] = ENV[api_string]
-  #ENV['KEYCLOAK_REDIRECT_URI'] = "http://conjur#{ENV['TEST_ENV_NUMBER']}:3000/authn-oidc/keycloak2/cucumber/authenticate"
+  #api_string = "CONJUR_AUTHN_API_KEY#{ENV['TEST_ENV_NUMBER']}"
+  #ENV['CONJUR_AUTHN_API_KEY'] = ENV[api_string]
 
   puts "********"
   puts "RUNNING ON PROCESS #{ENV['TEST_ENV_NUMBER']}:"
