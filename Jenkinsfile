@@ -821,7 +821,7 @@ def testShouldRun(run_only_str, test) {
 
 // "run_only_str" is a space-separated string specifying the subset of tests to
 // run.  If it's empty, all tests are run.
-def runConjurTests2(run_only_str) {
+def runConjurTests(run_only_str) {
 
   all_tests = [
     "authenticators_config": [
@@ -882,7 +882,7 @@ def runConjurTests2(run_only_str) {
 
 // "run_only_str" is a space-separated string specifying the subset of tests to
 // run.  If it's empty, all tests are run.
-def runConjurTests(run_only_str) {
+def runConjurTests2(run_only_str) {
 
   all_tests = [
     "authenticators_status": [
