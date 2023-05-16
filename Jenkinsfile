@@ -120,6 +120,7 @@ pipeline {
   environment {
     // Sets the MODE to the specified or autocalculated value as appropriate
     MODE = release.canonicalizeMode()
+    TEST_TO_RUN = agentTests(4)
   }
 
   stages {
@@ -373,13 +374,15 @@ pipeline {
               }
 
               steps {
+                println "${TEST_TO_RUN[0]}"
+                runConjurTests(params.RUN_ONLY, TEST_TO_RUN[0])
                 //runConjurTests(params.RUN_ONLY)
-                runConjurTests('''
-                  authenticators_config
-                  authenticators_k8s
-                  rotators
-                  authenticators_status
-              ''')
+                //runConjurTests('''
+                  //authenticators_config
+                  //authenticators_k8s
+                  //rotators
+                  //authenticators_status
+              //''')
               }
             }
 
@@ -394,13 +397,15 @@ pipeline {
               steps {
                 addNewImagesToAgent()
                 unstash 'version_info'
+                println "${TEST_TO_RUN[1]}"
+                runConjurTests(params.RUN_ONLY, TEST_TO_RUN[1])
                 //runConjurTests2(params.RUN_ONLY)
-                runConjurTests('''
-                  rspec_audit
-                  authenticators_ldap
-                  authenticators_jwt
-                  policy
-                ''')
+                //runConjurTests('''
+                  //rspec_audit
+                  //authenticators_ldap
+                  //authenticators_jwt
+                  //policy
+                //''')
 
               }
             }
@@ -416,12 +421,14 @@ pipeline {
               steps {
                 addNewImagesToAgent()
                 unstash 'version_info'
+                println "${TEST_TO_RUN[2]}"
+                runConjurTests(params.RUN_ONLY, TEST_TO_RUN[2])
                 //runConjurTests3(params.RUN_ONLY)
-                runConjurTests('''
-                  policy_parser
-                  authenticators_oidc
-                  api
-                ''')
+                //runConjurTests('''
+                  //policy_parser
+                  //authenticators_oidc
+                  //api
+                //''')
               }
             }
 
@@ -837,8 +844,42 @@ def testShouldRun(run_only_str, test) {
 
 // "run_only_str" is a space-separated string specifying the subset of tests to
 // run.  If it's empty, all tests are run.
-def runConjurTests(run_only_str) {
+// "parallel_tests" is a list of tests in a map format derived from agentTests()
+def runConjurTests(run_only_str, parallel_tests) {
 
+  // Filter for the tests we want run, if requested.
+  tests = run_only_str.split()
+
+  // TODO: Find a way to exit without failing in Jenkins
+  if (tests.size() > 0) {
+    for ( test in tests ) {
+      def x = parallel_tests.any{ it.key == test }?.value
+      if(x) {
+        continue
+      } else {
+        return true
+      }
+    }
+    //parallel_tests = all_tests.subMap(tests)
+  }
+
+  // Create the parallel pipeline.
+  //
+  // Since + merges two maps together, sum() combines the individual values of
+  // parallel_tests into one giant map whose keys are the stage names and
+  // whose values are the blocks to be run.
+
+  script {
+    parallel(
+      parallel_tests.values().sum(),
+    )
+  }
+}
+
+// agentTests will return a nested list of tests.
+// the size of each nested list will be based on the size
+// parameter.
+def agentTests(size) {
   all_tests = [
     "authenticators_config": [
       "Authenticators Config - ${env.STAGE_NAME}": {
@@ -907,34 +948,18 @@ def runConjurTests(run_only_str) {
     ]
   ]
 
-  // Filter for the tests we want run, if requested.
-  parallel_tests = all_tests
-  tests = run_only_str.split()
+  def parallel_tests = []
+  int partitionSize = all_tests.size() / size
+  // Create a subset of tests that can be ran by each Jenkins agent
+  //for (int i = 0; i < partitionSize; i++) {
+      //def start = i * size
+      //def end = start + size - 1
+      //parallel_tests << all_tests[start..end]
+  //}
+  //if (all_tests.size() % size) parallel_tests << all_tests[partitionSize * all_tests..-1]
 
-  // TODO: Find a way to exit without failing in Jenkins
-  if (tests.size() > 0) {
-    for ( test in tests ) {
-      def x = parallel_tests.any{ it.key == test }?.value
-      if(x) {
-        continue
-      } else {
-        return true
-      }
-    }
-    parallel_tests = all_tests.subMap(tests)
-  }
-
-  // Create the parallel pipeline.
-  //
-  // Since + merges two maps together, sum() combines the individual values of
-  // parallel_tests into one giant map whose keys are the stage names and
-  // whose values are the blocks to be run.
-
-  script {
-    parallel(
-      parallel_tests.values().sum(),
-    )
-  }
+  // Return the list of maps
+  return parallel_tests
 }
 
 def defaultCucumberFilterTags(env) {
