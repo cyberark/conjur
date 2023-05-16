@@ -342,6 +342,13 @@ function run_conjur_master() {
 
   kubectl wait --for=condition=Ready "pod/$conjur_pod" --timeout=5m
 
+  #kubectl get pods
+  #kubectl describe pods
+  sleep 15
+  #kubectl get pods
+
+
+
   # wait for the 'conjurctl server' entrypoint to finish
   local wait_command="while ! curl --silent --head --fail \
     localhost:80 > /dev/null; do sleep 1; done"
@@ -366,6 +373,7 @@ function run_cucumber() {
   echo "./bin/cucumber \
     K8S_VERSION=1.7 \
     PLATFORM=kubernetes \
+    printenv \
     --no-color --format pretty --strict \
     --format json --out \"./cucumber/authenticators_k8s/cucumber_results.json\" \
     --format html --out \"./cucumber/authenticators_k8s/cucumber_results.html\" \
