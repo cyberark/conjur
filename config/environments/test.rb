@@ -4,20 +4,20 @@ require 'logger/formatter/conjur_formatter'
 require 'test/audit_sink'
 
 # Might only need to place the ENV vars in this file instead of throughout the cucumber env.rb files
-#api_string = "CONJUR_AUTHN_API_KEY#{ENV['TEST_ENV_NUMBER']}"
-#h = Hash.new
-#h['CONJUR_APPLIANCE_URL'] = "http://conjur#{ENV['TEST_ENV_NUMBER']}"
-#h['DATABASE_URL'] = "postgres://postgres@pg#{ENV['TEST_ENV_NUMBER']}/postgres"
-#h['CONJUR_AUTHN_API_KEY'] = ENV[api_string]
+api_string = "CONJUR_AUTHN_API_KEY#{ENV['TEST_ENV_NUMBER']}"
+h = Hash.new
+h['CONJUR_APPLIANCE_URL'] = "http://conjur#{ENV['TEST_ENV_NUMBER']}"
+h['DATABASE_URL'] = "postgres://postgres@pg#{ENV['TEST_ENV_NUMBER']}/postgres"
+h['CONJUR_AUTHN_API_KEY'] = ENV[api_string]
 
-#h.each do |key, value|
-  ##ENV[key] || ENV[key] = value
-  #if ENV[key].nil? || ENV[key].empty?
-    #ENV[key] = value
-    #puts "#{File.dirname(__FILE__)}/#{File.basename(__FILE__)}"
-    #puts "SET #{key}: #{value}"
-  #end
-#end
+h.each do |key, value|
+  #ENV[key] || ENV[key] = value
+  if ENV[key].nil? || ENV[key].empty?
+    ENV[key] = value
+    puts "#{File.dirname(__FILE__)}/#{File.basename(__FILE__)}"
+    puts "SET #{key}: #{value}"
+  end
+end
 
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
