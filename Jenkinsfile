@@ -120,7 +120,7 @@ pipeline {
   environment {
     // Sets the MODE to the specified or autocalculated value as appropriate
     MODE = release.canonicalizeMode()
-    TEST_TO_RUN = agentTests(4)
+    //TEST_TO_RUN = agentTests(4)
   }
 
   stages {
@@ -374,15 +374,12 @@ pipeline {
               }
 
               steps {
-                println "${TEST_TO_RUN[0]}"
-                runConjurTests(params.RUN_ONLY, TEST_TO_RUN[0])
-                //runConjurTests(params.RUN_ONLY)
-                //runConjurTests('''
-                  //authenticators_config
-                  //authenticators_k8s
-                  //rotators
-                  //authenticators_status
-              //''')
+                runConjurTests('''
+                  authenticators_config
+                  authenticators_k8s
+                  rotators
+                  authenticators_status
+              ''')
               }
             }
 
@@ -397,15 +394,12 @@ pipeline {
               steps {
                 addNewImagesToAgent()
                 unstash 'version_info'
-                println "${TEST_TO_RUN[1]}"
-                runConjurTests(params.RUN_ONLY, TEST_TO_RUN[1])
-                //runConjurTests2(params.RUN_ONLY)
-                //runConjurTests('''
-                  //rspec_audit
-                  //authenticators_ldap
-                  //authenticators_jwt
-                  //policy
-                //''')
+                runConjurTests('''
+                  rspec_audit
+                  authenticators_ldap
+                  authenticators_jwt
+                  policy
+                ''')
 
               }
             }
@@ -421,14 +415,11 @@ pipeline {
               steps {
                 addNewImagesToAgent()
                 unstash 'version_info'
-                println "${TEST_TO_RUN[2]}"
-                runConjurTests(params.RUN_ONLY, TEST_TO_RUN[2])
-                //runConjurTests3(params.RUN_ONLY)
-                //runConjurTests('''
-                  //policy_parser
-                  //authenticators_oidc
-                  //api
-                //''')
+                runConjurTests('''
+                  policy_parser
+                  authenticators_oidc
+                  api
+                ''')
               }
             }
 
@@ -845,22 +836,78 @@ def testShouldRun(run_only_str, test) {
 // "run_only_str" is a space-separated string specifying the subset of tests to
 // run.  If it's empty, all tests are run.
 // "parallel_tests" is a list of tests in a map format derived from agentTests()
-def runConjurTests(run_only_str, parallel_tests) {
+def runConjurTests(run_only_str) {
 
-  // Filter for the tests we want run, if requested.
-  tests = run_only_str.split()
-
-  // TODO: Find a way to exit without failing in Jenkins
-  if (tests.size() > 0) {
-    for ( test in tests ) {
-      def x = parallel_tests.any{ it.key == test }?.value
-      if(x) {
-        continue
-      } else {
-        return true
+    all_tests = [
+    "authenticators_config": [
+      "Authenticators Config - ${env.STAGE_NAME}": {
+        sh 'ci/test authenticators_config'
       }
-    }
-    //parallel_tests = all_tests.subMap(tests)
+    ],
+    "authenticators_status": [
+      "Authenticators Status - ${env.STAGE_NAME}": {
+        sh 'ci/test authenticators_status'
+      }
+    ],
+    "authenticators_k8s": [
+      "K8s Authenticator - ${env.STAGE_NAME}": {
+        sh 'ci/test authenticators_k8s'
+      }
+    ],
+    "authenticators_ldap": [
+      "LDAP Authenticator - ${env.STAGE_NAME}": {
+        sh 'ci/test authenticators_ldap'
+      }
+    ],
+    "authenticators_oidc": [
+      "OIDC Authenticator - ${env.STAGE_NAME}": {
+          sh 'summon -f ./ci/test_suites/authenticators_oidc/secrets.yml -e ci ci/test authenticators_oidc'
+      }
+    ],
+    "authenticators_jwt": [
+      "JWT Authenticator - ${env.STAGE_NAME}": {
+        sh 'ci/test authenticators_jwt'
+      }
+    ],
+    "policy": [
+      "Policy - ${env.STAGE_NAME}": {
+        sh 'ci/test policy'
+      }
+    ],
+    "api": [
+      "API - ${env.STAGE_NAME}": {
+        sh 'ci/test api'
+      }
+    ],
+    "rotators": [
+      "Rotators - ${env.STAGE_NAME}": {
+        sh 'ci/test rotators'
+      }
+    ],
+    "rspec_audit": [
+      "Audit - ${env.STAGE_NAME}": {
+        sh 'ci/test rspec_audit'
+      }
+    ],
+    "policy_parser": [
+      "Policy Parser - ${env.STAGE_NAME}": {
+        sh 'cd gems/policy-parser && ./test.sh'
+      }
+    ]
+  ]
+
+  def parallel_tests = []
+  int partitionSize = all_tests.size() / size
+  // Create a subset of tests that can be ran by each Jenkins agent
+  //for (int i = 0; i < partitionSize; i++) {
+      //def start = i * size
+      //def end = start + size - 1
+      //parallel_tests << all_tests[start..end]
+  //}
+  //if (all_tests.size() % size) parallel_tests << all_tests[partitionSize * all_tests..-1]
+
+  if (tests.size() > 0) {
+    parallel_tests = all_tests.subMap(tests)
   }
 
   // Create the parallel pipeline.
@@ -881,84 +928,39 @@ def runConjurTests(run_only_str, parallel_tests) {
 // parameter.
 def agentTests(size) {
   all_tests = [
-    "authenticators_config": [
-      "Authenticators Config - ${env.STAGE_NAME}": {
-        //sh 'sleep $((10 + RANDOM % 15))'
-        sh 'ci/test authenticators_config'
-      }
-    ],
-    "authenticators_k8s": [
-      "K8s Authenticator - ${env.STAGE_NAME}": {
-        //sh 'sleep $((10 + RANDOM % 15))'
-        sh 'ci/test authenticators_k8s'
-      }
-    ],
-    "rotators": [
-      "Rotators - ${env.STAGE_NAME}": {
-        //sh 'sleep $((10 + RANDOM % 15))'
-        sh 'ci/test rotators'
-      }
-    ],
-    "rspec_audit": [
-      "Audit - ${env.STAGE_NAME}": {
-        //sh 'sleep $((10 + RANDOM % 15))'
-        sh 'ci/test rspec_audit'
-      }
-    ],
-    "authenticators_status": [
-      "Authenticators Status - ${env.STAGE_NAME}": {
-        //sh 'sleep $((10 + RANDOM % 15))'
-        sh 'ci/test authenticators_status'
-      }
-    ],
-    "authenticators_ldap": [
-      "LDAP Authenticator - ${env.STAGE_NAME}": {
-        //sh 'sleep $((10 + RANDOM % 15))'
-        sh 'ci/test authenticators_ldap'
-      }
-    ],
-    "authenticators_jwt": [
-      "JWT Authenticator - ${env.STAGE_NAME}": {
-        //sh 'sleep $((10 + RANDOM % 15))'
-        sh 'ci/test authenticators_jwt'
-      }
-    ],
-    "policy": [
-      "Policy - ${env.STAGE_NAME}": {
-        //sh 'sleep $((10 + RANDOM % 15))'
-        sh 'ci/test policy'
-      }
-    ],
-    "policy_parser": [
-      "Policy Parser - ${env.STAGE_NAME}": {
-        //sh 'sleep $((10 + RANDOM % 15))'
-        sh 'cd gems/policy-parser && ./test.sh'
-      }
-    ],
-    "authenticators_oidc": [
-      "OIDC Authenticator - ${env.STAGE_NAME}": {
-          //sh 'sleep $((10 + RANDOM % 15))'
-          sh 'summon -f ./ci/test_suites/authenticators_oidc/secrets.yml -e ci ci/test authenticators_oidc'
-      }
-    ],
-    "api": [
-      "API - ${env.STAGE_NAME}": {
-        sh 'ci/test api'
-      }
-    ]
+   "authenticators_config",
+    "authenticators_k8s",
+    "rotators",
+    "rspec_audit",
+    "authenticators_status",
+    "authenticators_ldap",
+    "authenticators_jwt",
+    "policy",
+    "policy_parser",
+    "authenticators_oidc",
+    "api"
   ]
 
   def parallel_tests = []
-  int partitionSize = all_tests.size() / size
   // Create a subset of tests that can be ran by each Jenkins agent
+  int partitionCount = all_tests.size() / size
+
+  partitionCount.times { partitionNumber ->
+  def start = partitionNumber * size
+  def end = start + size - 1
+  parallel_tests << all_tests[start..end]
+  }
+
+  if (all_tests.size() % size) {
+    parallel_tests << all_tests[partitionCount * size..-1]
+  }
+
+
   //for (int i = 0; i < partitionSize; i++) {
-      //def start = i * size
-      //def end = start + size - 1
-      //parallel_tests << all_tests[start..end]
-  //}
-  //if (all_tests.size() % size) parallel_tests << all_tests[partitionSize * all_tests..-1]
 
   // Return the list of maps
+  println "${parallel_tests[1]}"
+  assert parallel_tests instanceof ArrayList
   return parallel_tests
 }
 
