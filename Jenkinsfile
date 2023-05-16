@@ -826,25 +826,25 @@ def runConjurTests(run_only_str) {
   all_tests = [
     "authenticators_config": [
       "Authenticators Config - ${env.STAGE_NAME}": {
-        sh 'sleep $((10 + RANDOM % 15))'
+        //sh 'sleep $((10 + RANDOM % 15))'
         sh 'ci/test authenticators_config'
       }
     ],
     "authenticators_k8s": [
       "K8s Authenticator - ${env.STAGE_NAME}": {
-        sh 'sleep $((10 + RANDOM % 15))'
+        //sh 'sleep $((10 + RANDOM % 15))'
         sh 'ci/test authenticators_k8s'
       }
     ],
     "rotators": [
       "Rotators - ${env.STAGE_NAME}": {
-        sh 'sleep $((10 + RANDOM % 15))'
+        //sh 'sleep $((10 + RANDOM % 15))'
         sh 'ci/test rotators'
       }
     ],
     "rspec_audit": [
       "Audit - ${env.STAGE_NAME}": {
-        sh 'sleep $((10 + RANDOM % 15))'
+        //sh 'sleep $((10 + RANDOM % 15))'
         sh 'ci/test rspec_audit'
       }
     ]
@@ -887,31 +887,31 @@ def runConjurTests2(run_only_str) {
   all_tests = [
     "authenticators_status": [
       "Authenticators Status - ${env.STAGE_NAME}": {
-        sh 'sleep $((10 + RANDOM % 15))'
+        //sh 'sleep $((10 + RANDOM % 15))'
         sh 'ci/test authenticators_status'
       }
     ],
     "authenticators_ldap": [
       "LDAP Authenticator - ${env.STAGE_NAME}": {
-        sh 'sleep $((10 + RANDOM % 15))'
+        //sh 'sleep $((10 + RANDOM % 15))'
         sh 'ci/test authenticators_ldap'
       }
     ],
     "authenticators_jwt": [
       "JWT Authenticator - ${env.STAGE_NAME}": {
-        sh 'sleep $((10 + RANDOM % 15))'
+        //sh 'sleep $((10 + RANDOM % 15))'
         sh 'ci/test authenticators_jwt'
       }
     ],
     "policy": [
       "Policy - ${env.STAGE_NAME}": {
-        sh 'sleep $((10 + RANDOM % 15))'
+        //sh 'sleep $((10 + RANDOM % 15))'
         sh 'ci/test policy'
       }
     ],
     "policy_parser": [
       "Policy Parser - ${env.STAGE_NAME}": {
-        sh 'sleep $((10 + RANDOM % 15))'
+        //sh 'sleep $((10 + RANDOM % 15))'
         sh 'cd gems/policy-parser && ./test.sh'
       }
     ]
@@ -945,7 +945,7 @@ def runConjurTests3(run_only_str) {
   all_tests = [
     "authenticators_oidc": [
       "OIDC Authenticator - ${env.STAGE_NAME}": {
-          sh 'sleep $((10 + RANDOM % 15))'
+          //sh 'sleep $((10 + RANDOM % 15))'
           sh 'summon -f ./ci/test_suites/authenticators_oidc/secrets.yml -e ci ci/test authenticators_oidc'
       }
     ],
