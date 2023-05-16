@@ -386,15 +386,7 @@ pipeline {
               }
 
               steps {
-                // Pull and retag existing images onto new Jenkins agent
-                sh "docker pull registry.tld/conjur:${tagWithSHA()}"
-                sh "docker pull registry.tld/conjur-ubi:${tagWithSHA()}"
-                sh "docker pull registry.tld/conjur-test:${tagWithSHA()}"
-                sh "docker tag registry.tld/conjur:${tagWithSHA()} conjur:${tagWithSHA()}"
-                sh "docker tag registry.tld/conjur-ubi:${tagWithSHA()} conjur-ubi:${tagWithSHA()}"
-                sh "docker tag registry.tld/conjur-test:${tagWithSHA()} conjur-test:${tagWithSHA()}"
-
-                unstash 'version_info'
+                addNewImagesToAgent()
                 runConjurTests2(params.RUN_ONLY)
               }
             }
@@ -408,15 +400,7 @@ pipeline {
               }
 
               steps {
-                // Pull and retag existing images onto new Jenkins agent
-                sh "docker pull registry.tld/conjur:${tagWithSHA()}"
-                sh "docker pull registry.tld/conjur-ubi:${tagWithSHA()}"
-                sh "docker pull registry.tld/conjur-test:${tagWithSHA()}"
-                sh "docker tag registry.tld/conjur:${tagWithSHA()} conjur:${tagWithSHA()}"
-                sh "docker tag registry.tld/conjur-ubi:${tagWithSHA()} conjur-ubi:${tagWithSHA()}"
-                sh "docker tag registry.tld/conjur-test:${tagWithSHA()} conjur-test:${tagWithSHA()}"
-
-                unstash 'version_info'
+                addNewImagesToAgent()
                 runConjurTests3(params.RUN_ONLY)
               }
             }
@@ -797,6 +781,20 @@ pipeline {
 ////////////////////////////////////////////
 
 // TODO: Do we want to move any of these functions to a separate file?
+
+def addNewImagesToAgent() {
+  // Pull and retag existing images onto new Jenkins agent
+  sh """
+    docker pull registry.tld/conjur:${tagWithSHA()}
+    docker pull registry.tld/conjur-ubi:${tagWithSHA()}
+    docker pull registry.tld/conjur-test:${tagWithSHA()}
+    docker tag registry.tld/conjur:${tagWithSHA()} conjur:${tagWithSHA()}
+    docker tag registry.tld/conjur-ubi:${tagWithSHA()} conjur-ubi:${tagWithSHA()}
+    docker tag registry.tld/conjur-test:${tagWithSHA()} conjur-test:${tagWithSHA()}
+    """
+
+  unstash 'version_info'
+}
 
 // Possible minor optimization: Could memoize this. Need to verify it's not
 // shared across builds.
