@@ -20,7 +20,7 @@ gem 'iso8601'
 gem 'jbuilder', '~> 2.7.0'
 gem 'nokogiri', '>= 1.8.2'
 gem 'puma', '~> 5.6'
-gem 'rack', '~> 2.2'
+gem 'rack', '~> 3.0'
 gem 'rails', '~> 6.1', '>= 6.1.4.6'
 gem 'rake'
 

@@ -8,7 +8,7 @@ PATH
 GEM
   remote: https://rubygems.org/
   specs:
-    actioncable (6.1.7.3)
+    actioncable (7.0.4)
       actionpack (= 6.1.7.3)
       activesupport (= 6.1.7.3)
       nio4r (~> 2.0)

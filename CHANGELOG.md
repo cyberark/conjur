@@ -14,6 +14,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Security
 - Update bundler to 2.2.33 to remove CVE-2021-43809
   [cyberark/conjur#2804](https://github.com/cyberark/conjur/pull/2804/files)
+- Update rack to 3.0.7 to remove Snyk vulnerability SNYK-RUBY-RACK-1061917
+- Update actioncable to 7.0.4 to remove Snyk vulnerability SNYK-RUBY-ACTIONCABLE-20338
 
 ## [1.19.4] - 2023-05-12
 
