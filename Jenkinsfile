@@ -286,6 +286,8 @@ pipeline {
               agent { label 'executor-v2-rhel-ee' }
 
               steps {
+                sh(script: 'cat /etc/os-release', label: 'RHEL version')
+                sh(script: 'docker --version', label: 'Docker version')
                 unstash 'version_info'
                 // Catch errors so remaining steps always run.
                 catchError {
@@ -362,6 +364,8 @@ pipeline {
               }
 
               steps {
+                sh(script: 'cat /etc/os-release', label: 'RHEL version')
+                sh(script: 'docker --version', label: 'Docker version')
                 runConjurTests(params.RUN_ONLY)
               }
             }
