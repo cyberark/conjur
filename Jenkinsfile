@@ -373,7 +373,13 @@ pipeline {
               }
 
               steps {
-                runConjurTests(params.RUN_ONLY)
+                //runConjurTests(params.RUN_ONLY)
+                runConjurTests('''
+                  authenticators_config
+                  authenticators_k8s
+                  rotators
+                  authenticators_status
+              ''')
               }
             }
 
@@ -387,7 +393,14 @@ pipeline {
 
               steps {
                 addNewImagesToAgent()
-                runConjurTests2(params.RUN_ONLY)
+                //runConjurTests2(params.RUN_ONLY)
+                runConjurTests('''
+                  rspec_audit
+                  authenticators_ldap
+                  authenticators_jwt
+                  policy
+                ''')
+
               }
             }
 
@@ -401,7 +414,12 @@ pipeline {
 
               steps {
                 addNewImagesToAgent()
-                runConjurTests3(params.RUN_ONLY)
+                //runConjurTests3(params.RUN_ONLY)
+                runConjurTests('''
+                  policy_parser
+                  authenticators_oidc
+                  api
+                ''')
               }
             }
 
@@ -845,44 +863,7 @@ def runConjurTests(run_only_str) {
         //sh 'sleep $((10 + RANDOM % 15))'
         sh 'ci/test rspec_audit'
       }
-    ]
-  ]
-
-  // Filter for the tests we want run, if requested.
-  parallel_tests = all_tests
-  tests = run_only_str.split()
-
-  // TODO: Find a way to exit without failing in Jenkins
-  if (tests.size() > 0) {
-    for ( test in tests ) {
-      def x = parallel_tests.any{ it.key == test }?.value
-      if(x) {
-        continue
-      } else {
-        return true
-      }
-    }
-    parallel_tests = all_tests.subMap(tests)
-  }
-
-  // Create the parallel pipeline.
-  //
-  // Since + merges two maps together, sum() combines the individual values of
-  // parallel_tests into one giant map whose keys are the stage names and
-  // whose values are the blocks to be run.
-
-  script {
-    parallel(
-      parallel_tests.values().sum(),
-    )
-  }
-}
-
-// "run_only_str" is a space-separated string specifying the subset of tests to
-// run.  If it's empty, all tests are run.
-def runConjurTests2(run_only_str) {
-
-  all_tests = [
+    ],
     "authenticators_status": [
       "Authenticators Status - ${env.STAGE_NAME}": {
         //sh 'sleep $((10 + RANDOM % 15))'
@@ -912,35 +893,7 @@ def runConjurTests2(run_only_str) {
         //sh 'sleep $((10 + RANDOM % 15))'
         sh 'cd gems/policy-parser && ./test.sh'
       }
-    ]
-  ]
-
-  // Filter for the tests we want run, if requested.
-  parallel_tests = all_tests
-  tests = run_only_str.split()
-
-  if (tests.size() > 0) {
-    parallel_tests = all_tests.subMap(tests)
-  }
-
-  // Create the parallel pipeline.
-  //
-  // Since + merges two maps together, sum() combines the individual values of
-  // parallel_tests into one giant map whose keys are the stage names and
-  // whose values are the blocks to be run.
-
-  script {
-    parallel(
-      parallel_tests.values().sum(),
-    )
-  }
-}
-
-// "run_only_str" is a space-separated string specifying the subset of tests to
-// run.  If it's empty, all tests are run.
-def runConjurTests3(run_only_str) {
-
-  all_tests = [
+    ],
     "authenticators_oidc": [
       "OIDC Authenticator - ${env.STAGE_NAME}": {
           //sh 'sleep $((10 + RANDOM % 15))'
@@ -958,7 +911,16 @@ def runConjurTests3(run_only_str) {
   parallel_tests = all_tests
   tests = run_only_str.split()
 
+  // TODO: Find a way to exit without failing in Jenkins
   if (tests.size() > 0) {
+    for ( test in tests ) {
+      def x = parallel_tests.any{ it.key == test }?.value
+      if(x) {
+        continue
+      } else {
+        return true
+      }
+    }
     parallel_tests = all_tests.subMap(tests)
   }
 
