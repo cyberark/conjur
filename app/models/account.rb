@@ -47,12 +47,12 @@ Account = Struct.new(:id) do
     end
 
     def list
-      accounts = []
+      accounts = Set.new
       Slosilo.each do |k,v|
         accounts << k
       end
       accounts.map do |account|
-        account =~ /\Aauthn:(.+)\z/
+        account =~ /\Aauthn:([^:]+)(?::[^:]+)?\z/
         $1
       end.delete_if do |account|
         account == "!"
@@ -70,15 +70,15 @@ Account = Struct.new(:id) do
 
   def delete
     # Ensure the signing key exists
-    slosilo_keystore.adapter.model.with_pk!(token_key_host)
-    slosilo_keystore.adapter.model.with_pk!(token_key_user)
+    slosilo_keystore.adapter.model.with_pk!("authn:#{id}:host")
+    slosilo_keystore.adapter.model.with_pk!("authn:#{id}:user")
     Role["#{id}:user:admin"].destroy
     Role["#{id}:policy:root"].try(:destroy)
     Resource["#{id}:user:admin"].try(:destroy)
     Credentials.where(Sequel.lit("account(role_id)") => id).delete
     Secret.where(Sequel.lit("account(resource_id)") => id).delete
-    slosilo_keystore.adapter.model[token_key_host].destroy
-    slosilo_keystore.adapter.model[token_key_user].destroy
+    slosilo_keystore.adapter.model["authn:#{id}:host"].destroy
+    slosilo_keystore.adapter.model["authn:#{id}:user"].destroy
     true
   end
 
