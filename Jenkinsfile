@@ -393,6 +393,7 @@ pipeline {
 
               steps {
                 addNewImagesToAgent()
+                unstash 'version_info'
                 //runConjurTests2(params.RUN_ONLY)
                 runConjurTests('''
                   rspec_audit
@@ -414,6 +415,7 @@ pipeline {
 
               steps {
                 addNewImagesToAgent()
+                unstash 'version_info'
                 //runConjurTests3(params.RUN_ONLY)
                 runConjurTests('''
                   policy_parser
@@ -810,8 +812,6 @@ def addNewImagesToAgent() {
     docker tag registry.tld/conjur-ubi:${tagWithSHA()} conjur-ubi:${tagWithSHA()}
     docker tag registry.tld/conjur-test:${tagWithSHA()} conjur-test:${tagWithSHA()}
     """
-
-  unstash 'version_info'
 }
 
 // Possible minor optimization: Could memoize this. Need to verify it's not
