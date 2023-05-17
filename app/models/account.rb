@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require_relative '../../gems/conjur-rack/lib/conjur/rack/consts'
 
 Account = Struct.new(:id) do
   class << self
@@ -17,15 +18,24 @@ Account = Struct.new(:id) do
 
     INVALID_ID_CHARS = /[ :]/.freeze
 
+    def token_key(account, role)
+      Slosilo[token_id(account, role)]
+    end
+
+    def token_id(account, role)
+      "authn:#{account}:#{role}"
+    end
+
     def create(id, owner_id = nil)
-      raise Exceptions::RecordExists.new("account", id) if Slosilo["authn:#{id}"]
+      raise Exceptions::RecordExists.new("account", id) if token_key(id, "host") || token_key(id, "user")
 
       if (invalid = INVALID_ID_CHARS.match(id))
         raise ArgumentError, 'account name "%s" contains invalid characters (%s)' % [id, invalid]
       end
 
       Role.db.transaction do
-        Slosilo["authn:#{id}"] = Slosilo::Key.new
+        Slosilo[token_id(id, "host")] = Slosilo::Key.new
+        Slosilo[token_id(id, "user")] = Slosilo::Key.new
 
         role_id = "#{id}:user:admin"
         admin_user = Role.create(role_id: role_id)
@@ -40,34 +50,34 @@ Account = Struct.new(:id) do
     end
 
     def list
-      accounts = []
-      Slosilo.each do |k,v|
-        accounts << k
+      account_set = Set.new
+      Slosilo.each do |account,_|
+        account =~ Conjur::Rack::Consts::TOKEN_ID_REGEX
+        account_set.add($1) unless $1 == "!"
       end
-      accounts.map do |account|
-        account =~ /\Aauthn:(.+)\z/
-        $1
-      end.delete_if do |account|
-        account == "!"
-      end
+      account_set
     end
   end
 
-  def token_key
-    Slosilo["authn:#{id}"]
+  def token_key(role)
+    Account.token_key(id, role)
+  end
+
+  def token_id(role)
+    Account.token_id(id, role)
   end
 
   def delete
     # Ensure the signing key exists
-    slosilo_keystore.adapter.model.with_pk!("authn:#{id}")
-
+    slosilo_keystore.adapter.model.with_pk!(token_id("user"))
+    slosilo_keystore.adapter.model.with_pk!(token_id("host"))
     Role["#{id}:user:admin"].destroy
     Role["#{id}:policy:root"].try(:destroy)
     Resource["#{id}:user:admin"].try(:destroy)
     Credentials.where(Sequel.lit("account(role_id)") => id).delete
     Secret.where(Sequel.lit("account(resource_id)") => id).delete
-    slosilo_keystore.adapter.model["authn:#{id}"].destroy
-
+    slosilo_keystore.adapter.model[token_id("user")].destroy
+    slosilo_keystore.adapter.model[token_id("host")].destroy
     true
   end
 

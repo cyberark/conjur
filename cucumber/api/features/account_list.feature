@@ -23,7 +23,10 @@ Feature: List accounts
     And I permit role "!:user:auditor" to "read" resource "!:webservice:accounts"
     And I login as "!:user:auditor"
     Then I successfully GET "/accounts"
-    And the JSON should include "new-account"
+    And the JSON response should be:
+    """
+    ["cucumber", "new-account"]
+    """
     And the JSON should not include "!"
 
   @acceptance 
