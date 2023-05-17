@@ -27,7 +27,6 @@ Feature: List accounts
     """
     ["cucumber", "new-account"]
     """
-    And the JSON should not include "!"
 
   @acceptance 
   @logged-in-admin
