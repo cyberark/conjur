@@ -4,7 +4,7 @@ require 'spec_helper'
 
 describe TokenFactory  do
 
-  before(:all) { Slosilo["authn:cucumber"] ||= Slosilo::Key.new }
+  before(:all) { init_slosilo_keys("cucumber")}
   let(:token_factory) { TokenFactory.new }
   let(:ttl_limit) { 5 * 60 * 60 } # five hours
 

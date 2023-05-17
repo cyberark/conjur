@@ -22,7 +22,8 @@ describe "conjurctl server" do
         "conjurctl server --password-from-stdin"
       )
       expect(stderr_str).to include("account is required")
-      expect(Slosilo["authn:demo"]).not_to be
+      expect(token_key("demo", "host")).not_to be
+      expect(token_key("demo", "user")).not_to be
       expect(Role["demo:user:admin"]).not_to be
     end
 
@@ -31,7 +32,8 @@ describe "conjurctl server" do
         'conjurctl server --account demo'
       ) do
         wait_for_conjur
-        expect(Slosilo["authn:demo"]).to be
+        expect(token_key("demo", "host")).to be
+        expect(token_key("demo", "user")).to be
         expect(Role["demo:user:admin"]).to be
       end
     end
@@ -42,7 +44,8 @@ describe "conjurctl server" do
         conjurctl server --account demo --password-from-stdin
         ") do
         wait_for_conjur
-        expect(Slosilo["authn:demo"]).to be
+        expect(token_key("demo", "host")).to be
+        expect(token_key("demo", "user")).to be
         expect(Role["demo:user:admin"]).to be
       end
     end

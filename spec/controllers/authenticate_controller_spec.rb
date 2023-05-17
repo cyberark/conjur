@@ -52,7 +52,7 @@ describe AuthenticateController, :type => :request do
       end
 
       context "with Token auth" do
-        include_context "authenticate Token"
+        include_context "authenticate user Token"
 
         it "is unauthorized" do
           post(authenticate_url, env: request_env)
@@ -101,5 +101,5 @@ describe AuthenticateController, :type => :request do
     end
   end
 
-  before(:all) { Slosilo["authn:rspec"] ||= Slosilo::Key.new }
+  before(:all) { init_slosilo_keys("rspec") }
 end

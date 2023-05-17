@@ -5,7 +5,9 @@ require 'spec_helper'
 describe CredentialsController, :type => :request do
   include_context "existing account"
 
-  before(:all) { Slosilo["authn:rspec"] ||= Slosilo::Key.new }
+  before(:all) {
+    init_slosilo_keys("rspec")
+  }
 
   let(:login) { "u-#{random_hex}" }
   let(:host_login) { "h-#{random_hex}" }
@@ -39,7 +41,7 @@ describe CredentialsController, :type => :request do
 
     context "with token auth" do
       include_context "create user"
-      include_context "authenticate Token"
+      include_context "authenticate user Token"
       it_should_behave_like "authentication denied"
     end
 
