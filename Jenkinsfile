@@ -76,6 +76,11 @@ if (params.MODE == "PROMOTE") {
   return
 }
 
+// Break the total number of tests into a subset of tests.
+// This will give 3 nested lists of tests to run, which is
+// distributed over 3 jenkins agents.
+def NESTED_ARRAY_OF_JOBS_TO_RUN createListOfTests(4)
+
 pipeline {
   agent { label 'executor-v2' }
 
@@ -120,7 +125,6 @@ pipeline {
   environment {
     // Sets the MODE to the specified or autocalculated value as appropriate
     MODE = release.canonicalizeMode()
-    //TEST_TO_RUN = agentTests(4)
   }
 
   stages {
@@ -374,12 +378,7 @@ pipeline {
               }
 
               steps {
-                runConjurTests('''
-                  authenticators_config
-                  authenticators_k8s
-                  rotators
-                  authenticators_status
-              ''')
+                runConjurTests(NESTED_ARRAY_OF_JOBS_TO_RUN[0])
               }
             }
 
@@ -394,13 +393,7 @@ pipeline {
               steps {
                 addNewImagesToAgent()
                 unstash 'version_info'
-                runConjurTests('''
-                  rspec_audit
-                  authenticators_ldap
-                  authenticators_jwt
-                  policy
-                ''')
-
+                runConjurTests(NESTED_ARRAY_OF_JOBS_TO_RUN[1])
               }
             }
 
@@ -415,11 +408,7 @@ pipeline {
               steps {
                 addNewImagesToAgent()
                 unstash 'version_info'
-                runConjurTests('''
-                  policy_parser
-                  authenticators_oidc
-                  api
-                ''')
+                runConjurTests(NESTED_ARRAY_OF_JOBS_TO_RUN[2])
               }
             }
 
@@ -833,11 +822,10 @@ def testShouldRun(run_only_str, test) {
   return run_only_str == '' || run_only_str.split().contains(test)
 }
 
-// "run_only_str" is a space-separated string specifying the subset of tests to
-// run.  If it's empty, all tests are run.
-// "parallel_tests" is a list of tests in a map format derived from agentTests()
-def runConjurTests(run_only_str) {
-
+// "test_jobs_to_run" is an array specifying tests to
+// run.
+def runConjurTests(test_jobs_to_run) {
+    run_only_str = test_jobs_to_run.join(' ')
     all_tests = [
     "authenticators_config": [
       "Authenticators Config - ${env.STAGE_NAME}": {
@@ -897,14 +885,6 @@ def runConjurTests(run_only_str) {
   ]
 
   def parallel_tests = []
-  int partitionSize = all_tests.size() / size
-  // Create a subset of tests that can be ran by each Jenkins agent
-  //for (int i = 0; i < partitionSize; i++) {
-      //def start = i * size
-      //def end = start + size - 1
-      //parallel_tests << all_tests[start..end]
-  //}
-  //if (all_tests.size() % size) parallel_tests << all_tests[partitionSize * all_tests..-1]
 
   if (tests.size() > 0) {
     parallel_tests = all_tests.subMap(tests)
@@ -923,10 +903,10 @@ def runConjurTests(run_only_str) {
   }
 }
 
-// agentTests will return a nested list of tests.
-// the size of each nested list will be based on the size
-// parameter.
-def agentTests(size) {
+// createListOfTests will return a nested list of tests.
+// the max_size_of_nested_list of each nested list will be based
+// on the max_size_of_nested_list parameter.
+def createListOfTests(max_size_of_nested_list) {
   all_tests = [
    "authenticators_config",
     "authenticators_k8s",
@@ -943,24 +923,18 @@ def agentTests(size) {
 
   def parallel_tests = []
   // Create a subset of tests that can be ran by each Jenkins agent
-  int partitionCount = all_tests.size() / size
+  int partitionCount = all_tests.size() / max_size_of_nested_list
 
   partitionCount.times { partitionNumber ->
-  def start = partitionNumber * size
-  def end = start + size - 1
-  parallel_tests << all_tests[start..end]
+  def start = partitionNumber * max_size_of_nested_list
+  def end = start + max_size_of_nested_list - 1
+  parallel_tests.add(all_tests[start..end])
   }
 
-  if (all_tests.size() % size) {
-    parallel_tests << all_tests[partitionCount * size..-1]
+  if (all_tests.size() % max_size_of_nested_list) {
+    parallel_tests.add(all_tests[partitionCount * max_size_of_nested_list..-1])
   }
-
-
-  //for (int i = 0; i < partitionSize; i++) {
-
-  // Return the list of maps
-  println "${parallel_tests[1]}"
-  assert parallel_tests instanceof ArrayList
+  // Return a nested list of test names
   return parallel_tests
 }
 
