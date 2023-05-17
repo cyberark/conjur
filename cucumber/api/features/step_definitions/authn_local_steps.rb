@@ -8,8 +8,8 @@ end
 
 Then(/^I obtain an access token for "([^"]*)" in account "([^"]*)"$/) do |user_id, account|
   expect(token_payload['sub']).to eq(user_id)
-
-  expect(token_protected['kid']).to eq(Slosilo["authn:#{account}"].fingerprint)
+  slosilo_key = user_id.starts_with?('host/') ? Account.token_key(account, "host") : Account.token_key(account, "user")
+  expect(token_protected['kid']).to eq(slosilo_key.fingerprint)
 end
 
 Then(/^the access token expires at (\d+)$/) do |exp|
