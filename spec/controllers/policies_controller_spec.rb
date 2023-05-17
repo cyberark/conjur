@@ -16,7 +16,7 @@ describe PoliciesController, type: :request do
     DatabaseCleaner.strategy = :truncation
 
     # init Slosilo key
-    Slosilo["authn:rspec"] ||= Slosilo::Key.new
+    init_slosilo_keys("rspec")
   end
 
   after(:all) do
@@ -48,7 +48,7 @@ describe PoliciesController, type: :request do
     # This will require nontrivial refactoring and may be better waiting for a
     # larger overhaul of the test code.
     let(:token_auth_header) do
-      bearer_token = Slosilo["authn:rspec"].signed_token(current_user.login)
+      bearer_token = token_key("rspec", "user").signed_token(current_user.login)
       token_auth_str =
         "Token token=\"#{Base64.strict_encode64(bearer_token.to_json)}\""
       { 'HTTP_AUTHORIZATION' => token_auth_str }
