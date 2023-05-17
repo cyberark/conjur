@@ -79,7 +79,7 @@ if (params.MODE == "PROMOTE") {
 // Break the total number of tests into a subset of tests.
 // This will give 3 nested lists of tests to run, which is
 // distributed over 3 jenkins agents.
-def NESTED_ARRAY_OF_JOBS_TO_RUN createListOfTests(4)
+def NESTED_ARRAY_OF_JOBS_TO_RUN = createListOfTests(4)
 
 pipeline {
   agent { label 'executor-v2' }
@@ -280,13 +280,28 @@ pipeline {
         stage('Nightly Only') {
           //when {
             //expression { params.NIGHTLY }
+        // Run outside parallel block to reduce main Jenkins executor load.
+        stage('Nightly Only') {
+          //when {
+            //expression { params.NIGHTLY }
           //}
+          agent { label 'executor-v2-rhel-ee' }
           agent { label 'executor-v2-rhel-ee' }
 
           environment {
             CUCUMBER_FILTER_TAGS = "${params.CUCUMBER_FILTER_TAGS}"
           }
+          environment {
+            CUCUMBER_FILTER_TAGS = "${params.CUCUMBER_FILTER_TAGS}"
+          }
 
+          stages {
+            stage("RSpec - EE FIPS agent tests") {
+              steps {
+                unstash 'version_info'
+                sh "ci/test rspec"
+              }
+            }
           stages {
             stage("RSpec - EE FIPS agent tests") {
               steps {
@@ -299,19 +314,19 @@ pipeline {
               parallel {
                 stage('EE FIPS agent tests') {
                   steps {
-                    runConjurTests(TEST_TO_RUN[0])
+                    runConjurTests(NESTED_ARRAY_OF_JOBS_TO_RUN[0])
                   }
                 }
                 stage('EE FIPS agent2 tests') {
                   agent { label 'executor-v2-rhel-ee' }
                   steps {
-                    runConjurTests(TEST_TO_RUN[1])
+                    runConjurTests(NESTED_ARRAY_OF_JOBS_TO_RUN[1])
                   }
                 }
                 stage('EE FIPS agent3 tests') {
                   agent { label 'executor-v2-rhel-ee' }
                   steps {
-                    runConjurTests(TEST_TO_RUN[2])
+                    runConjurTests(NESTED_ARRAY_OF_JOBS_TO_RUN[2])
                   }
                 }
 
