@@ -102,7 +102,7 @@ end
 # :reek:UtilityFunction
 def access_token_for(user, account: 'rspec')
   # Configure Slosilo to produce valid access tokens
-  slosilo = Slosilo["authn:#{account}"] ||= Slosilo::Key.new
+  slosilo = Slosilo[token_id(account, "user")] ||= Slosilo::Key.new
   bearer_token = slosilo.issue_jwt(sub: user)
   "Token token=\"#{Base64.strict_encode64(bearer_token.to_json)}\""
 end
@@ -161,8 +161,9 @@ ensure
   Process.uid = Process.euid = prev
 end
 
-def token_auth_header(role:, account: 'rspec')
-  bearer_token = Slosilo["authn:#{account}"].signed_token(role.login)
+def token_auth_header(role:, account: 'rspec', is_user: true)
+  slosilo_key = is_user ? token_key(account, "user") : token_key(account, "host")
+  bearer_token = slosilo_key.signed_token(role.login)
   base64_token = Base64.strict_encode64(bearer_token.to_json)
 
   { 'HTTP_AUTHORIZATION' => "Token token=\"#{base64_token}\"" }
