@@ -13,9 +13,8 @@ class EdgeController < RestController
       raise
     end
     account = options[:account]
-    key_id = Account.host_slosilo_id(account)
 
-    key = Slosilo[key_id]
+    key = Slosilo[Account.host_slosilo_id(account)]
     if key.nil?
       raise RecordNotFound, "No Slosilo key in DB"
     end

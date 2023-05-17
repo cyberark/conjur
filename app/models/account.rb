@@ -2,7 +2,6 @@
 
 Account = Struct.new(:id) do
   class << self
-
     def find_or_create_accounts_resource
       unless Slosilo["authn:!"]
         pkey = Slosilo::Key.new
