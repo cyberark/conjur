@@ -34,7 +34,7 @@ Before do
   Credentials.truncate
 
   Slosilo.each do |k, v|
-    unless %w[authn:rspec authn:cucumber].member?(k)
+    unless %w[authn:rspec:user authn:rspec:host authn:cucumber:user authn:cucumber:host].member?(k)
       Slosilo.send(:keystore).adapter.model[k].delete
     end
   end
