@@ -280,17 +280,9 @@ pipeline {
         stage('Nightly Only') {
           //when {
             //expression { params.NIGHTLY }
-        // Run outside parallel block to reduce main Jenkins executor load.
-        stage('Nightly Only') {
-          //when {
-            //expression { params.NIGHTLY }
           //}
           agent { label 'executor-v2-rhel-ee' }
-          agent { label 'executor-v2-rhel-ee' }
 
-          environment {
-            CUCUMBER_FILTER_TAGS = "${params.CUCUMBER_FILTER_TAGS}"
-          }
           environment {
             CUCUMBER_FILTER_TAGS = "${params.CUCUMBER_FILTER_TAGS}"
           }
@@ -298,13 +290,7 @@ pipeline {
           stages {
             stage("RSpec - EE FIPS agent tests") {
               steps {
-                unstash 'version_info'
-                sh "ci/test rspec"
-              }
-            }
-          stages {
-            stage("RSpec - EE FIPS agent tests") {
-              steps {
+                addNewImagesToAgent()
                 unstash 'version_info'
                 sh "ci/test rspec"
               }
@@ -314,18 +300,24 @@ pipeline {
               parallel {
                 stage('EE FIPS agent tests') {
                   steps {
+                    addNewImagesToAgent()
+                    unstash 'version_info'
                     runConjurTests(NESTED_ARRAY_OF_JOBS_TO_RUN[0])
                   }
                 }
                 stage('EE FIPS agent2 tests') {
                   agent { label 'executor-v2-rhel-ee' }
                   steps {
+                    addNewImagesToAgent()
+                    unstash 'version_info'
                     runConjurTests(NESTED_ARRAY_OF_JOBS_TO_RUN[1])
                   }
                 }
                 stage('EE FIPS agent3 tests') {
                   agent { label 'executor-v2-rhel-ee' }
                   steps {
+                    addNewImagesToAgent()
+                    unstash 'version_info'
                     runConjurTests(NESTED_ARRAY_OF_JOBS_TO_RUN[2])
                   }
                 }
@@ -900,7 +892,9 @@ def runConjurTests(test_jobs_to_run) {
     ]
   ]
 
-  def parallel_tests = []
+  // Filter for the tests we want run, if requested.
+  parallel_tests = all_tests
+  tests = run_only_str.split()
 
   if (tests.size() > 0) {
     parallel_tests = all_tests.subMap(tests)
