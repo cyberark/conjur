@@ -9,12 +9,12 @@ describe HostsController, :type => :request do
   let(:edge_hosts_group) {"edge/edge-hosts"}
 
   before do
-    Slosilo["authn:#{account}"] ||= Slosilo::Key.new
+    init_slosilo_keys(account)
     @current_user = Role.find_or_create(role_id: user_id)
   end
 
   let(:token_auth_header) do
-    bearer_token = Slosilo["authn:#{account}"].signed_token(@current_user.login)
+    bearer_token = user_slosilo_key(account).signed_token(@current_user.login)
     token_auth_str =
       "Token token=\"#{Base64.strict_encode64(bearer_token.to_json)}\""
     { 'HTTP_AUTHORIZATION' => token_auth_str }

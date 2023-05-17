@@ -13,7 +13,7 @@ class EdgeController < RestController
       raise
     end
     account = options[:account]
-    key_id = "authn:" + account + ":host"
+    key_id = Account.host_slosilo_id(account)
 
     key = Slosilo[key_id]
     if key.nil?

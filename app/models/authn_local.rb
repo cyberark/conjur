@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+#### Auth-local is not supported!! ####
 
 require 'timeout'
 require 'fileutils'
@@ -68,7 +69,7 @@ AuthnLocal = Struct.new(:socket, :queue_length, :timeout) do
     (account = claims.delete("account")) || raise("'account' is required")
     raise "'sub' is required" unless claims['sub']
 
-    key = Slosilo["authn:#{account}:user"]
+    key = Slosilo["authn:#{account}"]
     if key 
       key.issue_jwt(claims).to_json
     else

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+#### Authn-local is not supported! ####
 
 require 'socket'
 

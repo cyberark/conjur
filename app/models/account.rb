@@ -17,22 +17,25 @@ Account = Struct.new(:id) do
     end
 
     INVALID_ID_CHARS = /[ :]/.freeze
-    def host_key(account)
+
+    def host_slosilo_id(account)
       "authn:#{account}:host"
     end
-    def user_key(account)
+
+    def user_slosilo_id(account)
       "authn:#{account}:user"
     end
+
     def create(id, owner_id = nil)
-      raise Exceptions::RecordExists.new("account", id) if Slosilo[host_key(id)] or Slosilo[user_key(id)]
+      raise Exceptions::RecordExists.new("account", id) if Slosilo[host_slosilo_id(id)] or Slosilo[user_slosilo_id(id)]
 
       if (invalid = INVALID_ID_CHARS.match(id))
         raise ArgumentError, 'account name "%s" contains invalid characters (%s)' % [id, invalid]
       end
 
       Role.db.transaction do
-        Slosilo[host_key(id)] = Slosilo::Key.new
-        Slosilo[user_key(id)] = Slosilo::Key.new
+        Slosilo[host_slosilo_id(id)] = Slosilo::Key.new
+        Slosilo[user_slosilo_id(id)] = Slosilo::Key.new
 
         role_id = "#{id}:user:admin"
         admin_user = Role.create(role_id: role_id)
@@ -70,15 +73,15 @@ Account = Struct.new(:id) do
 
   def delete
     # Ensure the signing key exists
-    slosilo_keystore.adapter.model.with_pk!("authn:#{id}:host")
-    slosilo_keystore.adapter.model.with_pk!("authn:#{id}:user")
+    slosilo_keystore.adapter.model.with_pk!(Account.user_slosilo_id(id))
+    slosilo_keystore.adapter.model.with_pk!(Account.host_slosilo_id(id))
     Role["#{id}:user:admin"].destroy
     Role["#{id}:policy:root"].try(:destroy)
     Resource["#{id}:user:admin"].try(:destroy)
     Credentials.where(Sequel.lit("account(role_id)") => id).delete
     Secret.where(Sequel.lit("account(resource_id)") => id).delete
-    slosilo_keystore.adapter.model["authn:#{id}:host"].destroy
-    slosilo_keystore.adapter.model["authn:#{id}:user"].destroy
+    slosilo_keystore.adapter.model[Account.user_slosilo_id(id)].destroy
+    slosilo_keystore.adapter.model[Account.host_slosilo_id(id)].destroy
     true
   end
 
@@ -87,7 +90,4 @@ Account = Struct.new(:id) do
   def slosilo_keystore
     Slosilo.send(:keystore)
   end
-
-
-
 end

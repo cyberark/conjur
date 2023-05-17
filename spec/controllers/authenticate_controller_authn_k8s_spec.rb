@@ -161,7 +161,7 @@ describe AuthenticateController, :type => :request do
 
   # Allows API calls to be made as the admin user
   let(:admin_request_env) do
-    { 'HTTP_AUTHORIZATION' => "Token token=\"#{Base64.strict_encode64(Slosilo["authn:rspec"].signed_token("admin").to_json)}\"" }
+    { 'HTTP_AUTHORIZATION' => "Token token=\"#{Base64.strict_encode64(user_slosilo_key("rspec").signed_token("admin").to_json)}\"" }
   end
 
   before(:all) do
@@ -169,7 +169,7 @@ describe AuthenticateController, :type => :request do
     DatabaseCleaner.clean_with(:truncation)
 
     # Init Slosilo key
-    Slosilo["authn:rspec"] ||= Slosilo::Key.new
+    init_slosilo_keys("rspec")
     Role.create(role_id: 'rspec:user:admin')
   end
 

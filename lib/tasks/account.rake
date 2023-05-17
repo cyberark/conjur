@@ -1,13 +1,10 @@
 # frozen_string_literal: true
 
 namespace :"account" do
-  def signing_key_key account
-    [ "authn", account ].join(":")
-  end
 
   desc "Test whether the token-signing key already exists"
   task :exists, [ "account" ] => [ "environment" ] do |t,args|
-    puts !!Slosilo[signing_key_key(args[:account])]
+    puts !!Slosilo[Account.user_slosilo_id(args[:account])] and !!Slosilo[Account.host_slosilo_id(args[:account])]
   end
 
   desc "Create an account"
@@ -37,7 +34,8 @@ namespace :"account" do
       Account.create(args[:account])
       account = Account.new(args[:account])
       $stderr.puts "Created new account '#{account.id}'"
-      puts "Token-Signing Public Key: #{account.token_key_host.to_s}"
+      puts "Hosts' Token-Signing Public Key: #{account.token_key_host.to_s}"
+      puts "Users Token-Signing Public Key: #{account.token_key_host.to_s}"
 
       role_id = "#{args[:account]}:user:admin"
       Role[role_id].password = args[:password]

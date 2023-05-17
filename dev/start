@@ -56,7 +56,7 @@ main() {
   fi
 
   # Build docker images.
- # docker-compose build --pull
+  docker-compose build --pull
 
   init_data_key
   init_audit_service

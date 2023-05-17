@@ -33,9 +33,9 @@ shared_context "invalid authenticate Basic" do
   end
 end
 
-shared_context "authenticate Token" do
+shared_context "authenticate user Token" do
   let(:params) { { account: account  } }
-  let(:bearer_token) { Slosilo["authn:rspec"].signed_token(login) }
+  let(:bearer_token) { user_slosilo_key("rspec").signed_token(login) }
   let(:token_auth_header) do
     "Token token=\"#{Base64.strict_encode64(bearer_token.to_json)}\""
   end

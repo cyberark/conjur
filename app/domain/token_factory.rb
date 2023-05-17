@@ -12,16 +12,16 @@ class TokenFactory < Dry::Struct
   MAXIMUM_AUTHENTICATION_TOKEN_EXPIRATION = 5.hours
   MINIMUM_AUTHENTICATION_TOKEN_EXPIRATION = 0
 
-  def signing_key(account)
-    slosilo["authn:#{account}".to_sym] || raise(NoSigningKey, account)
+  def signing_key(key_id)
+    slosilo[key_id.to_sym] || raise(NoSigningKey, key_id)
   end
 
   def signed_token(account:,
                    username:,
                    host_ttl: Rails.application.config.conjur_config.host_authorization_token_ttl,
                    user_ttl: Rails.application.config.conjur_config.user_authorization_token_ttl)
-    account_with_type = account.starts_with?('host/') ? account + ":host" : account + ":user"
-    signing_key(account_with_type).issue_jwt(
+    key_id = account.starts_with?('host/') ? Account.host_slosilo_id(account) : Account.user_slosilo_id(account)
+    signing_key(key_id).issue_jwt(
       sub: username,
       exp: Time.now + offset(
         ttl: username.starts_with?('host/') ? host_ttl : user_ttl

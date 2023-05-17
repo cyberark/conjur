@@ -11,7 +11,8 @@ describe "account" do
       "conjurctl account create"
     )
     expect(stdout_str).to include("API key for admin")
-    expect(Slosilo["authn:default"]).to be
+    expect(host_slosilo_key("default")).to be
+    expect(user_slosilo_key("default")).to be
     expect(Role["default:user:admin"]).to be
     delete_account("default")
   end
@@ -33,14 +34,16 @@ describe "account" do
     it "with no flags" do
       stdout_str, = Open3.capture3("conjurctl account create demo")
       expect(stdout_str).to include("API key for admin")
-      expect(Slosilo["authn:demo"]).to be
+      expect(host_slosilo_key("demo")).to be
+      expect(user_slosilo_key("default")).to be
       expect(Role["demo:user:admin"]).to be
     end
 
     it "with the name flag" do
       stdout_str, = Open3.capture3("conjurctl account create --name demo")
       expect(stdout_str).to include("API key for admin")
-      expect(Slosilo["authn:demo"]).to be
+      expect(host_slosilo_key("demo")).to be
+      expect(user_slosilo_key("default")).to be
       expect(Role["demo:user:admin"]).to be
     end
 
@@ -49,7 +52,8 @@ describe "account" do
         create_account_with_password_and_name_flag, stdin_data: password
       )
       expect(stdout_str).to include("Password is set")
-      expect(Slosilo["authn:demo"]).to be
+      expect(host_slosilo_key("demo")).to be
+      expect(user_slosilo_key("demo")).to be
       expect(Role["demo:user:admin"]).to be
     end
 
@@ -58,7 +62,8 @@ describe "account" do
         create_account_with_password_flag, stdin_data: password
       )
       expect(stdout_str).to include("Password is set")
-      expect(Slosilo["authn:demo"]).to be
+      expect(host_slosilo_key("demo")).to be
+      expect(user_slosilo_key("default")).to be
       expect(Role["demo:user:admin"]).to be
     end
 
@@ -66,7 +71,8 @@ describe "account" do
       system(
         "conjurctl account create --name demo ingored_account_name"
       )
-      expect(Slosilo["authn:demo"]).to be
+      expect(host_slosilo_key("demo")).to be
+      expect(user_slosilo_key("default")).to be
       expect(Role["demo:user:admin"]).to be
     end
 
@@ -75,7 +81,8 @@ describe "account" do
         create_account_with_password_flag, stdin_data: "invalid"
       )
       expect(stderr_str).to include("CONJ00046E")
-      expect(Slosilo["authn:demo"]).not_to be
+      expect(host_slosilo_key("demo")).not_to be
+      expect(user_slosilo_key("default")).to be
       expect(Role["demo:user:admin"]).not_to be
     end
   end
