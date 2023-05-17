@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
+## [1.19.5] - 2023-05-16
+
+### Security
+- Update bundler to 2.2.33 to remove CVE-2021-43809
+  [cyberark/conjur#2804](https://github.com/cyberark/conjur/pull/2804/files)
+
 ## [1.19.4] - 2023-05-12
 
 ### Changed
