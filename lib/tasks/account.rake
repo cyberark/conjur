@@ -1,13 +1,10 @@
 # frozen_string_literal: true
 
 namespace :"account" do
-  def signing_key_key account
-    [ "authn", account ].join(":")
-  end
 
   desc "Test whether the token-signing key already exists"
   task :exists, [ "account" ] => [ "environment" ] do |t,args|
-    puts !!Slosilo[signing_key_key(args[:account])]
+    puts !!Account.token_key(args[:account], "user") && !!Account.token_key(args[:account], "host")
   end
 
   desc "Create an account"
@@ -17,7 +14,8 @@ namespace :"account" do
       api_key = Account.create(args[:account])
       account = Account.new(args[:account])
       $stderr.puts("Created new account '#{account.id}'")
-      puts("Token-Signing Public Key: #{account.token_key.to_s}")
+      puts("Hosts' Token-Signing Public Key:\n#{account.token_key("user").to_s}")
+      puts("Users' Token-Signing Public Key:\n#{account.token_key("host").to_s}")
       puts("API key for admin: #{api_key}")
     rescue Exceptions::RecordExists
       $stderr.puts("Account '#{args[:account]}' already exists")
@@ -37,7 +35,8 @@ namespace :"account" do
       Account.create(args[:account])
       account = Account.new(args[:account])
       $stderr.puts "Created new account '#{account.id}'"
-      puts "Token-Signing Public Key: #{account.token_key.to_s}"
+      puts "Hosts' Token-Signing Public Key:\n#{account.token_key("user").to_s}"
+      puts "Users' Token-Signing Public Key:\n#{account.token_key("host").to_s}"
 
       role_id = "#{args[:account]}:user:admin"
       Role[role_id].password = args[:password]
