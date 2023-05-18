@@ -79,7 +79,7 @@ if (params.MODE == "PROMOTE") {
 // Break the total number of tests into a subset of tests.
 // This will give 3 nested lists of tests to run, which is
 // distributed over 3 jenkins agents.
-def NESTED_ARRAY_OF_JOBS_TO_RUN = createListOfTests(4)
+def NESTED_ARRAY_OF_JOBS_TO_RUN = collateTests()
 
 pipeline {
   agent { label 'executor-v2' }
@@ -830,11 +830,8 @@ def testShouldRun(run_only_str, test) {
   return run_only_str == '' || run_only_str.split().contains(test)
 }
 
-// "test_jobs_to_run" is an array specifying tests to
-// run.
-def runConjurTests(test_jobs_to_run) {
-    run_only_str = test_jobs_to_run.join(' ')
-    all_tests = [
+def conjurTests() {
+  return [
     "authenticators_config": [
       "Authenticators Config - ${env.STAGE_NAME}": {
         sh 'ci/test authenticators_config'
@@ -891,6 +888,13 @@ def runConjurTests(test_jobs_to_run) {
       }
     ]
   ]
+}
+
+// "test_jobs_to_run" is an array specifying tests to
+// run.
+def runConjurTests(test_jobs_to_run) {
+  run_only_str = test_jobs_to_run.join(' ')
+  all_tests = conjurTests()
 
   // Filter for the tests we want run, if requested.
   parallel_tests = all_tests
@@ -913,36 +917,28 @@ def runConjurTests(test_jobs_to_run) {
   }
 }
 
-// createListOfTests will return a nested list of tests.
-// the max_size_of_nested_list of each nested list will be based
-// on the max_size_of_nested_list parameter.
-def createListOfTests(max_size_of_nested_list) {
-  all_tests = [
-   "authenticators_config",
-    "authenticators_k8s",
-    "rotators",
-    "rspec_audit",
-    "authenticators_status",
-    "authenticators_ldap",
-    "authenticators_jwt",
-    "policy",
-    "policy_parser",
-    "authenticators_oidc",
-    "api"
-  ]
+// collateTests will return a nested list of tests based on
+// the number of jenkins agents.
+def collateTests(jobs_per_agent=4) {
+  all_tests = conjurTests()
+  all_test_names = []
+
+  all_tests.each{ k, _ ->
+    all_test_names.add(k)
+  }
 
   def parallel_tests = []
   // Create a subset of tests that can be ran by each Jenkins agent
-  int partitionCount = all_tests.size() / max_size_of_nested_list
+  int partitionCount = all_test_names.size() / jobs_per_agent
 
   partitionCount.times { partitionNumber ->
-  def start = partitionNumber * max_size_of_nested_list
-  def end = start + max_size_of_nested_list - 1
-  parallel_tests.add(all_tests[start..end])
+  def start = partitionNumber * jobs_per_agent
+  def end = start + jobs_per_agent - 1
+  parallel_tests.add(all_test_names[start..end])
   }
 
-  if (all_tests.size() % max_size_of_nested_list) {
-    parallel_tests.add(all_tests[partitionCount * max_size_of_nested_list..-1])
+  if (all_test_names.size() % jobs_per_agent) {
+    parallel_tests.add(all_test_names[partitionCount * jobs_per_agent..-1])
   }
   // Return a nested list of test names
   return parallel_tests
