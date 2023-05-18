@@ -1,0 +1,50 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://sts.us-west-1.amazonaws.com/?Action=GetCallerIdentity&Version=2011-06-15
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Amz-Date:
+      - 20230518T160804Z
+      X-Amz-Security-Token:
+      - IQoJb3JpZ2luX2VjEDgaDGV1LWNlbnRyYWwtMSJIMEYCIQDQLBDLt5kNEEj40A2gX/kurzw9AAwYKnJIjQSrXGynmQIhAINJPoMDfHiSe6Bjzuwc9lwbe/iUPkVUUClFbUicPhNtKrwFCGEQAxoMMTg4OTQ1NzY5MDA4IgyYkP5L6wWxumObWPQqmQXd1mkF8hU1CCkhdJdc73vLVnGFvGbqru9SpzDIkbo0/syIZR7pjEoPTw/sUxFa/jYgcRrDh9bUmTBT7zU2/HDJRrwZfNgu9PPEtRGkIUOYri8muc0X8yLnHlk/5jvpwU5RY2uUoTZt+pvgm8jOHi/lkrtPx8uiQeEOeBkKe/DA2tFfHeVrC9OPkWQkjm0k9nsDggpwy9jf+RbzeSRb6Tyg4WWplDKW+a7VhBpBs1cNGGx9um590gpgpxaC93CIAtxI+iOxreH+xofhrJAPirms1yR4f5GD+glhr/mpCdclX0Eehvb+nxosnYKMh8XvlKR1GzP/PtqGCCRMpCByPmiXtotOMEQv96QGGs0/A8vdiktjJuGbjSQxKvw1UNG5Cxrb7DRqexPoILxoZAICSiFDK2vPPl2ePTWrk3MFxBKj+UK2VihhE1fpnZ7UXrVmQAUzNtDTdaaTcWy2ZTf4oAcRkUsYUl1BOIQYEcI0LmpCkqHb51ANbPO9bFxLAGTUuV9AMSRcrEojiFlxl+yiK5lPygJzrbRQBhnh3srxoHjfN5KvgVf0PqS3HUWIX/eknhBTJbhPO9d7me1/rTudqFd1dLEEiTJbN6KGF0vZvAgnahcoA4YSxLhG/EkNdOKbS/lJOUeysN/l/3L19RuWX9gd2Pc2FD7KWM6mzNAFIi8OAIChTnhZO7a6lcYZb+5uY+5N3Oh2Qthx7cc5k0DGQXX2FGYQgQKY9MWQo6s3Z2DwfNDddgYEM2clnnNPP+lNU7evdCsDb4/QPyDv+l14Tmdz2adhcsi4hkX9YGaCko6S6tdPI1fURyTkCKfUJ643ZNXyqmx4vRPupO2ukJArh7piCas8+B4FsScjD1sD3dH9aVwa2sI1tVed9zCclpmjBjqwATqNRvOZinA+mqThE4YjTVliRSaqNG6UsCq/x3f6R5/KBMacp4f0nZuXTOfvNgiFHju/m1paGf8JwylAkKummhneSOoZAbQ16dQhDu3ejZydbj5nRkTC/1VT87SFf+S+k66J8ycfIs2nkwlIvHWo+TbD36fBcTNq69BtAvluRRIH77zXg60zBK5KmmtKUbeayHVZngjZt/u3ezrRGuLu9TUCYtWMY0VVKyYUX36MykWY
+      X-Amz-Content-Sha256:
+      - e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+      Authorization:
+      - AWS4-HMAC-SHA256 Credential=ASIASX7QLUIYGFOUEXPF/20230518/eu-north-1/sts/aws4_request,
+        SignedHeaders=host;x-amz-content-sha256;x-amz-date;x-amz-security-token, Signature=bfaefe50abefa68b0081af52687885a7391006f2c8b0d80b6c20beb7da808d56
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 403
+      message: Forbidden
+    headers:
+      X-Amzn-Requestid:
+      - bdf82d4c-a300-4323-aa26-08cba28de47e
+      Content-Type:
+      - text/xml
+      Content-Length:
+      - '300'
+      Date:
+      - Thu, 18 May 2023 16:08:41 GMT
+    body:
+      encoding: UTF-8
+      string: |
+        <ErrorResponse xmlns="https://sts.amazonaws.com/doc/2011-06-15/">
+          <Error>
+            <Type>Sender</Type>
+            <Code>SignatureDoesNotMatch</Code>
+            <Message>Credential should be scoped to a valid region. </Message>
+          </Error>
+          <RequestId>bdf82d4c-a300-4323-aa26-08cba28de47e</RequestId>
+        </ErrorResponse>
+  recorded_at: Thu, 18 May 2023 16:08:41 GMT
+recorded_with: VCR 6.1.0

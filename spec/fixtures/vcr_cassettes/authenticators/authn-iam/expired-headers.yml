@@ -1,0 +1,50 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://sts.eu-central-1.amazonaws.com/?Action=GetCallerIdentity&Version=2011-06-15
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Amz-Date:
+      - 20230518T152442Z
+      X-Amz-Security-Token:
+      - IQoJb3JpZ2luX2VjEDcaDGV1LWNlbnRyYWwtMSJGMEQCIB7Inb5Q2L+Tu0nDM6KpYkqjXetnd6Eizw9gt3c27+okAiBJHE59aL6HuIszrEmk7/SaclqSmEZ5xUmEJ10Hla8PYyq8BQhgEAMaDDE4ODk0NTc2OTAwOCIMg1WLlzrcLY1FHaQKKpkFcEmdxNL2sGdxHOhoLv5hf0pQsOhWciwMgGhGpSUM7gXSG6Z8Rqv7q1rqgl04BjxLZshOOJYdIfUjUNccgiWBofjRYNH5SGeuLuu7XfrtmGmToPSejG5vY76PFXyef4bRNpgkB2aTRjRIg/fInQF0y2oILUSbX4nUcvcJJpss7VnpGRgGqGE+HtatAnfAn0cVoPHs/I2oZslP9y2IVVAEbCxKhYUcHniCJzrmTrppczyd8bwC36wdhcN88YtUES3Z0sS9Ho3JcLbxeAnoqkuPng1VYLAt5uELOqqYWSsdqVFwc+PJ5JoBAJSab1dyPp/YhTg+Lp8pYm/cgSR4lygqgeElL+30tI77GFuMdxdnWymk1mvXtcr0Q/eOMpAETohivAEW+m4CglAEF3VTdLQXODKCvxsiUmsN5AanX7eKGeHPfy/mcM/srWWkVNeRk//DLFNSgfiaeBQeUpzRDEgVpweA4tf5xjW8oUxp9hK9Q872dxgye07bFLNXbyqK9NPAGIcD4/7Tw73kPxYSvZ+7wajgkGdcuIz91GR973QG2k5e82PwiiROOm8qEJo7QzPX6hF5s//qSnKr0vGo4tBrewKvQVjhafdf+B0b44jgw7kIsUkAYz/1HY2PPQVvVn5DayO7VxCTTd+VrQScr22ExOucIKEw30j5hCkhRnUMS6MAjsYwclSbPuUeZ8rVvFQSEoC37SQZP13OVphFNUUFVhZJU5kYd9BvaFhPO0F54XJq1Gu/biMJFumHj2lz5TadSXxyJwSJkfqE53B9b6Sc1RB7O4AckozmH/pm46fJpD5sq7RLQg9YLA//fi+EoBwqbiskCz7WRsCh/Q2l/dmA9kAPPVatqkagVdcJKAJNl8W4Y9nm9MBhdFIw4PeYowY6sgF2td8Xkg0E4ClmQ3CoGWO+TTWmiWwN0BAcKD5prq3V9qmn3SXnzLUO02k0gC4RsdGUCSiByzNHL3mG+G7l8MEZ8TmZQ+ZCgtlnvLYsdECiT+7tcrwN8Zpiu0BKcAWSV8Mg5/D0HYfDTFAv7jgqXuL+uruLJw4xzZCoWc5Ru1Mhprl4NF8T9Am2RyEEEO9rjveQCWpzaZmyvx/MS4isoqhC2KGeJEyeulk2XE0mXO6TZz9c
+      X-Amz-Content-Sha256:
+      - e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+      Authorization:
+      - AWS4-HMAC-SHA256 Credential=ASIASX7QLUIYGDI4QX56/20230518/eu-central-1/sts/aws4_request,
+        SignedHeaders=host;x-amz-content-sha256;x-amz-date;x-amz-security-token, Signature=8e0bebec9a3ce860b4595a4b27710da558a157a711e2dcbfe3a86881af99c459
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 403
+      message: Forbidden
+    headers:
+      X-Amzn-Requestid:
+      - 7b86b01a-232e-417b-b8dd-f5f99253957e
+      Content-Type:
+      - text/xml
+      Content-Length:
+      - '354'
+      Date:
+      - Thu, 18 May 2023 15:49:37 GMT
+    body:
+      encoding: UTF-8
+      string: |
+        <ErrorResponse xmlns="https://sts.amazonaws.com/doc/2011-06-15/">
+          <Error>
+            <Type>Sender</Type>
+            <Code>SignatureDoesNotMatch</Code>
+            <Message>Signature expired: 20230518T152442Z is now earlier than 20230518T153438Z (20230518T154938Z - 15 min.)</Message>
+          </Error>
+          <RequestId>7b86b01a-232e-417b-b8dd-f5f99253957e</RequestId>
+        </ErrorResponse>
+  recorded_at: Thu, 18 May 2023 15:49:38 GMT
+recorded_with: VCR 6.1.0

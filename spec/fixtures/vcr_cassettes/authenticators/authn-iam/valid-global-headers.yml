@@ -1,0 +1,52 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://sts.amazonaws.com/?Action=GetCallerIdentity&Version=2011-06-15
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Amz-Date:
+      - 20230518T152525Z
+      X-Amz-Security-Token:
+      - IQoJb3JpZ2luX2VjEDcaDGV1LWNlbnRyYWwtMSJGMEQCIB7Inb5Q2L+Tu0nDM6KpYkqjXetnd6Eizw9gt3c27+okAiBJHE59aL6HuIszrEmk7/SaclqSmEZ5xUmEJ10Hla8PYyq8BQhgEAMaDDE4ODk0NTc2OTAwOCIMg1WLlzrcLY1FHaQKKpkFcEmdxNL2sGdxHOhoLv5hf0pQsOhWciwMgGhGpSUM7gXSG6Z8Rqv7q1rqgl04BjxLZshOOJYdIfUjUNccgiWBofjRYNH5SGeuLuu7XfrtmGmToPSejG5vY76PFXyef4bRNpgkB2aTRjRIg/fInQF0y2oILUSbX4nUcvcJJpss7VnpGRgGqGE+HtatAnfAn0cVoPHs/I2oZslP9y2IVVAEbCxKhYUcHniCJzrmTrppczyd8bwC36wdhcN88YtUES3Z0sS9Ho3JcLbxeAnoqkuPng1VYLAt5uELOqqYWSsdqVFwc+PJ5JoBAJSab1dyPp/YhTg+Lp8pYm/cgSR4lygqgeElL+30tI77GFuMdxdnWymk1mvXtcr0Q/eOMpAETohivAEW+m4CglAEF3VTdLQXODKCvxsiUmsN5AanX7eKGeHPfy/mcM/srWWkVNeRk//DLFNSgfiaeBQeUpzRDEgVpweA4tf5xjW8oUxp9hK9Q872dxgye07bFLNXbyqK9NPAGIcD4/7Tw73kPxYSvZ+7wajgkGdcuIz91GR973QG2k5e82PwiiROOm8qEJo7QzPX6hF5s//qSnKr0vGo4tBrewKvQVjhafdf+B0b44jgw7kIsUkAYz/1HY2PPQVvVn5DayO7VxCTTd+VrQScr22ExOucIKEw30j5hCkhRnUMS6MAjsYwclSbPuUeZ8rVvFQSEoC37SQZP13OVphFNUUFVhZJU5kYd9BvaFhPO0F54XJq1Gu/biMJFumHj2lz5TadSXxyJwSJkfqE53B9b6Sc1RB7O4AckozmH/pm46fJpD5sq7RLQg9YLA//fi+EoBwqbiskCz7WRsCh/Q2l/dmA9kAPPVatqkagVdcJKAJNl8W4Y9nm9MBhdFIw4PeYowY6sgF2td8Xkg0E4ClmQ3CoGWO+TTWmiWwN0BAcKD5prq3V9qmn3SXnzLUO02k0gC4RsdGUCSiByzNHL3mG+G7l8MEZ8TmZQ+ZCgtlnvLYsdECiT+7tcrwN8Zpiu0BKcAWSV8Mg5/D0HYfDTFAv7jgqXuL+uruLJw4xzZCoWc5Ru1Mhprl4NF8T9Am2RyEEEO9rjveQCWpzaZmyvx/MS4isoqhC2KGeJEyeulk2XE0mXO6TZz9c
+      X-Amz-Content-Sha256:
+      - e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+      Authorization:
+      - AWS4-HMAC-SHA256 Credential=ASIASX7QLUIYGDI4QX56/20230518/us-east-1/sts/aws4_request,
+        SignedHeaders=host;x-amz-content-sha256;x-amz-date;x-amz-security-token, Signature=81b929060b45f05470c9f542a9e46cdce51d37c1d22a58d1942b7fa175079af5
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      X-Amzn-Requestid:
+      - c626dec1-0bb0-42c9-82b5-cc957aeca0a5
+      Content-Type:
+      - text/xml
+      Content-Length:
+      - '456'
+      Date:
+      - Thu, 18 May 2023 15:28:32 GMT
+    body:
+      encoding: UTF-8
+      string: |
+        <GetCallerIdentityResponse xmlns="https://sts.amazonaws.com/doc/2011-06-15/">
+          <GetCallerIdentityResult>
+            <Arn>arn:aws:sts::188945769008:assumed-role/conjur-role/i-08241b0e31fe23d20</Arn>
+            <UserId>AROASX7QLUIYK4AQBODTV:i-08241b0e31fe23d20</UserId>
+            <Account>188945769008</Account>
+          </GetCallerIdentityResult>
+          <ResponseMetadata>
+            <RequestId>c626dec1-0bb0-42c9-82b5-cc957aeca0a5</RequestId>
+          </ResponseMetadata>
+        </GetCallerIdentityResponse>
+  recorded_at: Thu, 18 May 2023 15:28:33 GMT
+recorded_with: VCR 6.1.0
