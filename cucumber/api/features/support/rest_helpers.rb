@@ -168,8 +168,10 @@ module RestHelpers
   # Write a command to the authn-local Unix socket.
   def authn_local_request command
     require 'socket'
-    socket_file = '/run/authn-local/.socket'
+    socket_file = "/run/authn-local/.socket"
+    #socket_file = "/run/authn-local#{ENV['TEST_ENV_NUMBER']}/.socket"
     raise "Socket #{socket_file} does not exist" unless File.exist?(socket_file)
+    puts "NRK SOCKET_FILE: #{socket_file}"
 
     UNIXSocket.open(socket_file) do |sock|
       sock.puts(command)

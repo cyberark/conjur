@@ -115,8 +115,8 @@ services:
       RAILS_MAX_THREADS: 10
     command: server
     volumes:
-      - authn-local:/run/authn-local
       # TODO: authenticators_oidc/test has a dep on this
+      - authn-local2:/run/authn-local
       - ./oauth/keycloak:/oauth/keycloak/scripts
       - ./ldap-certs:/ldap-certs:ro
       - log-volume:/opt/conjur-server/log
@@ -149,6 +149,7 @@ services:
     volumes:
       - ..:/src/conjur-server
       - authn-local:/run/authn-local
+      - authn-local2:/run/authn-local
       - ./ldap-certs:/ldap-certs:ro
       - log-volume:/src/conjur-server/log
       - jwks-volume:/var/jwks
@@ -232,5 +233,6 @@ services:
 
 volumes:
   authn-local:
+  authn-local2:
   log-volume:
   jwks-volume:

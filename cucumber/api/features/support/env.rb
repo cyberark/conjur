@@ -4,6 +4,12 @@ ENV['CONJUR_ACCOUNT'] = 'cucumber'
 ENV['RAILS_ENV'] ||= 'test'
 ENV['CONJUR_LOG_LEVEL'] ||= 'debug'
 
+puts "******************************************"
+ENV.each do |key, value|
+  puts "key: #{key} value: #{value}"
+end
+puts "******************************************"
+
 api_string = "CONJUR_AUTHN_API_KEY#{ENV['TEST_ENV_NUMBER']}"
 h = Hash.new
 h['CONJUR_APPLIANCE_URL'] = "http://conjur#{ENV['TEST_ENV_NUMBER']}"
