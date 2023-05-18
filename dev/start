@@ -40,7 +40,7 @@ ENABLE_OIDC_OKTA=false
 ENABLE_ROTATORS=false
 IDENTITY_USER=""
 
-declare -A required_envvars
+declare -a required_envvars
 required_envvars[identity]="IDENTITY_CLIENT_ID IDENTITY_CLIENT_SECRET IDENTITY_PROVIDER_URI"
 required_envvars[azure]="AZURE_TENANT_ID AZURE_SUBSCRIPTION_ID AZURE_RESOURCE_GROUP"
 
@@ -72,6 +72,7 @@ main() {
   start_conjur_server
 
   init_ldap
+  init_iam
   init_azure
   init_gcp
   init_jwt
