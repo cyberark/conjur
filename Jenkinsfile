@@ -965,7 +965,7 @@ def collateTests(jobs_per_agent=4) {
 
   def parallel_tests = []
   // Create a subset of tests that can be ran by each Jenkins agent
-  int partitionCount = .size() / jobs_per_agent
+  int partitionCount = all_test_names.size() / jobs_per_agent
 
   partitionCount.times { partitionNumber ->
   def start = partitionNumber * jobs_per_agent
