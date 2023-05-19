@@ -289,6 +289,7 @@ pipeline {
 
           stages {
             stage("RSpec - EE FIPS agent tests") {
+
               steps {
                 addNewImagesToAgent()
                 unstash 'version_info'
@@ -299,82 +300,117 @@ pipeline {
             stage('EE FIPS parallel') {
               parallel {
                 stage('EE FIPS agent tests') {
+
                   steps {
                     addNewImagesToAgent()
                     unstash 'version_info'
                     runConjurTests(NESTED_ARRAY_OF_JOBS_TO_RUN[0])
+                    stash(
+                      name: 'testResultEE',
+                      includes: '''
+                        cucumber/*/*.*,
+                        container_logs/*/*,
+                        spec/reports/*.xml,
+                        spec/reports-audit/*.xml,
+                        cucumber/*/features/reports/**/*.xml
+                      '''
+                    )
                   }
                 }
+                // Run a subset of tests on a second agent to prevent oversubscribing the hardware
                 stage('EE FIPS agent2 tests') {
+
                   agent { label 'executor-v2-rhel-ee' }
+
+                  environment {
+                    CUCUMBER_FILTER_TAGS = "${params.CUCUMBER_FILTER_TAGS}"
+                  }
+
                   steps {
                     addNewImagesToAgent()
                     unstash 'version_info'
                     runConjurTests(NESTED_ARRAY_OF_JOBS_TO_RUN[1])
+                    stash(
+                      name: 'testResultEE2',
+                      includes: '''
+                        cucumber/*/*.*,
+                        container_logs/*/*,
+                        spec/reports/*.xml,
+                        spec/reports-audit/*.xml,
+                        cucumber/*/features/reports/**/*.xml
+                      '''
+                    )
                   }
                 }
+                // Run a subset of tests on a second agent to prevent oversubscribing the hardware
                 stage('EE FIPS agent3 tests') {
+
                   agent { label 'executor-v2-rhel-ee' }
+
+                  environment {
+                    CUCUMBER_FILTER_TAGS = "${params.CUCUMBER_FILTER_TAGS}"
+                  }
+
                   steps {
                     addNewImagesToAgent()
                     unstash 'version_info'
                     runConjurTests(NESTED_ARRAY_OF_JOBS_TO_RUN[2])
+                    stash(
+                      name: 'testResultEE3',
+                      includes: '''
+                        cucumber/*/*.*,
+                        container_logs/*/*,
+                        spec/reports/*.xml,
+                        spec/reports-audit/*.xml,
+                        cucumber/*/features/reports/**/*.xml
+                      '''
+                    )
                   }
                 }
-
-                //TODO: add a stash for each agent
-                //stash(
-                  //name: 'testResultEE',
-                  //includes: '''
-                    //cucumber/*/*.*,
-                    //container_logs/*/*,
-                    //spec/reports/*.xml,
-                    //spec/reports-audit/*.xml,
-                    //cucumber/*/features/reports/**/*.xml
-                  //'''
-                //)
               }
             }
           }
-          //post {
-            //always {
-              //dir('ee-test'){
-                //unstash 'testResultEE'
-              //}
+          post {
+            always {
+              dir('ee-test'){
+                unstash 'testResultEE'
+                unstash 'testResultEE2'
+                unstash 'testResultEE3'
+              }
 
-              //archiveArtifacts(
-                //artifacts: "ee-test/cucumber/*/*.*",
-                //fingerprint: false,
-                //allowEmptyArchive: true
-              //)
+              archiveArtifacts(
+                artifacts: "ee-test/cucumber/*/*.*",
+                fingerprint: false,
+                allowEmptyArchive: true
+              )
 
-              //archiveArtifacts(
-                //artifacts: "ee-test/container_logs/*/*",
-                //fingerprint: false,
-                //allowEmptyArchive: true
-              //)
+              archiveArtifacts(
+                artifacts: "ee-test/container_logs/*/*",
+                fingerprint: false,
+                allowEmptyArchive: true
+              )
 
-              //publishHTML(
-                //reportDir: 'ee-test/cucumber',
-                //reportFiles: '''
-                  //api/cucumber_results.html,
-                  //authenticators_config/cucumber_results.html,
-                  //authenticators_azure/cucumber_results.html,
-                  //authenticators_ldap/cucumber_results.html,
-                  //authenticators_oidc/cucumber_results.html,
-                  //authenticators_jwt/cucumber_results.html,
-                  //authenticators_status/cucumber_results.html
-                  //policy/cucumber_results.html,
-                  //rotators/cucumber_results.html
-                //''',
-                //reportName: 'EE Integration reports',
-                //reportTitles: '',
-                //allowMissing: false,
-                //alwaysLinkToLastBuild: true,
-                //keepAll: true
-              //)
-            //}
-          //}
+              publishHTML(
+                reportDir: 'ee-test/cucumber',
+                reportFiles: '''
+                  api/cucumber_results.html,
+                  authenticators_config/cucumber_results.html,
+                  authenticators_azure/cucumber_results.html,
+                  authenticators_ldap/cucumber_results.html,
+                  authenticators_oidc/cucumber_results.html,
+                  authenticators_jwt/cucumber_results.html,
+                  authenticators_status/cucumber_results.html
+                  policy/cucumber_results.html,
+                  rotators/cucumber_results.html
+                ''',
+                reportName: 'EE Integration reports',
+                reportTitles: '',
+                allowMissing: false,
+                alwaysLinkToLastBuild: true,
+                keepAll: true
+              )
+            }
+          }
         }
 
         stage('Run environment tests in parallel') {
@@ -929,16 +965,16 @@ def collateTests(jobs_per_agent=4) {
 
   def parallel_tests = []
   // Create a subset of tests that can be ran by each Jenkins agent
-  int partitionCount = all_test_names.size() / jobs_per_agent
+  int partitionCount = .size() / jobs_per_agent
 
   partitionCount.times { partitionNumber ->
   def start = partitionNumber * jobs_per_agent
   def end = start + jobs_per_agent - 1
-  parallel_tests.add(all_test_names[start..end])
+  parallel_tests.add(all_tests[start..end])
   }
 
-  if (all_test_names.size() % jobs_per_agent) {
-    parallel_tests.add(all_test_names[partitionCount * jobs_per_agent..-1])
+  if (all_tests.size() % jobs_per_agent) {
+    parallel_tests.add(all_tests[partitionCount * jobs_per_agent..-1])
   }
   // Return a nested list of test names
   return parallel_tests
