@@ -8,7 +8,6 @@ AuthnLocal = Struct.new(:socket, :queue_length, :timeout) do
   class << self
     def run socket:, queue_length:, timeout:
       socket ||= "/run/authn-local/.socket"
-      #socket ||= "/run/authn-local#{ENV['TEST_ENV_NUMBER']}/.socket"
       socket_dir = File.dirname(socket)
 
       unless File.directory?(socket_dir)

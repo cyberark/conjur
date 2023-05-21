@@ -1,18 +1,13 @@
 # frozen_string_literal: true
 
+parallel_cuke_vars = Hash.new
+parallel_cuke_vars['CONJUR_APPLIANCE_URL'] = "http://conjur#{ENV['TEST_ENV_NUMBER']}"
+parallel_cuke_vars['DATABASE_URL'] = "postgres://postgres@pg#{ENV['TEST_ENV_NUMBER']}/postgres"
+parallel_cuke_vars['CONJUR_AUTHN_API_KEY'] = ENV["CONJUR_AUTHN_API_KEY#{ENV['TEST_ENV_NUMBER']}"]
 
-api_string = "CONJUR_AUTHN_API_KEY#{ENV['TEST_ENV_NUMBER']}"
-h = Hash.new
-h['CONJUR_APPLIANCE_URL'] = "http://conjur#{ENV['TEST_ENV_NUMBER']}"
-h['DATABASE_URL'] = "postgres://postgres@pg#{ENV['TEST_ENV_NUMBER']}/postgres"
-h['CONJUR_AUTHN_API_KEY'] = ENV[api_string]
-
-h.each do |key, value|
-  #ENV[key] || ENV[key] = value
+parallel_cuke_vars.each do |key, value|
   if ENV[key].nil? || ENV[key].empty?
     ENV[key] = value
-    puts "#{File.dirname(__FILE__)}/#{File.basename(__FILE__)}"
-    puts "SET #{key}: #{value}"
   end
 end
 
