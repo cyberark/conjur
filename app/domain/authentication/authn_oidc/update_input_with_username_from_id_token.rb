@@ -117,7 +117,7 @@ module Authentication
       end
 
       def conjur_username
-        @decoded_token[id_token_username_field]
+        @decoded_token[id_token_username_field].to_s.downcase
       end
 
       def id_token_username_field

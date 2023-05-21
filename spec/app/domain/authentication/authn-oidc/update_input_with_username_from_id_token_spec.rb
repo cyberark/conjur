@@ -5,6 +5,7 @@ require 'support/security_specs_helper'
 require 'support/fetch_secrets_helper'
 require 'json'
 
+
 RSpec.describe(Authentication::AuthnOidc::UpdateInputWithUsernameFromIdToken) do
   include_context "fetch secrets", %w[provider-uri id-token-user-property]
   include_context "security mocks"
@@ -46,6 +47,10 @@ RSpec.describe(Authentication::AuthnOidc::UpdateInputWithUsernameFromIdToken) do
     mock_authenticate_oidc_request(request_body_data: "id_token={\"id_token_username_field\": \"alice\"}", request_headers: nil)
   end
 
+  let(:authenticate_id_token_uppercase_request) do
+    mock_authenticate_oidc_request(request_body_data: "id_token={\"id_token_username_field\": \"ALICE\"}", request_headers: nil)
+  end
+
   let(:authenticate_id_token_request_missing_id_token_username_field) do
     mock_authenticate_oidc_request(request_body_data: "id_token={}", request_headers: nil)
   end
@@ -66,8 +71,16 @@ RSpec.describe(Authentication::AuthnOidc::UpdateInputWithUsernameFromIdToken) do
     mock_authenticate_oidc_request(request_body_data: "id_token=", request_headers: {"HTTP_AUTHORIZATION" => "Bearer {\"id_token_username_field\":\"alice\"}"})
   end
 
+  let(:authenticate_id_token_uppercase_request_id_token_in_header_field) do
+    mock_authenticate_oidc_request(request_body_data: "id_token=", request_headers: {"HTTP_AUTHORIZATION" => "Bearer {\"id_token_username_field\":\"ALICE\"}"})
+  end
+
   let(:authenticate_id_token_request_invalid_id_token_in_header_field) do
     mock_authenticate_oidc_request(request_body_data: "id_token=", request_headers: {"HTTP_AUTHORIZATION" => "{\"id_token_username_field\":\"alice\"}"})
+  end
+
+  let(:authenticate_id_token_uppercase_request_invalid_id_token_in_header_field) do
+    mock_authenticate_oidc_request(request_body_data: "id_token=", request_headers: {"HTTP_AUTHORIZATION" => "{\"id_token_username_field\":\"ALICE\"}"})
   end
 
   let(:authenticate_id_token_request_empty_id_token_in_header_field) do
@@ -76,6 +89,10 @@ RSpec.describe(Authentication::AuthnOidc::UpdateInputWithUsernameFromIdToken) do
 
   let(:authenticate_id_token_request_missing_id_token_in_body_field) do
     mock_authenticate_oidc_request(request_body_data: "", request_headers: {"HTTP_AUTHORIZATION" => "Bearer {\"id_token_username_field\":\"alice\"}"})
+  end
+
+  let(:authenticate_id_token_uppercase_request_missing_id_token_in_body_field) do
+    mock_authenticate_oidc_request(request_body_data: "", request_headers: {"HTTP_AUTHORIZATION" => "Bearer {\"id_token_username_field\":\"ALICE\"}"})
   end
 
   let(:authenticate_id_token_request_contain_only_bearer_in_header_field) do
@@ -107,6 +124,65 @@ RSpec.describe(Authentication::AuthnOidc::UpdateInputWithUsernameFromIdToken) do
             credentials: request_body(authenticate_id_token_request),
             client_ip: '127.0.0.1',
             request: authenticate_id_token_request
+          )
+
+          ::Authentication::AuthnOidc::UpdateInputWithUsernameFromIdToken.new(
+            verify_and_decode_token: mocked_decode_and_verify_id_token,
+            validate_account_exists: mock_validate_account_exists(validation_succeeded: true)
+          ).call(
+            authenticator_input: input_
+          )
+        end
+
+        it "returns the input with the username inside it" do
+          expect(subject.username).to eql("alice")
+        end
+
+        it_behaves_like(
+          "it fails when variable is missing or has no value",
+          "provider-uri"
+        )
+        it_behaves_like(
+          "it fails when variable is missing or has no value",
+          "id-token-user-property"
+        )
+
+        context "a non-existing account" do
+          subject do
+            input_ = Authentication::AuthenticatorInput.new(
+              authenticator_name: 'authn-oidc',
+              service_id: 'my-service',
+              account: 'my-acct',
+              username: nil,
+              credentials: request_body(authenticate_id_token_request),
+              client_ip: '127.0.0.1',
+              request: authenticate_id_token_request
+            )
+
+            ::Authentication::AuthnOidc::UpdateInputWithUsernameFromIdToken.new(
+              verify_and_decode_token: mocked_decode_and_verify_id_token,
+              validate_account_exists: mock_validate_account_exists(validation_succeeded: false)
+            ).call(
+              authenticator_input: input_
+            )
+          end
+
+          it "raises the error raised by validate_account_exists" do
+            expect { subject }.to raise_error(validate_account_exists_error)
+          end
+        end
+      end
+
+      context "with valid id upper case token" do
+        subject do
+          input_ = Authentication::AuthenticatorInput.new(
+            authenticator_name: 'authn-oidc',
+            service_id: 'my-service',
+            account: 'my-acct',
+            username: nil,
+            credentials: request_body(authenticate_id_token_uppercase_request),
+            client_ip: '127.0.0.1',
+            request: authenticate_id_token_uppercase_request
           )
 
           ::Authentication::AuthnOidc::UpdateInputWithUsernameFromIdToken.new(
@@ -296,6 +372,33 @@ RSpec.describe(Authentication::AuthnOidc::UpdateInputWithUsernameFromIdToken) do
         end
       end
 
+      context "with valid upper case id token converted to lower case is in header" do
+        let(:audit_success) { false }
+
+        subject do
+          input_ = Authentication::AuthenticatorInput.new(
+            authenticator_name: 'authn-oidc',
+            service_id: 'my-service',
+            account: 'my-acct',
+            username: nil,
+            credentials: request_body(authenticate_id_token_uppercase_request_id_token_in_header_field),
+            client_ip: '127.0.0.1',
+            request: authenticate_id_token_uppercase_request_id_token_in_header_field
+          )
+
+          ::Authentication::AuthnOidc::UpdateInputWithUsernameFromIdToken.new(
+            verify_and_decode_token: mocked_decode_and_verify_id_token,
+            validate_account_exists: mock_validate_account_exists(validation_succeeded: true)
+          ).call(
+            authenticator_input: input_
+          )
+        end
+
+        it "returns the input with the username inside it" do
+          expect(subject.username).to eql("alice")
+        end
+      end
+
       context "with invalid id token in header and in body" do
         let(:audit_success) { false }
 
@@ -308,6 +411,33 @@ RSpec.describe(Authentication::AuthnOidc::UpdateInputWithUsernameFromIdToken) do
             credentials: request_body(authenticate_id_token_request_invalid_id_token_in_header_field),
             client_ip: '127.0.0.1',
             request: authenticate_id_token_request_invalid_id_token_in_header_field
+          )
+
+          ::Authentication::AuthnOidc::UpdateInputWithUsernameFromIdToken.new(
+            verify_and_decode_token: mocked_decode_and_verify_id_token,
+            validate_account_exists: mock_validate_account_exists(validation_succeeded: true)
+          ).call(
+            authenticator_input: input_
+          )
+        end
+
+        it "raises a MissingRequestParam error" do
+          expect { subject }.to raise_error(::Errors::Authentication::RequestBody::MissingRequestParam)
+        end
+      end
+
+      context "with invalid id upper case token in header and in body" do
+        let(:audit_success) { false }
+
+        subject do
+          input_ = Authentication::AuthenticatorInput.new(
+            authenticator_name: 'authn-oidc',
+            service_id: 'my-service',
+            account: 'my-acct',
+            username: nil,
+            credentials: request_body(authenticate_id_token_uppercase_request_invalid_id_token_in_header_field),
+            client_ip: '127.0.0.1',
+            request: authenticate_id_token_uppercase_request_invalid_id_token_in_header_field
           )
 
           ::Authentication::AuthnOidc::UpdateInputWithUsernameFromIdToken.new(
@@ -362,6 +492,33 @@ RSpec.describe(Authentication::AuthnOidc::UpdateInputWithUsernameFromIdToken) do
             credentials: request_body(authenticate_id_token_request_missing_id_token_in_body_field),
             client_ip: '127.0.0.1',
             request: authenticate_id_token_request_missing_id_token_in_body_field
+          )
+
+          ::Authentication::AuthnOidc::UpdateInputWithUsernameFromIdToken.new(
+            verify_and_decode_token: mocked_decode_and_verify_id_token,
+            validate_account_exists: mock_validate_account_exists(validation_succeeded: true)
+          ).call(
+            authenticator_input: input_
+          )
+        end
+
+        it "returns the input with the username inside it" do
+          expect(subject.username).to eql("alice")
+        end
+      end
+
+      context "with valid id upper case token in header and empty body" do
+        let(:audit_success) { false }
+
+        subject do
+          input_ = Authentication::AuthenticatorInput.new(
+            authenticator_name: 'authn-oidc',
+            service_id: 'my-service',
+            account: 'my-acct',
+            username: nil,
+            credentials: request_body(authenticate_id_token_uppercase_request_missing_id_token_in_body_field),
+            client_ip: '127.0.0.1',
+            request: authenticate_id_token_uppercase_request_missing_id_token_in_body_field
           )
 
           ::Authentication::AuthnOidc::UpdateInputWithUsernameFromIdToken.new(
