@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [0.0.11-cloud] - 2023-05-24
 ### Changed
 - Remove edge-hosts for edge endpoint  
+- oidc user name to be compare as lowercase https://ca-il-jira.il.cyber-ark.com:8443/browse/ONYX-37450
 
 ## [0.0.10-cloud] - 2023-05-16
 ### Added
