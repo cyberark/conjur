@@ -939,6 +939,17 @@ def testShouldRunOnAgent(run_only_str, agent_specific_tests) {
 }
 
 def runSpecificTestOnAgent(run_only_str, agent_specific_tests) {
+  // runSpecificTestOnAgent allows a subset of tests to be ran
+  // on an agent, determined by the agent's assigned subset of
+  // tests it normally runs.
+
+  // Args:
+  //  run_only_str: a space seperated string of test names
+  //  agent_specific_tests: an array of tests that the agent
+  //    is assigned to run
+
+  // Returns:
+  //  An array of test names to run
   def run_only_tests = []
   def find_tests = run_only_str.split()
 
@@ -1012,7 +1023,6 @@ def conjurTests() {
   ]
 }
 
-// TODO: add params.run_only as an arg, and overwrite cuke_test_names if string is found in list
 def runConjurTests(run_only_str, cuke_test_names) {
   // runConjurTests will build a parallel Jenkins block of code
   // that will run the specified cucumber test stages.
