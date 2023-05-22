@@ -120,15 +120,15 @@ RSpec.describe('Authentication::AuthnJwt::InputValidation::ParseClaimAliases') d
         end
       end
 
-      context "When input has illegal - character in claim name" do
+      context "When input has legal - character in claim name" do
         subject do
           ::Authentication::AuthnJwt::InputValidation::ParseClaimAliases.new().call(
             claim_aliases: "my-claim:a"
           )
         end
 
-        it "raises an error" do
-          expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::ClaimAliasInvalidClaimFormat)
+        it "does not raise an error" do
+          expect { subject }.not_to raise_error
         end
       end
 
