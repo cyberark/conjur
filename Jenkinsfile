@@ -320,9 +320,6 @@ pipeline {
                         cucumber/*/features/reports/**/*.xml
                       '''
                     )
-                    dir('ee-test'){
-                      unstash 'testResultEE'
-                    }
                   }
                 }
                 // Run a subset of tests on a second agent to prevent oversubscribing the hardware
@@ -352,9 +349,6 @@ pipeline {
                         cucumber/*/features/reports/**/*.xml
                       '''
                     )
-                    dir('ee-test'){
-                      unstash 'testResultEE2'
-                    }
                   }
                 }
                 // Run a subset of tests on a second agent to prevent oversubscribing the hardware
@@ -385,9 +379,6 @@ pipeline {
                         cucumber/*/features/reports/**/*.xml
                       '''
                     )
-                    dir('ee-test'){
-                      unstash 'testResultEE3'
-                    }
                   }
                 }
               }
@@ -395,6 +386,22 @@ pipeline {
           }
           post {
             always {
+              if (testShouldRunOnAgent(params.RUN_ONLY, runSpecificTestOnAgent(params.RUN_ONLY, NESTED_ARRAY_OF_TESTS_TO_RUN[0]))) {
+                dir('ee-test'){
+                  unstash 'testResultEE'
+                }
+              }
+              if (testShouldRunOnAgent(params.RUN_ONLY, runSpecificTestOnAgent(params.RUN_ONLY, NESTED_ARRAY_OF_TESTS_TO_RUN[1]))) {
+                dir('ee-test'){
+                  unstash 'testResultEE2'
+                }
+              }
+              if (testShouldRunOnAgent(params.RUN_ONLY, runSpecificTestOnAgent(params.RUN_ONLY, NESTED_ARRAY_OF_TESTS_TO_RUN[2]))) {
+                dir('ee-test'){
+                  unstash 'testResultEE3'
+                }
+              }
+
               archiveArtifacts(
                 artifacts: "ee-test/cucumber/*/*.*",
                 fingerprint: false,
@@ -475,7 +482,6 @@ pipeline {
                     cucumber/*/features/reports/**/*.xml
                   '''
                 )
-                unstash 'standardTestResult2'
               }
             }
 
@@ -506,7 +512,6 @@ pipeline {
                     cucumber/*/features/reports/**/*.xml
                   '''
                 )
-                unstash 'standardTestResult3'
               }
             }
 
@@ -763,6 +768,14 @@ pipeline {
 
         always {
           script {
+
+            if (testShouldRunOnAgent(params.RUN_ONLY, runSpecificTestOnAgent(params.RUN_ONLY, NESTED_ARRAY_OF_TESTS_TO_RUN[1]))) {
+              unstash 'standardTestResult2'
+            }
+
+            if (testShouldRunOnAgent(params.RUN_ONLY, runSpecificTestOnAgent(params.RUN_ONLY, NESTED_ARRAY_OF_TESTS_TO_RUN[2]))) {
+              unstash 'standardTestResult3'
+            }
 
             // Only unstash azure if it ran.
             if (testShouldRun(params.RUN_ONLY, "azure_authenticator")) {
