@@ -80,7 +80,6 @@ if (params.MODE == "PROMOTE") {
 // This will give 3 nested lists of tests to run, which is
 // distributed over 3 jenkins agents.
 def NESTED_ARRAY_OF_TESTS_TO_RUN = collateTests()
-
 pipeline {
   agent { label 'executor-v2' }
 
@@ -309,7 +308,6 @@ pipeline {
                   steps {
                     addNewImagesToAgent()
                     unstash 'version_info'
-                    println "NRK"
                     runConjurTests(params.RUN_ONLY, NESTED_ARRAY_OF_TESTS_TO_RUN[0])
                     stash(
                       name: 'testResultEE',
@@ -339,7 +337,6 @@ pipeline {
                   steps {
                     addNewImagesToAgent()
                     unstash 'version_info'
-                    println "NRK"
                     runConjurTests(params.RUN_ONLY, NESTED_ARRAY_OF_TESTS_TO_RUN[1])
                     stash(
                       name: 'testResultEE2',
@@ -369,7 +366,6 @@ pipeline {
 
                   steps {
                     addNewImagesToAgent()
-                    println "NRK"
                     unstash 'version_info'
                     runConjurTests(params.RUN_ONLY, NESTED_ARRAY_OF_TESTS_TO_RUN[2])
                     stash(
@@ -943,8 +939,8 @@ def testShouldRunOnAgent(run_only_str, agent_specific_tests) {
 }
 
 def runSpecificTestOnAgent(run_only_str, agent_specific_tests) {
-  run_only_tests = []
-  find_tests = run_only_str.split()
+  def run_only_tests = []
+  def find_tests = run_only_str.split()
 
   find_tests.each { run_only_test ->
     agent_specific_tests.find { agent_test ->
@@ -1027,9 +1023,9 @@ def runConjurTests(run_only_str, cuke_test_names) {
   // Returns:
   //  A Jenkins block of parallel code.
 
-  all_tests = conjurTests()
-  run_only_tests = runSpecificTestOnAgent(run_only_str, cuke_test_names)
-  parallel_tests = all_tests
+  def all_tests = conjurTests()
+  def run_only_tests = runSpecificTestOnAgent(run_only_str, cuke_test_names)
+  def parallel_tests = all_tests
 
   if (run_only_tests.isEmpty()) {
     parallel_tests = all_tests.subMap(cuke_test_names)
@@ -1045,7 +1041,7 @@ def runConjurTests(run_only_str, cuke_test_names) {
 
   script {
     parallel(
-      parallel_tests.values().sum(),
+      parallel_tests.values().sum()
     )
   }
 }
@@ -1061,8 +1057,8 @@ def collateTests(jobs_per_agent=4) {
 
   // Returns: a nested list of test names.
 
-  all_tests = conjurTests()
-  all_test_names = []
+  def all_tests = conjurTests()
+  def all_test_names = []
 
   all_tests.each{ k, _ ->
     all_test_names.add(k)
@@ -1075,7 +1071,7 @@ def collateTests(jobs_per_agent=4) {
   partitionCount.times { partitionNumber ->
   def start = partitionNumber * jobs_per_agent
   def end = start + jobs_per_agent - 1
-  parallel_tests.add(all_tests[start..end])
+  parallel_tests.add(all_test_names[start..end])
   }
 
   if (all_tests.size() % jobs_per_agent) {
