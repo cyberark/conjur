@@ -309,6 +309,7 @@ pipeline {
                   steps {
                     addNewImagesToAgent()
                     unstash 'version_info'
+                    println "NRK"
                     runConjurTests(params.RUN_ONLY, NESTED_ARRAY_OF_TESTS_TO_RUN[0])
                     stash(
                       name: 'testResultEE',
@@ -338,6 +339,7 @@ pipeline {
                   steps {
                     addNewImagesToAgent()
                     unstash 'version_info'
+                    println "NRK"
                     runConjurTests(params.RUN_ONLY, NESTED_ARRAY_OF_TESTS_TO_RUN[1])
                     stash(
                       name: 'testResultEE2',
@@ -367,6 +369,7 @@ pipeline {
 
                   steps {
                     addNewImagesToAgent()
+                    println "NRK"
                     unstash 'version_info'
                     runConjurTests(params.RUN_ONLY, NESTED_ARRAY_OF_TESTS_TO_RUN[2])
                     stash(
