@@ -95,35 +95,65 @@ Feature: Fetching secrets from edge endpoint
         "owner": "cucumber:policy:data",
         "permissions": [],
         "value": "s1",
-        "version": 1
+        "version": 1,
+        "versions": [
+        {
+          "value": "s1",
+          "version": 1
+        }
+        ]
       },
       {
         "id": "cucumber:variable:data/secret2",
         "owner": "cucumber:policy:data",
         "permissions": [],
         "value": "s2",
-        "version": 1
+        "version": 1,
+        "versions": [
+        {
+          "value": "s2",
+          "version": 1
+        }
+        ]
       },
       {
         "id": "cucumber:variable:data/secret3",
         "owner": "cucumber:policy:data",
         "permissions": [],
         "value": "s3",
-        "version": 1
+        "version": 1,
+        "versions": [
+        {
+          "value": "s3",
+          "version": 1
+        }
+        ]
       },
       {
         "id": "cucumber:variable:data/secret4",
         "owner": "cucumber:policy:data",
         "permissions": [],
         "value": "s4",
-        "version": 1
+        "version": 1,
+        "versions": [
+        {
+          "value": "s4",
+          "version": 1
+        }
+        ]
       },
       {
         "id": "cucumber:variable:data/secret5",
         "owner": "cucumber:policy:data",
         "permissions": [],
         "value": "s5",
-        "version": 1
+        "version": 1,
+        "versions": [
+        {
+          "value": "s5",
+          "version": 1
+        }
+        ]
       },
       {
         "id": "cucumber:variable:data/secret6",
@@ -166,7 +196,13 @@ Feature: Fetching secrets from edge endpoint
         "permissions": [
         ],
         "value": "s1",
-        "version": 1
+        "version": 1,
+        "versions": [
+        {
+          "value": "s1",
+          "version": 1
+        }
+        ]
       },
       {
         "id": "cucumber:variable:data/secret2",
@@ -174,7 +210,13 @@ Feature: Fetching secrets from edge endpoint
         "permissions": [
         ],
         "value": "s2",
-        "version": 1
+        "version": 1,
+        "versions": [
+        {
+          "value": "s2",
+          "version": 1
+        }
+        ]
       }
     ]}
     """
@@ -193,7 +235,13 @@ Feature: Fetching secrets from edge endpoint
         "permissions": [
         ],
         "value": "s3",
-        "version": 1
+        "version": 1,
+        "versions": [
+        {
+          "value": "s3",
+          "version": 1
+        }
+        ]
       },
       {
         "id": "cucumber:variable:data/secret4",
@@ -201,7 +249,13 @@ Feature: Fetching secrets from edge endpoint
         "permissions": [
         ],
         "value": "s4",
-        "version": 1
+        "version": 1,
+        "versions": [
+        {
+          "value": "s4",
+          "version": 1
+        }
+        ]
       }
     ]}
     """
@@ -220,7 +274,13 @@ Feature: Fetching secrets from edge endpoint
         "permissions": [
         ],
         "value": "s5",
-        "version": 1
+        "version": 1,
+        "versions": [
+        {
+          "value": "s5",
+          "version": 1
+        }
+        ]
       },
       {
         "id": "cucumber:variable:data/secret6",
@@ -324,7 +384,13 @@ Feature: Fetching secrets from edge endpoint
       "owner": "cucumber:policy:data",
       "permissions": [],
       "value": "czHCsVw=",
-      "version": 2
+      "version": 2,
+        "versions": [
+        {
+          "value": "czHCsVw=",
+          "version": 2
+        }
+        ]
     }
   ]}
   """
@@ -357,7 +423,13 @@ Feature: Fetching secrets from edge endpoint
       "owner": "cucumber:policy:data",
       "permissions": [],
       "value": "s1\\",
-      "version": 2
+      "version": 2,
+        "versions": [
+        {
+          "value": "s1\\",
+          "version": 2
+        }
+        ]
     }
   ]}
   """
