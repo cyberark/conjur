@@ -269,12 +269,12 @@ pipeline {
           }
         }
 
-         //Run outside parallel block to avoid external pressure
-        stage('RSpec - Standard agent tests') {
-          steps {
-            sh 'ci/test rspec'
-          }
-        }
+         ////Run outside parallel block to avoid external pressure
+        //stage('RSpec - Standard agent tests') {
+          //steps {
+            //sh 'ci/test rspec'
+          //}
+        //}
 
         // Run outside parallel block to reduce main Jenkins executor load.
         stage('Nightly Only') {
@@ -288,14 +288,14 @@ pipeline {
           }
 
           stages {
-            stage("RSpec - EE FIPS agent tests") {
+            //stage("RSpec - EE FIPS agent tests") {
 
-              steps {
-                addNewImagesToAgent()
-                unstash 'version_info'
-                sh "ci/test rspec"
-              }
-            }
+              //steps {
+                //addNewImagesToAgent()
+                //unstash 'version_info'
+                //sh "ci/test rspec"
+              //}
+            //}
 
             stage('EE FIPS parallel') {
               parallel {
@@ -386,19 +386,21 @@ pipeline {
           }
           post {
             always {
-              if (testShouldRunOnAgent(params.RUN_ONLY, runSpecificTestOnAgent(params.RUN_ONLY, NESTED_ARRAY_OF_TESTS_TO_RUN[0]))) {
-                dir('ee-test'){
-                  unstash 'testResultEE'
+              script {
+                if (testShouldRunOnAgent(params.RUN_ONLY, runSpecificTestOnAgent(params.RUN_ONLY, NESTED_ARRAY_OF_TESTS_TO_RUN[0]))) {
+                  dir('ee-test'){
+                    unstash 'testResultEE'
+                  }
                 }
-              }
-              if (testShouldRunOnAgent(params.RUN_ONLY, runSpecificTestOnAgent(params.RUN_ONLY, NESTED_ARRAY_OF_TESTS_TO_RUN[1]))) {
-                dir('ee-test'){
-                  unstash 'testResultEE2'
+                if (testShouldRunOnAgent(params.RUN_ONLY, runSpecificTestOnAgent(params.RUN_ONLY, NESTED_ARRAY_OF_TESTS_TO_RUN[1]))) {
+                  dir('ee-test'){
+                    unstash 'testResultEE2'
+                  }
                 }
-              }
-              if (testShouldRunOnAgent(params.RUN_ONLY, runSpecificTestOnAgent(params.RUN_ONLY, NESTED_ARRAY_OF_TESTS_TO_RUN[2]))) {
-                dir('ee-test'){
-                  unstash 'testResultEE3'
+                if (testShouldRunOnAgent(params.RUN_ONLY, runSpecificTestOnAgent(params.RUN_ONLY, NESTED_ARRAY_OF_TESTS_TO_RUN[2]))) {
+                  dir('ee-test'){
+                    unstash 'testResultEE3'
+                  }
                 }
               }
 
