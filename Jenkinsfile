@@ -1024,15 +1024,15 @@ def runConjurTests(run_only_str, cuke_test_names) {
   // Returns:
   //  A Jenkins block of parallel code.
 
+  all_tests = conjurTests()
   run_only_tests = runSpecificTestOnAgent(run_only_str, cuke_test_names)
+  parallel_tests = all_tests
 
   if (run_only_tests.isEmpty()) {
     parallel_tests = all_tests.subMap(cuke_test_names)
   } else {
     parallel_tests = all_tests.subMap(run_only_tests)
   }
-
-  all_tests = conjurTests()
 
   // Create the parallel pipeline.
   //
@@ -1076,7 +1076,7 @@ def collateTests(jobs_per_agent=4) {
   }
 
   if (all_tests.size() % jobs_per_agent) {
-    parallel_tests.add(all_tests[partitionCount * jobs_per_agent..-1])
+    parallel_tests.add(all_test_names[partitionCount * jobs_per_agent..-1])
   }
   return parallel_tests
 }
