@@ -10,16 +10,14 @@ require 'fileutils'
 # Prior to this hook, our tests had hidden coupling.  This ensures each test is
 # run independently.
 Before do
-parallel_cuke_vars = Hash.new
-parallel_cuke_vars['CONJUR_APPLIANCE_URL'] = "http://conjur#{ENV['TEST_ENV_NUMBER']}"
-parallel_cuke_vars['DATABASE_URL'] = "postgres://postgres@pg#{ENV['TEST_ENV_NUMBER']}/postgres"
-parallel_cuke_vars['CONJUR_AUTHN_API_KEY'] = ENV["CONJUR_AUTHN_API_KEY#{ENV['TEST_ENV_NUMBER']}"]
+  parallel_cuke_vars = Hash.new
+  parallel_cuke_vars['CONJUR_APPLIANCE_URL'] = "http://conjur#{ENV['TEST_ENV_NUMBER']}"
+  parallel_cuke_vars['DATABASE_URL'] = "postgres://postgres@pg#{ENV['TEST_ENV_NUMBER']}/postgres"
+  parallel_cuke_vars['CONJUR_AUTHN_API_KEY'] = ENV["CONJUR_AUTHN_API_KEY#{ENV['TEST_ENV_NUMBER']}"]
 
-parallel_cuke_vars.each do |key, value|
-  if ENV[key].nil? || ENV[key].empty?
+  parallel_cuke_vars.each do |key, value|
     ENV[key] = value
   end
-end
 
   puts "********"
   puts "RUNNING ON PROCESS #{ENV['TEST_ENV_NUMBER']}:"

@@ -2,6 +2,25 @@
 
 export REPORT_ROOT=/src/conjur-server
 
+PROCESSES=2
+
+get_service_name_by_process() {
+  local services
+  read -ra services <<< "$1"
+
+  for service in "${services[@]}"; do
+    for (( i=1; i<=PROCESSES; i++ )); do
+      if (( i >= 2 )) ; then
+        new_services+=("$service${i}")
+      else
+        new_services+=("$service")
+      fi
+    done
+  done
+
+  echo "${new_services[@]}"
+}
+
 # Note: This function is long but purposefully not split up.  None of its parts
 # are re-used, and the split-up version is harder to follow and duplicates
 # argument processing.
@@ -30,14 +49,19 @@ _run_cucumber_tests() {
 
   echo "Start all services..."
 
+  local parallel_services
+  read -ra parallel_services <<< "$(get_service_name_by_process 'conjur pg')"
+
+  echo "${parallel_services[@]}"
+  echo "${services[@]}"
+
   if [[ -z ${services} ]]; then
     echo "NRK NO ARG"
-    docker-compose up --no-deps --no-recreate -d pg conjur pg2 conjur2
+    docker-compose up --no-deps --no-recreate -d "${parallel_services[@]}"
   else
     echo "NRK2 ARG"
-    docker-compose up --no-deps --no-recreate -d pg conjur pg2 conjur2 "${services[@]}"
+    docker-compose up --no-deps --no-recreate -d "${parallel_services[@]}" "${services[@]}"
   fi
-  #docker-compose up --no-deps --no-recreate -d pg3 conjur3
 
   echo "Docker PS after:"
   docker-compose ps -a
@@ -47,16 +71,16 @@ _run_cucumber_tests() {
   #read -p "Press key to continue.. " -n1 -s
   docker-compose ps -a
 
-  docker-compose exec -T conjur conjurctl wait --retries 180
-  docker-compose exec -T conjur2 conjurctl wait --retries 180
-  #docker-compose exec -T conjur3 conjurctl wait --retries 180
+  read -ra parallel_services <<< "$(get_service_name_by_process 'conjur')"
+  for parallel_service in "${parallel_services[@]}"; do
+    docker-compose exec -T "$parallel_service" conjurctl wait --retries 180
+  done
 
   echo "Create cucumber account..."
 
-  docker-compose exec -T conjur conjurctl account create cucumber
-  docker-compose exec -T conjur2 conjurctl account create cucumber
-  #docker-compose exec -T conjur3 conjurctl account create cucumber
-
+  for parallel_service in "${parallel_services[@]}"; do
+    docker-compose exec -T "$parallel_service" conjurctl account create cucumber
+  done
 
 
   # Stage 2: Prepare cucumber environment args
@@ -78,18 +102,28 @@ _run_cucumber_tests() {
     env_var_flags+=(-e "$item")
   done
 
+  i=1
+  for parallel_service in "${parallel_services[@]}"; do
+    if (( i == 1 )) ; then
+      api_keys+=("CONJUR_AUTHN_API_KEY=$(_get_api_key "$parallel_service")")
+    else
+      api_keys+=("CONJUR_AUTHN_API_KEY${i}=$(_get_api_key "$parallel_service")")
+    fi
+    ((i++))
+  done
   # Add the cucumber env vars that we always want to send.
   # Note: These are args for docker-compose run, and as such the right hand
   # sides of the = do NOT require escaped quotes.  docker-compose takes the
   # entire arg, splits on the =, and uses the rhs as the value,
   env_var_flags+=(
-    -e "CONJUR_AUTHN_API_KEY=$(_get_api_key)"
-    -e "CONJUR_AUTHN_API_KEY2=$(_get_api_key2)"
-  #  -e "CONJUR_AUTHN_API_KEY3=$(_get_api_key3)"
     -e "CUCUMBER_NETWORK=$(_find_cucumber_network)"
     -e "CUCUMBER_FILTER_TAGS=$CUCUMBER_FILTER_TAGS"
   )
 
+  for api_key in "${api_keys[@]}"; do
+    echo "NRK $api_key"
+    env_var_flags+=(-e "$api_key")
+  done
 
   # If there's no tty (e.g. we're running as a Jenkins job), pass -T to
   # docker-compose.
@@ -121,35 +155,11 @@ _run_cucumber_tests() {
   docker-compose run "${run_flags[@]}" "${env_var_flags[@]}" \
     cucumber -ec "\
       /oauth/keycloak/scripts/fetch_certificate &&
-      bundle exec parallel_cucumber . -n 2 \
+      bundle exec parallel_cucumber . -n ${PROCESSES} \
        -o '--strict --profile \"${profile}\" \
        --format json --out \"cucumber/$profile/cucumber_results.json\" \
        --format html --out \"cucumber/$profile/cucumber_results.html\" \
        --format junit --out \"cucumber/$profile/features/reports\"'"
-
-        ### TODO: SHOULD BE THE COMMAND THAT GOES INTO THE PR
-        ### Testing will not include cucumber_tags_arg so all tests run similar to master
-       #-o '--strict --profile \"${profile}\" ${cucumber_tags_arg} \
-
-      #bundle exec parallel_test cucumber --type cucumber -n 2 \
-       #-o '--tags @api -p \"$profile\" \
-       #--format json --out \"cucumber/$profile/cucumber_results.json\" \
-       #--format html --out \"cucumber/$profile/cucumber_results.html\" \
-       #--format junit --out \"cucumber/$profile/features/reports\"'"
-
-      #bundle exec parallel_test . --type cucumber -n 2 \
-       #-o '--strict ${cucumber_tags_arg} -p \"${profile}\" \
-       #--format json --out \"cucumber/$profile/cucumber_results.json\" \
-       #--format html --out \"cucumber/$profile/cucumber_results.html\" \
-       #--format junit --out \"cucumber/$profile/features/reports\"'"
-
-      #bundle exec cucumber \
-       #--strict \
-       #${cucumber_tags_arg} \
-       #-p \"$profile\" \
-       #--format json --out \"cucumber/$profile/cucumber_results.json\" \
-       #--format html --out \"cucumber/$profile/cucumber_results.html\" \
-       #--format junit --out \"cucumber/$profile/features/reports\""
 
   # Stage 4: Coverage results
   # -----------------------------------------------------------
@@ -158,23 +168,15 @@ _run_cucumber_tests() {
   # killed before ruby, the report doesn't get written. So here we kill the
   # process to write the report. The container is kept alive using an infinite
   # sleep in the at_exit hook (see .simplecov).
-  docker-compose exec -T conjur bash -c "pkill -f 'puma 5'"
-  docker-compose exec -T conjur2 bash -c "pkill -f 'puma 5'"
-  #docker-compose exec -T conjur3 bash -c "pkill -f 'puma 5'"
+  for parallel_service in "${parallel_services[@]}"; do
+    docker-compose exec -T "$parallel_service" bash -c "pkill -f 'puma 5'"
+  done
 }
 
 _get_api_key() {
-  docker-compose exec -T conjur conjurctl \
-    role retrieve-key cucumber:user:admin | tr -d '\r'
-}
+  local service=$1
 
-_get_api_key2() {
-  docker-compose exec -T conjur2 conjurctl \
-    role retrieve-key cucumber:user:admin | tr -d '\r'
-}
-
-_get_api_key3() {
-  docker-compose exec -T conjur3 conjurctl \
+  docker-compose exec -T "${service}" conjurctl \
     role retrieve-key cucumber:user:admin | tr -d '\r'
 }
 
