@@ -8,3 +8,6 @@
 
 # Changes to SECURITY.md require Security Architect approval
 SECURITY.md @cyberark/security-architects @conjurinc/security-architects @conjurdemos/security-architects
+
+# Change CODEOWNER for /features/* to require Conjur Quality team approval on test changes
+/cucumber/* @Conjur-Enterprise/conjur-quality
