@@ -77,7 +77,7 @@ module Authentication
 
           # Verify that a variable has been created for one of: `jwks-uri`, `public-keys`, or `provider-uri`
           rule(:jwks_uri, :public_keys, :provider_uri) do
-            if %i[jwks_uri provider_uri public_keys].all? { |item| values[item].nil? }
+            if all_are?(array: %i[jwks_uri provider_uri public_keys], values: values, check: :nil?)
               utils.failed_response(
                 key: key,
                 error: Errors::Authentication::AuthnJwt::InvalidSigningKeySettings.new(
@@ -89,7 +89,8 @@ module Authentication
 
           # Verify that a variable has been set for one of: `jwks-uri`, `public-keys`, or `provider-uri`
           rule(:jwks_uri, :public_keys, :provider_uri) do
-            if %i[jwks_uri provider_uri public_keys].all? { |item| values[item].blank? }
+            if all_are?(array: %i[jwks_uri provider_uri public_keys], values: values, check: :blank?)
+            # if %i[jwks_uri provider_uri public_keys].all? { |item| values[item].blank? }
               utils.failed_response(
                 key: key,
                 error: Errors::Authentication::AuthnJwt::InvalidSigningKeySettings.new(
@@ -328,6 +329,12 @@ module Authentication
               )
             )
           end
+
+          def all_are?(array:, values:, check:)
+            array.all? { |item| values[item].send(check) }
+          end
+
+
         end
       end
     end

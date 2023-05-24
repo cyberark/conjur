@@ -275,7 +275,7 @@ RSpec.describe(Authentication::AuthnJwt::V2::ResolveIdentity) do
         let(:allowed_roles) do
           [
             { role_id: 'rspec:host:bill', annotations: {} },
-            { role_id: 'rspec:host:bob',
+            { role_id: 'rspec:user:bob',
               annotations: {
                 'authn-jwt/bar/project_id' => 'test-1',
                 'authn-jwt/bar/iss' => 'test-2'

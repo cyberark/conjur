@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 RSpec.describe(Authentication::AuthnOidc::V2::DataObjects::AuthenticatorContract) do
-  subject { Authentication::AuthnJwt::V2::DataObjects::AuthenticatorContract.new.call(**params) }
+  subject { Authentication::AuthnJwt::V2::DataObjects::AuthenticatorContract.new(utils: ::Util::ContractUtils).call(**params) }
   let(:default_args) { { account: 'foo', service_id: 'bar' } }
   let(:public_keys) { '{"type":"jwks","value":{"keys":[{}]}}' }
 
@@ -238,7 +238,7 @@ RSpec.describe(Authentication::AuthnOidc::V2::DataObjects::AuthenticatorContract
       end
     end
     context 'with claims in reserved claim list' do
-      let(:contract) { Authentication::AuthnJwt::V2::DataObjects::AuthenticatorContract.new }
+      let(:contract) { Authentication::AuthnJwt::V2::DataObjects::AuthenticatorContract.new(utils: ::Util::ContractUtils) }
       %w[iss exp nbf iat jti aud].each do |reserved_claim|
         enforced_claims = "foo-bar/b, #{reserved_claim}"
         it 'is unsuccessful' do
@@ -312,7 +312,7 @@ RSpec.describe(Authentication::AuthnOidc::V2::DataObjects::AuthenticatorContract
       end
     end
     context 'with claim alias in reserved claim list' do
-      let(:contract) { Authentication::AuthnJwt::V2::DataObjects::AuthenticatorContract.new }
+      let(:contract) { Authentication::AuthnJwt::V2::DataObjects::AuthenticatorContract.new(utils: ::Util::ContractUtils) }
       %w[iss exp nbf iat jti aud].each do |reserved_claim|
         enforced_claims = "foo:bar/b, #{reserved_claim}:bing/baz"
         it 'is unsuccessful' do
@@ -325,7 +325,7 @@ RSpec.describe(Authentication::AuthnOidc::V2::DataObjects::AuthenticatorContract
       end
     end
     context 'with claim target in reserved claim list' do
-      let(:contract) { Authentication::AuthnJwt::V2::DataObjects::AuthenticatorContract.new }
+      let(:contract) { Authentication::AuthnJwt::V2::DataObjects::AuthenticatorContract.new(utils: ::Util::ContractUtils) }
       %w[iss exp nbf iat jti aud].each do |reserved_claim|
         enforced_claims = "foo:bar/b, bing:#{reserved_claim}"
         it 'is unsuccessful' do

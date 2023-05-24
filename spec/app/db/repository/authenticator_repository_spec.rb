@@ -66,7 +66,7 @@ RSpec.describe('DB::Repository::AuthenticatorRepository') do
               arguments.each do |variable|
                 ::Secret.create(
                   resource_id: "rspec:variable:conjur/authn-oidc/#{service}/#{variable}",
-                  value: "#{variable}"
+                  value: variable.to_s
                 )
               end
             end

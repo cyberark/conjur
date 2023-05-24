@@ -4,6 +4,8 @@ module Authentication
   module AuthnOidc
     module V2
       class Strategy
+        REQUIRED_PARAMS = %i[code nonce].freeze
+
         def initialize(
           authenticator:,
           client: Authentication::AuthnOidc::V2::Client,
@@ -16,7 +18,7 @@ module Authentication
 
         def callback(parameters:, request_body: nil)
           # NOTE: `code_verifier` param is optional
-          %i[code nonce].each do |param|
+          REQUIRED_PARAMS.each do |param|
             unless parameters[param].present?
               raise Errors::Authentication::RequestBody::MissingRequestParam, param.to_s
             end
