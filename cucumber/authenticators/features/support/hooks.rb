@@ -11,10 +11,9 @@ Before do
   parallel_cuke_vars['CONJUR_AUTHN_API_KEY'] = ENV["CONJUR_AUTHN_API_KEY#{ENV['TEST_ENV_NUMBER']}"]
 
   parallel_cuke_vars.each do |key, value|
-    if ENV[key].nil? || ENV[key].empty?
-      ENV[key] = value
-    end
+    ENV[key] = value
   end
+
 
   puts "********"
   puts "RUNNING ON PROCESS #{ENV['TEST_ENV_NUMBER']}:"
