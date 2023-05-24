@@ -1,4 +1,5 @@
 require "conjur/rack/user"
+require "conjur/rack/consts"
 
 module Conjur
   module Rack
@@ -41,7 +42,10 @@ module Conjur
       end
       class Forbidden < SecurityError
       end
-      
+      class ConfigurationError < SecurityError
+      end
+      class ValidationError < SecurityError
+      end
       attr_reader :app, :options
       
       # +options+:
@@ -100,13 +104,15 @@ module Conjur
       end
 
       def validate_token_and_get_account token
-        failure = SignatureError.new("Unauthorized: Invalid token")
-        raise failure unless (signer = Slosilo.token_signer token)
+        raise(SignatureError, 'Unauthorized: Invalid token') unless (signer = Slosilo.token_signer token)
         if signer == 'own'
-          ENV['CONJUR_ACCOUNT'] or raise failure
+          account = ENV['CONJUR_ACCOUNT'] if ENV.has_key?('CONJUR_ACCOUNT')
+          return account if account && account.to_s.strip.length > 0
+          raise(ConfigurationError, "Unauthorized: 'CONJUR_ACCOUNT' environment variable must be set")
         else
-          raise failure unless signer =~ /\Aauthn:(.+)\z/
-          $1
+          match = []
+          return match[1] if (match = signer.match(Conjur::Rack::Consts::TOKEN_ID_REGEX))
+          raise(ValidationError, 'Unauthorized: Invalid signer')
         end
       end
       
