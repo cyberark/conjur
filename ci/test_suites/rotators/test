@@ -5,6 +5,6 @@ set -e
 # shellcheck disable=SC1091
 source "./shared.sh"
 
-read -ra parallel_services <<< "$(get_service_name_by_process 'testdb testdb2')"
+read -ra parallel_services <<< "$(get_service_name_by_process 'testdb')"
 
 _run_cucumber_tests rotators "${parallel_services[@]}"
