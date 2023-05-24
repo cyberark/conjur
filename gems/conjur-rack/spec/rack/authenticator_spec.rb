@@ -81,24 +81,31 @@ describe Conjur::Rack::Authenticator do
         context "of a token invalid for authn" do
           it "returns a 401 error" do
             allow(Slosilo).to receive(:token_signer).and_return('a-totally-different-key')
-            expect(call).to return_http 401, "Unauthorized: Invalid token"
+            expect(call).to return_http 401, "Unauthorized: Invalid signer"
           end
         end
         context "of 'own' token" do
+          before do
+            allow(Slosilo).to receive(:token_signer).and_return('own')
+          end
           it "returns ENV['CONJUR_ACCOUNT']" do
             expect(ENV).to receive(:[]).with("CONJUR_ACCOUNT").and_return("test-account")
+            expect(ENV).to receive(:has_key?).with("CONJUR_ACCOUNT").and_return(true)
             expect(app).to receive(:call) do |*args|
               expect(Conjur::Rack.identity?).to be(true)
               expect(Conjur::Rack.user.account).to eq('test-account')
               :done
             end
-            allow(Slosilo).to receive(:token_signer).and_return('own')
             expect(call).to eq(:done)
           end
           it "requires ENV['CONJUR_ACCOUNT']" do
-            expect(ENV).to receive(:[]).with("CONJUR_ACCOUNT").and_return(nil)
-            allow(Slosilo).to receive(:token_signer).and_return('own')
-            expect(call).to return_http 401, "Unauthorized: Invalid token"
+            expect(ENV).to receive(:has_key?).with("CONJUR_ACCOUNT").and_return(false)
+            expect(call).to return_http 401, "Unauthorized: 'CONJUR_ACCOUNT' environment variable must be set"
+          end
+          it "ENV['CONJUR_ACCOUNT'] can't be empty" do
+            expect(ENV).to receive(:has_key?).with("CONJUR_ACCOUNT").and_return(true)
+            expect(ENV).to receive(:[]).with("CONJUR_ACCOUNT").and_return('     ')
+            expect(call).to return_http 401, "Unauthorized: 'CONJUR_ACCOUNT' environment variable must be set"
           end
         end
       end
@@ -171,11 +178,59 @@ describe Conjur::Rack::Authenticator do
       expect { subject.send :verify_authorization_and_get_identity }.to raise_error \
           Conjur::Rack::Authenticator::AuthorizationError
     end
+  end
 
-    def mock_jwt claims
-      token = Slosilo::JWT.new(claims).add_signature(alg: 'none') {}
-      allow(subject).to receive(:parsed_token) { token }
-      allow(Slosilo).to receive(:token_signer).with(token).and_return 'authn:test'
+  describe '#validate_token_and_get_account' do
+    context "with 'authn:test' token signer" do
+      it "returns test account name" do
+        token = mock_jwt({sub: 'user'})
+        allow(Slosilo).to receive(:token_signer).with(token).and_return('authn:test')
+        res = subject.send(:validate_token_and_get_account, token)
+        expect(res).to eq("test")
+      end
     end
+
+    context "with 'authn:test:user' token signer" do
+      it "returns test account name" do
+        token = mock_jwt({sub: 'user'})
+        allow(Slosilo).to receive(:token_signer).with(token).and_return('authn:test:user')
+        res = subject.send(:validate_token_and_get_account, token)
+        expect(res).to eq("test")
+      end
+    end
+
+    context "with 'authn:test:host' token signer" do
+      it "returns test account name" do
+        token = mock_jwt({sub: 'host/host'})
+        allow(Slosilo).to receive(:token_signer).with(token).and_return('authn:test:host')
+        res = subject.send(:validate_token_and_get_account, token)
+        expect(res).to eq("test")
+      end
+    end
+
+    context "with token signer in wrong format" do
+      it "raise validation error" do
+        token = mock_jwt({sub: 'host/host'})
+        allow(Slosilo).to receive(:token_signer).with(token).and_return('wrong_account')
+        expect { subject.send :validate_token_and_get_account, token }.to raise_error \
+            Conjur::Rack::Authenticator::ValidationError
+      end
+    end
+
+    context "with invalid token signer" do
+      it "raise error" do
+        token = mock_jwt({sub: 'host/host'})
+        allow(Slosilo).to receive(:token_signer).with(token).and_return(nil)
+        expect { subject.send :validate_token_and_get_account, token }.to raise_error \
+            Conjur::Rack::Authenticator::SignatureError
+      end
+    end
+  end
+  
+  def mock_jwt(claims, account = 'authn:test') 
+    token = Slosilo::JWT.new(claims).add_signature(alg: 'none') {}
+    allow(subject).to receive(:parsed_token) { token }
+    allow(Slosilo).to receive(:token_signer).with(token).and_return(account)
+    token
   end
 end
