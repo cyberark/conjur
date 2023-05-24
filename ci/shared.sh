@@ -63,14 +63,6 @@ _run_cucumber_tests() {
     docker-compose up --no-deps --no-recreate -d "${parallel_services[@]}" "${services[@]}"
   fi
 
-  echo "Docker PS after:"
-  docker-compose ps -a
-
-  docker network ls
-
-  #read -p "Press key to continue.. " -n1 -s
-  docker-compose ps -a
-
   read -ra parallel_services <<< "$(get_service_name_by_process 'conjur')"
   for parallel_service in "${parallel_services[@]}"; do
     docker-compose exec -T "$parallel_service" conjurctl wait --retries 180
@@ -81,7 +73,6 @@ _run_cucumber_tests() {
   for parallel_service in "${parallel_services[@]}"; do
     docker-compose exec -T "$parallel_service" conjurctl account create cucumber
   done
-
 
   # Stage 2: Prepare cucumber environment args
   # -----------------------------------------------------------
