@@ -488,8 +488,7 @@ pipeline {
                     container_logs/*/*,
                     spec/reports/*.xml,
                     spec/reports-audit/*.xml,
-                    cucumber/*/features/reports/**/*.xml,
-                    ci/test_suites/*/output
+                    cucumber/*/features/reports/**/*.xml
                   '''
                 )
               }
@@ -519,7 +518,8 @@ pipeline {
                     container_logs/*/*,
                     spec/reports/*.xml,
                     spec/reports-audit/*.xml,
-                    cucumber/*/features/reports/**/*.xml
+                    cucumber/*/features/reports/**/*.xml,
+                    ci/test_suites/*/output/*
                   '''
                 )
               }
@@ -1009,14 +1009,14 @@ def conjurTests() {
         sh 'ci/test policy'
       }
     ],
-    "authenticators_k8s": [
-      "K8s Authenticator - ${env.STAGE_NAME}": {
-        sh 'ci/test authenticators_k8s'
-      }
-    ],
     "rotators": [
       "Rotators - ${env.STAGE_NAME}": {
         sh 'ci/test rotators'
+      }
+    ],
+    "authenticators_k8s": [
+      "K8s Authenticator - ${env.STAGE_NAME}": {
+        sh 'ci/test authenticators_k8s'
       }
     ],
     "rspec_audit": [
