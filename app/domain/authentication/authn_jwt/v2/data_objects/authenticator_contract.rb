@@ -10,6 +10,9 @@ module Authentication
         # is executed against the data gleaned from Conjur variables when the authenicator
         # is loaded via the AuthenticatorRepository.
 
+        # As the JWT authenticator is highly flexible and as a result, there are
+        # a large number of potental "healthy" or "unhealthy" states.
+        # rubocop:disable Metrics/ClassLength
         class AuthenticatorContract < Dry::Validation::Contract
           option :utils
 
@@ -30,9 +33,11 @@ module Authentication
             optional(:provider_uri).value(:string)
           end
 
+          AUTHENTICATION_MECHANISMS = %i[jwks_uri provider_uri public_keys]
+
           # Verify that only one of `jwks-uri`, `public-keys`, and `provider-uri` are set
           rule(:jwks_uri, :public_keys, :provider_uri) do
-            if %i[jwks_uri provider_uri public_keys].select { |key| values[key].present? }.count > 1
+            if AUTHENTICATION_MECHANISMS.select { |key| values[key].present? }.count > 1
               utils.failed_response(
                 key: key,
                 error: Errors::Authentication::AuthnJwt::InvalidSigningKeySettings.new(
@@ -59,7 +64,7 @@ module Authentication
 
           # Verify that `jwks-uri`, `public-keys`, or `provider-uri` has a secret value set if a variable exists
           rule(:jwks_uri, :public_keys, :provider_uri, :account, :service_id) do
-            empty_variables = %i[jwks_uri provider_uri public_keys].select {|key, _| values[key] == '' && !values[key].nil? }
+            empty_variables = AUTHENTICATION_MECHANISMS.select {|key, _| values[key] == '' && !values[key].nil? }
             if empty_variables.count == 1
               # Performing this insanity to match current functionality :P
               error = if empty_variables.first == :provider_uri
@@ -77,7 +82,8 @@ module Authentication
 
           # Verify that a variable has been created for one of: `jwks-uri`, `public-keys`, or `provider-uri`
           rule(:jwks_uri, :public_keys, :provider_uri) do
-            if all_are?(array: %i[jwks_uri provider_uri public_keys], values: values, check: :nil?)
+
+            if AUTHENTICATION_MECHANISMS.all? { |item| values[item].nil? }
               utils.failed_response(
                 key: key,
                 error: Errors::Authentication::AuthnJwt::InvalidSigningKeySettings.new(
@@ -89,8 +95,7 @@ module Authentication
 
           # Verify that a variable has been set for one of: `jwks-uri`, `public-keys`, or `provider-uri`
           rule(:jwks_uri, :public_keys, :provider_uri) do
-            if all_are?(array: %i[jwks_uri provider_uri public_keys], values: values, check: :blank?)
-            # if %i[jwks_uri provider_uri public_keys].all? { |item| values[item].blank? }
+            if AUTHENTICATION_MECHANISMS.all? { |item| values[item].blank? }
               utils.failed_response(
                 key: key,
                 error: Errors::Authentication::AuthnJwt::InvalidSigningKeySettings.new(
@@ -225,7 +230,7 @@ module Authentication
 
           # Check for invalid characters in values
           rule(:claim_aliases) do
-            claims = values[:claim_aliases].to_s.split(',').map{|s| s.split(':').map(&:strip)}.map(&:last)
+            claims = claim_as_array(values[:claim_aliases]) #.to_s.split(',').map{|s| s.split(':').map(&:strip)}.map(&:last)
             if (bad_value = claims.find { |claim| claim.count('a-zA-Z0-9\/\-_\.') != claim.length })
               utils.failed_response(
                 key: key,
@@ -329,12 +334,6 @@ module Authentication
               )
             )
           end
-
-          def all_are?(array:, values:, check:)
-            array.all? { |item| values[item].send(check) }
-          end
-
-
         end
       end
     end
