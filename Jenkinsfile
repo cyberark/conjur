@@ -224,33 +224,33 @@ pipeline {
           }
         }
 
-        //stage('Scan Docker Image') {
-          //when {
-            //expression { params.RUN_ONLY == '' }
-          //}
-          //parallel {
-            //stage("Scan Docker Image for fixable issues") {
-              //steps {
-                //scanAndReport("conjur:${tagWithSHA()}", "HIGH", false)
-              //}
-            //}
-            //stage("Scan Docker image for total issues") {
-              //steps {
-                //scanAndReport("conjur:${tagWithSHA()}", "NONE", true)
-              //}
-            //}
-            //stage("Scan UBI-based Docker Image for fixable issues") {
-              //steps {
-                //scanAndReport("conjur-ubi:${tagWithSHA()}", "HIGH", false)
-              //}
-            //}
-            //stage("Scan UBI-based Docker image for total issues") {
-              //steps {
-                //scanAndReport("conjur-ubi:${tagWithSHA()}", "NONE", true)
-              //}
-            //}
-          //}
-        //}
+        stage('Scan Docker Image') {
+          when {
+            expression { params.RUN_ONLY == '' }
+          }
+          parallel {
+            stage("Scan Docker Image for fixable issues") {
+              steps {
+                scanAndReport("conjur:${tagWithSHA()}", "HIGH", false)
+              }
+            }
+            stage("Scan Docker image for total issues") {
+              steps {
+                scanAndReport("conjur:${tagWithSHA()}", "NONE", true)
+              }
+            }
+            stage("Scan UBI-based Docker Image for fixable issues") {
+              steps {
+                scanAndReport("conjur-ubi:${tagWithSHA()}", "HIGH", false)
+              }
+            }
+            stage("Scan UBI-based Docker image for total issues") {
+              steps {
+                scanAndReport("conjur-ubi:${tagWithSHA()}", "NONE", true)
+              }
+            }
+          }
+        }
 
         // TODO: Add comments explaining which env vars are set here.
         stage('Prepare For CodeClimate Coverage Report Submission') {
@@ -268,12 +268,12 @@ pipeline {
           }
         }
 
-         ////Run outside parallel block to avoid external pressure
-        //stage('RSpec - Standard agent tests') {
-          //steps {
-            //sh 'ci/test rspec'
-          //}
-        //}
+         //Run outside parallel block to avoid external pressure
+        stage('RSpec - Standard agent tests') {
+          steps {
+            sh 'ci/test rspec'
+          }
+        }
 
         // Run outside parallel block to reduce main Jenkins executor load.
         stage('Nightly Only') {
@@ -287,14 +287,20 @@ pipeline {
           }
 
           stages {
-            //stage("RSpec - EE FIPS agent tests") {
+            stage("RSpec - EE FIPS agent tests") {
 
-              //steps {
-                //addNewImagesToAgent()
-                //unstash 'version_info'
-                //sh "ci/test rspec"
-              //}
-            //}
+              steps {
+                sh(script: 'cat /etc/os-release', label: 'RHEL version')
+                sh(script: 'docker --version', label: 'Docker version')
+                addNewImagesToAgent()
+                unstash 'version_info'
+                // Catch errors so remaining steps always run
+                catchError {
+                  // Run outside parallel block to avoid external pressure
+                  sh "ci/test rspec"
+                }
+              }
+            }
 
             stage('EE FIPS parallel') {
               parallel {
@@ -452,6 +458,8 @@ pipeline {
               }
 
               steps {
+                sh(script: 'cat /etc/os-release', label: 'Ubuntu version')
+                sh(script: 'docker --version', label: 'Docker version')
                 runConjurTests(params.RUN_ONLY, NESTED_ARRAY_OF_TESTS_TO_RUN[0])
               }
             }
@@ -975,14 +983,14 @@ def conjurTests() {
         sh 'ci/test authenticators_status'
       }
     ],
-    "authenticators_k8s": [
-      "K8s Authenticator - ${env.STAGE_NAME}": {
-        sh 'ci/test authenticators_k8s'
-      }
-    ],
     "authenticators_ldap": [
       "LDAP Authenticator - ${env.STAGE_NAME}": {
         sh 'ci/test authenticators_ldap'
+      }
+    ],
+    "api": [
+      "API - ${env.STAGE_NAME}": {
+        sh 'ci/test api'
       }
     ],
     "authenticators_oidc": [
@@ -1000,9 +1008,9 @@ def conjurTests() {
         sh 'ci/test policy'
       }
     ],
-    "api": [
-      "API - ${env.STAGE_NAME}": {
-        sh 'ci/test api'
+    "authenticators_k8s": [
+      "K8s Authenticator - ${env.STAGE_NAME}": {
+        sh 'ci/test authenticators_k8s'
       }
     ],
     "rotators": [
