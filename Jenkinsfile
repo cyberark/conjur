@@ -489,6 +489,7 @@ pipeline {
                     spec/reports/*.xml,
                     spec/reports-audit/*.xml,
                     cucumber/*/features/reports/**/*.xml
+                    ci/test_suites/*/output
                   '''
                 )
               }
