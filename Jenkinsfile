@@ -41,7 +41,6 @@ These are defined in runConjurTests, and also include the one-offs
     authenticators_k8s
     rspec_audit
     policy_parser
-    conjur_rack
     azure_authenticator
     gcp_authenticator
 */
@@ -309,7 +308,6 @@ pipeline {
                     container_logs/*/*,
                     spec/reports/*.xml,
                     spec/reports-audit/*.xml,
-                    gems/conjur-rack/spec/reports/*.xml,
                     cucumber/*/features/reports/**/*.xml
                   '''
                 )
@@ -675,11 +673,9 @@ pipeline {
             junit('''
               spec/reports/*.xml,
               spec/reports-audit/*.xml,
-              gems/conjur-rack/spec/reports/*.xml,
               cucumber/*/features/reports/**/*.xml,
               ee-test/spec/reports/*.xml,
               ee-test/spec/reports-audit/*.xml,
-              ee-test/gems/conjur-rack/spec/reports/*.xml,
               ee-test/cucumber/*/features/reports/**/*.xml
             '''
             )
@@ -830,11 +826,6 @@ def runConjurTests(run_only_str) {
     "policy_parser": [
       "Policy Parser - ${env.STAGE_NAME}": {
         sh 'cd gems/policy-parser && ./test.sh'
-      }
-    ],
-    "conjur_rack": [
-      "Rack - ${env.STAGE_NAME}": {
-        sh 'cd gems/conjur-rack && ./test.sh'
       }
     ]
   ]
