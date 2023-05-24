@@ -18,7 +18,7 @@ fi
 # Minimal set of services.  We add to this list based on cmd line flags.
 services=(pg conjur client)
 
-# Authenticators to enable. 
+# Authenticators to enable.
 default_authenticators="authn,authn-k8s/test"
 enabled_authenticators="$default_authenticators"
 
