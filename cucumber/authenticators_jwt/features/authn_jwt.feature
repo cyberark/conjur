@@ -59,12 +59,6 @@ Feature: JWT Authenticator - JWKs Basic sanity
     """
     CONJ00004E 'authn-jwt/non-existing' is not enabled
     """
-    # TODO: Need to figure out why this is not being written to the dev log
-    # And The following appears in the audit log after my savepoint:
-    # """
-    # webservice:conjur/authn-jwt/non-existing: CONJ00004E 'authn-jwt/non-existing' is not enabled
-    # """
-
 
   # This Scenario is weird because it fails due to the lack of mapping,
   # not the lack of a host. Host is not provided, and thus, fails.

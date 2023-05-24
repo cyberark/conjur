@@ -1,6 +1,3 @@
-# Note: This file takes approximately:
-# 6m42s to run locally
-
 @authenticators_jwt
 Feature: JWT Authenticator - Check registered claim
 
@@ -356,7 +353,6 @@ CONJ00035E Failed to decode token (3rdPartyError ='#<JWT::InvalidIatError: Inval
     CONJ00035E Failed to decode token (3rdPartyError ='#<JWT::InvalidIssuerError: Invalid issuer. Expected incorrect.com, received http://jwks>')
     """
 
-  # TODO: need to clear cache before this will run succussfully....
   @negative @acceptance
   Scenario: ONYX-8728: jwks-uri configured with wrong value, issuer configured with wrong value, iss claim with correct value, 401 Error
     Given I extend the policy with:

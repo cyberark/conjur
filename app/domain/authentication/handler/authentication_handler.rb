@@ -79,7 +79,7 @@ module Authentication
           end
           if (role = @role[identity])
             if (webservice = @resource["#{parameters[:account]}:webservice:conjur/#{@authenticator_type}/#{parameters[:service_id]}"])
-              unless  @role[identity].allowed_to?(:authenticate, webservice)
+              unless @role[identity].allowed_to?(:authenticate, webservice)
                 raise Errors::Authentication::Security::RoleNotAuthorizedOnResource.new(
                   missing_role,
                   :authenticate,
@@ -92,9 +92,10 @@ module Authentication
           raise e
         end
 
-        # TODO: Add an error message (this may actually never be hit as we raise
-        #   upstream if there is a problem with authentication & lookup)
-        raise 'failed to authenticate' unless role
+        # Add an error message (this may actually never be hit as we raise
+        # upstream if there is a problem with authentication & lookup)
+        # raise
+        'failed to authenticate' unless role
 
         unless role.valid_origin?(request_ip)
           raise Errors::Authentication::InvalidOrigin

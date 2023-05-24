@@ -217,10 +217,15 @@ module Authentication
             end
           end
 
+          def with_invalid_characters?(regex:, items:)
+            items.find { |item| item.count(regex) != item.length }
+          end
+
+
           # Check for invalid characters in keys
           rule(:claim_aliases) do
             claims = claim_as_array(values[:claim_aliases])
-            if (bad_claim = claims.find { |claim| claim.count('a-zA-Z0-9\-_\.') != claim.length })
+            if (bad_claim = with_invalid_characters?(regex: 'a-zA-Z0-9\-_\.', items: claims))
               utils.failed_response(
                 key: key,
                 error: Errors::Authentication::AuthnJwt::FailedToValidateClaimForbiddenClaimName.new(bad_claim, '[a-zA-Z0-9\-_\.]+')
@@ -231,7 +236,7 @@ module Authentication
           # Check for invalid characters in values
           rule(:claim_aliases) do
             claims = claim_as_array(values[:claim_aliases]) #.to_s.split(',').map{|s| s.split(':').map(&:strip)}.map(&:last)
-            if (bad_value = claims.find { |claim| claim.count('a-zA-Z0-9\/\-_\.') != claim.length })
+            if (bad_value = with_invalid_characters?(regex: 'a-zA-Z0-9\/\-_\.', items: claims))
               utils.failed_response(
                 key: key,
                 error: Errors::Authentication::AuthnJwt::FailedToValidateClaimForbiddenClaimName.new(bad_value, "[a-zA-Z0-9\/\-_\.]+")

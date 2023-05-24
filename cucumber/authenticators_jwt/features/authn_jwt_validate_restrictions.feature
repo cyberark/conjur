@@ -28,7 +28,7 @@ Feature: JWT Authenticator - Validate restrictions
     And I initialize remote JWKS endpoint with file "authn-jwt-validate-restrictions" and alg "RS256"
     And I successfully set authn-jwt "jwks-uri" variable value to "http://jwks_py:8090/authn-jwt-validate-restrictions/RS256" in service "raw"
 
-  # TODO: This test fails because the claim `aud` is a restricted claim. Audience
+  # This test fails because the claim `aud` is a restricted claim. Audience
   # does make some sense to allow to use when validating a host rather than forcing
   # the customer to define unique authenticators for each audience.  Do we want to
   # loosen this requirement?
