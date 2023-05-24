@@ -18,6 +18,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Fixed
 - AuthnJWT now supports claims that include hyphens and inline namespaces.
   [cyberark/conjur#2792](https://github.com/cyberark/conjur/pull/2792)
+- Authn-IAM now uses the host in the signed headers to determine which STS endpoint
+  (global or regional) to use for validation.
 
 ## [1.19.4] - 2023-05-12
 
@@ -62,7 +64,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   [cyberark/conjur#2739](https://github.com/cyberark/conjur/pull/2739)
 - Upgraded rack to v2.2.6.4 to resolve CVE-2023-27539
   [cyberark/conjur#2750](https://github.com/cyberark/conjur/pull/2750)
-- Updated nokogiri to 1.14.3 for CVE-2023-29469 and CVE-2023-28484 and rails to 
+- Updated nokogiri to 1.14.3 for CVE-2023-29469 and CVE-2023-28484 and rails to
   6.1.7.3 for CVE-2023-28120 in Gemfile.lock, nokogiri to 1.1.4.3 for CVE-2023-29469
   and commonmarker to 0.23.9 for CVE-2023-24824 and CVE-2023-26485 in docs/Gemfile.lock
   (all Medium severity issues flagged by Dependabot)
