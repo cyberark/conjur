@@ -90,7 +90,7 @@ function fetch_keycloak_certificate() {
   echo "Initialize keycloak certificate in conjur server"
 
   local parallel_services
-  read -ra parallel_services <<< "$(get_service_name_by_process 'conjur')"
+  read -ra parallel_services <<< "$(get_parallel_service 'conjur')"
 
   for parallel_service in "${parallel_services[@]}"; do
     docker-compose exec -T \

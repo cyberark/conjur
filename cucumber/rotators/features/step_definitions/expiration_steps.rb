@@ -24,8 +24,3 @@ Then(/^the password will change from "(.+)"$/) do |saved_result_key|
     orig_pw: old_value
   )
 end
-
-## TODO: create a step to remove the hardcoded testdb url test
-#And(/^And I add the value "(.*)" to variable "(.*)"$/) do |url, _|
-  #url"#{ENV['TEST_ENV_NUMBER']}"
-#end

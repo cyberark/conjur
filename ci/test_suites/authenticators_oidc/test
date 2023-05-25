@@ -37,7 +37,7 @@ function _hydrate_all_env_args() {
 
 function main() {
   local parallel_services
-  read -ra parallel_services <<< "$(get_service_name_by_process 'conjur pg')"
+  read -ra parallel_services <<< "$(get_parallel_service 'conjur pg')"
   docker-compose up --no-deps -d "${parallel_services[@]}" keycloak
 
   # We also run an ldap-server container for testing the OIDC & LDAP combined

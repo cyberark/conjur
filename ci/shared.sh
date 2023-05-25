@@ -2,14 +2,14 @@
 
 export REPORT_ROOT=/src/conjur-server
 
-PROCESSES=2
+PARALLEL_PROCESSES=2
 
-get_service_name_by_process() {
+get_parallel_service() {
   local services
   read -ra services <<< "$1"
 
   for service in "${services[@]}"; do
-    for (( i=1; i<=PROCESSES; i++ )); do
+    for (( i=1; i<=PARALLEL_PROCESSES; i++ )); do
       if (( i >= 2 )) ; then
         new_services+=("$service${i}")
       else
@@ -50,7 +50,7 @@ _run_cucumber_tests() {
   echo "Start all services..."
 
   local parallel_services
-  read -ra parallel_services <<< "$(get_service_name_by_process 'conjur pg')"
+  read -ra parallel_services <<< "$(get_parallel_service 'conjur pg')"
 
   echo "${parallel_services[@]}"
   echo "${services[@]}"
@@ -63,7 +63,7 @@ _run_cucumber_tests() {
     docker-compose up --no-deps --no-recreate -d "${parallel_services[@]}" "${services[@]}"
   fi
 
-  read -ra parallel_services <<< "$(get_service_name_by_process 'conjur')"
+  read -ra parallel_services <<< "$(get_parallel_service 'conjur')"
   for parallel_service in "${parallel_services[@]}"; do
     docker-compose exec -T "$parallel_service" conjurctl wait --retries 180
   done
@@ -146,7 +146,7 @@ _run_cucumber_tests() {
   docker-compose run "${run_flags[@]}" "${env_var_flags[@]}" \
     cucumber -ec "\
       /oauth/keycloak/scripts/fetch_certificate &&
-      bundle exec parallel_cucumber . -n ${PROCESSES} \
+      bundle exec parallel_cucumber . -n ${PARALLEL_PROCESSES} \
        -o '--strict --profile \"${profile}\" \
        --format json --out \"cucumber/$profile/cucumber_results.json\" \
        --format html --out \"cucumber/$profile/cucumber_results.html\" \
@@ -178,7 +178,6 @@ _find_cucumber_network() {
   conjur_id=$(docker-compose ps -q conjur)
   net=$(docker inspect "${conjur_id}" --format '{{.HostConfig.NetworkMode}}')
 
-  #read -p "Press key to continue.. " -n1 -s
   docker network inspect "$net" \
     --format '{{range .IPAM.Config}}{{.Subnet}}{{end}}'
 }
