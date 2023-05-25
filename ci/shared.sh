@@ -160,7 +160,7 @@ _run_cucumber_tests() {
     cucumber -ec "\
       /oauth/keycloak/scripts/fetch_certificate &&
       bundle exec parallel_cucumber . -n ${PARALLEL_PROCESSES} \
-       -o '--strict --profile \"${profile}\" \
+       -o '--strict --profile \"${profile}\" ${cucumber_tags_arg} \
        --format json --out \"cucumber/$profile/cucumber_results.json\" \
        --format html --out \"cucumber/$profile/cucumber_results.html\" \
        --format junit --out \"cucumber/$profile/features/reports\"'"
