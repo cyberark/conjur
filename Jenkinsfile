@@ -277,9 +277,9 @@ pipeline {
 
         // Run outside parallel block to reduce main Jenkins executor load.
         stage('Nightly Only') {
-          //when {
-            //expression { params.NIGHTLY }
-          //}
+          when {
+            expression { params.NIGHTLY }
+          }
           agent { label 'executor-v2-rhel-ee' }
 
           environment {
