@@ -2,9 +2,21 @@
 
 export REPORT_ROOT=/src/conjur-server
 
+# Sets the number of parallel processes for cucumber tests
+# Due to naming conventions this begins at 1 NOT 0
 PARALLEL_PROCESSES=2
 
-get_parallel_service() {
+get_parallel_services() {
+  # get_parallel_services converts docker service names
+  # to the appropriate naming conventions expected for
+  # parallel cucumber tests.
+
+  # Args:
+  #   $1: A string of space delimited docker service name(s)
+
+  # Returns:
+  #  An array of docker service names matching the expected
+  #  parallel cucumber naming convention.
   local services
   read -ra services <<< "$1"
 
@@ -50,7 +62,7 @@ _run_cucumber_tests() {
   echo "Start all services..."
 
   local parallel_services
-  read -ra parallel_services <<< "$(get_parallel_service 'conjur pg')"
+  read -ra parallel_services <<< "$(get_parallel_services 'conjur pg')"
 
   echo "${parallel_services[@]}"
   echo "${services[@]}"
@@ -63,7 +75,7 @@ _run_cucumber_tests() {
     docker-compose up --no-deps --no-recreate -d "${parallel_services[@]}" "${services[@]}"
   fi
 
-  read -ra parallel_services <<< "$(get_parallel_service 'conjur')"
+  read -ra parallel_services <<< "$(get_parallel_services 'conjur')"
   for parallel_service in "${parallel_services[@]}"; do
     docker-compose exec -T "$parallel_service" conjurctl wait --retries 180
   done
@@ -93,6 +105,8 @@ _run_cucumber_tests() {
     env_var_flags+=(-e "$item")
   done
 
+  # Generate api key ENV variables based on the
+  # number of parallel processes.
   i=1
   for parallel_service in "${parallel_services[@]}"; do
     if (( i == 1 )) ; then
@@ -102,6 +116,7 @@ _run_cucumber_tests() {
     fi
     ((i++))
   done
+
   # Add the cucumber env vars that we always want to send.
   # Note: These are args for docker-compose run, and as such the right hand
   # sides of the = do NOT require escaped quotes.  docker-compose takes the
@@ -111,8 +126,8 @@ _run_cucumber_tests() {
     -e "CUCUMBER_FILTER_TAGS=$CUCUMBER_FILTER_TAGS"
   )
 
+  # Add parallel process api_keys to the env_var_flags
   for api_key in "${api_keys[@]}"; do
-    echo "NRK $api_key"
     env_var_flags+=(-e "$api_key")
   done
 
@@ -174,7 +189,9 @@ _get_api_key() {
 _find_cucumber_network() {
   local net
 
-  # Docker compose conjur/pg services use the same network for 1 or more instances
+  # Docker compose conjur/pg services use the same
+  # network for 1 or more instances so only conjur is passed
+  # and not other parallel services.
   conjur_id=$(docker-compose ps -q conjur)
   net=$(docker inspect "${conjur_id}" --format '{{.HostConfig.NetworkMode}}')
 

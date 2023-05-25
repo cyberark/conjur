@@ -5,7 +5,7 @@ set -e
 # shellcheck disable=SC1091
 source "./shared.sh"
 
-read -ra parallel_services <<< "$(get_parallel_service 'testdb')"
+read -ra parallel_services <<< "$(get_parallel_services 'testdb')"
 additional_services=''
 for service in "${parallel_services[@]}"; do
     if [[ "$additional_services" == '' ]]; then
