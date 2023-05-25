@@ -68,7 +68,6 @@ module Authentication
           )
           role = ::Role[role_id]
         rescue Errors::Authentication::Security::RoleNotFound => e
-
           # This is a bit dirty, but now that we've shifted from looking up to
           # selecting, this is needed to see if the role actually has permission
           missing_role = e.message.scan(/'(.+)'/).flatten.first

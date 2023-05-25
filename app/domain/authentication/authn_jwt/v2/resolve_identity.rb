@@ -211,7 +211,6 @@ module Authentication
 
         # def identity_from_token_app_property(jwt:) #, token_app_property:, identity_path:)
         def retrieve_identity_from_jwt(jwt:)
-
           # Handle nested claim lookups
           identity = validate_identity(
             jwt.dig(*@authenticator.token_app_property.split('/'))
@@ -232,7 +231,7 @@ module Authentication
           # NOTE: `token_app_property` maps the specified jwt claim to a host of the
           # same name.
           if @authenticator.token_app_property.present? && !id.present?
-            retrieve_identity_from_jwt(jwt: jwt) #, token_app_property: @authenticator.token_app_property, identity_path: @authenticator.identity_path)
+            retrieve_identity_from_jwt(jwt: jwt) # , token_app_property: @authenticator.token_app_property, identity_path: @authenticator.identity_path)
           elsif id.present? && !@authenticator.token_app_property.present?
             id
           else

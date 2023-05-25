@@ -33,11 +33,9 @@ module Authentication
             optional(:provider_uri).value(:string)
           end
 
-          AUTHENTICATION_MECHANISMS = %i[jwks_uri provider_uri public_keys]
-
           # Verify that only one of `jwks-uri`, `public-keys`, and `provider-uri` are set
           rule(:jwks_uri, :public_keys, :provider_uri) do
-            if AUTHENTICATION_MECHANISMS.select { |key| values[key].present? }.count > 1
+            if %i[jwks_uri provider_uri public_keys].select { |key| values[key].present? }.count > 1
               utils.failed_response(
                 key: key,
                 error: Errors::Authentication::AuthnJwt::InvalidSigningKeySettings.new(
@@ -64,7 +62,7 @@ module Authentication
 
           # Verify that `jwks-uri`, `public-keys`, or `provider-uri` has a secret value set if a variable exists
           rule(:jwks_uri, :public_keys, :provider_uri, :account, :service_id) do
-            empty_variables = AUTHENTICATION_MECHANISMS.select {|key, _| values[key] == '' && !values[key].nil? }
+            empty_variables = %i[jwks_uri provider_uri public_keys].select {|key, _| values[key] == '' && !values[key].nil? }
             if empty_variables.count == 1
               # Performing this insanity to match current functionality :P
               error = if empty_variables.first == :provider_uri
@@ -83,7 +81,7 @@ module Authentication
           # Verify that a variable has been created for one of: `jwks-uri`, `public-keys`, or `provider-uri`
           rule(:jwks_uri, :public_keys, :provider_uri) do
 
-            if AUTHENTICATION_MECHANISMS.all? { |item| values[item].nil? }
+            if %i[jwks_uri provider_uri public_keys].all? { |item| values[item].nil? }
               utils.failed_response(
                 key: key,
                 error: Errors::Authentication::AuthnJwt::InvalidSigningKeySettings.new(
@@ -95,7 +93,7 @@ module Authentication
 
           # Verify that a variable has been set for one of: `jwks-uri`, `public-keys`, or `provider-uri`
           rule(:jwks_uri, :public_keys, :provider_uri) do
-            if AUTHENTICATION_MECHANISMS.all? { |item| values[item].blank? }
+            if %i[jwks_uri provider_uri public_keys].all? { |item| values[item].blank? }
               utils.failed_response(
                 key: key,
                 error: Errors::Authentication::AuthnJwt::InvalidSigningKeySettings.new(
@@ -124,7 +122,7 @@ module Authentication
 
           # Verify that `token_app_property` does not include double slashes
           rule(:token_app_property) do
-            if values[:token_app_property].to_s.match(/\/\//)
+            if values[:token_app_property].to_s.match(%r{//})
               utils.failed_response(
                 key: key,
                 error: Errors::Authentication::AuthnJwt::InvalidTokenAppPropertyValue.new(
@@ -174,8 +172,7 @@ module Authentication
 
           # Verify that claim alias lookup has aliases defined only once
           rule(:claim_aliases) do
-            claims = claim_as_array(values[:claim_aliases])
-            if (duplicate = claims.detect { |claim| claims.count(claim) > 1 })
+            if (duplicate = find_duplicate(alias_keys(values[:claim_aliases])))
               utils.failed_response(
                 key: key,
                 error: Errors::Authentication::AuthnJwt::ClaimAliasDuplicationError.new('annotation name', duplicate)
@@ -185,8 +182,7 @@ module Authentication
 
           # Verify that claim alias lookup has target defined only once
           rule(:claim_aliases) do
-            claims = values[:claim_aliases].to_s.split(',').map{|s| s.split(':').map(&:strip)}.map(&:last)
-            if (duplicate = claims.detect { |claim| claims.count(claim) > 1 })
+            if (duplicate = find_duplicate(alias_values(values[:claim_aliases])))
               utils.failed_response(
                 key: key,
                 error: Errors::Authentication::AuthnJwt::ClaimAliasDuplicationError.new('claim name', duplicate)
@@ -206,8 +202,7 @@ module Authentication
 
           # Check for "/" in claim keys
           rule(:claim_aliases) do
-            claims = claim_as_array(values[:claim_aliases])
-            claims.flatten.each do |claim|
+            alias_keys(values[:claim_aliases]).flatten.each do |claim|
               next unless claim.match(%r{/})
 
               utils.failed_response(
@@ -217,14 +212,13 @@ module Authentication
             end
           end
 
-          def with_invalid_characters?(regex:, items:)
-            items.find { |item| item.count(regex) != item.length }
-          end
-
           # Check for invalid characters in keys
           rule(:claim_aliases) do
-            claims = claim_as_array(values[:claim_aliases])
-            if (bad_claim = with_invalid_characters?(regex: 'a-zA-Z0-9\-_\.', items: claims))
+            bad_claim = includes_invalid_characters?(
+              regex: 'a-zA-Z0-9\-_\.',
+              items: alias_keys(values[:claim_aliases])
+            )
+            unless bad_claim.blank?
               utils.failed_response(
                 key: key,
                 error: Errors::Authentication::AuthnJwt::FailedToValidateClaimForbiddenClaimName.new(bad_claim, '[a-zA-Z0-9\-_\.]+')
@@ -234,11 +228,14 @@ module Authentication
 
           # Check for invalid characters in values
           rule(:claim_aliases) do
-            claims = values[:claim_aliases].to_s.split(',').map{|s| s.split(':').map(&:strip)}.map(&:last)
-            if (bad_value = with_invalid_characters?(regex: 'a-zA-Z0-9\/\-_\.', items: claims))
+            bad_claim = includes_invalid_characters?(
+              regex: 'a-zA-Z0-9\/\-_\.',
+              items: alias_values(values[:claim_aliases])
+            )
+            unless bad_claim.blank?
               utils.failed_response(
                 key: key,
-                error: Errors::Authentication::AuthnJwt::FailedToValidateClaimForbiddenClaimName.new(bad_value, "[a-zA-Z0-9\/\-_\.]+")
+                error: Errors::Authentication::AuthnJwt::FailedToValidateClaimForbiddenClaimName.new(bad_claim, "[a-zA-Z0-9\/\-_\.]+")
               )
             end
           end
@@ -246,10 +243,15 @@ module Authentication
           # check for claim aliases in keys or values
           rule(:claim_aliases) do
             denylist = %w[iss exp nbf iat jti aud]
-            if (bad_item = (values[:claim_aliases].to_s.split(',').map{|s| s.split(':').map(&:strip)}.flatten & denylist).first)
+            claim_keys_and_values = alias_keys(values[:claim_aliases]) + alias_values(values[:claim_aliases])
+            if (bad_key = includes_any?(denylist, claim_keys_and_values))
               utils.failed_response(
                 key: key,
-                error: Errors::Authentication::AuthnJwt::FailedToValidateClaimClaimNameInDenyList.new(bad_item, denylist))
+                error: Errors::Authentication::AuthnJwt::FailedToValidateClaimClaimNameInDenyList.new(
+                  bad_key,
+                  denylist
+                )
+              )
             end
           end
 
@@ -267,16 +269,14 @@ module Authentication
 
           # Ensure public keys value is valid JSON
           rule(:public_keys) do
-            begin
-              if values[:public_keys].present?
-                JSON.parse(values[:public_keys])
-              end
-            rescue JSON::ParserError
-              utils.failed_response(
-                key: key,
-                error: Errors::Conjur::MalformedJson.new(values[:public_keys])
-              )
+            if values[:public_keys].present?
+              JSON.parse(values[:public_keys])
             end
+          rescue JSON::ParserError
+            utils.failed_response(
+              key: key,
+              error: Errors::Conjur::MalformedJson.new(values[:public_keys])
+            )
           end
 
           # Ensure 'type' and 'value' keys exist, and type is equal to 'jwks'
@@ -324,8 +324,10 @@ module Authentication
             variable_empty?(key: key, values: values, variable: 'ca-cert')
           end
 
-          def claim_as_array(claim)
-            claim.to_s.split(',').map{|s| s.split(':').map(&:strip)}.map(&:first)
+          # Helper methods below
+
+          def includes_invalid_characters?(regex:, items:)
+            items.find { |item| item.count(regex) != item.length }
           end
 
           def variable_empty?(key:, values:, variable:)
@@ -337,6 +339,26 @@ module Authentication
                 "#{values[:account]}:variable:conjur/authn-jwt/#{values[:service_id]}/#{variable}"
               )
             )
+          end
+
+          def find_duplicate(items)
+            items.detect { |item| items.count(item) > 1 }
+          end
+
+          def split_aliases(aliases)
+            aliases.to_s.split(',').map{|s| s.split(':').map(&:strip)}
+          end
+
+          def includes_any?(arr1, arr2)
+            (arr1 & arr2).first
+          end
+
+          def alias_values(aliases)
+            split_aliases(aliases).map(&:last)
+          end
+
+          def alias_keys(aliases)
+            split_aliases(aliases).map(&:first)
           end
         end
       end
