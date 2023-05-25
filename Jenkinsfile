@@ -224,33 +224,33 @@ pipeline {
           }
         }
 
-        //stage('Scan Docker Image') {
-          //when {
-            //expression { params.RUN_ONLY == '' }
-          //}
-          //parallel {
-            //stage("Scan Docker Image for fixable issues") {
-              //steps {
-                //scanAndReport("conjur:${tagWithSHA()}", "HIGH", false)
-              //}
-            //}
-            //stage("Scan Docker image for total issues") {
-              //steps {
-                //scanAndReport("conjur:${tagWithSHA()}", "NONE", true)
-              //}
-            //}
-            //stage("Scan UBI-based Docker Image for fixable issues") {
-              //steps {
-                //scanAndReport("conjur-ubi:${tagWithSHA()}", "HIGH", false)
-              //}
-            //}
-            //stage("Scan UBI-based Docker image for total issues") {
-              //steps {
-                //scanAndReport("conjur-ubi:${tagWithSHA()}", "NONE", true)
-              //}
-            //}
-          //}
-        //}
+        stage('Scan Docker Image') {
+          when {
+            expression { params.RUN_ONLY == '' }
+          }
+          parallel {
+            stage("Scan Docker Image for fixable issues") {
+              steps {
+                scanAndReport("conjur:${tagWithSHA()}", "HIGH", false)
+              }
+            }
+            stage("Scan Docker image for total issues") {
+              steps {
+                scanAndReport("conjur:${tagWithSHA()}", "NONE", true)
+              }
+            }
+            stage("Scan UBI-based Docker Image for fixable issues") {
+              steps {
+                scanAndReport("conjur-ubi:${tagWithSHA()}", "HIGH", false)
+              }
+            }
+            stage("Scan UBI-based Docker image for total issues") {
+              steps {
+                scanAndReport("conjur-ubi:${tagWithSHA()}", "NONE", true)
+              }
+            }
+          }
+        }
 
         // TODO: Add comments explaining which env vars are set here.
         stage('Prepare For CodeClimate Coverage Report Submission') {
@@ -268,18 +268,18 @@ pipeline {
           }
         }
 
-         ////Run outside parallel block to avoid external pressure
-        //stage('RSpec - Standard agent tests') {
-          //steps {
-            //sh 'ci/test rspec'
-          //}
-        //}
+         //Run outside parallel block to avoid external pressure
+        stage('RSpec - Standard agent tests') {
+          steps {
+            sh 'ci/test rspec'
+          }
+        }
 
         // Run outside parallel block to reduce main Jenkins executor load.
         stage('Nightly Only') {
-          when {
-            expression { params.NIGHTLY }
-          }
+          //when {
+            //expression { params.NIGHTLY }
+          //}
           agent { label 'executor-v2-rhel-ee' }
 
           environment {
