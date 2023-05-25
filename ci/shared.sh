@@ -10,10 +10,10 @@ get_parallel_service() {
 
   for service in "${services[@]}"; do
     for (( i=1; i<=PARALLEL_PROCESSES; i++ )); do
-      if (( i >= 2 )) ; then
-        new_services+=("$service${i}")
-      else
+      if (( i == 1 )) ; then
         new_services+=("$service")
+      else
+        new_services+=("$service${i}")
       fi
     done
   done
