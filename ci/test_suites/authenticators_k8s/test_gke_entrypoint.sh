@@ -341,8 +341,8 @@ function run_conjur_master() {
   set -e
 
   kubectl wait --for=condition=Ready "pod/$conjur_pod" --timeout=5m
-  kubectl wait --for=condition=Ready "pod/$conjur_pod" --timeout=5m
-  sleep 15
+  #kubectl wait --for=condition=Ready "pod/$conjur_pod" --timeout=5m
+  #sleep 15
 
 
 
