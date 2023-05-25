@@ -94,8 +94,7 @@ module Authentication
 
         # Add an error message (this may actually never be hit as we raise
         # upstream if there is a problem with authentication & lookup)
-        # raise
-        'failed to authenticate' unless role
+        raise Errors::Authorization::AuthenticationFailed unless role
 
         unless role.valid_origin?(request_ip)
           raise Errors::Authentication::InvalidOrigin

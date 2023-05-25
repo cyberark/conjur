@@ -18,7 +18,7 @@ module Authentication
         # Verify claim has a value
         rule(:claim, :claim_value) do
           if values[:claim_value].empty?
-            failed_response(
+            utils.failed_response(
               key: key,
               error: Errors::Authentication::ResourceRestrictions::EmptyAnnotationGiven.new(values[:claim])
             )
@@ -28,7 +28,7 @@ module Authentication
         # Verify claim annotation is not in the reserved_claims list
         rule(:claim) do
           if authenticator.reserved_claims.include?(values[:claim].strip)
-            failed_response(
+            utils.failed_response(
               key: key,
               error: Errors::Authentication::AuthnJwt::RoleWithRegisteredOrClaimAliasError.new(values[:claim])
             )
@@ -38,7 +38,7 @@ module Authentication
         # Ensure claim contain only "allowed" characters (alpha-numeric, plus: "-", "_", "/", ".")
         rule(:claim) do
           unless values[:claim].count('a-zA-Z0-9\/\-_\.') == values[:claim].length
-            failed_response(
+            utils.failed_response(
               key: key,
               error: Errors::Authentication::AuthnJwt::InvalidRestrictionName.new(values[:claim])
             )
@@ -48,7 +48,7 @@ module Authentication
         # If claim annotation has been mapped to an alias
         rule(:claim) do
           if authenticator.claim_aliases_lookup.invert.key?(values[:claim])
-            failed_response(
+            utils.failed_response(
               key: key,
               error: Errors::Authentication::AuthnJwt::RoleWithRegisteredOrClaimAliasError.new(
                 "Annotation Claim '#{values[:claim]}' cannot also be aliased"
@@ -61,7 +61,7 @@ module Authentication
         rule(:claim, :jwt, :claim_value) do
           value, resolved_claim = claim_value_from_jwt(claim: values[:claim], jwt: values[:jwt], return_resolved_claim: true)
           if value.blank?
-            failed_response(
+            utils.failed_response(
               key: key,
               error: Errors::Authentication::AuthnJwt::JwtTokenClaimIsMissing.new(
                 "#{resolved_claim} (annotation: #{values[:claim]})"
@@ -73,7 +73,7 @@ module Authentication
         # Verify claim has a value which matches the one that's provided
         rule(:claim, :jwt, :claim_value) do
           if claim_value_from_jwt(claim: values[:claim], jwt: values[:jwt]) != values[:claim_value]
-            failed_response(
+            utils.failed_response(
               key: key,
               error: Errors::Authentication::ResourceRestrictions::InvalidResourceRestrictions.new(
                 values[:claim]

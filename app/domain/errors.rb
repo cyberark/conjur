@@ -84,6 +84,11 @@ module Errors
       msg: "Role '{0-role}' has insufficient privileges over the resource '{1-resource}'",
       code: "CONJ00124E"
     )
+
+    AuthenticationFailed = ::Util::TrackableErrorClass.new(
+      msg: "Authentication Failed",
+      code: "CONJ00156E"
+    )
   end
 
   module Authentication
