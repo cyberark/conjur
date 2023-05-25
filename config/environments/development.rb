@@ -14,7 +14,8 @@ Rails.application.configure do
   # For more information, refer to:
   # https://guides.rubyonrails.org/configuring.html#actiondispatch-hostauthorization
 
-  config.hosts << /conjur[0-9]/
+  #config.hosts << (/^conjur[0-9]*$/)
+  config.hosts << /^conjur[0-9]*$/
 
   #config.hosts << "conjur"
   #config.hosts << "conjur2"

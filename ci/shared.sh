@@ -68,10 +68,8 @@ _run_cucumber_tests() {
   echo "${services[@]}"
 
   if [[ -z ${services} ]]; then
-    echo "NRK NO ARG"
     docker-compose up --no-deps --no-recreate -d "${parallel_services[@]}"
   else
-    echo "NRK2 ARG"
     docker-compose up --no-deps --no-recreate -d "${parallel_services[@]}" "${services[@]}"
   fi
 
