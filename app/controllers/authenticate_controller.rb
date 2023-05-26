@@ -302,6 +302,9 @@ class AuthenticateController < ApplicationController
     when Errors::Authentication::RequestBody::MissingRequestParam
       raise BadRequest
 
+    when Errors::Conjur::RequestedResourceNotFound
+      raise RecordNotFound.new(err.message)
+
     when Errors::Authentication::Jwt::TokenExpired
       raise Unauthorized.new(err.message, true)
 
