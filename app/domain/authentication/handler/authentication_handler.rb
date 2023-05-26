@@ -40,7 +40,7 @@ module Authentication
         allowed
       end
 
-      def call(request_ip:, parameters:, request_body: nil)
+      def call(request_ip:, parameters:, request_body: nil, action: nil)
         # verify authenticator is whitelisted....
         unless @available_authenticators.enabled_authenticators.include?("#{parameters[:authenticator]}/#{parameters[:service_id]}")
           raise Errors::Authentication::Security::AuthenticatorNotWhitelisted, "#{parameters[:authenticator]}/#{parameters[:service_id]}"
