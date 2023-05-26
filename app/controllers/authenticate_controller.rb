@@ -8,12 +8,10 @@ class AuthenticateController < ApplicationController
     handler = Authentication::Handler::AuthenticationHandler.new(
       authenticator_type: params[:authenticator]
     )
-    # TODO: need a mechanism for an authenticator strategy to define the required
-    # params. This will likely need to be done via the Handler.
-    params.permit(handler.params_allowed)
 
+    # Allow an authenticator to define the params it's expecting
     auth_token = handler.call(
-      parameters: params.to_hash.symbolize_keys,
+      parameters: params.permit(handler.params_allowed).to_h.symbolize_keys,
       request_ip: request.ip
     )
 
@@ -303,9 +301,6 @@ class AuthenticateController < ApplicationController
 
     when Errors::Authentication::RequestBody::MissingRequestParam
       raise BadRequest
-
-    when Errors::Conjur::RequestedResourceNotFound
-      raise RecordNotFound.new(err.message)
 
     when Errors::Authentication::Jwt::TokenExpired
       raise Unauthorized.new(err.message, true)

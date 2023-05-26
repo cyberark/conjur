@@ -10,22 +10,15 @@ module Authentication
         logger: Rails.logger,
         audit_logger: ::Audit.logger,
         authentication_error: LogMessages::Authentication::AuthenticationError,
-<<<<<<< HEAD
         available_authenticators: Authentication::InstalledAuthenticators,
         role_repository: DB::Repository::AuthenticatorRoleRepository.new
-=======
-        available_authenticators: Authentication::InstalledAuthenticators
->>>>>>> 4f861170 (Authn-JWT refactor)
       )
         @authenticator_type = authenticator_type
         @logger = logger
         @audit_logger = audit_logger
         @authentication_error = authentication_error
         @available_authenticators = available_authenticators
-<<<<<<< HEAD
         @role_repository = role_repository
-=======
->>>>>>> 4f861170 (Authn-JWT refactor)
 
         # Dynamically load authenticator specific classes
         namespace = namespace_selector.select(
@@ -38,15 +31,12 @@ module Authentication
         )
       end
 
-<<<<<<< HEAD
       def params_allowed
         allowed = %i[authenticator service_id account]
         allowed += @strategy::ALLOWED_PARAMS if @strategy.const_defined?('ALLOWED_PARAMS')
         allowed
       end
 
-=======
->>>>>>> 4f861170 (Authn-JWT refactor)
       def call(request_ip:, parameters:, request_body: nil, action: nil)
         # verify authenticator is whitelisted....
         unless @available_authenticators.enabled_authenticators.include?("#{parameters[:authenticator]}/#{parameters[:service_id]}")
