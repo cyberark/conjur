@@ -4,6 +4,7 @@ require 'jwt'
 require 'openid_connect'
 
 module Authentication
+<<<<<<< HEAD
   class RoleIdentifier
     attr_reader :role_id, :account, :annotations, :type
 
@@ -26,6 +27,10 @@ module Authentication
   module AuthnJwt
     module V2
 
+=======
+  module AuthnJwt
+    module V2
+>>>>>>> 4f861170 (Authn-JWT refactor)
       # Handles validation of the request body for JWT
       class Strategy
         def initialize(

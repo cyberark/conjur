@@ -10,15 +10,22 @@ module Authentication
         logger: Rails.logger,
         audit_logger: ::Audit.logger,
         authentication_error: LogMessages::Authentication::AuthenticationError,
+<<<<<<< HEAD
         available_authenticators: Authentication::InstalledAuthenticators,
         role_repository: DB::Repository::AuthenticatorRoleRepository.new
+=======
+        available_authenticators: Authentication::InstalledAuthenticators
+>>>>>>> 4f861170 (Authn-JWT refactor)
       )
         @authenticator_type = authenticator_type
         @logger = logger
         @audit_logger = audit_logger
         @authentication_error = authentication_error
         @available_authenticators = available_authenticators
+<<<<<<< HEAD
         @role_repository = role_repository
+=======
+>>>>>>> 4f861170 (Authn-JWT refactor)
 
         # Dynamically load authenticator specific classes
         namespace = namespace_selector.select(
@@ -31,12 +38,15 @@ module Authentication
         )
       end
 
+<<<<<<< HEAD
       def params_allowed
         allowed = %i[authenticator service_id account]
         allowed += @strategy::ALLOWED_PARAMS if @strategy.const_defined?('ALLOWED_PARAMS')
         allowed
       end
 
+=======
+>>>>>>> 4f861170 (Authn-JWT refactor)
       def call(request_ip:, parameters:, request_body: nil, action: nil)
         # verify authenticator is whitelisted....
         unless @available_authenticators.enabled_authenticators.include?("#{parameters[:authenticator]}/#{parameters[:service_id]}")
@@ -92,6 +102,18 @@ module Authentication
       rescue => e
         log_audit_failure(authenticator, role&.role_id, request_ip, @authenticator_type, e)
         handle_error(e)
+      end
+
+      def find_allowed_roles(resource_id)
+        @role.that_can(
+          :authenticate,
+          @resource[resource_id]
+        ).all.select(&:resource?).map do |role|
+          {
+            role_id: role.id,
+            annotations: {}.tap { |h| role.resource.annotations.each {|a| h[a.name] = a.value }}
+          }
+        end
       end
 
       def handle_error(err)

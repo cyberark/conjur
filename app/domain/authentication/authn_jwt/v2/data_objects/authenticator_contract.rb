@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'json'
-
 module Authentication
   module AuthnJwt
     module V2
