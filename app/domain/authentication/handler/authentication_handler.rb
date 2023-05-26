@@ -34,7 +34,13 @@ module Authentication
         )
       end
 
-      def call(request_ip:, parameters:, request_body: nil, action: nil)
+      def params_allowed
+        allowed = %i[authenticator service_id account]
+        allowed += @strategy::ALLOWED_PARAMS if @strategy.const_defined?('ALLOWED_PARAMS')
+        allowed
+      end
+
+      def call(request_ip:, parameters:, request_body: nil)
         # verify authenticator is whitelisted....
         unless @available_authenticators.enabled_authenticators.include?("#{parameters[:authenticator]}/#{parameters[:service_id]}")
           raise Errors::Authentication::Security::AuthenticatorNotWhitelisted, "#{parameters[:authenticator]}/#{parameters[:service_id]}"
@@ -50,7 +56,7 @@ module Authentication
         if authenticator.nil?
           raise(
             Errors::Conjur::RequestedResourceNotFound,
-            "Unable to find authenticator with account: #{parameters[:account]} and service-id: #{parameters[:service_id]}"
+            "#{parameters[:account]}:webservice:conjur/#{parameters[:authenticator]}/#{parameters[:service_id]}"
           )
         end
 

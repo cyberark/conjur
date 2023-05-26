@@ -29,13 +29,18 @@ module Authentication
         # is done, the following check can be removed.
 
         # Attempt to load the V2 version of the OIDC Authenticator
-        authenticator = DB::Repository::AuthenticatorRepository.new(
-          data_object: Authentication::AuthnOidc::V2::DataObjects::Authenticator
-        ).find(
-          type: authenticator_status_input.authenticator_name,
-          account: authenticator_status_input.account,
-          service_id: authenticator_status_input.service_id
-        )
+        begin
+          authenticator = DB::Repository::AuthenticatorRepository.new(
+            data_object: Authentication::AuthnOidc::V2::DataObjects::Authenticator
+          ).find(
+            type: authenticator_status_input.authenticator_name,
+            account: authenticator_status_input.account,
+            service_id: authenticator_status_input.service_id
+          )
+        rescue Errors::Conjur::RequiredSecretMissing
+          # If the authenticator we're looking for has missing variables, it may be that the user is
+          # after the original OIDC authenticator. Catch the error and use the old validator.
+        end
         # If successful, validate the new set of required variables
         if authenticator.present?
           Authentication::AuthnOidc::ValidateStatus.new(

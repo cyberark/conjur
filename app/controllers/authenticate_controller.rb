@@ -4,10 +4,24 @@ class AuthenticateController < ApplicationController
   include BasicAuthenticator
   include AuthorizeResource
 
-  def oidc_authenticate_code_redirect
-    # TODO: need a mechanism for an authenticator strategy to define the required
-    # params. This will likely need to be done via the Handler.
-    params.permit!
+  def authenticate_via_get
+    handler = Authentication::Handler::AuthenticationHandler.new(
+      authenticator_type: params[:authenticator]
+    )
+
+    # Allow an authenticator to define the params it's expecting
+    allowed_params = params.permit(handler.params_allowed)
+
+    auth_token = handler.call(
+      parameters: allowed_params.to_h.symbolize_keys,
+      request_ip: request.ip
+    )
+
+    render_authn_token(auth_token)
+  rescue => e
+    log_backtrace(e)
+    raise e
+  end
 
   def authenticate_via_post
     auth_token = Authentication::Handler::AuthenticationHandler.new(
@@ -288,9 +302,6 @@ class AuthenticateController < ApplicationController
 
     when Errors::Authentication::RequestBody::MissingRequestParam
       raise BadRequest
-
-    when Errors::Conjur::RequestedResourceNotFound
-      raise RecordNotFound.new(err.message)
 
     when Errors::Authentication::Jwt::TokenExpired
       raise Unauthorized.new(err.message, true)
