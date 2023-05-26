@@ -35,8 +35,7 @@ module Authentication
 
       def enabled_authenticators
         # Enabling via environment overrides enabling via CLI
-        authenticators = 
-          Rails.application.config.conjur_config.authenticators
+        authenticators = Rails.application.config.conjur_config.authenticators
         authenticators.empty? ? db_enabled_authenticators : authenticators
       end
 
@@ -45,7 +44,7 @@ module Authentication
       end
 
       private
-      
+
       def db_enabled_authenticators
         # Always include 'authn' when enabling authenticators via CLI so that it
         # doesn't get disabled when another authenticator is enabled
@@ -60,19 +59,31 @@ module Authentication
       end
 
       def authenticator_instance(cls, env)
-        pass_env = ::Authentication::AuthenticatorClass.new(cls).requires_env_arg?
-        pass_env ? cls.new(env: env) : cls.new
+        unless cls.to_s.split('::').last == 'V2'
+          pass_env = ::Authentication::AuthenticatorClass.new(cls).requires_env_arg?
+          pass_env ? cls.new(env: env) : cls.new
+        end
       end
 
       def url_for(authenticator)
-        ::Authentication::AuthenticatorClass.new(authenticator).url_name
+        if authenticator.to_s.split('::').last == 'V2'
+          ::Authentication::V2::AuthenticatorClass.new(authenticator).url_name
+        else
+          ::Authentication::AuthenticatorClass.new(authenticator).url_name
+        end
       end
 
       def valid?(cls)
-        ::Authentication::AuthenticatorClass::Validation.new(cls).valid?
+        if cls.to_s == 'Authentication::AuthnJwt::V2'
+          ::Authentication::V2::AuthenticatorClass::Validation.new(cls).valid?
+        else
+          ::Authentication::AuthenticatorClass::Validation.new(cls).valid?
+        end
       end
 
       def provides_login?(cls)
+        return false if cls.to_s.split('::').last == 'V2'
+
         validation = ::Authentication::AuthenticatorClass::Validation.new(cls)
         validation.valid? && validation.provides_login?
       end

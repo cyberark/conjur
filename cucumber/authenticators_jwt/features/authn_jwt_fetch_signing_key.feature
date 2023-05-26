@@ -364,8 +364,7 @@ Feature: JWT Authenticator - Fetch signing key
     And I authenticate via authn-jwt with the ID token
     Then host "alice" has been authorized by Conjur
 
-  @sanity
-  @acceptance
+  @sanity @acceptance
   Scenario: ONYX-8709: provider-uri dynamically changed, 502 ERROR resolves to 200 OK
     Given I load a policy:
     """
@@ -729,8 +728,7 @@ Feature: JWT Authenticator - Fetch signing key
     CONJ00035E Failed to decode token (3rdPartyError ='#<JWT::DecodeError: No key id (kid) found from token headers>')
     """
 
-  @sanity
-  @smoke
+  @sanity @smoke
   Scenario: ONYX-15322: public-keys happy path
     Given I load a policy:
     """

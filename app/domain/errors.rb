@@ -6,6 +6,10 @@
 # For the next available code, use the command `rake error_code:next` in the
 # repo root.
 #
+# IMPORTANT:
+#   - Code should be defined using double quotes
+#   - Add an 'E' to the end of the generated code (for Error)
+#
 # See also ./logs.rb
 module Errors
   module Conjur
@@ -57,6 +61,12 @@ module Errors
       msg: "Resource '{0-resource}' requested by role '{1-role}' not found",
       code: "CONJ00123E"
     )
+
+    MalformedJson = ::Util::TrackableErrorClass.new(
+      msg: "'{0-json}' is not valid JSON",
+      code: "CONJ00153E"
+    )
+
   end
 
   module Authorization
@@ -73,6 +83,11 @@ module Errors
     InsufficientResourcePrivileges = ::Util::TrackableErrorClass.new(
       msg: "Role '{0-role}' has insufficient privileges over the resource '{1-resource}'",
       code: "CONJ00124E"
+    )
+
+    AuthenticationFailed = ::Util::TrackableErrorClass.new(
+      msg: "Authentication Failed",
+      code: "CONJ00156E"
     )
   end
 
@@ -142,6 +157,13 @@ module Errors
         code: "CONJ00040E"
       )
 
+      module V2
+        MissingAuthenticatorComponents = ::Util::TrackableErrorClass.new(
+          msg: "'{0-authenticator-parent-name}' is not a valid authenticator "\
+            "because it does not include the class '{1-class-name}'",
+          code: "CONJ00155E"
+        )
+      end
     end
 
     module Security
@@ -210,6 +232,16 @@ module Errors
       TokenExpired = ::Util::TrackableErrorClass.new(
         msg: "Token expired",
         code: "CONJ00016E"
+      )
+
+      TokenInvalidIAT = ::Util::TrackableErrorClass.new(
+        msg: "Token iat has not yet occured",
+        code: "CONJ00151E"
+      )
+
+      TokenInvalidNBF = ::Util::TrackableErrorClass.new(
+        msg: "Token nbf has not been reached",
+        code: "CONJ00152E"
       )
 
       TokenDecodeFailed = ::Util::TrackableErrorClass.new(
@@ -665,7 +697,7 @@ module Errors
 
       InvalidSigningKeySettings = ::Util::TrackableErrorClass.new(
         msg: "Invalid signing key settings: {0-validation-error}",
-        code: "CONJ00122E"
+        code: "CONJ00154E"
       )
 
       FailedToFetchJwksData = ::Util::TrackableErrorClass.new(
