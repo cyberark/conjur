@@ -16,9 +16,9 @@ if [ ! -f "../VERSION" ]; then
 fi
 
 # Minimal set of services.  We add to this list based on cmd line flags.
-services=(pg conjur client)
+services=(pg conjur client cucumber)
 
-# Authenticators to enable. 
+# Authenticators to enable.
 default_authenticators="authn,authn-k8s/test"
 enabled_authenticators="$default_authenticators"
 
@@ -98,7 +98,7 @@ Usage: start [options]
     --authn-gcp     Starts with authn-gcp as authenticator
     --authn-iam     Starts with authn-iam/prod as authenticator
     --authn-jwt     Starts with authn-jwt as authenticator
-    --authn-ldap    Starts OpenLDAP server and loads a demo policy to enable 
+    --authn-ldap    Starts OpenLDAP server and loads a demo policy to enable
                     authentication via:
                     'curl -X POST -d "alice" http://localhost:3000/authn-ldap/test/cucumber/alice/authenticate'
     -h, --help      Shows this help message.
