@@ -1,4 +1,12 @@
 PATH
+  remote: gems/conjur-rack
+  specs:
+    conjur-rack (5.0.0)
+      conjur-api (< 6)
+      rack (~> 2)
+      slosilo (~> 3.0)
+
+PATH
   remote: gems/policy-parser
   specs:
     conjur-policy-parser (3.0.4)
@@ -126,10 +134,6 @@ GEM
       conjur-cli (~> 6)
       docker-api (~> 2.0)
       gli
-    conjur-rack (5.0.0)
-      conjur-api (< 6)
-      rack (~> 2)
-      slosilo (~> 3.0)
     conjur-rack-heartbeat (2.2.0)
       rack
     contracts (0.17)
@@ -505,7 +509,7 @@ DEPENDENCIES
   conjur-cli (~> 6.2)
   conjur-debify
   conjur-policy-parser!
-  conjur-rack
+  conjur-rack!
   conjur-rack-heartbeat
   csr
   cucumber (~> 7.1)

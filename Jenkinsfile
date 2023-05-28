@@ -41,6 +41,7 @@ These are defined in runConjurTests, and also include the one-offs
     authenticators_k8s
     rspec_audit
     policy_parser
+    conjur_rack
     azure_authenticator
     gcp_authenticator
 */
@@ -199,6 +200,8 @@ pipeline {
               agent { label 'executor-v2-rhel-ee' }
 
               steps {
+                sh(script: 'cat /etc/os-release', label: 'RHEL version')
+                sh(script: 'docker --version', label: 'Docker version')
                 unstash 'version_info'
                 // Catch errors so remaining steps always run.
                 catchError {
@@ -219,6 +222,7 @@ pipeline {
                     container_logs/*/*,
                     spec/reports/*.xml,
                     spec/reports-audit/*.xml,
+                    gems/conjur-rack/spec/reports/*.xml,
                     cucumber/*/features/reports/**/*.xml
                   '''
                 )
@@ -275,6 +279,8 @@ pipeline {
               }
 
               steps {
+                sh(script: 'cat /etc/os-release', label: 'RHEL version')
+                sh(script: 'docker --version', label: 'Docker version')
                 runConjurTests(params.RUN_ONLY)
               }
             }
@@ -571,9 +577,11 @@ pipeline {
             junit('''
               spec/reports/*.xml,
               spec/reports-audit/*.xml,
+              gems/conjur-rack/spec/reports/*.xml,
               cucumber/*/features/reports/**/*.xml,
               ee-test/spec/reports/*.xml,
               ee-test/spec/reports-audit/*.xml,
+              ee-test/gems/conjur-rack/spec/reports/*.xml,
               ee-test/cucumber/*/features/reports/**/*.xml
             '''
             )
@@ -688,6 +696,11 @@ def runConjurTests(run_only_str) {
     "policy_parser": [
       "Policy Parser - ${env.STAGE_NAME}": {
         sh 'cd gems/policy-parser && ./test.sh'
+      }
+    ],
+    "conjur_rack": [
+      "Rack - ${env.STAGE_NAME}": {
+        sh 'cd gems/conjur-rack && ./test.sh'
       }
     ]
   ]

@@ -5,7 +5,7 @@ RUN apt-get update -y && \
     apt-get install -y zlib1g-dev \
                        liblzma-dev
 
-ENV BUNDLER_VERSION 2.2.30
+ENV BUNDLER_VERSION 2.2.33
 RUN gem install --no-document bundler:$BUNDLER_VERSION fpm
 
 RUN mkdir -p /src/opt/conjur/project

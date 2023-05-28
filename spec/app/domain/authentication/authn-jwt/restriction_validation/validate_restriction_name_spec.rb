@@ -19,6 +19,8 @@ RSpec.describe('Authentication::AuthnJwt::RestrictionValidation::ValidateRestric
       Authentication::ResourceRestrictions::ResourceRestriction.new(name: "x.k8s", value: "val"),
     "annotation with _ in the name":
       Authentication::ResourceRestrictions::ResourceRestriction.new(name: "project_id", value: "val"),
+    "- in annotation":
+      Authentication::ResourceRestrictions::ResourceRestriction.new(name: "project-id", value: "val")
   }
 
   invalid_cases = {
@@ -30,8 +32,6 @@ RSpec.describe('Authentication::AuthnJwt::RestrictionValidation::ValidateRestric
       Authentication::ResourceRestrictions::ResourceRestriction.new(name: "a[2]/c", value: "val"),
     "Array element Access":
       Authentication::ResourceRestrictions::ResourceRestriction.new(name: "a/b/c[2]", value: "val"),
-    "- in annotation":
-      Authentication::ResourceRestrictions::ResourceRestriction.new(name: "project-id", value: "val"),
     ": in annotation":
       Authentication::ResourceRestrictions::ResourceRestriction.new(name: "project:id", value: "val")
   }

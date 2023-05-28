@@ -275,20 +275,14 @@ module Errors
     module AuthnIam
 
       InvalidAWSHeaders = ::Util::TrackableErrorClass.new(
-        msg: "Invalid or expired AWS headers: {0}",
+        msg: "Invalid or expired AWS headers: {0-message}",
         code: "CONJ00018E"
       )
 
-      VerificationError = ::Util::TrackableLogMessageClass.new(
+      VerificationError = ::Util::TrackableErrorClass.new(
         msg: "Verification of IAM identity failed with exception: {0-exception}",
         code: "CONJ00063E"
       )
-
-      IdentityVerificationErrorCode = ::Util::TrackableLogMessageClass.new(
-        msg: "Verification of IAM identity failed with HTTP code: {0-http-code}",
-        code: "CONJ00064E"
-      )
-
     end
 
     module AuthnK8s
