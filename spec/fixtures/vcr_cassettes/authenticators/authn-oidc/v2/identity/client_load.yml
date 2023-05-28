@@ -1,0 +1,45 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://redacted-host/redacted_app/.well-known/openid-configuration
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      User-Agent:
+      - SWD (1.3.0) (2.8.3, ruby 3.0.6 (2023-03-30))
+      Accept:
+      - "*/*"
+      Date:
+      - Mon, 10 Apr 2023 18:13:17 GMT
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Mon, 10 Apr 2023 18:13:17 GMT
+      Content-Length:
+      - '1347'
+    body:
+      encoding: UTF-8
+      string: "{\r\n  \"authorization_endpoint\": \"https://redacted-host/OAuth2/Authorize/redacted_app\",\r\n
+        \ \"code_challenge_methods_supported\": [\r\n    \"plain\",\r\n    \"S256\"\r\n
+        \ ],\r\n  \"jwks_uri\": \"https://redacted-host/OAuth2/Keys/redacted_app\",\r\n
+        \ \"response_types_supported\": [\r\n    \"code\",\r\n    \"id_token\",\r\n
+        \   \"id_token token\",\r\n    \"code id_token\",\r\n    \"code token\",\r\n
+        \   \"code id_token token\"\r\n  ],\r\n  \"introspection_endpoint\": \"https://redacted-host/OAuth2/Introspect/redacted_app\",\r\n
+        \ \"id_token_signing_alg_values_supported\": [\r\n    \"RS256\"\r\n  ],\r\n
+        \ \"subject_types_supported\": [\r\n    \"public\"\r\n  ],\r\n  \"issuer\":
+        \"https://redacted-host/redacted_app/\",\r\n  \"userinfo_endpoint\":
+        \"https://redacted-host/OAuth2/UserInfo/redacted_app\",\r\n  \"token_endpoint\":
+        \"https://redacted-host/OAuth2/Token/redacted_app\",\r\n  \"scopes_supported\":
+        [\r\n    \"openid\",\r\n    \"profile\",\r\n    \"email\",\r\n    \"address\",\r\n
+        \   \"phone\"\r\n  ],\r\n  \"claims_supported\": [\r\n    \"sub\",\r\n    \"name\",\r\n
+        \   \"family_name\",\r\n    \"given_name\",\r\n    \"picture\",\r\n    \"preferred_username\",\r\n
+        \   \"email\",\r\n    \"email_verified\",\r\n    \"phone_number\",\r\n    \"phone_number_verified\",\r\n
+        \   \"address\",\r\n    \"auth_time\",\r\n    \"aud\",\r\n    \"iss\",\r\n
+        \   \"exp\",\r\n    \"iat\"\r\n  ],\r\n  \"end_session_endpoint\": \"https://redacted-host/OAuth2/EndSessionV2/redacted_app\"\r\n}"
+  recorded_at: Mon, 10 Apr 2023 18:13:17 GMT
+recorded_with: VCR 6.1.0

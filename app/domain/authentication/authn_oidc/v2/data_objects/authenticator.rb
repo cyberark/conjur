@@ -29,7 +29,7 @@ module Authentication
             name: nil,
             response_type: 'code',
             provider_scope: nil,
-            token_ttl: 'PT8M'
+            token_ttl: 'PT60M'
           )
             @account = account
             @provider_uri = provider_uri
