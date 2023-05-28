@@ -46,6 +46,7 @@ Feature: Fetching secrets from edge endpoint
     And I add the secret value "s3" to the resource "cucumber:variable:data/secret3"
     And I add the secret value "s4" to the resource "cucumber:variable:data/secret4"
     And I add the secret value "s5" to the resource "cucumber:variable:data/secret5"
+    # secret6 has no value on purpose. Endpoint `all_secrets` should not return it
     And I log out
 
   # Slosilo key
@@ -154,11 +155,6 @@ Feature: Fetching secrets from edge endpoint
           "version": 1
         }
         ]
-      },
-      {
-        "id": "cucumber:variable:data/secret6",
-        "owner": "cucumber:policy:data",
-        "permissions": []
       }
     ]}
     """
@@ -281,11 +277,6 @@ Feature: Fetching secrets from edge endpoint
           "version": 1
         }
         ]
-      },
-      {
-        "id": "cucumber:variable:data/secret6",
-        "owner": "cucumber:policy:data",
-        "permissions": []
       }
     ]}
     """
@@ -307,20 +298,20 @@ Feature: Fetching secrets from edge endpoint
     offset: 2
     """
     Then the HTTP response status code is 200
-    And the JSON at "secrets" should have 4 entries
+    And the JSON at "secrets" should have 3 entries
     Given I login as "host/edge/edge-abcd1234567890/edge-host-abcd1234567890"
     When I GET "/edge/secrets/cucumber" with parameters:
     """
     offset: 0
     """
     Then the HTTP response status code is 200
-    And the JSON at "secrets" should have 6 entries
+    And the JSON at "secrets" should have 5 entries
     When I GET "/edge/secrets/cucumber" with parameters:
     """
     offset: 2
     """
     Then the HTTP response status code is 200
-    And the JSON at "secrets" should have 4 entries
+    And the JSON at "secrets" should have 3 entries
     When I GET "/edge/secrets/cucumber" with parameters:
     """
     limit: 2
@@ -332,13 +323,13 @@ Feature: Fetching secrets from edge endpoint
     limit: 6
     """
     Then the HTTP response status code is 200
-    And the JSON at "secrets" should have 6 entries
+    And the JSON at "secrets" should have 5 entries
     When I GET "/edge/secrets/cucumber" with parameters:
     """
     limit: 2000
     """
     Then the HTTP response status code is 200
-    And the JSON at "secrets" should have 6 entries
+    And the JSON at "secrets" should have 5 entries
     When I GET "/edge/secrets/cucumber" with parameters:
     """
     limit: 0
