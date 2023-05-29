@@ -40,7 +40,7 @@ ENABLE_OIDC_OKTA=false
 ENABLE_ROTATORS=false
 IDENTITY_USER=""
 
-declare -A required_envvars
+declare -a required_envvars
 required_envvars[identity]="IDENTITY_CLIENT_ID IDENTITY_CLIENT_SECRET IDENTITY_PROVIDER_URI"
 required_envvars[azure]="AZURE_TENANT_ID AZURE_SUBSCRIPTION_ID AZURE_RESOURCE_GROUP"
 
@@ -72,6 +72,7 @@ main() {
   start_conjur_server
 
   init_ldap
+  init_iam
   init_azure
   init_gcp
   init_jwt
@@ -125,7 +126,7 @@ parse_options() {
       --authn-azure ) ENABLE_AUTHN_AZURE=true ; shift ;;
       --authn-gcp ) ENABLE_AUTHN_GCP=true ; shift ;;
       --authn-iam ) ENABLE_AUTHN_IAM=true ; shift ;;
-      --authn-jwt ) ENABLE_AUTHN_JWT=true ; shift ;;
+      --authn-jwt ) ENABLE_AUTHN_JWT=true ; ENABLE_OIDC_KEYCLOAK=true ; shift ;;
       --authn-ldap ) ENABLE_AUTHN_LDAP=true ; shift ;;
       -h | --help ) print_help ; shift ;;
       --identity-user ) IDENTITY_USER="$2" ; shift ; shift ;;
@@ -433,7 +434,8 @@ init_jwt() {
 
   # OIDC is a special case on JWT, JWT automation tests contain scenarios with
   # OIDC providers.
-  configure_oidc_providers
+  configure_oidc_authenticators
+  enable_oidc_authenticators
 
   echo "Configure jwks provider"
   docker-compose exec jwks "/tmp/create_nginx_certificate.sh"

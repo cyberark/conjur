@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [0.0.11-cloud] - 2023-05-24
 ### Changed
-- Remove edge-hosts for edge endpoint  
+- Remove edge-hosts for edge endpoint
 - oidc user name to be compare as lowercase https://ca-il-jira.il.cyber-ark.com:8443/browse/ONYX-37450
 - Support versions field in all secrets endpoint https://ca-il-jira.il.cyber-ark.com:8443/browse/ONYX-37056
 
@@ -55,7 +55,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [0.0.4-cloud] - 2023-03-12
 ### Changed
-- Change count=true not to consider limit and sum all  
+- Change count=true not to consider limit and sum all
 
 ## [0.0.3-cloud] - 2023-03-06
 ### Changed
@@ -69,29 +69,25 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 - Remove auto-release options to allow for a pseudo-fork development on a branch
 
-## [1.19.3] - 2023-04-17
-
-### Changed
-- Removes support for disabling the `CONJUR_FEATURE_PKCE_SUPPORT_ENABLED` flag.
-  [cyberark/conjur#2713](https://github.com/cyberark/conjur/pull/2713)
-- Routes on the `/roles/` API endpoints now correctly verify the existing of
-  a Role and return `404` when it doesn't exist or the caller has insufficient
-  privilege.
-  [cyberark/conjur#2755](https://github.com/cyberark/conjur/pull/2755)
-
-### Fixed
-- Incomplete HTTP proxy support in the Kubernetes Authenticator is fixed. This
-  allows for an HTTP proxy between Conjur and the Kubernetes API.
-  [cyberark/conjur#2766](https://github.com/cyberark/conjur/pull/2766)
+## [1.19.5] - 2023-05-16
 
 ### Security
-- Updated nokogiri to 1.14.3 for CVE-2023-29469 and CVE-2023-28484 and rails to 
-  6.1.7.3 for CVE-2023-28120 in Gemfile.lock, nokogiri to 1.1.4.3 for CVE-2023-29469
-  and commonmarker to 0.23.9 for CVE-2023-24824 and CVE-2023-26485 in docs/Gemfile.lock
-  (all Medium severity issues flagged by Dependabot)
-  [cyberark/conjur#2776](https://github.com/cyberark/conjur/pull/2776)
+- Update bundler to 2.2.33 to remove CVE-2021-43809
+  [cyberark/conjur#2804](https://github.com/cyberark/conjur/pull/2804/files)
 
-## [1.19.2] - 2023-02-01
+### Fixed
+- AuthnJWT now supports claims that include hyphens and inline namespaces.
+  [cyberark/conjur#2792](https://github.com/cyberark/conjur/pull/2792)
+- Authn-IAM now uses the host in the signed headers to determine which STS endpoint
+  (global or regional) to use for validation.
+
+## [1.19.4] - 2023-05-12
+
+### Changed
+- OIDC tokens will now have a default ttl of 60 mins
+  [cyberark/conjur#2800](https://github.com/cyberark/conjur/pull/2800)
+
+## [1.19.3] - 2023-04-17
 
 ### Added
 - Conjur now logs when it detects that the Conjur configuration file
