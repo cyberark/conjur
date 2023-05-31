@@ -71,8 +71,13 @@ class EdgeController < RestController
         variableToReturn[:id] = id
         variableToReturn[:owner] = variable[:owner_id]
         variableToReturn[:permissions] = []
-        Sequel::Model.db.fetch("SELECT role_id from permissions where resource_id='" + id + "' AND privilege = 'execute'") do |row|
-          variableToReturn[:permissions].append(row[:role_id])
+        Sequel::Model.db.fetch("SELECT * from permissions where resource_id='" + id + "' AND privilege = 'execute'") do |row|
+          permission = {}
+          permission[:privilege] = row[:privilege]
+          permission[:resource] = row[:resource_id]
+          permission[:role] = row[:role_id]
+          permission[:policy] = row[:policy_id]
+          variableToReturn[:permissions].append(permission)
         end
         secret_value = Slosilo::EncryptedAttributes.decrypt(variable[:value], aad: id)
         variableToReturn[:value] = accepts_base64 ? Base64.strict_encode64(secret_value) : secret_value
