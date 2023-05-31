@@ -40,6 +40,22 @@ Feature: Fetching secrets from edge endpoint
         - !variable secret4
         - !variable secret5
         - !variable secret6
+        - !permit
+          role: !host some_host1
+          privilege: [ execute ]
+          resource: !variable secret1
+        - !permit
+          role: !host some_host2
+          privilege: [ execute ]
+          resource: !variable secret1
+        - !permit
+          role: !host some_host3
+          privilege: [ read ]
+          resource: !variable secret1
+        - !permit
+          role: !host some_host4
+          privilege: [ write ]
+          resource: !variable secret1
     """
     And I add the secret value "s1" to the resource "cucumber:variable:data/secret1"
     And I add the secret value "s2" to the resource "cucumber:variable:data/secret2"
@@ -94,7 +110,19 @@ Feature: Fetching secrets from edge endpoint
       {
         "id": "cucumber:variable:data/secret1",
         "owner": "cucumber:policy:data",
-        "permissions": [],
+        "permissions": [{
+                "policy": "cucumber:policy:root",
+                "privilege": "execute",
+                "resource": "cucumber:variable:data/secret1",
+                "role": "cucumber:host:data/some_host1"
+               },
+               {
+                "policy": "cucumber:policy:root",
+                "privilege": "execute",
+                "resource": "cucumber:variable:data/secret1",
+                "role": "cucumber:host:data/some_host2"
+              }
+        ],
         "value": "s1",
         "version": 1,
         "versions": [
@@ -189,7 +217,18 @@ Feature: Fetching secrets from edge endpoint
       {
         "id": "cucumber:variable:data/secret1",
         "owner": "cucumber:policy:data",
-        "permissions": [
+        "permissions": [{
+           "policy": "cucumber:policy:root",
+                "privilege": "execute",
+                "resource": "cucumber:variable:data/secret1",
+                "role": "cucumber:host:data/some_host1"
+               },
+               {
+                "policy": "cucumber:policy:root",
+                "privilege": "execute",
+                "resource": "cucumber:variable:data/secret1",
+                "role": "cucumber:host:data/some_host2"
+              }
         ],
         "value": "s1",
         "version": 1,
@@ -203,8 +242,7 @@ Feature: Fetching secrets from edge endpoint
       {
         "id": "cucumber:variable:data/secret2",
         "owner": "cucumber:policy:data",
-        "permissions": [
-        ],
+        "permissions": [],
         "value": "s2",
         "version": 1,
         "versions": [
@@ -373,7 +411,19 @@ Feature: Fetching secrets from edge endpoint
     {
       "id": "cucumber:variable:data/secret1",
       "owner": "cucumber:policy:data",
-      "permissions": [],
+      "permissions": [{
+                "policy": "cucumber:policy:root",
+                "privilege": "execute",
+                "resource": "cucumber:variable:data/secret1",
+                "role": "cucumber:host:data/some_host1"
+               },
+               {
+                "policy": "cucumber:policy:root",
+                "privilege": "execute",
+                "resource": "cucumber:variable:data/secret1",
+                "role": "cucumber:host:data/some_host2"
+              }
+      ],
       "value": "czHCsVw=",
       "version": 2,
         "versions": [
@@ -412,7 +462,18 @@ Feature: Fetching secrets from edge endpoint
     {
       "id": "cucumber:variable:data/secret1",
       "owner": "cucumber:policy:data",
-      "permissions": [],
+      "permissions": [{
+                "policy": "cucumber:policy:root",
+                "privilege": "execute",
+                "resource": "cucumber:variable:data/secret1",
+                "role": "cucumber:host:data/some_host1"
+               },
+               {
+                "policy": "cucumber:policy:root",
+                "privilege": "execute",
+                "resource": "cucumber:variable:data/secret1",
+                "role": "cucumber:host:data/some_host2"
+              }],
       "value": "s1\\",
       "version": 2,
         "versions": [
