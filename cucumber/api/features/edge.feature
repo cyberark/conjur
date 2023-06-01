@@ -184,7 +184,8 @@ Feature: Fetching secrets from edge endpoint
         }
         ]
       }
-    ]}
+    ],
+    "failed": []}
     """
 
   @negative @acceptance
@@ -252,7 +253,9 @@ Feature: Fetching secrets from edge endpoint
         }
         ]
       }
-    ]}
+    ],
+    "failed": []
+    }
     """
     When I GET "/edge/secrets/cucumber" with parameters:
     """
@@ -291,7 +294,8 @@ Feature: Fetching secrets from edge endpoint
         }
         ]
       }
-    ]}
+    ],
+    "failed":[]}
     """
     When I GET "/edge/secrets/cucumber" with parameters:
     """
@@ -316,7 +320,8 @@ Feature: Fetching secrets from edge endpoint
         }
         ]
       }
-    ]}
+    ],
+    "failed":[]}
     """
 
   @acceptance
@@ -433,7 +438,8 @@ Feature: Fetching secrets from edge endpoint
         }
         ]
     }
-  ]}
+  ],
+  "failed":[]}
   """
 
   @negative @acceptance
@@ -443,7 +449,67 @@ Feature: Fetching secrets from edge endpoint
     And I add the secret value "s1±" to the resource "cucumber:variable:data/secret1"
     And I login as "host/edge/edge-abcd1234567890/edge-host-abcd1234567890"
     When I GET "/edge/secrets/cucumber"
-    Then the HTTP response status code is 500
+    Then the HTTP response status code is 200
+    And the JSON should be:
+    """
+    {"secrets":[
+      {
+        "id": "cucumber:variable:data/secret2",
+        "owner": "cucumber:policy:data",
+        "permissions": [],
+        "value": "s2",
+        "version": 1,
+        "versions": [
+        {
+          "value": "s2",
+          "version": 1
+        }
+        ]
+      },
+      {
+        "id": "cucumber:variable:data/secret3",
+        "owner": "cucumber:policy:data",
+        "permissions": [],
+        "value": "s3",
+        "version": 1,
+        "versions": [
+        {
+          "value": "s3",
+          "version": 1
+        }
+        ]
+      },
+      {
+        "id": "cucumber:variable:data/secret4",
+        "owner": "cucumber:policy:data",
+        "permissions": [],
+        "value": "s4",
+        "version": 1,
+        "versions": [
+        {
+          "value": "s4",
+          "version": 1
+        }
+        ]
+      },
+      {
+        "id": "cucumber:variable:data/secret5",
+        "owner": "cucumber:policy:data",
+        "permissions": [],
+        "value": "s5",
+        "version": 1,
+        "versions": [
+        {
+          "value": "s5",
+          "version": 1
+        }
+        ]
+      }
+    ],
+    "failed":[
+    {"id":"cucumber:variable:data/secret1"}
+    ]}
+    """
 
   @acceptance
   Scenario: Fetching special character secret1 with edge host without Accept-Encoding base64, return 200 and json result with escaping
@@ -483,7 +549,8 @@ Feature: Fetching secrets from edge endpoint
         }
         ]
     }
-  ]}
+  ],
+  "failed":[]}
   """
 
   # Hosts
