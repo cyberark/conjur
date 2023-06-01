@@ -25,7 +25,7 @@ class EdgeController < RestController
     variable_to_return[:privateKey] = private_key
     variable_to_return[:fingerprint] = fingerprint
     logger.info(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("slosilo_keys"))
-    render(json: {"slosiloKeys":[variable_to_return]})
+    render(json: { "slosiloKeys": [variable_to_return] })
   end
 
   # Return all secrets within offset-limit frame. Default is 0-1000
@@ -38,7 +38,7 @@ class EdgeController < RestController
     begin
       verify_edge_host(options)
 
-      scope = Resource.where(:resource_id.like(options[:account]+":variable:data/%"))
+      scope = Resource.where(:resource_id.like(options[:account] + ":variable:data/%"))
       if params[:count] == 'true'
         sumItems = scope.count('*'.lit)
       else
@@ -58,6 +58,7 @@ class EdgeController < RestController
       render(json: results)
     else
       results = []
+      failed = []
       accepts_base64 = String(request.headers['Accept-Encoding']).casecmp?('base64')
       if accepts_base64
         response.set_header("Content-Encoding", "base64")
@@ -87,10 +88,29 @@ class EdgeController < RestController
           "value": variableToReturn[:value]
         }
         variableToReturn[:versions] << value
-        results  << variableToReturn
+        begin
+          JSON.generate(variableToReturn)
+          results << variableToReturn
+        rescue => e
+          failed << { "id": id }
+        end
+
       end
-      logger.info(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("all_secrets"))
-      render(json: {"secrets":results})
+      logger.info(LogMessages::Endpoints::EndpointFinishedSuccessfullyWithLimitAndOffset.new(
+        "all_secrets",
+        limit,
+        offset
+      ))
+      if (failed.size > 0)
+        logger.info(LogMessages::Util::FailedSerializationOfResources.new(
+          "all_secrets",
+          limit,
+          offset,
+          failed.size,
+          failed.first
+        ))
+      end
+      render(json: { "secrets": results, "failed": failed })
     end
   end
 
@@ -102,7 +122,7 @@ class EdgeController < RestController
                     .slice(*allowed_params).to_h.symbolize_keys
     begin
       verify_edge_host(options)
-      scope = Role.where(:role_id.like(options[:account]+":host:data/%"))
+      scope = Role.where(:role_id.like(options[:account] + ":host:data/%"))
       if params[:count] == 'true'
         sumItems = scope.count('*'.lit)
       else
@@ -132,14 +152,17 @@ class EdgeController < RestController
         salt = OpenSSL::Random.random_bytes(32)
         hostToReturn[:api_key] = Base64.strict_encode64(hmac_api_key(host.api_key, salt))
         hostToReturn[:salt] = Base64.strict_encode64(salt)
-        hostToReturn[:memberships] =host.all_roles.all.select{|h| h[:role_id] != (host[:role_id])}
-        results  << hostToReturn
+        hostToReturn[:memberships] = host.all_roles.all.select { |h| h[:role_id] != (host[:role_id]) }
+        results << hostToReturn
       end
-      logger.info(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("all_hosts"))
-      render(json: {"hosts": results})
+      logger.info(LogMessages::Endpoints::EndpointFinishedSuccessfullyWithLimitAndOffset.new(
+        "all_hosts",
+        limit,
+        offset
+      ))
+      render(json: { "hosts": results })
     end
   end
-
 
   private
 
@@ -161,7 +184,7 @@ class EdgeController < RestController
   def validate_scope(limit, offset)
     if offset || limit
       # 'limit' must be an integer greater than 0 and less than 2000 if given
-      if limit && (!numeric?(limit) || limit.to_i <= 0 || limit.to_i > 2000 )
+      if limit && (!numeric?(limit) || limit.to_i <= 0 || limit.to_i > 2000)
         raise ArgumentError, "'limit' contains an invalid value. 'limit' must be a positive integer and less than 2000"
       end
       # 'offset' must be an integer greater than or equal to 0 if given
@@ -170,6 +193,7 @@ class EdgeController < RestController
       end
     end
   end
+
   def verify_edge_host(options)
     msg = ""
     raise_excep = false

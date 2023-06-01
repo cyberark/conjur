@@ -9,11 +9,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
-## [0.0.12-cloud] - 2023-05-31
+## [1.0.0-cloud] - 2023-06-07
 ### Changed
 - Improve DB queries for Edge https://ca-il-jira.il.cyber-ark.com:8443/browse/ONYX-37081
 - Change Slosilo id regex to support: authn:conjur:user/host in addition to authn:conjur
 - Split Slosilo key for hosts and users
+- Fix No continuation in replication when an error occurs https://ca-il-jira.il.cyber-ark.com:8443/browse/ONYX-35741
 
 ## [0.0.11-cloud] - 2023-05-24
 ### Changed
