@@ -28,12 +28,17 @@ module LogMessages
   module Endpoints
     EndpointRequested = ::Util::TrackableLogMessageClass.new(
       msg: "{0} endpoint is called",
-      code: "CONJ00152"
+      code: "CONJ00152I"
     )
 
     EndpointFinishedSuccessfully = ::Util::TrackableLogMessageClass.new(
       msg: "{0} endpoint is finished successfully",
-      code: "CONJ00153"
+      code: "CONJ00153I"
+    )
+
+    EndpointFinishedSuccessfullyWithLimitAndOffset = ::Util::TrackableLogMessageClass.new(
+      msg: "{0} endpoint is finished successfully with {1}-limit {2}-offset",
+      code: "CONJ00155I"
     )
   end
 
@@ -810,6 +815,12 @@ module LogMessages
     CheckingResourceExists = ::Util::TrackableLogMessageClass.new(
       msg: "Checking resource '{0-resource-id}' exists...",
       code: "CONJ00026D"
+    )
+
+    FailedSerializationOfResources = ::Util::TrackableLogMessageClass.new(
+      msg: "Failed serialization of resources in {0} endpoint with {1}-limit {2}-offset " \
+           "and {3}-size of failed resources, id of failed resource {4} for example",
+      code: "CONJ00154I"
     )
 
   end
