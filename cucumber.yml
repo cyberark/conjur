@@ -1,9 +1,11 @@
 policy: >
+  --tags @policy
   --format pretty
   -r cucumber/policy
   cucumber/policy
 
 api: >
+  --tags @api
   --format pretty
   -r cucumber/api/features/support/logs_helpers.rb
   -r cucumber/api/features/step_definitions/logs_steps.rb
@@ -20,6 +22,7 @@ api: >
 #       directory is above it (e.g authenticators_azure is above authenticators_common)
 #       then we will not be able to load the methods defined in authenticators_common
 authenticators_config: >
+  --tags @authenticators_config
   --format pretty
   -r cucumber/api/features/support/step_def_transforms.rb
   -r cucumber/api/features/support/rest_helpers.rb
@@ -34,6 +37,7 @@ authenticators_config: >
   cucumber/authenticators_config
 
 authenticators_status: >
+  --tags @authenticators_status
   --format pretty
   -r cucumber/api/features/support/rest_helpers.rb
   -r cucumber/api/features/support/step_def_transforms.rb
@@ -50,6 +54,7 @@ authenticators_status: >
   cucumber/authenticators_status
 
 authenticators_ldap: >
+  --tags @authenticators_ldap
   --format pretty
   -r cucumber/api/features/support/step_def_transforms.rb
   -r cucumber/api/features/support/rest_helpers.rb
@@ -66,6 +71,7 @@ authenticators_ldap: >
   cucumber/authenticators_ldap
 
 authenticators_oidc: >
+  --tags @authenticators_oidc
   --format pretty
   -r cucumber/api/features/support/step_def_transforms.rb
   -r cucumber/api/features/support/rest_helpers.rb
@@ -87,6 +93,7 @@ authenticators_oidc: >
   cucumber/authenticators_oidc
 
 authenticators_gcp: >
+  --tags @authenticators_gcp
   --format pretty
   -r cucumber/api/features/support/step_def_transforms.rb
   -r cucumber/api/features/support/rest_helpers.rb
@@ -105,6 +112,7 @@ authenticators_gcp: >
   cucumber/authenticators_gcp
 
 authenticators_azure: >
+  --tags @authenticators_azure
   --format pretty
   -r cucumber/api/features/support/step_def_transforms.rb
   -r cucumber/api/features/support/rest_helpers.rb
@@ -123,8 +131,8 @@ authenticators_azure: >
   cucumber/authenticators_azure
 
 authenticators_jwt: >
+  --tags "not @skip and @authenticators_jwt"
   --format pretty
-  --tags "not @skip"
   -r cucumber/api/features/step_definitions/user_steps.rb
   -r cucumber/api/features/step_definitions/request_steps.rb
   -r cucumber/api/features/support/step_def_transforms.rb
@@ -148,8 +156,8 @@ authenticators_jwt: >
 #       profiles need to be thought through better and refactored most likely.
 #       
 rotators: >
+  --tags 'not @manual and @rotators'
   --format pretty
-  -t 'not @manual'
   -r cucumber/authenticators/features/support/hooks.rb
   -r cucumber/api/features/support/step_def_transforms.rb
   -r cucumber/api/features/support/rest_helpers.rb
@@ -161,8 +169,8 @@ rotators: >
   cucumber/rotators
 
 manual-rotators: >
-  --format pretty
   --tags @manual
+  --format pretty
   -r cucumber/rotators/features/support
   -r cucumber/rotators/features/step_definitions
   cucumber/rotators

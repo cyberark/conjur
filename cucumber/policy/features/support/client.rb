@@ -13,7 +13,7 @@ require_relative 'rest_client_wrapper'
 class Client
   ADMIN_PASSWORD = 'SEcret12!!!!'
   ACCOUNT = ENV['CONJUR_ACCOUNT'] || 'cucumber'
-  APPLIANCE_URL =  ENV['CONJUR_APPLIANCE_URL'] || 'http://conjur'
+  APPLIANCE_URL =  ENV['CONJUR_APPLIANCE_URL'] || "http://conjur#{ENV['TEST_ENV_NUMBER']}"
 
   class User
     def initialize(user_type, id)
