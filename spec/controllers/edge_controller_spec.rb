@@ -8,7 +8,7 @@ describe EdgeController, :type => :request do
   let(:other_host_id) {"#{account}:host:data/other"}
 
   before do
-    Slosilo["authn:#{account}"] ||= Slosilo::Key.new
+    init_slosilo_keys(account)
     @current_user = Role.find_or_create(role_id: host_id)
     @other_user = Role.find_or_create(role_id: other_host_id)
   end
@@ -22,7 +22,7 @@ describe EdgeController, :type => :request do
   end
 
   let(:token_auth_header) do
-    bearer_token = Slosilo["authn:#{account}"].signed_token(@current_user.login)
+    bearer_token = token_key(account, "host").signed_token(@current_user.login)
     token_auth_str =
       "Token token=\"#{Base64.strict_encode64(bearer_token.to_json)}\""
     { 'HTTP_AUTHORIZATION' => token_auth_str }
@@ -39,7 +39,7 @@ describe EdgeController, :type => :request do
       expect(response.code).to eq("200")
 
       #get the Slosilo key from DB
-      key = Slosilo["authn:#{account}"]
+      key = token_key(account, "host")
       private_key = key.to_der.unpack("H*")[0]
       fingerprint = key.fingerprint
 

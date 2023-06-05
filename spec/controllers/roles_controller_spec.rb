@@ -11,8 +11,7 @@ ADMIN_HOST_URL = '/roles/rspec/user/admin'
 
 describe RolesController, type: :request do
   before do
-    Slosilo["authn:rspec"] ||= Slosilo::Key.new
-
+    init_slosilo_keys("rspec")
     # Load the test policy into Conjur
     put(
       '/policies/rspec/policy/root',

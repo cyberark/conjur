@@ -14,7 +14,8 @@ describe Account, :type => :model do
       it "succeeds" do
         create_account
 
-        expect(Slosilo["authn:#{account_name}"]).to be
+        expect(token_key(account_name, "host")).to be
+        expect(token_key(account_name, "user")).to be
         admin = Role["#{account_name}:user:admin"]
         expect(admin).to be
         expect(admin.credentials).to be
@@ -75,7 +76,8 @@ describe Account, :type => :model do
         create_account
         Account.new(account_name).delete 
 
-        expect(Slosilo["authn:#{account_name}"]).to_not be
+        expect(token_key(account_name, "host")).to_not be
+        expect(token_key(account_name, "user")).to_not be
         expect(Role["#{account_name}:user:admin"]).to_not be
       end
     end

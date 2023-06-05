@@ -17,6 +17,7 @@ require 'securerandom'
 # per Rafal's request.  It could be deleted were it not for that.
 ENV['CONJUR_APPLIANCE_URL'] ||= Utils.start_local_server
 
-Slosilo["authn:cucumber"] ||= Slosilo::Key.new
+Slosilo["authn:cucumber:user"] ||= Slosilo::Key.new
+Slosilo["authn:cucumber:host"] ||= Slosilo::Key.new
 
 JsonSpec.excluded_keys = %w[created_at updated_at]

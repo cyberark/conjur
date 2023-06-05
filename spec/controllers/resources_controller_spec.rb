@@ -7,7 +7,7 @@ DatabaseCleaner.strategy = :truncation
 describe ResourcesController, type: :request do
 
   before do
-    Slosilo["authn:rspec"] ||= Slosilo::Key.new
+    init_slosilo_keys("rspec")
   end
 
   let(:current_user) { Role.find_or_create(role_id: 'rspec:user:admin') }
