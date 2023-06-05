@@ -39,7 +39,7 @@ module Commands
       # Start the Conjur API and service
       # processes
       fork_server_process
-      fork_authn_local_process
+      #fork_authn_local_process
       fork_rotation_process
 
       # Block until all child processes end
