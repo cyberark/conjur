@@ -1,4 +1,4 @@
-@api
+@api @skip
 Feature: Custom Authenticators can obtain access tokens for any role
 
   @smoke

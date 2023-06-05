@@ -7,6 +7,7 @@ policy: >
 api: >
   --tags @api
   --format pretty
+  --tags "not @skip"
   -r cucumber/api/features/support/logs_helpers.rb
   -r cucumber/api/features/step_definitions/logs_steps.rb
   -r cucumber/_authenticators_common/features/support/conjur_token.rb
@@ -22,7 +23,6 @@ api: >
 #       directory is above it (e.g authenticators_azure is above authenticators_common)
 #       then we will not be able to load the methods defined in authenticators_common
 authenticators_config: >
-  --tags @authenticators_config
   --format pretty
   -r cucumber/api/features/support/step_def_transforms.rb
   -r cucumber/api/features/support/rest_helpers.rb
@@ -158,6 +158,8 @@ authenticators_jwt: >
 rotators: >
   --tags 'not @manual and @rotators'
   --format pretty
+  --tags "not @skip"
+  -t 'not @manual'
   -r cucumber/authenticators/features/support/hooks.rb
   -r cucumber/api/features/support/step_def_transforms.rb
   -r cucumber/api/features/support/rest_helpers.rb

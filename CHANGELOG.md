@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
+## [1.0.1-cloud] - 2023-06-08
+### Changed
+- Improve DB connection usage https://ca-il-jira.il.cyber-ark.com:8443/browse/ONYX-34591
+
 ## [1.0.0-cloud] - 2023-06-07
 ### Changed
 - Improve DB queries for Edge https://ca-il-jira.il.cyber-ark.com:8443/browse/ONYX-37081
