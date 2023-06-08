@@ -31,6 +31,8 @@ module Commands
     def test_select
       db = Sequel::Model.db = Sequel.connect(@database_url)
       db['select 1'].first
+      db.disconnect
+      true
     rescue
       false
     end

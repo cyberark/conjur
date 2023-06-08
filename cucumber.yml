@@ -5,6 +5,7 @@ policy: >
 
 api: >
   --format pretty
+  --tags "not @skip"
   -r cucumber/api/features/support/logs_helpers.rb
   -r cucumber/api/features/step_definitions/logs_steps.rb
   -r cucumber/_authenticators_common/features/support/conjur_token.rb
@@ -149,6 +150,7 @@ authenticators_jwt: >
 #       
 rotators: >
   --format pretty
+  --tags "not @skip"
   -t 'not @manual'
   -r cucumber/authenticators/features/support/hooks.rb
   -r cucumber/api/features/support/step_def_transforms.rb
