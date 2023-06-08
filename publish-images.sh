@@ -142,6 +142,9 @@ if [[ "${REDHAT}" = true ]]; then
 
     # scan image with preflight tool
     scan_redhat_image "${REDHAT_REMOTE_IMAGE}:${VERSION}" "${REDHAT_CERT_PID}"
+
+    # push latest tag to RH
+    tag_and_push "latest" "${RH_LOCAL_IMAGE}" "${REDHAT_REMOTE_IMAGE}"
   else
     echo 'Failed to log in to quay.io'
     exit 1
