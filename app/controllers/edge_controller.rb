@@ -122,6 +122,7 @@ class EdgeController < RestController
                     .slice(*allowed_params).to_h.symbolize_keys
     begin
       verify_edge_host(options)
+      record_edge_access(current_user.role_id)
       scope = Role.where(:role_id.like(options[:account] + ":host:data/%"))
       if params[:count] == 'true'
         sumItems = scope.count('*'.lit)
@@ -162,6 +163,12 @@ class EdgeController < RestController
       ))
       render(json: { "hosts": results })
     end
+  end
+
+  def all_edges
+    #TODO: verify role is in Conjur_Admins?
+    render(json: Edge.all.map{|edge| {name: edge.name, ip: edge.ip, last_sync: edge.last_sync,
+                                      version:edge.version, installation_date: edge.installation_date}})
   end
 
   private
@@ -227,5 +234,15 @@ class EdgeController < RestController
 
   def numeric? val
     val == val.to_i.to_s
+  end
+
+  def record_edge_access(host_name)
+    edge_record = Edge.get_by_hostname(host_name) || raise(RecordNotFound, host_name)
+    edge_record.ip = request.ip
+    edge_record.version = request.headers["Edge-Version"]
+    now = Time.now
+    edge_record.last_sync = now
+    edge_record.installation_date = now unless edge_record.installation_date
+    edge_record.save
   end
 end
