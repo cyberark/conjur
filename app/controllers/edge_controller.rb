@@ -164,6 +164,25 @@ class EdgeController < RestController
     end
   end
 
+  def all_edges
+    allowed_params = %i[account]
+    options = params.permit(*allowed_params).to_h.symbolize_keys
+    verify_conjur_admins(options)
+    render(json: Edge.all.map{|edge|
+      {name: edge.name, ip: edge.ip, last_sync: edge.last_sync,
+       version:edge.version, installation_date: edge.installation_date}})
+  end
+
+  def report_edge_data
+    allowed_params = %i[account]
+    options = params.permit(*allowed_params).to_h.symbolize_keys
+    verify_edge_host(options)
+
+    data = JSON.parse(request.body.read)
+    record_edge_access(current_user.role_id, data['edge_version'], data['edge_statistics']['last_synch_time']) #TODO: raise 400 on bad request
+    #TODO: print to log other data
+  end
+
   private
 
   def build_variables_map(limit, offset, options)
@@ -225,7 +244,30 @@ class EdgeController < RestController
     end
   end
 
+  def verify_conjur_admins(options)
+    admins_group = Role[options[:account] + ':group:Conjur_Cloud_Admins']
+    unless admins_group&.ancestor_of?(current_user)
+      logger.error(
+        Errors::Authorization::EndpointNotVisibleToRole.new(
+          "Current user is: #{current_user}. should be member of #{admins_group}"
+        )
+      )
+      raise Forbidden
+    end
+  end
+
   def numeric? val
     val == val.to_i.to_s
+  end
+
+  def record_edge_access(host_name, version, sync_time)
+    edge_record = Edge.get_by_hostname(host_name) || raise(RecordNotFound.new(host_name, message: "Edge for host #{host_name} not found"))
+    edge_record.ip = request.ip
+    edge_record.version = version
+    if sync_time
+      edge_record.last_sync = sync_time
+      edge_record.installation_date = sync_time unless edge_record.installation_date
+    end
+    edge_record.save
   end
 end

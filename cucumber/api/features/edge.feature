@@ -3,6 +3,7 @@ Feature: Fetching secrets from edge endpoint
 
   Background:
     Given I create a new user "some_user"
+    And I create a new user "admin_user"
     And I have host "data/some_host1"
     And I have host "data/some_host2"
     And I have host "data/some_host3"
@@ -56,6 +57,10 @@ Feature: Fetching secrets from edge endpoint
           role: !host some_host4
           privilege: [ write ]
           resource: !variable secret1
+    - !group Conjur_Cloud_Admins
+    - !grant
+      role: !group Conjur_Cloud_Admins
+      member: !user admin_user
     """
     And I add the secret value "s1" to the resource "cucumber:variable:data/secret1"
     And I add the secret value "s2" to the resource "cucumber:variable:data/secret2"
@@ -652,4 +657,13 @@ Feature: Fetching secrets from edge endpoint
     Then the HTTP response status code is 403
     Given I am the super-user
     When I GET "/edge/hosts/cucumber"
+    Then the HTTP response status code is 403
+
+  @negative @acceptance
+  Scenario: List edges permitted only to admins
+    And I login as "admin_user"
+    When I GET "/edge/edges/cucumber"
+    Then the HTTP response status code is 200
+    And I login as "some_user"
+    When I GET "/edge/edges/cucumber"
     Then the HTTP response status code is 403
