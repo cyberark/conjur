@@ -4,13 +4,15 @@ require 'spec_helper'
 
 describe EdgeController, :type => :request do
   let(:account) { "rspec" }
-  let(:host_id) {"#{account}:host:edge/edge"}
+  let(:host_id) {"#{account}:host:edge/edge-host-1234"}
   let(:other_host_id) {"#{account}:host:data/other"}
+  let(:admin_user_id) {"#{account}:user:admin_user"}
 
   before do
     init_slosilo_keys(account)
     @current_user = Role.find_or_create(role_id: host_id)
     @other_user = Role.find_or_create(role_id: other_host_id)
+    @admin_user = Role.find_or_create(role_id: admin_user_id)
   end
 
   let(:update_slosilo_keys_url) do
@@ -21,12 +23,14 @@ describe EdgeController, :type => :request do
     "/edge/hosts/#{account}"
   end
 
-  let(:token_auth_header) do
-    bearer_token = token_key(account, "host").signed_token(@current_user.login)
-    token_auth_str =
-      "Token token=\"#{Base64.strict_encode64(bearer_token.to_json)}\""
-    { 'HTTP_AUTHORIZATION' => token_auth_str }
+  let(:list_edges) do
+    "/edge/edges/#{account}"
   end
+
+  let(:report_edge) do
+    "/edge/data/#{account}"
+  end
+
 
   let(:init_prev_key) do
     Slosilo[token_id(account, "host", "previous")] ||= Slosilo::Key.new
@@ -36,7 +40,7 @@ describe EdgeController, :type => :request do
     #add edge-hosts to edge/edge-hosts group
     Role.create(role_id: "#{account}:group:edge/edge-hosts")
     RoleMembership.create(role_id: "#{account}:group:edge/edge-hosts", member_id: host_id, admin_option: false, ownership:false)
-    get(update_slosilo_keys_url, env: token_auth_header)
+    get(update_slosilo_keys_url, env: token_auth_header(role: @current_user, is_user: false))
     expect(response.code).to eq("200")
   end
 
@@ -72,7 +76,7 @@ describe EdgeController, :type => :request do
 
     it "Host is Edge but no Role exists at all" do
       #get the Slosilo key the URL request
-      get(update_slosilo_keys_url, env: token_auth_header)
+      get(update_slosilo_keys_url, env: token_auth_header(role: @current_user, is_user: false))
       expect(response.code).to eq("403")
     end
 
@@ -82,7 +86,7 @@ describe EdgeController, :type => :request do
       RoleMembership.create(role_id: "#{account}:group:edge2/edge-hosts", member_id: host_id, admin_option: false, ownership:false)
 
       #get the Slosilo key the URL request
-      get(update_slosilo_keys_url, env: token_auth_header)
+      get(update_slosilo_keys_url, env: token_auth_header(role: @current_user, is_user: false))
       expect(response.code).to eq("403")
     end
   end
@@ -92,7 +96,7 @@ describe EdgeController, :type => :request do
       #add edge-hosts to edge/edge-hosts group
       Role.create(role_id: "#{account}:group:edge/edge-hosts")
       RoleMembership.create(role_id: "#{account}:group:edge/edge-hosts", member_id: host_id, admin_option: false, ownership:false)
-      get(get_hosts, env: token_auth_header)
+      get(get_hosts, env: token_auth_header(role: @current_user, is_user: false))
       expect(response.code).to eq("200")
       expect(response).to be_ok
       expect(response.body).to include("api_key".strip)
@@ -103,6 +107,87 @@ describe EdgeController, :type => :request do
       salt = Base64.strict_decode64(encoded_salt)
       test_api_key =  Base64.strict_encode64(Cryptography.hmac_api_key(@other_user.credentials.api_key, salt))
       expect(test_api_key).to eq(encoded_api_key)
+    end
+  end
+
+  context "Visibility" do
+    it "Report data endpoint works" do
+      Role.create(role_id: "#{account}:group:edge/edge-hosts")
+      RoleMembership.create(role_id: "#{account}:group:edge/edge-hosts", member_id: host_id, admin_option: false, ownership:false)
+
+      Edge.new_edge(name: "edgy", id: 1234)
+
+
+      edge_details = '{"edge_statistics": {"last_synch_time": 123456789}, "edge_version": "latest", "edge_container_type": "podman"}'
+      post(report_edge, env: token_auth_header(role: @current_user, is_user: false)
+                               .merge({'RAW_POST_DATA': edge_details})
+                               .merge({'CONTENT_TYPE': 'application/json'}))
+
+      expect(response.code).to eq("204")
+      db_edgy = Edge.where(name: "edgy").first
+      expect(db_edgy.last_sync.to_i).to eq(123456789)
+      expect(db_edgy.version).to eq("latest")
+      expect(db_edgy.platform).to eq("podman")
+    end
+
+    it "List endpoint works" do
+      Role.create(role_id: "#{account}:group:edge/edge-hosts")
+      RoleMembership.create(role_id: "#{account}:group:edge/edge-hosts", member_id: host_id, admin_option: false, ownership:false)
+      sync_time = Time.now
+      Edge.new_edge(name: "edgy", id: 1234, last_sync: sync_time, version: "latest", platform: "podman")
+      Role.create(role_id: "#{account}:group:Conjur_Cloud_Admins")
+      RoleMembership.create(role_id: "#{account}:group:Conjur_Cloud_Admins", member_id: admin_user_id, admin_option: false, ownership:false)
+
+      get(list_edges, env: token_auth_header(role: @admin_user, is_user: true))
+
+      expect(response.code).to eq("200")
+      resp = JSON.parse(response.body)
+      expect(resp.size).to eq(1)
+      expect(resp[0]['last_sync']).to eq(sync_time.to_i)
+      expect(resp[0]['version']).to eq("latest")
+      expect(resp[0]['platform']).to eq("podman")
+    end
+
+    it "Reported data appears on list" do
+      Role.create(role_id: "#{account}:group:edge/edge-hosts")
+      RoleMembership.create(role_id: "#{account}:group:edge/edge-hosts", member_id: host_id, admin_option: false, ownership:false)
+
+      Edge.new_edge(name: "edgy", id: 1234)
+
+      edge_details = '{"edge_statistics": {"last_synch_time": 123456789}, "edge_version": "latest", "edge_container_type": "podman"}'
+      post(report_edge, env: token_auth_header(role: @current_user, is_user: false)
+                               .merge({'RAW_POST_DATA': edge_details})
+                               .merge({'CONTENT_TYPE': 'application/json'}))
+      expect(response.code).to eq("204")
+
+      Role.create(role_id: "#{account}:group:Conjur_Cloud_Admins")
+      RoleMembership.create(role_id: "#{account}:group:Conjur_Cloud_Admins", member_id: admin_user_id, admin_option: false, ownership:false)
+      get(list_edges, env: token_auth_header(role: @admin_user, is_user: true))
+      expect(response.code).to eq("200")
+      resp = JSON.parse(response.body)
+      expect(resp.size).to eq(1)
+      expect(resp[0]['last_sync']).to eq(123456789)
+      expect(resp[0]['version']).to eq("latest")
+      expect(resp[0]['platform']).to eq("podman")
+    end
+
+    it "Report invalid data" do
+      Role.create(role_id: "#{account}:group:edge/edge-hosts")
+      RoleMembership.create(role_id: "#{account}:group:edge/edge-hosts", member_id: host_id, admin_option: false, ownership:false)
+
+      Edge.new_edge(name: "edgy", id: 1234)
+
+      missing_optional = '{"edge_statistics": {"last_synch_time": 123456789}, "edge_version": "latest"}'
+      post(report_edge, env: token_auth_header(role: @current_user, is_user: false)
+                               .merge({'RAW_POST_DATA': missing_optional})
+                               .merge({'CONTENT_TYPE': 'application/json'}))
+      expect(response.code).to eq("204")
+
+      missing_required = '{"edge_statistics": {}, "edge_version": "latest", "edge_container_type": "podman"}'
+      post(report_edge, env: token_auth_header(role: @current_user, is_user: false)
+                               .merge({'RAW_POST_DATA': missing_required})
+                               .merge({'CONTENT_TYPE': 'application/json'}))
+      expect(response.code).to eq("422")
     end
   end
 end
