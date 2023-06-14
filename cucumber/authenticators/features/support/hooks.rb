@@ -4,6 +4,8 @@
 #
 # Prior to this hook, our tests had hidden coupling.  This ensures each test is
 # run independently.
+
+require 'cucumber/_common/slosilo_helper'
 Before do
   parallel_cuke_vars = {}
   parallel_cuke_vars['CONJUR_APPLIANCE_URL'] = "http://conjur#{ENV['TEST_ENV_NUMBER']}"
@@ -20,11 +22,7 @@ Before do
   Secret.truncate
   Credentials.truncate
 
-  Slosilo.each do |k, _|
-    unless %w[authn:rspec:user authn:rspec:host authn:cucumber:user authn:cucumber:host].member?(k)
-      Slosilo.send(:keystore).adapter.model[k].delete
-    end
-  end
+  init_slosilo_keys
   
   admin_role = Role.create(role_id: "cucumber:user:admin")
   creds = Credentials.new(role: admin_role)

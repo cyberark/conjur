@@ -5,7 +5,7 @@ def token_key(account, role)
 end
 
 def token_id(account, role)
-  "authn:#{account}:#{role}"
+  "authn:#{account}:#{role}:current"
 end
 
 def init_slosilo_keys(account)
