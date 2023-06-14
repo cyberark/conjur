@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
+require 'support/slosilo_helper'
 
 describe TokenFactory  do
 
@@ -95,8 +96,8 @@ describe TokenFactory  do
     context 'User and Host Key doesnt exists in db' do
       it 'Raises error' do
         account = "cucumber2"
-        expect{token_factory.signing_key("myuser", account)}.to raise_error(TokenFactory::NoSigningKey, "Signing key not found for account 'authn:#{account}:user'")
-        expect{token_factory.signing_key("host/myhost", account)}.to raise_error(TokenFactory::NoSigningKey, "Signing key not found for account 'authn:#{account}:host'")
+        expect{token_factory.signing_key("myuser", account)}.to raise_error(TokenFactory::NoSigningKey, "Signing key not found for account '#{token_id(account, "user")}'")
+        expect{token_factory.signing_key("host/myhost", account)}.to raise_error(TokenFactory::NoSigningKey, "Signing key not found for account '#{token_id(account, "host")}'")
       end
     end
   end

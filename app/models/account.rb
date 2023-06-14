@@ -23,7 +23,7 @@ Account = Struct.new(:id) do
     end
 
     def token_id(account, role)
-      "authn:#{account}:#{role}"
+      "authn:#{account}:#{role}:current"
     end
 
     def create(id, owner_id = nil)
