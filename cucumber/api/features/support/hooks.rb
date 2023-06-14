@@ -4,6 +4,7 @@
 #
 require 'haikunator'
 require 'fileutils'
+require 'cucumber/_common/slosilo_helper'
 
 # Reset the DB between each test
 #
@@ -17,12 +18,8 @@ Before do
   Secret.truncate
   Credentials.truncate
 
-  Slosilo.each do |k,v|
-    unless %w[authn:rspec:user authn:rspec:host authn:cucumber:user authn:cucumber:host].member?(k)
-      Slosilo.send(:keystore).adapter.model[k].delete
-    end
-  end
-  
+  init_slosilo_keys
+
   Account.find_or_create_accounts_resource
   admin_role = Role.create(role_id: "cucumber:user:admin")
   Credentials.new(role: admin_role).save(raise_on_save_failure: true)
