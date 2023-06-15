@@ -7,7 +7,7 @@ set -e
 source "./shared.sh"
 
 # Start Conjur with the audit database
-docker-compose up --no-deps -d audit pg
+docker compose up --no-deps -d audit pg
 
 _wait_for_pg audit
 
@@ -15,7 +15,7 @@ _wait_for_pg audit
 # $REPORT_ROOT but not for the 2nd one where it appears in the variable
 # assignment.
 AUDIT_DATABASE_URL=postgres://postgres@audit/postgres \
-  docker-compose run \
+  docker compose run \
     -T --rm --no-deps --workdir=/src/conjur-server cucumber -ec "
       pwd
       ci/rspec-audit/migratedb

@@ -56,16 +56,16 @@ main() {
   fi
 
   # Build docker images.
-  docker-compose build --pull
+  docker compose build --pull
 
   init_data_key
   init_audit_service
 
   # Install gems, create DB, and create cucumber account.
-  docker-compose up -d --no-deps "${services[@]}"
-  docker-compose exec conjur bundle
-  docker-compose exec conjur conjurctl db migrate
-  docker-compose exec conjur conjurctl account create cucumber || true
+  docker compose up -d --no-deps "${services[@]}"
+  docker compose exec conjur bundle
+  docker compose exec conjur conjurctl db migrate
+  docker compose exec conjur conjurctl account create cucumber || true
 
   migrate_audit_db
 
@@ -179,7 +179,7 @@ check_env_vars() {
 client_load_policy() {
   local policy_file=$1
 
-  docker-compose exec client \
+  docker compose exec client \
     conjur policy load root "$policy_file"
 }
 
@@ -187,13 +187,13 @@ client_add_secret() {
   local variable=$1
   local value=$2
 
-  docker-compose exec client \
+  docker compose exec client \
     conjur variable values add "$variable" "$value"
 }
 
 start_conjur_server() {
   echo "Starting Conjur server"
-  docker-compose exec -d conjur conjurctl server
+  docker compose exec -d conjur conjurctl server
 
   echo 'Checking if Conjur server is ready'
   wait_for_conjur
@@ -201,13 +201,13 @@ start_conjur_server() {
 
 wait_for_conjur() {
   api_key=$(
-    docker-compose exec -T conjur \
+    docker compose exec -T conjur \
       conjurctl role retrieve-key cucumber:user:admin | tr -d '\r'
   )
 
-  docker-compose exec -T conjur conjurctl wait
+  docker compose exec -T conjur conjurctl wait
 
-  docker-compose exec client conjur authn login -u admin -p "$api_key"
+  docker compose exec client conjur authn login -u admin -p "$api_key"
 }
 
 configure_oidc_authenticators() {
@@ -229,11 +229,11 @@ configure_oidc_authenticators() {
 }
 
 setup_keycloak() {
-  # Start keycloak docker-compose service
+  # Start keycloak docker compose service
   services+=(keycloak)
-  docker-compose up -d --no-deps "${services[@]}"
+  docker compose up -d --no-deps "${services[@]}"
 
-  # Start conjur again, since it is recreating by docker-compose because of
+  # Start conjur again, since it is recreating by docker compose because of
   # dependency with keycloak
   start_conjur_server
   wait_for_keycloak_server
@@ -263,7 +263,7 @@ setup_okta() {
 
 setup_adfs() {
   echo "Initialize ADFS certificate in conjur server"
-  docker-compose exec conjur \
+  docker compose exec conjur \
     /src/conjur-server/dev/files/authn-oidc/adfs/fetchCertificate
 
   configure_oidc_v1 \
@@ -358,10 +358,10 @@ migrate_audit_db() {
 
   # Run database migration to create audit database schema.
   #
-  # SC2016: We want docker-compose to expand $AUDIT_DATABASE_URL.
+  # SC2016: We want docker compose to expand $AUDIT_DATABASE_URL.
   # SC1004: Literal backslash will be interpreted away by bash.
   # shellcheck disable=SC2016,SC1004
-  docker-compose exec -T conjur bash -c '
+  docker compose exec -T conjur bash -c '
   BUNDLE_GEMFILE=/src/conjur-server/Gemfile \
     bundle exec sequel $AUDIT_DATABASE_URL \
     -E -m /src/conjur-server/engines/conjur_audit/db/migrate/
@@ -383,7 +383,7 @@ init_ldap() {
   enabled_authenticators="$enabled_authenticators,authn-ldap/test,authn-ldap/secure"
 
   # Using conjur policy load doesn't work here (not sure why).
-  docker-compose exec conjur \
+  docker compose exec conjur \
     conjurctl policy load cucumber \
     "/src/conjur-server/dev/files/authn-ldap/policy.yml"
 }
@@ -400,7 +400,7 @@ init_azure() {
   client_load_policy \
     "/src/conjur-server/ci/test_suites/authenticators_azure/policies/policy.yml"
 
-  docker-compose exec client \
+  docker compose exec client \
     conjur variable values add \
     conjur/authn-azure/prod/provider-uri "https://sts.windows.net/$AZURE_TENANT_ID/"
 
@@ -430,7 +430,7 @@ init_jwt() {
 
   enabled_authenticators="$enabled_authenticators,authn-jwt/raw,authn-jwt/keycloak"
   services+=(jwks jwks_py keycloak)
-  docker-compose up -d --no-deps "${services[@]}"
+  docker compose up -d --no-deps "${services[@]}"
 
   # OIDC is a special case on JWT, JWT automation tests contain scenarios with
   # OIDC providers.
@@ -438,7 +438,7 @@ init_jwt() {
   enable_oidc_authenticators
 
   echo "Configure jwks provider"
-  docker-compose exec jwks "/tmp/create_nginx_certificate.sh"
+  docker compose exec jwks "/tmp/create_nginx_certificate.sh"
 }
 
 init_oidc() {
@@ -452,10 +452,10 @@ init_oidc() {
   if [[ $ENABLE_AUTHN_LDAP = true && $ENABLE_OIDC_OKTA = true ]]; then
     echo "Building & configuring Okta-LDAP agent"
     services+=(okta-ldap-agent)
-    docker-compose up -d --no-deps "${services[@]}"
+    docker compose up -d --no-deps "${services[@]}"
 
     echo "Starting Okta agent service"
-    docker exec "$(docker-compose ps -q okta-ldap-agent)" \
+    docker exec "$(docker compose ps -q okta-ldap-agent)" \
       "/opt/Okta/OktaLDAPAgent/scripts/OktaLDAPAgent"
   fi
 }
@@ -475,7 +475,7 @@ init_iam() {
   enabled_authenticators="$enabled_authenticators,authn-iam/prod"
 
   # Using conjur policy load doesn't work here (not sure why).
-  docker-compose exec conjur \
+  docker compose exec conjur \
     conjurctl policy load cucumber \
     "/src/conjur-server/dev/files/authn-iam/policy.yml"
 }
@@ -486,7 +486,7 @@ start_auth_services() {
 
   # Will restart services if configuration has changed.  I think this happens
   # when additional authenticators are enabled.
-  docker-compose up -d --no-deps "${services[@]}"
+  docker compose up -d --no-deps "${services[@]}"
 
   # If that happens, we need to restart Conjur server.
   if [[ "$enabled_authenticators" != "$default_authenticators" ]]; then
@@ -501,13 +501,13 @@ create_alice() {
 
 kill_conjur() {
   echo "killing the conjur server process"
-  docker-compose exec conjur /src/conjur-server/dev/files/killConjurServer
+  docker compose exec conjur /src/conjur-server/dev/files/killConjurServer
 }
 
 enter_container() {
   env_args+=(-e "CONJUR_AUTHN_API_KEY=$api_key")
   docker exec "${env_args[@]}" -it --detach-keys ctrl-\\ \
-    "$(docker-compose ps -q conjur)" bash
+    "$(docker compose ps -q conjur)" bash
 }
 
 main "$@"

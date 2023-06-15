@@ -196,7 +196,7 @@ function add_keycloak_env_vars_to_env_args() {
   echo "Extracting keycloak variables & setting as env variables"
 
   local keycloak_env_args=''
-  keycloak_env_args="$(set -o pipefail; docker-compose exec -T keycloak printenv | grep KEYCLOAK | sed 's/.*/-e &/') \
+  keycloak_env_args="$(set -o pipefail; docker compose exec -T keycloak printenv | grep KEYCLOAK | sed 's/.*/-e &/') \
                      -e PROVIDER_URI=https://keycloak:8443/auth/realms/master \
                      -e PROVIDER_INTERNAL_URI=http://keycloak:8080/auth/realms/master/protocol/openid-connect \
                      -e PROVIDER_ISSUER=http://keycloak:8080/auth/realms/master \
@@ -234,7 +234,7 @@ while true ; do
   case "$1" in
     -h | --help ) print_help ; shift ;;
     exec )
-      api_key=$(docker-compose exec -T conjur conjurctl role retrieve-key cucumber:user:admin | tr -d '\r')
+      api_key=$(docker compose exec -T conjur conjurctl role retrieve-key cucumber:user:admin | tr -d '\r')
       env_args="-e CONJUR_AUTHN_API_KEY=$api_key"
 
       case "$2" in
@@ -246,18 +246,18 @@ while true ; do
         * ) if [ -z "$2" ]; then shift ; else echo "$2 is not a valid option"; exit 1; fi;;
       esac
 
-      docker exec $env_args -it --detach-keys 'ctrl-\' $(docker-compose ps -q conjur) bash
+      docker exec "$env_args" -it --detach-keys "ctrl-\'" "$(docker compose ps -q conjur)" bash
      shift ;;
     policy )
       case "$2" in
         load )
           account="$3"
           policy_file=$4
-          docker-compose exec conjur conjurctl policy load "$account" "/src/conjur-server/$policy_file"
+          docker compose exec conjur conjurctl policy load "$account" "/src/conjur-server/$policy_file"
           shift 4 ;;
         * ) if [ -z "$1" ]; then break; else echo "$1 is not a valid option"; exit 1; fi;;
       esac ;;
-    key ) docker-compose exec -T conjur conjurctl role retrieve-key cucumber:user:admin ; shift ;;
+    key ) docker compose exec -T conjur conjurctl role retrieve-key cucumber:user:admin ; shift ;;
      * ) if [ -z "$1" ]; then break; else echo "$1 is not a valid option"; exit 1; fi;;
   esac
 done
