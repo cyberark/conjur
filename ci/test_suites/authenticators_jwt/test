@@ -10,14 +10,14 @@ source "./oauth/keycloak/keycloak_functions.sh"
 function main() {
   local parallel_services
   read -ra parallel_services <<< "$(get_parallel_services 'conjur pg')"
-  docker-compose up --no-deps -d "${parallel_services[@]}" jwks jwks_py keycloak
+  docker compose up --no-deps -d "${parallel_services[@]}" jwks jwks_py keycloak
 
   wait_for_keycloak_server
   create_keycloak_users
   fetch_keycloak_certificate
 
   echo "Configure jwks provider"
-  docker-compose exec -T jwks "${JWKS_CREATE_CERTIFICATE_SCRIPT_PATH}"
+  docker compose exec -T jwks "${JWKS_CREATE_CERTIFICATE_SCRIPT_PATH}"
 
   additional_services='jwks jwks_py keycloak'
   _run_cucumber_tests authenticators_jwt "$additional_services" \
