@@ -117,7 +117,7 @@ finish() {
   # TODO: More reliable approach to this.
   # Give SimpleCov time to generate reports.
   sleep 15
-  docker-compose down --rmi 'local' --volumes || true
+  docker compose down --rmi 'local' --volumes || true
 }
 
 # main is always called with at least the first arg. When the 2nd arg, the
