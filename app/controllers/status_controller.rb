@@ -21,16 +21,17 @@ class StatusController < ApplicationController
       client_ip: request.ip,
       user_agent: request.user_agent,
       account: token_user.account,
-      username: token_user.login,
-      token_issued_at: Time.at(token_user.token.claims["iat"])
+      username: token_user.role_id,
+      token_issued_at: Time.at(token_user.claims['iat']),
+      token_expires_at: Time.at(token_user.claims['exp'])
     })
   end
 
   def audit_success
     Audit.logger.log(
       Audit::Event::Whoami.new(
-        client_ip: token_user.remote_ip,
-        role: ::Role.by_login(token_user.login, account: token_user.account),
+        client_ip: token_user.request_ip,
+        role: ::Role[token_user.role_id],
         success: true
       )
     )
