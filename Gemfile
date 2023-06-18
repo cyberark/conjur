@@ -36,7 +36,7 @@ gem 'bcrypt'
 gem 'gli', require: false
 gem 'listen'
 gem 'rexml', '~> 3.2'
-gem 'slosilo', '~> 3.0'
+gem 'slosilo', path: 'gems/slosilo'
 
 # Explicitly required as there are vulnerabilities in older versions
 gem "ffi", ">= 1.9.24"
