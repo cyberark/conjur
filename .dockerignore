@@ -42,3 +42,6 @@ website.sh
 
 # Ignore vim swapfiles
 *.sw[po]
+
+gems/slosilo/Gemfile.lock
+gems/slosilo/spec/reports

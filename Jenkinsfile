@@ -1071,6 +1071,11 @@ def conjurTests() {
       "Rack - ${env.STAGE_NAME}": {
         sh 'cd gems/conjur-rack && ./test.sh'
       }
+    ],
+    "slosilo": [
+      "Rack - ${env.STAGE_NAME}": {
+        sh 'cd gems/slosilo && ./test.sh'
+      }
     ]
   ]
 }
