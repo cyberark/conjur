@@ -65,12 +65,31 @@ ci/test_suites/authenticators_k8s/dev/policies/*.yml
 docs/_site/
 docs/.sass-cache
 
-gems/*/Gemfile.lock
 
 # Container commit marker
 conjur_git_commit
 
 # AuthnOIDC V2 w/ Identity setup
 dev/policies/authenticators/authn-oidc/identity-users.yml
+
+gem/slosilo/*.gem
+gem/slosilo/*.rbc
+gem/slosilo/.bundle
+gem/slosilo/.yardoc
+gem/slosilo/InstalledFiles
+gem/slosilo/_yardoc
+gem/slosilo/coverage
+gem/slosilo/doc/
+gem/slosilo/lib/bundler/man
+gem/slosilo/pkg
+gem/slosilo/rdoc
+gem/slosilo/spec/reports
+gem/slosilo/test/tmp
+gem/slosilo/test/version_tmp
+gem/slosilo/tmp
+gem/slosilo/.rvmrc
+gem/slosilo/.project
+gem/slosilo/.kateproject.d
+gem/slosilo/.idea
 
 VERSION
