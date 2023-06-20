@@ -14,7 +14,7 @@ $VERBOSE = original_verbose
 
 # by default FIPS mode is enabled
 # disable FIPS mode only if OPENSSL_FIPS_ENABLED environment variable is present and has false value
-OpenSSL.fips_mode = !(ENV["OPENSSL_FIPS_ENABLED"].present? && ENV["OPENSSL_FIPS_ENABLED"] == 'false')
+# OpenSSL.fips_mode = !(ENV["OPENSSL_FIPS_ENABLED"].present? && ENV["OPENSSL_FIPS_ENABLED"] == 'false')
 
 # each of the following 3rd party overridden is required since a non FIPS complaint encryption method is used
 # if a non-complaint FIPS method like MD5 is used or a direct use of Digest::encryption-method

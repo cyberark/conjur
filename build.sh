@@ -66,7 +66,7 @@ git rev-parse HEAD > conjur_git_commit
 # 1. Always, when we're developing locally
 if [[ $jenkins = false ]]; then
   echo "Building image conjur-dev"
-  docker build -t conjur-dev -f dev/Dockerfile.dev .
+  docker build --tag conjur-dev --file dev/Dockerfile.dev .
   exit 0
 fi
 
@@ -76,18 +76,18 @@ image_doesnt_exist() {
 }
 
 if image_doesnt_exist "conjur-cloud:$TAG"; then
-  echo "Building image conjur-cloud:$TAG"
-  docker build -t "conjur-cloud:$TAG" .
+  echo "Building image conju-cloudr:$TAG"
+  docker build --pull --tag "conjur-cloud:$TAG" .
   flatten "conjur-cloud:$TAG"
 fi
 
 if image_doesnt_exist "conjur-test:$TAG"; then
   echo "Building image conjur-test:$TAG container"
-  docker build --build-arg "VERSION=$TAG" -t "conjur-test:$TAG" -f Dockerfile.test .
+  docker build --build-arg "VERSION=$TAG" --tag "conjur-test:$TAG" --file Dockerfile.test .
 fi
 
 #if image_doesnt_exist "conjur-ubi:$TAG"; then
 #  echo "Building image conjur-ubi:$TAG container"
-#  docker build --build-arg "VERSION=$TAG" -t "conjur-ubi:$TAG" -f Dockerfile.ubi .
+#  docker build --pull --build-arg "VERSION=$TAG" --tag "conjur-ubi:$TAG" --file Dockerfile.ubi .
 #  flatten "conjur-ubi:$TAG"
 #fi
