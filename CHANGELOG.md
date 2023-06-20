@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
+## [1.19.6] - 2023-07-05
+
+### Fixed
+- Support Authn-IAM regional requests when host value is missing from signed headers.
+  [cyberark/conjur#2827](https://github.com/cyberark/conjur/pull/2827)
+
 ## [1.19.5] - 2023-06-29
 
 ### Security
