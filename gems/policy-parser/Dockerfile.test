@@ -10,6 +10,6 @@ COPY lib/conjur-policy-parser-version.rb lib/conjur-policy-parser-version.rb
 RUN apt-get update && apt-get install -y libffi-dev build-essential libyaml-dev
 
 # Make sure the expected version of Bundler is available
-ENV BUNDLER_VERSION=2.2.33
+ENV BUNDLER_VERSION=2.4.14
 RUN gem install bundler -v ${BUNDLER_VERSION} && \
     bundle install
