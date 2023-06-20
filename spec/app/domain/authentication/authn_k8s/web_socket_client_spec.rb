@@ -84,7 +84,7 @@ describe 'Authentication::AuthnK8s::WebSocketClient' do
         expect {
           @client = Authentication::AuthnK8s::WebSocketClient.connect("wss://localhost:#{@test_server.port}")
         }.to raise_error(OpenSSL::SSL::SSLError, nil) {  |error|
-           expect(error.message).to eq("SSL_connect returned=1 errno=0 state=error: certificate verify failed (unable to get local issuer certificate)")
+           expect(error.message).to eq("SSL_connect returned=1 errno=0 peeraddr=127.0.0.1:#{@test_server.port} state=error: certificate verify failed (unable to get local issuer certificate)")
         }
       end
 
@@ -156,7 +156,7 @@ describe 'Authentication::AuthnK8s::WebSocketClient' do
         expect {
           @client = Authentication::AuthnK8s::WebSocketClient.connect("wss://localhost:#{@test_server.port}")
         }.to raise_error(OpenSSL::SSL::SSLError, nil) {  |error|
-           expect(error.message).to eq("SSL_connect returned=1 errno=0 state=error: certificate verify failed (unable to get local issuer certificate)")
+           expect(error.message).to eq("SSL_connect returned=1 errno=0 peeraddr=127.0.0.1:#{@test_server.port} state=error: certificate verify failed (unable to get local issuer certificate)")
         }
       end
 

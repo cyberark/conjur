@@ -8,13 +8,6 @@ WORKDIR ${CONJUR_HOME}
 COPY Gemfile Gemfile.lock ./
 COPY ./gems/ ./gems/
 
-# Install package dependencies for Conjur
-RUN INSTALL_PKGS="openldap-clients \
-                  tzdata" && \
-    yum install -y --setopt=tsflags=nodocs $INSTALL_PKGS && \
-    rpm -V $INSTALL_PKGS && \
-    yum -y clean all --enablerepo='*'
-
 RUN bundle config set --local without 'test development' && \
     bundle config set --local deployment true && \
     bundle config set --local path vendor/bundle && \
