@@ -8,8 +8,8 @@ chmod +x docker-debify
 docker run --rm \
   -v "$(pwd)":"$(pwd)" \
   --workdir "$(pwd)" \
-  cyberark/phusion-ruby-fips:latest \
-  sh -c "apt-get update -y && apt-get install -y git && bundle lock --update=conjur-api"
+  registry.tld/cyberark/ubuntu-ruby-builder:22.04 \
+  sh -c "bundle lock --update=conjur-api"
 
 # Create possum deb
 ./docker-debify package \

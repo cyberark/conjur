@@ -45,7 +45,7 @@ Before do
 end
 
 After do
-  FileUtils.remove_dir('cuke_export') if Dir.exists?('cuke_export')
+  FileUtils.remove_dir('cuke_export') if Dir.exist?('cuke_export')
 
   # Revert to original env
   @env.each do |key, value|

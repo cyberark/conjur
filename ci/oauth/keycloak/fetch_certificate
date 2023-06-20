@@ -13,6 +13,6 @@ openssl s_client \
     -outform PEM \
     >/etc/ssl/certs/keycloak.pem
 
-hash=$(openssl x509 -hash -in /etc/ssl/certs/keycloak.pem -out /dev/null)
+hash=$(openssl x509 -hash -in /etc/ssl/certs/keycloak.pem --noout)
 
 ln -s /etc/ssl/certs/keycloak.pem "/etc/ssl/certs/${hash}.0" || true

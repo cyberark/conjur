@@ -185,7 +185,7 @@ _run_cucumber_tests() {
   # process to write the report. The container is kept alive using an infinite
   # sleep in the at_exit hook (see .simplecov).
   for parallel_service in "${parallel_services[@]}"; do
-    $COMPOSE exec -T "$parallel_service" bash -c "pkill -f 'puma 5'"
+    $COMPOSE exec -T "$parallel_service" bash -c "pkill -f 'puma 6'"
   done
 }
 

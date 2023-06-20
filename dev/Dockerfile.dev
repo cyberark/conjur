@@ -1,40 +1,53 @@
-FROM cyberark/phusion-ruby-fips:latest
+FROM registry.tld/cyberark/ubuntu-ruby-builder:22.04 as builder
+
+WORKDIR /src/conjur-server
+
+COPY Gemfile Gemfile.lock ./
+COPY ./gems/ ./gems/
+
+RUN bundle
+
+# removing CA bundle of httpclient gem
+RUN find / -name httpclient -type d -exec find {} -name "*.pem" -type f -delete \;
+
+FROM registry.tld/cyberark/ubuntu-ruby-fips:22.04
+ENV PORT=3000 \
+    LOG_DIR=/opt/conjur-server/log \
+    TMP_DIR=/opt/conjur-server/tmp \
+    SSL_CERT_DIRECTORY=/opt/conjur/etc/ssl \
+    RAILS_ENV=production \
+    PATH=/opt/conjur-server/bin:$PATH \
+    TERM=xterm
+
+WORKDIR /src/conjur-server
+
 
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y \
-    build-essential \
-    ldap-utils \
     git \
     jq \
-    tzdata \
     libfontconfig1 \
-    libfontconfig1-dev
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y \
+    libfontconfig1-dev \
     unattended-upgrades \
     vim \
     curl \
     wget \
     && rm -rf /var/lib/apt/lists/*
+#    && rm -rf /var/lib/apt/lists/* && \
+#    rm /etc/service/sshd/down && \
+#    rm /etc/my_init.d/10_syslog-ng.init
 
-RUN mkdir -p /src/conjur-server
+# Ensure few required GID0-owned folders to run as a random UID (OpenShift requirement)
+RUN mkdir -p $TMP_DIR \
+             $LOG_DIR \
+             $SSL_CERT_DIRECTORY/ca \
+             $SSL_CERT_DIRECTORY/cert \
+             /run/authn-local
 
-ADD .pryrc /root
+COPY --from=builder /src/conjur-server .
+COPY --from=builder ${GEM_HOME} ${GEM_HOME}
 
-WORKDIR /src/conjur-server
+COPY . .
 
-COPY Gemfile \
-     Gemfile.lock ./
-COPY gems/ gems/
+COPY .pryrc /root
 
-RUN bundle
-
-# removing CA bundle of httpclient gem
-RUN find / -name httpclient -type d -exec find {} -name *.pem -type f -delete \;
-
-RUN rm /etc/service/sshd/down
-RUN ln -sf /src/conjur-server/bin/conjurctl /usr/local/bin/
-RUN rm /etc/my_init.d/10_syslog-ng.init
-
-ENV PORT 3000
-ENV TERM xterm
-
-EXPOSE 3000
+EXPOSE ${PORT}

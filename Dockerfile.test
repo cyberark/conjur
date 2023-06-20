@@ -1,4 +1,32 @@
 ARG VERSION=latest
+
+FROM registry.tld/cyberark/ubuntu-ruby-builder:22.04 as builder
+
+ENV CONJUR_HOME=/opt/conjur-server \
+    GEM_HOME=/usr/local/bundle
+
+WORKDIR ${CONJUR_HOME}
+
+COPY Gemfile Gemfile.lock ./
+COPY ./gems/ ./gems/
+
+RUN bundle config unset --local without && \
+    bundle config unset --local path && \
+    bundle config set --local deployment false && \
+    bundle config --local jobs "$(nproc --all)" && \
+    bundle install
+
+# removing CA bundle of httpclient gem
+RUN find / -name httpclient -type d -exec find {} -name "*.pem" -type f -delete \;
+
 FROM conjur:${VERSION}
 
-RUN bundle --no-deployment --without ''
+ENV GEM_HOME=/usr/local/bundle
+ENV PATH="${GEM_HOME}/bin:${PATH}"
+
+RUN bundle config unset --local without && \
+    bundle config unset --local path && \
+    bundle config set --local deployment false && \
+    gem install rake
+
+COPY --from=builder ${GEM_HOME} ${GEM_HOME}

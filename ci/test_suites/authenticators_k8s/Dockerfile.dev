@@ -1,4 +1,4 @@
-FROM registry2.itci.conjur.net/conjur-appliance-cuke-master:4.9-stable
+FROM registry.tld/conjur-appliance-cuke-master:4.9-stable
 
 RUN apt-get update && apt-get install -y zlib1g-dev
 
