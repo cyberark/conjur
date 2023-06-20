@@ -17,4 +17,4 @@ DEPENDENCIES
   simplecov_json_formatter (= 0.1.4)
 
 BUNDLED WITH
-   2.2.33
+   2.4.14

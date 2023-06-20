@@ -1,25 +1,25 @@
-FROM cyberark/ubuntu-ruby-fips:latest
+FROM registry.tld/cyberark/ubuntu-ruby-builder:22.04 as builder
 
-ENV DEBIAN_FRONTEND=noninteractive \
-    PORT=80 \
-    LOG_DIR=/opt/conjur-server/log \
-    TMP_DIR=/opt/conjur-server/tmp \
-    SSL_CERT_DIRECTORY=/opt/conjur/etc/ssl
+WORKDIR ${CONJUR_HOME}
 
-EXPOSE 80
+COPY Gemfile Gemfile.lock ./
+COPY ./gems/ ./gems/
 
-RUN apt-get update -y && \
-    apt-get -y dist-upgrade && \
-    apt-get install -y libz-dev
+RUN bundle config set --local without 'test development' && \
+    bundle config --local jobs "$(nproc --all)" && \
+    bundle install
 
-RUN apt-get install -y build-essential \
-                       curl \
-                       git \
-                       ldap-utils \
-                       tzdata \
-    && rm -rf /var/lib/apt/lists/*
+# removing CA bundle of httpclient gem
+RUN find / -name httpclient -type d -exec find {} -name "*.pem" -type f -delete \;
 
-WORKDIR /opt/conjur-server
+FROM registry.tld/cyberark/ubuntu-ruby-fips:22.04
+ENV PORT=80 \
+    LOG_DIR=${CONJUR_HOME}/log \
+    TMP_DIR=${CONJUR_HOME}/tmp \
+    SSL_CERT_DIRECTORY=/opt/conjur/etc/ssl \
+    RAILS_ENV=production
+
+WORKDIR ${CONJUR_HOME}
 
 # Ensure few required GID0-owned folders to run as a random UID (OpenShift requirement)
 RUN mkdir -p $TMP_DIR \
@@ -28,20 +28,16 @@ RUN mkdir -p $TMP_DIR \
              $SSL_CERT_DIRECTORY/cert \
              /run/authn-local
 
-COPY Gemfile \
-     Gemfile.lock ./
-COPY gems/ gems/
-
-
-RUN bundle --without test development
-
 COPY . .
+COPY --from=builder ${CONJUR_HOME} ${CONJUR_HOME}
+COPY --from=builder ${GEM_HOME} ${GEM_HOME}
 
-# removing CA bundle of httpclient gem
-RUN find / -name httpclient -type d -exec find {} -name *.pem -type f -delete \;
+EXPOSE ${PORT}
 
-RUN ln -sf /opt/conjur-server/bin/conjurctl /usr/local/bin/
-
-ENV RAILS_ENV production
+# testing only
+RUN fips_mode -a disable
+# testing only
 
 ENTRYPOINT [ "conjurctl" ]
+
+CMD [ "server" ]

@@ -7,7 +7,7 @@
 set -xeu
 
 IMAGE="ruby:3.0"
-BUNDLER_VERSION="2.2.33"
+BUNDLER_VERSION="2.4.14"
 
 REPO_ROOT=$(git rev-parse --show-toplevel)
 
@@ -15,11 +15,11 @@ REPO_ROOT=$(git rev-parse --show-toplevel)
 REPORT_FILE="${1:-${REPO_ROOT}/coverage/.resultset.json}"
 
 docker run \
-    --rm \
-    --volume "${REPO_ROOT}":"${REPO_ROOT}" \
-    --workdir "${REPO_ROOT}/ci/coverage-report-generator" \
-    "${IMAGE}" \
-    bash -cex "
+  --rm \
+  --volume "${REPO_ROOT}":"${REPO_ROOT}" \
+  --workdir "${REPO_ROOT}/ci/coverage-report-generator" \
+  "${IMAGE}" \
+  bash -cex "
       gem install bundler -v ${BUNDLER_VERSION}
       bundle config set path 'gems'
       bundle install

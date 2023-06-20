@@ -12,6 +12,7 @@ cucumber
 
 *.deb
 .git
+.idea
 engines/conjur_audit/spec/dummy/log
 coverage
 demo

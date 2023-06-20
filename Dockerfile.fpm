@@ -5,7 +5,7 @@ RUN apt-get update -y && \
     apt-get install -y zlib1g-dev \
                        liblzma-dev
 
-ENV BUNDLER_VERSION 2.2.33
+ENV BUNDLER_VERSION 2.4.14
 RUN gem install --no-document bundler:$BUNDLER_VERSION fpm
 
 RUN mkdir -p /src/opt/conjur/project
@@ -19,7 +19,7 @@ COPY gems/ gems/
 COPY . .
 
 # removing CA bundle of httpclient gem
-RUN find / -name httpclient -type d -exec find {} -name *.pem -type f -delete \;
+RUN find / -name httpclient -type d -exec find {} -name "*.pem" -type f -delete \;
 
 ADD debify.sh /
 
