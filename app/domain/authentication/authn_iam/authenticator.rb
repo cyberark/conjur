@@ -54,7 +54,27 @@ module Authentication
 
       # Call to AWS STS endpoint using the provided authentication header
       def attempt_signed_request(signed_headers)
-        aws_request = URI("https://#{signed_headers['host']}/?Action=GetCallerIdentity&Version=2011-06-15")
+        sts_host = extract_sts_host(signed_headers)
+        aws_request = URI("https://#{sts_host}/?Action=GetCallerIdentity&Version=2011-06-15")
+        begin
+          response = @client.get_response(aws_request, signed_headers)
+          return response unless response.code.to_i == 403 && sts_host.include?('us-east-1')
+
+          # If the request to `us-east-1` failed with a 403, retry on the global endpoint
+          retry_signed_request_on_global(signed_headers)
+
+          # Handle any network failures with a generic verification error
+        rescue StandardError => e
+          raise(Errors::Authentication::AuthnIam::VerificationError.new(e))
+        end
+      end
+
+      # Retry request on AWS STS global endpoint
+      def retry_signed_request_on_global(signed_headers)
+        @logger.debug(
+          LogMessages::Authentication::AuthnIam::RetryWithGlobalEndpoint.new
+        )
+        aws_request = URI('https://sts.amazonaws.com/?Action=GetCallerIdentity&Version=2011-06-15')
         begin
           @client.get_response(aws_request, signed_headers)
 
@@ -75,6 +95,17 @@ module Authentication
           Errors::Authentication::AuthnIam::InvalidAWSHeaders,
           body.dig('ErrorResponse', 'Error', 'Message').to_s.strip
         )
+      end
+
+      # Extract AWS region from the authorization header's credential string, i.e.:
+      # Credential=AKIAIOSFODNN7EXAMPLE/20220830/us-east-1/sts/aws4_request
+      def extract_sts_host(signed_headers)
+        return signed_headers['host'] if signed_headers['host'].present?
+
+        region = signed_headers['authorization'].match(%r{Credential=[^/]+/[^/]+/([^/]+)/})&.captures&.first
+        raise(Errors::Authentication::AuthnIam::InvalidAWSHeaders, 'Failed to extract AWS region from authorization header') unless region
+      
+        "sts.#{region}.amazonaws.com"
       end
     end
   end

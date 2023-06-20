@@ -132,6 +132,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 - Remove auto-release options to allow for a pseudo-fork development on a branch
 
+## [1.19.6] - 2023-07-05
+
+### Fixed
+- Support Authn-IAM regional requests when host value is missing from signed headers.
+  [cyberark/conjur#2827](https://github.com/cyberark/conjur/pull/2827)
+
 ## [1.19.5] - 2023-05-29
 
 ### Security

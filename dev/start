@@ -4,10 +4,6 @@
 set -ex
 set -o pipefail
 
-# CC servers can't find it for some reason.  Local shellcheck is fine.
-# shellcheck disable=SC1091
-source "../ci/oauth/keycloak/keycloak_functions.sh"
-
 # SCRIPT GLOBAL STATE
 
 # Set up VERSION file for local development
@@ -232,7 +228,14 @@ configure_oidc_authenticators() {
 }
 
 setup_keycloak() {
-  # Start keycloak docker compose service
+
+  pushd "../ci"
+  # CC servers can't find it for some reason.  Local shellcheck is fine.
+  # shellcheck disable=SC1091
+  source "oauth/keycloak/keycloak_functions.sh"
+  popd
+
+  # Start keycloak docker-compose service
   services+=(keycloak)
   docker compose up -d --no-deps "${services[@]}"
 
