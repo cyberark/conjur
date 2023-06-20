@@ -65,7 +65,6 @@ max_fast_inline Float(ENV['MAX_REQUESTS_PER_CONNECTION'] || Float::INFINITY)
 # available in this config file.
 preload_app!
 
-rackup      DefaultRackup
 port        ENV['PORT']     || 3000
 environment ENV['RACK_ENV'] || 'development'
 
@@ -74,6 +73,7 @@ environment ENV['RACK_ENV'] || 'development'
 # fail when started as a `puma` command, rather than using `rails server`.
 before_fork do
   Rails.logger.info(LogMessages::Conjur::FipsModeStatus.new(OpenSSL.fips_mode))
+
 end
 
 on_worker_boot do
@@ -90,4 +90,3 @@ on_worker_boot do
     puts "- #{k} from #{v}"
   end
 end
-
