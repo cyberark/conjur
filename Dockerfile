@@ -30,17 +30,6 @@ ENV PATH="${PATH}:${CONJUR_HOME}/bin"
 
 WORKDIR ${CONJUR_HOME}
 
-RUN apt-get update -y && \
-    apt-get -y dist-upgrade && \
-    apt-get install -y libz-dev
-
-RUN apt-get install -y build-essential \
-                       curl \
-                       git \
-                       ldap-utils \
-                       tzdata \
-    && rm -rf /var/lib/apt/lists/*
-
 # Ensure few required GID0-owned folders to run as a random UID (OpenShift requirement)
 RUN mkdir -p $TMP_DIR \
              $LOG_DIR \
