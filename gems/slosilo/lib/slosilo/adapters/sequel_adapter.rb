@@ -17,7 +17,7 @@ module Slosilo
         model.attr_encrypted(:key, aad: :id) if secure?
         model
       end
-      
+
       def put_key id, value
         fail Error::InsecureKeyStorage unless secure? || !value.private?
 

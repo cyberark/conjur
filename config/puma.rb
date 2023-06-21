@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+Rails.application.load_tasks
+
 workers Integer(ENV['WEB_CONCURRENCY'] || 2)
 threads_count = Integer(ENV['RAILS_MAX_THREADS'] || 5)
 threads threads_count, threads_count
@@ -59,7 +61,7 @@ before_fork do
   Rails.logger.info(LogMessages::Conjur::FipsModeStatus.new(OpenSSL.fips_mode))
 end
 
-on_worker_boot do
+on_worker_boot do |worker_number|
   # https://groups.google.com/forum/#!topic/sequel-talk/LBAtdstVhWQ
   Sequel::Model.db.disconnect
 
@@ -71,6 +73,13 @@ on_worker_boot do
   puts "Loaded configuration:"
   conjur_config.attribute_sources.each do |k,v|
     puts "- #{k} from #{v}"
+  end
+
+  if worker_number.zero?
+    Rufus::Scheduler.singleton.every "#{conjur_config.slosilo_rotation_interval}h" do
+      Rake::Task['rotate:slosilo'].invoke
+      Rake::Task['rotate:slosilo'].reenable
+    end
   end
 end
 

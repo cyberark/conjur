@@ -23,6 +23,7 @@ gem 'puma', '~> 5.6'
 gem 'rack', '~> 2.2'
 gem 'rails', '~> 6.1', '>= 6.1.4.6'
 gem 'rake'
+gem 'rufus-scheduler'
 
 gem 'pg'
 gem 'sequel'
