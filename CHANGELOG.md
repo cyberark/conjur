@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 - Improve DB connection usage https://ca-il-jira.il.cyber-ark.com:8443/browse/ONYX-34591
 - Pull Slosilo library to Conjur
+- Change Slosilo id from "authn:account:host/user" to "authn:account:host/user:current"
 
 ## [1.0.0-cloud] - 2023-06-07
 ### Changed
