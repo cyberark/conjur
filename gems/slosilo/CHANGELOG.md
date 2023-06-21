@@ -1,3 +1,6 @@
+**This Gem has been moved into Conjur. All Slosilo Changelog entries should
+appear in the main Changelog.**
+
 # v3.0.1
 
  * The symmetric cipher class now encrypts and decrypts in a thread-safe manner.
