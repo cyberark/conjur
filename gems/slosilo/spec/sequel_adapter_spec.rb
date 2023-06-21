@@ -31,15 +31,26 @@ describe Slosilo::Adapters::SequelAdapter do
     let(:id) { "id" }
     it "creates the key" do
       expect(model).to receive(:create).with(hash_including(:id => id, :key => key.to_der))
+      expect(model).to receive(:[]).with(id).and_return(nil)
       allow(model).to receive_messages columns: [:id, :key]
       subject.put_key id, key
     end
 
     it "adds the fingerprint if feasible" do
       expect(model).to receive(:create).with(hash_including(:id => id, :key => key.to_der, :fingerprint => key.fingerprint))
+      expect(model).to receive(:[]).with(id).and_return(nil)
       allow(model).to receive_messages columns: [:id, :key, :fingerprint]
       subject.put_key id, key
     end
+
+    it "update existing key" do
+      hash = hash_including(:id => id, :key => another_key.to_der)
+      expect(model).to receive(:[]).with(id).and_return(hash)
+      expect(hash).to receive(:update).with(hash)
+      allow(model).to receive_messages columns: [:id, :another_key]
+      subject.put_key id, key
+    end
+
   end
   
   let(:adapter) { subject }
