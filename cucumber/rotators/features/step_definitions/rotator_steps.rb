@@ -118,8 +118,19 @@ Then(/^I add ENV\[(.+)\] to variable "(.+)"$/) do |env_var, conjur_varname|
   @client.add_secret(conjur_varname, val)
 end
 
-
 Then(/^I wait for (\d+) seconds?$/) do |num_seconds|
   puts "Sleeping #{num_seconds}...."
   sleep(num_seconds.to_i)
 end
+
+When(/^Slosilo key is( not)? rotated$/) do |not_rotated|
+  prev = Slosilo["authn:cucumber:host:current"].dup
+  Slosilo["authn:cucumber:host:current"] = Slosilo::Key.new
+  Slosilo["authn:cucumber:host:previous"] = prev
+  update_time = not_rotated ? Time.now : 25.hours.ago
+  ActivityLog["last_slosilo_update"].update({timestamp: update_time})
+  command = ["rake", "rotate:slosilo[cucumber]"]
+  system(*command)
+end
+
+

@@ -190,6 +190,24 @@ describe Conjur::Rack::Authenticator do
       end
     end
 
+    context "with 'authn:test:user:previous' token signer" do
+      it "returns test account name" do
+        token = mock_jwt({sub: 'user'})
+        allow(Slosilo).to receive(:token_signer).with(token).and_return('authn:test:user:previous')
+        res = subject.send(:validate_token_and_get_account, token)
+        expect(res).to eq("test")
+      end
+    end
+
+    context "with 'authn:test:host:previous' token signer" do
+      it "returns test account name" do
+        token = mock_jwt({sub: 'host/host'})
+        allow(Slosilo).to receive(:token_signer).with(token).and_return('authn:test:host:previous')
+        res = subject.send(:validate_token_and_get_account, token)
+        expect(res).to eq("test")
+      end
+    end
+
     context "with 'authn:test:host:current' token signer" do
       it "returns test account name" do
         token = mock_jwt({sub: 'host/host'})

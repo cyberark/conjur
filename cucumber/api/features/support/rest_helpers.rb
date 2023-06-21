@@ -383,7 +383,6 @@ module RestHelpers
       else
         {}
       end
-
     creds[:headers] ||= {}
     creds[:headers].merge!(headers)
     creds

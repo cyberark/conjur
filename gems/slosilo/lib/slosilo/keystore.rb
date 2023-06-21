@@ -29,7 +29,7 @@ module Slosilo
     def each &_
       adapter.each { |k, v| yield k, v }
     end
-    
+
     def any? &block
       each do |_, k|
         return true if yield k

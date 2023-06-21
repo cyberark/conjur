@@ -38,7 +38,8 @@ module Conjur
       host_authorization_token_ttl: 480, # The default TTL of Host is 8 minutes
       authn_api_key_default: true,
       authenticators: [],
-      extensions: []
+      extensions: [],
+      slosilo_rotation_interval: 9 # Sloislo rotation should be every 24 hours
     )
 
     def initialize(

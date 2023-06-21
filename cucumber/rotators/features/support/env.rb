@@ -3,6 +3,7 @@
 # so that we can require relative to the project root
 $LOAD_PATH.unshift(Dir.pwd)
 require 'config/environment'
+require 'cucumber/timecop'
 
 ENV['RAILS_ENV'] ||= 'test'
 ENV['CONJUR_LOG_LEVEL'] ||= 'debug'

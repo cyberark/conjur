@@ -23,6 +23,8 @@ gem 'puma', '~> 5.6'
 gem 'rack', '~> 2.2'
 gem 'rails', '~> 6.1', '>= 6.1.4.6'
 gem 'rake'
+gem 'whenever', require: false
+
 
 gem 'pg'
 gem 'sequel'
@@ -84,6 +86,7 @@ group :development, :test do
   gem 'conjur-debify', require: false
   gem 'csr'
   gem 'cucumber', '~> 7.1'
+  gem 'cucumber-timecop', :require => false
   gem 'database_cleaner', '~> 1.8'
   gem 'debase', '~> 0.2.5.beta2'
   gem 'json_spec', '~> 1.1'
@@ -109,6 +112,7 @@ group :development, :test do
   gem 'spring-commands-cucumber'
   gem 'spring-commands-rspec'
   gem 'table_print'
+  gem 'timecop'
   gem 'vcr'
   gem 'webmock'
   gem 'webrick'
