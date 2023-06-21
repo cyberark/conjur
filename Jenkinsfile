@@ -246,6 +246,7 @@ pipeline {
                           spec/reports/*.xml,
                           spec/reports-audit/*.xml,
                           gems/conjur-rack/spec/reports/*.xml,
+                          gems/slosilo/spec/reports/*.xml,
                           cucumber/*/features/reports/**/*.xml
                         '''
                       )
@@ -797,10 +798,12 @@ pipeline {
               spec/reports/*.xml,
               spec/reports-audit/*.xml,
               gems/conjur-rack/spec/reports/*.xml,
+              gems/slosilo/spec/reports/*.xml
               cucumber/*/features/reports/**/*.xml,
               ee-test/spec/reports/*.xml,
               ee-test/spec/reports-audit/*.xml,
               ee-test/gems/conjur-rack/spec/reports/*.xml,
+              ee-test/gems/slosilo/spec/reports/*.xml,
               ee-test/cucumber/*/features/reports/**/*.xml
             '''
             )
@@ -968,6 +971,11 @@ def conjurTests() {
     "conjur_rack": [
       "Rack - ${env.STAGE_NAME}": {
         sh 'cd gems/conjur-rack && ./test.sh'
+      }
+    ],
+    "slosilo": [
+      "Slosilo - ${env.STAGE_NAME}": {
+        sh 'cd gems/slosilo && ./test.sh'
       }
     ]
   ]
