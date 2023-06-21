@@ -1,0 +1,42 @@
+---
+apiVersion: secrets-store.csi.x-k8s.io/v1
+kind: SecretProviderClass
+metadata:
+  name: database-credentials
+spec:
+  provider: conjur
+  parameters:
+    authnUrl: https://conjur-auth.some-org.com
+    applianceUrl: https://conjur.some-org.com
+    account: some-org
+    cACertPath: path/to/tls/cert
+    authnLogin: path/to/some-policy/some-host
+    policyPath: path/to/some-policy/with-secrets # defaults to /
+    secrets: |
+      - db_username: "db/username" # relative to policyPath, otherwise if it starts with / then it is absolute
+      - db_password: "db/password"
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: app
+  namespace: csi
+spec:
+  serviceAccountName: default
+  containers:
+    - name: app
+      image: golang:latest
+      imagePullPolicy: Always
+      command: [ "/bin/bash", "-c", "--" ]
+      args: [ "while true; do sleep 30; done;" ]
+      volumeMounts:
+        - name: 'conjur-db-creds'
+          mountPath: '/mnt/secrets-store'
+          readOnly: true
+  volumes:
+    - name: conjur-db-creds
+      csi:
+        driver: 'secrets-store.csi.k8s.io'
+        readOnly: true
+        volumeAttributes:
+          secretProviderClass: 'database-credentials'
