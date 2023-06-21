@@ -17,11 +17,14 @@ coverage
 demo
 dev
 docker
+gems/slosilo/Gemfile.lock
+gems/slosilo/spec/reports
 log
 package
 run
 spec/reports
 spec/reports-audit
+
 tmp
 
 # Ignore directories that are only relevant in gh
