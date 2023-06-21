@@ -23,7 +23,12 @@ module Slosilo
 
         attrs = { id: id, key: value.to_der }
         attrs[:fingerprint] = value.fingerprint if fingerprint_in_db?
-        model.create attrs
+        stored = model[id]
+        if stored
+          stored.update attrs
+        else
+          model.create attrs
+        end
       end
       
       def get_key id
