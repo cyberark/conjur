@@ -35,13 +35,13 @@ describe "rotate:slosilo" do
       ActivityLog["last_slosilo_update"].update({ timestamp:  Time.now - Rails.application.config.conjur_config.slosilo_rotation_interval.hours + 1.hours })
       Slosilo["#{id.call("rspec", "host")}:previous"] ||= Slosilo::Key.new
       Slosilo["#{id.call("rspec", "user")}:previous"] ||= Slosilo::Key.new
+
       host_key = Slosilo["#{id.call("rspec", "host")}:current"]
       user_key = Slosilo["#{id.call("rspec", "user")}:current"]
       last_timestamp = ActivityLog["last_slosilo_update"].timestamp
       Rake::Task["rotate:slosilo"].execute(account: "rspec")
       host_key_prev = Slosilo["#{id.call("rspec", "host")}:previous"]
       user_key_prev = Slosilo["#{id.call("rspec", "user")}:previous"]
-
       expect(host_key.fingerprint).to_not eq(host_key_prev.fingerprint)
       expect(user_key.fingerprint).to_not eq(user_key_prev.fingerprint)
       expect(host_key.key.to_der).to_not eq(host_key_prev.key.to_der)

@@ -162,6 +162,7 @@ module Slosilo
     end
 
     def == other
+      puts "test123"
       to_der == other.to_der
     end
 
