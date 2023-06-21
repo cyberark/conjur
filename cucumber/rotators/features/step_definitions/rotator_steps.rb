@@ -118,8 +118,14 @@ Then(/^I add ENV\[(.+)\] to variable "(.+)"$/) do |env_var, conjur_varname|
   @client.add_secret(conjur_varname, val)
 end
 
-
 Then(/^I wait for (\d+) seconds?$/) do |num_seconds|
   puts "Sleeping #{num_seconds}...."
   sleep(num_seconds.to_i)
+end
+
+When(/^Slosilo key is( not)? rotated$/) do |not_rotated|
+  update_time = not_rotated ? Time.now : Rails.application.config.conjur_config.slosilo_rotation_interval.hours.ago
+  ActivityLog["last_slosilo_update"].update({timestamp: update_time})
+  command = ["rake", "rotate:slosilo[cucumber]"]
+  system(*command)
 end
