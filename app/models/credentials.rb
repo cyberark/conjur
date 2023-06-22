@@ -96,6 +96,13 @@ class Credentials < Sequel::Model
     self.api_key = self.class.random_api_key
   end
 
+  def static_api_key(value = nil)
+    if !value.nil?
+      self.api_key = value
+    end
+  end
+
+
   private
 
   def expired?

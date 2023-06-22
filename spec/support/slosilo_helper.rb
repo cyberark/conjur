@@ -12,3 +12,7 @@ def init_slosilo_keys(account)
   Slosilo[token_id(account, "host")] ||= Slosilo::Key.new
   Slosilo[token_id(account, "user")] ||= Slosilo::Key.new
 end
+
+def init_slosilo_key_static_value(account,value)
+  Slosilo[token_id(account, "user")] ||= Slosilo::Key.new(value)
+end

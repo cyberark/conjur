@@ -34,6 +34,10 @@ $LOAD_PATH << '../app/domain'
 # not under the default load paths.
 $LOAD_PATH << './bin/conjur-cli'
 
+# Add Gems to specs
+Rails.root.join("gems")
+$LOAD_PATH << './gems/conjur-rack/lib/conjur/rack'
+
 # Please note, VCR is configured to only run when the `:vcr` arguement
 # is passed to the RSpec block. Calling VCR with `VCR.use_cassette` will
 # not work.
@@ -45,17 +49,20 @@ VCR.configure do |config|
   config.default_cassette_options = {
     decode_compressed_response: true
   }
+  config.ignore_request do |request|
+    request.uri.include?('cyberark2.pactflow.io')
+  end
 end
 
 RSpec.configure do |config|
   config.before(:suite) do
-    DatabaseCleaner.strategy = :transaction
+    # DatabaseCleaner.strategy = :transaction
   end
 
   config.around(:each) do |example|
-    DatabaseCleaner.cleaning do
+    # DatabaseCleaner.cleaning do
       example.run
-    end
+    # end
   end
 
   config.around do |example|

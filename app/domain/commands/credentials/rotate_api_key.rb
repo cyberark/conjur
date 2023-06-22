@@ -31,6 +31,13 @@ module Commands
         credentials.save
       end
 
+      def static_api_key value = nil
+        if(!value.nil?)
+          credentials.static_api_key(value)
+          credentials.save
+        end
+      end
+
       def credentials
         @role_to_rotate.credentials
       end
