@@ -16,7 +16,7 @@ function _hydrate_keycloak_env_args() {
     set -o pipefail
     # Note: This prints all lines that look like:
     # KEYCLOAK_XXX=someval
-    docker-compose exec -T ${KEYCLOAK_SERVICE_NAME} printenv | awk '/KEYCLOAK/'
+    docker compose exec -T ${KEYCLOAK_SERVICE_NAME} printenv | awk '/KEYCLOAK/'
   )
 
   # shellcheck disable=SC2034
@@ -34,14 +34,14 @@ function _hydrate_keycloak_env_args() {
 # _create_keycloak_user '$APP_USER' '$APP_PW' '$APP_EMAIL'
 #
 # This is because those variables are not available to this script. They are
-# available to bash commands run via "docker-compose exec keycloak bash
+# available to bash commands run via "docker compose exec keycloak bash
 # -c...", since they're defined in the docker-compose.yml.
 function _create_keycloak_user() {
   local user_var=$1
   local pw_var=$2
   local email_var=$3
 
-  docker-compose exec -T \
+  docker compose exec -T \
     ${KEYCLOAK_SERVICE_NAME} \
     bash -c "/scripts/create_user \"$user_var\" \"$pw_var\" \"$email_var\""
 }
@@ -49,7 +49,7 @@ function _create_keycloak_user() {
 function create_keycloak_users() {
   echo "Defining keycloak client"
 
-  docker-compose exec -T ${KEYCLOAK_SERVICE_NAME} /scripts/create_client
+  docker compose exec -T ${KEYCLOAK_SERVICE_NAME} /scripts/create_client
 
   echo "Creating user 'alice' in Keycloak"
 
@@ -80,7 +80,7 @@ function create_keycloak_users() {
 }
 
 function wait_for_keycloak_server() {
-  docker-compose exec -T \
+  docker compose exec -T \
     ${KEYCLOAK_SERVICE_NAME} /scripts/wait_for_server
 }
 
@@ -93,7 +93,7 @@ function fetch_keycloak_certificate() {
   read -ra parallel_services <<< "$(get_parallel_services 'conjur')"
 
   for parallel_service in "${parallel_services[@]}"; do
-    docker-compose exec -T \
+    docker compose exec -T \
       "${parallel_service}" /oauth/keycloak/scripts/fetch_certificate
   done
 }

@@ -6,13 +6,13 @@ set -e
 # shellcheck disable=SC1091
 source "./shared.sh"
 
-docker-compose up --no-deps -d pg
+docker compose up --no-deps -d pg
 
 _wait_for_pg pg
 
 # Note: The nested, escaped double quotes are needed in case $REPORT_ROOT
 # ever changes to a path containing a space.
-docker-compose run -T --rm --no-deps cucumber -ec "
+docker compose run -T --rm --no-deps cucumber -ec "
   bundle exec rake db:migrate
 
   rm -rf \"$REPORT_ROOT/spec/reports\"
