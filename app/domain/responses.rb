@@ -30,7 +30,8 @@
     attr_reader :message, :status
 
     def initialize(message, level: :warn, status: :unauthorized)
-      @message = message
+      # If message comes in as a string, convert it to a hash
+      @message = message.is_a?(String) ? { message: message } : message
       @level = level
       @status = status
     end

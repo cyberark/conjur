@@ -9,9 +9,8 @@ module Factories
     end
 
     def render(template:, variables:)
-      binding.pry
       @success.new(@render_engine.new(template, nil, '-').result_with_hash(variables))
-    rescue StandardError => e
+    rescue => e
       # Need to add tests to understand what exceptions are thrown when
       # variables are missing. This may not be enough.
       @failure.new(e)

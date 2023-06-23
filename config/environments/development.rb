@@ -15,7 +15,7 @@ Rails.application.configure do
   # https://guides.rubyonrails.org/configuring.html#actiondispatch-hostauthorization
 
   # Accept multiple hosts for parallel tests
-  config.hosts << /^conjur[0-9]*$/
+  config.hosts << /conjur[0-9]*/
 
   # eager_load needed to make authentication work without the hacky
   # loading code...

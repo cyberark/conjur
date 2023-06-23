@@ -38,10 +38,16 @@ module Factories
         # Filter non-alpha-numeric, dash or underscore characters from inputs values (to prevent injection attacks).
         template_variables = body_variables
           .transform_keys { |key| key.to_s.underscore }
-          .transform_values { |value| @utilities.filter_input(value.to_s) }
+          .transform_values do |value|
+            if value.is_a?(Hash)
+              value.transform_values { |internal_value| @utilities.filter_input(internal_value.to_s) }
+            else
+              @utilities.filter_input(value.to_s)
+            end
+          end
 
         # Push rendered policy to the desired policy branch
-        @renderer.render(template: factory_template.policy_namespace, variables: template_variables)
+        @renderer.render(template: factory_template.policy_branch, variables: template_variables)
           .bind do |policy_load_path|
             valid_variables = factory_template.schema['properties'].keys - ['variables']
             render_and_apply_policy(
@@ -54,7 +60,7 @@ module Factories
               return @success.new(result) unless factory_template.schema['properties'].key?('variables')
 
               # Set Policy Factory variables
-              @renderer.render(template: "#{factory_template.policy_namespace}/<%= id %>", variables: template_variables)
+              @renderer.render(template: "#{factory_template.policy_branch}/<%= id %>", variables: template_variables)
                 .bind do |variable_path|
                   set_factory_variables(
                     schema_variables: factory_template.schema['properties']['variables']['properties'],
@@ -77,12 +83,12 @@ module Factories
     private
 
     def validate_and_transform_request(schema:, params:)
-      return @failure.new("Request body must be JSON", status: :bad_request) if params.blank?
+      return @failure.new('Request body must be JSON', status: :bad_request) if params.blank?
 
       begin
         params = @json.parse(params)
       rescue
-        return @failure.new("Request body must be valid JSON", status: :bad_request)
+        return @failure.new('Request body must be valid JSON', status: :bad_request)
       end
 
       # Strip keys without values

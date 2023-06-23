@@ -8,20 +8,17 @@ class PolicyFactoriesController < RestController
   before_action :current_user
 
   def create
-    response = request_body_to_json(request.body.read)
-      .bind do |request_args|
-        DB::Repository::PolicyFactoryRepository.new.find(
-          role: current_user,
-          **relevant_params(%i[account kind version id])
-        ).bind do |factory|
-          Factories::CreateFromPolicyFactory.new.call(
-            account: params[:account],
-            factory_template: factory,
-            request_body: request_args,
-            authorization: request.headers["Authorization"]
-          )
-        end
-      end
+    response = DB::Repository::PolicyFactoryRepository.new.find(
+      role: current_user,
+      **relevant_params(%i[account kind version id])
+    ).bind do |factory|
+      Factories::CreateFromPolicyFactory.new.call(
+        account: params[:account],
+        factory_template: factory,
+        request_body: request.body.read,
+        authorization: request.headers["Authorization"]
+      )
+    end
 
     render_response(response) do
       render(json: response.result)
@@ -36,7 +33,8 @@ class PolicyFactoriesController < RestController
     )
 
     render_response(response) do
-      render(json: response.result.schema)
+      presenter = Presenter::PolicyFactory::Show.new(factory: response.result)
+      render(json: presenter.present)
     end
   end
 
@@ -46,16 +44,8 @@ class PolicyFactoriesController < RestController
       account: params[:account]
     )
     render_response(response) do
-      response_body = response.result.map do |factory|
-        {
-          name: factory.name,
-          namespace: factory.classification,
-          'full-name': "#{factory.classification}/#{factory.name}",
-          'current-version': factory.version,
-          description: factory.description || ''
-        }
-      end
-      render(json: response_body)
+      presenter = Presenter::PolicyFactory::Index.new(factories: response.result)
+      render(json: presenter.present)
     end
   end
 
@@ -66,9 +56,10 @@ class PolicyFactoriesController < RestController
       block.call
     else
       render(
-        json: response.message.merge(
+        json: {
+          message: response.message,
           code: HTTP::Response::Status::SYMBOL_CODES[response.status]
-        ),
+        },
         status: response.status
       )
     end
@@ -76,15 +67,5 @@ class PolicyFactoriesController < RestController
 
   def relevant_params(allowed_params)
     params.permit(*allowed_params).slice(*allowed_params).to_h.symbolize_keys
-  end
-
-  def request_body_to_json(request_body)
-    return ::FailureResponse.new("Request body must be JSON", status: :bad_request) if request_body.blank?
-
-    begin
-      ::SuccessResponse.new(JSON.parse(request_body))
-    rescue
-      ::FailureResponse.new("Request body must be valid JSON", status: :bad_request)
-    end
   end
 end

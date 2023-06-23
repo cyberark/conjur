@@ -11,7 +11,7 @@ module DB
         :classification,
         :version,
         :policy,
-        :policy_namespace,
+        :policy_branch,
         :schema,
         :description,
         keyword_init: true
@@ -43,8 +43,9 @@ module DB
             _, _, classification, _, factory = item.resource_id.split('/')
             [classification, factory].join('/')
           end
-          .map do |_, versions|
-            versions.max
+          .map do |unused, versions|
+            # find the most recent version
+            versions.max { |a, b| a.id <=> b.id }
           end
           .map do |factory|
             response = secret_to_data_object(factory)
@@ -54,7 +55,7 @@ module DB
 
         if factories.empty?
           return @failure.new(
-            { message: 'Role does not have permission to use Factories' },
+            'Role does not have permission to use Factories',
             status: :forbidden
           )
         end
@@ -71,7 +72,7 @@ module DB
               :resource_id,
               "#{account}:variable:conjur/factories/#{kind}/%"
             )
-          ).all.select { |i| i.resource_id.split('/').last == id }.max
+          ).all.select { |i| i.resource_id.split('/').last == id }.max  { |a, b| a.id <=> b.id }
         end
 
         if factory.present? && role.allowed_to?(:execute, factory)
@@ -103,7 +104,7 @@ module DB
           @success.new(
             @data_object.new(
               policy: Base64.decode64(decoded_factory['policy']),
-              policy_namespace: decoded_factory['policy_namespace'],
+              policy_branch: decoded_factory['policy_branch'],
               schema: decoded_factory['schema'],
               version: version,
               name: id,
