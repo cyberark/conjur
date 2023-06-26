@@ -820,11 +820,11 @@ pipeline {
 def addNewImagesToAgent() {
   // Pull and retag existing images onto new Jenkins agent
   sh """
-    docker pull registry.tld/conjur:${tagWithSHA()}
-    docker pull registry.tld/conjur-ubi:${tagWithSHA()}
+    docker pull registry.tld/conjur-cloud:${tagWithSHA()}
+    docker pull registry.tld/conjur-ubi-cloud:${tagWithSHA()}
     docker pull registry.tld/conjur-test:${tagWithSHA()}
-    docker tag registry.tld/conjur:${tagWithSHA()} conjur:${tagWithSHA()}
-    docker tag registry.tld/conjur-ubi:${tagWithSHA()} conjur-ubi:${tagWithSHA()}
+    docker tag registry.tld/conjur-cloud:${tagWithSHA()} conjur:${tagWithSHA()}
+    docker tag registry.tld/conjur-ubi-cloud:${tagWithSHA()} conjur-ubi:${tagWithSHA()}
     docker tag registry.tld/conjur-test:${tagWithSHA()} conjur-test:${tagWithSHA()}
     """
 }
