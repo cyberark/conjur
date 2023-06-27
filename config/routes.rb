@@ -67,6 +67,8 @@ Rails.application.routes.draw do
       get     "/resources/:account"                   => "resources#index"
       get     "/resources"                            => "resources#index"
 
+      post    "/hosts/:account/*identifier"           => "hosts#post"
+
       get     "/:authenticator/:account/providers"  => "providers#index"
 
       # NOTE: the order of these routes matters: we need the expire
