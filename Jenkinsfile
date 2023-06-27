@@ -235,18 +235,21 @@ pipeline {
                       params.RUN_ONLY,
                       NESTED_ARRAY_OF_TESTS_TO_RUN[0]
                     )
-                    stash(
-                      name: 'testResultEE',
-                      includes: '''
-                        cucumber/*/*.*,
-                        container_logs/*/*,
-                        spec/reports/*.xml,
-                        spec/reports-audit/*.xml,
-                        gems/conjur-rack/spec/reports/*.xml,
-                        gems/slosilo/spec/reports/*.xml,
+                  }
+                  post {
+                    always {
+                      stash(
+                        name: 'testResultEE',
+                        includes: '''
+                          cucumber/*/*.*,
+                          container_logs/*/*,
+                          spec/reports/*.xml,
+                          spec/reports-audit/*.xml,
+                          gems/conjur-rack/spec/reports/*.xml,
+                          gems/slosilo/spec/reports/*.xml,
                         cucumber/*/features/reports/**/*.xml
                       '''
-                    )
+                    )}
                   }
                 }
                 // Run a subset of tests on a second agent to prevent oversubscribing the hardware
@@ -272,16 +275,20 @@ pipeline {
                       params.RUN_ONLY,
                       NESTED_ARRAY_OF_TESTS_TO_RUN[1]
                     )
-                    stash(
-                      name: 'testResultEE2',
-                      includes: '''
-                        cucumber/*/*.*,
-                        container_logs/*/*,
-                        spec/reports/*.xml,
-                        spec/reports-audit/*.xml,
-                        cucumber/*/features/reports/**/*.xml
-                      '''
-                    )
+                  }
+                  post {
+                    always {
+                      stash(
+                        name: 'testResultEE2',
+                        includes: '''
+                          cucumber/*/*.*,
+                          container_logs/*/*,
+                          spec/reports/*.xml,
+                          spec/reports-audit/*.xml,
+                          cucumber/*/features/reports/**/*.xml
+                        '''
+                      )
+                    }
                   }
                 }
                 // Run a subset of tests on a second agent to prevent oversubscribing the hardware
@@ -308,16 +315,20 @@ pipeline {
                       params.RUN_ONLY,
                       NESTED_ARRAY_OF_TESTS_TO_RUN[2]
                     )
-                    stash(
-                      name: 'testResultEE3',
-                      includes: '''
-                        cucumber/*/*.*,
-                        container_logs/*/*,
-                        spec/reports/*.xml,
-                        spec/reports-audit/*.xml,
-                        cucumber/*/features/reports/**/*.xml
-                      '''
-                    )
+                  }
+                  post {
+                    always {
+                      stash(
+                        name: 'testResultEE3',
+                        includes: '''
+                          cucumber/*/*.*,
+                          container_logs/*/*,
+                          spec/reports/*.xml,
+                          spec/reports-audit/*.xml,
+                          cucumber/*/features/reports/**/*.xml
+                        '''
+                      )
+                    }
                   }
                 }
               }
@@ -424,16 +435,20 @@ pipeline {
                 addNewImagesToAgent()
                 unstash 'version_info'
                 runConjurTests(params.RUN_ONLY, NESTED_ARRAY_OF_TESTS_TO_RUN[1])
-                stash(
-                  name: 'standardTestResult2',
-                  includes: '''
-                    cucumber/*/*.*,
-                    container_logs/*/*,
-                    spec/reports/*.xml,
-                    spec/reports-audit/*.xml,
-                    cucumber/*/features/reports/**/*.xml
-                  '''
-                )
+              }
+              post {
+                always {
+                  stash(
+                    name: 'standardTestResult2',
+                    includes: '''
+                      cucumber/*/*.*,
+                      container_logs/*/*,
+                      spec/reports/*.xml,
+                      spec/reports-audit/*.xml,
+                      cucumber/*/features/reports/**/*.xml
+                    '''
+                  )
+                }
               }
             }
 
@@ -460,17 +475,21 @@ pipeline {
                   params.RUN_ONLY,
                   NESTED_ARRAY_OF_TESTS_TO_RUN[2]
                 )
-                stash(
-                  name: 'standardTestResult3',
-                  includes: '''
-                    cucumber/*/*.*,
-                    container_logs/*/*,
-                    spec/reports/*.xml,
-                    spec/reports-audit/*.xml,
-                    cucumber/*/features/reports/**/*.xml,
-                    ci/test_suites/*/output/*
-                  '''
-                )
+              }
+              post {
+                always {
+                  stash(
+                    name: 'standardTestResult3',
+                    includes: '''
+                      cucumber/*/*.*,
+                      container_logs/*/*,
+                      spec/reports/*.xml,
+                      spec/reports-audit/*.xml,
+                      cucumber/*/features/reports/**/*.xml,
+                      ci/test_suites/*/output/*
+                    '''
+                  )
+                }
               }
             }
 
@@ -512,19 +531,19 @@ pipeline {
 
               post {
                 always {
-                    stash(
-                      name: 'testResultAzure',
-                      allowEmpty: true,
-                      includes: '''
-                        cucumber/*azure*/*.*,
-                        container_logs/*azure*/*,
-                        cucumber_results*.json
-                      '''
-                    )
-                    // Remove this Agent's IP from IPManager's prefix list
-                    // There are a limited number of entries, so it remove it
-                    // rather than waiting for it to expire.
-                    removeIPAccess()
+                  stash(
+                    name: 'testResultAzure',
+                    allowEmpty: true,
+                    includes: '''
+                      cucumber/*azure*/*.*,
+                      container_logs/*azure*/*,
+                      cucumber_results*.json
+                    '''
+                  )
+                  // Remove this Agent's IP from IPManager's prefix list
+                  // There are a limited number of entries, so it remove it
+                  // rather than waiting for it to expire.
+                  removeIPAccess()
                 }
               }
             }
@@ -821,10 +840,8 @@ def addNewImagesToAgent() {
   // Pull and retag existing images onto new Jenkins agent
   sh """
     docker pull registry.tld/conjur-cloud:${tagWithSHA()}
-    docker pull registry.tld/conjur-ubi-cloud:${tagWithSHA()}
     docker pull registry.tld/conjur-test:${tagWithSHA()}
-    docker tag registry.tld/conjur-cloud:${tagWithSHA()} conjur:${tagWithSHA()}
-    docker tag registry.tld/conjur-ubi-cloud:${tagWithSHA()} conjur-ubi:${tagWithSHA()}
+    docker tag registry.tld/conjur-cloud:${tagWithSHA()} conjur-cloud:${tagWithSHA()}
     docker tag registry.tld/conjur-test:${tagWithSHA()} conjur-test:${tagWithSHA()}
     """
 }
