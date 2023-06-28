@@ -237,7 +237,11 @@ class EdgeController < RestController
   end
 
   def record_edge_access(host_name)
-    edge_record = Edge.get_by_hostname(host_name) || raise(RecordNotFound, host_name)
+    edge_record = Edge.get_by_hostname(host_name)
+    unless edge_record
+      logger.error(Errors::Conjur::RequestedResourceNotFound.new("Edge instance", host_name))
+      return
+    end
     edge_record.ip = request.ip
     edge_record.version = request.headers["Edge-Version"]
     now = Time.now

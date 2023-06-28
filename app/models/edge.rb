@@ -22,8 +22,7 @@ class Edge < Sequel::Model
 
     def hostname_to_id(hostname)
       regex = /(?<=#{EDGE_HOST_PREFIX})(.+)/
-      captures = hostname.match(regex)&.captures
-      captures.first
+      hostname.match(regex)&.captures&.first
     end
 
     def id_to_hostname(id)
