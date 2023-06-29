@@ -100,8 +100,10 @@ module Authentication
 
       def validate_conjur_username
         if conjur_username.empty?
-          raise Errors::Authentication::AuthnOidc::IdTokenClaimNotFoundOrEmpty,
-                id_token_username_field
+          raise Errors::Authentication::AuthnOidc::IdTokenClaimNotFoundOrEmpty.new(
+            id_token_username_field,
+            "id-token-user-property"
+          )
         end
 
         if conjur_username == "admin"

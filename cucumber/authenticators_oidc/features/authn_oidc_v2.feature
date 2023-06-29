@@ -190,7 +190,7 @@ Feature: OIDC Authenticator V2 - Users can authenticate with OIDC authenticator
     Then it is unauthorized
     And The following appears in the log after my savepoint:
     """
-    Errors::Authentication::AuthnOidc::IdTokenClaimNotFoundOrEmpty
+    Errors::Authentication::AuthnOidc::IdTokenClaimNotFoundOrEmpty: CONJ00013E Claim 'non_existing_field' not found or empty in ID token. This claim is defined in the claim-mapping variable.
     """
 
   @negative @acceptance
