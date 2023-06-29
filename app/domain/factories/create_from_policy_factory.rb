@@ -80,7 +80,7 @@ module Factories
       end
     end
 
-    private
+    # private
 
     def validate_and_transform_request(schema:, params:)
       return @failure.new('Request body must be JSON', status: :bad_request) if params.blank?
@@ -93,7 +93,6 @@ module Factories
 
       # Strip keys without values
       params = params.select{|_, v| v.present? }
-
       validator = @schema_validator.schema(schema)
       return @success.new(params) if validator.valid?(params)
 
@@ -103,7 +102,7 @@ module Factories
           missing_attributes = error['details']['missing_keys'].map{|key| [ error['data_pointer'], key].reject(&:empty?).join('/') } #.join("', '")
           missing_attributes.map do |attribute|
             {
-              message: "Missing JSON key or value for: '#{attribute}'",
+              message: "A value is required for '#{attribute}'",
               key: attribute
             }
           end
@@ -121,30 +120,43 @@ module Factories
         template: policy_template,
         variables: variables
       ).bind do |rendered_policy|
-        response = @http.post(
-          "http://localhost:3000/policies/#{account}/policy/#{policy_load_path}",
-          rendered_policy,
-          'Authorization' => authorization
-        )
-        if response.code == 201
-          @success.new(response.body)
-        else
-          case response.code
+        begin
+          response = @http.post(
+            "http://localhost:3000/policies/#{account}/policy/#{policy_load_path}",
+            rendered_policy,
+            'Authorization' => authorization
+          )
+        rescue RestClient::ExceptionWithResponse => e
+          case e.response.code
           when 400
-            @failure.new("Failed to apply generated Policy to '#{policy_load_path}'", status: :bad_request)
+            return @failure.new(
+              { message: "Failed to apply generated Policy to '#{policy_load_path}'",
+                request_error: e.response.body }, status: :bad_request
+            )
           when 401
-            @failure.new("Unauthorized to apply generated policy to '#{policy_load_path}'", status: :unauthorized)
+            return @failure.new(
+              { message: "Unauthorized to apply generated policy to '#{policy_load_path}'",
+                request_error: e.response.body }, status: :unauthorized
+            )
           when 403
-            @failure.new("Forbidden to apply generated policy to '#{policy_load_path}'", status: :forbidden)
+            return @failure.new(
+              { message: "Forbidden to apply generated policy to '#{policy_load_path}'",
+                request_error: e.response.body }, status: :forbidden
+            )
           when 404
-            @failure.new("Unable to apply generated policy to '#{policy_load_path}'", status: :not_found)
+            return @failure.new(
+              { message: "Unable to apply generated policy to '#{policy_load_path}'",
+                request_error: e.response.body }, status: :not_found
+            )
           else
-            @failure.new(
-              "Failed to apply generated policy to '#{policy_load_path}'. Status Code: '#{response.code}, Response: '#{response.body}''",
-              status: :bad_request
+            return @failure.new(
+              { message: "Failed to apply generated policy to '#{policy_load_path}'. Status Code: '#{response.code}, Response: '#{response.body}''",
+                request_error: e.to_s }, status: :bad_request
             )
           end
         end
+
+        @success.new(response.body)
       end
     end
 

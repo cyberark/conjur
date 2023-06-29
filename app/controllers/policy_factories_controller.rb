@@ -56,10 +56,7 @@ class PolicyFactoriesController < RestController
       block.call
     else
       render(
-        json: {
-          message: response.message,
-          code: HTTP::Response::Status::SYMBOL_CODES[response.status]
-        },
+        json: response.to_h,
         status: response.status
       )
     end

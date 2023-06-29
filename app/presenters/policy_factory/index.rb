@@ -7,15 +7,28 @@ module Presenter
       end
 
       def present
-        @factories.map do |factory|
-          {
-            name: factory.name,
-            namespace: factory.classification,
-            'full-name': "#{factory.classification}/#{factory.name}",
-            'current-version': factory.version,
-            description: factory.description || ''
-          }
+        {}.tap do |rtn|
+          @factories
+            .group_by(&:classification)
+            .sort_by {|classification, _| classification }
+            .map do |classification, factories|
+              rtn[classification] = factories
+                .map { |factory| factory_to_hash(factory) }
+                .sort { |x, y| x[:name] <=> y[:name] }
+            end
         end
+      end
+
+      private
+
+      def factory_to_hash(factory)
+        {
+          name: factory.name,
+          namespace: factory.classification,
+          'full-name': "#{factory.classification}/#{factory.name}",
+          'current-version': factory.version,
+          description: factory.description || ''
+        }
       end
     end
   end

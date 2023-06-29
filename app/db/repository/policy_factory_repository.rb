@@ -43,7 +43,7 @@ module DB
             _, _, classification, _, factory = item.resource_id.split('/')
             [classification, factory].join('/')
           end
-          .map do |unused, versions|
+          .map do |_, versions|
             # find the most recent version
             versions.max { |a, b| a.id <=> b.id }
           end

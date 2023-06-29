@@ -47,7 +47,7 @@ module Factories
               Base64.encode64({
                 version: 1,
                 policy: Base64.encode64(policy_template),
-                policy_namespace: "<%= branch %>",
+                policy_branch: "<%= branch %>",
                 schema: {
                   "$schema": "http://json-schema.org/draft-06/schema#",
                   "title": "Database Connection Template",

@@ -58,7 +58,7 @@ module Factories
               Base64.encode64({
                 version: 'v1',
                 policy: Base64.encode64(policy_template),
-                policy_namespace: "conjur/authn-oidc",
+                policy_branch: "conjur/authn-oidc",
                 schema: {
                   "$schema": "http://json-schema.org/draft-06/schema#",
                   "title": "Authn-OIDC Template",
