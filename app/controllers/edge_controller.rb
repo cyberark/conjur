@@ -173,6 +173,16 @@ class EdgeController < RestController
        version:edge.version, installation_date: edge.installation_date}})
   end
 
+  def report_edge_data
+    allowed_params = %i[account]
+    options = params.permit(*allowed_params).to_h.symbolize_keys
+    verify_edge_host(options)
+
+    data = JSON.parse(request.body.read)
+    record_edge_access(current_user.role_id, data['edge_version'], data['edge_statistics']['last_synch_time'])
+    #TODO: print to log other data
+  end
+
   private
 
   def build_variables_map(limit, offset, options)
@@ -250,7 +260,6 @@ class EdgeController < RestController
     val == val.to_i.to_s
   end
 
-  #TODO: call from future endpoint for data
   def record_edge_access(host_name, version, sync_time)
     edge_record = Edge.get_by_hostname(host_name) || raise(RecordNotFound, host_name)
     edge_record.ip = request.ip
