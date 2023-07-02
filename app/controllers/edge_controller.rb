@@ -261,7 +261,7 @@ class EdgeController < RestController
   end
 
   def record_edge_access(host_name, version, sync_time)
-    edge_record = Edge.get_by_hostname(host_name) || raise(RecordNotFound, host_name)
+    edge_record = Edge.get_by_hostname(host_name) || raise(RecordNotFound.new(host_name, message: "Edge for host #{host_name} not found"))
     edge_record.ip = request.ip
     edge_record.version = version
     if sync_time
