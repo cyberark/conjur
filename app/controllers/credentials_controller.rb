@@ -63,7 +63,7 @@ class CredentialsController < ApplicationController
   protected
 
   def authenticate_client
-    authentication.authenticated_role = Role[token_user.roleid] if token_user?
+    authentication.authenticated_role = Role[token_user.role_id] if token_user?
     perform_basic_authn
     raise Unauthorized, "Client not authenticated" unless authentication.authenticated?
   rescue => e

@@ -46,7 +46,6 @@ gem "loofah", ">= 2.2.3"
 # the branch doesn't immediately break this link
 gem 'conjur-api', '~> 5.pre'
 gem 'conjur-policy-parser', path: 'gems/policy-parser'
-gem 'conjur-rack', path: 'gems/conjur-rack'
 gem 'conjur-rack-heartbeat'
 gem 'rack-rewrite'
 
