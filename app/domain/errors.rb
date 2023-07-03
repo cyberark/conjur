@@ -57,6 +57,11 @@ module Errors
       msg: "Resource '{0-resource}' requested by role '{1-role}' not found",
       code: "CONJ00123E"
     )
+
+    FailedRotateSlosilo = ::Util::TrackableErrorClass.new(
+      msg: "Failed to rotate Sloislo key. Reason: '{0}'",
+      code: "CONJ00157E"
+    )
   end
 
   module Authorization
