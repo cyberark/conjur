@@ -23,6 +23,11 @@ module LogMessages
       msg: "OpenSSL FIPS mode set to {0}",
       code: "CONJ00038I"
     )
+
+    SlosiloRotate = ::Util::TrackableLogMessageClass.new(
+      msg: "Slosilo key is rotated successfully",
+      code: "CONJ00156I"
+    )
   end
 
   module Endpoints

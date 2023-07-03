@@ -432,6 +432,8 @@ GEM
       rake (>= 0.8.1)
     ruby-next-core (0.14.0)
     ruby-progressbar (1.11.0)
+    rufus-scheduler (3.9.1)
+      fugit (~> 1.1, >= 1.1.6)
     safe_yaml (1.0.5)
     sequel (5.51.0)
     sequel-pg_advisory_locking (1.0.1)
@@ -565,6 +567,7 @@ DEPENDENCIES
   rubocop (~> 0.58.0)
   rubocop-checkstyle_formatter
   ruby-debug-ide
+  rufus-scheduler
   sequel
   sequel-pg_advisory_locking
   sequel-postgres-schemata

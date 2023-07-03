@@ -8,6 +8,15 @@ Then(/^I can( not)? add a secret to ([\w_]+) resource "([^"]*)"$/) do |fail, _ki
   expect(resp.code).to eq(expected_status)
 end
 
+When(/^I add a secret to ([\w_]+) resource "([^"]*)"$/) do |_kind, id|
+  @random_secret = SecureRandom.uuid
+  @resp = @client.add_secret(id: id, value: @random_secret)
+end
+
+Then(/^The response status code is (\d+)$/) do |code|
+  expect(@resp.code).to eq(code.to_i)
+end
+
 # TODO: kind is now superfluous.  It is never used, since it's always "variable"
 Then(/^I can( not)? add a provider-url to ([\w_]+) resource "([^"]*)"$/) do |fail, _kind, id|
   expected_status = fail ? 403 : 201
