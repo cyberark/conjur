@@ -44,10 +44,10 @@ describe Slosilo::Adapters::SequelAdapter do
     end
 
     it "update existing key" do
-      hash = hash_including(:id => id, :key => another_key.to_der)
+      hash = hash_including(:id => id, :key => key.to_der)
       expect(model).to receive(:[]).with(id).and_return(hash)
       expect(hash).to receive(:update).with(hash)
-      allow(model).to receive_messages columns: [:id, :another_key]
+      allow(model).to receive_messages columns: [:id, :key]
       subject.put_key id, key
     end
 
