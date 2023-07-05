@@ -18,14 +18,16 @@ class EdgeController < RestController
     if key.nil?
       raise RecordNotFound, "No Slosilo key in DB"
     end
+    return_json = {}
+    key_object = [get_key_object(key)]
+    return_json[:slosiloKeys] = key_object
 
-    private_key = key.to_der.unpack("H*")[0]
-    fingerprint = key.fingerprint
-    variable_to_return = {}
-    variable_to_return[:privateKey] = private_key
-    variable_to_return[:fingerprint] = fingerprint
+    prev_key = Account.token_key(account, "host", "previous")
+    prev_key_obj = prev_key.nil? ? [] : [get_key_object(prev_key)]
+    return_json[:previousSlosiloKeys] = prev_key_obj
+
     logger.info(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("slosilo_keys"))
-    render(json: { "slosiloKeys": [variable_to_return] })
+    render(json: return_json)
   end
 
   # Return all secrets within offset-limit frame. Default is 0-1000
@@ -165,6 +167,15 @@ class EdgeController < RestController
   end
 
   private
+
+  def get_key_object(key)
+    private_key = key.to_der.unpack("H*")[0]
+    fingerprint = key.fingerprint
+    variable_to_return = {}
+    variable_to_return[:privateKey] = private_key
+    variable_to_return[:fingerprint] = fingerprint
+    variable_to_return
+  end
 
   def build_variables_map(limit, offset, options)
     variables = {}

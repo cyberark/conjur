@@ -28,24 +28,46 @@ describe EdgeController, :type => :request do
     { 'HTTP_AUTHORIZATION' => token_auth_str }
   end
 
+  let(:init_prev_key) do
+    Slosilo[token_id(account, "host", "previous")] ||= Slosilo::Key.new
+  end
+
+  def send_request_with_correct_role
+    #add edge-hosts to edge/edge-hosts group
+    Role.create(role_id: "#{account}:group:edge/edge-hosts")
+    RoleMembership.create(role_id: "#{account}:group:edge/edge-hosts", member_id: host_id, admin_option: false, ownership:false)
+    get(update_slosilo_keys_url, env: token_auth_header)
+    expect(response.code).to eq("200")
+  end
+
   context "slosilo keys in DB" do
-    it "Slosilo keys equals to key in DB, Host and Role are correct" do
-      #add edge-hosts to edge/edge-hosts group
-      Role.create(role_id: "#{account}:group:edge/edge-hosts")
-      RoleMembership.create(role_id: "#{account}:group:edge/edge-hosts", member_id: host_id, admin_option: false, ownership:false)
-
-      #get the Slosilo key the URL request
-      get(update_slosilo_keys_url, env: token_auth_header)
-      expect(response.code).to eq("200")
-
+    it "Host and Role are correct, previous key is empty" do
+      send_request_with_correct_role
       #get the Slosilo key from DB
       key = token_key(account, "host")
       private_key = key.to_der.unpack("H*")[0]
       fingerprint = key.fingerprint
 
-      expected = {"slosiloKeys" => [{"privateKey"=> private_key,"fingerprint"=>fingerprint}]}
+      expected = {"slosiloKeys" => [{"privateKey"=> private_key,"fingerprint"=>fingerprint}], "previousSlosiloKeys" => []}
       response_json = JSON.parse(response.body)
-      expect(response_json).to include(expected)
+      expect(response_json).to eq(expected)
+    end
+
+    it "Host and Role are correct, previous key exist in db" do
+      init_prev_key
+      send_request_with_correct_role
+      #get the Slosilo key from DB
+      key = token_key(account, "host")
+      private_key = key.to_der.unpack("H*")[0]
+      fingerprint = key.fingerprint
+      #get prev Slosilo key from DB
+      prev_key = token_key(account, "host", "previous")
+      prev_private_key = prev_key.to_der.unpack("H*")[0]
+      prev_fingerprint = prev_key.fingerprint
+
+      expected = {"slosiloKeys" => [{"privateKey"=> private_key,"fingerprint"=>fingerprint}], "previousSlosiloKeys" => [{"privateKey"=> prev_private_key,"fingerprint"=>prev_fingerprint}]}
+      response_json = JSON.parse(response.body)
+      expect(response_json).to eq(expected)
     end
 
     it "Host is Edge but no Role exists at all" do
