@@ -10,7 +10,7 @@ RSpec.describe(Factories::CreateFromPolicyFactory) do
     context 'with a simple factory' do
       let(:validated) do
         factory.validate_and_transform_request(
-          schema: JSON.parse(Base64.decode64(Factories::Templates::Core::User.data))['schema'],
+          schema: JSON.parse(Base64.decode64(Factories::Templates::Core::V1::User.data))['schema'],
           params: params
         )
       end
@@ -34,7 +34,7 @@ RSpec.describe(Factories::CreateFromPolicyFactory) do
         let(:params) { { id: 'foo' }.to_json }
         it 'returns a failure response' do
           expect(validated.success?).to be(false)
-          expect(validated.message).to eq([{ message: "Missing JSON key or value for: 'branch'", key: "branch" }])
+          expect(validated.message).to eq([{ message: "A value is required for 'branch'", key: "branch" }])
           expect(validated.status).to eq(:bad_request)
         end
       end
@@ -42,7 +42,7 @@ RSpec.describe(Factories::CreateFromPolicyFactory) do
         let(:params) { { id: '', branch: 'foo' }.to_json }
         it 'returns a failure response' do
           expect(validated.success?).to be(false)
-          expect(validated.message).to eq([{ message: "Missing JSON key or value for: 'id'", key: 'id' }])
+          expect(validated.message).to eq([{ message: "A value is required for 'id'", key: 'id' }])
           expect(validated.status).to eq(:bad_request)
         end
       end
@@ -63,18 +63,18 @@ RSpec.describe(Factories::CreateFromPolicyFactory) do
       it 'loads the approprate policy' do
         factory.render_and_apply_policy(
           policy_load_path: 'bar',
-          policy_template: Base64.decode64(JSON.parse(Base64.decode64(Factories::Templates::Core::User.data))['policy']),
+          policy_template: Base64.decode64(JSON.parse(Base64.decode64(Factories::Templates::Core::V1::User.data))['policy']),
           variables: { 'id' => 'foo', 'branch' => 'bar' },
           account: 'cucumber',
           authorization: 'bar'
         )
-        expect(rest_client).to have_received(:post).with('http://localhost:3000/policies/cucumber/policy/bar', "- !user\n  id: foo\n  ", {"Authorization"=>"bar"})
+        expect(rest_client).to have_received(:post).with('http://localhost:3000/policies/cucumber/policy/bar', "- !user\n  id: foo\n", {"Authorization"=>"bar"})
       end
     end
 
     context 'when response is valid' do
       let(:args) do
-        ['http://localhost:3000/policies/cucumber/policy/bar', "- !user\n  id: foo\n  ", {"Authorization"=>"bar"}]
+        ['http://localhost:3000/policies/cucumber/policy/bar', "- !user\n  id: foo\n", {"Authorization"=>"bar"}]
       end
       let(:response) { double(RestClient::Response, code: 201, body: 'foo') }
       let(:rest_client) do
@@ -86,7 +86,7 @@ RSpec.describe(Factories::CreateFromPolicyFactory) do
       it 'returns successfully' do
         response = factory.render_and_apply_policy(
           policy_load_path: 'bar',
-          policy_template: Base64.decode64(JSON.parse(Base64.decode64(Factories::Templates::Core::User.data))['policy']),
+          policy_template: Base64.decode64(JSON.parse(Base64.decode64(Factories::Templates::Core::V1::User.data))['policy']),
           variables: { 'id' => 'foo', 'branch' => 'bar' },
           account: 'cucumber',
           authorization: 'bar'
@@ -217,14 +217,70 @@ RSpec.describe(Factories::CreateFromPolicyFactory) do
 
   describe('.call') do
     context 'when policy factory is only a policy' do
+      let(:policy_factory) do
+        decoded_factory = JSON.parse(Base64.decode64(Factories::Templates::Core::V1::User.data))
+        policy_factory = DB::Repository::DataObjects::PolicyFactory.new(
+          policy: Base64.decode64(decoded_factory['policy']),
+          policy_branch: decoded_factory['policy_branch'],
+          schema: decoded_factory['schema'],
+          version: 'v1',
+          name: 'user',
+          classification: 'core',
+          description: ''
+        )
+      end
+
       it 'loads the appropriate policy' do
         factory.call(
-          factory_template: JSON.parse(Base64.decode64(Factories::Templates::Core::User.data)),
+          factory_template: policy_factory,
           request_body: { 'id' => 'foo', 'branch' => 'bar' }.to_json,
           account: 'cucumber',
           authorization: 'bar'
         )
-        expect(rest_client).to have_received(:post).with('http://localhost:3000/policies/cucumber/policy/bar', "- !user\n  id: foo\n  ", {"Authorization"=>"bar"})
+        expect(rest_client).to have_received(:post).with('http://localhost:3000/policies/cucumber/policy/bar', "- !user\n  id: foo\n", {"Authorization"=>"bar"})
+      end
+
+      context 'when no JSON is present in request' do
+        it 'responds with the appropriate failure' do
+          response = factory.call(
+            factory_template: policy_factory,
+            request_body: nil,
+            account: 'cucumber',
+            authorization: 'bar'
+          )
+          expect(response.success?).to eq(false)
+          expect(response.message).to eq('Request body must be JSON')
+        end
+      end
+      context 'when JSON keys are missing in request' do
+        it 'responds with the appropriate failure' do
+          response = factory.call(
+            factory_template: policy_factory,
+            request_body: {}.to_json,
+            account: 'cucumber',
+            authorization: 'bar'
+          )
+          expect(response.success?).to eq(false)
+          expect(response.message).to eq([
+            { key: 'id', message: "A value is required for 'id'" },
+            { key: 'branch', message: "A value is required for 'branch'" }
+          ])
+        end
+      end
+      context 'when JSON keys are missing values in the request' do
+        it 'responds with the appropriate failure' do
+          response = factory.call(
+            factory_template: policy_factory,
+            request_body: { id: '' }.to_json,
+            account: 'cucumber',
+            authorization: 'bar'
+          )
+          expect(response.success?).to eq(false)
+          expect(response.message).to eq([
+            { key: 'id', message: "A value is required for 'id'" },
+            { key: 'branch', message: "A value is required for 'branch'" }
+          ])
+        end
       end
     end
 
@@ -232,7 +288,7 @@ RSpec.describe(Factories::CreateFromPolicyFactory) do
       let(:policy_load_args) do
         [
           'http://localhost:3000/policies/cucumber/policy/conjur/authn-oidc',
-          "- !policy\n  id: foo\n  body:\n  - !webservice\n\n  - !variable provider-uri\n  - !variable client-id\n  - !variable client-secret\n  - !variable redirect-uri\n  - !variable claim-mapping\n\n  - !group\n    id: authenticatable\n    annotations:\n      description: Group with permission to authenticate using this authenticator\n\n  - !permit\n    role: !group authenticatable\n    privilege: [ read, authenticate ]\n    resource: !webservice\n\n  - !webservice\n    id: status\n    annotations:\n      description: Web service for checking authenticator status\n\n  - !group\n    id: operators\n    annotations:\n      description: Group with permission to check the authenticator status\n\n  - !permit\n    role: !group operators\n    privilege: [ read ]\n    resource: !webservice status\n",
+          "- !policy\n  id: foo\n    body:\n  - !webservice\n\n  - !variable provider-uri\n  - !variable client-id\n  - !variable client-secret\n  - !variable redirect-uri\n  - !variable claim-mapping\n\n  - !group\n    id: authenticatable\n    annotations:\n      description: Group with permission to authenticate using this authenticator\n\n  - !permit\n    role: !group authenticatable\n    privilege: [ read, authenticate ]\n    resource: !webservice\n\n  - !webservice\n    id: status\n    annotations:\n      description: Web service for checking authenticator status\n\n  - !group\n    id: operators\n    annotations:\n      description: Group with permission to check the authenticator status\n\n  - !permit\n    role: !group operators\n    privilege: [ read ]\n    resource: !webservice status\n",
           { "Authorization"=>"bar" }
         ]
       end
@@ -276,10 +332,20 @@ RSpec.describe(Factories::CreateFromPolicyFactory) do
         end
       end
 
-      let(:factory_template) { JSON.parse(Base64.decode64(Factories::Templates::Authenticators::AuthnOidc.data)) }
+      let(:factory_template) { JSON.parse(Base64.decode64(Factories::Templates::Authenticators::V1::AuthnOidc.data)) }
       it 'returns successfully' do
+        policy_factory = DB::Repository::DataObjects::PolicyFactory.new(
+          policy: Base64.decode64(factory_template['policy']),
+          policy_branch: factory_template['policy_branch'],
+          schema: factory_template['schema'],
+          version: 'v1',
+          name: 'authn-oidc',
+          classification: 'authenticators',
+          description: ''
+        )
+
         result = factory.call(
-          factory_template: factory_template,
+          factory_template: policy_factory,
           request_body: {
             'id' => 'foo',
             'variables' => {

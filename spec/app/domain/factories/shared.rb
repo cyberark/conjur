@@ -5,9 +5,9 @@ RSpec.shared_context('factory schema', shared_context: :metadata) do
     let(:data) { JSON.parse(Base64.decode64(subject.data)) }
     let(:schema) { data['schema'] }
 
-    it 'includes policy, policy_namespace, and schema' do
+    it 'includes policy, policy_branch, and schema' do
       data_keys = data.keys.sort
-      expect(data_keys).to eq(%w[policy policy_namespace schema])
+      expect(data_keys).to eq(%w[policy policy_branch schema])
     end
 
     context 'JSON schema is valid' do
