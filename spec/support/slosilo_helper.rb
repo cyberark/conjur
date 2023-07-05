@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
-def token_key(account, role)
-  Slosilo[token_id(account, role)]
+def token_key(account, role, tag = "current")
+  Slosilo[token_id(account, role, tag)]
 end
 
-def token_id(account, role)
-  "authn:#{account}:#{role}:current"
+def token_id(account, role, tag = "current")
+  "authn:#{account}:#{role}:#{tag}"
 end
 
 def init_slosilo_keys(account)
