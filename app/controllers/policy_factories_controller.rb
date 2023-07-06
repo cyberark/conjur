@@ -33,7 +33,7 @@ class PolicyFactoriesController < RestController
     )
 
     render_response(response) do
-      presenter = Presenter::PolicyFactory::Show.new(factory: response.result)
+      presenter = Presenter::PolicyFactories::Show.new(factory: response.result)
       render(json: presenter.present)
     end
   end
@@ -44,7 +44,7 @@ class PolicyFactoriesController < RestController
       account: params[:account]
     )
     render_response(response) do
-      presenter = Presenter::PolicyFactory::Index.new(factories: response.result)
+      presenter = Presenter::PolicyFactories::Index.new(factories: response.result)
       render(json: presenter.present)
     end
   end

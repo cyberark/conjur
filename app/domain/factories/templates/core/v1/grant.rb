@@ -20,17 +20,13 @@ module Factories
               Base64.encode64({
                 version: 1,
                 policy: Base64.encode64(policy_template),
-                policy_namespace: "<%= branch %>",
+                policy_branch: "<%= branch %>",
                 schema: {
                   "$schema": "http://json-schema.org/draft-06/schema#",
-                  "title": "Group Template",
-                  "description": "Creates a Conjur Group",
+                  "title": "Grant Template",
+                  "description": "Assigns a Role to Role",
                   "type": "object",
                   "properties": {
-                    "id": {
-                      "description": "Group ID",
-                      "type": "string"
-                    },
                     "branch": {
                       "description": "Policy branch to load this group into",
                       "type": "string"
@@ -40,7 +36,7 @@ module Factories
                       "type": "object"
                     }
                   },
-                  "required": %w[id branch]
+                  "required": %w[branch]
                 }
               }.to_json)
             end

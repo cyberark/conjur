@@ -12,12 +12,14 @@ module Factories
               <<~TEMPLATE
                 - !group
                   id: <%= id %>
-                  <% if defined?(annotations) %>
+                <% if defined?(owner_role) && defined?(owner_type) -%>
+                  owner: !<%= owner_type %> <%= owner_role %>
+                <% end -%>
                   annotations:
-                  <% annotations.each do |key, value| -%>
+                    factory: core/v1/group
+                <% annotations.each do |key, value| -%>
                     <%= key %>: <%= value %>
-                  <% end -%>
-                  <% end -%>
+                <% end -%>
               TEMPLATE
             end
 
@@ -25,7 +27,7 @@ module Factories
               Base64.encode64({
                 version: 1,
                 policy: Base64.encode64(policy_template),
-                policy_namespace: "<%= branch %>",
+                policy_branch: "<%= branch %>",
                 schema: {
                   "$schema": "http://json-schema.org/draft-06/schema#",
                   "title": "Group Template",
@@ -38,6 +40,14 @@ module Factories
                     },
                     "branch": {
                       "description": "Policy branch to load this group into",
+                      "type": "string"
+                    },
+                    "owner_role": {
+                      "description": "The Conjur Role that will own this group",
+                      "type": "string"
+                    },
+                    "owner_type": {
+                      "description": "The resource type of the owner of this group",
                       "type": "string"
                     },
                     "annotations": {

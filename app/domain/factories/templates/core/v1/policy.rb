@@ -12,15 +12,15 @@ module Factories
               <<~TEMPLATE
                 - !policy
                   id: <%= id %>
-                  <% if defined?(owner) %>
-                  owner: <%= owner %>
-                  <% end %>
-                  <% if defined?(annotations) %>
+                <% if defined?(owner_role) && defined?(owner_type) -%>
+                  owner: !<%= owner_type %> <%= owner_role %>
+                <% end -%>
+                <% if defined?(annotations) -%>
                   annotations:
-                  <% annotations.each do |key, value| -%>
+                <% annotations.each do |key, value| -%>
                     <%= key %>: <%= value %>
-                  <% end -%>
-                  <% end -%>
+                <% end -%>
+                <% end -%>
               TEMPLATE
             end
 
@@ -28,7 +28,7 @@ module Factories
               Base64.encode64({
                 version: 1,
                 policy: Base64.encode64(policy_template),
-                policy_namespace: "<%= branch %>",
+                policy_branch: "<%= branch %>",
                 schema: {
                   "$schema": "http://json-schema.org/draft-06/schema#",
                   "title": "User Template",
@@ -43,12 +43,16 @@ module Factories
                       "description": "Policy branch to load this policy into",
                       "type": "string"
                     },
-                    "owner": {
-                      "description": "Optional owner of this policy",
+                    "owner_role": {
+                      "description": "The Conjur Role that will own this policy",
+                      "type": "string"
+                    },
+                    "owner_type": {
+                      "description": "The resource type of the owner of this policy",
                       "type": "string"
                     },
                     "annotations": {
-                      "description": "Additional annotations to add to the user",
+                      "description": "Additional annotations to add to the policy",
                       "type": "object"
                     }
                   },

@@ -1,5 +1,5 @@
 module Presenter
-  module PolicyFactory
+  module PolicyFactories
     # returns a hash representation to be used by the controller
     class Show
       def initialize(factory:)

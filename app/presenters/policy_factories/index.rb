@@ -1,6 +1,6 @@
 module Presenter
-  module PolicyFactory
-    # returns an array representation to be used by the controller
+  module PolicyFactories
+    # returns a Hash representation to be used by the controller
     class Index
       def initialize(factories:)
         @factories = factories
