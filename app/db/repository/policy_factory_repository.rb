@@ -108,7 +108,7 @@ module DB
               version: version,
               name: id,
               classification: classification,
-              description: decoded_factory['schema']&.dig('description')
+              description: decoded_factory['schema']&.dig('description').to_s
             )
           )
         else

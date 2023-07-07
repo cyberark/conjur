@@ -312,6 +312,29 @@ RSpec.describe(DB::Repository::PolicyFactoryRepository) do
           expect(response.result.class).to eq(DB::Repository::DataObjects::PolicyFactory)
           expect(response.result.name).to eq('group')
         end
+        context 'when description attribute is missing' do
+          before(:each) do
+            data = Factories::Templates::Core::V1::Group.data
+            decoded_data = JSON.parse(Base64.decode64(data))
+            decoded_data['schema'].delete('description')
+
+            ::Secret.create(
+              resource_id: resource_id,
+              value: Base64.encode64(decoded_data.to_json)
+            )
+          end
+          it 'includes an empty description' do
+          response = subject.find(
+            kind: 'core',
+            id: 'group',
+            account: 'rspec',
+            role: ::Role[role_id]
+          )
+          expect(response.success?).to eq(true)
+          expect(response.result.description).to eq('')
+        end
+
+        end
       end
       context 'when multiple versions exist' do
         let(:owner_id) { 'rspec:group:conjur/policy-factory-users' }
@@ -363,26 +386,4 @@ RSpec.describe(DB::Repository::PolicyFactoryRepository) do
       end
     end
   end
-
-  # let(:factories) { %i[group user] }
-  # before(:each) do
-  #   ::Role.create(
-  #     role_id: 'rspec:group:conjur/policy-factory-users'
-  #   )
-  #   factories.each do |factory|
-
-  #     # Webservice for authenticator
-  #     ::Resource.create(
-  #       resource_id: "rspec::variable:conjur/factories/core/v1/#{factory}",
-  #       owner_id: 'rspec:group:conjur/policy-factory-users'
-  #     )
-  #     # Webservice for authenticator status
-  #     ::Resource.create(
-  #       resource_id: "rspec:webservice:conjur/authn-oidc/#{service}/status",
-  #       owner_id: 'rspec:group:conjur/policy-factory-users'
-  #     )
-  #   end
-  # end
-
-
 end

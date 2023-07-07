@@ -11,21 +11,21 @@ module Factories
     end
   end
   class CreateFromPolicyFactory
+
     def initialize(renderer: Factories::Renderer.new, http: RestClient, schema_validator: JSONSchemer, utilities: Factories::Utilities)
       @renderer = renderer
       @http = http
       @schema_validator = schema_validator
       @utilities = utilities
 
-      # JSON, URI, and Base64 are defined here for visibility. They
-      # are not currently mocked in testing, thus, we're not setting
-      # them in the initializer.
+      # JSON and URI are defined here for visibility. They are not currently
+      # mocked in testing, thus, we're not setting them in the initializer.
       @json = JSON
       @uri = URI
 
       # Defined here for visibility. We shouldn't need to mock these.
-      @success = SuccessResponse
-      @failure = FailureResponse
+      @success = ::SuccessResponse
+      @failure = ::FailureResponse
     end
 
     def call(factory_template:, request_body:, account:, authorization:)
@@ -70,17 +70,17 @@ module Factories
                     account: account
                   )
                 end
-                .bind {
+                .bind do
                   # If variables were added successfully, return the result so that
                   # we send the policy load response back to the client.
                   @success.new(result)
-                }
+                end
             end
           end
       end
     end
 
-    # private
+    private
 
     def validate_and_transform_request(schema:, params:)
       return @failure.new('Request body must be JSON', status: :bad_request) if params.blank?
