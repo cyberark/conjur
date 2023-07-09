@@ -77,6 +77,10 @@ Feature: Fetching secrets from edge endpoint
     And the JSON at "slosiloKeys/0/fingerprint" should be a string
     And the JSON should have "slosiloKeys/0/privateKey"
     And the JSON at "slosiloKeys/0/privateKey" should be a string
+    And the JSON at "previousSlosiloKeys" should have 1 entries
+    And the JSON at "previousSlosiloKeys/0/fingerprint" should be a string
+    And the JSON should have "previousSlosiloKeys/0/privateKey"
+    And the JSON at "previousSlosiloKeys/0/privateKey" should be a string
 
   @negative @acceptance
   Scenario: Fetching hosts with non edge host return 403
