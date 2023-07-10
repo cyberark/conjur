@@ -13,6 +13,7 @@ Rails.application.configure do
                           %r{^/public_keys/}
                         ],
                         except: [
+                          %r{^/authn-oidc/.*/providers},
                           %r{^/authn-[^/]+/.*/authenticate$},
                           %r{^/authn/.*/authenticate$},
                           %r{^/host_factories/hosts$},

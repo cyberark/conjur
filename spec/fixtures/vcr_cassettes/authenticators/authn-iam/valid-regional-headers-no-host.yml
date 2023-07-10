@@ -1,0 +1,50 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://sts.us-east-1.amazonaws.com/?Action=GetCallerIdentity&Version=2011-06-15
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Authorization:
+      - AWS4-HMAC-SHA256 Credential=ASIAYNRQATHTEQFKJN2P/20230613/us-east-1/sts/aws4_request,
+        SignedHeaders=host;x-amz-date;x-amz-security-token, Signature=38f8b60e4cbee78d55f379646e4fde87439ce0e43cd4cae38e3d2e295ebcfc58
+      X-Amz-Date:
+      - 20230613T204734Z
+      X-Amz-Security-Token:
+      - FwoGZXIvYXdzEL7//////////wEaDAHHPZ7NyIBlfbsv4iKyATWQ4LpJCG6fsa1UR0jYrTMF0FSxCu/otBw8qZNNljSWHaEIkh/h3GfImEJjYXytE3N92XPXahQomVErEpcyOBO3M/FDbMKZ7tlTD1V5Rr8ZgMG6tOLCL4eCKq2IbugKBZo1Bw8OxC20sjZWNL44Z/8Lt6LkOsHJBiN1wEAEtT5Wrt5Jc0Qs8oU8xV6RHpQRfOOM6V1BnqDjrnJG3cUguotSpfR2RyskUZNr+lRg+MfJOJ8o5qujpAYyLew0iNCK3nlXngTuzSo6M3rPAKQhbK1tCvKSIMk6SqrHThyfAebPucCZx/XbbA==
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      X-Amzn-Requestid:
+      - e7b366a8-5a46-4676-9545-c28dd1b9a4ce
+      Content-Type:
+      - text/xml
+      Content-Length:
+      - '444'
+      Date:
+      - Tue, 13 Jun 2023 20:48:30 GMT
+    body:
+      encoding: UTF-8
+      string: |
+        <GetCallerIdentityResponse xmlns="https://sts.amazonaws.com/doc/2011-06-15/">
+          <GetCallerIdentityResult>
+            <Arn>arn:aws:sts::188945769008:assumed-role/conjur-role/i-08241b0e31fe23d20</Arn>
+            <UserId>AROASX7QLUIYK4AQBODTV:i-08241b0e31fe23d20</UserId>
+            <Account>188945769008</Account>
+          </GetCallerIdentityResult>
+          <ResponseMetadata>
+            <RequestId>c025e1ba-c36b-4078-9407-fdd02eaee5aa</RequestId>
+          </ResponseMetadata>
+        </GetCallerIdentityResponse>
+  recorded_at: Tue, 13 Jun 2023 20:48:30 GMT
+recorded_with: VCR 6.1.0

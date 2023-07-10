@@ -1,14 +1,19 @@
 # frozen_string_literal: true
 
-# This allows to you reference some global variables such as `$?` using less 
+# This allows to you reference some global variables such as `$?` using less
 # cryptic names like `$CHILD_STATUS`
 require 'English'
+
+require 'stringio'
 
 require 'simplecov'
 
 SimpleCov.command_name("SimpleCov #{rand(1000000)}")
 SimpleCov.merge_timeout(7200)
-SimpleCov.start
+SimpleCov.start do
+  enable_coverage :branch
+  primary_coverage :branch
+end
 
 # This file is copied to spec/ when you run 'rails generate rspec:install'
 ENV["RAILS_ENV"] ||= 'test'
@@ -29,6 +34,19 @@ $LOAD_PATH << '../app/domain'
 # not under the default load paths.
 $LOAD_PATH << './bin/conjur-cli'
 
+# Please note, VCR is configured to only run when the `:vcr` arguement
+# is passed to the RSpec block. Calling VCR with `VCR.use_cassette` will
+# not work.
+require 'vcr'
+VCR.configure do |config|
+  config.hook_into(:webmock)
+  config.cassette_library_dir = 'spec/fixtures/vcr_cassettes'
+  config.configure_rspec_metadata!
+  config.default_cassette_options = {
+    decode_compressed_response: true
+  }
+end
+
 RSpec.configure do |config|
   config.before(:suite) do
     DatabaseCleaner.strategy = :transaction
@@ -37,6 +55,14 @@ RSpec.configure do |config|
   config.around(:each) do |example|
     DatabaseCleaner.cleaning do
       example.run
+    end
+  end
+
+  config.around do |example|
+    if example.metadata[:vcr]
+      example.run
+    else
+      VCR.turned_off { example.run }
     end
   end
 
@@ -70,7 +96,6 @@ def secret_logged?(secret)
 
   # Remaining possibilities are 0 and 1, secret found or not found.
   exit_status == 0
-  
 end
 
 # Creates valid access token for the given username.
@@ -82,4 +107,63 @@ def access_token_for(user, account: 'rspec')
   "Token token=\"#{Base64.strict_encode64(bearer_token.to_json)}\""
 end
 
-require 'stringio'
+def with_background_process(cmd, &block)
+  puts("Running: #{cmd}")
+  Open3.popen2e(
+    cmd,
+    pgroup: true
+  ) do |stdin, stdout_and_err, wait_thr|
+    output = StringIO.new
+    # Read the output of the background process in a thread to run
+    # the given block in parallel.
+    out_reader = Thread.new do
+      Thread.current.abort_on_exception = true
+
+      loop do
+        break if stdout_and_err.closed? || stdout_and_err.eof?
+        next unless stdout_and_err.wait_readable(1)
+
+        output << stdout_and_err.read_nonblock(1024)
+      rescue IOError
+        break
+      end
+    end
+
+    block.call
+
+    out_reader.kill
+    pgid = Process.getpgid(wait_thr.pid)
+    Process.kill("-TERM", pgid) if wait_thr.alive?
+
+    # Wait for the background process to end
+    wait_thr.value
+
+    output.string
+  end
+end
+
+def conjur_server_dir
+  # Get the path to conjurctl
+  conjurctl_path = `readlink -f $(which conjurctl)`
+
+  # Navigate from its directory (/bin) to the root Conjur server directory
+  Pathname.new(File.join(File.dirname(conjurctl_path), '..')).cleanpath
+end
+
+# Allows running a block of test code as another user.
+# For example, to run a block without root privileges.
+def as_user(user, &block)
+  prev = Process.uid
+  u = Etc.getpwnam(user)
+  Process.uid = Process.euid = u.uid
+  block.call
+ensure
+  Process.uid = Process.euid = prev
+end
+
+def token_auth_header(role:, account: 'rspec')
+  bearer_token = Slosilo["authn:#{account}"].signed_token(role.login)
+  base64_token = Base64.strict_encode64(bearer_token.to_json)
+
+  { 'HTTP_AUTHORIZATION' => "Token token=\"#{base64_token}\"" }
+end

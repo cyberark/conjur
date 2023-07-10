@@ -24,12 +24,17 @@ module Commands
     def call
       # Ensure the database is available
       # and the schema is up-to-date
-      @migrate_database.call
+      @migrate_database.call(
+        preview: false
+      )
 
       # Create and bootstrap the initial
       # Conjur account and policy
       create_account
       load_bootstrap_policy
+
+      # Remove a stale puma PID file, if it exists
+      cleanup_pidfile
 
       # Start the Conjur API and service
       # processes
@@ -83,6 +88,24 @@ module Commands
       system(
         "rake 'policy:load[#{@account},#{@file_name}]'"
       ) || exit(($CHILD_STATUS.exitstatus))
+    end
+
+    # This method is needed because in some versions of conjur server it has been observed that
+    # docker restart of the conjur server results in an error stating that the puma PID file is still present.
+    # Hence we check to see if this stale PID File exists and delete it, which ensures a smooth restart.
+    # This issue is described in detail in Issue 2381.
+
+    def cleanup_pidfile
+      # Get the path to conjurctl
+      conjurctl_path = `readlink -f $(which conjurctl)`
+    
+      # Navigate from its directory (/bin) to the root Conjur server directory
+      conjur_server_dir = Pathname.new(File.join(File.dirname(conjurctl_path), '..')).cleanpath
+      pid_file_path = File.join(conjur_server_dir, 'tmp/pids/server.pid')
+      return unless File.exist?(pid_file_path)
+      
+      puts("Removing existing PID file: #{pid_file_path}")
+      File.delete(pid_file_path)
     end
 
     def fork_server_process

@@ -21,6 +21,8 @@ module Loader
       @loader.update_changed
 
       @loader.store_policy_in_db
+
+      @loader.release_db_connection
     end
 
     def new_roles

@@ -1,5 +1,12 @@
 # frozen_string_literal: true
 
+# This file maintains the collection of possible errors emitted by Conjur using
+# the standard numbering scheme.
+#
+# For the next available code, use the command `rake error_code:next` in the
+# repo root.
+#
+# See also ./logs.rb
 module Errors
   module Conjur
 
@@ -35,6 +42,38 @@ module Errors
       msg: "Variable {0-variable-id} is empty or not found.",
       code: "CONJ00076E"
     )
+
+    KeyRotationNotApplicable = ::Util::TrackableErrorClass.new(
+      msg: "Resource '{0-role_to_rotate}' is not applicable for key rotation",
+      code: "CONJ00120E"
+    )
+
+    ApiKeyNotFound = ::Util::TrackableErrorClass.new(
+      msg: "Role '{0-role}' API key not found",
+      code: "CONJ00121E"
+    )
+
+    RequestedResourceNotFound = ::Util::TrackableErrorClass.new(
+      msg: "Resource '{0-resource}' requested by role '{1-role}' not found",
+      code: "CONJ00123E"
+    )
+  end
+
+  module Authorization
+    ResourceNotVisibleToRole = ::Util::TrackableErrorClass.new(
+      msg: "The requested resource '{0-resource}' is not visible to Role '{1-role}'",
+      code: "CONJ00125E"
+    )
+
+    AccessToResourceIsForbiddenForRole = ::Util::TrackableErrorClass.new(
+      msg: "Role '{0-role}' does not have permissions to access the requested resource '{1-resource}'",
+      code: "CONJ00122E"
+    )
+
+    InsufficientResourcePrivileges = ::Util::TrackableErrorClass.new(
+      msg: "Role '{0-role}' has insufficient privileges over the resource '{1-resource}'",
+      code: "CONJ00124E"
+    )
   end
 
   module Authentication
@@ -63,6 +102,25 @@ module Errors
       msg: "Admin user is not allowed to authenticate with {0-authenticate-name}",
       code: "CONJ00017E"
     )
+
+    RoleHasNoCredentials = ::Util::TrackableErrorClass.new(
+      msg: "Role '{0-role}' has no credentials",
+      code: "CONJ00120E"
+    )
+
+    RoleNotApplicableForKeyRotation = ::Util::TrackableErrorClass.new(
+      msg: "Role '{0-role}' is not applicable for key rotation",
+      code: "CONJ00126E"
+    )
+
+    module DataObjects
+
+      InvalidTokenTTL = ::Util::TrackableErrorClass.new(
+        msg: "Webservice '{0-webservice}' configured with invalid custom token TTL '{1-ttl}': must be a valid duration as described by ISO 8601",
+        code: "CONJ00134E"
+      )
+
+    end
 
     module AuthenticatorClass
 
@@ -113,6 +171,10 @@ module Errors
         code: "CONJ00008E"
       )
 
+      MultipleRoleMatchesFound = ::Util::TrackableErrorClass.new(
+        msg: "'{0-role}' matched multiple roles",
+        code: "CONJ00009E"
+      )
     end
 
     module RequestBody
@@ -173,7 +235,6 @@ module Errors
     end
 
     module AuthnOidc
-
       IdTokenClaimNotFoundOrEmpty = ::Util::TrackableErrorClass.new(
         msg: "Claim '{0-claim-name}' not found or empty in ID token. " \
             "This claim is defined in the id-token-user-property variable.",
@@ -185,25 +246,38 @@ module Errors
         code: "CONJ00075E"
       )
 
+      InvalidVariableValue = ::Util::TrackableErrorClass.new(
+        msg: "Parameter {0} with value {1} invalid",
+        code: "CONJ00129E"
+      )
+
+      InvalidProviderConfig = ::Util::TrackableErrorClass.new(
+        msg: "The OIDC provider variable values are misconfigured",
+        code: "CONJ00130E"
+      )
+
+      TokenVerificationFailed = ::Util::TrackableErrorClass.new(
+        msg: "JWT Token validation failed: '{0-error}'",
+        code: "CONJ00128E"
+      )
+
+      TokenRetrievalFailed = ::Util::TrackableErrorClass.new(
+        msg: "Access Token retrieval failure: '{0-error}'",
+        code: "CONJ00133E"
+      )
     end
 
     module AuthnIam
 
       InvalidAWSHeaders = ::Util::TrackableErrorClass.new(
-        msg: "Invalid or expired AWS headers: {0}",
+        msg: "Invalid or expired AWS headers: {0-message}",
         code: "CONJ00018E"
       )
 
-      VerificationError = ::Util::TrackableLogMessageClass.new(
+      VerificationError = ::Util::TrackableErrorClass.new(
         msg: "Verification of IAM identity failed with exception: {0-exception}",
         code: "CONJ00063E"
       )
-
-      IdentityVerificationErrorCode = ::Util::TrackableLogMessageClass.new(
-        msg: "Verification of IAM identity failed with HTTP code: {0-http-code}",
-        code: "CONJ00064E"
-      )
-
     end
 
     module AuthnK8s
@@ -221,6 +295,16 @@ module Errors
       K8sResourceNotFound = ::Util::TrackableErrorClass.new(
         msg: "Kubernetes {0-resource-name} {1-object-name} not found in namespace {2}",
         code: "CONJ00026E"
+      )
+
+      LabelSelectorMismatch = ::Util::TrackableErrorClass.new(
+        msg: "Kubernetes {0-resource-type} '{1-resource-id}' does not match label-selector: '{2-label-selector}'",
+        code: "CONJ00083E"
+      )
+
+      InvalidLabelSelector = ::Util::TrackableErrorClass.new(
+        msg: "Invalid label-selector '{0-label-selector}': must adhere to format '<key>=<value>,<key1>=<value2>,...', supports '=' and '=='",
+        code: "CONJ00094E"
       )
 
       ContainerNotFound = ::Util::TrackableErrorClass.new(
@@ -324,6 +408,11 @@ module Errors
       InvalidHostId = ::Util::TrackableErrorClass.new(
         msg: "Invalid Kubernetes host id: {0}. Must end with <namespace>/<resource_type>/<resource_id>",
         code: "CONJ00048E"
+      )
+
+      NoMatchingClient = ::Util::TrackableErrorClass.new(
+        msg: "Unable to establish Kubernetes client to execute method: \#{0}",
+        code: "CONJ00132E"
       )
     end
 
@@ -632,6 +721,12 @@ module Errors
       RoleMissingAnyRestrictions =  ::Util::TrackableErrorClass.new(
         msg: "Role must have at least one relevant annotation",
         code: "CONJ00099E"
+      )
+
+      IllegalRequiredExclusiveCombination = ::Util::TrackableErrorClass.new(
+        msg: "Role must have exactly one of the following required constraints: " \
+             "{0-constraints}. Role configured with {1-provided}",
+        code: "CONJ00131E"
       )
     end
   end

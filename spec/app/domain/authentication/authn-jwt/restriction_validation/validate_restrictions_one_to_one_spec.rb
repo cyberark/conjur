@@ -11,6 +11,7 @@ RSpec.describe('Authentication::AuthnJwt::RestrictionValidation::ValidateRestric
   let(:spaced_email) { "  " }
   let(:right_login) { "cucumber" }
   let(:wrong_login) { "tomato" }
+  let(:namespaced_value) { "some-value" }
 
   let(:decoded_token) {
     {
@@ -35,6 +36,7 @@ RSpec.describe('Authentication::AuthnJwt::RestrictionValidation::ValidateRestric
         "team_name" => "myteam",
         "team_id" => "team76"
       },
+      "namespaced/inline" => "some-value",
       "iat" => 1619352275,
       "nbf" => 1619352270,
       "exp" => 1619355875,
@@ -75,6 +77,10 @@ RSpec.describe('Authentication::AuthnJwt::RestrictionValidation::ValidateRestric
 
   let(:non_existing_nested_restriction) {
     Authentication::ResourceRestrictions::ResourceRestriction.new(name: "additional_data/namespace", value: wrong_email)
+  }
+
+  let(:existing_namespaced_inline_restriction) {
+    Authentication::ResourceRestrictions::ResourceRestriction.new(name: "namespaced/inline", value: namespaced_value)
   }
 
   let(:empty_annotation_restriction) {
@@ -138,6 +144,10 @@ RSpec.describe('Authentication::AuthnJwt::RestrictionValidation::ValidateRestric
                                                                              Errors::Authentication::AuthnJwt::JwtTokenClaimIsMissing,
                                                                              /.*'additional_data\/namespace'.*/
                                                                            )
+      end
+
+      it "returns true when the restriction is for namespaced field and its value equals the token" do
+        expect(subject.valid_restriction?(existing_namespaced_inline_restriction)).to eql(true)
       end
 
       it "raises EmptyAnnotationGiven when annotation is empty" do

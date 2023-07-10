@@ -59,7 +59,7 @@ describe "HostFactory" do
                       "host-01", 
                       host_factory.role,
                       host_factory.role.layers,
-                      {})
+                      defined?(options) ? options : {})
     }
     let(:create_host) { host_builder.create_host }
     let(:host) { create_host[0] }
@@ -88,5 +88,52 @@ describe "HostFactory" do
         expect(host.role.memberships_as_member.map(&:role)).to eq(host_factory.role.layers)
       end
     end
+
+    describe 'verify create host given AUTHN_API_KEY config' do
+      context 'when CONJUR_AUTHN_API_KEY_DEFAULT is true' do
+        before do
+          allow(Rails.application.config.conjur_config).to receive(:authn_api_key_default).and_return(true)
+        end
+
+        context 'when creating host with api-key annotation true' do
+          let(:options) { {annotations: {'authn/api-key' => true}} }
+          it { expect { host_builder.create_host }.to_not raise_error }
+        end
+
+        context 'when creating host with api-key annotation false' do
+          let(:options) { {annotations: {'authn/api-key' => false}} }
+          it { expect { host_builder.create_host }.to_not raise_error }
+        end
+
+        context 'when creating host without api-key annotation' do
+          it { expect { host_builder.create_host }.to_not raise_error }
+        end
+      end
+
+      context 'when CONJUR_AUTHN_API_KEY_DEFAULT is false' do
+        before do
+          allow(Rails.application.config.conjur_config).to receive(:authn_api_key_default).and_return(false)
+        end
+
+        context 'when creating host with api-key annotation true' do
+          let(:options) { {annotations: {'authn/api-key' => true}} }
+          it { expect { host_builder.create_host }.to_not raise_error }
+        end
+
+        context 'when creating host with api-key annotation false' do
+          let(:options) { {annotations: {'authn/api-key' => false}} }
+          it { expect { host_builder.create_host }.to raise_error }
+        end
+
+        context 'when creating host with api-key annotation False capital' do
+          let(:options) { {annotations: {'authn/api-key' => "FALSE"}} }
+          it { expect { host_builder.create_host }.to raise_error }
+        end
+
+        context 'when creating host without api-key annotation' do
+          it { expect { host_builder.create_host }.to raise_error }
+        end
+      end
+     end
   end
 end

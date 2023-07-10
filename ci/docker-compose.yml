@@ -1,6 +1,20 @@
 version: "3"
 services:
   pg:
+    image: postgres:15
+    environment:
+      # To avoid the following error:
+      #
+      #   Error: Database is uninitialized and superuser password is not
+      #   specified.  You must specify POSTGRES_PASSWORD for the superuser. Use
+      #   "-e POSTGRES_PASSWORD=password" to set it in "docker run".
+      #
+      #   You may also use POSTGRES_HOST_AUTH_METHOD=trust to allow all
+      #   connections without a password. This is *not* recommended. See
+      #   PostgreSQL documentation about "trust"
+      POSTGRES_HOST_AUTH_METHOD: trust
+
+  pg2:
     image: postgres:10.16
     environment:
       # To avoid the following error:
@@ -15,12 +29,26 @@ services:
       POSTGRES_HOST_AUTH_METHOD: trust
 
   audit:
-    image: postgres:10.16
+    image: postgres:15
     environment:
       # See description on `pg` service for use of POSTGRES_HOST_AUTH_METHOD
       POSTGRES_HOST_AUTH_METHOD: trust
 
   testdb:
+    image: postgres:15
+    environment:
+      # To avoid the following error:
+      #
+      #   Error: Database is uninitialized and superuser password is not
+      #   specified.  You must specify POSTGRES_PASSWORD for the superuser. Use
+      #   "-e POSTGRES_PASSWORD=password" to set it in "docker run".
+      #
+      #   You may also use POSTGRES_HOST_AUTH_METHOD=trust to allow all
+      #   connections without a password. This is *not* recommended. See
+      #   PostgreSQL documentation about "trust"
+      POSTGRES_HOST_AUTH_METHOD: trust
+
+  testdb2:
     image: postgres:10.16
     environment:
       # To avoid the following error:
@@ -35,7 +63,7 @@ services:
       POSTGRES_HOST_AUTH_METHOD: trust
 
   conjur:
-    image: "conjur:${TAG}"
+    image: "conjur-test:${TAG}"
     environment:
       DATABASE_URL: postgres://postgres@pg/postgres
       CONJUR_ADMIN_PASSWORD: ADmin123!!!!
@@ -44,7 +72,7 @@ services:
       RAILS_ENV:
       REQUIRE_SIMPLECOV: "true"
       CONJUR_LOG_LEVEL: debug
-      CONJUR_AUTHENTICATORS: authn-ldap/test,authn-ldap/secure,authn-oidc/keycloak,authn-oidc,authn-k8s/test,authn-azure/prod,authn-gcp,authn-jwt/raw,authn-jwt/keycloak
+      CONJUR_AUTHENTICATORS: authn-ldap/test,authn-ldap/secure,authn-oidc/keycloak,authn-oidc,authn-k8s/test,authn-azure/prod,authn-gcp,authn-jwt/raw,authn-jwt/keycloak,authn-oidc/keycloak2,authn-oidc/okta-2
       LDAP_URI: ldap://ldap-server:389
       LDAP_BASE: dc=conjur,dc=net
       LDAP_FILTER: '(uid=%s)'
@@ -67,14 +95,45 @@ services:
       - ldap-server
       - keycloak
 
+  conjur2:
+    image: "conjur-test:${TAG}"
+    environment:
+      DATABASE_URL: postgres://postgres@pg2/postgres
+      CONJUR_ADMIN_PASSWORD: ADmin123!!!!
+      CONJUR_ACCOUNT: cucumber
+      CONJUR_DATA_KEY:
+      RAILS_ENV:
+      REQUIRE_SIMPLECOV: "true"
+      CONJUR_LOG_LEVEL: debug
+      CONJUR_AUTHENTICATORS: authn-ldap/test,authn-ldap/secure,authn-oidc/keycloak,authn-oidc,authn-k8s/test,authn-azure/prod,authn-gcp,authn-jwt/raw,authn-jwt/keycloak,authn-oidc/keycloak2,authn-oidc/okta-2
+      LDAP_URI: ldap://ldap-server:389
+      LDAP_BASE: dc=conjur,dc=net
+      LDAP_FILTER: '(uid=%s)'
+      LDAP_BINDDN: cn=admin,dc=conjur,dc=net
+      LDAP_BINDPW: ldapsecret
+      WEB_CONCURRENCY: 0
+      RAILS_MAX_THREADS: 10
+    command: server
+    volumes:
+      # TODO: authenticators_oidc/test has a dep on this
+      - authn-local2:/run/authn-local
+      - ./oauth/keycloak:/oauth/keycloak/scripts
+      - ./ldap-certs:/ldap-certs:ro
+      - log-volume:/opt/conjur-server/log
+      - ../coverage:/opt/conjur-server/coverage
+    expose:
+      - "80"
+    links:
+      - pg2
+      - ldap-server
+      - keycloak
+
   cucumber:
     image: conjur-test:$TAG
     entrypoint: bash
     working_dir: /src/conjur-server
     environment:
-      CONJUR_APPLIANCE_URL: http://conjur
       CONJUR_ACCOUNT: cucumber
-      DATABASE_URL: postgres://postgres@pg/postgres
       AUDIT_DATABASE_URL:
       RAILS_ENV: test
       CONJUR_LOG_LEVEL: debug
@@ -88,13 +147,18 @@ services:
     volumes:
       - ..:/src/conjur-server
       - authn-local:/run/authn-local
+      - authn-local2:/run/authn-local
       - ./ldap-certs:/ldap-certs:ro
       - log-volume:/src/conjur-server/log
       - jwks-volume:/var/jwks
+      - ./oauth/keycloak:/oauth/keycloak/scripts
     links:
       - conjur
+      - conjur2
       - pg
+      - pg2
       - testdb
+      - testdb2
       - keycloak
 
   ldap-server:
@@ -122,7 +186,7 @@ services:
       - KEYCLOAK_APP_USER=alice
       - KEYCLOAK_APP_USER_PASSWORD=alice
       - KEYCLOAK_APP_USER_EMAIL=alice@conjur.net
-      - KEYCLOAK_SECOND_APP_USER=bob
+      - KEYCLOAK_SECOND_APP_USER=bob.somebody
       - KEYCLOAK_SECOND_APP_USER_PASSWORD=bob
       - KEYCLOAK_SECOND_APP_USER_EMAIL=bob@conjur.net
       - KEYCLOAK_NON_CONJUR_APP_USER=not_in_conjur
@@ -130,7 +194,7 @@ services:
       - KEYCLOAK_NON_CONJUR_APP_USER_EMAIL=not_in_conjur
       - DB_VENDOR=H2
       - KEYCLOAK_CLIENT_ID=conjurClient
-      - KEYCLOAK_REDIRECT_URI=http://locallhost.com/
+      - KEYCLOAK_REDIRECT_URI=http://conjur:3000/authn-oidc/keycloak2/cucumber/authenticate
       - KEYCLOAK_CLIENT_SECRET=1234
       - KEYCLOAK_SCOPE=openid
     volumes:
@@ -167,5 +231,6 @@ services:
 
 volumes:
   authn-local:
+  authn-local2:
   log-volume:
   jwks-volume:

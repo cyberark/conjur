@@ -180,7 +180,7 @@ Enforced claims and mapping are not enforced therefore the JWT authentication wi
 
 ## Test Plan
 
-https://ca-il-confluence.il.cyber-ark.com/x/9AIiFQ
+Confluence: "Token Schema Test Plan"
 
 ## Open Questions
 

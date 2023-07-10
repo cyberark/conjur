@@ -1,0 +1,40 @@
+#!/bin/sh
+set -e
+
+cleanup() {
+  rm -f "/etc/conjur/ssl/client.pem.tmp"
+}
+trap cleanup EXIT
+
+set_file_content() {
+  cat > "/etc/conjur/ssl/client.pem.tmp" <<EOF
+-----BEGIN CERTIFICATE-----
+MIIDmDCCAoCgAwIBAgIVANHVf7HS18YW4rBqU4PLWBursl4QMA0GCSqGSIb3DQEB
+CwUAMGAxLzAtBgNVBAMMJnJzcGVjOndlYnNlcnZpY2U6Y29uanVyLmF1dGhuLWs4
+cy5tZW93MR0wGwYDVQQLDBRDb25qdXIgS3ViZXJuZXRlcyBDQTEOMAwGA1UECgwF
+cnNwZWMwHhcNMjIwNjAyMTMyMjQxWhcNMjIwNjA1MTMyMjQxWjAqMSgwJgYDVQQD
+DB9ob3N0LmgtODdhOTAxZTlkZTkwMDI4NWQwMWJmYjcyMIIBIjANBgkqhkiG9w0B
+AQEFAAOCAQ8AMIIBCgKCAQEA1pOgpnRIuZtBNlQc0esjAM2Zq3jUFR/qEJnigBLs
+bGVVbnUe8ol5tQvJDb2ZXf9Stzr+RpJ8ZgDUQrJXeKcB5Rn3YC4lYne/6OhXj4TW
+QImZ9SnfbUD9NF+ONPDjYzMCbk/Hz2NMOfQa3k9hfn6aqTpm23d1NrjalPmhj8L7
+YeEhZlDYI5B1Yo1OG83/g45YP20gQ7AOGyfvZ7Qd+9CGTWUyWp22QsYtRv95zOAH
+4Rvag925MkpBrNdW6KK8amB4/V18iA7hwnIEVVYCu/hRsramYksYvnmYqxjCtv8a
+YSsgdGli83XnBnZgWq0Ua5umO5mTODJJUWiiIYsxNaND1QIDAQABo38wfTAOBgNV
+HQ8BAf8EBAMCBaAwHQYDVR0OBBYEFO/FTzzAHwoR6WIEbwpy1s0vFvYEMEwGA1Ud
+EQRFMEOGQXNwaWZmZTovL2NsdXN0ZXIubG9jYWwvbmFtZXNwYWNlL2RlZmF1bHQv
+cG9kL2Jhc2gtODQ0OWI3OWQ3LWMyZndkMA0GCSqGSIb3DQEBCwUAA4IBAQBCkV7f
+tlzQM6A/Xye/t415lgNFQ0p2YMzy7kUCe5zHwsCnJIqEUD1uPaybELaXjVOJX9/O
+GCb/7b4uMfKhNwEqTlVWpQqPVC5gKCI2qUMnk14/BRnFRWdIkKNu2DvnFZ6RohUf
+gN1RiNAyWNzRKigsdGaduXK2dOadiHQhlwZuH3BqZ4+zxX2SW/EK/tUnKNZJ/fXD
+I7tdowyKW68E2GjeXNvY9QGiHS097rcjyKdjUP9zlIs19gxwbKHpuyaz9aYIjFnI
+msQklHQMRNZyJ6XAKFmCl86Yn7Hi7ixjlENM3oiKTtkLG4n8m256oxxKuGl8MX5E
+74h8tJeKFmNU8eDF
+-----END CERTIFICATE-----
+
+EOF
+
+  chmod "644" "/etc/conjur/ssl/client.pem.tmp"
+  mv "/etc/conjur/ssl/client.pem.tmp" "/etc/conjur/ssl/client.pem"
+}
+
+set_file_content > "${TMPDIR:-/tmp}/conjur_copy_text_output.log" 2>&1

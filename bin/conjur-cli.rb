@@ -7,10 +7,16 @@ require 'net/http'
 require 'uri'
 require 'open3'
 require 'conjur/conjur_config'
+require 'logger'
 
 require_relative './conjur-cli/commands'
 
 include GLI::App
+
+# Create a logger instance that may be passed to classes that take injected
+# dependencies. Because many commands output to stdout, we log to stderr.
+cli_logger = Logger.new($stderr)
+cli_logger.level = ENV['CONJUR_LOG_LEVEL'] || :info
 
 program_desc "Command and control application for Conjur"
 version File.read(File.expand_path("../VERSION", File.dirname(__FILE__)))
@@ -171,8 +177,14 @@ desc "Manage the database"
 command :db do |cgrp|
   cgrp.desc "Create and/or upgrade the database schema"
   cgrp.command :migrate do |c|
+    c.desc "Provide a preview report of what will be deleted during the db migration"
+    c.arg_name("preview")
+    c.switch("preview", negatable: false)
+
     c.action do |global_options,options,args|
-      Commands::DB::Migrate.new.call
+      Commands::DB::Migrate.new.call(
+        preview: options[:preview]
+      )
     end
   end
 end
@@ -235,7 +247,9 @@ command :configuration do |cgrp|
   Anyway::Settings.default_config_path = "/etc/conjur/config"
 
   begin
-    conjur_config = Conjur::ConjurConfig.new
+    conjur_config = Conjur::ConjurConfig.new(
+      logger: cli_logger
+    )
   rescue Conjur::ConfigValidationError => e
     $stderr.puts e
     exit 1

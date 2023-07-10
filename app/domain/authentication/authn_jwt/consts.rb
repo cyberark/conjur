@@ -38,7 +38,7 @@ module Authentication
     CLAIMS_CHARACTER_DELIMITER = ","
     TUPLE_CHARACTER_DELIMITER = ":"
 
-    PURE_CLAIM_NAME_REGEX = /[a-zA-Z|$|_][a-zA-Z|$|_|0-9|.]*/.freeze
+    PURE_CLAIM_NAME_REGEX = /[a-zA-Z|$|_][a-zA-Z|$|_|\-|0-9|.]*/.freeze
     PURE_NESTED_CLAIM_NAME_REGEX = /^#{PURE_CLAIM_NAME_REGEX.source}(#{PATH_DELIMITER}#{PURE_CLAIM_NAME_REGEX.source})*$/.freeze
 
     SIGNING_KEY_RESOURCES_NAMES = [

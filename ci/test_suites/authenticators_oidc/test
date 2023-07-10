@@ -9,8 +9,36 @@ set -e
 source "./shared.sh"
 source "./oauth/keycloak/keycloak_functions.sh"
 
+function _hydrate_all_env_args() {
+  local -n arr=$1
+  local keycloak_items
+
+  readarray -t keycloak_items < <(
+    set -o pipefail
+    # Note: This prints all lines that look like:
+    # KEYCLOAK_XXX=someval
+    docker compose exec -T "${KEYCLOAK_SERVICE_NAME}" printenv | awk '/KEYCLOAK/'
+  )
+
+  # shellcheck disable=SC2034
+  arr=(
+    "${keycloak_items[@]}"
+    "PROVIDER_URI=https://keycloak:8443/auth/realms/master"
+    "PROVIDER_INTERNAL_URI=http://keycloak:8080/auth/realms/master/protocol/openid-connect"
+    "PROVIDER_ISSUER=http://keycloak:8080/auth/realms/master"
+    "ID_TOKEN_USER_PROPERTY=preferred_username"
+    "OKTA_CLIENT_ID=$OKTA_CLIENT_ID"
+    "OKTA_CLIENT_SECRET=$OKTA_CLIENT_SECRET"
+    "OKTA_PROVIDER_URI=${OKTA_PROVIDER_URI}oauth2/default"
+    "OKTA_USERNAME=$OKTA_USERNAME"
+    "OKTA_PASSWORD=$OKTA_PASSWORD"
+  )
+}
+
 function main() {
-  docker-compose up --no-deps -d pg conjur keycloak
+  local parallel_services
+  read -ra parallel_services <<< "$(get_parallel_services 'conjur pg')"
+  docker compose up --no-deps -d "${parallel_services[@]}" keycloak
 
   # We also run an ldap-server container for testing the OIDC & LDAP combined
   # use-case.  We can't run this use-case in a separate Jenkins step because
@@ -23,7 +51,7 @@ function main() {
 
   additional_services='ldap-server keycloak'
   _run_cucumber_tests authenticators_oidc "$additional_services" \
-    _hydrate_keycloak_env_args
+    _hydrate_all_env_args
 }
 
 main

@@ -52,6 +52,16 @@ module Rack
     # It also has :reek:TooManyStatements, but to factor these out would make
     # the code less readable.
     def call(env)
+      # added because our .NET SDK sends an invalid content type, but we
+      # can't fix it now - need to remove later: ONYX-17641
+      begin
+        ::Mime::Type.lookup(env['CONTENT_TYPE']) if env['CONTENT_TYPE']
+      rescue ::Mime::Type::InvalidMimeType
+        ::Rails.logger.warn("Invalid content type passed in - #{env['CONTENT_TYPE']}")
+        env.delete('CONTENT_TYPE')
+        Rack::Request.new(env).body.rewind
+      end
+
       content_type = env['CONTENT_TYPE']
 
       # Content type is missing if the header is absent or is empty

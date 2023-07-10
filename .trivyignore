@@ -1,3 +1,25 @@
+# OpenSSL CVEs
+#
+# Because of the way OpenSSL 1.0.2 has moved to premium support and our Ubuntu
+# base image, trivy flags a number of OpenSSL issues in Conjur because the fix
+# for most Ubuntu users is to move to 1.1.1 instead of having the continued support
+# in the 1.0.2 line. Additionally, trivy flages 1.0.2zf as vulnerable to issues that
+# only affect 1.1.x. As of the time of this writing, we use 1.0.2zf which either
+# has the fix or is unaffected by these issues.
+CVE-2022-2097
+CVE-2022-2068
+CVE-2022-1292
+CVE-2022-0778
+CVE-2021-23841
+CVE-2021-23840
+CVE-2021-3712
+CVE-2019-1563
+CVE-2019-1551
+CVE-2019-1549
+CVE-2019-1547
+CVE-2018-0735
+CVE-2018-0734
+
 # NULL pointer deref. OpenSSL 1.0.2 is not impacted
 CVE-2021-3449
 
@@ -64,3 +86,8 @@ CVE-2020-1971
 # The vulnerability is not affected Conjur's version of OpenSSL 1.0.2u (https://www.openssl.org/news/secadv/20210824.txt)
 # Conjur does not use SM2 algorithm (https://www.openssl.org/docs/manmaster/man7/SM2.html)
 CVE-2021-3711
+
+# We have the fix for CVE-2023-0286 in openssl 1.0.2zg, but because OpenSSL 1.0.2 
+# is only available in premium support, trivy thinks we should use something in the 1.1.1
+# line. We can't, due to FIPS compliance, so need to continue to ignore this issue.
+CVE-2023-0286

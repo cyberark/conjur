@@ -13,7 +13,7 @@ require_relative 'rest_client_wrapper'
 class Client
   ADMIN_PASSWORD = 'SEcret12!!!!'
   ACCOUNT = ENV['CONJUR_ACCOUNT'] || 'cucumber'
-  APPLIANCE_URL =  ENV['CONJUR_APPLIANCE_URL'] || 'http://conjur'
+  APPLIANCE_URL =  ENV['CONJUR_APPLIANCE_URL'] || "http://conjur#{ENV['TEST_ENV_NUMBER']}"
 
   class User
     def initialize(user_type, id)
@@ -125,6 +125,10 @@ class Client
 
   def fetch_roles(kind:, id:)
     resource(uri('roles', kind, id)).get(auth_header)
+  end
+
+  def fetch_authenticators
+    resource(uri('authn-oidc', 'providers')).get
   end
 
   def fetch_public_keys(username:)

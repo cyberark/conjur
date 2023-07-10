@@ -13,7 +13,6 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y \
     vim \
     curl \
     wget \
-    syslog-ng \
     && rm -rf /var/lib/apt/lists/*
 
 RUN mkdir -p /src/conjur-server
@@ -33,6 +32,7 @@ RUN find / -name httpclient -type d -exec find {} -name *.pem -type f -delete \;
 
 RUN rm /etc/service/sshd/down
 RUN ln -sf /src/conjur-server/bin/conjurctl /usr/local/bin/
+RUN rm /etc/my_init.d/10_syslog-ng.init
 
 ENV PORT 3000
 ENV TERM xterm

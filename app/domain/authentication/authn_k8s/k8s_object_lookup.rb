@@ -104,6 +104,15 @@ module Authentication
         k8s_client_for_method("get_pod").get_pod(podname, namespace)
       end
 
+      # Returns the labels hash for a Namespace with a given name.
+      #
+      # @return nil if no such Namespace exists.
+      def namespace_labels_hash(namespace)
+        namespace_object = k8s_client_for_method("get_namespace").get_namespace(namespace)
+
+        return namespace_object.metadata.labels.to_h unless namespace_object.nil?
+      end
+
       # Locates pods matching label selector in a namespace.
       #
       def pods_by_label(label_selector, namespace)
@@ -146,12 +155,16 @@ module Authentication
         k8s_clients.find do |client|
           begin
             client.respond_to?(method_name)
-          rescue KubeException => e
-            raise e unless e.error_code == 404
+          rescue => e
+            if e.kind_of?(KubeException)
+              raise e unless e.error_code == 404
+            end
 
             false
           end
-        end
+        end.tap { |client|
+          raise Errors::Authentication::AuthnK8s::NoMatchingClient, method_name if client.blank?
+        }
       end
 
       # If more API versions appear, add them here.

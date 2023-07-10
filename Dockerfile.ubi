@@ -17,20 +17,6 @@ LABEL name="conjur-ubi" \
       summary="Conjur UBI-based image" \
       description="Conjur provides secrets management and machine identity for modern infrastructure."
 
-RUN INSTALL_PKGS="gcc \
-                  gcc-c++ \
-                  git \
-                  glibc-devel \
-                  libxml2-devel \
-                  libxslt-devel \
-                  make \
-                  openldap-clients \
-                  redhat-rpm-config \
-                  tzdata" && \
-    yum install -y --setopt=tsflags=nodocs $INSTALL_PKGS && \
-    rpm -V $INSTALL_PKGS && \
-    yum -y clean all --enablerepo='*'
-
 # Create conjur user with one that has known gid / uid.
 RUN groupadd -r conjur \
              -g 777 && \
@@ -66,8 +52,28 @@ COPY Gemfile \
      Gemfile.lock ./
 COPY gems/ gems/
 
+# Install package dependencies for Conjur
+RUN INSTALL_PKGS="openldap-clients \
+                  tzdata" && \
+    yum install -y --setopt=tsflags=nodocs $INSTALL_PKGS && \
+    rpm -V $INSTALL_PKGS && \
+    yum -y clean all --enablerepo='*'
 
-RUN bundle --without test development
+# Install Gems (and build native gems) for Conjur
+RUN INSTALL_PKGS="gcc \
+                  gcc-c++ \
+                  git \
+                  glibc-devel \
+                  libxml2-devel \
+                  libxslt-devel \
+                  make" && \
+    yum install -y --setopt=tsflags=nodocs $INSTALL_PKGS && \
+    rpm -V $INSTALL_PKGS && \
+    # Install the gems dependencies
+    bundle --without test development && \
+    # Remove the build packages
+    yum remove -y $INSTALL_PKGS && \
+    yum -y clean all --enablerepo='*'
 
 COPY . .
 

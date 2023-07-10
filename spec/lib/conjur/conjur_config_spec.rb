@@ -1,6 +1,23 @@
 require 'spec_helper'
 
 describe Conjur::ConjurConfig do
+  let(:config_folder) { @config_folder || '/etc/conjur/config' }
+  let(:config_file) { "#{config_folder}/conjur.yml" }
+
+  let(:logger_double) { Logger.new(log_output) }
+  let(:log_output) { StringIO.new }
+
+  let(:config_args) { [] }
+  let(:config_kwargs) { {} }
+
+  subject do
+    Conjur::ConjurConfig.new(
+      *config_args,
+      logger: logger_double,
+      **config_kwargs
+    )
+  end
+
   it "uses default value if not set by environment variable or config file" do
     expect(Conjur::ConjurConfig.new.trusted_proxies).to eq([])
     expect(Conjur::ConjurConfig.new.telemetry_enabled).to eq(false)
@@ -14,9 +31,6 @@ describe Conjur::ConjurConfig do
   end
 
   context "with config file" do
-    let(:config_folder) { "/etc/conjur/config" }
-    let(:config_file) { "#{config_folder}/conjur.yml" }
-
     let(:config_file_contents) do
       <<~YAML
         trusted_proxies:
@@ -25,16 +39,25 @@ describe Conjur::ConjurConfig do
       YAML
     end
 
-    before do
-      FileUtils.mkdir_p(config_folder)
+    around do |example|
+      with_temp_config_directory do |dir|
+        @config_folder = dir
 
-      File.open(config_file, 'w') do |f|
-        f.puts(config_file_contents)
+        # Create config file
+        File.open(config_file, 'w') do |f|
+          f.puts(config_file_contents)
+        end
+
+        # Run the example
+        example.run
       end
     end
 
-    after do
-      FileUtils.remove_dir(config_folder)
+    it "logs that the config file exists" do
+      subject
+      expect(log_output.string).to include(
+        "Loading Conjur config file: #{@config_folder}/conjur.yml"
+      )
     end
 
     it "reads config value from file" do
@@ -57,7 +80,7 @@ describe Conjur::ConjurConfig do
       end
 
       it "fails validation" do
-        expect { Conjur::ConjurConfig.new }.
+        expect { subject }.
           to raise_error(Conjur::ConfigValidationError)
       end
     end
@@ -71,7 +94,7 @@ describe Conjur::ConjurConfig do
       end
 
       it "fails validation" do
-        expect { Conjur::ConjurConfig.new }.
+        expect { subject }.
           to raise_error(Conjur::ConfigValidationError)
       end
     end
@@ -84,7 +107,7 @@ describe Conjur::ConjurConfig do
       end
 
       it "fails validation" do
-        expect { Conjur::ConjurConfig.new }.
+        expect { subject }.
           to raise_error(Conjur::ConfigValidationError)
       end
     end
@@ -97,7 +120,7 @@ describe Conjur::ConjurConfig do
       end
 
       it "fails validation" do
-        expect { Conjur::ConjurConfig.new }.
+        expect { subject }.
           to raise_error(Conjur::ConfigValidationError, /syntax error/)
       end
     end
@@ -126,7 +149,7 @@ describe Conjur::ConjurConfig do
       end
 
       it "reports the attribute source as :env" do
-        expect(Conjur::ConjurConfig.new.attribute_sources[:trusted_proxies]).
+        expect(subject.attribute_sources[:trusted_proxies]).
           to eq(:env)
         expect(Conjur::ConjurConfig.new.attribute_sources[:telemetry_enabled]).
           to eq(:env)
@@ -150,7 +173,7 @@ describe Conjur::ConjurConfig do
       end
 
       it "overrides the config file value" do
-        expect(Conjur::ConjurConfig.new.trusted_proxies).
+        expect(subject.trusted_proxies).
           to eq(["5.6.7.8", "9.10.11.12"])
       end
     end
@@ -159,28 +182,30 @@ describe Conjur::ConjurConfig do
   describe "validation" do
     let(:invalid_config) {
       Conjur::ConjurConfig.new(
-        authenticators: "invalid-authn", trusted_proxies: "boop", telemetry_enabled: "beep"
+        authenticators: "invalid-authn",
+        trusted_proxies: "boop",
+        telemetry_enabled: "beep"
       )
     }
 
     it "raises error when validation fails" do
-      expect { invalid_config }.
+      expect { subject }.
         to raise_error(Conjur::ConfigValidationError)
     end
 
     it "includes the attributes that failed validation" do
-      expect { invalid_config }.
+      expect { subject }.
         to raise_error(/trusted_proxies/)
-      expect { invalid_config }.
+      expect { subject }.
         to raise_error(/authenticators/)
       expect { invalid_config }.
         to raise_error(/telemetry_enabled/)
     end
 
     it "does not include the value that failed validation" do
-      expect { invalid_config }.
+      expect { subject }.
         to_not raise_error(/boop/)
-      expect { invalid_config }.
+      expect { subject }.
         to_not raise_error(/invalid-authn/)
       expect { invalid_config }.
         to_not raise_error(/beep/)
@@ -209,7 +234,104 @@ describe Conjur::ConjurConfig do
     end
 
     it "reads value from TRUSTED_PROXIES env var" do
-      expect(Conjur::ConjurConfig.new.trusted_proxies).to eq(["5.6.7.8"])
+      expect(subject.trusted_proxies).to eq(["5.6.7.8"])
+    end
+  end
+
+  describe "file and directory permissions" do
+    context "when the directory doesn't exist" do
+      around do |example|
+        with_temp_config_directory do |dir|
+          @config_folder = dir
+
+          FileUtils.rm_rf(config_folder)
+
+          # Run the example
+          example.run
+        end
+      end
+
+      it "logs a warning" do
+        subject
+        expect(log_output.string).to include(
+          "Conjur config directory doesn't exist or has " \
+          "insufficient permission to list it:"
+        )
+      end
+    end
+
+    context "when the directory lacks execute/search permissions" do
+      around do |example|
+        with_temp_config_directory do |dir|
+          @config_folder = dir
+          FileUtils.chmod(0444, @config_folder)
+
+          # The tests run as root, so we must drop privilege to test permission
+          # checks.
+          as_user 'nobody' do
+            example.run
+          end
+        end
+      end
+
+      it "logs a warning" do
+        subject
+        expect(log_output.string).to include(
+          "Conjur config directory exists but is missing " \
+          "search/execute permission required to list the config file:"
+        )
+      end
+    end
+
+    context "when the file doesn't exist" do
+      around do |example|
+        with_temp_config_directory do |dir|
+          @config_folder = dir
+
+          FileUtils.chmod(0111, config_folder)
+          FileUtils.rm_rf(config_file)
+
+          example.run
+        end
+      end
+
+      it "logs a warning" do
+        subject
+        expect(log_output.string).to include(
+          "Conjur config file doesn't exist or has insufficient " \
+          "permission to list it:"
+        )
+      end
+    end
+
+    context "when the file lacks read permissions" do
+      around do |example|
+        with_temp_config_directory do |dir|
+          @config_folder = dir
+          FileUtils.chmod(0555, @config_folder)
+          FileUtils.touch(config_file)
+          FileUtils.chmod(0000, config_file)
+
+          # The tests run as root, so we must drop privilege to test permission
+          # checks.
+          as_user 'nobody' do
+            example.run
+          end
+        end
+      end
+
+      it "logs a warning" do
+        # This last scenario will also raise an exception, but in this case, we
+        # are only interested in the log output
+        begin
+          subject
+        rescue
+        end
+        expect(log_output.string).to include(
+          "Conjur config file exists but has insufficient " \
+          "permission to read it:"
+        )
+      end
     end
   end
 
@@ -219,4 +341,23 @@ describe Conjur::ConjurConfig do
       expect(response).to have_http_status(401)
     end
   end
+end
+
+# Helper method for the config file tests to create a temporary directory for
+# testing file and directory permissions behavior
+def with_temp_config_directory
+  # Configure a temporary config directory
+  prev_config_dir = Anyway::Settings.default_config_path
+
+  config_dir = Dir.mktmpdir
+  Anyway::Settings.default_config_path = config_dir
+
+  # Call the block
+  yield config_dir
+ensure
+  # Resete the config directory
+  Anyway::Settings.default_config_path = prev_config_dir
+
+  # remove the temporary config directory
+  FileUtils.rm_rf(config_folder)
 end

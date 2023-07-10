@@ -69,6 +69,9 @@ Given(/^I reset my root policy$/) do
 end
 
 Given(/^I add the value "(.*)" to variable "(.+)"$/) do |val, id|
+  if val == "testdb"
+    val = "#{val}#{ENV['TEST_ENV_NUMBER']}"
+  end
   @client.add_secret(id: id, value: val)
 end
 

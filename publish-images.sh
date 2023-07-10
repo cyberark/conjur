@@ -70,7 +70,10 @@ done
 LOCAL_IMAGE="conjur:${LOCAL_TAG}"
 RH_LOCAL_IMAGE="conjur-ubi:${LOCAL_TAG}"
 IMAGE_NAME="cyberark/conjur"
-REDHAT_IMAGE="scan.connect.redhat.com/ospid-9fb7aea1-0c01-4527-8def-242f3cde7dc6/conjur"
+REDHAT_CERT_PID="5f905d433a93dc782c77a0f9"
+REDHAT_REGISTRY="quay.io"
+REDHAT_REMOTE_IMAGE="${REDHAT_REGISTRY}/redhat-isv-containers/${REDHAT_CERT_PID}"
+REDHAT_USER="redhat-isv-containers+${REDHAT_CERT_PID}-robot"
 
 # Normalize version number in the case of '+' included
 VERSION="$(echo -n "${VERSION}" | tr "+" "_")"
@@ -133,10 +136,17 @@ fi
 if [[ "${REDHAT}" = true ]]; then
   echo "Publishing ${VERSION} to RedHat registry..."
   # Publish only the tag version to the Redhat container registry
-  if docker login scan.connect.redhat.com -u unused -p "${REDHAT_API_KEY}"; then
-    tag_and_push "${VERSION}" "${RH_LOCAL_IMAGE}" "${REDHAT_IMAGE}"
+  if docker login "${REDHAT_REGISTRY}" -u "${REDHAT_USER}" -p "${REDHAT_API_KEY}"; then
+    # push image to red hat
+    tag_and_push "${VERSION}" "${RH_LOCAL_IMAGE}" "${REDHAT_REMOTE_IMAGE}"
+
+    # scan image with preflight tool
+    scan_redhat_image "${REDHAT_REMOTE_IMAGE}:${VERSION}" "${REDHAT_CERT_PID}"
+
+    # push latest tag to RH
+    tag_and_push "latest" "${RH_LOCAL_IMAGE}" "${REDHAT_REMOTE_IMAGE}"
   else
-    echo 'Failed to log in to scan.connect.redhat.com'
+    echo 'Failed to log in to quay.io'
     exit 1
   fi
 fi

@@ -4,7 +4,8 @@ module Authentication
     ValidateStatus = CommandClass.new(
       dependencies: {
         fetch_authenticator_secrets: Authentication::Util::FetchAuthenticatorSecrets.new,
-        discover_identity_provider: Authentication::OAuth::DiscoverIdentityProvider.new
+        discover_identity_provider: Authentication::OAuth::DiscoverIdentityProvider.new,
+        required_variable_names: %w[provider-uri id-token-user-property]
       },
       inputs: %i[account service_id]
     ) do
@@ -29,12 +30,8 @@ module Authentication
           service_id: @service_id,
           conjur_account: @account,
           authenticator_name: "authn-oidc",
-          required_variable_names: required_variable_names
+          required_variable_names: @required_variable_names
         )
-      end
-
-      def required_variable_names
-        @required_variable_names ||= %w[provider-uri id-token-user-property]
       end
 
       def validate_provider_is_responsive

@@ -1,7 +1,7 @@
 version: "3"
 services:
   pg:
-    image: postgres:10.16
+    image: postgres:15
     environment:
       # To avoid the following error:
       #
@@ -13,15 +13,20 @@ services:
       #   connections without a password. This is *not* recommended. See
       #   PostgreSQL documentation about "trust"
       POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - "5432:5432"
+    expose:
+      - "5432"
+
 
   audit:
-    image: postgres:10.16
+    image: postgres:15
     environment:
       # See description on `pg` service for use of POSTGRES_HOST_AUTH_METHOD
       POSTGRES_HOST_AUTH_METHOD: trust
 
   testdb:
-    image: postgres:10.16
+    image: postgres:15
     environment:
       POSTGRES_PASSWORD: postgres_secret
 
@@ -124,7 +129,7 @@ services:
       - KEYCLOAK_APP_USER=alice
       - KEYCLOAK_APP_USER_PASSWORD=alice
       - KEYCLOAK_APP_USER_EMAIL=alice@conjur.net
-      - KEYCLOAK_SECOND_APP_USER=bob
+      - KEYCLOAK_SECOND_APP_USER=bob.somebody
       - KEYCLOAK_SECOND_APP_USER_PASSWORD=bob
       - KEYCLOAK_SECOND_APP_USER_EMAIL=bob@conjur.net
       - KEYCLOAK_NON_CONJUR_APP_USER=not_in_conjur
@@ -132,7 +137,7 @@ services:
       - KEYCLOAK_NON_CONJUR_APP_USER_EMAIL=not_in_conjur
       - DB_VENDOR=H2
       - KEYCLOAK_CLIENT_ID=conjurClient
-      - KEYCLOAK_REDIRECT_URI=http://locallhost.com/
+      - KEYCLOAK_REDIRECT_URI=http://conjur:3000/authn-oidc/keycloak2/cucumber/authenticate
       - KEYCLOAK_CLIENT_SECRET=1234
       - KEYCLOAK_SCOPE=openid
     ports:

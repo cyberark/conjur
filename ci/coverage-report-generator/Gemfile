@@ -1,4 +1,4 @@
 source 'https://rubygems.org'
-# Updating to latest version not compatible with CC
-# See: https://github.com/codeclimate/test-reporter/issues/418
-gem 'simplecov', '0.17'
+
+gem 'simplecov', '0.21.2'
+gem 'simplecov_json_formatter', '0.1.4'

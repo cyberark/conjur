@@ -40,14 +40,17 @@ module AuthnJwtHelper
     Secret.create(resource_id: "#{path}/#{variable_name}", value: value)
   end
 
+  def retrieve_public_keys(type: "jwks")
+    JSON.dump({
+      type: type,
+      value: JSON.parse(@response_body)
+    })
+  end
+
   def create_public_keys_from_response_body(type: "jwks")
-    public_keys = {
-      "type" => type,
-      "value" => JSON.parse(@response_body)
-    }
     create_jwt_secret(
       variable_name: "public-keys",
-      value: JSON.dump(public_keys)
+      value: retrieve_public_keys(type: type)
     )
   end
 

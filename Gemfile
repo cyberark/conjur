@@ -19,7 +19,7 @@ gem 'http', '~> 4.2.0'
 gem 'iso8601'
 gem 'jbuilder', '~> 2.7.0'
 gem 'nokogiri', '>= 1.8.2'
-gem 'puma', '~> 5.5', '>= 5.6.2'
+gem 'puma', '~> 5.6'
 gem 'rack', '~> 2.2'
 gem 'rails', '~> 6.1', '>= 6.1.4.6'
 gem 'rake'
@@ -46,16 +46,12 @@ gem "loofah", ">= 2.2.3"
 # the branch doesn't immediately break this link
 gem 'conjur-api', '~> 5.pre'
 gem 'conjur-policy-parser', path: 'gems/policy-parser'
-gem 'conjur-rack'
+gem 'conjur-rack', path: 'gems/conjur-rack'
 gem 'conjur-rack-heartbeat'
 gem 'rack-rewrite'
 
 # Putting this here currently confuses debify, so instead load it in
 # application.rb gem 'conjur_audit', path: 'engines/conjur_audit'
-
-# This old version is required to work with CC
-# See: https://github.com/codeclimate/test-reporter/issues/418
-gem 'simplecov', '0.14.1', require: false
 
 gem 'dry-struct'
 gem 'dry-types'
@@ -93,8 +89,10 @@ group :development, :test do
   gem 'database_cleaner', '~> 1.8'
   gem 'debase', '~> 0.2.5.beta2'
   gem 'json_spec', '~> 1.1'
+  gem 'faye-websocket'
   gem 'net-ssh'
   gem 'parallel'
+  gem 'parallel_tests'
   gem 'pry-byebug'
   gem 'pry-rails'
   gem 'rails-controller-testing'
@@ -104,10 +102,18 @@ group :development, :test do
   gem 'rspec-core'
   gem 'rspec-rails'
   gem 'ruby-debug-ide'
+
+  # We use a post-coverage hook to sleep covered processes until we're ready to
+  # collect the coverage reports in CI. Because of this, we don't want bundler
+  # to auto-load simplecov. Rather we require it directly when we need it.
+  gem 'simplecov', require: false
+
   gem 'spring'
   gem 'spring-commands-cucumber'
   gem 'spring-commands-rspec'
   gem 'table_print'
+  gem 'vcr'
+  gem 'webmock'
   gem 'webrick'
 end
 

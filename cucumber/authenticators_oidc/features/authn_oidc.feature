@@ -7,7 +7,16 @@ Feature: OIDC Authenticator - Hosts can authenticate with OIDC authenticator
   Authenticator, but that it can retrieve a secret using the Conjur access token.
 
   Background:
-    Given I load a policy:
+    Given the following environment variables are available:
+      | context_variable            | environment_variable   | default_value                                                    |
+      | oidc_provider_internal_uri  | PROVIDER_INTERNAL_URI  | http://keycloak:8080/auth/realms/master/protocol/openid-connect  |
+      | oidc_scope                  | KEYCLOAK_SCOPE         | openid                                                           |
+      | oidc_client_id              | KEYCLOAK_CLIENT_ID     | conjurClient                                                     |
+      | oidc_client_secret          | KEYCLOAK_CLIENT_SECRET | 1234                                                             |
+      | oidc_provider_uri           | PROVIDER_URI           | https://keycloak:8443/auth/realms/master                         |
+      | oidc_id_token_user_property | ID_TOKEN_USER_PROPERTY | preferred_username                                               |
+
+    And I load a policy:
     """
     - !policy
       id: conjur/authn-oidc/keycloak
@@ -35,11 +44,29 @@ Feature: OIDC Authenticator - Hosts can authenticate with OIDC authenticator
       role: !group conjur/authn-oidc/keycloak/users
       member: !user alice
     """
-    And I am the super-user
-    And I successfully set OIDC variables
+    And I set the following conjur variables:
+      | variable_id                                       | context_variable            |
+      | conjur/authn-oidc/keycloak/id-token-user-property | oidc_id_token_user_property |
+      | conjur/authn-oidc/keycloak/provider-uri           | oidc_provider_uri           |
 
   @smoke
-  Scenario: A valid id token to get Conjur access token
+  Scenario: A valid id token in header to get Conjur access token
+    # We want to verify the returned access token is valid for retrieving a secret
+    Given I have a "variable" resource called "test-variable"
+    And I permit user "alice" to "execute" it
+    And I add the secret value "test-secret" to the resource "cucumber:variable:test-variable"
+    And I fetch an ID Token for username "alice" and password "alice"
+    And I save my place in the audit log file
+    When I authenticate via OIDC with id token in header
+    Then user "alice" has been authorized by Conjur
+    And I successfully GET "/secrets/cucumber/variable/test-variable" with authorized user
+    And The following appears in the audit log after my savepoint:
+    """
+    cucumber:user:alice successfully authenticated with authenticator authn-oidc service cucumber:webservice:conjur/authn-oidc/keycloak
+    """
+
+  @smoke
+  Scenario: A valid id token in body to get Conjur access token
     # We want to verify the returned access token is valid for retrieving a secret
     Given I have a "variable" resource called "test-variable"
     And I permit user "alice" to "execute" it
@@ -73,21 +100,21 @@ Feature: OIDC Authenticator - Hosts can authenticate with OIDC authenticator
   Scenario: Adding a group to keycloak/users group permits users to authenticate
     Given I extend the policy with:
     """
-    - !user bob
+    - !user bob.somebody
 
     - !group more-users
 
     - !grant
       role: !group more-users
-      member: !user bob
+      member: !user bob.somebody
 
     - !grant
       role: !group conjur/authn-oidc/keycloak/users
       member: !group more-users
     """
-    And I fetch an ID Token for username "bob" and password "bob"
+    And I fetch an ID Token for username "bob.somebody" and password "bob"
     When I authenticate via OIDC with id token
-    Then user "bob" has been authorized by Conjur
+    Then user "bob.somebody" has been authorized by Conjur
 
   @negative @acceptance
   Scenario: Non-existing username in ID token is denied
@@ -108,9 +135,9 @@ Feature: OIDC Authenticator - Hosts can authenticate with OIDC authenticator
   Scenario: User that is not permitted to webservice in ID token is denied
     Given I extend the policy with:
     """
-    - !user bob
+    - !user bob.somebody
     """
-    And I fetch an ID Token for username "bob" and password "bob"
+    And I fetch an ID Token for username "bob.somebody" and password "bob"
     And I save my place in the log file
     When I authenticate via OIDC with id token
     Then it is forbidden
@@ -198,7 +225,7 @@ Feature: OIDC Authenticator - Hosts can authenticate with OIDC authenticator
     And I authenticate via OIDC with id token
     Then it is unauthorized
     # Check recovery to a valid provider uri
-    When I successfully set OIDC variables
+    And I revert the value of the resource "cucumber:variable:conjur/authn-oidc/keycloak/provider-uri"
     And I fetch an ID Token for username "alice" and password "alice"
     And I authenticate via OIDC with id token
     Then user "alice" has been authorized by Conjur
@@ -225,15 +252,15 @@ Feature: OIDC Authenticator - Hosts can authenticate with OIDC authenticator
   Scenario: Authentication failure is written to the audit log
     Given I extend the policy with:
     """
-    - !user bob
+    - !user bob.somebody
     """
-    And I fetch an ID Token for username "bob" and password "bob"
+    And I fetch an ID Token for username "bob.somebody" and password "bob"
     And I save my place in the audit log file
     When I authenticate via OIDC with id token
     Then it is forbidden
     And The following appears in the audit log after my savepoint:
     """
-    cucumber:user:bob failed to authenticate with authenticator authn-oidc service cucumber:webservice:conjur/authn-oidc/keycloak
+    cucumber:user:bob.somebody failed to authenticate with authenticator authn-oidc service cucumber:webservice:conjur/authn-oidc/keycloak
     """
 
   @negative @acceptance

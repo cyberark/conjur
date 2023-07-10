@@ -1,5 +1,15 @@
 # frozen_string_literal: true
 
+require_relative 'util/trackable_log_message_class'
+require_relative 'util/trackable_error_class'
+
+# This file maintains the collection of possible logs emitted by Conjur using
+# the standard numbering scheme.
+#
+# For the next available code, use the command `rake error_code:next` in the
+# repo root.
+#
+# See also ./errors.rb
 module LogMessages
 
   module Conjur
@@ -234,13 +244,23 @@ module LogMessages
       )
 
       ValidatingK8sResource = ::Util::TrackableLogMessageClass.new(
-        msg: "Validating K8s resource. Type:'{0}', Name: {1}",
+        msg: "Validating K8s resource. Type:'{0}', Name:'{1}'",
         code: "CONJ00050D"
       )
 
       ValidatedK8sResource = ::Util::TrackableLogMessageClass.new(
-        msg: "Validated K8s resource. Type:'{0}', Name: {1}",
+        msg: "Validated K8s resource. Type:'{0}', Name:'{1}'",
         code: "CONJ00051D"
+      )
+
+      ValidatingK8sResourceLabel = ::Util::TrackableLogMessageClass.new(
+        msg: "Validating K8s resource using label selector. Type:'{0}', Name:'{1}', Label:'{2}'",
+        code: "CONJ00145D"
+      )
+
+      ValidatedK8sResourceLabel = ::Util::TrackableLogMessageClass.new(
+        msg: "Validated K8s resource using label selector. Type:'{0}', Name:'{1}', Label:'{2}'",
+        code: "CONJ00146D"
       )
     end
 
@@ -260,6 +280,11 @@ module LogMessages
       RetrieveIamIdentity = ::Util::TrackableLogMessageClass.new(
         msg: "Retrieving IAM identity",
         code: "CONJ00036D"
+      )
+
+      RetryWithGlobalEndpoint = ::Util::TrackableLogMessageClass.new(
+        msg: "Retrying IAM request signed in 'us-east-1' region with global STS endpoint.",
+        code: "CONJ00043D"
       )
 
     end
@@ -776,5 +801,32 @@ module LogMessages
       code: "CONJ00026D"
     )
 
+  end
+
+  module Config
+    DirectoryDoesNotExist = ::Util::TrackableLogMessageClass.new(
+      msg: "Conjur config directory doesn't exist or has " \
+           "insufficient permission to list it: {0-config-directory}",
+      code: "CONJ00147D"
+    )
+
+    DirectoryInvalidPermissions = ::Util::TrackableLogMessageClass.new(
+      msg: "Conjur config directory exists but is missing " \
+           "search/execute permission required to list the config file: " \
+           "{0-config-directory}",
+      code: "CONJ00148W"
+    )
+
+    FileDoesNotExist = ::Util::TrackableLogMessageClass.new(
+      msg: "Conjur config file doesn't exist or has insufficient " \
+           "permission to list it: {0-config-path}",
+      code: "CONJ00149D"
+    )
+
+    FileInvalidPermissions = ::Util::TrackableLogMessageClass.new(
+      msg: "Conjur config file exists but has insufficient permission to " \
+           "read it: {0-config-path}",
+      code: "CONJ00150W"
+    )
   end
 end

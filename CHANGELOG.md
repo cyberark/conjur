@@ -9,7 +9,237 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
-## [1.17.2] - 2022-02-13
+## [1.19.6] - 2023-07-05
+
+### Fixed
+- Support Authn-IAM regional requests when host value is missing from signed headers.
+  [cyberark/conjur#2827](https://github.com/cyberark/conjur/pull/2827)
+
+## [1.19.5] - 2023-06-29
+
+### Security
+- Update bundler to 2.2.33 to remove CVE-2021-43809
+  [cyberark/conjur#2804](https://github.com/cyberark/conjur/pull/2804/files)
+
+### Fixed
+- AuthnJWT now supports claims that include hyphens and inline namespaces.
+  [cyberark/conjur#2792](https://github.com/cyberark/conjur/pull/2792)
+- Authn-IAM now uses the host in the signed headers to determine which STS endpoint
+  (global or regional) to use for validation.
+
+### Changed
+- OIDC tokens will now have a default ttl of 60 mins
+  [cyberark/conjur#2800](https://github.com/cyberark/conjur/pull/2800)
+
+## [1.19.3] - 2023-04-17
+
+### Added
+- Conjur now logs when it detects that the Conjur configuration file
+  (conjur.yml) or directory permissions prevent the Conjur server from
+  successfully reading it. Conjur also now logs at the DEBUG level when it
+  detects that either the directory or file do not exist.
+  [cyberark/conjur#2715](https://github.com/cyberark/conjur/pull/2715)
+- Account admin roles now have a corresponding resource. This ensures that
+  access controls work as expected for this role to access itself.
+  [cyberark/conjur#2757](https://github.com/cyberark/conjur/pull/2757)
+
+### Changed
+- Removes support for disabling the `CONJUR_FEATURE_PKCE_SUPPORT_ENABLED` flag.
+  [cyberark/conjur#2713](https://github.com/cyberark/conjur/pull/2713)
+- Routes on the `/roles/` API endpoints now correctly verify the existing of
+  a Role and return `404` when it doesn't exist or the caller has insufficient
+  privilege.
+  [cyberark/conjur#2755](https://github.com/cyberark/conjur/pull/2755)
+
+### Fixed
+- Fixed a thread-safety bug in secret retrieval when multiple threads attempt
+  to decrypt a secret value with Slosilo/OpenSSL.
+  [cyberark/slosilo#31](https://github.com/cyberark/slosilo/pull/31)
+  [cyberark/conjur#2718](https://github.com/cyberark/conjur/pull/2718)
+- Incomplete HTTP proxy support in the Kubernetes Authenticator is fixed. This
+  allows for an HTTP proxy between Conjur and the Kubernetes API.
+  [cyberark/conjur#2766](https://github.com/cyberark/conjur/pull/2766)
+
+### Security
+- Updated github-pages version in docs/Gemfile to allow upgrading activesupport
+  to v7.0.4.2 to resolve CVE-2022-22796
+  [cyberark/conjur#2729](https://github.com/cyberark/conjur/pull/2729)
+- Upgraded rack to v2.2.6.3 to resolve CVE-2023-27530
+  [cyberark/conjur#2739](https://github.com/cyberark/conjur/pull/2739)
+- Upgraded rack to v2.2.6.4 to resolve CVE-2023-27539
+  [cyberark/conjur#2750](https://github.com/cyberark/conjur/pull/2750)
+- Updated nokogiri to 1.14.3 for CVE-2023-29469 and CVE-2023-28484 and rails to
+  6.1.7.3 for CVE-2023-28120 in Gemfile.lock, nokogiri to 1.1.4.3 for CVE-2023-29469
+  and commonmarker to 0.23.9 for CVE-2023-24824 and CVE-2023-26485 in docs/Gemfile.lock
+  (all Medium severity issues flagged by Dependabot)
+  [cyberark/conjur#2776](https://github.com/cyberark/conjur/pull/2776)
+
+## [1.19.2] - 2022-01-13
+
+### Fixed
+- Previously, including `limit` or `offset` parameters to a resource list request
+  resulted in the returned list being unexpectedly sorted. Now, all resource list
+  request results are sorted by resource ID.
+  [cyberark/conjur#2702](https://github.com/cyberark/conjur/pull/2702)
+
+### Security
+- Upgraded Rails to 6.1.7.1 to resolve CVE-2023-22794 (not vulnerable)
+  [cyberark/conjur#2703](https://github.com/cyberark/conjur/pull/2703)
+
+## [1.19.1] - 2022-12-08
+
+### Security
+- Update loofah to 2.19.1 for CVE-2022-23514, CVE-2022-23515 and CVE-2022-23516 (all Not Vulnerable)
+  and rails-html-sanitizr to 1.4.4 for CVE-2022-23517, CVE-2022-23518, CVE-2022-23519, and CVE-2022-23520 (Not vulnerable)
+  [cyberark/conjur#2686](https://github.com/cyberark/conjur/pull/2686)
+- Updated nokogiri in root and docs Gemfile.lock files to resolve GHSA-qv4q-mr5r-qprj
+  [cyberark/conjur#2684](https://github.com/cyberark/conjur/pull/2684)
+
+### Fixed
+- Previously, if an OIDC authenticator was configured with a `Status` webservice,
+  the OIDC provider endpoint would include duplicate OIDC authenticators. This change resolves ONYX-25530.
+  [cyberark/conjur#2678](https://github.com/cyberark/conjur/pull/2678)
+- Allows V2 OIDC authenticators to be checked through the authenticator status
+  endpoint.  This change resolves ONYX-25531.
+  [cyberark/conjur#2692](https://github.com/cyberark/conjur/pull/2692)
+- Previously, if an OIDC provider endpoint was incorrect, the provider list endpoint
+  would raise an exception. This change resolves ONYX-30387
+  [cyberark/conjur#2688](https://github.com/cyberark/conjur/pull/2688)
+
+### Added
+- Provides support for PKCE in the OIDC Authenticator code redirect workflow.
+  This is enabled by default. If needed, it can be disabled using the
+  `CONJUR_FEATURE_PKCE_SUPPORT_ENABLED` feature flag.
+  [cyberark/conjur#2678](https://github.com/cyberark/conjur/pull/2678)
+- OIDC Authenticator can now be configured to distribute access tokens with a
+  custom time-to-live.
+  [cyberark/conjur#2683](https://github.com/cyberark/conjur/pull/2683)
+- List members request (`GET /roles/conjur/{kind}/{identifier}?members`) now produce audit events.
+  [cyberark/conjur#2691](https://github.com/cyberark/conjur/pull/2691)
+- Show resource request (`GET /resources/:account/:kind/*identifier`) now produce audit events.
+  [cyberark/conjur#2695](https://github.com/cyberark/conjur/pull/2695)
+- List memberships request (`GET /roles/:account/:kind/*identifier?memberships`) now produce audit events.
+  [cyberark/conjur#2693](https://github.com/cyberark/conjur/pull/2693)
+
+## [1.19.0] - 2022-11-29
+
+### Added
+- Conjur policy loads can now emit callbacks to extensions on policy
+  load lifecycle events (e.g. before/after policy load). This is disabled
+  by default, but is available under the
+  `CONJUR_FEATURE_POLICY_LOAD_EXTENSIONS` feature flag.
+  [cyberark/conjur#2671](https://github.com/cyberark/conjur/pull/2671)
+- Conjur roles API can now emit callbacks to extensions on member add and
+  remove events (e.g. before/after add member). This is disabled by default,
+  but is available under the `CONJUR_FEATURE_ROLES_API_EXTENSIONS` feature flag.
+  [cyberark/conjur#2671](https://github.com/cyberark/conjur/pull/2671)
+
+### Security
+- Updated nokogiri in root and docs Gemfile.lock files to resolve GHSA-2qc6-mcvw-92cw
+  [cyberark/conjur#2670](https://github.com/cyberark/conjur/pull/2670)
+
+## [1.18.5] - 2022-09-14
+
+### Added
+- List resources request (`GET /resources`) now produce audit events.
+  [cyberark/conjur#2652](https://github.com/cyberark/conjur/pull/2652)
+
+### Changed
+- AWS Access Key Rotation now preserves only one key
+
+## [1.18.4] - 2022-09-11
+
+### Added
+- Adds support for authorization token in header in OIDC authenticator.
+  [cyberark/conjur#2637](https://github.com/cyberark/conjur/pull/2637)
+
+## [1.18.3] - 2022-09-07
+
+### Security
+- Remove code and state from the debug logs
+  [conjurinc/conjur-ui#2644](https://github.com/cyberark/conjur/pull/2644)
+
+## [1.18.2] - 2022-09-01
+
+### Changed
+- Reduces debug log verbosity.
+  [cyberark/conjur#2639](https://github.com/cyberark/conjur/pull/2639)
+
+## [1.18.1] - 2022-08-01
+
+### Changed
+- Migrates OIDC Provider list to be accessable via an unauthentated
+  endpoint. This is not a concern as logins using this endpoint already
+  display the redirect endpoint on the login page.
+  [cyberark/conjur#2625](https://github.com/cyberark/conjur/pull/2625)
+
+## [1.18.0] - 2022-08-01
+
+### Added
+- Adds support for namespace label based identity scope for the Kubernetes Authenticator
+  [cyberark/conjur#2613](https://github.com/cyberark/conjur/pull/2613)
+
+### Changed
+- Adds support for authentication using OIDC's code authorization flow
+  [cyberark/conjur#2595](https://github.com/cyberark/conjur/pull/2595)
+
+### Security
+- Updated tzinfo to 1.2.10 to address CVE-2022-31163
+  [cyberark/conjur#2610](https://github.com/cyberark/conjur/pull/2610)
+
+## [1.17.8] - 2022-07-14
+
+### Security
+- Updated rails to 6.1.6.1 to remove CVE-2022-32224
+  [cyberark/conjurinc#2605](https://github.com/cyberark/conjur/pull/2605)
+
+## [1.17.7] - 2022-06-29
+### Changed
+- Made simplecov a dev/test dependency
+  [cyberark/conjur#2564](https://github.com/cyberark/conjur/pull/2564)
+- Added configuration for token TTL
+  [cyberark/conjur#2510](https://github.com/cyberark/conjur/pull/2510)
+- Added configuration for default value for maximum number of results return to `/resources` request
+  [cyberark/conjur#2510](https://github.com/cyberark/conjur/pull/2510)
+
+### Fixed
+- Previously, the temporary schemas used to modify Conjur policy
+  caused the Postgres database catalog cache to leak memory over time,
+  leading to an eventual crash. Now, we recycle the database
+  connection after modifying policy to free this cache and prevent
+  the memory leak from occurring.
+  [cyberark/conjur#2584](https://github.com/cyberark/conjur/pull/2584)
+
+### Security
+- Update rack to 2.2.3.1 to resolve CVE-2022-3023
+  [cyberark/conjur#2564](https://github.com/cyberark/conjur/pull/2564)
+- Update nokogiri to 1.13.6 to resolve un-numbered libxml CVEs (both in main
+  Gemfile.lock and in docs/Gemfile.lock)
+  [cyberark/conjur#2558](https://github.com/cyberark/conjur/pull/2558)
+
+## [1.17.6] - 2022-04-07
+
+### Changed
+- Adds `CONJUR_USERS_IN_ROOT_POLICY_ONLY` environment variable to prevent users from being created outside the root policy.
+- Fixed promotion behavior
+
+### Security
+- Upgrade Rails to 6.12.5.1 to close CVE-2022-22577 and CVE-2022-27777
+  [cyberark/conjur#2553](https://github.com/cyberark/conjur/pull/2553)
+- Updated nokogiri to 1.13.4 to resolve CVE-2022-24836
+  [cyberark/conjur#2534](https://github.com/cyberark/conjur/pull/2534)
+
+## [1.17.3] - 2022-04-04
+
+### Changed
+- Fixed issue where an invalid content type sent by our .NET SDK was causing
+  Conjur to error - but this wasn't the case before the Ruby 3 upgrade
+  [#2525](https://github.com/cyberark/conjur/pull/2525)
+- Verify non user or host resources do not have credentials.
+- Update to automated release process
+- Proper error message appears when JWT Authenticator gets HTTP code error
+  while trying to fetch JWKS data from `jwks-uri` [#2474](https://github.com/cyberark/conjur/pull/2474)
+- Upgrade to Ruby 3. [#2444](https://github.com/cyberark/conjur/pull/2444)
 
 ### Added
 - Added the ability to fetch signing keys from JWKS endpoints that use a self-signed
@@ -32,28 +262,36 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   [#2450](https://github.com/cyberark/conjur/pull/2450)
   [#2447](https://github.com/cyberark/conjur/pull/2447)
   [#2437](https://github.com/cyberark/conjur/pull/2437))
-- Added support for SNI certificates when talking to the Kubernetes API 
+- Added support for SNI certificates when talking to the Kubernetes API
   server through the web socket client.
-  [ONYX-14386](https://ca-il-jira.il.cyber-ark.com:8443/browse/ONYX-14386)
+  [#2482](https://github.com/cyberark/conjur/pull/2482)
 - Added support for http(s)_proxy for Kubernetes client in Kubernetes
   authenticator
-  [ONYX-16433](https://ca-il-jira.il.cyber-ark.com:8443/browse/ONYX-16433)
-
-### Changed
-- Update to automated release process
-- Proper error message appears when JWT Authenticator gets HTTP code error
-  while trying to fetch JWKS data from `jwks-uri` [#2474](https://github.com/cyberark/conjur/pull/2474)
-- Upgrade to Ruby 3. [#2444](https://github.com/cyberark/conjur/pull/2444)
+  [#2432](https://github.com/cyberark/conjur/pull/2432)
 
 ### Fixed
 - IAM Authn bug fix - Take rexml gem to production configuration [#2493](https://github.com/cyberark/conjur/pull/2493)
+- Previously, a stale puma pid file would prevent the Conjur server from starting
+  successfully. Conjur now removes a stale pid file at startup, if it exists.
+  [#2498](https://github.com/cyberark/conjur/pull/2498)
+- Use entirety of configured Kubernetes endpoint URL in Kubernetes authenticator's
+  web socket client, instead of only host and port
+  [#2479](https://github.com/cyberark/conjur/pull/2479)
 
 ### Security
+- Updated rails to 6.1.4.7 to resolve CVE-2022-21831 (not vulnerable)
+  [cyberark/conjur#2513](https://github.com/cyberark/conjur/pull/2513)
+- Updated nokogiri to 1.13.3 to resolve CVE-2022-23308 and CVE-2021-30560
+  [cyberark/conjur#2504](https://github.com/cyberark/conjur/pull/2504)
 - Updated Rails to 6.1.4.4 to resolve CVE-2021-44528 (Medium, Not Vulnerable)
   [cyberark/conjur#2486](https://github.com/cyberark/conjur/pull/2486)
 - Updated Rails to 6.1.4.6 to resolve CVE-2022-23633
-  Updated Puma to 5.6.2 to resolve CVE-2022-23634
-  [cyberark/conjur#2492](https://github.com/cyberark/conjur/pull/2492)  
+- Updated Puma to 5.6.2 to resolve CVE-2022-23634
+  [cyberark/conjur#2492](https://github.com/cyberark/conjur/pull/2492)
+- Updated Puma to 5.6.4 to resolve CVE-2022-24790
+  [cyberark/conjur#2534](https://github.com/cyberark/conjur/pull/2534)
+- Updated KubeClient to 4.9.3 to resolve CVE-2022-0759
+  [cyberark/conjur#2527](https://github.com/cyberark/conjur/pull/2527)
 
 ## [1.15.0] - 2021-12-21
 
@@ -76,9 +314,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   [#2418](https://github.com/cyberark/conjur/pull/2418)
 
 ### Fixed
-- Return 401 instead of 500 for invalid basic auth header. 
+- Return 401 instead of 500 for invalid basic auth header.
   [#1990](https://github.com/cyberark/conjur/issues/1990)
-- Added check to stop hosts from setting passwords 
+- Added check to stop hosts from setting passwords
   [#1920](https://github/cyberark/conjur/issues/1920)
 
 ### Security
@@ -97,10 +335,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Create default account when no account is specified in `conjurctl account create`.
   [cyberark/conjur#2388](https://github.com/cyberark/conjur/pull/2388)
 - JWT Authenticator supports nested claims in `token-app-property`, `enforced-claims`,
-  `claim-aliases` and role annotations. ([ONYX-11204](https://ca-il-jira.il.cyber-ark.com:8443/browse/ONYX-11204):
-  [#2397](https://github.com/cyberark/conjur/pull/2397),
-  [#2404](https://github.com/cyberark/conjur/pull/2404),
-  [#2403](https://github.com/cyberark/conjur/pull/2403))
+  `claim-aliases` and role annotations.
+  [#2397](https://github.com/cyberark/conjur/pull/2397)
+  [#2404](https://github.com/cyberark/conjur/pull/2404)
+  [#2403](https://github.com/cyberark/conjur/pull/2403)
 
 ### Changed
 - Changed claims mapping variable name ('mapping-claims' => 'claim-aliases').
@@ -109,12 +347,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [1.13.2] - 2021-10-13
 
 ### Security
-- Updated puma to 5.5.1 to close 
+- Updated puma to 5.5.1 to close
   [GHSA-48w2-rm65-62xx](https://github.com/puma/puma/security/advisories/GHSA-48w2-rm65-62xx).
   We were not vulnerable to this issue. [cyberark/conjur#2385](https://github.com/cyberark/conjur/pull/2385)
 - GCP Authenticator: When defining the host using the instance-name annotation,
   you now need to define at least one additional annotation.
-  [cyberark/ONYX-9442](https://ca-il-jira.il.cyber-ark.com:8443/browse/ONYX-9442)
+  [cyberark/conjur#2387](https://github.com/cyberark/conjur/pull/2387)
 - Updated nokogiri to 1.12.5 in both Gemfile.lock and docs/Gemfile.lock to resolve
   [CVE-2021-41098](https://github.com/advisories/GHSA-2rr5-8q37-2w7h)
   [cyberark/conjur#2376](https://github.com/cyberark/conjur/pull/2376)
@@ -811,8 +1049,22 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - The first tagged version.
 
-[Unreleased]: https://github.com/cyberark/conjur/compare/v1.16.0...HEAD
-[1.16.0]: https://github.com/cyberark/conjur/compare/v1.15.0...v1.16.0
+[Unreleased]: https://github.com/cyberark/conjur/compare/v1.19.5...HEAD
+[1.19.5]: https://github.com/cyberark/conjur/compare/v1.19.3...v1.19.5
+[1.19.3]: https://github.com/cyberark/conjur/compare/v1.19.2...v1.19.3
+[1.19.2]: https://github.com/cyberark/conjur/compare/v1.19.1...v1.19.2
+[1.19.1]: https://github.com/cyberark/conjur/compare/v1.19.0...v1.19.1
+[1.19.0]: https://github.com/cyberark/conjur/compare/v1.18.5...v1.19.0
+[1.18.5]: https://github.com/cyberark/conjur/compare/v1.18.4...v1.18.5
+[1.18.4]: https://github.com/cyberark/conjur/compare/v1.18.3...v1.18.4
+[1.18.3]: https://github.com/cyberark/conjur/compare/v1.18.2...v1.18.3
+[1.18.2]: https://github.com/cyberark/conjur/compare/v1.18.1...v1.18.2
+[1.18.1]: https://github.com/cyberark/conjur/compare/v1.18.0...v1.18.1
+[1.18.0]: https://github.com/cyberark/conjur/compare/v1.17.8...v1.18.0
+[1.17.8]: https://github.com/cyberark/conjur/compare/v1.17.7...v1.17.8
+[1.17.7]: https://github.com/cyberark/conjur/compare/v1.17.6...v1.17.7
+[1.17.6]: https://github.com/cyberark/conjur/compare/v1.17.3...v1.17.6
+[1.17.3]: https://github.com/cyberark/conjur/compare/v1.15.0...v1.17.3
 [1.15.0]: https://github.com/cyberark/conjur/compare/v1.14.2...v1.15.0
 [1.14.2]: https://github.com/cyberark/conjur/compare/v1.14.1...v1.14.2
 [1.14.1]: https://github.com/cyberark/conjur/compare/v1.14.0...v1.14.1

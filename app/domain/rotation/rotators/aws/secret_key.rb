@@ -31,7 +31,6 @@ module Rotation
             .select { |x| x['access_key_id'] != creds.access_key_id }
             .each { |x| client.delete_access_key(access_key_id: x['access_key_id']) }
 
-          # New key on AWS
           new_key = client.create_access_key.access_key
 
           # Update in conjur

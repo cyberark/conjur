@@ -85,7 +85,16 @@ module Authentication
         def id_claim_value
           return @id_claim_value if @id_claim_value
 
-          @id_claim_value = @jwt_authenticator_input.decoded_token.dig(
+          token = @jwt_authenticator_input.decoded_token
+          # Parsing the claim path means claims with slashes are interpreted
+          # as nested claims - for example 'a/b/c' corresponds to the doubly-
+          # nested claim: {"a":{"b":{"c":"value"}}}.
+          #
+          # We should also support claims that contain slashes as namespace
+          # indicators, such as 'namespace.com/claim', which would correspond
+          # to the top-level claim: {"namespace.com/claim":"value"}.
+          @id_claim_value = token[@id_claim_key]
+          @id_claim_value ||= token.dig(
             *parsed_claim_path
           )
         end

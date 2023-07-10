@@ -9,6 +9,15 @@ end
 # Prior to this hook, our tests had hidden coupling.  This ensures each test is
 # run independently.
 Before do
+  parallel_cuke_vars = {}
+  parallel_cuke_vars['CONJUR_APPLIANCE_URL'] = "http://conjur#{ENV['TEST_ENV_NUMBER']}"
+  parallel_cuke_vars['DATABASE_URL'] = "postgres://postgres@pg#{ENV['TEST_ENV_NUMBER']}/postgres"
+  parallel_cuke_vars['CONJUR_AUTHN_API_KEY'] = ENV["CONJUR_AUTHN_API_KEY#{ENV['TEST_ENV_NUMBER']}"]
+
+  parallel_cuke_vars.each do |key, value|
+    ENV[key] = value
+  end
+
   @user_index = 0
   @host_index = 0
 
@@ -21,7 +30,7 @@ Before do
       Slosilo.send(:keystore).adapter.model[k].delete
     end
   end
-  
+
   Account.find_or_create_accounts_resource
   admin_role = Role.create(role_id: "cucumber:user:admin")
   creds = Credentials.new(role: admin_role)
@@ -35,9 +44,16 @@ Before do
   ENV.each do |key, value|
     @env[key] = value
   end
+
+  # Create a new Scenario Context to use for sharing
+  # data between scenario steps.
+  @scenario_context = Utilities::ScenarioContext.new
 end
 
 After do
+  # Reset scenario context
+  @scenario_context.reset!
+
   # Revert to original env
   @env.each do |key, value|
     ENV[key] = value

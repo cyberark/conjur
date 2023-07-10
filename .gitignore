@@ -53,10 +53,10 @@ TEMP_NOTES.txt
 awstest
 
 # authn-k8s plugin
-ci/authn-k8s/dev/*.yaml
-!ci/authn-k8s/dev/*template*
-ci/authn-k8s/dev/policies/*.yml
-!ci/authn-k8s/dev/policies/*template*
+ci/test_suites/authenticators_k8s/dev/*.yaml
+!ci/test_suites/authenticators_k8s/dev/*template*
+ci/test_suites/authenticators_k8s/dev/policies/*.yml
+!ci/test_suites/authenticators_k8s/dev/policies/*template*
 
 # Vim backup files
 *.sw[po]
@@ -69,5 +69,8 @@ gems/*/Gemfile.lock
 
 # Container commit marker
 conjur_git_commit
+
+# AuthnOIDC V2 w/ Identity setup
+dev/policies/authenticators/authn-oidc/identity-users.yml
 
 VERSION

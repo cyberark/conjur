@@ -104,7 +104,7 @@ module AuthenticatorHelpers
   end
 
   def conjur_hostname
-    ENV.fetch('CONJUR_APPLIANCE_URL', 'http://conjur')
+    ENV.fetch('CONJUR_APPLIANCE_URL', "http://conjur#{ENV['TEST_ENV_NUMBER']}")
   end
 
   private
