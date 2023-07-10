@@ -180,13 +180,13 @@ describe Conjur::ConjurConfig do
   end
 
   describe "validation" do
-    let(:invalid_config) {
-      Conjur::ConjurConfig.new(
+    let(:config_kwargs) do
+      {
         authenticators: "invalid-authn",
         trusted_proxies: "boop",
         telemetry_enabled: "beep"
-      )
-    }
+      }
+    end
 
     it "raises error when validation fails" do
       expect { subject }.
@@ -198,7 +198,7 @@ describe Conjur::ConjurConfig do
         to raise_error(/trusted_proxies/)
       expect { subject }.
         to raise_error(/authenticators/)
-      expect { invalid_config }.
+      expect { subject }.
         to raise_error(/telemetry_enabled/)
     end
 
@@ -207,7 +207,7 @@ describe Conjur::ConjurConfig do
         to_not raise_error(/boop/)
       expect { subject }.
         to_not raise_error(/invalid-authn/)
-      expect { invalid_config }.
+      expect { subject }.
         to_not raise_error(/beep/)
     end
   end

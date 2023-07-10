@@ -113,26 +113,7 @@ Usage: start [options]
     --rotators      Starts a cucumber and test postgres container.
                     Drops you into the cucumber container.
                     You then manually start 'conjurctl server' in another tab.
-
-    --authn-iam     Starts with authn-iam/prod as authenticator
-
-    --authn-azure   Starts with authn-azure/prod as authenticator
-
-    --authn-oidc    Starts with authn-oidc/keycloak as authenticator
-
-    --authn-gcp     Starts with authn-gcp as authenticator
-
-    --authn-jwt     Starts with authn-jwt as authenticator
-
-    --oidc-adfs     Adds to authn-oidc adfs static env configuration
-
-    --oidc-okta     Adds to authn-oidc okta static env configuration
-
-    --audit         Starts with the audit engine and database enabled
-
     --metrics       Starts with the prometheus telemetry features enabled
-
-    -h, --help      Shows this help message.
 EOF
   exit
 }
@@ -153,9 +134,7 @@ parse_options() {
       --oidc-keycloak ) ENABLE_AUTHN_OIDC=true ; ENABLE_OIDC_KEYCLOAK=true ; shift ;;
       --oidc-okta ) ENABLE_AUTHN_OIDC=true ; ENABLE_OIDC_OKTA=true ; shift ;;
       --rotators ) ENABLE_ROTATORS=true ; shift ;;
-      --audit ) ENABLE_AUDIT=true ; shift ;;
       --metrics ) ENABLE_METRICS=true ; shift ;;
-      -h | --help ) print_help ; shift ;;
        * )
          if [ -z "$1" ]; then
            break
