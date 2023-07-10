@@ -93,4 +93,7 @@ gem/slosilo/.project
 gem/slosilo/.kateproject.d
 gem/slosilo/.idea
 
+# Rufus scheduler lock file
+.slosilo-rotation-rufus-scheduler.lock
+
 VERSION
