@@ -11,7 +11,6 @@ module Factories
     end
   end
   class CreateFromPolicyFactory
-
     def initialize(renderer: Factories::Renderer.new, http: RestClient, schema_validator: JSONSchemer, utilities: Factories::Utilities)
       @renderer = renderer
       @http = http
@@ -38,8 +37,11 @@ module Factories
         # Filter non-alpha-numeric, dash or underscore characters from inputs values (to prevent injection attacks).
         template_variables = body_variables
           .transform_keys { |key| key.to_s.underscore }
-          .transform_values do |value|
-            if value.is_a?(Hash)
+          .each_with_object({}) do |(key, value), rtn|
+            # Only strip values that are rendered in the policy (not Conjur secret values)
+            rtn[key] = if key == 'variables'
+              value
+            elsif value.is_a?(Hash)
               value.transform_values { |internal_value| @utilities.filter_input(internal_value.to_s) }
             else
               @utilities.filter_input(value.to_s)
@@ -108,7 +110,7 @@ module Factories
           end
         else
           {
-            message: "Generic JSON Schema validation error: type => '#{error['type']}', details => '#{error['type'].inspect}'"
+            message: "Validation error: '#{error['data_pointer']}' must be a #{error['type']}"
           }
         end
       end
@@ -128,19 +130,14 @@ module Factories
           )
         rescue RestClient::ExceptionWithResponse => e
           case e.response.code
-          when 400
-            return @failure.new(
-              { message: "Failed to apply generated Policy to '#{policy_load_path}'",
-                request_error: e.response.body }, status: :bad_request
-            )
           when 401
             return @failure.new(
-              { message: "Unauthorized to apply generated policy to '#{policy_load_path}'",
+              { message: 'Authentication failed',
                 request_error: e.response.body }, status: :unauthorized
             )
           when 403
             return @failure.new(
-              { message: "Forbidden to apply generated policy to '#{policy_load_path}'",
+              { message: "Applying generated policy to '#{policy_load_path}' is not allowed",
                 request_error: e.response.body }, status: :forbidden
             )
           when 404
@@ -150,10 +147,15 @@ module Factories
             )
           else
             return @failure.new(
-              { message: "Failed to apply generated policy to '#{policy_load_path}'. Status Code: '#{response.code}, Response: '#{response.body}''",
+              { message: "Failed to apply generated policy to '#{policy_load_path}'",
                 request_error: e.to_s }, status: :bad_request
             )
           end
+        rescue => e
+          return @failure.new(
+            { message: "Failed to apply generated policy to '#{policy_load_path}'",
+              request_error: e.to_s }, status: :bad_request
+          )
         end
 
         @success.new(response.body)
@@ -161,30 +163,33 @@ module Factories
     end
 
     def set_factory_variables(schema_variables:, factory_variables:, variable_path:, authorization:, account:)
+      # Only set secrets defined in the policy
       schema_variables.each_key do |factory_variable|
-        next unless factory_variables.key?(factory_variable)
-
         variable_id = @uri.encode_www_form_component("#{variable_path}/#{factory_variable}")
         secret_path = "secrets/#{account}/variable/#{variable_id}"
 
-        response = @http.post(
+        @http.post(
           "http://localhost:3000/#{secret_path}",
           factory_variables[factory_variable].to_s,
           { 'Authorization' => authorization }
         )
-        next if response.code == 201
-
-        case response.code
+      rescue RestClient::ExceptionWithResponse => e
+        case e.response.code
         when 401
           return @failure.new("Role is unauthorized to set variable: '#{secret_path}'", status: :unauthorized)
         when 403
           return @failure.new("Role lacks the privilege to set variable: '#{secret_path}'", status: :forbidden)
         else
           return @failure.new(
-            "Failed to set variable: '#{secret_path}'. Status Code: '#{response.code}', Response: '#{response.body}'",
+            "Failed to set variable: '#{secret_path}'. Status Code: '#{e.response.code}', Response: '#{e.response.body}'",
             status: :bad_request
           )
         end
+      rescue => e
+        return @failure.new(
+          { message: "Failed set variable '#{secret_path}'",
+            request_error: e.to_s }, status: :bad_request
+        )
       end
       @success.new('Variables successfully set')
     end

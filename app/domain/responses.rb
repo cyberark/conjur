@@ -26,7 +26,7 @@ end
 # Responsible for handling "failed" requests.
 # Log level and Response code are both option.
 class FailureResponse
-  attr_reader :message, :status
+  attr_reader :status
 
   def initialize(message, level: :warn, status: :unauthorized)
     @message = message
@@ -42,18 +42,22 @@ class FailureResponse
     @level.to_sym
   end
 
+  def message
+    case @message
+    when Array
+      @message
+    when Hash
+      @message
+    else
+      { message: @message.to_s }
+    end
+  end
+
   def to_h
     {
       code: HTTP::Response::Status::SYMBOL_CODES[@status]
     }.tap do |rtn|
-      case @message
-      when Array
-        rtn[:errors] = @message
-      when Hash
-        rtn[:error] = @message
-      else
-        rtn[:error] = { message: @message.to_s }
-      end
+      rtn[:error] = message
     end
   end
 

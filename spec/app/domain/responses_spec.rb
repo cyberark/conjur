@@ -26,7 +26,7 @@ describe FailureResponse do
 
     describe '.message' do
       it 'is the message set in the initializer' do
-        expect(failure.message).to eq('bar')
+        expect(failure.message).to eq({ message: 'bar' })
       end
     end
 
@@ -49,8 +49,39 @@ describe FailureResponse do
     let(:failure) { FailureResponse.new(message, **initialize_arguments) }
 
     describe '.message' do
-      it 'is the message set in the initializer' do
-        expect(failure.message).to eq('baz')
+      context 'when message is set in the initializer' do
+        context 'when it is a string' do
+          it "is returned as a hash with the key 'message'" do
+            expect(failure.message).to eq({ message: 'baz' })
+          end
+        end
+        context 'when it is a hash' do
+          let(:message) { { foo: 'baz' } }
+          it 'is returned as a hash' do
+            expect(failure.message).to eq({ foo: 'baz' })
+          end
+        end
+        context 'when it is an array' do
+          let(:message) { [{ foo: 'baz' }] }
+          it 'is returned as an array' do
+            expect(failure.message).to eq([{ foo: 'baz' }])
+          end
+        end
+      end
+    end
+
+    describe '.to_h' do
+      let(:message) { 'baz' }
+      context 'when default status is used' do
+        it 'returns an error and code' do
+          expect(failure.to_h).to eq({ code: 403, error: { message: 'baz' } })
+        end
+      end
+      context 'when defined status is used' do
+        let(:initialize_arguments) { { level: :debug, status: :bad_request } }
+        it 'returns an error and code' do
+          expect(failure.to_h).to eq({ code: 400, error: { message: 'baz' } })
+        end
       end
     end
 
