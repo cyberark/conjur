@@ -147,7 +147,7 @@ services:
     volumes:
       - ..:/src/conjur-server
       - authn-local:/run/authn-local
-      - authn-local2:/run/authn-local
+      - authn-local2:/run/authn-local2
       - ./ldap-certs:/ldap-certs:ro
       - log-volume:/src/conjur-server/log
       - jwks-volume:/var/jwks
