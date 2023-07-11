@@ -4,7 +4,7 @@ export REPORT_ROOT=/src/conjur-server
 
 # Sets the number of parallel processes for cucumber tests
 # Due to naming conventions for parallel_cucumber this begins at 1 NOT 0
-PARALLEL_PROCESSES=2
+PARALLEL_PROCESSES=${PARALLEL_PROCESSES:-2}
 
 get_parallel_services() {
   # get_parallel_services converts docker service names
