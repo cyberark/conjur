@@ -8,6 +8,9 @@ describe EdgeController, :type => :request do
   let(:other_host_id) {"#{account}:host:data/other"}
   let(:admin_user_id) {"#{account}:user:admin_user"}
 
+  let(:log_output) { StringIO.new }
+  let(:logger) { Logger.new(log_output) }
+
   before do
     init_slosilo_keys(account)
     @current_user = Role.find_or_create(role_id: host_id)
@@ -111,80 +114,80 @@ describe EdgeController, :type => :request do
   end
 
   context "Visibility" do
-    it "Report data endpoint works" do
+    before do
       Role.create(role_id: "#{account}:group:edge/edge-hosts")
       RoleMembership.create(role_id: "#{account}:group:edge/edge-hosts", member_id: host_id, admin_option: false, ownership:false)
+      Edge.new_edge(name: "edgy", id: 1234, version: "latest", platform: "podman", installation_date: Time.at(111111111), last_sync: Time.at(222222222))
+      EdgeController.logger = logger
+      Role.create(role_id: "#{account}:group:Conjur_Cloud_Admins")
+      RoleMembership.create(role_id: "#{account}:group:Conjur_Cloud_Admins", member_id: admin_user_id, admin_option: false, ownership:false)
+    end
 
-      Edge.new_edge(name: "edgy", id: 1234)
+    it "Report install data endpoint works" do
+      edge_details = '{"installation_date": 111111111}'
+      post("#{report_edge}?data_type=install", env: token_auth_header(role: @current_user, is_user: false)
+                                                      .merge({'RAW_POST_DATA': edge_details})
+                                                      .merge({'CONTENT_TYPE': 'application/json'}))
 
+      expect(response.code).to eq("204")
+      db_edgy = Edge.where(name: "edgy").first
+      expect(db_edgy.installation_date.to_i).to eq(111111111)
+    end
 
-      edge_details = '{"edge_statistics": {"last_synch_time": 123456789}, "edge_version": "latest", "edge_container_type": "podman"}'
-      post(report_edge, env: token_auth_header(role: @current_user, is_user: false)
+    it "Report ongoing data endpoint works" do
+      edge_details = '{"edge_statistics": {"last_synch_time": 222222222, "cycle_requests": {
+                        "get_secret":123,"apikey_authenticate": 234, "jwt_authenticate":345, "redirect": 456}},
+                      "edge_version": "latest", "edge_container_type": "podman"}'
+      post("#{report_edge}?data_type=ongoing", env: token_auth_header(role: @current_user, is_user: false)
                                .merge({'RAW_POST_DATA': edge_details})
                                .merge({'CONTENT_TYPE': 'application/json'}))
 
       expect(response.code).to eq("204")
       db_edgy = Edge.where(name: "edgy").first
-      expect(db_edgy.last_sync.to_i).to eq(123456789)
+      expect(db_edgy.last_sync.to_i).to eq(222222222)
       expect(db_edgy.version).to eq("latest")
       expect(db_edgy.platform).to eq("podman")
+      output = log_output.string
+      expect(output).to include("EdgeTelemetry")
+      %w[edgy 123 234 345 456].each {|arg| expect(output).to include(arg)}
     end
 
     it "List endpoint works" do
-      Role.create(role_id: "#{account}:group:edge/edge-hosts")
-      RoleMembership.create(role_id: "#{account}:group:edge/edge-hosts", member_id: host_id, admin_option: false, ownership:false)
-      sync_time = Time.now
-      Edge.new_edge(name: "edgy", id: 1234, last_sync: sync_time, version: "latest", platform: "podman")
-      Role.create(role_id: "#{account}:group:Conjur_Cloud_Admins")
-      RoleMembership.create(role_id: "#{account}:group:Conjur_Cloud_Admins", member_id: admin_user_id, admin_option: false, ownership:false)
-
       get(list_edges, env: token_auth_header(role: @admin_user, is_user: true))
 
       expect(response.code).to eq("200")
       resp = JSON.parse(response.body)
       expect(resp.size).to eq(1)
-      expect(resp[0]['last_sync']).to eq(sync_time.to_i)
+      expect(resp[0]['last_sync']).to eq(222222222)
       expect(resp[0]['version']).to eq("latest")
       expect(resp[0]['platform']).to eq("podman")
     end
 
     it "Reported data appears on list" do
-      Role.create(role_id: "#{account}:group:edge/edge-hosts")
-      RoleMembership.create(role_id: "#{account}:group:edge/edge-hosts", member_id: host_id, admin_option: false, ownership:false)
-
-      Edge.new_edge(name: "edgy", id: 1234)
-
-      edge_details = '{"edge_statistics": {"last_synch_time": 123456789}, "edge_version": "latest", "edge_container_type": "podman"}'
-      post(report_edge, env: token_auth_header(role: @current_user, is_user: false)
+      edge_details = '{"edge_statistics": {"last_synch_time": 222222222}, "edge_version": "latest", "edge_container_type": "podman"}'
+      post("#{report_edge}?data_type=ongoing", env: token_auth_header(role: @current_user, is_user: false)
                                .merge({'RAW_POST_DATA': edge_details})
                                .merge({'CONTENT_TYPE': 'application/json'}))
       expect(response.code).to eq("204")
 
-      Role.create(role_id: "#{account}:group:Conjur_Cloud_Admins")
-      RoleMembership.create(role_id: "#{account}:group:Conjur_Cloud_Admins", member_id: admin_user_id, admin_option: false, ownership:false)
       get(list_edges, env: token_auth_header(role: @admin_user, is_user: true))
       expect(response.code).to eq("200")
       resp = JSON.parse(response.body)
       expect(resp.size).to eq(1)
-      expect(resp[0]['last_sync']).to eq(123456789)
+      expect(resp[0]['last_sync']).to eq(222222222)
       expect(resp[0]['version']).to eq("latest")
       expect(resp[0]['platform']).to eq("podman")
     end
 
     it "Report invalid data" do
-      Role.create(role_id: "#{account}:group:edge/edge-hosts")
-      RoleMembership.create(role_id: "#{account}:group:edge/edge-hosts", member_id: host_id, admin_option: false, ownership:false)
-
-      Edge.new_edge(name: "edgy", id: 1234)
-
-      missing_optional = '{"edge_statistics": {"last_synch_time": 123456789}, "edge_version": "latest"}'
-      post(report_edge, env: token_auth_header(role: @current_user, is_user: false)
+      missing_optional = '{"edge_statistics": {"last_synch_time": 222222222}, "edge_version": "latest"}'
+      post("#{report_edge}?data_type=ongoing", env: token_auth_header(role: @current_user, is_user: false)
                                .merge({'RAW_POST_DATA': missing_optional})
                                .merge({'CONTENT_TYPE': 'application/json'}))
       expect(response.code).to eq("204")
 
       missing_required = '{"edge_statistics": {}, "edge_version": "latest", "edge_container_type": "podman"}'
-      post(report_edge, env: token_auth_header(role: @current_user, is_user: false)
+      post("#{report_edge}?data_type=ongoing", env: token_auth_header(role: @current_user, is_user: false)
                                .merge({'RAW_POST_DATA': missing_required})
                                .merge({'CONTENT_TYPE': 'application/json'}))
       expect(response.code).to eq("422")
