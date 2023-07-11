@@ -246,7 +246,7 @@ while true ; do
         * ) if [ -z "$2" ]; then shift ; else echo "$2 is not a valid option"; exit 1; fi;;
       esac
 
-      docker exec "$env_args" -it --detach-keys "ctrl-\'" "$(docker compose ps -q conjur)" bash
+      docker exec "$env_args" -it --detach-keys 'ctrl-\' "$(docker compose ps -q conjur)" bash
      shift ;;
     policy )
       case "$2" in

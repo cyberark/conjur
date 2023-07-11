@@ -3,6 +3,7 @@
 # NOTE: You must execute this script from this directory (dev).
 set -ex
 set -o pipefail
+export PARALLEL_PROCESSES=1
 
 # SCRIPT GLOBAL STATE
 
