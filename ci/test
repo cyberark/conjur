@@ -41,6 +41,14 @@ source "./ci/shared.sh"
 # shellcheck disable=SC1091
 source "build_utils.sh"
 
+# Create a value to determine if the runtime container
+# for Jenkins can run Compose v2 syntax
+COMPOSE="docker compose"
+if grep -m 1 'Red Hat' /etc/os-release; then
+  COMPOSE="docker-compose"
+fi
+export COMPOSE
+
 # Create default value if not set: allows compose to run in isolated namespace
 : "${COMPOSE_PROJECT_NAME:=$(openssl rand -hex 3)}"
 export COMPOSE_PROJECT_NAME
@@ -117,7 +125,7 @@ finish() {
   # TODO: More reliable approach to this.
   # Give SimpleCov time to generate reports.
   sleep 15
-  docker compose down --rmi 'local' --volumes || true
+  $COMPOSE down --rmi 'local' --volumes || true
 }
 
 # main is always called with at least the first arg. When the 2nd arg, the

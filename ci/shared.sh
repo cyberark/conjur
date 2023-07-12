@@ -66,20 +66,20 @@ _run_cucumber_tests() {
   read -ra parallel_services <<< "$(get_parallel_services 'conjur pg')"
 
   if (( ${#services[@]} )); then
-    docker compose up --no-deps --no-recreate -d "${parallel_services[@]}" "${services[@]}"
+    $COMPOSE up --no-deps --no-recreate -d "${parallel_services[@]}" "${services[@]}"
   else
-    docker compose up --no-deps --no-recreate -d "${parallel_services[@]}"
+    $COMPOSE up --no-deps --no-recreate -d "${parallel_services[@]}"
   fi
 
   read -ra parallel_services <<< "$(get_parallel_services 'conjur')"
   for parallel_service in "${parallel_services[@]}"; do
-    docker compose exec -T "$parallel_service" conjurctl wait --retries 180
+    $COMPOSE exec -T "$parallel_service" conjurctl wait --retries 180
   done
 
   echo "Create cucumber account..."
 
   for parallel_service in "${parallel_services[@]}"; do
-    docker compose exec -T "$parallel_service" conjurctl account create cucumber
+    $COMPOSE exec -T "$parallel_service" conjurctl account create cucumber
   done
 
   # Stage 2: Prepare cucumber environment args
@@ -168,7 +168,7 @@ _run_cucumber_tests() {
 
   # Have to add tags in profile for parallel to run properly
   # ${cucumber_tags_arg} should overwrite the profile tags in a way for @smoke to work correctly
-  docker compose run "${run_flags[@]}" "${env_var_flags[@]}" \
+  $COMPOSE run "${run_flags[@]}" "${env_var_flags[@]}" \
     cucumber -ec "\
       /oauth/keycloak/scripts/fetch_certificate &&
       bundle exec parallel_cucumber . -n ${PARALLEL_PROCESSES} \
@@ -185,24 +185,24 @@ _run_cucumber_tests() {
   # process to write the report. The container is kept alive using an infinite
   # sleep in the at_exit hook (see .simplecov).
   for parallel_service in "${parallel_services[@]}"; do
-    docker compose exec -T "$parallel_service" bash -c "pkill -f 'puma 5'"
+    $COMPOSE exec -T "$parallel_service" bash -c "pkill -f 'puma 5'"
   done
 }
 
 _get_api_key() {
   local service=$1
 
-  docker compose exec -T "${service}" conjurctl \
+  $COMPOSE exec -T "${service}" conjurctl \
     role retrieve-key cucumber:user:admin | tr -d '\r'
 }
 
 _find_cucumber_network() {
   local net
 
-  # Docker compose conjur/pg services use the same
+  # docker compose conjur/pg services use the same
   # network for 1 or more instances so only conjur is passed
   # and not other parallel services.
-  conjur_id=$(docker compose ps -q conjur)
+  conjur_id=$($COMPOSE ps -q conjur)
   net=$(docker inspect "${conjur_id}" --format '{{.HostConfig.NetworkMode}}')
 
   docker network inspect "$net" \
@@ -233,7 +233,7 @@ wait_for_cmd() {
 _wait_for_pg() {
   local svc=$1
   local pg_cmd=(psql -U postgres -c "select 1" -d postgres)
-  local dc_cmd=(docker compose exec -T "$svc" "${pg_cmd[@]}")
+  local dc_cmd=($COMPOSE exec -T "$svc" "${pg_cmd[@]}")
 
   echo "Waiting for pg to come up..."
 
@@ -252,14 +252,14 @@ is_ldap_up() {
   # Note: We need the subshell to group the commands.
   (
     set -o pipefail
-    docker compose exec -T ldap-server bash -c "$ldap_check_cmd" |
+    $COMPOSE exec -T ldap-server bash -c "$ldap_check_cmd" |
     grep '^search: 3$'
   ) >/dev/null 2>&1
 }
 
 start_ldap_server() {
   # Start LDAP.
-  docker compose up --no-deps --detach ldap-server
+  $COMPOSE up --no-deps --detach ldap-server
 
   # Wait for up to 90 seconds, since it's slow.
   echo "Ensuring that LDAP is up..."
