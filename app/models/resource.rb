@@ -88,12 +88,14 @@ class Resource < Sequel::Model
     # @param offset [Numeric] - an offset into the list of returned results
     # @param limit [Numeric] - a maximum number of results to return
     # @param search [String] - a search term in the resource id
-    def search account: nil, kind: nil, owner: nil, offset: nil, limit: nil, search: nil
+    def search account: nil, kind: nil, owner: nil, offset: nil, limit: nil, search: nil, exclude:nil
       scope = self
 
       # Filter by kind and account.
       scope = scope.where(Sequel.lit("account(resource_id) = ?", account)) if account
       scope = scope.where(Sequel.lit("kind(resource_id) = ?", kind)) if kind
+      scope = scope.where(Sequel.like(:resource_id, account + ":policy:data/%")) if exclude
+      scope = scope.where(Sequel.ilike(:resource_id, account + ":policy:data/?%", exclude)) if exclude
 
       # Filter by owner
       if owner
