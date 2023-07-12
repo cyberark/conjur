@@ -4,7 +4,7 @@ export REPORT_ROOT=/src/conjur-server
 
 # Sets the number of parallel processes for cucumber tests
 # Due to naming conventions for parallel_cucumber this begins at 1 NOT 0
-PARALLEL_PROCESSES=2
+PARALLEL_PROCESSES=${PARALLEL_PROCESSES:-2}
 
 get_parallel_services() {
   # get_parallel_services converts docker service names
@@ -112,6 +112,16 @@ _run_cucumber_tests() {
     fi
   done
 
+  # Generate authn_local socket ENV variables based on the
+  # number of parallel processes.
+  for (( i=1; i <= ${#parallel_services[@]}; ++i )); do
+    if (( i == 1 )) ; then
+      sockets+=("AUTHN_LOCAL_SOCKET=/run/authn-local/.socket")
+    else
+      sockets+=("AUTHN_LOCAL_SOCKET${i}=/run/authn-local${i}/.socket")
+    fi
+  done
+
   # Add the cucumber env vars that we always want to send.
   # Note: These are args for docker compose run, and as such the right hand
   # sides of the = do NOT require escaped quotes.  docker compose takes the
@@ -124,6 +134,11 @@ _run_cucumber_tests() {
   # Add parallel process api_keys to the env_var_flags
   for api_key in "${api_keys[@]}"; do
     env_var_flags+=(-e "$api_key")
+  done
+
+  # Add parallel process authn_local sockets to the env_var_flags
+  for socket in "${sockets[@]}"; do
+    env_var_flags+=(-e "$socket")
   done
 
   # If there's no tty (e.g. we're running as a Jenkins job), pass -T to

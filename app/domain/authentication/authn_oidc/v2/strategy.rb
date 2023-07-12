@@ -28,8 +28,10 @@ module Authentication
             )
           )
           unless identity.present?
-            raise Errors::Authentication::AuthnOidc::IdTokenClaimNotFoundOrEmpty,
-                  @authenticator.claim_mapping
+            raise Errors::Authentication::AuthnOidc::IdTokenClaimNotFoundOrEmpty.new(
+              @authenticator.claim_mapping,
+              "claim-mapping"
+            )
           end
           identity
         end
