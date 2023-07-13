@@ -17,7 +17,7 @@ function _hydrate_all_env_args() {
     set -o pipefail
     # Note: This prints all lines that look like:
     # KEYCLOAK_XXX=someval
-    docker compose exec -T "${KEYCLOAK_SERVICE_NAME}" printenv | awk '/KEYCLOAK/'
+    $COMPOSE exec -T "${KEYCLOAK_SERVICE_NAME}" printenv | awk '/KEYCLOAK/'
   )
 
   # shellcheck disable=SC2034
@@ -38,7 +38,7 @@ function _hydrate_all_env_args() {
 function main() {
   local parallel_services
   read -ra parallel_services <<< "$(get_parallel_services 'conjur pg')"
-  docker compose up --no-deps -d "${parallel_services[@]}" keycloak
+  $COMPOSE up --no-deps -d "${parallel_services[@]}" keycloak
 
   # We also run an ldap-server container for testing the OIDC & LDAP combined
   # use-case.  We can't run this use-case in a separate Jenkins step because
