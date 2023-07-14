@@ -16,6 +16,8 @@ docker run --rm \
   --dockerfile=Dockerfile.fpm \
   --output=deb \
   --version "$(<VERSION)" \
+  --image="registry.tld/cyberark/ubuntu-ruby-builder" \
+  --image-tag="22.04" \
   possum \
   -- \
   --depends tzdata
@@ -27,6 +29,8 @@ docker run --rm \
   --dockerfile=Dockerfile.fpm \
   --output=rpm \
   --version "$(<VERSION)" \
+  --image="registry.tld/cyberark/ubuntu-ruby-builder" \
+  --image-tag="22.04" \
   possum \
   -- \
   --depends tzdata \
