@@ -14,8 +14,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Fixed
 - OIDC authenticators support `https_proxy` and `HTTPS_PROXY` environment variables
   [cyberark/conjur#2902](https://github.com/cyberark/conjur/pull/2902)
-- Support plural syntax for revoke and deny 
+- Support plural syntax for revoke and deny
   [cyberark/conjur#2901](https://github.com/cyberark/conjur/pull/2901)
+
+### Added
+- Telemetry support
+  [cyberark/conjur#2854](https://github.com/cyberark/conjur/pull/2854)
+- Introduces support for Policy Factory, which enables resource creation
+  through a new `factories` API.
+  [cyberark/conjur#2855](https://github.com/cyberark/conjur/pull/2855/files)
+
+## [1.19.6] - 2023-07-05
 
 ### Added
 - New flag to `conjurctl server` command called `--no-migrate` which allows for skipping
