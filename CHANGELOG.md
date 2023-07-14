@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
+## [1.19.7] - 2023-07-19
+
+### Added
+- Introduces support for Policy Factory, which enables resource creation
+  through a new `factories` API.
+  [cyberark/conjur#2855](https://github.com/cyberark/conjur/pull/2855/files)
+
 ## [1.19.6] - 2023-07-05
 
 ### Fixed

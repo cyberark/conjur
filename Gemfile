@@ -77,6 +77,8 @@ gem 'openid_connect'
 gem "anyway_config"
 gem 'i18n', '~> 1.8.11'
 
+gem 'json_schemer'
+
 group :development, :test do
   gem 'aruba'
   gem 'ci_reporter_rspec'
