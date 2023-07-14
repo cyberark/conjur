@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module Factory
+module Factories
   module Templates
     class ValidateTemplate
       def initialize(renderer: Factories::RenderPolicy.new)
