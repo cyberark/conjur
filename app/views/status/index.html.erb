@@ -24,7 +24,7 @@
       <div class="left-panel">
         <h1>Status</h1>
         <p class="status-text">Your Conjur server is running!</p>
-        
+
         <h2>Security Check:</h2>
         <p>Does your browser show a green lock icon on the left side of the address bar?</p>
 
@@ -58,6 +58,7 @@
           <dt>Details:</dt>
           <dd>Version <%= ENV["CONJUR_VERSION_DISPLAY"] %></dd>
           <dd>API Version <a href="https://github.com/cyberark/conjur-openapi-spec/releases/tag/v<%= ENV["API_VERSION"] %>"><%= ENV["API_VERSION"] %></a>
+          <dd>FIPS mode <%= ENV["FIPS_MODE_STATUS"] %></a>
           <dt>More Info:</dt>
           <dd>
             <ul>
@@ -70,7 +71,7 @@
 
       </div>
     </main>
-    
+
     <footer>
       <div class="logo-cont">
         <img src="/img/cyberark-white.png"/>
