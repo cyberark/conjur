@@ -141,6 +141,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - Telemetry support
   [cyberark/conjur#2854](https://github.com/cyberark/conjur/pull/2854)
+- Introduces support for Policy Factory, which enables resource creation
+  through a new `factories` API.
+  [cyberark/conjur#2855](https://github.com/cyberark/conjur/pull/2855/files)
+
+## [1.19.6] - 2023-07-05
+
+### Added
 - New flag to `conjurctl server` command called `--no-migrate` which allows for skipping
   the database migration step when starting the server.
   [cyberark/conjur#2895](https://github.com/cyberark/conjur/pull/2895)
