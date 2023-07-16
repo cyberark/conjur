@@ -31,7 +31,7 @@ class Edge < Sequel::Model
     self.ip = ip
     self.version = data['edge_version'] if data['edge_version']
     sync_time = Time.at(data['edge_statistics']['last_synch_time']) # This field is required
-    self.last_sync = sync_time
+    self.last_sync = sync_time if sync_time.to_i > 0
     self.platform = data['edge_container_type'] if data['edge_container_type']
 
     self.save
