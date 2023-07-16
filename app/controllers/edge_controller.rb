@@ -183,17 +183,17 @@ class EdgeController < RestController
 
   def report_edge_data
     logger.info(LogMessages::Endpoints::EndpointRequested.new('edge/data'))
-    params.require(:edge_statistics).require(:last_synch_time)
-    allowed_params = [:account, :edge_version, :edge_container_type, edge_statistics: [:last_synch_time, cycle_requests:
-                     [:get_secret, :apikey_authenticate, :jwt_authenticate, :redirect]]]
-    options = params.permit(*allowed_params).to_h
-    verify_edge_host(options)
+    allowed_params = %i[account data_type]
+    url_params = params.permit(*allowed_params)
+    verify_edge_host(url_params)
+    data_handlers = {'install' => EdgeLogic::DataHandlers::InstallHandler , 'ongoing' => EdgeLogic::DataHandlers::OngoingHandler}
+    handler = data_handlers[url_params[:data_type]]
+    raise BadRequest unless handler
     begin
-      Edge.record_edge_access(current_user.role_id, options, request.ip)
+      handler.new(logger).call(params, current_user.role_id, request.ip)
     rescue Exceptions::RecordNotFound
       raise RecordNotFound.new(host_name, message: "Edge for host #{current_user.role_id} not found")
     end
-    #TODO: print to log other data
     logger.info(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("edge/data"))
   end
 

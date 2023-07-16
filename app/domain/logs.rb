@@ -47,6 +47,15 @@ module LogMessages
     )
   end
 
+  module Edge
+    EdgeTelemetry = ::Util::TrackableLogMessageClass.new(
+      msg: "Edge {0} was last synced at {1}. Requests served during last sync interval: " \
+            "get secret: {2}, auth apikey: {3}, auth jwt: {4}, redirect {5}." \
+            "Edge Info: version: {6}, platform: {7}, install time: {8}",
+      code: "CONJ00158"
+    )
+  end
+
   module Authentication
 
     LoginError = ::Util::TrackableErrorClass.new(
