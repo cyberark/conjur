@@ -5,14 +5,31 @@ module EdgeLogic
     class InstallHandler
       def initialize(logger)
         @logger = logger
+        @error_message = nil
       end
 
       def call(params, hostname, ip)
-        installation_date = params.require(:installation_date)
-        edge = Edge.get_by_hostname(hostname)
-        edge.update(installation_date: Time.at(installation_date))
+        edge = nil
+        begin
+          edge = Edge.get_by_hostname(hostname)
+          installation_date = params.require(:installation_date)
+          edge.update(installation_date: Time.at(installation_date))
+        rescue => e
+          @error_message = e.message
+          raise e
+        ensure
+          audit_installed(edge&.name, ip)
+        end
+      end
 
-        #TODO write audit
+      private
+
+      def audit_installed(edge_name = "not-found", ip)
+        audit_params = { edge_name: edge_name, user: edge_name, client_ip: ip }
+        audit_params[:error_message] = @error_message if @error_message
+        Audit.logger.log(Audit::Event::EdgeStartup.new(
+          **audit_params
+        ))
       end
     end
   end
