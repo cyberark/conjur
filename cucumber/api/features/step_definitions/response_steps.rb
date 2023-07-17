@@ -70,3 +70,12 @@ Then(/^the binary data is preserved for "([^"]*)"$/) do |resource_id|
   data = Base64.decode64(@result[resource_id])
   expect(data).to eq(@value)
 end
+
+Then(/^the resource list should be include the all resources$/) do
+  all_resources = [*@resources.values.map{|r| r.id}]
+  expect(@result.map{|r| r['id']}.count).to eq(all_resources.count)
+end
+
+Then(/^the resource list should have only the newest resource$/) do
+  expect(@result.map{|r| r['id']}).to eq([@current_resource.id])
+end
