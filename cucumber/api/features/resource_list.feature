@@ -9,7 +9,7 @@ Feature: List resources with various types of filtering
   @smoke
   Scenario: The resource list includes a new resource.
 
-    The most basic resource listing route returns all resources in an account.
+  The most basic resource listing route returns all resources in an account.
 
     Given I save my place in the audit log file for remote
     When I successfully GET "/resources/cucumber"
@@ -224,3 +224,72 @@ Feature: List resources with various types of filtering
       [action@43868 result="success" operation="list"]
       cucumber:user:alice successfully listed resources with parameters: {:account=>"cucumber", :kind=>"test-resource", :count=>"true"}
     """
+
+  @acceptance
+  Scenario: The resource list is excluded for all directories.
+    Given I create a new resource called "target-resource-0"
+    # resources created, either in background and this scenario, are under test-resource directory
+    When I successfully GET "/resources/cucumber/test-resource?exclude=test-resource"
+    Then the result is empty
+
+  @acceptance
+  Scenario: The resource list is excluded for a specific directory.
+    Given I create a new resource called "target-resource-0"
+    When I successfully GET "/resources/cucumber/test-resource?exclude=target-resource-0"
+    Then the resource list should not include the newest resource
+
+  @acceptance
+  Scenario: The resource list is excluded for a not-exist directory.
+    Given I create a new resource called "target-resource-0"
+    When I successfully GET "/resources/cucumber/test-resource?exclude=random-branch"
+    Then the resource list should be include the all resources
+
+  @acceptance
+  Scenario: The resource list is excluded for a list of directories.
+    Given I create a new resource called "target-resource-0"
+    And I create a new resource called "target-resource-1"
+    And I create a new resource called "target-resource-2"
+    When I successfully GET "/resources/cucumber/test-resource?exclude=target-resource-0,target-resource-1,target-resource-2"
+    Then I receive 3 resources
+
+  @acceptance
+  Scenario: The resource list is excluded for different sub-branch directory.
+    Given I create a new "target-not-exclude" resource called "target-resource-0"
+    # resources created, either in background and this scenario, are under test-resource directory
+    When I successfully GET "/resources/cucumber?exclude=test-resource"
+    Then the resource list should have only the newest resource
+
+  @acceptance
+  Scenario: The resource list is excluded for a list of directories and filter all branches.
+    Given I create a new resource called "target-resource-0"
+    And I create a new resource called "target-resource-1"
+    And I create a new resource called "target-resource-2"
+    # resources created, either in background and this scenario, are under test-resource directory
+    When I successfully GET "/resources/cucumber/test-resource?exclude=test-resource,target-resource-0"
+    Then the result is empty
+
+  @acceptance
+  Scenario: The resource list is excluded for empty directory.
+    Given I create a new resource called "target-resource-0"
+    When I successfully GET "/resources/cucumber/test-resource?exclude="
+    Then the resource list should be include the all resources
+
+  @acceptance
+  Scenario: The resource list is excluded for special-character directory.
+    Given I create a new resource called "target-resource-./:;<=>?_`{|}]'()*+,-@#"
+    When I successfully GET "/resources/cucumber/test-resource?exclude=resource-./:;<=>?_`{|}]'()*+,-@#"
+    Then the resource list should not include the newest resource
+
+  @acceptance
+  Scenario: The resource list is excluded and search a resource.
+    Given I create a new resource called "target-resource-0"
+    And I create a new resource called "find-me"
+    When I successfully GET "/resources/cucumber/test-resource?exclude=target-resource-0&search=find-me"
+    Then the resource list should include the newest resource
+
+  @acceptance
+  Scenario: The resource list is excluded and search a resource.
+    Given I create a new resource called "target-resource-0"
+    And I create a new resource called "find-me"
+    When I successfully GET "/resources/cucumber/test-resource?exclude=target-resource-0&search=target-resource-0"
+    Then the result is empty
