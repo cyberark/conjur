@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Modify slosilo endpoint to return current and previous keys
 - Add Edges table and allow updating it by Edge https://ca-il-jira.il.cyber-ark.com:8443/browse/ONYX-40661
 - Mask Edge IP from audits emitted by Edge forwards https://ca-il-jira.il.cyber-ark.com:8443/browse/ONYX-38139
+- Add an exclude param to resources-list for filtering https://ca-il-jira.il.cyber-ark.com:8443/browse/ONYX-41894
 
 ## [1.0.0-cloud] - 2023-06-07
 ### Changed
