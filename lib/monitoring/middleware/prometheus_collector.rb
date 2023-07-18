@@ -46,9 +46,8 @@ module Monitoring
           operation: operation,
           duration: duration
         )
-      rescue
-        # TODO: log unexpected exception during request recording
-        nil
+      rescue => e
+        @logger.debug(LogMessages::Monitoring::ExceptionDuringRequestRecording.new(e.inspect))
       end
 
       def find_operation(method, path)
@@ -57,7 +56,6 @@ module Monitoring
             return op[:operation]
           end
         end
-        return "unknown"
       end
     end
   end
