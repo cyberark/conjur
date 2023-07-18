@@ -13,7 +13,7 @@ module Monitoring
 
     def subscribe(name)
       ActiveSupport::Notifications.subscribe(name) do |_, _, _, _, payload|
-        yield payload
+        yield(payload)
       end
     end
 
