@@ -56,6 +56,7 @@ module Monitoring
             return op[:operation]
           end
         end
+        "unknown"
       end
     end
   end

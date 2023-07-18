@@ -49,12 +49,10 @@ module Monitoring
       end
 
       def get_authenticator_counts(authenticators)
-        authenticator_counts = {}
-        authenticators.each do |authenticator|
-          type = authenticator.split('/')[0]
-          authenticator_counts[type] ? authenticator_counts[type] += 1 : authenticator_counts[type] = 1
+        authenticators.each_with_object(Hash.new(0)) do |authenticator, rtn|
+          type = authenticator.split('/').first
+          rtn[type] += 1
         end
-        return authenticator_counts
       end
     end
   end
