@@ -274,7 +274,7 @@ module Conjur
     end
 
     def telemetry_enabled_valid?
-      [true, false].include? telemetry_enabled
+      [true, false].include?(telemetry_enabled)
     end
   end
 end
