@@ -11,7 +11,7 @@ module Monitoring
       when :histogram
         create_histogram_metric(metric)
       else
-        raise Exception.new "Invalid or missing metric type."
+        raise Errors::Monitoring::InvalidOrMissingMetricType.new(type.to_s)
       end
     end
 
