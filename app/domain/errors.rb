@@ -748,4 +748,12 @@ module Errors
       code: "CONJ00044E"
     )
   end
+
+  module Monitoring
+
+    InvalidOrMissingMetricType = ::Util::TrackableErrorClass.new(
+      msg: "Invalid or missing metric type: {0-metric-type}",
+      code: "CONJ00152E"
+    )
+  end
 end
