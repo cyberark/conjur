@@ -1,0 +1,27 @@
+groups:
+  - name: Hardware alerts
+    rules:
+      - alert: Node down
+        expr: up{job="node_exporter"} == 0
+        for: 3m
+        labels:
+          severity: warning
+        annotations:
+          title: Node {{ $labels.instance }} is down
+          description: Failed to scrape {{ $labels.job }} on {{ $labels.instance }} for more than 3 minutes. Node seems down.
+
+      - alert: Low free space
+        expr: (node_filesystem_free{mountpoint !~ "/mnt.*"} / node_filesystem_size{mountpoint !~ "/mnt.*"} * 100) < 15
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          title: Low free space on {{ $labels.instance }}
+          description: On {{ $labels.instance }} device {{ $labels.device }} mounted on {{ $labels.mountpoint }} has low free space of {{ $value }}%
+
+      - alert: Conjur Down
+        expr: up{job="conjur"} < 1
+        for: 1m
+        annotations:
+          title: Conjur is down
+          description: Failed to scrape Conjur on {{ $labels.instance }} for more than 1 minute. Node seems down.

@@ -40,6 +40,7 @@ IDENTITY_USER=""
 declare -a required_envvars
 required_envvars[identity]="IDENTITY_CLIENT_ID IDENTITY_CLIENT_SECRET IDENTITY_PROVIDER_URI"
 required_envvars[azure]="AZURE_TENANT_ID AZURE_SUBSCRIPTION_ID AZURE_RESOURCE_GROUP"
+ENABLE_METRICS=false
 
 main() {
   unset COMPOSE_PROJECT_NAME
@@ -75,6 +76,7 @@ main() {
   init_jwt
   init_oidc
   init_rotators
+  init_metrics
 
   # Updates CONJUR_AUTHENTICATORS and restarts required services.
   start_auth_services
@@ -112,6 +114,7 @@ Usage: start [options]
     --rotators      Starts a cucumber and test postgres container.
                     Drops you into the cucumber container.
                     You then manually start 'conjurctl server' in another tab.
+    --metrics       Starts with the prometheus telemetry features enabled
 EOF
   exit
 }
@@ -132,6 +135,7 @@ parse_options() {
       --oidc-keycloak ) ENABLE_AUTHN_OIDC=true ; ENABLE_OIDC_KEYCLOAK=true ; shift ;;
       --oidc-okta ) ENABLE_AUTHN_OIDC=true ; ENABLE_OIDC_OKTA=true ; shift ;;
       --rotators ) ENABLE_ROTATORS=true ; shift ;;
+      --metrics ) ENABLE_METRICS=true ; shift ;;
        * )
          if [ -z "$1" ]; then
            break
@@ -482,6 +486,14 @@ init_iam() {
   docker compose exec conjur \
     conjurctl policy load cucumber \
     "/src/conjur-server/dev/files/authn-iam/policy.yml"
+}
+
+init_metrics() {
+  if [[ $ENABLE_METRICS != true ]]; then
+    return
+  fi
+  env_args+=(-e "CONJUR_TELEMETRY_ENABLED=true")
+  services+=(prometheus node-exporter)
 }
 
 start_auth_services() {
