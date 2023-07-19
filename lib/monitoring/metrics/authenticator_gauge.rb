@@ -24,7 +24,7 @@ module Monitoring
       end
 
       def update(*payload)
-        metric = @registry.get(@metric_name)
+        metric = registry.get(metric_name)
         update_enabled_authenticators(metric)
         update_installed_authenticators(metric)
         update_configured_authenticators(metric)
@@ -34,14 +34,14 @@ module Monitoring
         enabled_authenticators = @installed_authenticators.enabled_authenticators
         enabled_authenticator_counts = get_authenticator_counts(enabled_authenticators)
         enabled_authenticator_counts.each do |type, count|
-          metric.set(count, labels: { type: type, status: 'enabled'})
+          metric.set(count, labels: { type: type, status: 'enabled' })
         end
       end
 
       def update_installed_authenticators(metric)
         installed_authenticators = @installed_authenticators.authenticators(ENV).keys
         installed_authenticators.each do |type|
-          metric.set(1, labels: { type: type, status: 'installed'})
+          metric.set(1, labels: { type: type, status: 'installed' })
         end
       end
 
@@ -49,7 +49,7 @@ module Monitoring
         configured_authenticators =  @installed_authenticators.configured_authenticators
         configured_authenticator_counts = get_authenticator_counts(configured_authenticators)
         configured_authenticator_counts.each do |type, count|
-          metric.set(count, labels: { type: type, status: 'configured'})
+          metric.set(count, labels: { type: type, status: 'configured' })
         end
       end
 

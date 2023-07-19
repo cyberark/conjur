@@ -16,7 +16,7 @@ module Monitoring
       end
 
       def update(payload)
-        metric = @registry.get(@metric_name)
+        metric = registry.get(metric_name)
         update_labels = {
           code: payload[:code],
           operation: payload[:operation]

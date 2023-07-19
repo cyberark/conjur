@@ -221,7 +221,7 @@ module Monitoring
         method: "GET",
         pattern: /^(\/whoami)$/,
         operation: "whoAmI"
-      },
+      }
     ]
   end
 end

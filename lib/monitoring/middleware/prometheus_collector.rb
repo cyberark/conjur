@@ -1,5 +1,5 @@
 require 'benchmark'
-require_relative '../operations.rb'
+require_relative '../operations'
 
 module Monitoring
   module Middleware
@@ -28,13 +28,13 @@ module Monitoring
         operation = find_operation(env['REQUEST_METHOD'], env['PATH_INFO'])
         duration = Benchmark.realtime { response = yield }
         record(env, response.first.to_s, duration, operation)
-        return response
-      rescue => exception
+        response
+      rescue => e
         @pubsub.publish(
           "conjur.request_exception", 
           operation: operation,
-          exception: exception.class.name,
-          message: exception
+          exception: e.class.name,
+          message: e
         )
         raise
       end

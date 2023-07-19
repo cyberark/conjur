@@ -19,7 +19,7 @@ module Monitoring
       end
 
       def update(*payload)
-        metric = @registry.get(@metric_name)
+        metric = registry.get(metric_name)
         Monitoring::QueryHelper.instance.policy_role_counts.each do |kind, value|
           metric.set(value, labels: { kind: kind }) unless kind == '!'
         end

@@ -4,7 +4,7 @@ require_relative './pub_sub'
 
 module Monitoring
   module Prometheus
-    extend self
+    module_function
 
     def setup(options = {})
       @registry = options[:registry] || ::Prometheus::Client::Registry.new

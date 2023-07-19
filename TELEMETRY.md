@@ -89,26 +89,26 @@ best to review the existing examples and determine the best approach on a
 case-by-case basis.
 
 1. Create a metric class under the Monitoring::Metrics module (see
-`/lib/monitoring/metrics` for examples)
-1. Implement `setup(registry, pubsub)` method
-    1. Initialize the metric by setting instance variables defining the metric
+    `/lib/monitoring/metrics` for examples)
+2. Implement `setup(registry, pubsub)` method
+    a. Initialize the metric by setting instance variables defining the metric
     name, description, labels, etc.
-    1. Expose the above instance variables via an attribute reader
-    1. Register the metric by calling `Metrics.create_metric(self, :type)` where
+    b. Expose the above instance variables via an attribute reader
+    c. Register the metric by calling `Metrics.create_metric(self, :type)` where
     type can be `counter`, `gauge`, or `histogram`
-1. Implement `update` method to define update behavior
-    1. Get the metric from the registry
-    1. Determine the label values
-    1. Determine and set the metric values
-1. Implement a publishing event*
-    1. Determine where in the code an event should be triggered which updates
+3. Implement `update` method to define update behavior
+    a. Get the metric from the registry
+    b. Determine the label values
+    c. Determine and set the metric values
+4. Implement a publishing event*
+    a. Determine where in the code an event should be triggered which updates
     the metric
-    1. Use the PubSub singleton class to instrument the correct event i.e.
+    b. Use the PubSub singleton class to instrument the correct event i.e.
     `Monitoring::PubSub.instance.publish('conjur.policy_loaded')`
-1. Add the newly-defined metric to Prometheus initializer
-(`/config/initializers/prometheus.rb`)
+5. Add the newly-defined metric to Prometheus initializer
+    (`/config/initializers/prometheus.rb`)
 
-\*Since instrumenting Pub/Sub events may involve modifying existing code, it
+Since instrumenting Pub/Sub events may involve modifying existing code, it
 should be as unintrusive as possible. For example, the existing metrics use the
 following two methods to avoid modifying any Conjur behavior or impacting
 performance:
