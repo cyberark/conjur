@@ -189,11 +189,9 @@ class EdgeController < RestController
     data_handlers = {'install' => EdgeLogic::DataHandlers::InstallHandler , 'ongoing' => EdgeLogic::DataHandlers::OngoingHandler}
     handler = data_handlers[url_params[:data_type]]
     raise BadRequest unless handler
-    begin
-      handler.new(logger).call(params, current_user.role_id, request.ip)
-    rescue Exceptions::RecordNotFound
-      raise RecordNotFound.new(host_name, message: "Edge for host #{current_user.role_id} not found")
-    end
+
+    handler.new(logger).call(params, current_user.role_id, request.ip)
+
     logger.info(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("edge/data"))
   end
 

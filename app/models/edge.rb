@@ -14,7 +14,8 @@ class Edge < Sequel::Model
     end
 
     def get_by_hostname(hostname)
-      Edge.where(id: hostname_to_id(hostname)).first || raise(Exceptions::RecordNotFound)
+      Edge.where(id: hostname_to_id(hostname)).first || raise(Exceptions::RecordNotFound.new(hostname,
+                                                                message: "Edge for host #{hostname} not found"))
     end
 
     def hostname_to_id(hostname)
