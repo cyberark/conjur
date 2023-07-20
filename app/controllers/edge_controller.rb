@@ -181,6 +181,23 @@ class EdgeController < RestController
        version:edge.version, installation_date: edge.installation_date.to_i, platform: edge.platform}})
   end
 
+  def max_edges_allowed
+    logger.info(LogMessages::Endpoints::EndpointRequested.new("edge/max-allowed"))
+    allowed_params = %i[account]
+    options = params.permit(*allowed_params).to_h.symbolize_keys
+    validate_conjur_admin_group(options[:account])
+    begin
+      id = options[:account] + ":variable:edge/edge-configuration/max-edge-allowed"
+      row = Secret.where(:resource_id.like(id)).last
+      secret_value = Slosilo::EncryptedAttributes.decrypt(row[:value], aad: id)
+
+      render(plain: secret_value, content_type: "text/plain")
+    rescue Exceptions::RecordNotFound
+      raise RecordNotFound, "The request failed because max-edge-allowed secret doesn't exist"
+    end
+    logger.info(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("edge/max-allowed"))
+  end
+
   def report_edge_data
     logger.info(LogMessages::Endpoints::EndpointRequested.new('edge/data'))
     allowed_params = %i[account data_type]
