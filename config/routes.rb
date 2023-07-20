@@ -81,6 +81,8 @@ Rails.application.routes.draw do
       get     "/edge/secrets/:account"              => 'edge#all_secrets'
       get     "/edge/hosts/:account"                => 'edge#all_hosts'
       get     "/edge/edges/:account"                => 'edge#all_edges'
+      get     "/edge/max-allowed/:account"          => 'edge#max_edges_allowed'
+
       post    "/edge/data/:account"                 => 'edge#report_edge_data', :constraints => QueryParameterActionRecognizer.new("data_type")
       get     "/edge/slosilo_keys/:account"         => 'edge#slosilo_keys'
 
