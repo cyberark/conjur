@@ -225,6 +225,10 @@ Feature: List resources with various types of filtering
       cucumber:user:alice successfully listed resources with parameters: {:account=>"cucumber", :kind=>"test-resource", :count=>"true"}
     """
 
+    ################
+    # exclude param
+   ################
+
   @acceptance
   Scenario: The resource list is excluded for all directories.
     Given I create a new resource called "target-resource-0"
@@ -235,7 +239,7 @@ Feature: List resources with various types of filtering
   @acceptance
   Scenario: The resource list is excluded for a specific directory.
     Given I create a new resource called "target-resource-0"
-    When I successfully GET "/resources/cucumber/test-resource?exclude=target-resource-0"
+    When I successfully GET "/resources/cucumber/test-resource?exclude=test-resource:target-resource-0"
     Then the resource list should not include the newest resource
 
   @acceptance
@@ -249,7 +253,7 @@ Feature: List resources with various types of filtering
     Given I create a new resource called "target-resource-0"
     And I create a new resource called "target-resource-1"
     And I create a new resource called "target-resource-2"
-    When I successfully GET "/resources/cucumber/test-resource?exclude=target-resource-0,target-resource-1,target-resource-2"
+    When I successfully GET "/resources/cucumber/test-resource?exclude=test-resource:target-resource-0,test-resource:target-resource-1,test-resource:target-resource-2"
     Then I receive 3 resources
 
   @acceptance
@@ -265,7 +269,7 @@ Feature: List resources with various types of filtering
     And I create a new resource called "target-resource-1"
     And I create a new resource called "target-resource-2"
     # resources created, either in background and this scenario, are under test-resource directory
-    When I successfully GET "/resources/cucumber/test-resource?exclude=test-resource,target-resource-0"
+    When I successfully GET "/resources/cucumber/test-resource?exclude=test-resource,test-resource:target-resource-0"
     Then the result is empty
 
   @acceptance
@@ -276,20 +280,26 @@ Feature: List resources with various types of filtering
 
   @acceptance
   Scenario: The resource list is excluded for special-character directory.
-    Given I create a new resource called "target-resource-./:;<=>?_`{|}]'()*+,-@#"
-    When I successfully GET "/resources/cucumber/test-resource?exclude=resource-./:;<=>?_`{|}]'()*+,-@#"
+    Given I create a new resource called "resource-./:;<=>?_`{|}]'()*+,-@#"
+    When I successfully GET "/resources/cucumber/test-resource?exclude=test-resource:resource-./:;<=>?_`{|}]'()*+,-@#"
     Then the resource list should not include the newest resource
 
   @acceptance
   Scenario: The resource list is excluded and search a resource.
     Given I create a new resource called "target-resource-0"
     And I create a new resource called "find-me"
-    When I successfully GET "/resources/cucumber/test-resource?exclude=target-resource-0&search=find-me"
+    When I successfully GET "/resources/cucumber/test-resource?exclude=test-resource:target-resource-0&search=find-me"
     Then the resource list should include the newest resource
 
   @acceptance
   Scenario: The resource list is excluded and search a resource.
     Given I create a new resource called "target-resource-0"
     And I create a new resource called "find-me"
-    When I successfully GET "/resources/cucumber/test-resource?exclude=target-resource-0&search=target-resource-0"
+    When I successfully GET "/resources/cucumber/test-resource?exclude=test-resource:target-resource-0&search=test-resource:target-resource-0"
     Then the result is empty
+
+  @acceptance
+  Scenario: The resource list is not excluded for sub string input of a resource.
+    Given I create a new resource called "target-resource-0"
+    When I successfully GET "/resources/cucumber/test-resource?exclude=resource"
+    Then the resource list should be include the all resources
