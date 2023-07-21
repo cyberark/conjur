@@ -73,12 +73,12 @@ RUN INSTALL_PKGS="gcc \
     bundle --without test development && \
     # Remove the build packages
     yum remove -y $INSTALL_PKGS && \
-    yum -y clean all --enablerepo='*'
+    yum -y clean all --enablerepo='*' && \
+    # removing CA bundle of httpclient gem
+    find / -name 'httpclient-*' -type d -exec find {} -name '*.pem' -type f -delete \; && \
+    find / -name 'httpclient-*' -type d -exec find {} -name '*.key' -type f -delete \;
 
 COPY . .
-
-# removing CA bundle of httpclient gem
-RUN find / -name httpclient -type d -exec find {} -name *.pem -type f -delete \;
 
 RUN ln -sf /opt/conjur-server/bin/conjurctl /usr/local/bin/
 
