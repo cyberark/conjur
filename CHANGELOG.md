@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 - Add max edges endpoint for multi edge https://ca-il-jira.il.cyber-ark.com:8443/browse/ONYX-41982_
 - Add audit when Edge reports installation completed
+- Endpoint for edge installation token generation https://ca-il-jira.il.cyber-ark.com:8443/browse/ONYX-41981
 
 ## [1.0.1-cloud] - 2023-07-18
 ### Changed

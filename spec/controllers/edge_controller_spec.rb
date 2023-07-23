@@ -4,7 +4,7 @@ require 'spec_helper'
 
 describe EdgeController, :type => :request do
   let(:account) { "rspec" }
-  let(:host_id) {"#{account}:host:edge/edge-host-1234"}
+  let(:host_id) {"#{account}:host:edge/edge-1234/edge-host-1234"}
   let(:other_host_id) {"#{account}:host:data/other"}
   let(:admin_user_id) {"#{account}:user:admin_user"}
 
@@ -32,6 +32,10 @@ describe EdgeController, :type => :request do
 
   let(:report_edge) do
     "/edge/data/#{account}"
+  end
+
+  let(:edge_creds) do
+    "/edge/edge-creds/#{account}"
   end
 
 
@@ -110,6 +114,30 @@ describe EdgeController, :type => :request do
       salt = Base64.strict_decode64(encoded_salt)
       test_api_key =  Base64.strict_encode64(Cryptography.hmac_api_key(@other_user.credentials.api_key, salt))
       expect(test_api_key).to eq(encoded_api_key)
+    end
+  end
+
+  context "Installation" do
+    before do
+      Role.create(role_id: "#{account}:group:edge/edge-hosts")
+      RoleMembership.create(role_id: "#{account}:group:edge/edge-hosts", member_id: host_id, admin_option: false, ownership:false)
+      Edge.new_edge(name: "edgy", id: 1234, version: "latest", platform: "podman", installation_date: Time.at(111111111), last_sync: Time.at(222222222))
+      Role.create(role_id: "#{account}:group:Conjur_Cloud_Admins")
+      RoleMembership.create(role_id: "#{account}:group:Conjur_Cloud_Admins", member_id: admin_user_id, admin_option: false, ownership:false)
+    end
+
+    it "Generate script error cases" do
+      #Missing edge
+      get("#{edge_creds}/non-existent", env: token_auth_header(role: @admin_user, is_user: true))
+      expect(response.code).to eq("404")
+
+      #Not admin
+      get("#{edge_creds}/edgy", env: token_auth_header(role: @other_user, is_user: true))
+      expect(response.code).to eq("403")
+
+      #Wrong account
+      get("/edge/edge-creds/tomato/edgy", env: token_auth_header(role: @admin_user, is_user: true))
+      expect(response.code).to eq("403")
     end
   end
 

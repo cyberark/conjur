@@ -80,6 +80,7 @@ Rails.application.routes.draw do
       get     "/secrets"                            => 'secrets#batch'
       get     "/edge/secrets/:account"              => 'edge#all_secrets'
       get     "/edge/hosts/:account"                => 'edge#all_hosts'
+      get     "edge/edge-creds/:account/:edge_name" => 'edge#generate_install_token'
       get     "/edge/edges/:account"                => 'edge#all_edges'
       get     "/edge/max-allowed/:account"          => 'edge#max_edges_allowed'
 
