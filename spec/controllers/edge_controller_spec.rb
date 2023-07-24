@@ -181,14 +181,24 @@ describe EdgeController, :type => :request do
     end
 
     it "List endpoint works" do
+      # Add some more edges
+      Edge.new_edge(name: "hedge", id: 7777)
+      Edge.new_edge(name: "grudge", id: 8888)
+      Edge.new_edge(name: "fudge", id: 9999)
+
       get(list_edges, env: token_auth_header(role: @admin_user, is_user: true))
 
       expect(response.code).to eq("200")
       resp = JSON.parse(response.body)
-      expect(resp.size).to eq(1)
+      expect(resp.size).to eq(4)
+      expect(resp[0]['name']).to eq('edgy')
       expect(resp[0]['last_sync']).to eq(222222222)
       expect(resp[0]['version']).to eq("latest")
       expect(resp[0]['platform']).to eq("podman")
+
+      expect(resp[1]['name']).to eq('fudge')
+      expect(resp[2]['name']).to eq('grudge')
+      expect(resp[3]['name']).to eq('hedge')
     end
 
     it "Reported data appears on list" do
