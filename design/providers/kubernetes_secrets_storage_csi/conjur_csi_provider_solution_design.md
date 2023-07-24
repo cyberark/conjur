@@ -52,6 +52,7 @@
 - [Secrets Store CSI Driver](https://github.com/kubernetes-sigs/secrets-store-csi-driver)
 - [CSI Specification](https://github.com/container-storage-interface/spec)
 - [Helm Documentation](https://helm.sh/docs/)
+- [CSI Driver & Provider Best Practices](https://secrets-store-csi-driver.sigs.k8s.io/topics/best-practices.html)
 
 ## Issue description
 
@@ -68,6 +69,8 @@ The following are outside the scope of this design:
 ## Solution
 
 The proposed solution aims to implement a CyberArk Conjur provider for Kubernetes Secrets Store Container Storage Interface (CSI) driver. This solution allows Kubernetes pods to seamlessly fetch secrets from a Conjur instance using the service account token via the `authn-jwt` authenticator.
+
+Please note that there is a proof of concept accompanying this solution design. This can be found at [./conjur_csi_provider_poc](./conjur_csi_provider_poc).
 
 The core of the CyberArk Conjur provider is a gRPC server that listens on a Unix domain socket. It implements the `CSIDriverProviderServer` interface, which is defined by the Secrets Store CSI Driver project and located in the `sigs.k8s.io/secrets-store-csi-driver/provider/v1alpha1` package.
 
@@ -161,7 +164,7 @@ The implementation of the CyberArk Conjur provider for the Kubernetes Secrets St
 
 2. **Create the Helm Charts**: Develop the necessary Kubernetes resource definitions (Deployment, Service, etc.) and values files to manage the deployment of the Conjur provider. This Helm chart will allow users to easily deploy and configure the Conjur provider in their Kubernetes clusters.
 
-3. **Integration with CyberArk Conjur**: The logic for the provider to authenticate with the Conjur API and fetch secrets needs to be developed. This will involve using the `authn-jwt` authenticator for authentication with the workload service account token and making API calls to fetch secrets.
+3. **Integration with CyberArk Conjur**: The logic for the provider to authenticate with the Conjur API and fetch secrets needs to be developed. This will involve using the `authn-jwt` authenticator for authentication with the workload service account token and making API calls to fetch secrets. `conjur-api-go` supports the `authn-jwt` authenticator but we need to update it to allow passing in the service account token as an argument, as opposed to environment variable.
 
 4. **Secret File Writing**: The logic for writing the fetched secrets to files at the path specified by the Secrets Store CSI Driver needs to be implemented.
 
@@ -256,7 +259,7 @@ Here are some of the potential nice-to-have features:
 
 3. **Supported Provider Status**: While it's important for the Conjur provider to be functional and reliable, achieving the status of a 'supported provider' in the Kubernetes Secrets Store CSI Driver project would be a significant accomplishment. This would entail meeting certain criteria set by the Kubernetes community, including thorough documentation, robust testing, active maintenance, and more. Achieving this status would give users greater confidence in using the Conjur provider, and it could lead to increased adoption and feedback, helping to drive continuous improvement of the provider.
 
-4. **Support for Other Conjur Authenticators**: Currently, our solution is designed to use the `authn-jwt` authenticator with the workload's service account token. However, it could be beneficial to support other Conjur authentication methods, such as `authn-k8s`. This would provide more flexibility for users with different authentication requirements and could potentially enhance security by allowing more complex authentication schemes. The implementation would involve adding additional logic to the provider to handle the various authenticators and additional configuration options to specify which authenticator to use.
+4. ~**Support for Other Conjur Authenticators**: Currently, our solution is designed to use the `authn-jwt` authenticator with the workload's service account token. However, it could be beneficial to support other Conjur authentication methods, such as `authn-k8s`. This would provide more flexibility for users with different authentication requirements and could potentially enhance security by allowing more complex authentication schemes. The implementation would involve adding additional logic to the provider to handle the various authenticators and additional configuration options to specify which authenticator to use.~
 
 ## Backwards compatibility
 
@@ -301,14 +304,37 @@ The documentation will cover:
 ## Open questions
 
 - Does the mount path have to be `/mnt/secrets-store` ?
+
+  Yes
 - What's the best way to configure things like CA certs for the provider etc. ? Perhaps allowing the `SecretProviderClass` to reference other Kubernetes resources such `ConfigMap` or `Secret` is the answer
-- What are our options for supporting authentication via authenticators other than authn-jwt ?
+
+  TBD
+- What are our options for supporting authentication via authenticators other than `authn-jwt`` ?
+
+  `authn-jwt` is realistically the only option. The provider runs as an independent process from the workloads. The only information
+  it has access to for the purposes of authnetication is a Kubernetes service account token for the requesting workload.
 - What is the upgrade strategy for the CyberArk Conjur provider deployed via Helm?
 - How to handle secret rotation in CyberArk Conjur?
+  
+  Secrets Store CSI Driver has alpha support for rotation, see [documentation](https://secrets-store-csi-driver.sigs.k8s.io/topics/secret-auto-rotation.html)
 - How should the CyberArk Conjur provider be deployed and managed across multiple Kubernetes clusters? Should there be a separate instance of the provider for each cluster, or can a single instance serve multiple clusters?
+
+  This is not relevant. As per the Secrets Store CSI Driver spec, there will be an instance of the provider on each node.
+  It will be deployed as a DaemonSet
 - How should the provider handle errors, such as failure to communicate with the Conjur server or failure to authenticate? What recovery mechanisms should be in place?
+  
+  The grpc interface for the provider provides mulitple opportunities to present errors.
 - How will the provider's operations be monitored and logged? What kind of visibility will administrators have into the provider's activities, and how can potential issues be identified and diagnosed?
+
+  The Secrets Store CSI Driver spec provides multiple breadcrumbs. A good pracice is to emit useful logs and useful error reporting within the provider.
 - How will the provider perform under heavy load? What are the limitations in terms of the number of secrets it can manage or the rate at which secrets can be fetched?
+  
+  We can performance test for this
 - Will the provider support multiple formats for secrets, such as plain text, JSON, YAML, etc.? How will the desired format be specified?
+
+  To be determined.
 - How will access to the provider be controlled? What measures will be in place to prevent unauthorized access?
+  Deploy the providers in a namespace guarded by permissions based access.
 - Will the provider be compatible with all versions of Kubernetes and Conjur, or are there specific version requirements?
+  
+  The provider should match the support of the The Secrets Store CSI Driver spec
