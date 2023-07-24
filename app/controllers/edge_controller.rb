@@ -200,7 +200,7 @@ class EdgeController < RestController
     options = params.permit(*allowed_params).to_h.symbolize_keys
     validate_conjur_admin_group(options[:account])
     logger.info(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("edge/edges"))
-    render(json: Edge.all.map{|edge|
+    render(json: Edge.order(:name).all.map{|edge|
       {name: edge.name, ip: edge.ip, last_sync: edge.last_sync.to_i,
        version:edge.version, installation_date: edge.installation_date.to_i, platform: edge.platform}})
   end
