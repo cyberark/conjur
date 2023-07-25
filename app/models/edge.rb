@@ -4,9 +4,9 @@ require 'sequel'
 
 class Edge < Sequel::Model
 
+  EDGE_HOST_PATTERN = "ACCOUNT:host:edge/edge-IDENTIFIER/edge-host-IDENTIFIER"
+  EDGE_INSTALLER_HOST_PATTERN = "ACCOUNT:host:edge/edge-installer-IDENTIFIER/edge-installer-host-IDENTIFIER"
     class << self
-
-    EDGE_HOST_PREFIX = 'edge-host-'
 
     def new_edge(**values)
       values[:id] ||= SecureRandom.uuid
@@ -19,13 +19,10 @@ class Edge < Sequel::Model
     end
 
     def hostname_to_id(hostname)
-      regex = /(?<=#{EDGE_HOST_PREFIX})(.+)/
+      regex = Regexp.new(EDGE_HOST_PATTERN.sub("ACCOUNT", '\w+').gsub("IDENTIFIER","(.+)"))
       hostname.match(regex)&.captures&.first
     end
 
-    def id_to_hostname(id)
-      EDGE_HOST_PREFIX + id
-    end
   end
 
   def record_edge_access(data, ip)
@@ -36,5 +33,41 @@ class Edge < Sequel::Model
     self.platform = data['edge_container_type'] if data['edge_container_type']
 
     self.save
+  end
+
+  def get_edge_host_name(account)
+    EDGE_HOST_PATTERN.sub("ACCOUNT", account).gsub("IDENTIFIER", self.id)
+  end
+
+  def get_edge_installer_host_name(account)
+    EDGE_INSTALLER_HOST_PATTERN.sub("ACCOUNT", account).gsub("IDENTIFIER", self.id)
+  end
+
+  def get_installer_token(account, request)
+    installer_host_full_name = self.get_edge_installer_host_name(account)
+    installer_name = Role.username_from_roleid(installer_host_full_name)
+    installer_role = Role[installer_host_full_name]
+    # Authenticate
+    auth_input = Authentication::AuthenticatorInput.new(
+      authenticator_name: Authentication::Common.default_authenticator_name,
+      service_id: nil,
+      account: account,
+      username: installer_name,
+      credentials: installer_role.api_key,
+      client_ip: request.ip,
+      request: request
+    )
+    installer_token = new_authenticate.call(
+      authenticator_input: auth_input,
+      authenticators: Authentication::InstalledAuthenticators.authenticators(ENV),
+      enabled_authenticators: Authentication::InstalledAuthenticators.enabled_authenticators_str
+    )
+    Base64.strict_encode64(installer_token.to_json)
+  end
+
+  private
+
+  def new_authenticate
+    Authentication::Authenticate.new
   end
 end

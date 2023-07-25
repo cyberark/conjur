@@ -4,7 +4,7 @@ require 'spec_helper'
 
 describe EdgeController, :type => :request do
   let(:account) { "rspec" }
-  let(:host_id) {"#{account}:host:edge/edge-host-1234"}
+  let(:host_id) {"#{account}:host:edge/edge-1234/edge-host-1234"}
   let(:other_host_id) {"#{account}:host:data/other"}
   let(:admin_user_id) {"#{account}:user:admin_user"}
 
@@ -32,6 +32,10 @@ describe EdgeController, :type => :request do
 
   let(:report_edge) do
     "/edge/data/#{account}"
+  end
+
+  let(:edge_creds) do
+    "/edge/edge-creds/#{account}"
   end
 
 
@@ -113,6 +117,30 @@ describe EdgeController, :type => :request do
     end
   end
 
+  context "Installation" do
+    before do
+      Role.create(role_id: "#{account}:group:edge/edge-hosts")
+      RoleMembership.create(role_id: "#{account}:group:edge/edge-hosts", member_id: host_id, admin_option: false, ownership:false)
+      Edge.new_edge(name: "edgy", id: 1234, version: "latest", platform: "podman", installation_date: Time.at(111111111), last_sync: Time.at(222222222))
+      Role.create(role_id: "#{account}:group:Conjur_Cloud_Admins")
+      RoleMembership.create(role_id: "#{account}:group:Conjur_Cloud_Admins", member_id: admin_user_id, admin_option: false, ownership:false)
+    end
+
+    it "Generate script error cases" do
+      #Missing edge
+      get("#{edge_creds}/non-existent", env: token_auth_header(role: @admin_user, is_user: true))
+      expect(response.code).to eq("404")
+
+      #Not admin
+      get("#{edge_creds}/edgy", env: token_auth_header(role: @other_user, is_user: true))
+      expect(response.code).to eq("403")
+
+      #Wrong account
+      get("/edge/edge-creds/tomato/edgy", env: token_auth_header(role: @admin_user, is_user: true))
+      expect(response.code).to eq("403")
+    end
+  end
+
   context "Visibility" do
     before do
       Role.create(role_id: "#{account}:group:edge/edge-hosts")
@@ -153,14 +181,24 @@ describe EdgeController, :type => :request do
     end
 
     it "List endpoint works" do
+      # Add some more edges
+      Edge.new_edge(name: "hedge", id: 7777)
+      Edge.new_edge(name: "grudge", id: 8888)
+      Edge.new_edge(name: "fudge", id: 9999)
+
       get(list_edges, env: token_auth_header(role: @admin_user, is_user: true))
 
       expect(response.code).to eq("200")
       resp = JSON.parse(response.body)
-      expect(resp.size).to eq(1)
+      expect(resp.size).to eq(4)
+      expect(resp[0]['name']).to eq('edgy')
       expect(resp[0]['last_sync']).to eq(222222222)
       expect(resp[0]['version']).to eq("latest")
       expect(resp[0]['platform']).to eq("podman")
+
+      expect(resp[1]['name']).to eq('fudge')
+      expect(resp[2]['name']).to eq('grudge')
+      expect(resp[3]['name']).to eq('hedge')
     end
 
     it "Reported data appears on list" do

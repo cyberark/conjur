@@ -170,13 +170,37 @@ class EdgeController < RestController
     end
   end
 
+  def generate_install_token
+    logger.info(LogMessages::Endpoints::EndpointRequested.new("edge/edge-creds"))
+    allowed_params = %i[account edge_name]
+    options = params.permit(*allowed_params).to_h.symbolize_keys
+    audit_params = { edge_name: options[:edge_name], user: current_user.role_id, client_ip: request.ip }
+    begin
+      validate_conjur_admin_group(options[:account])
+
+      edge = Edge[name: options[:edge_name]] || (raise RecordNotFound.new(options[:edge_name], message: "Edge #{options[:edge_name]} not found"))
+      installer_token = edge.get_installer_token(options[:account], request)
+
+      edge_host_name = Role.username_from_roleid(edge.get_edge_host_name(options[:account]))
+
+    rescue => e
+      audit_params[:error_message] = e.message
+      raise e
+    ensure
+      Audit.logger.log(Audit::Event::CredsGeneration.new(**audit_params))
+    end
+    logger.info(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("edge/edge-creds"))
+    response.set_header("Content-Encoding", "base64")
+    render(plain: Base64.strict_encode64(edge_host_name + ":" + installer_token))
+  end
+
   def all_edges
     logger.info(LogMessages::Endpoints::EndpointRequested.new("edge/edges"))
     allowed_params = %i[account]
     options = params.permit(*allowed_params).to_h.symbolize_keys
     validate_conjur_admin_group(options[:account])
     logger.info(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("edge/edges"))
-    render(json: Edge.all.map{|edge|
+    render(json: Edge.order(:name).all.map{|edge|
       {name: edge.name, ip: edge.ip, last_sync: edge.last_sync.to_i,
        version:edge.version, installation_date: edge.installation_date.to_i, platform: edge.platform}})
   end
