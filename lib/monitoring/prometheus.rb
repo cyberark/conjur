@@ -6,6 +6,8 @@ module Monitoring
   module Prometheus
     extend self
 
+    attr_reader :registry
+
     def setup(options = {})
       @registry = options[:registry] || ::Prometheus::Client::Registry.new
       @metrics_dir_path = ENV['CONJUR_METRICS_DIR'] || '/tmp/prometheus'
@@ -19,10 +21,6 @@ module Monitoring
       clear_data_store
       configure_data_store
       setup_metrics
-    end
-
-    def registry
-      @registry
     end
 
     protected
