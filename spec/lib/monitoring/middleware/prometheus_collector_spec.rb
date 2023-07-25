@@ -46,10 +46,10 @@ describe Monitoring::Middleware::PrometheusCollector do
 
   it 'returns the app response' do
     env['PATH_INFO'] = "/foo"
-    status, _headers, _response = subject.call(env)
+    status, _headers, response = subject.call(env)
 
     expect(status).to eql(200)
-    expect(_response.first).to eql('OK')
+    expect(response.first).to eql('OK')
   end
 
   it 'traces request information' do

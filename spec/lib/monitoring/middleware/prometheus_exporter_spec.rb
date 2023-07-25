@@ -27,10 +27,10 @@ describe Monitoring::Middleware::PrometheusExporter do
   context 'when requesting app endpoints' do
     it 'returns the app response' do
       env['PATH_INFO'] = "/foo"
-      status, _headers, _response = subject.call(env)
+      status, _headers, response = subject.call(env)
 
       expect(status).to eql(200)
-      expect(_response.first).to eql('OK')
+      expect(response.first).to eql('OK')
     end
   end
 
@@ -44,11 +44,11 @@ describe Monitoring::Middleware::PrometheusExporter do
         env['PATH_INFO'] = path
         env['HTTP_ACCEPT'] = headers.values[0] if headers.values[0]
 
-        status, _headers, _response = subject.call(env)
+        status, headers, response = subject.call(env)
 
         expect(status).to eql(200)
-        expect(_headers['Content-Type']).to eql(fmt::CONTENT_TYPE)
-        expect(_response.first).to eql(fmt.marshal(registry))
+        expect(headers['Content-Type']).to eql(fmt::CONTENT_TYPE)
+        expect(response.first).to eql(fmt.marshal(registry))
 
       end
     end
@@ -60,11 +60,11 @@ describe Monitoring::Middleware::PrometheusExporter do
         env['PATH_INFO'] = path
         env['HTTP_ACCEPT'] = headers.values[0] if headers.values[0]
 
-        status, _headers, _response = subject.call(env)
+        status, headers, response = subject.call(env)
 
         expect(status).to eql(406)
-        expect(_headers['Content-Type']).to eql('text/plain')
-        expect(_response.first).to eql(message)
+        expect(headers['Content-Type']).to eql('text/plain')
+        expect(response.first).to eql(message)
       end
     end
 
