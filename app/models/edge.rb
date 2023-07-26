@@ -9,8 +9,14 @@ class Edge < Sequel::Model
     class << self
 
     def new_edge(**values)
+      raise ArgumentError, 'Edge name is not provided' unless values[:name]
       values[:id] ||= SecureRandom.uuid
-      Edge.insert(**values)
+
+      begin
+        Edge.insert(**values)
+      rescue
+        raise(Exceptions::RecordExists.new(values[:name], message: "Edge name #{values[:name] } already exists"))
+      end
     end
 
     def get_by_hostname(hostname)

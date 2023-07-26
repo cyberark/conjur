@@ -1,15 +1,13 @@
 # frozen_string_literal: true
 require_relative '../controllers/wrappers/policy_wrapper'
 require_relative '../controllers/wrappers/policy_audit'
-require_relative '../controllers/wrappers/templates_renderer'
 # 
 class HostsController < RestController
   include AuthorizeResource
-  include PolicyAudit
-  include PolicyWrapper
-  include PolicyTemplates::TemplatesRenderer
   include BodyParser
   include FindPolicyResource
+  include PolicyAudit
+  include PolicyWrapper
 
   before_action :current_user
   before_action :find_or_create_root_policy
@@ -26,9 +24,7 @@ class HostsController < RestController
           .to_h.symbolize_keys
     validateId(params[:id])
     input = input_post_yaml(params)
-    result_yaml = renderer(PolicyTemplates::CreateHost.new(), input)
-    set_raw_policy(result_yaml)
-    result = load_policy(Loader::CreatePolicy, false)
+    result = submit_policy(PolicyTemplates::CreateHost.new(), input)
     policy = result[:policy]
     audit_success(policy)
     logger.info(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("hosts/:account/*identifier"))
@@ -50,7 +46,7 @@ def validateId(id)
 end
 
 def input_post_yaml(json_body)
-  return input = {
+  {
     "id" => json_body[:id],
     "annotations" => json_body[:annotations],
     "groups" => json_body[:groups],

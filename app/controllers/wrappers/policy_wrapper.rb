@@ -2,14 +2,25 @@
 
 # Policy wrapper to include stuff already existing in policies_controller.rb,
 # to allow flexibility for rest endpoint who will use it differently
+
+require_relative 'templates_renderer'
+
 module PolicyWrapper
   extend ActiveSupport::Concern
+  include PolicyTemplates::TemplatesRenderer
 
   def load_policy(loader_class, delete_permitted)
     policy = save_submitted_policy(delete_permitted: delete_permitted)
     loaded_policy = loader_class.from_policy(policy)
     created_roles = perform(loaded_policy)
     { created_roles: created_roles, policy: policy }
+  end
+
+  def submit_policy(policy_tamplate, input)
+    result_yaml = renderer(policy_tamplate, input)
+    set_raw_policy(result_yaml)
+    result = load_policy(Loader::CreatePolicy, false)
+    result
   end
 
   def raw_policy

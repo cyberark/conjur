@@ -1,11 +1,17 @@
 # frozen_string_literal: true
+require_relative '../controllers/wrappers/policy_wrapper'
 
 class EdgeController < RestController
+  include AccountValidator
+  include BodyParser
   include Cryptography
   include EdgeValidator
-  include AccountValidator
+  include FindEdgePolicyResource
   include GroupMembershipValidator
-  include BodyParser
+  include PolicyWrapper
+
+  before_action :current_user
+  before_action :find_or_create_root_policy, only: [:create_edge]
 
   def slosilo_keys
     logger.info(LogMessages::Endpoints::EndpointRequested.new("slosilo_keys"))
@@ -236,7 +242,47 @@ class EdgeController < RestController
     logger.info(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("edge/data"))
   end
 
+  def create_edge
+    logger.info(LogMessages::Endpoints::EndpointRequested.new('edge/create'))
+    allowed_params = %i[account edge_name]
+    url_params = params.permit(*allowed_params)
+    validate_conjur_admin_group(url_params[:account])
+    params[:identifier] = "edge"
+    edge_name = params[:edge_name]
+
+    begin
+      Edge.new_edge(name: edge_name)
+      host = Edge[name: edge_name]
+      add_edge_host_policy(host[:id])
+    rescue => e
+      @error_message = e.message
+      raise e
+    ensure
+      created_audit(edge_name)
+      logger.info(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("edge/create"))
+    end
+  end
+
   private
+
+  def add_edge_host_policy(host_id)
+    input = input_post_yaml(host_id)
+    submit_policy(PolicyTemplates::CreateEdge.new(), input)
+  end
+
+  def input_post_yaml(json_body)
+    {
+      "edge_identifier" => json_body
+    }
+  end
+
+  def created_audit(edge_name = "not-found")
+    audit_params = { edge_name: edge_name}
+    audit_params[:error_message] = @error_message if @error_message
+    Audit.logger.log(Audit::Event::EdgeCreation.new(
+      **audit_params
+    ))
+  end
 
   def get_key_object(key)
     private_key = key.to_der.unpack("H*")[0]
