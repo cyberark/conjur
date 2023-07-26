@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-
+#TODO: delete once single edge users are migrated to multi
 module DB
   module Preview
     class SingleEdgeToMulti

@@ -23,6 +23,7 @@ module Commands
           system("rake db:migrate-preview") || exit(($CHILD_STATUS.exitstatus))
         else
           system("rake db:migrate") || exit(($CHILD_STATUS.exitstatus))
+          system("rake db:single-to-multi") #TODO: delete once single edge users are migrated to multi
         end
       end
     end
