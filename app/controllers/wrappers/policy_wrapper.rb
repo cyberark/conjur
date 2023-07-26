@@ -2,14 +2,29 @@
 
 # Policy wrapper to include stuff already existing in policies_controller.rb,
 # to allow flexibility for rest endpoint who will use it differently
+
+require_relative 'templates_renderer'
+
 module PolicyWrapper
   extend ActiveSupport::Concern
+  include PolicyTemplates::TemplatesRenderer
 
   def load_policy(loader_class, delete_permitted)
-    policy = save_submitted_policy(delete_permitted: delete_permitted)
-    loaded_policy = loader_class.from_policy(policy)
-    created_roles = perform(loaded_policy)
-    { created_roles: created_roles, policy: policy }
+    begin
+      policy = save_submitted_policy(delete_permitted: delete_permitted)
+      loaded_policy = loader_class.from_policy(policy)
+      created_roles = perform(loaded_policy)
+      { created_roles: created_roles, policy: policy }
+    rescue Sequel::UniqueConstraintViolation => e
+      concurrent_load
+    end
+  end
+
+  def submit_policy(policy_loader, policy_tamplate, input)
+    result_yaml = renderer(policy_tamplate, input)
+    set_raw_policy(result_yaml)
+    result = load_policy(policy_loader, false)
+    result
   end
 
   def raw_policy
@@ -50,4 +65,20 @@ module PolicyWrapper
       memo[role_id] = { id: role_id, api_key: credentials.api_key }
     end
   end
+end
+
+def concurrent_load(_exception)
+  response.headers['Retry-After'] = retry_delay
+  render(json: {
+    error: {
+      code: "policy_conflict",
+      message: "Concurrent policy load in progress, please retry"
+    }
+  }, status: :conflict)
+end
+
+# Delay in seconds to advise the client to wait before retrying on conflict.
+# It's randomized to avoid request bunching.
+def retry_delay
+  rand(1..8)
 end

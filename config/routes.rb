@@ -78,6 +78,7 @@ Rails.application.routes.draw do
       get     "/secrets/:account/:kind/*identifier" => 'secrets#show'
       post    "/secrets/:account/:kind/*identifier" => 'secrets#create'
       get     "/secrets"                            => 'secrets#batch'
+      post    "/edge/create/:account/:edge_name"    => 'edge_creator#create_edge'
       get     "/edge/secrets/:account"              => 'edge#all_secrets'
       get     "/edge/hosts/:account"                => 'edge#all_hosts'
       get     "edge/edge-creds/:account/:edge_name" => 'edge#generate_install_token'

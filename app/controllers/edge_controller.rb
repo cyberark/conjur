@@ -1,11 +1,12 @@
 # frozen_string_literal: true
 
 class EdgeController < RestController
+  include AccountValidator
+  include BodyParser
   include Cryptography
   include EdgeValidator
-  include AccountValidator
+  include ExtractEdgeResources
   include GroupMembershipValidator
-  include BodyParser
 
   def slosilo_keys
     logger.info(LogMessages::Endpoints::EndpointRequested.new("slosilo_keys"))
@@ -211,10 +212,7 @@ class EdgeController < RestController
     options = params.permit(*allowed_params).to_h.symbolize_keys
     validate_conjur_admin_group(options[:account])
     begin
-      id = options[:account] + ":variable:edge/edge-configuration/max-edge-allowed"
-      row = Secret.where(:resource_id.like(id)).last
-      secret_value = Slosilo::EncryptedAttributes.decrypt(row[:value], aad: id)
-
+      secret_value = extract_max_edge_value(options[:account])
       render(plain: secret_value, content_type: "text/plain")
     rescue Exceptions::RecordNotFound
       raise RecordNotFound, "The request failed because max-edge-allowed secret doesn't exist"
