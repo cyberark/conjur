@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require 'pg'
 require 'securerandom'
 require 'sequel'
 
@@ -9,6 +10,7 @@ class Edge < Sequel::Model
     class << self
 
     def new_edge(**values)
+      raise ArgumentError, 'Edge name is not provided' unless values[:name]
       values[:id] ||= SecureRandom.uuid
       Edge.insert(**values)
     end
