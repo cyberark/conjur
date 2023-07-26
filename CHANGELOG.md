@@ -136,13 +136,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 - Remove auto-release options to allow for a pseudo-fork development on a branch
 
-## [1.19.6] - 2023-07-05
+## [1.20.0] - 2023-07-11
+
+### Added
+- Telemetry support
+  [cyberark/conjur#2854](https://github.com/cyberark/conjur/pull/2854)
 
 ### Fixed
 - Support Authn-IAM regional requests when host value is missing from signed headers.
   [cyberark/conjur#2827](https://github.com/cyberark/conjur/pull/2827)
 
-## [1.19.5] - 2023-05-29
+## [1.19.5] - 2023-06-29
 
 ### Security
 - Update bundler to 2.2.33 to remove CVE-2021-43809
@@ -195,7 +199,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   [cyberark/conjur#2739](https://github.com/cyberark/conjur/pull/2739)
 - Upgraded rack to v2.2.6.4 to resolve CVE-2023-27539
   [cyberark/conjur#2750](https://github.com/cyberark/conjur/pull/2750)
-- Updated nokogiri to 1.14.3 for CVE-2023-29469 and CVE-2023-28484 and rails to 
+- Updated nokogiri to 1.14.3 for CVE-2023-29469 and CVE-2023-28484 and rails to
   6.1.7.3 for CVE-2023-28120 in Gemfile.lock, nokogiri to 1.1.4.3 for CVE-2023-29469
   and commonmarker to 0.23.9 for CVE-2023-24824 and CVE-2023-26485 in docs/Gemfile.lock
   (all Medium severity issues flagged by Dependabot)
