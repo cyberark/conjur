@@ -9,15 +9,15 @@ module PolicyWrapper
   extend ActiveSupport::Concern
   include PolicyTemplates::TemplatesRenderer
 
-  included do
-    rescue_from Sequel::UniqueConstraintViolation, with: :concurrent_load
-  end
-
   def load_policy(loader_class, delete_permitted)
-    policy = save_submitted_policy(delete_permitted: delete_permitted)
-    loaded_policy = loader_class.from_policy(policy)
-    created_roles = perform(loaded_policy)
-    { created_roles: created_roles, policy: policy }
+    begin
+      policy = save_submitted_policy(delete_permitted: delete_permitted)
+      loaded_policy = loader_class.from_policy(policy)
+      created_roles = perform(loaded_policy)
+      { created_roles: created_roles, policy: policy }
+    rescue Sequel::UniqueConstraintViolation => e
+      concurrent_load
+    end
   end
 
   def submit_policy(policy_loader, policy_tamplate, input)
