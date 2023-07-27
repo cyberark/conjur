@@ -9,7 +9,7 @@ module Audit
       end
 
       def operation
-        "created"
+        "create"
       end
 
       def success_message

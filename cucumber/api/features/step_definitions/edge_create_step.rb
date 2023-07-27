@@ -11,3 +11,14 @@ Then(/^Edge name "([^"]*)" data exists in db$/) do |arg|
   res = Resource.where(Sequel.like(:resource_id, "cucumber:host:edge/edge-installer-#{id}/edge-installer-host-#{id}"))
   expect(res).to be > 0
 end
+
+When(/^I login as the host associated with Edge "([^"]*)"$/) do |edge_name|
+  edge = Edge[name: edge_name]
+  hostname = edge.get_edge_host_name("cucumber")
+  @current_user = Role.with_pk!(hostname)
+  Credentials.new(role: @current_user).save unless @current_user.credentials
+end
+
+After do |scenario|
+  Edge.dataset.delete
+end
