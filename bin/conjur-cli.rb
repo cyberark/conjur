@@ -42,6 +42,10 @@ command :server do |c|
   c.default_value(ENV['PORT'] || '80')
   c.flag [ :p, :port ]
 
+  c.desc 'Skip running database migrations on start'
+  c.default_value false
+  c.switch :'no-migrate'
+
   c.desc 'Server bind address'
   c.default_value(ENV['BIND_ADDRESS'] || '0.0.0.0')
   c.arg_name :ip
@@ -55,7 +59,8 @@ command :server do |c|
       password_from_stdin: options["password-from-stdin"],
       file_name: options[:file],
       bind_address: options[:'bind-address'],
-      port: options[:port]
+      port: options[:port],
+      no_migrate: options[:'no-migrate']
     )
   end
 end
