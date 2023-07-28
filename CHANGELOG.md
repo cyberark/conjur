@@ -141,8 +141,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - Telemetry support
   [cyberark/conjur#2854](https://github.com/cyberark/conjur/pull/2854)
-
-### Added
 - New flag to `conjurctl server` command called `--no-migrate` which allows for skipping
   the database migration step when starting the server.
   [cyberark/conjur#2895](https://github.com/cyberark/conjur/pull/2895)
@@ -150,6 +148,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Fixed
 - Support Authn-IAM regional requests when host value is missing from signed headers.
   [cyberark/conjur#2827](https://github.com/cyberark/conjur/pull/2827)
+- Support plural syntax for revoke and deny
+  [CONJSE-1783](https://ca-il-jira.il.cyber-ark.com:8443/browse/CONJSE-1783)
 
 ## [1.19.5] - 2023-06-29
 
