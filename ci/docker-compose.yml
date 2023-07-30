@@ -1,7 +1,7 @@
 version: "3"
 services:
   pg:
-    image: postgres:15
+    image: postgres:10.16
     environment:
       # To avoid the following error:
       #
@@ -29,7 +29,7 @@ services:
       POSTGRES_HOST_AUTH_METHOD: trust
 
   audit:
-    image: postgres:15
+    image: postgres:10.16
     environment:
       # See description on `pg` service for use of POSTGRES_HOST_AUTH_METHOD
       POSTGRES_HOST_AUTH_METHOD: trust
@@ -133,7 +133,9 @@ services:
     entrypoint: bash
     working_dir: /src/conjur-server
     environment:
+      CONJUR_APPLIANCE_URL: http://conjur
       CONJUR_ACCOUNT: cucumber
+      DATABASE_URL: postgres://postgres@pg/postgres
       AUDIT_DATABASE_URL:
       RAILS_ENV: test
       CONJUR_LOG_LEVEL: debug
