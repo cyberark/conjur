@@ -35,39 +35,37 @@ describe HostsController, type: :request do
   let(:test_policy) do
     <<~POLICY
       - !user alice
+      - !policy
+        id: test
 
       - !policy
         id: dev
         body:
-        - !group developers
-        - !layer layers
+        - !policy
+          id: delegation
+          body:
+          - !group consumers
         - !variable secret1
         - !variable secret2
         - !variable secret3
-     
-      - !grant
-        role: !group dev/developers
-        member: !user alice
+      
 
       - !permit
         resource: !policy dev
-        privilege: [ create ]
+        privilege: [ create, update ]
         role: !user alice
       
       - !permit
+        resource: !policy test
+        privilege: [ create, update ]
+        role: !user alice
+      
+
+      - !permit
         resource: !variable dev/secret1
         privileges: [ read, execute ]
-        roles: !group dev/developers
+        roles: !group dev/delegation/consumers
 
-      - !permit
-        resource: !variable dev/secret2
-        privileges: [ read, execute ]
-        roles: !group dev/developers
-
-      - !permit
-        resource: !variable dev/secret3
-        privileges: [ read, execute ]
-        roles: !group dev/developers
     POLICY
   end
 
@@ -97,7 +95,7 @@ describe HostsController, type: :request do
       end
     end
 
-    context "when user send body with annotations, groups and layers" do
+    context "when user send body with annotations, safes" do
       let(:payload_create_hosts_annotations) do
         <<~BODY
             {
@@ -105,17 +103,14 @@ describe HostsController, type: :request do
             "annotations": {
             "description": "describe"
             },
-            "groups": [
-              "developers"
-             ],
-            "layers": [
-              "layers"
+            "safes": [
+              "dev"
              ]
           }
         BODY
       end
       it 'returns created and can fetch secret' do
-        post("/hosts/rspec/dev",
+        post("/hosts/rspec/test",
              env: token_auth_header(role: alice_user).merge(
                {
                  'RAW_POST_DATA' => payload_create_hosts_annotations,
@@ -124,7 +119,7 @@ describe HostsController, type: :request do
              )
         )
         assert_response :created
-        host_role = Role.find(role_id: "rspec:host:dev/new-host2")
+        host_role = Role.find(role_id: "rspec:host:test/new-host2")
         get("#{url_variable}/dev/secret1",
             env: token_auth_header(role: host_role))
         expect(response.body).to include("#{test_value}")
@@ -180,17 +175,16 @@ describe HostsController, type: :request do
       end
     end
 
-    context "Invalid values for groups and layers" do
-      let(:payload_invalid_group) do
+
+    context "Wrong json object for safes" do
+      let(:payload_invalid_safe) do
         <<~BODY
             {
             "id": "new-host2",
             "annotations": {
             "description": "describe"
             },
-            "groups": [
-              "invalid"
-             ]
+            "safes": "invalid"
           }
         BODY
       end
@@ -198,37 +192,39 @@ describe HostsController, type: :request do
         post("/hosts/rspec/dev",
              env: token_auth_header(role: alice_user).merge(
                {
-                 'RAW_POST_DATA' => payload_invalid_group,
+                 'RAW_POST_DATA' => payload_invalid_safe,
                  'CONTENT_TYPE' => "application/json"
                }
              )
         )
-        assert_response :not_found
+        assert_response :unprocessable_entity
       end
-      let(:payload_invalid_layer) do
+
+    end
+    context "Wrong json object for safes" do
+      let(:payload_not_found_safe) do
         <<~BODY
             {
             "id": "new-host2",
             "annotations": {
             "description": "describe"
             },
-            "layers": [
-              "invalid"
-             ]
+            "safes": ["not-found"]
           }
         BODY
       end
-      it 'invalid layer value should return 400' do
+      it 'not exist value of safe return 404' do
         post("/hosts/rspec/dev",
              env: token_auth_header(role: alice_user).merge(
                {
-                 'RAW_POST_DATA' => payload_invalid_layer,
+                 'RAW_POST_DATA' => payload_not_found_safe,
                  'CONTENT_TYPE' => "application/json"
                }
              )
         )
         assert_response :not_found
       end
+
     end
   end
 

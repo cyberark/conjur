@@ -44,7 +44,7 @@ class EdgeCreatorController < RestController
 
   def add_edge_host_policy(host_id)
     input = input_post_yaml(host_id)
-    submit_policy(Loader::CreatePolicy, PolicyTemplates::CreateEdge.new(), input)
+    submit_policy(Loader::CreatePolicy, PolicyTemplates::CreateEdge.new(), input,resource)
   end
 
   def input_post_yaml(json_body)
