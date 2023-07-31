@@ -148,7 +148,7 @@ private
 def create_platform_policy(policy_fields)
   result_yaml = renderer(PolicyTemplates::CreatePlatform.new(), policy_fields)
   set_raw_policy(result_yaml)
-  result = load_policy(Loader::CreatePolicy, false)
+  result = load_policy(Loader::CreatePolicy, false, resource)
   policy = result[:policy]
   audit_success(policy)
 end
@@ -156,7 +156,7 @@ end
 def delete_platform_policy(policy_fields)
   result_yaml = renderer(PolicyTemplates::DeletePlatform.new(), policy_fields)
   set_raw_policy(result_yaml)
-  result = load_policy(Loader::ModifyPolicy, true)
+  result = load_policy(Loader::ModifyPolicy, true, resource)
   policy = result[:policy]
   audit_success(policy)
 end
