@@ -9,9 +9,9 @@ module PolicyWrapper
   extend ActiveSupport::Concern
   include PolicyTemplates::TemplatesRenderer
 
-  def load_policy(loader_class, delete_permitted)
+  def load_policy(loader_class, delete_permitted, resource)
     begin
-      policy = save_submitted_policy(delete_permitted: delete_permitted)
+      policy = save_submitted_policy(delete_permitted: delete_permitted, resource: resource)
       loaded_policy = loader_class.from_policy(policy)
       created_roles = perform(loaded_policy)
       { created_roles: created_roles, policy: policy }
@@ -20,10 +20,10 @@ module PolicyWrapper
     end
   end
 
-  def submit_policy(policy_loader, policy_tamplate, input)
+  def submit_policy(policy_loader, policy_tamplate, input, resource)
     result_yaml = renderer(policy_tamplate, input)
     set_raw_policy(result_yaml)
-    result = load_policy(policy_loader, false)
+    result = load_policy(policy_loader, false, resource)
     result
   end
 
@@ -35,7 +35,7 @@ module PolicyWrapper
     @raw_policy = raw_policy
   end
 
-  def save_submitted_policy(delete_permitted:)
+  def save_submitted_policy(delete_permitted:, resource:)
     policy_version = PolicyVersion.new(
       role: current_user,
       policy: resource,
