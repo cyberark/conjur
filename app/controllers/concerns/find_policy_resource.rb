@@ -1,10 +1,9 @@
 # frozen_string_literal: true
 module FindPolicyResource
-  include FindResource
   extend ActiveSupport::Concern
 
-  def resource_id
-    [ params[:account], "policy", params[:identifier] ].join(":")
+  def resource_id(location)
+    [ params[:account], "policy", location ].join(":")
   end
 
   def find_or_create_root_policy
@@ -13,6 +12,29 @@ module FindPolicyResource
 
   def account
     @account ||= params[:account]
+  end
+
+
+  protected
+
+  def resource(location)
+    raise Exceptions::RecordNotFound, resource_id(location) unless resource_visible?(location)
+
+    resource!(location)
+  end
+
+  def resource_exists?(location)
+    Resource[resource_id(location)] ? true : false
+  end
+
+  def resource_visible?(location)
+    @resource_visible = resource!(location) && @resource.visible_to?(current_user)
+  end
+
+  private
+
+  def resource!(location)
+    @resource = Resource[resource_id(location)]
   end
 
 end
