@@ -22,7 +22,21 @@ Rails.application.routes.draw do
 
     constraints account: /[^\/?]+/ do
       constraints authenticator: /authn-?[^\/]*/, id: /[^\/?]+/ do
-        get '/authn-jwt/:service_id/:account/status' => 'authenticate#authn_jwt_status'
+        # The following is block is intended to allow us to migrate all authenticators
+        # to the new 'strategy'/'resolve_identity' workflow on an orderly fashion.
+        constraints authenticator: /authn-oidc/ do
+          get '/:authenticator/:service_id/:account/authenticate' => 'authenticate#authenticate_via_get'
+        end
+
+        constraints authenticator: /authn-jwt/ do
+          post '/:authenticator/:service_id/:account(/:id)/authenticate' => 'authenticate#authenticate_via_post'
+        end
+
+        constraints authenticator: /authn-jwt/ do
+          get '/:authenticator/:service_id/:account/status' => 'authenticate#authenticator_status'
+        end
+        # End new architecture block
+
         get '/:authenticator(/:service_id)/:account/status' => 'authenticate#status'
 
         patch '/:authenticator(/:service_id)/:account' => 'authenticate#update_config'
@@ -33,12 +47,8 @@ Rails.application.routes.draw do
           post '/:authenticator(/:service_id)/:account/:id/authenticate' => 'authenticate#authenticate'
         end
 
-        # New OIDC endpoint
-        get '/:authenticator(/:service_id)/:account/authenticate' => 'authenticate#oidc_authenticate_code_redirect'
-
         post '/authn-gcp/:account/authenticate' => 'authenticate#authenticate_gcp'
         post '/authn-oidc(/:service_id)/:account/authenticate' => 'authenticate#authenticate_oidc'
-        post '/authn-jwt/:service_id/:account(/:id)/authenticate' => 'authenticate#authenticate_jwt'
 
         # Update password is only relevant when using the default authenticator
         put  '/authn/:account/password' => 'credentials#update_password', defaults: { authenticator: 'authn' }

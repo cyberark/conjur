@@ -53,7 +53,7 @@ Feature: JWT Authenticator - Validate And Decode
     Then the HTTP response status code is 401
     And The following appears in the log after my savepoint:
     """
-    CONJ00035E Failed to decode token (3rdPartyError ='#<JWT::DecodeError: Could not find public key for kid unknown_kid>')>
+    CONJ00035E Failed to decode token (3rdPartyError ='#<JWT::DecodeError: Could not find public key for kid unknown_kid>')
     """
 
 
@@ -77,7 +77,7 @@ Feature: JWT Authenticator - Validate And Decode
     Then the HTTP response status code is 401
     And The following appears in the log after my savepoint:
     """
-    CONJ00035E Failed to decode token (3rdPartyError ='#<JWT::VerificationError: Signature verification raised>')>
+    CONJ00035E Failed to decode token (3rdPartyError ='#<JWT::VerificationError: Signature verification raised>')
     """
 
   @negative @acceptance
@@ -102,5 +102,5 @@ Feature: JWT Authenticator - Validate And Decode
     Then the HTTP response status code is 401
     And The following appears in the log after my savepoint:
     """
-    CONJ00035E Failed to decode token (3rdPartyError ='#<JWT::VerificationError: Signature verification raised>')>
+    CONJ00035E Failed to decode token (3rdPartyError ='#<JWT::VerificationError: Signature verification raised>')
     """

@@ -55,6 +55,7 @@ gem 'rack-rewrite'
 
 gem 'dry-struct'
 gem 'dry-types'
+gem 'dry-validation'
 gem 'net-ldap'
 
 # for AWS rotator

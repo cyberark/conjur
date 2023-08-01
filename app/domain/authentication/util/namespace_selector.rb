@@ -5,6 +5,8 @@ module Authentication
     class NamespaceSelector
       def self.select(authenticator_type:)
         case authenticator_type
+        when 'authn-jwt'
+          'Authentication::AuthnJwt::V2'
         when 'authn-oidc'
           # 'V2' is a bit of a hack to handle the fact that
           # the original OIDC authenticator is really a

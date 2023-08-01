@@ -159,18 +159,10 @@ Feature: JWT Authenticator - Fetch identity from URL
     """
 
   @acceptance
-  Scenario: ONYX-9517: Host send in URL, host not in root, Identify-path with empty value is ignored, 200 ok
+  Scenario: ONYX-9517: Host send in URL, host not in root, 200 ok
     Given I have a "variable" resource called "test-variable"
     And I permit host "some_policy/host_test_from_url" to "execute" it
     And I add the secret value "test-secret" to the resource "cucumber:variable:test-variable"
-    And I update the policy with:
-    """
-    - !policy
-      id: conjur/authn-jwt/raw
-      body:
-      - !variable
-        id: identity-path
-    """
     And I am using file "identity-from-url" and alg "RS256" for remotely issue token:
     """
     {

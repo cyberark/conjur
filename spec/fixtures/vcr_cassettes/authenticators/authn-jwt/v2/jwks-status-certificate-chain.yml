@@ -1,0 +1,51 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://chained.mycompany.local/ca-cert-ONYX-15315.json
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Server:
+      - nginx/1.23.1
+      Date:
+      - Mon, 27 Mar 2023 15:50:39 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '507'
+      Last-Modified:
+      - Mon, 27 Mar 2023 15:47:40 GMT
+      Connection:
+      - keep-alive
+      Etag:
+      - '"6421ba9c-1fb"'
+      Accept-Ranges:
+      - bytes
+    body:
+      encoding: UTF-8
+      string: |-
+        {
+          "keys": [
+            {
+              "kty": "RSA",
+              "n": "t62taqz9leHFvEhFlvRWr8mSotRjjJdsGmwZRPiuUCMgnRcSPaoqzRX3uLhctb78EWqSLkfjVyzavO45pHwLcxLYcw8k0eyEnmMtxomvWCPoHBCbvtnit10s-veFkyzu-UcmVQcjiCDDIgMqN8sk1r8ZR5g0mt3fJeLHSX9vEfvjZS0r7L8huyupzUc59LHhP5r7wxaxLIIR1NJdjDOOkrdoX-dl49Ycab2hWQYgHa8VRGIBx6x2lR8mTd6Q7zxUvqpxscUNTCNzWXR_wmNpXKRAf0fYu4WqoHVnLqTEZPt_yTuCXRe-fxSv__mVG60a9NoDH2vDhfsXox-Um6gJnw",
+              "e": "AQAB",
+              "kid": "bac9a15538312ceafe7dd71ba7e77cbe835d8cc5ce8adf291413b47114b6826f"
+            }
+          ]
+        }
+  recorded_at: Mon, 27 Mar 2023 15:50:39 GMT
+recorded_with: VCR 6.1.0

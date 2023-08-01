@@ -29,7 +29,7 @@ module Authentication
             name: nil,
             response_type: 'code',
             provider_scope: nil,
-            token_ttl: 'PT60M'
+            token_ttl: 'PT1H'
           )
             @account = account
             @provider_uri = provider_uri
@@ -41,7 +41,10 @@ module Authentication
             @name = name
             @provider_scope = provider_scope
             @redirect_uri = redirect_uri
-            @token_ttl = token_ttl
+
+            # If variable is present but not set, token_ttl will come
+            # through as an empty string.
+            @token_ttl = token_ttl.present? ? token_ttl : 'PT1H'
           end
 
           def scope

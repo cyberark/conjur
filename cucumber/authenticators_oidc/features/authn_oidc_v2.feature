@@ -259,10 +259,10 @@ Feature: OIDC Authenticator V2 - Users can authenticate with OIDC authenticator
     Given I save my place in the log file
     And I fetch a code for username "alice" and password "alice" from "keycloak2"
     When I authenticate via OIDC V2 with code and service-id "non-exist"
-    Then it is not found
+    Then it is a bad request
     And The following appears in the log after my savepoint:
     """
-    Errors::Conjur::RequestedResourceNotFound: CONJ00123E Resource
+    Errors::Authentication::Security::AuthenticatorNotWhitelisted: CONJ00004E 'authn-oidc/non-exist' is not enabled
     """
 
   @smoke

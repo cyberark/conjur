@@ -1,0 +1,32 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: http://jwks_py:8090/authn-jwt-check-standard-claims/RS256
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Server:
+      - BaseHTTP/0.6 Python/3.10.7
+      Date:
+      - Mon, 27 Mar 2023 14:52:39 GMT
+      Content-Type:
+      - text/html
+    body:
+      encoding: UTF-8
+      string: '{"keys": [{"e": "AQAB", "kty": "RSA", "n": "ugwppRMuZ0uROdbPewhNUS4219DlBiwXaZOje-PMXdfXRw8umH7IJ9bCIya6ayolap0YWyFSDTTGStRBIbmdY9HKJ25XqkRrVHlUAfBBS_K7zlfoF3wMxmc_sDyXBUET7R3VaDO6A1CuGYwQ5Shj-bSJa8RmOH0OlwSlhr0fKME",
+        "kid": "FlpP5WEr5YFZtEYbGH6E-JtWOHk-edj4hPiGOvnU1fY"}]}'
+  recorded_at: Mon, 27 Mar 2023 14:52:39 GMT
+recorded_with: VCR 6.1.0
