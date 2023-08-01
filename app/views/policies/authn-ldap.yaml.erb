@@ -1,0 +1,18 @@
+- !policy
+  id: conjur/authn-ldap/<%= service_id %>
+  body:
+  - !webservice
+    annotations:
+    <% auth_data.annotations.each do |annotation, value| -%>
+      <%= annotation %>: <%= value %>
+    <% end -%>
+
+  - !variable bind-password
+  - !variable tls-ca-cert
+
+  - !layer users
+
+  - !permit
+    resource: !webservice
+    privilege: [ read, authenticate ]
+    role: !layer users
