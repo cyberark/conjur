@@ -1,0 +1,13 @@
+- !policy
+  id: authn-azure/<%= service_id %>
+  body:
+  - !webservice
+
+  - !variable provider-uri
+
+  - !group consumers
+
+  - !permit
+    resource: !webservice
+    privilege: [ authenticate ]
+    role: !group consumers

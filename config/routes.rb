@@ -49,6 +49,10 @@ Rails.application.routes.draw do
         put  '/:authenticator/:account/api_key'  => 'credentials#rotate_api_key'
 
         post '/authn-k8s/:service_id/inject_client_cert' => 'authenticate#k8s_inject_client_cert'
+
+        constraints authenticator: /|authn-azure|authn-iam|authn-k8s|authn-ldap|authn-gcp|authn-oidc/ do
+          post '/:authenticator/:account' => 'authenticators#persist_auth'
+        end
       end
 
       get     "/roles/:account/:kind/*identifier" => "roles#graph", :constraints => QueryParameterActionRecognizer.new("graph")

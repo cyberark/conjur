@@ -1,0 +1,23 @@
+- !policy
+  id: authn-k8s/<%= service_id %>
+  body:
+  - !webservice
+  - !policy
+    id: ca
+    body:
+    - !variable cert
+    - !variable key
+
+  - !policy
+    id: kubernetes
+    body:
+    - !variable service-account-token
+    - !variable ca-cert
+    - !variable api-url
+
+  - !group consumers
+
+  - !permit
+    resource: !webservice
+    privilege: [ authenticate ]
+    role: !group consumers

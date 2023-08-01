@@ -1,0 +1,11 @@
+- !policy
+  id: authn-iam/<%= service_id %>
+  body:
+  - !webservice
+
+  - !group consumers
+
+  - !permit
+    resource: !webservice
+    privilege: [ authenticate ]
+    role: !group consumers

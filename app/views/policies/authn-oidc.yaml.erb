@@ -1,0 +1,14 @@
+- !policy
+  id: authn-oidc/<%= service_id %>
+  body:
+  - !webservice
+
+  - !variable provider-uri
+  - !variable id-token-user-property
+
+  - !group consumers
+
+  - !permit
+    resource: !webservice
+    privilege: [ authenticate ]
+    role: !group consumers
