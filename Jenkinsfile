@@ -367,27 +367,25 @@ pipeline {
                 allowEmptyArchive: true
               )
 
-                  publishHTML(
-                    reportDir: 'ee-test/cucumber',
-                    reportFiles: '''
-                      api/cucumber_results.html,
-                      authenticators_config/cucumber_results.html,
-                      authenticators_azure/cucumber_results.html,
-                      authenticators_ldap/cucumber_results.html,
-                      authenticators_oidc/cucumber_results.html,
-                      authenticators_jwt/cucumber_results.html,
-                      authenticators_status/cucumber_results.html
-                      policy/cucumber_results.html,
-                      rotators/cucumber_results.html
-                    ''',
-                    reportName: 'EE Integration reports',
-                    reportTitles: '',
-                    allowMissing: false,
-                    alwaysLinkToLastBuild: true,
-                    keepAll: true
-                  )
-                }
-              }
+              publishHTML(
+                reportDir: 'ee-test/cucumber',
+                reportFiles: '''
+                  api/cucumber_results.html,
+                  authenticators_config/cucumber_results.html,
+                  authenticators_azure/cucumber_results.html,
+                  authenticators_ldap/cucumber_results.html,
+                  authenticators_oidc/cucumber_results.html,
+                  authenticators_jwt/cucumber_results.html,
+                  authenticators_status/cucumber_results.html
+                  policy/cucumber_results.html,
+                  rotators/cucumber_results.html
+                ''',
+                reportName: 'EE Integration reports',
+                reportTitles: '',
+                allowMissing: false,
+                alwaysLinkToLastBuild: true,
+                keepAll: true
+              )
             }
           }
         }
