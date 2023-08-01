@@ -137,6 +137,43 @@ describe HostsController, type: :request do
       end
     end
 
+    context "duplicate will send conflict" do
+      let(:payload_create_hosts_annotations) do
+        <<~BODY
+            {
+            "id": "new-host2",
+            "annotations": {
+            "description": "describe"
+            },
+            "safes": [
+              "dev"
+             ]
+          }
+        BODY
+      end
+      it 'returns created and can fetch secret' do
+        post("/hosts/rspec/test",
+             env: token_auth_header(role: alice_user).merge(
+               {
+                 'RAW_POST_DATA' => payload_create_hosts_annotations,
+                 'CONTENT_TYPE' => "application/json"
+               }
+             )
+        )
+        assert_response :created
+        post("/hosts/rspec/test",
+             env: token_auth_header(role: alice_user).merge(
+               {
+                 'RAW_POST_DATA' => payload_create_hosts_annotations,
+                 'CONTENT_TYPE' => "application/json"
+               }
+             )
+        )
+        assert_response :conflict
+      end
+
+    end
+
     context "empty id or body" do
       let(:payload_empty) do
         <<~BODY
