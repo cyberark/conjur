@@ -24,6 +24,12 @@ module Audit
       to_s { format "resource %s", resource_id }
     end
 
+    class Platform < Subject
+      field :platform_id
+      to_h {{ resource: platform_id }}
+      to_s { format "platform %s", platform_id }
+    end
+
     class Role < Subject
       field :role_id
       to_h {{ role: role_id }}

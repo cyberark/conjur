@@ -780,6 +780,20 @@ module LogMessages
       )
     end
   end
+  
+  module Platforms
+
+    PlatformPolicyNotFound = ::Util::TrackableErrorClass.new(
+      msg: "The policy of platform {0} was not found",
+      code: "CONJ00158E"
+    )
+
+    PlatformEndpointForbidden = ::Util::TrackableErrorClass.new(
+      msg: "Action {0} is not allowed on the platforms endpoint",
+      code: "CONJ00159E"
+    )
+    
+  end
 
   # This are log messages so its okay there are many
   # :reek:TooManyConstants
