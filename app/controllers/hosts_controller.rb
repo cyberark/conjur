@@ -21,6 +21,11 @@ class HostsController < RestController
           .to_h.symbolize_keys
     authorize(action, resource(params[:identifier]))
     validateId(params[:id])
+    hostId = "#{params[:account]}:host:#{build_host_name_without_slash(params)}"
+    hostResource = Resource.find(resource_id: hostId)
+    if !hostResource.nil?
+      raise Exceptions::RecordExists.new("host", hostId)
+    end
     input = input_host_create(params)
     result = submit_policy(Loader::CreatePolicy, PolicyTemplates::CreateHost.new(), input, resource(params[:identifier]))
     hostPolicy = result[:policy]
@@ -65,6 +70,14 @@ def build_host_name(params)
   path << params[:identifier] unless params[:identifier] == "root"
   path << params[:id]
   "/" + path.join('/')
+end
+
+
+def build_host_name_without_slash(params)
+  path = []
+  path << params[:identifier] unless params[:identifier] == "root"
+  path << params[:id]
+  path.join('/')
 end
 
 def grantHostToSafes(params)
