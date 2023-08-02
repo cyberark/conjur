@@ -29,6 +29,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Introduces support for Policy Factory, which enables resource creation
   through a new `factories` API.
   [cyberark/conjur#2855](https://github.com/cyberark/conjur/pull/2855/files)
+- Use base images with newer Ubuntu and UBI.
+  Display FIPS Mode status in the UI (requires temporary fix for OpenSSL gem).
+  [cyberark/conjur#2874](https://github.com/cyberark/conjur/pull/2874)
 
 ### Changed
 - The database thread pool max connection size is now based on the number of
