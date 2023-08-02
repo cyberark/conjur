@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
+## [1.20.1] - 2023-07-31
+
+### Changed
+- Conjur will now use the new FIPS Base Images.
+- Docker Image build is now multistage.
+- Dependencies update.
+- Bumped Appliance and Debify versions
+- Display FIPS Mode status in the UI (requires temporary fix for OpenSSL gem).
+  [cyberark/conjur#2874](https://github.com/cyberark/conjur/pull/2874)
+
 ## [1.20.0] - 2023-07-11
 
 ### Security
