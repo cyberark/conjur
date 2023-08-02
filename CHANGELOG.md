@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
+- Support plural syntax for revoke and deny https://ca-il-jira.il.cyber-ark.com:8443/browse/CONJSE-1783
 
 ## [1.20.0] - 2023-07-11
 
