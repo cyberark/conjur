@@ -1,6 +1,19 @@
 module Conjur
   module PolicyParser
     module Types
+      # class YAMLMap < Hash
+      #   # include CustomStatement
+      #   def tag
+      #     binding.pry
+      #     [ "!", self.class.name.split("::")[-1].underscore ].join
+      #   end
+
+      #   def encode_with coder
+      #     binding.pry
+      #     coder.represent_seq(tag, self)
+      #   end
+      # end
+
       class YAMLList < Array
         def tag
           [ "!", self.class.name.split("::")[-1].underscore ].join
@@ -12,8 +25,8 @@ module Conjur
       end
 
       module Tagless
-        def tag 
-          nil 
+        def tag
+          nil
         end
       end
 
@@ -86,6 +99,23 @@ module Conjur
         include Grants
         include Permissions
       end
+
+      class Template < YAMLList
+        include Grants
+        include Permissions
+      end
+
+      # class Schema < YAMLMap; end
+      # class Configuration < YAMLMap; end
+
+      #   include Grants
+      #   include Permissions
+      # end
+
+      # class Configuration < YAMLList
+      #   include Grants
+      #   include Permissions
+      # end
 
       # Policy includes the functionality of Entitlements, wrapped in a
       # policy role, policy resource, policy id and policy version.

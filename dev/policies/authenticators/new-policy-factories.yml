@@ -1,0 +1,94 @@
+
+- !policy
+  id: factories
+  body:
+    - !policy
+      id: connections
+      body:
+        - !policy
+          id: v1
+          body:
+            - !policy-factory
+              id: database
+              template:
+                - !policy
+                  id: <%= id %>
+                  annotations:
+                    factory: connections/database
+                  body:
+                  - &variables
+                    - !variable url
+                    - !variable port
+                    - !variable username
+                    - !variable password
+
+                  - !group consumers
+                  - !group administrators
+
+                  # consumers can read and execute
+                  - !permit
+                    resource: *variables
+                    privileges: [ read, execute ]
+                    role: !group consumers
+
+                  # administrators can update (and read and execute, via role grant)
+                  - !permit
+                    resource: *variables
+                    privileges: [ update ]
+                    role: !group administrators
+
+                  # administrators has role consumers
+                  - !grant
+                    member: !group administrators
+                    role: !group consumers
+              policy_branch: "<%= branch %>"
+              configuration:
+                title: "Database Connection Template"
+                description: "All information for connecting to a database"
+                properties:
+                  id:
+                    description: Group Identifier
+                  branch:
+                    description: Policy branch to load this group into
+                  variables:
+                    url:
+                      description: Database URL
+                    port:
+                      description: Database port
+                    username:
+                      description: Database username
+                    password:
+                      description: Database password
+                  required:
+                    - url
+                    - port
+                    - username
+                    - password
+                required:
+                  - id
+                  - branch
+    - !policy
+      id: core
+      body:
+        - !policy
+          id: v1
+          body:
+            - !policy-factory
+              id: group
+              template:
+                - !group
+                  id: <%= id %>
+                  annotations:
+                    factory: core/v1/group
+              policy_branch: <%= branch %>
+              configuration:
+                title: Group Template
+                description: Creates a Conjur Group
+                properties:
+                  id:
+                    description: Group Identifier
+                  branch:
+                    description: Policy branch to load this group into
+                required:
+                  - id
+                  - branch

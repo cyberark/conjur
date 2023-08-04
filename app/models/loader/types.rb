@@ -347,6 +347,38 @@ module Loader
       end
     end
 
+    class PolicyFactory < Record
+      def_delegators :@policy_object, :base, :template, :configuration, :schema, :target_branch
+
+      def create!
+        super
+
+        base_policy_id = find_resourceid(base_resource_id)
+
+        ::PolicyFactory.create(
+          role_id: roleid,
+          policy_id: policy_id,
+          base_policy_id: base_policy_id,
+          template: template.to_yaml,
+          configuration: configuration,
+          schema: schema,
+          target_branch: target_branch
+        )
+      end
+
+      def identifier
+        self.roleid.split(':', 3)[2]
+      end
+
+      private
+
+      def base_resource_id
+        # If no base policy Id is provided, the template is loaded
+        # into the root policy.
+        base&.resourceid || "#{policy_object.account}:policy:root"
+      end
+    end
+
     # Deletions
 
     class Deletion < Types::Base

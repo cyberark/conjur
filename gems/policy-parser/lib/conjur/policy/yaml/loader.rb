@@ -17,11 +17,12 @@ module Conjur
             else
               '.'
             end
-            
+
             parser = Psych::Parser.new(handler = Handler.new)
             handler.filename = filename
             handler.parser = parser
             begin
+              # binding.pry
               parser.parse(yaml)
             rescue => e
               handler.log { e.message }
@@ -29,18 +30,18 @@ module Conjur
               raise Invalid.new(e.message || "(no message)", filename, parser.mark)
             end
             records = handler.result || []
-            
+
             parse_includes(records, dirname)
-  
+
             records
           end
-          
+
           def load_file filename
             load(File.read(filename), filename)
           end
-          
+
           protected
-          
+
           def parse_includes records, dirname
             records.each_with_index do |record, idx|
               case record
