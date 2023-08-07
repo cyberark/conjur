@@ -138,6 +138,7 @@ Feature: Create edge process
       }
       """
       Then the HTTP response status code is 201
+      And I set the "Content-Type" header to "text\\plain"
       When I GET "/edge/edge-creds/cucumber/edgy"
       Then the HTTP response status code is 200
       And there is an audit record matching:
@@ -164,6 +165,7 @@ Feature: Create edge process
     When I log out
     And I login as "some_user"
     And I save my place in the audit log file for remote
+    And I set the "Content-Type" header to "text\\plain"
     When I GET "/edge/edge-creds/cucumber/edgy"
     Then the HTTP response status code is 403
     And there is an audit record matching:
