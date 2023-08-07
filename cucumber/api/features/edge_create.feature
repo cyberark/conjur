@@ -34,7 +34,13 @@ Feature: Create edge process
     Scenario: Create edge host return 201 OK
       Given I login as "admin_user"
       And I save my place in the audit log file for remote
-      When I POST "/edge/create/cucumber/edgy"
+      And I set the "Content-Type" header to "application/json"
+      When I POST "/edge/cucumber" with body:
+      """
+      {
+        "edge_name": "edgy"
+      }
+      """
       Then the HTTP response status code is 201
       And Edge name "edgy" data exists in db
       And there is an audit record matching:
@@ -51,9 +57,20 @@ Feature: Create edge process
     Scenario: Create edge with existing name return 409
       Given I login as "admin_user"
       And I save my place in the audit log file for remote
-      When I POST "/edge/create/cucumber/edgy"
+      And I set the "Content-Type" header to "application/json"
+      When I POST "/edge/cucumber" with body:
+      """
+      {
+        "edge_name": "edgy"
+      }
+      """
       Then the HTTP response status code is 201
-      When I POST "/edge/create/cucumber/edgy"
+      When I POST "/edge/cucumber" with body:
+      """
+      {
+        "edge_name": "edgy"
+      }
+      """
       Then the HTTP response status code is 409
       And there is an audit record matching:
       """
@@ -67,26 +84,59 @@ Feature: Create edge process
     @negative @acceptance
     Scenario: Create edge with non admin_user return 403
       Given I login as "host/data/some_host1"
-      When I POST "/edge/create/cucumber/edgy1"
+      And I set the "Content-Type" header to "application/json"
+      When I POST "/edge/cucumber" with body:
+      """
+      {
+        "edge_name": "edgy1"
+      }
+      """
       Then the HTTP response status code is 403
 
     @negative @acceptance
     Scenario: Exceeding max edges allowed return 422
       Given I login as "admin_user"
-      When I POST "/edge/create/cucumber/edgy1"
+      And I set the "Content-Type" header to "application/json"
+      When I POST "/edge/cucumber" with body:
+      """
+      {
+        "edge_name": "edgy1"
+      }
+      """
       Then the HTTP response status code is 201
-      When I POST "/edge/create/cucumber/edgy2"
+      When I POST "/edge/cucumber" with body:
+      """
+      {
+        "edge_name": "edgy2"
+      }
+      """
       Then the HTTP response status code is 201
-      When I POST "/edge/create/cucumber/edgy3"
+      When I POST "/edge/cucumber" with body:
+      """
+      {
+        "edge_name": "edgy3"
+      }
+      """
       Then the HTTP response status code is 201
-      When I POST "/edge/create/cucumber/edgy4"
+      When I POST "/edge/cucumber" with body:
+      """
+      {
+        "edge_name": "edgy4"
+      }
+      """
       Then the HTTP response status code is 422
 
     @acceptance
     Scenario: Script generation success emits audit
       Given I login as "admin_user"
       And I save my place in the audit log file for remote
-      When I POST "/edge/create/cucumber/edgy"
+      And I set the "Content-Type" header to "application/json"
+      When I POST "/edge/cucumber" with body:
+      """
+      {
+        "edge_name": "edgy"
+      }
+      """
       Then the HTTP response status code is 201
       When I GET "/edge/edge-creds/cucumber/edgy"
       Then the HTTP response status code is 200
@@ -103,7 +153,13 @@ Feature: Create edge process
   @negative
   Scenario: Script generation failure emits audit
     Given I login as "admin_user"
-    When I POST "/edge/create/cucumber/edgy"
+    And I set the "Content-Type" header to "application/json"
+    When I POST "/edge/cucumber" with body:
+    """
+    {
+      "edge_name": "edgy"
+    }
+    """
     Then the HTTP response status code is 201
     When I log out
     And I login as "some_user"
@@ -123,11 +179,16 @@ Feature: Create edge process
   @acceptance
   Scenario: Edge start report success emits audit
     Given I login as "admin_user"
-    And I POST "/edge/create/cucumber/edgy"
+    And I set the "Content-Type" header to "application/json"
+    And I POST "/edge/cucumber" with body:
+    """
+    {
+      "edge_name": "edgy"
+    }
+    """
     And the HTTP response status code is 201
     And I save my place in the audit log file for remote
     When I login as the host associated with Edge "edgy"
-    And I set the "Content-Type" header to "application/json"
     And I POST "/edge/data/cucumber?data_type=install" with body:
     """
      { "installation_date" : 1111111 }
@@ -146,11 +207,16 @@ Feature: Create edge process
   @negative
   Scenario: Edge start report failure emits audit
     Given I login as "admin_user"
-    And I POST "/edge/create/cucumber/edgy"
+    And I set the "Content-Type" header to "application/json"
+    And I POST "/edge/cucumber" with body:
+    """
+    {
+      "edge_name": "edgy"
+    }
+    """
     And the HTTP response status code is 201
     And I save my place in the audit log file for remote
     When I login as the host associated with Edge "edgy"
-    And I set the "Content-Type" header to "application/json"
     And I POST "/edge/data/cucumber?data_type=install" with body:
     """
      { "installation_bad_date" : 1111111 }

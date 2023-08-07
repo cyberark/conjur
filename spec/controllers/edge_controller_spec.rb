@@ -27,7 +27,7 @@ describe EdgeController, :type => :request do
   end
 
   let(:list_edges) do
-    "/edge/edges/#{account}"
+    "/edge/#{account}"
   end
 
   let(:report_edge) do

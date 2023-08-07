@@ -78,11 +78,11 @@ Rails.application.routes.draw do
       get     "/secrets/:account/:kind/*identifier" => 'secrets#show'
       post    "/secrets/:account/:kind/*identifier" => 'secrets#create'
       get     "/secrets"                            => 'secrets#batch'
-      post    "/edge/create/:account/:edge_name"    => 'edge_creator#create_edge'
+      post    "/edge/:account"                      => 'edge_creator#create_edge'
       get     "/edge/secrets/:account"              => 'edge#all_secrets'
       get     "/edge/hosts/:account"                => 'edge#all_hosts'
       get     "edge/edge-creds/:account/:edge_name" => 'edge#generate_install_token'
-      get     "/edge/edges/:account"                => 'edge#all_edges'
+      get     "/edge/:account"                      => 'edge#all_edges'
       get     "/edge/max-allowed/:account"          => 'edge#max_edges_allowed'
 
       post    "/edge/data/:account"                 => 'edge#report_edge_data', :constraints => QueryParameterActionRecognizer.new("data_type")
