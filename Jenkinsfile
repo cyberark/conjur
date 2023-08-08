@@ -97,7 +97,7 @@ pipeline {
   parameters {
     booleanParam(
       name: 'NIGHTLY',
-      defaultValue: true,  // Temporarily set to true for all branches
+      defaultValue: false,
       description: 'Run tests on all agents and environment including: FIPS'
     )
     string(
@@ -854,9 +854,5 @@ def defaultCucumberFilterTags(env) {
   }
 
   // For all other branch builds, only run the @smoke tests by default
-  // return '@smoke'
-
-  // Temporarily run all tests on all branches. The above line should be
-  // uncommented when 13.1 is released.
-  return ''
+  return '@smoke'
 }
