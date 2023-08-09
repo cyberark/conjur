@@ -1,7 +1,24 @@
 # frozen_string_literal: true
 
-workers Integer(ENV['WEB_CONCURRENCY'] || 2)
-threads_count = Integer(ENV['RAILS_MAX_THREADS'] || 5)
+begin
+  workers Integer(ENV['WEB_CONCURRENCY'] || 2)
+rescue ArgumentError
+  raise(
+    "Invalid value for WEB_CONCURRENCY environment variable: " \
+    "'#{ENV['WEB_CONCURRENCY']}'. " \
+    "Value must be a positive integer (default is 2)."
+  )
+end
+
+begin
+  threads_count = Integer(ENV['RAILS_MAX_THREADS'] || 5)
+rescue ArgumentError
+  raise(
+    "Invalid value for RAILS_MAX_THREADS environment variable: " \
+    "'#{ENV['RAILS_MAX_THREADS']}'. " \
+    "Value must be a positive integer (default is 5)."
+  )
+end
 threads threads_count, threads_count
 
 # The tag is displayed in the Puma process description, for example:
