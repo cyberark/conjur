@@ -10,8 +10,19 @@ module ParamsValidator
       if value.is_a?(Hash) # value is an item in a nested json from body
         validate_params(value, validator)
       else
-        raise ApplicationController::BadRequest unless validator.call(key, value)
+        unless validator.call(key, value)
+          raise ApplicationController::UnprocessableEntity, "Value provided for parameter #{key} is invalid"
+        end
       end
     end
   end
+
+  def numeric_validator
+    @numeric_validator ||= ->(k, v){ v.is_a?(Numeric)}
+  end
+
+  def string_length_validator
+    @string_length_validator ||= ->(k, v){(v.is_a?(String) && v.length <= 20)}
+  end
+
 end
