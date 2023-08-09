@@ -127,7 +127,62 @@ Feature: Deleting objects and relationships.
     Then group "developers" is not a role member
 
   @smoke
-  Scenario: The !deny statement can be used to revoke a permission.
+  Scenario: The bulk !revoke statement can be used to revoke multiple roles and members.
+    Given I load a policy:
+    """
+    - !group developers1
+    - !group developers2
+    - !group developers3
+    - !group employees1
+    - !group employees2
+    - !group employees3
+    - !grant
+      roles:
+        - !group employees1
+        - !group employees2
+        - !group employees3
+      members:
+        - !group developers1
+        - !group developers2
+        - !group developers3
+    """
+    When I show the group "employees1"
+    Then group "developers1" is a role member
+    And group "developers2" is a role member
+    And group "developers3" is a role member
+    When I show the group "employees2"
+    Then group "developers1" is a role member
+    And group "developers2" is a role member
+    And group "developers3" is a role member
+    When I show the group "employees3"
+    Then group "developers1" is a role member
+    And group "developers2" is a role member
+    And group "developers3" is a role member
+    When I update the policy with:
+    """
+    - !revoke
+      roles:
+        - !group employees1
+        - !group employees2
+      members:
+        - !group developers1
+        - !group developers2
+    """
+    And I show the group "employees1"
+    Then group "developers1" is not a role member
+    And group "developers2" is not a role member
+    And group "developers3" is a role member
+    When I show the group "employees2"
+    Then group "developers1" is not a role member
+    And group "developers2" is not a role member
+    And group "developers3" is a role member
+    When I show the group "employees3"
+    Then group "developers1" is a role member
+    And group "developers2" is a role member
+    And group "developers3" is a role member
+
+  @smoke
+  Scenario: The !deny statement can be used to revoke permissions.
     Given I load a policy:
     """
     - !variable db/password
@@ -143,10 +198,69 @@ Feature: Deleting objects and relationships.
     """
     - !deny
       resource: !variable db/password
-      privileges: [ update ]
+      privileges: [ update, read ]
       role: !host host-01
     """
     And I list the roles permitted to execute variable "db/password"
     Then the role list includes host "host-01"
     And I list the roles permitted to update variable "db/password"
     Then the role list does not include host "host-01"
+    And I list the roles permitted to read variable "db/password"
+    Then the role list does not include host "host-01"
+
+  @smoke
+  Scenario: The bulk !deny statement can be used to revoke a permission from roles and members.
+    Given I load a policy:
+    """
+    - !variable db/address
+    - !variable db/username
+    - !variable db/password
+    - !host host-01
+    - !host host-02
+    - !host host-03
+    - !permit
+      resources:
+        - !variable db/address
+        - !variable db/username
+        - !variable db/password
+      privileges: [ update ]
+      roles:
+        - !host host-01
+        - !host host-02
+        - !host host-03
+    """
+    And I list the roles permitted to update variable "db/address"
+    Then the role list includes host "host-01"
+    Then the role list includes host "host-02"
+    Then the role list includes host "host-03"
+    And I list the roles permitted to update variable "db/username"
+    Then the role list includes host "host-01"
+    Then the role list includes host "host-02"
+    Then the role list includes host "host-03"
+    And I list the roles permitted to update variable "db/password"
+    Then the role list includes host "host-01"
+    Then the role list includes host "host-02"
+    Then the role list includes host "host-03"
+    And I update the policy with:
+    """
+    - !deny
+      resources:
+        - !variable db/address
+        - !variable db/username
+      privileges: [ update ]
+      roles:
+        - !host host-01
+        - !host host-02
+    """
+    When I list the roles permitted to update variable "db/address"
+    Then the role list does not include host "host-01"
+    And the role list does not include host "host-02"
+    And the role list includes host "host-03"
+    When I list the roles permitted to update variable "db/username"
+    Then the role list does not include host "host-01"
+    And the role list does not include host "host-02"
+    And the role list includes host "host-03"
+    When I list the roles permitted to update variable "db/password"
+    Then the role list includes host "host-01"
+    And the role list includes host "host-02"
+    And the role list includes host "host-03"
