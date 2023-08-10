@@ -14,6 +14,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Support plural syntax for revoke and deny 
   [CONJSE-1783](https://ca-il-jira.il.cyber-ark.com:8443/browse/CONJSE-1783)
 
+### Added
+- Added a call to the ephemeral secrets service when an ephemeral secret is requested https://ca-il-jira.il.cyber-ark.com:8443/browse/ONYX-42995
+
 ## [1.0.3-cloud] - 2023-07-31
 ### Added
 - Endpoint for edge installation token generation https://ca-il-jira.il.cyber-ark.com:8443/browse/ONYX-41981
