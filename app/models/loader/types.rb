@@ -354,15 +354,25 @@ module Loader
 
     class Deny < Deletion
       def delete!
-        permission = ::Permission[role_id: policy_object.role.roleid, privilege: policy_object.privilege, resource_id: policy_object.resource.resourceid, policy_id: policy_id]
-        permission.destroy if permission
+        Array(policy_object.resource).each do |r|
+          Array(policy_object.privilege).each do |p|
+            Array(policy_object.role).each do |m|
+              permission = ::Permission[role_id: m.roleid, privilege: p, resource_id: r.resourceid, policy_id: policy_id]
+              permission.destroy if permission
+            end
+          end
+        end
       end
     end
 
     class Revoke < Deletion
       def delete!
-        membership = ::RoleMembership[role_id: policy_object.role.roleid, member_id: policy_object.member.roleid, policy_id: policy_id]
-        membership.destroy if membership
+        Array(policy_object.role).each do |r|
+          Array(policy_object.member).each do |m|
+            membership = ::RoleMembership[role_id: r.roleid, member_id: m.roleid, policy_id: policy_id]
+            membership.destroy if membership
+          end
+        end
       end
     end
 
