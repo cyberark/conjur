@@ -671,10 +671,10 @@ Feature: Fetching secrets from edge endpoint
   @negative @acceptance
   Scenario: List edges permitted only to admins
     Given I login as "admin_user"
-    When I GET "/edge/edges/cucumber"
+    When I GET "/edge/cucumber"
     Then the HTTP response status code is 200
     Given I login as "some_user"
-    When I GET "/edge/edges/cucumber"
+    When I GET "/edge/cucumber"
     Then the HTTP response status code is 403
 
    ######################

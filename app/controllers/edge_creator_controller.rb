@@ -12,10 +12,11 @@ class EdgeCreatorController < RestController
 
   #this endpoint loads a policy with the edge host values + adds the edge name to Edge table
   def create_edge
-    logger.info(LogMessages::Endpoints::EndpointRequested.new('edge/create'))
+    logger.info(LogMessages::Endpoints::EndpointRequested.new('create edge'))
     allowed_params = %i[account edge_name]
     url_params = params.permit(*allowed_params)
     validate_conjur_admin_group(url_params[:account])
+    validate_name(url_params[:edge_name])
     params[:identifier] = "edge"
     edge_name = params[:edge_name]
 
@@ -30,7 +31,7 @@ class EdgeCreatorController < RestController
     ensure
       created_audit(edge_name)
     end
-    logger.info(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("edge/create"))
+    logger.info(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("create edge"))
     head :created
   end
 
@@ -60,4 +61,11 @@ class EdgeCreatorController < RestController
       **audit_params
     ))
   end
+
+  def validate_name(name)
+    if name.nil? || name.empty?
+      raise ApplicationController::UnprocessableEntity, "edge_name param is missing in body, must not be blank."
+    end
+  end
+
 end
