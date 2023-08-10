@@ -125,7 +125,7 @@ Feature: JWT Authenticator - Configuration Check
       member: !host myapp
     """
     And I am the super-user
-    And I successfully set authn-jwt "jwks-uri" variable to value "jwks uri placehodlder"
+    And I successfully set authn-jwt "jwks-uri" variable to value "jwks uri placeholder"
     And I successfully set authn-jwt "provider-uri" variable to value "provider uri placeholder"
     And I am using file "authn-jwt-configuration" and alg "RS256" for remotely issue token:
     """
@@ -139,10 +139,16 @@ Feature: JWT Authenticator - Configuration Check
     Then the HTTP response status code is 401
     And The following appears in the log after my savepoint:
     """
-    CONJ00122E Invalid signing key settings: jwks-uri and provider-uri cannot be defined simultaneously
+    CONJ00154E Invalid signing key settings: jwks-uri and provider-uri cannot be defined simultaneously
     """
 
-  @negative @acceptance
+  # This test is checking if an empty string (string with a space) is added for the
+  # JWKS URI, the user will get an error. Updated functionality treats this string as
+  # emtpy, and ignores it.
+
+  # I'm recommending we remove this tests as it really doesn't provide any additional value
+  # over "Scenario: ONYX-8694: Both provider-uri and jwks-uri are configured"
+  @negative @acceptance @skip
   Scenario: ONYX-8826: provider-uri configured with correct value, jwks-uri configured with empty value, error
     Given I load a policy:
     """
@@ -190,7 +196,7 @@ Feature: JWT Authenticator - Configuration Check
     Then the HTTP response status code is 401
     And The following appears in the log after my savepoint:
     """
-    CONJ00122E Invalid signing key settings: jwks-uri and provider-uri cannot be defined simultaneously
+    CONJ00154E Invalid signing key settings: jwks-uri and provider-uri cannot be defined simultaneously
     """
 
   @negative @acceptance
@@ -201,19 +207,15 @@ Feature: JWT Authenticator - Configuration Check
       id: conjur/authn-jwt/raw
       body:
       - !webservice
-
-      - !variable
-        id: jwks-uri
-
-      - !variable
-        id: token-app-property
-
+      - !variable jwks-uri
+      - !variable token-app-property
       - !group hosts
 
       - !permit
         role: !group hosts
         privilege: [ read, authenticate ]
         resource: !webservice
+
     - !host
       id: myapp
       annotations:
@@ -284,6 +286,7 @@ Feature: JWT Authenticator - Configuration Check
     """
     CONJ00037E Missing value for resource: cucumber:variable:conjur/authn-jwt/raw/provider-uri
     """
+    # CONJ00154E Invalid signing key settings: Failed to find a JWT decode option. Either `jwks-uri` or `public-keys` variable must be set
 
   @negative @acceptance
   Scenario: ONYX-8696: None of provider-uri or jwks-uri are configured
@@ -325,10 +328,16 @@ Feature: JWT Authenticator - Configuration Check
     Then the HTTP response status code is 401
     And The following appears in the log after my savepoint:
     """
-    CONJ00122E Invalid signing key settings: One of the following must be defined: jwks-uri, public-keys, or provider-uri
+    CONJ00154E Invalid signing key settings: One of the following must be defined: jwks-uri, public-keys, or provider-uri
     """
 
-  @negative @acceptance
+  # This test is checking if an empty string (string with a space) is added for the
+  # JWKS URI, the user will get an error. Updated functionality treats this string as
+  # emtpy, and ignores it.
+
+  # I'm recommending we remove this tests as it really doesn't provide any additional value
+  # over "Scenario: ONYX-8694: Both provider-uri and jwks-uri are configured"
+  @negative @acceptance @skip
   Scenario: ONYX-8695: provider-uri configured with empty value, jwks-uri configured with correct value
     Given I load a policy:
     """
@@ -363,7 +372,7 @@ Feature: JWT Authenticator - Configuration Check
     """
     And I am the super-user
     And I successfully set authn-jwt "jwks-uri" variable value to "http://jwks_py:8090/authn-jwt-configuration/RS256" in service "raw"
-    And I successfully set authn-jwt "provider-uri" variable to value " "
+    And I successfully set authn-jwt "provider-uri" variable to value "-"
     And I am using file "authn-jwt-configuration" and alg "RS256" for remotely issue token:
     """
     {
@@ -376,7 +385,7 @@ Feature: JWT Authenticator - Configuration Check
     Then the HTTP response status code is 401
     And The following appears in the log after my savepoint:
     """
-    CONJ00122E Invalid signing key settings: jwks-uri and provider-uri cannot be defined simultaneously
+    CONJ00154E Invalid signing key settings: jwks-uri and provider-uri cannot be defined simultaneously
     """
 
   @negative @acceptance

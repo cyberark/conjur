@@ -194,9 +194,17 @@ GEM
     dry-core (0.7.1)
       concurrent-ruby (~> 1.0)
     dry-inflector (0.2.1)
+    dry-initializer (3.1.1)
     dry-logic (1.2.0)
       concurrent-ruby (~> 1.0)
       dry-core (~> 0.5, >= 0.5)
+    dry-schema (1.10.6)
+      concurrent-ruby (~> 1.0)
+      dry-configurable (~> 0.13, >= 0.13.0)
+      dry-core (~> 0.5, >= 0.5)
+      dry-initializer (~> 3.0)
+      dry-logic (~> 1.2)
+      dry-types (~> 1.5)
     dry-struct (1.4.0)
       dry-core (~> 0.5, >= 0.5)
       dry-types (~> 1.5)
@@ -207,6 +215,12 @@ GEM
       dry-core (~> 0.5, >= 0.5)
       dry-inflector (~> 0.1, >= 0.1.2)
       dry-logic (~> 1.0, >= 1.0.2)
+    dry-validation (1.8.1)
+      concurrent-ruby (~> 1.0)
+      dry-container (~> 0.7, >= 0.7.1)
+      dry-core (~> 0.5, >= 0.5)
+      dry-initializer (~> 3.0)
+      dry-schema (~> 1.8, >= 1.8.0)
     erubi (1.12.0)
     event_emitter (0.2.6)
     eventmachine (1.2.7)
@@ -522,6 +536,7 @@ DEPENDENCIES
   debase (~> 0.2.5.beta2)
   dry-struct
   dry-types
+  dry-validation
   event_emitter
   faye-websocket
   ffi (>= 1.9.24)
