@@ -9,6 +9,7 @@ class EdgeCreatorController < RestController
   include FindEdgePolicyResource
   include GroupMembershipValidator
   include PolicyWrapper
+  include ParamsValidator
 
   #this endpoint loads a policy with the edge host values + adds the edge name to Edge table
   def create_edge
@@ -16,9 +17,9 @@ class EdgeCreatorController < RestController
     allowed_params = %i[account edge_name]
     url_params = params.permit(*allowed_params)
     validate_conjur_admin_group(url_params[:account])
-    validate_name(url_params[:edge_name])
+    edge_name = url_params[:edge_name]
+    validate_name(edge_name)
     params[:identifier] = "edge"
-    edge_name = params[:edge_name]
 
     begin
       validate_max_edge_allowed(url_params[:account])
@@ -63,9 +64,10 @@ class EdgeCreatorController < RestController
   end
 
   def validate_name(name)
-    if name.nil? || name.empty?
-      raise ApplicationController::UnprocessableEntity, "edge_name param is missing in body, must not be blank."
-    end
+    validate_params({"edge_name" => name}, ->(k,v){
+      !v.nil? && !v.empty? &&
+      v.match?(/^[a-zA-Z0-9_]+$/) && string_length_validator.call(k, v)
+    })
   end
 
 end
