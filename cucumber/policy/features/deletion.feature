@@ -71,6 +71,12 @@ Feature: Deleting objects and relationships.
       body:
       - !delete
         record: !variable db-password
+    """
+    And I load a policy:
+    """
+    - !policy
+      id: test
+      body:
       - !variable db-password
     """
     Then variable "test/db-password" exists
@@ -264,3 +270,42 @@ Feature: Deleting objects and relationships.
     Then the role list includes host "host-01"
     And the role list includes host "host-02"
     And the role list includes host "host-03"
+
+    @smoke
+    Scenario: Delete statements prevail on conflicting policy statements
+      If a policy contains both adding and deleting statements (delete, deny, revoke),
+      then we want to ensure that we fail safe and the delete statement is the final outcome.
+      Given I update the policy with:
+      """
+      - !variable db/password
+      - !host host-01
+      - !permit
+        resource: !variable db/password
+        privileges: [ execute ]
+        role: !host host-01
+      - !deny
+        resource: !variable db/password
+        privileges: [ execute ]
+        role: !host host-01
+      """
+      When I list the roles permitted to execute variable "db/password"
+      Then the role list does not include host "host-01"
+      Given I update the policy with:
+      """
+      - !group hosts
+      - !grant
+        role: !host host-01
+        member: !group hosts
+      - !revoke
+        role: !host host-01
+        member: !group hosts
+      """
+      When I show the group "hosts"
+      Then host "host-01" is not a role member
+      Given I update the policy with:
+      """
+      - !variable to_be_deleted
+      - !delete
+        record: !variable to_be_deleted
+      """
+      Then variable "to_be_deleted" does not exist

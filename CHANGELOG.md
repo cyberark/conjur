@@ -9,9 +9,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
+## [1.0.5-cloud] - 2023-08-16
+### Security
+- Previously, attempting to add and remove a privilege in the same policy load
+  resulted in only the positive privilege (grant, permit) taking effect. Now we
+  fail safe and the negative privilege statement (revoke, deny) is the final
+  outcome
+  [CONJSE-1785](https://ca-il-jira.il.cyber-ark.com:8443/browse/CONJSE-1785)
+
 ## [1.0.4-cloud] - 2023-08-10
-### Fixed
-- Support plural syntax for revoke and deny 
+### Security
+- Support plural syntax for revoke and deny
   [CONJSE-1783](https://ca-il-jira.il.cyber-ark.com:8443/browse/CONJSE-1783)
 
 ### Added
