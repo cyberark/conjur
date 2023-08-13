@@ -139,6 +139,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [1.20.0] - 2023-07-11
 
+### Security
+- Support plural syntax for revoke and deny
+  [CONJSE-1783](https://ca-il-jira.il.cyber-ark.com:8443/browse/CONJSE-1783)
+- Previously, attempting to add and remove a privilege in the same policy load
+  resulted in only the positive privilege (grant, permit) taking effect. Now we
+  fail safe and the negative privilege statement (revoke, deny) is the final
+  outcome
+  [CONJSE-1785](https://ca-il-jira.il.cyber-ark.com:8443/browse/CONJSE-1785)
+
 ### Added
 - Telemetry support
   [cyberark/conjur#2854](https://github.com/cyberark/conjur/pull/2854)
