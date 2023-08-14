@@ -84,6 +84,8 @@ Feature: Updating Policies with Annotations
       role: !user alice
     """
 
+  @negative
+  @acceptance
   Scenario: User with create privilege can NOT add new annotations with PUT
     When I login as "alice"
     And I save my place in the log file
@@ -100,6 +102,8 @@ Feature: Updating Policies with Annotations
     CONJ00006E 'cucumber:user:alice' does not have 'update' privilege on cucumber:policy:hosts
     """
 
+  @smoke
+  @acceptance
   Scenario: User with create privilege can add new annotations with POST
     When I login as "alice"
     Then I successfully POST "/policies/cucumber/policy/hosts" with body:
@@ -141,6 +145,8 @@ Feature: Updating Policies with Annotations
     }
     """
 
+  @negative
+  @acceptance
   Scenario: User with create privilege can NOT add new annotations with PATCH
     When I login as "alice"
     And I save my place in the log file
@@ -157,6 +163,8 @@ Feature: Updating Policies with Annotations
     CONJ00006E 'cucumber:user:alice' does not have 'update' privilege on cucumber:policy:hosts
     """
 
+  @negative
+  @acceptance
   Scenario: User with create privilege can NOT update existing annotations with PUT
     When I login as "alice"
     And I save my place in the log file
@@ -173,6 +181,8 @@ Feature: Updating Policies with Annotations
     CONJ00006E 'cucumber:user:alice' does not have 'update' privilege on cucumber:policy:hosts
     """
 
+  @negative
+  @acceptance
   Scenario: User with create privilege CAN NOT update existing annotations with POST, but policy loads successfully
     When I login as "alice"
     Then I successfully POST "/policies/cucumber/policy/hosts" with body:
@@ -214,6 +224,8 @@ Feature: Updating Policies with Annotations
     }
     """
 
+  @negative
+  @acceptance
   Scenario: User with create privilege can NOT update existing annotations with PATCH
     When I login as "alice"
     And I save my place in the log file
@@ -230,6 +242,8 @@ Feature: Updating Policies with Annotations
     CONJ00006E 'cucumber:user:alice' does not have 'update' privilege on cucumber:policy:hosts
     """
 
+  @smoke
+  @acceptance
   Scenario: User with update privilege can add new annotations with PUT
     When I login as "bob"
     Then I successfully PUT "/policies/cucumber/policy/hosts" with body:
@@ -271,6 +285,8 @@ Feature: Updating Policies with Annotations
     }
     """
 
+  @negative
+  @acceptance
   Scenario: User with update privilege can NOT add new annotations with POST
     When I login as "bob"
     And I save my place in the log file
@@ -287,6 +303,8 @@ Feature: Updating Policies with Annotations
     CONJ00006E 'cucumber:user:bob' does not have 'create' privilege on cucumber:policy:hosts
     """
 
+  @smoke
+  @acceptance
   Scenario: User with update privilege can add new annotations with PATCH
     When I login as "bob"
     Then I successfully PATCH "/policies/cucumber/policy/hosts" with body:
@@ -328,6 +346,8 @@ Feature: Updating Policies with Annotations
     }
     """
 
+  @smoke
+  @acceptance
   Scenario: User with update privilege can update existing annotations with PUT
     When I login as "bob"
     Then I successfully PUT "/policies/cucumber/policy/hosts" with body:
@@ -369,6 +389,8 @@ Feature: Updating Policies with Annotations
     }
     """
 
+  @negative
+  @acceptance
   Scenario: User with update privilege can NOT update existing annotations with POST
     When I login as "bob"
     And I save my place in the log file
@@ -385,6 +407,8 @@ Feature: Updating Policies with Annotations
     CONJ00006E 'cucumber:user:bob' does not have 'create' privilege on cucumber:policy:hosts
     """
 
+  @smoke
+  @acceptance
   Scenario: User with update privilege can update existing annotations with PATCH
     When I login as "bob"
     Then I successfully PATCH "/policies/cucumber/policy/hosts" with body:
