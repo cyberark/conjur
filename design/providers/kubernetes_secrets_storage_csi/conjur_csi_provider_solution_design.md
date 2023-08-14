@@ -6,8 +6,6 @@
 - [Out of scope](#out-of-scope)
 - [Solution](#solution)
   - [UX](#ux)
-    - [SecretProviderClass](#secretproviderclass)
-    - [Helm Charts](#helm-charts)
   - [Development Tasks](#development-tasks)
     - [Implementation Tasks](#implementation-tasks)
     - [Testing Tasks](#testing-tasks)
@@ -56,7 +54,16 @@
 
 ## Issue description
 
-The task at hand is to implement a CyberArk Conjur provider for the Kubernetes Secrets Store CSI driver. This provider will authenticate with Conjur using the Kubernetes workload's service account token via authn-jwt, and fetch secrets from Conjur. These secrets are then made available to Kubernetes pods, providing a seamless and secure method of managing secrets.
+The Secrets Store CSI Driver `secrets-store.csi.k8s.io` allows Kubernetes to mount multiple secrets, keys, and certs stored in enterprise-grade external secrets stores into their pods as a volume. Once the Volume is attached, the data in it is mounted into the container's file system. The driver features a pluggable provider interface developers can implement that defines the actions of the Secrets Store CSI driver. The driver uses gRPC to communicate with the provider, which implements a gRPC server. 
+
+![Illustration of Secrets Store CSI volume functionality](diagram.png)
+
+Please consult the [Secrets Store CSI Driver the documentation](https://secrets-store-csi-driver.sigs.k8s.io/providers#implementing-a-provider-for-secrets-store-csi-driver
+) for more details.
+
+Our goal is to implement a CyberArk Conjur provider. This provider will authenticate with Conjur using the Kubernetes workload's service account token via `authn-jwt`, and fetch secrets from Conjur. These secrets are then made available to Kubernetes pods, providing a seamless and secure method of managing secrets. 
+
+Please note a proof of concept of the provider accompanies this solution design. This can be found at [./conjur_csi_provider_poc](./conjur_csi_provider_poc).
 
 ## Out of scope
 
@@ -68,11 +75,8 @@ The following are outside the scope of this design:
 
 ## Solution
 
-The proposed solution aims to implement a CyberArk Conjur provider for Kubernetes Secrets Store Container Storage Interface (CSI) driver. This solution allows Kubernetes pods to seamlessly fetch secrets from a Conjur instance using the service account token via the `authn-jwt` authenticator.
+The CyberArk Conjur provider is a gRPC server that listens on a Unix domain socket. It implements [the `CSIDriverProviderServer` interface](https://github.com/kubernetes-sigs/secrets-store-csi-driver/blob/2f3535d4e318a35b76bafb728650a15271f8d4d1/provider/v1alpha1/service_grpc.pb.go#L77-L84), which is defined by the Secrets Store CSI Driver project. At a high-level the provider's work is to serve `MountRequest`, which includes configuration parameters and the Kubernetes service account token of the requesting workload. The provider must use the Kubernetes service account token to authenticate to Conjur via the the `authn-jwt` authenticator. Once, authenticated the provider must fetch the appropriate secrets, and incorporate the values into the `MountResponse`. 
 
-Please note that there is a proof of concept accompanying this solution design. This can be found at [./conjur_csi_provider_poc](./conjur_csi_provider_poc).
-
-The core of the CyberArk Conjur provider is a gRPC server that listens on a Unix domain socket. It implements the `CSIDriverProviderServer` interface, which is defined by the Secrets Store CSI Driver project and located in the `sigs.k8s.io/secrets-store-csi-driver/provider/v1alpha1` package.
 
 The `CSIDriverProviderServer` interface includes the `Mount` and `Version` methods:
 
@@ -92,67 +96,85 @@ The `CSIDriverProviderServer` interface includes the `Mount` and `Version` metho
 
 By implementing this gRPC server and the `CSIDriverProviderServer` interface, we can create a Conjur provider for the Kubernetes Secrets Store CSI Driver. This provider will handle fetching secrets from the Conjur instance and passing them back to the Secrets Store CSI Driver, which in turn makes them available to Kubernetes workloads.
 
-Helm charts will be created for deploying the CyberArk Conjur provider. This provides a streamlined, automated, and repeatable deployment process.
-
 ### UX
 
-The user interaction with our solution will mainly be through Kubernetes manifests and Helm.
+Here we describe the end-to-end user experience of using the CyberArk Conjur Provider for the Secrets Store CSI Driver.
 
-#### SecretProviderClass
+1. Prerequisites:
+    - A functional Kubernetes Cluster.
+    - Helm.
+2. Deploy (or update) Conjur Provider
+    - Configure the CyberArk Conjur provider by providing necessary credentials and settings specific to the Conjur environment.
+    - Deploy the CyberArk Conjur provider's Helm chart, tailored to automate and simplify the setup process.
+    - The provider is deployed as a DaemonSet. Each node has its own provider instace.
+3. Deploy Secrets Store CSI Driver
+    - Deploy the Secrets Store CSI Driver's Helm chart with the necessary configurations.
+4. Create `SecretProviderClass`
+    - Create a `SecretProviderClass` custom resource that defines the provider configurations and parameters, along with optional `secretObjects` if needed  (see Kubernetes Secrets sync below).
+    - This resource specifies the type of provider and the parameters required to communicate with the secret store.
+    ```yaml
+    apiVersion: secrets-store.csi.x-k8s.io/v1alpha1
+    kind: SecretProviderClass
+    metadata:
+      name: conjur-provider
+    spec:
+      provider: conjur
+      parameters:
+        authnUrl: https://conjur-auth.some-org.com
+        applianceUrl: https://conjur.some-org.com
+        account: some-org
+        authnLogin: path/to/some-policy/some-host
+        policyPath: path/to/some-policy/with-secrets # defaults to /
+        secrets: |
+          - db_username: "db/username"
+          - db_password: "db/password"
+    ```
+5. Update application deployment manifest
+    - Update your application's deployment YAML to incorporate the Secrets Store CSI Driver.
+    ```yaml
+    apiVersion: v1
+    kind: Pod
+    metadata:
+      name: mypod
+    spec:
+      containers:
+      - name: mycontainer
+        image: myimage
+        volumeMounts:
+        - name: secrets-store-inline
+          mountPath: "/mnt/secrets-store"
+          readOnly: true
+      volumes:
+      - name: secrets-store-inline
+        csi:
+          driver: secrets-store.csi.k8s.io
+          readOnly: true
+          volumeAttributes:
+            secretProviderClass: "conjur-provider"
+    ```
+6. Run workloads
+    - Upon pod startup or restart, the Secrets Store CSI Driver initiates communication with the CyberArk Conjur provider.
+    - Secrets are fetched and stored in a mounted volume within the pod as `tmpfs`.
+    - If secrets retrieval or volume mounting encounters errors, the pod's startup process will halt. This precaution ensures that workloads do not initiate without successful secrets provisioning. The system leaves breakcrumbs of the error in different places e.g. in pod lifecycle events, and in the provider logs.
+    - TODO: confirm if there are retries or caching
 
-`SecretProviderClass` is a Kubernetes custom resource that stores the secret provider configuration. The user will define a Kubernetes `SecretProviderClass` object that refers to the CyberArk Conjur provider and specifies necessary parameters for it. This would look something like the following:
+7. Verification
+    - Validate the successful injection of secrets by inspecting the mounted volume, confirming the presence of expected secret content.
+    - Verify the application's capability to access these secrets as files within the mounted volume.
+8. Optional: Sync with Kubernetes Secrets
+    - Optionally, enable synchronization with Kubernetes secrets through the `secretObjects` field in the `SecretProviderClass`.
+    - This automatically populates Kubernetes secrets based on the fetched content, enhancing flexibility and aligning with Kubernetes native workflows.
+9. Optional: Set as Environment Variables
+    - When needed, configure environment variables within your application's deployment YAML to reference secrets from Kubernetes secrets.
+    - Alternatively, application pods can directly access secrets from the mounted volume.
+10. Optional: Enable Auto Rotation (alpha)
+    - To enable dynamic secret updates without restarting pods, consider enabling auto rotation.
+    - Activate the `--enable-secret-rotation` feature gate within the Secrets Store CSI Driver pods.
+11. Application Scaling and Maintenance
+    - As your application scales and pods are added or replaced, the Secrets Store CSI Driver ensures consistent secret mounting based on the `SecretProviderClass`.
+12. Continuous Monitoring: Ensuring Robust Integration
+    - Continuously monitor your application and the Secrets Store CSI Driver for optimal performance.
 
-```yaml
-apiVersion: secrets-store.csi.x-k8s.io/v1alpha1
-kind: SecretProviderClass
-metadata:
-  name: db-credentials
-spec:
-  provider: conjur
-  parameters:
-    authnUrl: https://conjur-auth.some-org.com
-    applianceUrl: https://conjur.some-org.com
-    account: some-org
-    authnLogin: path/to/some-policy/some-host
-    policyPath: path/to/some-policy/with-secrets # defaults to /
-    secrets: |
-      - db_username: "db/username" # relative to policyPath, otherwise if it starts with / then it is absolute
-      - db_password: "db/password"
-```
-
-In this example, the `SecretProviderClass` named `db-credentials` is using the CyberArk Conjur provider. The parameters section contains the `authnUrl`, the `applianceUrl` and a list of secrets to fetch from Conjur. The secrets are identified by their paths in Conjur  (i.e. `db/username` and `db/password`). The `policyPath` parameter can be used to specify the policy branch from which to resolve relative secret paths.
-
-A pod that wants to use these secrets would reference the `SecretProviderClass` in its volumes definition like so:
-
-```yaml
-apiVersion: v1
-kind: Pod
-metadata:
-  name: mypod
-spec:
-  containers:
-  - name: mycontainer
-    image: myimage
-    volumeMounts:
-    - name: secrets-store-inline
-      mountPath: "/mnt/secrets-store"
-      readOnly: true
-  volumes:
-  - name: secrets-store-inline
-    csi:
-      driver: secrets-store.csi.k8s.io
-      readOnly: true
-      volumeAttributes:
-        secretProviderClass: "db-credentials"
-```
-
-In this example, the Pod `mypod` mounts a volume at `/mnt/secrets-store`. This volume is provided by the Secrets Store CSI driver and is configured to fetch secrets as defined by the `db-credentials` SecretProviderClass. The secrets fetched by the driver will be written to files in this volume. For instance, the secret `db/username` will be written to the file `/mnt/secrets-store/db_username` in the pod's filesystem.
-
-#### Helm Charts
-
-We'll use Helm charts to manage the deployment of our Conjur provider, which will simplify the deployment process and make it more reliable.
-
-The Helm chart will encapsulate the details of the deployment configuration, including the definition of deployment resources, configuration of the Conjur provider, and the necessary Kubernetes roles and role bindings.
 
 ### Development Tasks
 
@@ -259,7 +281,7 @@ Here are some of the potential nice-to-have features:
 
 3. **Supported Provider Status**: While it's important for the Conjur provider to be functional and reliable, achieving the status of a 'supported provider' in the Kubernetes Secrets Store CSI Driver project would be a significant accomplishment. This would entail meeting certain criteria set by the Kubernetes community, including thorough documentation, robust testing, active maintenance, and more. Achieving this status would give users greater confidence in using the Conjur provider, and it could lead to increased adoption and feedback, helping to drive continuous improvement of the provider.
 
-4. ~**Support for Other Conjur Authenticators**: Currently, our solution is designed to use the `authn-jwt` authenticator with the workload's service account token. However, it could be beneficial to support other Conjur authentication methods, such as `authn-k8s`. This would provide more flexibility for users with different authentication requirements and could potentially enhance security by allowing more complex authentication schemes. The implementation would involve adding additional logic to the provider to handle the various authenticators and additional configuration options to specify which authenticator to use.~
+
 
 ## Backwards compatibility
 
@@ -303,24 +325,10 @@ The documentation will cover:
 
 ## Open questions
 
-- Does the mount path have to be `/mnt/secrets-store` ?
-
-  Yes
 - What's the best way to configure things like CA certs for the provider etc. ? Perhaps allowing the `SecretProviderClass` to reference other Kubernetes resources such `ConfigMap` or `Secret` is the answer
 
   TBD
-- What are our options for supporting authentication via authenticators other than `authn-jwt`` ?
 
-  `authn-jwt` is realistically the only option. The provider runs as an independent process from the workloads. The only information
-  it has access to for the purposes of authnetication is a Kubernetes service account token for the requesting workload.
-- What is the upgrade strategy for the CyberArk Conjur provider deployed via Helm?
-- How to handle secret rotation in CyberArk Conjur?
-  
-  Secrets Store CSI Driver has alpha support for rotation, see [documentation](https://secrets-store-csi-driver.sigs.k8s.io/topics/secret-auto-rotation.html)
-- How should the CyberArk Conjur provider be deployed and managed across multiple Kubernetes clusters? Should there be a separate instance of the provider for each cluster, or can a single instance serve multiple clusters?
-
-  This is not relevant. As per the Secrets Store CSI Driver spec, there will be an instance of the provider on each node.
-  It will be deployed as a DaemonSet
 - How should the provider handle errors, such as failure to communicate with the Conjur server or failure to authenticate? What recovery mechanisms should be in place?
   
   The grpc interface for the provider provides mulitple opportunities to present errors.
@@ -332,7 +340,7 @@ The documentation will cover:
   We can performance test for this
 - Will the provider support multiple formats for secrets, such as plain text, JSON, YAML, etc.? How will the desired format be specified?
 
-  To be determined.
+  TBD
 - How will access to the provider be controlled? What measures will be in place to prevent unauthorized access?
   Deploy the providers in a namespace guarded by permissions based access.
 - Will the provider be compatible with all versions of Kubernetes and Conjur, or are there specific version requirements?
