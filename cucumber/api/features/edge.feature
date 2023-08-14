@@ -4,7 +4,6 @@ Feature: Fetching secrets from edge endpoint
   Background:
     Given I create a new user "some_user"
     And I create a new user "admin_user"
-    And I have host "data/some_host1"
     And I have host "data/some_host2"
     And I have host "data/some_host3"
     And I have host "data/some_host4"
@@ -45,6 +44,12 @@ Feature: Fetching secrets from edge endpoint
         - !variable secret4
         - !variable secret5
         - !variable secret6
+        - !host
+              id: some_host1
+              annotations:
+                authn/api-key: true
+                test2: test1
+                test:
         - !permit
           role: !host some_host1
           privilege: [ execute ]
@@ -579,6 +584,15 @@ Feature: Fetching secrets from edge endpoint
     And the JSON response at "hosts" should have 5 entries
     And the JSON response should not have "database"
     And the JSON response should not have "other_host"
+    And the JSON at "hosts/0/annotations" should be:
+    """
+    [{"name": "test2", "value": "test1"}, {"name": "test", "value": ""}, {"name": "authn/api-key", "value": "true"}]
+    """
+    And the JSON at "hosts/1/annotations" should be:
+    """
+    []
+    """
+
 
   @acceptance
   Scenario: Fetching hosts with parameters
