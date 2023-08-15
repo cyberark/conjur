@@ -1,5 +1,7 @@
 FROM registry.tld/cyberark/ubuntu-ruby-builder:22.04 as builder
 
+ENV GEM_HOME=/usr/local/bundle
+
 WORKDIR /src/conjur-server
 
 COPY Gemfile Gemfile.lock ./
@@ -12,15 +14,15 @@ RUN find / -name httpclient -type d -exec find {} -name "*.pem" -type f -delete 
 
 FROM registry.tld/cyberark/ubuntu-ruby-fips:22.04
 ENV PORT=3000 \
-    LOG_DIR=/opt/conjur-server/log \
-    TMP_DIR=/opt/conjur-server/tmp \
-    SSL_CERT_DIRECTORY=/opt/conjur/etc/ssl \
-    RAILS_ENV=production \
-    PATH=/opt/conjur-server/bin:$PATH \
+    LOG_DIR=/src/conjur-server/log \
+    TMP_DIR=/src/conjur-server/tmp \
+    SSL_CERT_DIRECTORY=/src/conjur/etc/ssl \
+    GEM_HOME=/usr/local/bundle \
+    PATH=/src/conjur-server/bin:$PATH \
     TERM=xterm
 
+RUN mkdir -p /src/conjur-server
 WORKDIR /src/conjur-server
-
 
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y \
     git \
@@ -51,3 +53,4 @@ COPY . .
 COPY .pryrc /root
 
 EXPOSE ${PORT}
+CMD ["sleep", "infinity"]
