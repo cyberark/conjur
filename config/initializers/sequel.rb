@@ -28,4 +28,28 @@ Rails.application.configure do
   # Whether to dump the schema after successful migrations.
   # Defaults to false in production and test, true otherwise.
   config.sequel.schema_dump = false
+
+  # Max Postgres connections should be no less than the number of threads
+  # available to the web worker to avoid pool timeouts.
+  begin
+    threads_count = Integer(ENV['RAILS_MAX_THREADS'] || 16)
+  rescue ArgumentError
+    raise(
+      "Invalid value for RAILS_MAX_THREADS environment variable: " \
+      "'#{ENV['RAILS_MAX_THREADS']}'. " \
+      "Value must be a positive integer (default is 16)."
+    )
+  end
+
+  begin
+    connections_per_thread = Float(ENV['DATABASE_CONNECTIONS_PER_THREAD'] || 1.2)
+  rescue ArgumentError
+    raise(
+      "Invalid value for DATABASE_CONNECTIONS_PER_THREAD environment variable: " \
+      "'#{ENV['DATABASE_CONNECTIONS_PER_THREAD']}'. " \
+      "Value must be a positive decimal (default is 1.2)."
+    )
+  end
+
+  config.sequel.max_connections = (threads_count * connections_per_thread).ceil
 end
