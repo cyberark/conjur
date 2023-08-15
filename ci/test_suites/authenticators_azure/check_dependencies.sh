@@ -15,8 +15,8 @@ conjur_vars=(
 
 # These variables should come from Jenkins
 jenkins_vars=(
-  "AZURE_AUTHN_INSTANCE_IP"
-  "SYSTEM_ASSIGNED_IDENTITY"
+  "INFRAPOOL_AZURE_AUTHN_INSTANCE_IP"
+  "INFRAPOOL_SYSTEM_ASSIGNED_IDENTITY"
 )
 
 all_required=("${conjur_vars[@]}" "${jenkins_vars[@]}")
