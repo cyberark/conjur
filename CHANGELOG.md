@@ -9,24 +9,27 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
-### Fixed
-- Support plural syntax for revoke and deny 
-  [CONJSE-1783](https://ca-il-jira.il.cyber-ark.com:8443/browse/CONJSE-1783)
-
 ## [1.20.0] - 2023-07-11
 
 ### Added
 - Telemetry support
   [cyberark/conjur#2854](https://github.com/cyberark/conjur/pull/2854)
-
-### Added
 - New flag to `conjurctl server` command called `--no-migrate` which allows for skipping
   the database migration step when starting the server.
   [cyberark/conjur#2895](https://github.com/cyberark/conjur/pull/2895)
 
+### Changed
+- The database thread pool max connection size is now based on the number of
+  web worker threads per process, rather than an arbitrary fixed number. This
+  mitigates the possibility of a web worker becoming starved while waiting for
+  a connection to become available.
+  [cyberark/conjur#2875](https://github.com/cyberark/conjur/pull/2875)
+
 ### Fixed
 - Support Authn-IAM regional requests when host value is missing from signed headers.
   [cyberark/conjur#2827](https://github.com/cyberark/conjur/pull/2827)
+- Support plural syntax for revoke and deny
+  [CONJSE-1783](https://ca-il-jira.il.cyber-ark.com:8443/browse/CONJSE-1783)
 
 ## [1.19.5] - 2023-06-29
 
