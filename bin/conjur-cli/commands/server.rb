@@ -104,12 +104,12 @@ module Commands
     def cleanup_pidfile
       # Get the path to conjurctl
       conjurctl_path = `readlink -f $(which conjurctl)`
-    
+
       # Navigate from its directory (/bin) to the root Conjur server directory
       conjur_server_dir = Pathname.new(File.join(File.dirname(conjurctl_path), '..')).cleanpath
       pid_file_path = File.join(conjur_server_dir, 'tmp/pids/server.pid')
       return unless File.exist?(pid_file_path)
-      
+
       puts("Removing existing PID file: #{pid_file_path}")
       File.delete(pid_file_path)
     end
