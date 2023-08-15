@@ -276,12 +276,12 @@ function runTests() {
 
   conjurcmd mkdir -p /opt/conjur-server/output
 
-  # THE CUCUMBER_FILTER_TAGS environment variable is not natively
+  # THE INFRAPOOL_CUCUMBER_FILTER_TAGS environment variable is not natively
   # implemented in cucumber-ruby, so we pass it as a CLI argument
   # if the variable is set.
   local cucumber_tags_arg
-  if [[ -n "$CUCUMBER_FILTER_TAGS" ]]; then
-    cucumber_tags_arg="--tags \"$CUCUMBER_FILTER_TAGS\""
+  if [[ -n "$INFRAPOOL_CUCUMBER_FILTER_TAGS" ]]; then
+    cucumber_tags_arg="--tags \"$INFRAPOOL_CUCUMBER_FILTER_TAGS\""
   fi
 
   # Run standard k8s authenticator tests
