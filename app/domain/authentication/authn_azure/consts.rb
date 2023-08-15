@@ -7,10 +7,10 @@ module Authentication
       SUBSCRIPTION_ID = "subscription-id"
       RESOURCE_GROUP = "resource-group"
       USER_ASSIGNED_IDENTITY = "user-assigned-identity"
-      SYSTEM_ASSIGNED_IDENTITY = "system-assigned-identity"
+      INFRAPOOL_SYSTEM_ASSIGNED_IDENTITY = "system-assigned-identity"
 
       REQUIRED = [SUBSCRIPTION_ID, RESOURCE_GROUP].freeze
-      IDENTITY_EXCLUSIVE = [USER_ASSIGNED_IDENTITY, SYSTEM_ASSIGNED_IDENTITY].freeze
+      IDENTITY_EXCLUSIVE = [USER_ASSIGNED_IDENTITY, INFRAPOOL_SYSTEM_ASSIGNED_IDENTITY].freeze
       PERMITTED = REQUIRED + IDENTITY_EXCLUSIVE
 
       CONSTRAINTS = Constraints::MultipleConstraint.new(

@@ -45,13 +45,13 @@ These are defined in runConjurTests, and also include the one-offs
     azure_authenticator
     gcp_authenticator
 */
+@Library("product-pipelines-shared-library") _
 
 // Break the total number of tests into a subset of tests.
 // This will give 3 nested lists of tests to run, which is
 // distributed over 3 jenkins agents.
-def NESTED_ARRAY_OF_TESTS_TO_RUN = collateTests()
 pipeline {
-  agent { label 'executor-v2' }
+  agent { label 'conjur-enterprise-common-agent' }
 
   options {
     timestamps()
@@ -91,12 +91,48 @@ pipeline {
 
   }
 
+  environment {
+    TAG_SHA = tagWithSHA()
+  }
+
   stages {
+    // Pre-allocate agents to fail fast if there's an issue with the pool
+    // and to pre-configure the git environment before changes occur.
+    stage('Get InfraPool Agents') {
+      steps {
+        script {
+          INFRAPOOL_EXECUTORV2_AGENTS = getInfraPoolAgent.connected(type: "ExecutorV2", quantity: 3, duration: 1)
+          INFRAPOOL_EXECUTORV2_AGENT_0 = INFRAPOOL_EXECUTORV2_AGENTS[0]
+          INFRAPOOL_EXECUTORV2_AGENT_1 = INFRAPOOL_EXECUTORV2_AGENTS[1]
+          INFRAPOOL_EXECUTORV2_AGENT_2 = INFRAPOOL_EXECUTORV2_AGENTS[2]
+
+
+          INFRAPOOL_EXECUTORV2_RHELEE_AGENTS = getInfraPoolAgent.connected(type: "ExecutorV2RHELEE", quantity: 3, duration: 1)
+          INFRAPOOL_EXECUTORV2_RHELEE_AGENT_0 = INFRAPOOL_EXECUTORV2_RHELEE_AGENTS[0]
+          INFRAPOOL_EXECUTORV2_RHELEE_AGENT_1 = INFRAPOOL_EXECUTORV2_RHELEE_AGENTS[1]
+          INFRAPOOL_EXECUTORV2_RHELEE_AGENT_2 = INFRAPOOL_EXECUTORV2_RHELEE_AGENTS[2]
+
+
+          INFRAPOOL_AZURE_EXECUTORV2_AGENT_0 = getInfraPoolAgent.connected(type: "AzureExecutorV2", quantity: 1, duration: 1)[0]
+
+
+          INFRAPOOL_GCP_EXECUTORV2_AGENT_0 = getInfraPoolAgent.connected(type: "GcpExecutorV2", quantity: 1, duration: 1)[0]
+
+
+          // Break the total number of tests into a subset of tests.
+          // This will give 3 nested lists of tests to run, which is
+          // distributed over 3 jenkins agents.
+          NESTED_ARRAY_OF_TESTS_TO_RUN = collateTests(INFRAPOOL_EXECUTORV2_AGENT_0)
+        }
+      }
+    }
     // Generates a VERSION file based on the current build number and latest version in CHANGELOG.md
     stage('Validate Changelog and set version') {
       steps {
-        updateVersion("CHANGELOG.md", "${BUILD_NUMBER}")
-        stash name: 'version_info', includes: 'VERSION'
+        script {
+          updateVersion(INFRAPOOL_EXECUTORV2_AGENT_0, "CHANGELOG.md", "${BUILD_NUMBER}")
+          INFRAPOOL_EXECUTORV2_AGENT_0.agentStash name: 'version_info', includes: 'VERSION'
+        }
       }
     }
 
@@ -105,7 +141,17 @@ pipeline {
         expression { params.RUN_ONLY == '' }
       }
       steps {
-        sh 'ci/parse-changelog'
+        script {
+          INFRAPOOL_EXECUTORV2_AGENT_0.agentSh 'ci/parse-changelog'
+        }
+      }
+    }
+
+    stage('Mark Workspace as Safe Git Directory'){
+      steps {
+        script {
+          sh "git config --global --add safe.directory $WORKSPACE"
+        }
       }
     }
 
@@ -134,23 +180,27 @@ pipeline {
           // nightly builds)
           branch "master"
 
-          // Always run the full pipeline on tags of the form v*
-          tag "v*"
+          // Always run the full pipeline on tags
+          buildingTag()
         }
       }
 
       stages {
         stage('Build Docker Image') {
           steps {
-            sh './build.sh --jenkins'
+            script {
+              INFRAPOOL_EXECUTORV2_AGENT_0.agentSh './build.sh --jenkins'
+            }
           }
         }
 
         stage('Push images to internal registry') {
           steps {
-            // Push images to the internal registry so that they can be used
-            // by tests, even if the tests run on a different executor.
-            sh './publish-images.sh --internal'
+           script {
+              // Push images to the internal registry so that they can be used
+              // by tests, even if the tests run on a different executor.
+              INFRAPOOL_EXECUTORV2_AGENT_0.agentSh './publish-images.sh --internal'
+            }
           }
         }
 
@@ -161,31 +211,33 @@ pipeline {
           parallel {
             stage("Scan Docker Image for fixable issues") {
               steps {
-                scanAndReport("conjur-cloud:${tagWithSHA()}", "HIGH", false)
+                scanAndReport(INFRAPOOL_EXECUTORV2_AGENT_0, "conjur-cloud:${TAG_SHA}", "HIGH", false)
               }
             }
             stage("Scan Docker image for total issues") {
               steps {
-                scanAndReport("conjur-cloud:${tagWithSHA()}", "NONE", true)
+                scanAndReport(INFRAPOOL_EXECUTORV2_AGENT_0, "conjur-cloud:${TAG_SHA}", "NONE", true)
               }
             }
-//             stage("Scan UBI-based Docker Image for fixable issues") {
-//               steps {
-//                 scanAndReport("conjur-ubi-cloud:${tagWithSHA()}", "HIGH", false)
-//               }
-//             }
-//             stage("Scan UBI-based Docker image for total issues") {
-//               steps {
-//                 scanAndReport("conjur-ubi-cloud:${tagWithSHA()}", "NONE", true)
-//               }
-//             }
+            //stage("Scan UBI-based Docker Image for fixable issues") {
+              //steps {
+                //scanAndReport(INFRAPOOL_EXECUTORV2_AGENT_0, "conjur-ubi-cloud:${TAG_SHA}", "HIGH", false)
+              //}
+            //}
+            //stage("Scan UBI-based Docker image for total issues") {
+              //steps {
+                //scanAndReport(INFRAPOOL_EXECUTORV2_AGENT_0, "conjur-ubi-cloud:${TAG_SHA}", "NONE", true)
+              //}
+            //}
           }
         }
 
         // Run outside parallel block to avoid external pressure
         stage('RSpec - Standard agent tests') {
           steps {
-            sh 'ci/test rspec'
+           script {
+              INFRAPOOL_EXECUTORV2_AGENT_0.agentSh 'ci/test rspec'
+            }
           }
         }
 
@@ -194,24 +246,25 @@ pipeline {
           when {
             expression { params.NIGHTLY }
           }
-          agent { label 'executor-v2-rhel-ee' }
 
           environment {
-            CUCUMBER_FILTER_TAGS = "${params.CUCUMBER_FILTER_TAGS}"
+            INFRAPOOL_CUCUMBER_FILTER_TAGS = "${params.CUCUMBER_FILTER_TAGS}"
           }
 
           stages {
             stage("RSpec - EE FIPS agent tests") {
 
               steps {
-                sh(script: 'cat /etc/os-release', label: 'RHEL version')
-                sh(script: 'docker --version', label: 'Docker version')
-                addNewImagesToAgent()
-                unstash 'version_info'
-                // Catch errors so remaining steps always run.
-                catchError {
-                  // Run outside parallel block to avoid external pressure
-                  sh "ci/test rspec"
+                script {
+                  INFRAPOOL_EXECUTORV2_RHELEE_AGENT_0.agentSh(script: 'cat /etc/os-release', label: 'RHEL version')
+                  INFRAPOOL_EXECUTORV2_RHELEE_AGENT_0.agentSh(script: 'docker --version', label: 'Docker version')
+                  addNewImagesToAgent(INFRAPOOL_EXECUTORV2_RHELEE_AGENT_0)
+                  INFRAPOOL_EXECUTORV2_RHELEE_AGENT_0.agentUnstash name: 'version_info'
+                  // Catch errors so remaining steps always run.
+                  catchError {
+                    // Run outside parallel block to avoid external pressure
+                    INFRAPOOL_EXECUTORV2_RHELEE_AGENT_0.agentSh "ci/test rspec"
+                  }
                 }
               }
             }
@@ -229,27 +282,32 @@ pipeline {
                   }
 
                   steps {
-                    addNewImagesToAgent()
-                    unstash 'version_info'
-                    runConjurTests(
-                      params.RUN_ONLY,
-                      NESTED_ARRAY_OF_TESTS_TO_RUN[0]
-                    )
+                    script {
+                      addNewImagesToAgent(INFRAPOOL_EXECUTORV2_RHELEE_AGENT_0)
+                      INFRAPOOL_EXECUTORV2_RHELEE_AGENT_0.agentUnstash name: 'version_info'
+                      runConjurTests(
+                        INFRAPOOL_EXECUTORV2_RHELEE_AGENT_0,
+                        params.RUN_ONLY,
+                        NESTED_ARRAY_OF_TESTS_TO_RUN[0]
+                      )
+                    }
                   }
                   post {
                     always {
-                      stash(
-                        name: 'testResultEE',
-                        includes: '''
-                          cucumber/*/*.*,
-                          container_logs/*/*,
-                          spec/reports/*.xml,
-                          spec/reports-audit/*.xml,
-                          gems/conjur-rack/spec/reports/*.xml,
-                          gems/slosilo/spec/reports/*.xml,
-                        cucumber/*/features/reports/**/*.xml
-                      '''
-                    )}
+                      script {
+                        INFRAPOOL_EXECUTORV2_RHELEE_AGENT_0.agentStash(
+                          name: 'testResultEE',
+                          includes: '''
+                            cucumber/*/*.*,
+                            container_logs/*/*,
+                            spec/reports/*.xml,
+                            spec/reports-audit/*.xml,
+                            gems/conjur-rack/spec/reports/*.xml,
+                            cucumber/*/features/reports/**/*.xml
+                          '''
+                        )
+                      }
+                    }
                   }
                 }
                 // Run a subset of tests on a second agent to prevent oversubscribing the hardware
@@ -262,32 +320,36 @@ pipeline {
                       )
                     }
                   }
-                  agent { label 'executor-v2-rhel-ee' }
 
                   environment {
                     CUCUMBER_FILTER_TAGS = "${params.CUCUMBER_FILTER_TAGS}"
                   }
 
                   steps {
-                    addNewImagesToAgent()
-                    unstash 'version_info'
-                    runConjurTests(
-                      params.RUN_ONLY,
-                      NESTED_ARRAY_OF_TESTS_TO_RUN[1]
-                    )
+                    script {
+                      addNewImagesToAgent(INFRAPOOL_EXECUTORV2_RHELEE_AGENT_1)
+                      INFRAPOOL_EXECUTORV2_RHELEE_AGENT_1.agentUnstash name: 'version_info'
+                      runConjurTests(
+                        INFRAPOOL_EXECUTORV2_RHELEE_AGENT_1,
+                        params.RUN_ONLY,
+                        NESTED_ARRAY_OF_TESTS_TO_RUN[1]
+                      )
+                    }
                   }
                   post {
                     always {
-                      stash(
-                        name: 'testResultEE2',
-                        includes: '''
-                          cucumber/*/*.*,
-                          container_logs/*/*,
-                          spec/reports/*.xml,
-                          spec/reports-audit/*.xml,
-                          cucumber/*/features/reports/**/*.xml
-                        '''
-                      )
+                      script {
+                        INFRAPOOL_EXECUTORV2_RHELEE_AGENT_1.agentStash(
+                          name: 'testResultEE2',
+                          includes: '''
+                            cucumber/*/*.*,
+                            container_logs/*/*,
+                            spec/reports/*.xml,
+                            spec/reports-audit/*.xml,
+                            cucumber/*/features/reports/**/*.xml
+                          '''
+                        )
+                      }
                     }
                   }
                 }
@@ -302,32 +364,35 @@ pipeline {
                     }
                   }
 
-                  agent { label 'executor-v2-rhel-ee' }
-
                   environment {
                     CUCUMBER_FILTER_TAGS = "${params.CUCUMBER_FILTER_TAGS}"
                   }
 
                   steps {
-                    addNewImagesToAgent()
-                    unstash 'version_info'
-                    runConjurTests(
-                      params.RUN_ONLY,
-                      NESTED_ARRAY_OF_TESTS_TO_RUN[2]
-                    )
+                    script {
+                      addNewImagesToAgent(INFRAPOOL_EXECUTORV2_RHELEE_AGENT_2)
+                      INFRAPOOL_EXECUTORV2_RHELEE_AGENT_2.agentUnstash name: 'version_info'
+                      runConjurTests(
+                        INFRAPOOL_EXECUTORV2_RHELEE_AGENT_2,
+                        params.RUN_ONLY,
+                        NESTED_ARRAY_OF_TESTS_TO_RUN[2]
+                      )
+                    }
                   }
                   post {
                     always {
-                      stash(
-                        name: 'testResultEE3',
-                        includes: '''
-                          cucumber/*/*.*,
-                          container_logs/*/*,
-                          spec/reports/*.xml,
-                          spec/reports-audit/*.xml,
-                          cucumber/*/features/reports/**/*.xml
-                        '''
-                      )
+                      script {
+                        INFRAPOOL_EXECUTORV2_RHELEE_AGENT_2.agentStash(
+                          name: 'testResultEE3',
+                          includes: '''
+                            cucumber/*/*.*,
+                            container_logs/*/*,
+                            spec/reports/*.xml,
+                            spec/reports-audit/*.xml,
+                            cucumber/*/features/reports/**/*.xml
+                          '''
+                        )
+                      }
                     }
                   }
                 }
@@ -339,17 +404,17 @@ pipeline {
               script {
                 if (testShouldRunOnAgent(params.RUN_ONLY, runSpecificTestOnAgent(params.RUN_ONLY, NESTED_ARRAY_OF_TESTS_TO_RUN[0]))) {
                   dir('ee-test'){
-                    unstash 'testResultEE'
+                    INFRAPOOL_EXECUTORV2_AGENT_0.agentUnstash 'testResultEE'
                   }
                 }
                 if (testShouldRunOnAgent(params.RUN_ONLY, runSpecificTestOnAgent(params.RUN_ONLY, NESTED_ARRAY_OF_TESTS_TO_RUN[1]))) {
                   dir('ee-test'){
-                    unstash 'testResultEE2'
+                    INFRAPOOL_EXECUTORV2_AGENT_0.agentUnstash 'testResultEE2'
                   }
                 }
                 if (testShouldRunOnAgent(params.RUN_ONLY, runSpecificTestOnAgent(params.RUN_ONLY, NESTED_ARRAY_OF_TESTS_TO_RUN[2]))) {
                   dir('ee-test'){
-                    unstash 'testResultEE3'
+                    INFRAPOOL_EXECUTORV2_AGENT_0.agentUnstash 'testResultEE3'
                   }
                 }
               }
@@ -402,16 +467,35 @@ pipeline {
               }
 
               environment {
-                CUCUMBER_FILTER_TAGS = "${params.CUCUMBER_FILTER_TAGS}"
+                INFRAPOOL_CUCUMBER_FILTER_TAGS = "${params.CUCUMBER_FILTER_TAGS}"
               }
 
               steps {
-                sh(script: 'cat /etc/os-release', label: 'Ubuntu version')
-                sh(script: 'docker --version', label: 'Docker version')
-                runConjurTests(
-                  params.RUN_ONLY,
-                  NESTED_ARRAY_OF_TESTS_TO_RUN[0]
-                )
+                script {
+                  INFRAPOOL_EXECUTORV2_AGENT_0.agentSh(script: 'cat /etc/os-release', label: 'Ubuntu version')
+                  INFRAPOOL_EXECUTORV2_AGENT_0.agentSh(script: 'docker --version', label: 'Docker version')
+                  runConjurTests(
+                    INFRAPOOL_EXECUTORV2_AGENT_0,
+                    params.RUN_ONLY,
+                    NESTED_ARRAY_OF_TESTS_TO_RUN[0]
+                  )
+                }
+              }
+              post {
+                always {
+                  script {
+                    INFRAPOOL_EXECUTORV2_AGENT_0.agentStash(
+                      name: 'standardTestResult',
+                      includes: '''
+                        cucumber/*/*.*,
+                        container_logs/*/*,
+                        spec/reports/*.xml,
+                        spec/reports-audit/*.xml,
+                        cucumber/*/features/reports/**/*.xml
+                      '''
+                    )
+                  }
+                }
               }
             }
 
@@ -426,28 +510,36 @@ pipeline {
                 }
               }
 
-              agent { label 'executor-v2' }
               environment {
-                CUCUMBER_FILTER_TAGS = "${params.CUCUMBER_FILTER_TAGS}"
+                INFRAPOOL_CUCUMBER_FILTER_TAGS = "${params.CUCUMBER_FILTER_TAGS}"
               }
 
+
               steps {
-                addNewImagesToAgent()
-                unstash 'version_info'
-                runConjurTests(params.RUN_ONLY, NESTED_ARRAY_OF_TESTS_TO_RUN[1])
+                script {
+                  addNewImagesToAgent(INFRAPOOL_EXECUTORV2_AGENT_1)
+                  INFRAPOOL_EXECUTORV2_AGENT_1.agentUnstash name: 'version_info'
+                  runConjurTests(
+                    INFRAPOOL_EXECUTORV2_AGENT_1,
+                    params.RUN_ONLY,
+                    NESTED_ARRAY_OF_TESTS_TO_RUN[1]
+                  )
+                }
               }
               post {
                 always {
-                  stash(
-                    name: 'standardTestResult2',
-                    includes: '''
-                      cucumber/*/*.*,
-                      container_logs/*/*,
-                      spec/reports/*.xml,
-                      spec/reports-audit/*.xml,
-                      cucumber/*/features/reports/**/*.xml
-                    '''
-                  )
+                  script {
+                    INFRAPOOL_EXECUTORV2_AGENT_1.agentStash(
+                      name: 'standardTestResult2',
+                      includes: '''
+                        cucumber/*/*.*,
+                        container_logs/*/*,
+                        spec/reports/*.xml,
+                        spec/reports-audit/*.xml,
+                        cucumber/*/features/reports/**/*.xml
+                      '''
+                    )
+                  }
                 }
               }
             }
@@ -463,32 +555,37 @@ pipeline {
                 }
               }
 
-              agent { label 'executor-v2' }
               environment {
-                CUCUMBER_FILTER_TAGS = "${params.CUCUMBER_FILTER_TAGS}"
+                INFRAPOOL_CUCUMBER_FILTER_TAGS = "${params.CUCUMBER_FILTER_TAGS}"
               }
 
+
               steps {
-                addNewImagesToAgent()
-                unstash 'version_info'
-                runConjurTests(
-                  params.RUN_ONLY,
-                  NESTED_ARRAY_OF_TESTS_TO_RUN[2]
-                )
+                script {
+                  addNewImagesToAgent(INFRAPOOL_EXECUTORV2_AGENT_2)
+                  INFRAPOOL_EXECUTORV2_AGENT_2.agentUnstash name: 'version_info'
+                  runConjurTests(
+                    INFRAPOOL_EXECUTORV2_AGENT_2,
+                    params.RUN_ONLY,
+                    NESTED_ARRAY_OF_TESTS_TO_RUN[2]
+                  )
+                }
               }
               post {
                 always {
-                  stash(
-                    name: 'standardTestResult3',
-                    includes: '''
-                      cucumber/*/*.*,
-                      container_logs/*/*,
-                      spec/reports/*.xml,
-                      spec/reports-audit/*.xml,
-                      cucumber/*/features/reports/**/*.xml,
-                      ci/test_suites/*/output/*
-                    '''
-                  )
+                  script {
+                    INFRAPOOL_EXECUTORV2_AGENT_2.agentStash(
+                      name: 'standardTestResult3',
+                      includes: '''
+                        cucumber/*/*.*,
+                        container_logs/*/*,
+                        spec/reports/*.xml,
+                        spec/reports-audit/*.xml,
+                        cucumber/*/features/reports/**/*.xml,
+                        ci/test_suites/*/output/*
+                      '''
+                    )
+                  }
                 }
               }
             }
@@ -500,50 +597,52 @@ pipeline {
                 }
               }
 
-              agent { label 'azure-linux' }
 
               environment {
                 // TODO: Move this into the authenticators_azure bash script.
-                AZURE_AUTHN_INSTANCE_IP = sh(
+                INFRAPOOL_AZURE_AUTHN_INSTANCE_IP = INFRAPOOL_AZURE_EXECUTORV2_AGENT_0.agentSh(
                   script: 'curl "http://checkip.amazonaws.com"',
                   returnStdout: true
                 ).trim()
                 // TODO: Move this into the authenticators_azure bash script.
-                SYSTEM_ASSIGNED_IDENTITY = sh(
-                  script: 'ci/test_suites/authenticators_azure/' +
-                    'get_system_assigned_identity.sh',
+                INFRAPOOL_SYSTEM_ASSIGNED_IDENTITY = INFRAPOOL_AZURE_EXECUTORV2_AGENT_0.agentSh(
+                  script: 'ci/test_suites/authenticators_azure/get_system_assigned_identity.sh',
                   returnStdout: true
                 ).trim()
               }
 
+
               steps {
-                addNewImagesToAgent()
-                unstash 'version_info'
-                // Grant access to this Jenkins agent's IP to AWS security groups
-                // This is required for access to the internal docker registry
-                // from outside EC2.
-                grantIPAccess()
-                sh(
-                  'summon -f ci/test_suites/authenticators_azure/secrets.yml ' +
-                    'ci/test authenticators_azure'
-                )
+                script {
+                  grantIPAccess(INFRAPOOL_AZURE_EXECUTORV2_AGENT_0)
+                  addNewImagesToAgent(INFRAPOOL_AZURE_EXECUTORV2_AGENT_0)
+                  INFRAPOOL_AZURE_EXECUTORV2_AGENT_0.agentUnstash name: 'version_info'
+                  // Grant access to this Jenkins agent's IP to AWS security groups
+                  // This is required for access to the internal docker registry
+                  // from outside EC2.
+                  INFRAPOOL_AZURE_EXECUTORV2_AGENT_0.agentSh(
+                    'summon -f ci/test_suites/authenticators_azure/secrets.yml ci/test authenticators_azure'
+                  )
+                }
               }
 
               post {
                 always {
-                  stash(
-                    name: 'testResultAzure',
-                    allowEmpty: true,
-                    includes: '''
-                      cucumber/*azure*/*.*,
-                      container_logs/*azure*/*,
-                      cucumber_results*.json
-                    '''
-                  )
-                  // Remove this Agent's IP from IPManager's prefix list
-                  // There are a limited number of entries, so it remove it
-                  // rather than waiting for it to expire.
-                  removeIPAccess()
+                  script {
+                    INFRAPOOL_AZURE_EXECUTORV2_AGENT_0.agentStash(
+                      name: 'testResultAzure',
+                      allowEmpty: true,
+                      includes: '''
+                        cucumber/*azure*/*.*,
+                        container_logs/*azure*/*,
+                        cucumber_results*.json
+                      '''
+                    )
+                    // Remove this Agent's IP from IPManager's prefix list
+                    // There are a limited number of entries, so it remove it
+                    // rather than waiting for it to expire.
+                    removeIPAccess(INFRAPOOL_AZURE_EXECUTORV2_AGENT_0)
+                  }
                 }
               }
             }
@@ -568,7 +667,7 @@ pipeline {
 
                 script {
                   dir('ci/test_suites/authenticators_gcp') {
-                    stash(
+                    INFRAPOOL_GCP_EXECUTORV2_AGENT_0.agentStash(
                       name: 'get_gce_tokens_script',
                       includes: '''
                         get_gce_tokens_to_files.sh,
@@ -578,25 +677,22 @@ pipeline {
                     )
                   }
 
-                  node('executor-v2-gcp-small') {
-                    echo '-- Google Compute Engine allocated'
-                    echo '-- Get compute engine instance project name from ' +
-                      'Google metadata server.'
-                    // TODO: Move this into get_gce_tokens_to_files.sh
-                    env.GCP_PROJECT = sh(
-                      script: 'curl -s -H "Metadata-Flavor: Google" ' +
-                        '"http://metadata.google.internal/computeMetadata/v1/' +
-                        'project/project-id"',
-                      returnStdout: true
-                    ).trim()
-                    unstash('get_gce_tokens_script')
-                    sh('./get_gce_tokens_to_files.sh')
-                    stash(
-                      name: 'authnGceTokens',
-                      includes: 'gce_token_*',
-                      allowEmpty:false
-                    )
-                  }
+                  echo '-- Google Compute Engine allocated'
+                  echo '-- Get compute engine instance project name from ' +
+                    'Google metadata server.'
+                  // TODO: Move this into get_gce_tokens_to_files.sh
+                  env.INFRAPOOL_GCP_PROJECT = INFRAPOOL_GCP_EXECUTORV2_AGENT_0.agentSh(
+                    script: 'curl -s -H "Metadata-Flavor: Google" \
+                      "http://metadata.google.internal/computeMetadata/v1/project/project-id"',
+                    returnStdout: true
+                  ).trim()
+                  INFRAPOOL_GCP_EXECUTORV2_AGENT_0.agentUnstash(name: 'get_gce_tokens_script')
+                  INFRAPOOL_GCP_EXECUTORV2_AGENT_0.agentSh('./get_gce_tokens_to_files.sh')
+                  INFRAPOOL_GCP_EXECUTORV2_AGENT_0.agentStash(
+                    name: 'authnGceTokens',
+                    includes: 'gce_token_*',
+                    allowEmpty:false
+                  )
                 }
               }
               post {
@@ -632,9 +728,9 @@ pipeline {
                 }
               }
               environment {
-                GCP_FETCH_TOKEN_FUNCTION = "fetch_token_${BUILD_NUMBER}"
-                IDENTITY_TOKEN_FILE = 'identity-token'
-                GCP_OWNER_SERVICE_KEY_FILE = "sa-key-file.json"
+                INFRAPOOL_GCP_FETCH_TOKEN_FUNCTION = "fetch_token_${BUILD_NUMBER}"
+                INFRAPOOL_IDENTITY_TOKEN_FILE = 'identity-token'
+                INFRAPOOL_GCP_OWNER_SERVICE_KEY_FILE = "sa-key-file.json"
               }
               steps {
                 echo "Waiting for GCP project name (Set by stage: " +
@@ -643,7 +739,7 @@ pipeline {
                   waitUntil {
                     script {
                       return (
-                        env.GCP_PROJECT != null || env.GCP_ENV_ERROR == "true"
+                        env.INFRAPOOL_GCP_PROJECT != null || env.GCP_ENV_ERROR == "true"
                       )
                     }
                   }
@@ -654,7 +750,7 @@ pipeline {
                   }
 
                   dir('ci/test_suites/authenticators_gcp') {
-                    sh('summon ./deploy_function_and_get_tokens.sh')
+                    INFRAPOOL_EXECUTORV2_AGENT_0.agentSh('summon ./deploy_function_and_get_tokens.sh')
                   }
                 }
               }
@@ -674,7 +770,7 @@ pipeline {
                 always {
                   script {
                     dir('ci/test_suites/authenticators_gcp') {
-                      sh '''
+                      INFRAPOOL_EXECUTORV2_AGENT_0.agentSh '''
                         # Cleanup Google function
                         summon ./run_gcloud.sh cleanup_function.sh
                       '''
@@ -723,9 +819,9 @@ pipeline {
                 }
                 script {
                   dir('ci/test_suites/authenticators_gcp/tokens') {
-                    unstash 'authnGceTokens'
+                   INFRAPOOL_EXECUTORV2_AGENT_0.agentUnstash name: 'authnGceTokens'
                   }
-                  sh 'ci/test authenticators_gcp'
+                  INFRAPOOL_EXECUTORV2_AGENT_0.agentSh 'ci/test authenticators_gcp'
                 }
               }
             }
@@ -747,8 +843,23 @@ pipeline {
 
             // Only unstash azure if it ran.
             if (testShouldRun(params.RUN_ONLY, "azure_authenticator")) {
-              unstash 'testResultAzure'
+              INFRAPOOL_EXECUTORV2_AGENT_0.agentUnstash 'testResultAzure'
             }
+
+            INFRAPOOL_EXECUTORV2_AGENT_0.agentStash(
+              name: 'coverage-reports',
+              includes: '''
+                cucumber/*/*.*,
+                container_logs/*/*,
+                spec/reports/*.xml,
+                spec/reports-audit/*.xml,
+                gems/conjur-rack/spec/reports/*.xml,
+                gems/slosilo/spec/reports/*.xml,
+                cucumber/*/features/reports/**/*.xml,
+                coverage/*
+              '''
+            )
+            unstash 'coverage-reports'
 
             // Make files available for download.
             archiveFiles('container_logs/*/*')
@@ -818,14 +929,7 @@ pipeline {
 
   post {
     always {
-      // Explanation of arguments:
-      // cleanupAndNotify(buildStatus, slackChannel, additionalMessage, ticket)
-      cleanupAndNotify(
-        currentBuild.currentResult,
-        '#conjur-core',
-        "${(params.NIGHTLY ? 'nightly' : '')}",
-        true
-      )
+      releaseInfraPoolAgent(".infrapool/release_agents")
     }
   }
 }
@@ -836,9 +940,9 @@ pipeline {
 
 // TODO: Do we want to move any of these functions to a separate file?
 
-def addNewImagesToAgent() {
+def addNewImagesToAgent(infrapool) {
   // Pull and retag existing images onto new Jenkins agent
-  sh """
+  infrapool.agentSh """
     docker pull registry.tld/conjur-cloud:${tagWithSHA()}
     docker pull registry.tld/conjur-test:${tagWithSHA()}
     docker tag registry.tld/conjur-cloud:${tagWithSHA()} conjur-cloud:${tagWithSHA()}
@@ -896,16 +1000,16 @@ def runSpecificTestOnAgent(run_only_str, agent_specific_tests) {
   return run_only_tests
 }
 
-def conjurTests() {
+def conjurTests(infrapool) {
   return [
     "authenticators_config": [
       "Authenticators Config - ${env.STAGE_NAME}": {
-        sh 'ci/test authenticators_config'
+        infrapool.agentSh 'ci/test authenticators_config'
       }
     ],
     "authenticators_status": [
       "Authenticators Status - ${env.STAGE_NAME}": {
-        sh 'ci/test authenticators_status'
+        infrapool.agentSh 'ci/test authenticators_status'
       }
     ],
 //     "authenticators_ldap": [
@@ -913,29 +1017,29 @@ def conjurTests() {
 //         sh 'ci/test authenticators_ldap'
 //       }
 //     ],
-    "api": [
-      "API - ${env.STAGE_NAME}": {
-        sh 'ci/test api'
-      }
-    ],
     "authenticators_oidc": [
       "OIDC Authenticator - ${env.STAGE_NAME}": {
-          sh 'summon -f ./ci/test_suites/authenticators_oidc/secrets.yml -e ci ci/test authenticators_oidc'
+          infrapool.agentSh 'summon -f ./ci/test_suites/authenticators_oidc/secrets.yml -e ci ci/test authenticators_oidc'
       }
     ],
     "authenticators_jwt": [
       "JWT Authenticator - ${env.STAGE_NAME}": {
-        sh 'ci/test authenticators_jwt'
+        infrapool.agentSh 'ci/test authenticators_jwt'
       }
     ],
     "policy": [
       "Policy - ${env.STAGE_NAME}": {
-        sh 'ci/test policy'
+        infrapool.agentSh 'ci/test policy'
+      }
+    ],
+    "api": [
+      "API - ${env.STAGE_NAME}": {
+        infrapool.agentSh 'ci/test api'
       }
     ],
     "rotators": [
       "Rotators - ${env.STAGE_NAME}": {
-        sh 'ci/test rotators'
+        infrapool.agentSh 'ci/test rotators'
       }
     ],
 //     "authenticators_k8s": [
@@ -945,28 +1049,28 @@ def conjurTests() {
 //     ],
     "rspec_audit": [
       "Audit - ${env.STAGE_NAME}": {
-        sh 'ci/test rspec_audit'
+        infrapool.agentSh 'ci/test rspec_audit'
       }
     ],
     "policy_parser": [
       "Policy Parser - ${env.STAGE_NAME}": {
-        sh 'cd gems/policy-parser && ./test.sh'
+        infrapool.agentSh 'cd gems/policy-parser && ./test.sh'
       }
     ],
     "conjur_rack": [
       "Rack - ${env.STAGE_NAME}": {
-        sh 'cd gems/conjur-rack && ./test.sh'
+        infrapool.agentSh 'cd gems/conjur-rack && ./test.sh'
       }
     ],
     "slosilo": [
       "Slosilo - ${env.STAGE_NAME}": {
-        sh 'cd gems/slosilo && ./test.sh'
+        infrapool.agentSh 'cd gems/slosilo && ./test.sh'
       }
     ]
   ]
 }
 
-def runConjurTests(run_only_str, cuke_test_names) {
+def runConjurTests(infrapool, run_only_str, cuke_test_names) {
   // runConjurTests will build a parallel Jenkins block of code
   // that will run the specified cucumber test stages.
 
@@ -976,7 +1080,7 @@ def runConjurTests(run_only_str, cuke_test_names) {
   // Returns:
   //  A Jenkins block of parallel code.
 
-  def all_tests = conjurTests()
+  def all_tests = conjurTests(infrapool)
   def run_only_tests = runSpecificTestOnAgent(run_only_str, cuke_test_names)
   def parallel_tests = all_tests
 
@@ -999,7 +1103,7 @@ def runConjurTests(run_only_str, cuke_test_names) {
   }
 }
 
-def collateTests(jobs_per_agent=4) {
+def collateTests(infrapool, jobs_per_agent=4) {
   // collateTests will find the names of cucumber tests that should run
   // and create a nested list of tests to be ran across mutliple Jenkins
   // agents.
@@ -1010,7 +1114,7 @@ def collateTests(jobs_per_agent=4) {
 
   // Returns: a nested list of test names.
 
-  def all_tests = conjurTests()
+  def all_tests = conjurTests(infrapool)
   def all_test_names = []
 
   all_tests.each{ k, _ ->

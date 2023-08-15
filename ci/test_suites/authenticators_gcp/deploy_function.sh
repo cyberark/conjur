@@ -8,7 +8,7 @@ GCF_SOURCE_DIR="$WORK_DIR/function"
 GCF_SOURCE_FILE="$GCF_SOURCE_DIR/main.py"
 
 main() {
-  echo "Deploy function: $GCF_FUNC_NAME in project: $GCP_PROJECT"
+  echo "Deploy function: $GCF_FUNC_NAME in project: $INFRAPOOL_GCP_PROJECT"
   validate_pre_requisites
   deploy_function
   write_identity_token_to_file
@@ -18,7 +18,7 @@ main() {
 validate_pre_requisites() {
   echo 'validate_pre_requisites'
 
-  if [ -z "$GCP_PROJECT" ]; then
+  if [ -z "$INFRAPOOL_GCP_PROJECT" ]; then
     echo "-- ERROR: function cannot be deployed, GCP project name is undefined."
     exit 1
   fi
@@ -56,7 +56,7 @@ deploy_function() {
   sed -i "s/func_name/$GCF_FUNC_NAME/" "$GCF_SOURCE_FILE"
 
   # Set the project for the following commands
-  gcloud config set project "$GCP_PROJECT"
+  gcloud config set project "$INFRAPOOL_GCP_PROJECT"
 
   # Authenticate using the service account key file
   gcloud auth activate-service-account --key-file "$GCP_OWNER_SERVICE_KEY"
@@ -80,9 +80,9 @@ deploy_function() {
 write_identity_token_to_file() {
   echo 'write_identity_token_to_file'
   cd ..
-  echo "-- Write identity-token to file:'$(pwd)/$IDENTITY_TOKEN_FILE'"
-  echo  "$(gcloud auth print-identity-token)" > "$IDENTITY_TOKEN_FILE"
-  echo "Identity token written to file: '$IDENTITY_TOKEN_FILE'."
+  echo "-- Write identity-token to file:'$(pwd)/$INFRAPOOL_IDENTITY_TOKEN_FILE'"
+  echo  "$(gcloud auth print-identity-token)" > "$INFRAPOOL_IDENTITY_TOKEN_FILE"
+  echo "Identity token written to file: '$INFRAPOOL_IDENTITY_TOKEN_FILE'."
   echo '-> write_identity_token_to_file done'
 }
 

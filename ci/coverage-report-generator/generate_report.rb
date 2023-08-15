@@ -1,15 +1,19 @@
 #!/usr/bin/env ruby
 
-# This script generates an html coverage report from simplecov json output.
-# Normally simplecov generates the html report at the end of a run, however
-# the conjur tests produce multiple simplecov reports, each with json data
-# and an html report. The json files are easy enough to merge, the html reports
-# are much harder. So instead we merge the json files then use this script
-# to generate a new html report. See ci/submit-coverage for the merge.
+# This script generates an html coverage report and a xml cobertura report
+# from simplecov json output. Normally simplecov generates the html report
+# at the end of a run, however the conjur tests produce multiple simplecov
+# reports, each with json data and an html report. The json files are easy
+# enough to merge, the html reports are much harder. So instead we merge
+# the json files then use this script to generate a new html report. See
+# ci/submit-coverage for the merge.
 
 require 'json'
 require 'simplecov'
 require "simplecov_json_formatter"
+require 'simplecov-cobertura'
+
+SimpleCov.formatter = SimpleCov::Formatter::CoberturaFormatter
 
 # Override at_exit callback as we don't want this program to hang forever
 # (.simplecov adds infinite sleep to keep containers alive after writing the
@@ -49,3 +53,7 @@ htmlformatter.format(mergedresult)
 # Format the result using the JSON formatter for CodeClimate
 jsonformatter = SimpleCov::Formatter::JSONFormatter.new
 jsonformatter.format(mergedresult)
+
+# Format the result using the Cobertura formatter for Jenkins
+xmlformatter = SimpleCov::Formatter::CoberturaFormatter.new
+xmlformatter.format(mergedresult)

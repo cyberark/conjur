@@ -7,7 +7,7 @@ main() {
   validate_pre_requisites || exit 1
 
   # Read the identity token file
-  IDENTITY_TOKEN=$(cat $IDENTITY_TOKEN_FILE)
+  IDENTITY_TOKEN=$(cat $INFRAPOOL_IDENTITY_TOKEN_FILE)
 
   sh ./validate_gcf_url_accessible.sh "$GCP_FUNC_URL" "conjur/cucumber/host/test-app" "$IDENTITY_TOKEN" || exit 1
   get_tokens_to_files || exit 1
@@ -16,14 +16,14 @@ main() {
 
 validate_pre_requisites() {
   echo 'validate_pre_requisites'
-  if [ ! -f "$IDENTITY_TOKEN_FILE" ]; then
-    echo "Error: identity token file: '$IDENTITY_TOKEN_FILE' file not found."
+  if [ ! -f "$INFRAPOOL_IDENTITY_TOKEN_FILE" ]; then
+    echo "Error: identity token file: '$INFRAPOOL_IDENTITY_TOKEN_FILE' file not found."
     pwd
     ls -l
     exit 1
   fi
 
-  if [ -z "$GCP_PROJECT" ]; then
+  if [ -z "$INFRAPOOL_GCP_PROJECT" ]; then
     echo "-- Error: Google cloud project name is undefined."
     exit 1
   fi
@@ -38,7 +38,7 @@ validate_pre_requisites() {
    echo "-- GCP_REGION = [$GCP_REGION]"
   fi
 
-  if [ -z "$GCP_FETCH_TOKEN_FUNCTION" ]; then
+  if [ -z "$INFRAPOOL_GCP_FETCH_TOKEN_FUNCTION" ]; then
     echo "-- Error: Google cloud fetch token name undefined."
     exit 1
   fi
@@ -47,7 +47,7 @@ validate_pre_requisites() {
     mkdir tokens || exit 1
   fi
 
-  GCP_FUNC_URL="https://${GCP_REGION}-${GCP_PROJECT}.cloudfunctions.net/${GCP_FETCH_TOKEN_FUNCTION}"
+  GCP_FUNC_URL="https://${GCP_REGION}-${INFRAPOOL_GCP_PROJECT}.cloudfunctions.net/${INFRAPOOL_GCP_FETCH_TOKEN_FUNCTION}"
   echo "GCP_FUNC_URL = [$GCP_FUNC_URL]"
 
   echo '-> validate_pre_requisites done'

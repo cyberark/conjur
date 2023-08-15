@@ -31,23 +31,23 @@ validate_pre_requisites() {
     exit 1
   fi
 
-  if [ -z "$GCP_OWNER_SERVICE_KEY_FILE" ]; then
-    echo "-- env var 'GCP_OWNER_SERVICE_KEY_FILE' is undefined"
+  if [ -z "$INFRAPOOL_GCP_OWNER_SERVICE_KEY_FILE" ]; then
+    echo "-- env var 'INFRAPOOL_GCP_OWNER_SERVICE_KEY_FILE' is undefined"
     exit 1
   fi
 
-  if [ -z "$GCP_FETCH_TOKEN_FUNCTION" ]; then
-    echo "-- env var 'GCP_FETCH_TOKEN_FUNCTION' is undefined"
+  if [ -z "$INFRAPOOL_GCP_FETCH_TOKEN_FUNCTION" ]; then
+    echo "-- env var 'INFRAPOOL_GCP_FETCH_TOKEN_FUNCTION' is undefined"
     exit 1
   fi
 
-  if [ -z "$GCP_PROJECT" ]; then
-    echo "-- env var 'GCP_PROJECT' is undefined"
+  if [ -z "$INFRAPOOL_GCP_PROJECT" ]; then
+    echo "-- env var 'INFRAPOOL_GCP_PROJECT' is undefined"
     exit 1
   fi
 
-  if [ -z "$IDENTITY_TOKEN_FILE" ]; then
-    echo "-- env var 'IDENTITY_TOKEN_FILE' is undefined"
+  if [ -z "$INFRAPOOL_IDENTITY_TOKEN_FILE" ]; then
+    echo "-- env var 'INFRAPOOL_IDENTITY_TOKEN_FILE' is undefined"
     exit 1
   fi
   echo '-> validate_pre_requisites done'
@@ -60,8 +60,8 @@ validate_pre_requisites() {
 write_sa_key_to_file() {
   echo 'write_sa_key_to_file'
   if [ ! -f "$GCP_OWNER_SERVICE_KEY" ]; then
-    echo "-- Write account service key to file: '$GCP_OWNER_SERVICE_KEY_FILE' (required for gcloud auth)"
-    echo "$GCP_OWNER_SERVICE_KEY" > "$GCP_OWNER_SERVICE_KEY_FILE"
+    echo "-- Write account service key to file: '$INFRAPOOL_GCP_OWNER_SERVICE_KEY_FILE' (required for gcloud auth)"
+    echo "$GCP_OWNER_SERVICE_KEY" > "$INFRAPOOL_GCP_OWNER_SERVICE_KEY_FILE"
   fi
   echo '-> write_sa_key_to_file done'
 }
@@ -76,10 +76,10 @@ run_gcloud_container() {
   local cmd=".$container_volume/$GCLOUD_SCRIPT"
 
   docker run \
-    -e GCF_FUNC_NAME="$GCP_FETCH_TOKEN_FUNCTION" \
-    -e GCP_PROJECT="$GCP_PROJECT" \
-    -e GCP_OWNER_SERVICE_KEY="$container_volume/$GCP_OWNER_SERVICE_KEY_FILE" \
-    -e IDENTITY_TOKEN_FILE="$IDENTITY_TOKEN_FILE" \
+    -e GCF_FUNC_NAME="$INFRAPOOL_GCP_FETCH_TOKEN_FUNCTION" \
+    -e INFRAPOOL_GCP_PROJECT="$INFRAPOOL_GCP_PROJECT" \
+    -e GCP_OWNER_SERVICE_KEY="$container_volume/$INFRAPOOL_GCP_OWNER_SERVICE_KEY_FILE" \
+    -e INFRAPOOL_IDENTITY_TOKEN_FILE="$INFRAPOOL_IDENTITY_TOKEN_FILE" \
     -v /var/run/docker.sock:/var/run/docker.sock \
     --rm -i -v "$local_volume":"$container_volume" "$google_sdk_image" "$cmd"
 
@@ -90,9 +90,9 @@ run_gcloud_container() {
 # Service account key file is used to authenticate with Google SDK CLI.
 # Google SDK CLI (gcloud) is used to deploy the Google function.
 verify_sa_key_file_deleted() {
-  if [ -f "$GCP_OWNER_SERVICE_KEY_FILE" ]; then
+  if [ -f "$INFRAPOOL_GCP_OWNER_SERVICE_KEY_FILE" ]; then
     echo "Error: Container didn't take care to delete key file after usage"
-    rm -f echo "$GCP_OWNER_SERVICE_KEY_FILE"
+    rm -f echo "$INFRAPOOL_GCP_OWNER_SERVICE_KEY_FILE"
   fi
 }
 

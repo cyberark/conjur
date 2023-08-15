@@ -57,7 +57,7 @@ module AuthnAzureHelper
   end
 
   def azure_machine_ip
-    @azure_machine_ip ||= validated_env_var('AZURE_AUTHN_INSTANCE_IP')
+    @azure_machine_ip ||= validated_env_var('INFRAPOOL_AZURE_AUTHN_INSTANCE_IP')
   end
 
   def azure_machine_username
@@ -77,7 +77,7 @@ module AuthnAzureHelper
   end
 
   def system_assigned_identity
-    @system_assigned_identity ||= validated_env_var('SYSTEM_ASSIGNED_IDENTITY')
+    @system_assigned_identity ||= validated_env_var('INFRAPOOL_SYSTEM_ASSIGNED_IDENTITY')
   end
 
   def user_assigned_identity

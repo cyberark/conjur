@@ -16,7 +16,7 @@ module Authentication
             xms_mirid.resource_groups
           when Restrictions::USER_ASSIGNED_IDENTITY
             xms_mirid.providers.last if user_assigned_identity?
-          when Restrictions::SYSTEM_ASSIGNED_IDENTITY
+          when Restrictions::INFRAPOOL_SYSTEM_ASSIGNED_IDENTITY
             @oid_token_field unless user_assigned_identity?
           end
 
