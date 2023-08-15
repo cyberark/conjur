@@ -76,7 +76,7 @@ gem 'openid_connect'
 
 gem "anyway_config"
 gem 'i18n', '~> 1.8.11'
-
+gem 'json_schemer'
 gem 'prometheus-client'
 
 group :development, :test do
