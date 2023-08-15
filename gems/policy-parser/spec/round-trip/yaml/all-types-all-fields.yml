@@ -40,4 +40,16 @@
 - !webservice
   id: quake2-server
 
-  
+- !policy base-policy
+
+- !policy-factory
+  id: certificates
+  base: !policy base-policy
+  template:
+    - !policy sub-policy
+
+- !policy-factory
+  id: root-factory
+  owner: !user bob
+  template:
+    - !policy sub-policy

@@ -41,3 +41,6 @@ RESOURCE_ID                          | NAME        | VALUE      | POLICY_ID
 rspec:variable:the-policy/the-secret | description | the-secret | rspec:policy:the-policy
 rspec:variable:the-policy/the-secret | kind        | plain text | rspec:policy:the-policy
 
+policy_factories
+No data.
+
