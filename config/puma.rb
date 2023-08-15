@@ -48,7 +48,6 @@ max_fast_inline Float(ENV['MAX_REQUESTS_PER_CONNECTION'] || Float::INFINITY)
 # available in this config file.
 preload_app!
 
-rackup      DefaultRackup
 port        ENV['PORT']     || 3000
 environment ENV['RACK_ENV'] || 'development'
 
