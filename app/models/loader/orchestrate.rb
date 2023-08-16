@@ -107,8 +107,6 @@ module Loader
         @extensions.call(:before_load_policy, policy_version: @policy_version)
       end
 
-      perform_deletion
-
       create_schema
 
       load_records
@@ -128,6 +126,8 @@ module Loader
       insert_new
 
       drop_schema
+
+      perform_deletion
 
       store_passwords
 
