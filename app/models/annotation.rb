@@ -8,7 +8,7 @@ class Annotation < Sequel::Model
   unrestrict_primary_key
   
   many_to_one :resource, reciprocal: :annotations
-  
+  many_to_one :role, :key => :role_id, :class => :Role
   def as_json options = {}
     options[:except] ||= []
     options[:except].push(:resource_id)
