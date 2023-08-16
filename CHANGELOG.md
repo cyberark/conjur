@@ -139,28 +139,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [1.20.0] - 2023-07-11
 
-### Security
-- Support plural syntax for revoke and deny
-  [CONJSE-1783](https://ca-il-jira.il.cyber-ark.com:8443/browse/CONJSE-1783)
-- Previously, attempting to add and remove a privilege in the same policy load
-  resulted in only the positive privilege (grant, permit) taking effect. Now we
-  fail safe and the negative privilege statement (revoke, deny) is the final
-  outcome
-  [CONJSE-1785](https://ca-il-jira.il.cyber-ark.com:8443/browse/CONJSE-1785)
-
 ### Added
+- New flag to `conjurctl server` command called `--no-migrate` which allows for skipping
+  the database migration step when starting the server.
+  [cyberark/conjur#2895](https://github.com/cyberark/conjur/pull/2895)
 - Telemetry support
   [cyberark/conjur#2854](https://github.com/cyberark/conjur/pull/2854)
 - Introduces support for Policy Factory, which enables resource creation
   through a new `factories` API.
   [cyberark/conjur#2855](https://github.com/cyberark/conjur/pull/2855/files)
-
-## [1.19.6] - 2023-07-05
-
-### Added
-- New flag to `conjurctl server` command called `--no-migrate` which allows for skipping
-  the database migration step when starting the server.
-  [cyberark/conjur#2895](https://github.com/cyberark/conjur/pull/2895)
 
 ### Changed
 - The database thread pool max connection size is now based on the number of
@@ -172,8 +159,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Fixed
 - Support Authn-IAM regional requests when host value is missing from signed headers.
   [cyberark/conjur#2827](https://github.com/cyberark/conjur/pull/2827)
+
+### Security
 - Support plural syntax for revoke and deny
   [CONJSE-1783](https://ca-il-jira.il.cyber-ark.com:8443/browse/CONJSE-1783)
+- Previously, attempting to add and remove a privilege in the same policy load
+  resulted in only the positive privilege (grant, permit) taking effect. Now we
+  fail safe and the negative privilege statement (revoke, deny) is the final
+  outcome
+  [CONJSE-1785](https://ca-il-jira.il.cyber-ark.com:8443/browse/CONJSE-1785)
 
 ## [1.19.5] - 2023-06-29
 
