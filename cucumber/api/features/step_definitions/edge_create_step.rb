@@ -8,7 +8,7 @@ Then(/^Edge name "([^"]*)" data exists in db$/) do |arg|
   expect(res).to be > 0
   res = Resource.where(Sequel.like(:resource_id, "cucumber:host:edge/edge-#{id}/edge-host-#{id}")).count
   expect(res).to be > 0
-  res = Resource.where(Sequel.like(:resource_id, "cucumber:host:edge/edge-installer-#{id}/edge-installer-host-#{id}"))
+  res = Resource.where(Sequel.like(:resource_id, "cucumber:host:edge/edge-installer-#{id}/edge-installer-host-#{id}")).count
   expect(res).to be > 0
 end
 

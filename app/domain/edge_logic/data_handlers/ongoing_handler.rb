@@ -11,10 +11,10 @@ module EdgeLogic
 
       def call(params, hostname, ip)
         params.require(:edge_statistics).require(:last_synch_time)
-        allowed_params = [:account, :edge_version, :edge_container_type, edge_statistics: [:last_synch_time, cycle_requests:
+        allowed_params = [:edge_version, :edge_container_type, edge_statistics: [:last_synch_time, cycle_requests:
           [:get_secret, :apikey_authenticate, :jwt_authenticate, :redirect]]]
         options = params.permit(*allowed_params).to_h
-        validate_params(options, ->(k, v) {v.is_a?(Numeric) || (v.is_a?(String) && v.length <= 20)})
+        validate_params(options, input_validator)
 
         edge = Edge.get_by_hostname(hostname)
         edge.record_edge_access(options, ip)
@@ -26,6 +26,22 @@ module EdgeLogic
                                                          cycle_reqs['jwt_authenticate'], cycle_reqs['redirect'],
                                                          edge.version, edge.platform, Time.at(edge.installation_date)))
       end
+
+      def input_validator
+        @input_validator ||= ->(k, v) {
+          case k.to_sym
+          when :edge_version
+            v.match?(/^[0-9.v]+$/)
+          when :edge_container_type
+            %w[podman docker].include?(v.downcase)
+          when :last_synch_time, :cycle_requests, :get_secret, :apikey_authenticate, :jwt_authenticate, :redirect
+            numeric_validator.call(k, v)
+          else
+            numeric_validator.call(k, v) || string_length_validator.call(k, v)
+          end
+        }
+      end
+
     end
   end
 end

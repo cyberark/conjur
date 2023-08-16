@@ -73,9 +73,9 @@ Feature: Adding and fetching secrets
   @acceptance
   Scenario: The 'conjur/mime_type' annotation is used in the value response.
 
-    If the annotation `conjur/mime_type` exists on a resource, then when a
-    secret value is fetched from the resource, that mime type is used as the
-    `Content-Type` header in the response.
+  If the annotation `conjur/mime_type` exists on a resource, then when a
+  secret value is fetched from the resource, that mime type is used as the
+  `Content-Type` header in the response.
 
     Given I set annotation "conjur/mime_type" to "application/json"
     And I save my place in the audit log file for remote
@@ -109,8 +109,8 @@ Feature: Adding and fetching secrets
   @smoke
   Scenario: The last secret is the default one returned.
 
-    Adding a new secret appends to a list of values on the resource. When
-    retrieving secrets, the last value in the list is returned by default.
+  Adding a new secret appends to a list of values on the resource. When
+  retrieving secrets, the last value in the list is returned by default.
 
     Given I successfully POST "/secrets/cucumber/variable/probe" with body:
     """
@@ -137,8 +137,8 @@ Feature: Adding and fetching secrets
   @acceptance
   Scenario: When fetching a secret, a specific secret index can be specified.
 
-    The `version` parameter can be used to select a specific secret value from
-    the list.
+  The `version` parameter can be used to select a specific secret value from
+  the list.
 
     Given I successfully POST "/secrets/cucumber/variable/probe" with body:
     """
@@ -198,3 +198,56 @@ Feature: Adding and fetching secrets
     """
     When I GET "/secrets/cucumber/variable/probe?version=1"
     Then the HTTP response status code is 404
+
+  @negative @acceptance
+  Scenario: Fail when updating an ephemeral secret value with permissions
+
+    Given I create a new "variable" resource called "data/ephemerals/ephemeral"
+    And I save my place in the audit log file for remote
+    When I POST "/secrets/cucumber/variable/data/ephemerals/ephemeral" with body:
+    """
+    v-1
+    """
+    Then the HTTP response status code is 405
+    And there is an audit record matching:
+    """
+      <84>1 * * conjur * update
+      [auth@43868 user="cucumber:user:eve"]
+      [subject@43868 resource="cucumber:variable:data/ephemerals/ephemeral"]
+      [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
+      [action@43868 result="failure" operation="update"]
+      cucumber:user:eve tried to update cucumber:variable:data/ephemerals/ephemeral: adding a static secret to an ephemeral secret variable is not allowed
+    """
+
+  @negative @acceptance
+  Scenario: Fail on permissions first when trying to update an ephemeral secret value without permissions
+
+    Given I create a new "variable" resource called "ephemeral"
+    And I set annotation "platform/id" to "my-platform"
+    When I am a user named "alice"
+    And I POST "/secrets/cucumber/variable/ephemeral" with body:
+    """
+    v-1
+    """
+    Then the HTTP response status code is 404
+    And there is an error
+    And the error message is "Variable 'ephemeral' not found in account 'cucumber'"
+
+  @negative @acceptance
+  Scenario: Fail to retrieve an ephemeral secret
+
+    Given I create a new "variable" resource called "data/ephemerals/ephemeral"
+    When I GET "/secrets/cucumber/variable/data/ephemerals/ephemeral"
+    Then the HTTP response status code is 500
+
+  @acceptance
+  Scenario: Succeed to retrieve a secret with a platform ID that's outside the expected policy
+
+    Given I create a new "variable" resource called "data/ephemeral"
+    And I set annotation "platform/id" to "my-platform"
+    And I POST "/secrets/cucumber/variable/data/ephemeral" with body:
+    """
+    v-1
+    """
+    When I GET "/secrets/cucumber/variable/data/ephemeral"
+    Then the HTTP response status code is 200

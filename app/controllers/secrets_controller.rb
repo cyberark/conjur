@@ -8,8 +8,13 @@ class SecretsController < RestController
 
   before_action :current_user
 
+  PLATFORM_PREFIX           = "platform/"
+  EPHEMERAL_VARIABLE_PREFIX = "data/ephemerals/"
+
   def create
     authorize(:update)
+
+    raise Exceptions::MethodNotAllowed, "adding a static secret to an ephemeral secret variable is not allowed" if ephemeral_secret?
 
     value = request.raw_post
 
@@ -36,15 +41,19 @@ class SecretsController < RestController
     authorize(:execute)
     version = params[:version]
 
-    unless (secret = resource.secret(version: version))
-      raise Exceptions::RecordNotFound.new(\
-        resource.id, message: "Requested version does not exist"
-      )
+    if ephemeral_secret?
+      value = handle_ephemeral_secret
+      mime_type = 'application/json'
+    else
+      unless (secret = resource.secret(version: version))
+        raise Exceptions::RecordNotFound.new(\
+          resource.id, message: "Requested version does not exist"
+        )
+      end
+      value = secret.value
+      mime_type = \
+        resource.annotation('conjur/mime_type') || 'application/octet-stream'
     end
-    value = secret.value
-
-    mime_type = \
-      resource.annotation('conjur/mime_type') || 'application/octet-stream'
 
     send_data(value, type: mime_type)
   rescue Exceptions::RecordNotFound
@@ -120,21 +129,21 @@ class SecretsController < RestController
     }
   end
 
-  # NOTE: We're following REST/http semantics here by representing this as 
+  # NOTE: We're following REST/http semantics here by representing this as
   #       an "expirations" that you POST to you.  This may seem strange given
   #       that what we're doing is simply updating an attribute on a secret.
-  #       But keep in mind this purely an implementation detail -- we could 
+  #       But keep in mind this purely an implementation detail -- we could
   #       have implemented expirations in many ways.  We want to expose the
-  #       concept of an "expiration" to the user.  And per standard rest, 
+  #       concept of an "expiration" to the user.  And per standard rest,
   #       we do that with a resource, "expirations."  Expiring a variable
   #       is then a matter of POSTing to create a new "expiration" resource.
-  #       
+  #
   #       It is irrelevant that the server happens to implement this request
   #       by assigning nil to `expires_at`.
   #
   #       Unfortuneatly, to be consistent with our other routes, we're abusing
   #       query strings to represent what is in fact a new resource.  Ideally,
-  #       we'd use a slash instead, but decided that consistency trumps 
+  #       we'd use a slash instead, but decided that consistency trumps
   #       correctness in this case.
   #
   def expire
@@ -154,5 +163,38 @@ class SecretsController < RestController
       @variable_ids.count != @variable_ids.reject(&:empty?).count
 
     @variable_ids
+  end
+
+  def ephemeral_secret?
+    resource.kind == "variable" && resource.identifier.start_with?(EPHEMERAL_VARIABLE_PREFIX)
+  end
+
+  def handle_ephemeral_secret
+    account = params[:account]
+    resource_annotations = resource.annotations
+    variable_data = {}
+    request_id = request.env['action_dispatch.request_id']
+
+    # Filter the platform related annotations and remove the prefix
+    resource_annotations.each do |annotation|
+      next unless annotation.name.start_with?(PLATFORM_PREFIX)
+      platform_param = annotation.name.to_s[PLATFORM_PREFIX.length..-1]
+      variable_data[platform_param] = annotation.value
+    end
+
+    platform = Platform.where(account: account, platform_id: variable_data["id"]).first
+
+    # There shouldn't be a state where a variable belongs to a platform that doesn't exit, but we check it to be safe
+    raise ApplicationController::InternalServerError, "Platform assigned to #{account}:#{params[:kind]}:#{params[:identifier]} was not found" unless platform
+
+    logger.info(LogMessages::Secrets::EphemeralSecretRequest.new(variable_data["id"], platform.platform_type, variable_data["method"], request_id))
+
+    platform_data = {
+      max_ttl: platform.max_ttl,
+      data: JSON.parse(platform.data)
+    }
+
+    ConjurEphemeralEngineClient.new(logger: logger, request_id: request_id)
+                               .get_ephemeral_secret(platform.platform_type, variable_data["method"], @current_user.role_id, platform_data, variable_data)
   end
 end

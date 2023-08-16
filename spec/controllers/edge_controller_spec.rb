@@ -27,7 +27,7 @@ describe EdgeController, :type => :request do
   end
 
   let(:list_edges) do
-    "/edge/edges/#{account}"
+    "/edge/#{account}"
   end
 
   let(:report_edge) do
@@ -121,7 +121,7 @@ describe EdgeController, :type => :request do
     before do
       Role.create(role_id: "#{account}:group:edge/edge-hosts")
       RoleMembership.create(role_id: "#{account}:group:edge/edge-hosts", member_id: host_id, admin_option: false, ownership:false)
-      Edge.new_edge(name: "edgy", id: 1234, version: "latest", platform: "podman", installation_date: Time.at(111111111), last_sync: Time.at(222222222))
+      Edge.new_edge(name: "edgy", id: 1234, version: "1.1.1", platform: "podman", installation_date: Time.at(111111111), last_sync: Time.at(222222222))
       Role.create(role_id: "#{account}:group:Conjur_Cloud_Admins")
       RoleMembership.create(role_id: "#{account}:group:Conjur_Cloud_Admins", member_id: admin_user_id, admin_option: false, ownership:false)
     end
@@ -145,7 +145,7 @@ describe EdgeController, :type => :request do
     before do
       Role.create(role_id: "#{account}:group:edge/edge-hosts")
       RoleMembership.create(role_id: "#{account}:group:edge/edge-hosts", member_id: host_id, admin_option: false, ownership:false)
-      Edge.new_edge(name: "edgy", id: 1234, version: "latest", platform: "podman", installation_date: Time.at(111111111), last_sync: Time.at(222222222))
+      Edge.new_edge(name: "edgy", id: 1234, version: "1.1.1", platform: "podman", installation_date: Time.at(111111111), last_sync: Time.at(222222222))
       EdgeController.logger = logger
       Role.create(role_id: "#{account}:group:Conjur_Cloud_Admins")
       RoleMembership.create(role_id: "#{account}:group:Conjur_Cloud_Admins", member_id: admin_user_id, admin_option: false, ownership:false)
@@ -165,7 +165,7 @@ describe EdgeController, :type => :request do
     it "Report ongoing data endpoint works" do
       edge_details = '{"edge_statistics": {"last_synch_time": 222222222, "cycle_requests": {
                         "get_secret":123,"apikey_authenticate": 234, "jwt_authenticate":345, "redirect": 456}},
-                      "edge_version": "latest", "edge_container_type": "podman"}'
+                      "edge_version": "1.1.1", "edge_container_type": "podman"}'
       post("#{report_edge}?data_type=ongoing", env: token_auth_header(role: @current_user, is_user: false)
                                .merge({'RAW_POST_DATA': edge_details})
                                .merge({'CONTENT_TYPE': 'application/json'}))
@@ -173,7 +173,7 @@ describe EdgeController, :type => :request do
       expect(response.code).to eq("204")
       db_edgy = Edge.where(name: "edgy").first
       expect(db_edgy.last_sync.to_i).to eq(222222222)
-      expect(db_edgy.version).to eq("latest")
+      expect(db_edgy.version).to eq("1.1.1")
       expect(db_edgy.platform).to eq("podman")
       output = log_output.string
       expect(output).to include("EdgeTelemetry")
@@ -193,7 +193,7 @@ describe EdgeController, :type => :request do
       expect(resp.size).to eq(4)
       expect(resp[0]['name']).to eq('edgy')
       expect(resp[0]['last_sync']).to eq(222222222)
-      expect(resp[0]['version']).to eq("latest")
+      expect(resp[0]['version']).to eq("1.1.1")
       expect(resp[0]['platform']).to eq("podman")
 
       expect(resp[1]['name']).to eq('fudge')
@@ -202,7 +202,7 @@ describe EdgeController, :type => :request do
     end
 
     it "Reported data appears on list" do
-      edge_details = '{"edge_statistics": {"last_synch_time": 222222222}, "edge_version": "latest", "edge_container_type": "podman"}'
+      edge_details = '{"edge_statistics": {"last_synch_time": 222222222}, "edge_version": "1.1.1", "edge_container_type": "podman"}'
       post("#{report_edge}?data_type=ongoing", env: token_auth_header(role: @current_user, is_user: false)
                                .merge({'RAW_POST_DATA': edge_details})
                                .merge({'CONTENT_TYPE': 'application/json'}))
@@ -213,18 +213,18 @@ describe EdgeController, :type => :request do
       resp = JSON.parse(response.body)
       expect(resp.size).to eq(1)
       expect(resp[0]['last_sync']).to eq(222222222)
-      expect(resp[0]['version']).to eq("latest")
+      expect(resp[0]['version']).to eq("1.1.1")
       expect(resp[0]['platform']).to eq("podman")
     end
 
     it "Report invalid data" do
-      missing_optional = '{"edge_statistics": {"last_synch_time": 222222222}, "edge_version": "latest"}'
+      missing_optional = '{"edge_statistics": {"last_synch_time": 222222222}, "edge_version": "1.1.1"}'
       post("#{report_edge}?data_type=ongoing", env: token_auth_header(role: @current_user, is_user: false)
                                .merge({'RAW_POST_DATA': missing_optional})
                                .merge({'CONTENT_TYPE': 'application/json'}))
       expect(response.code).to eq("204")
 
-      missing_required = '{"edge_statistics": {}, "edge_version": "latest", "edge_container_type": "podman"}'
+      missing_required = '{"edge_statistics": {}, "edge_version": "1.1.1", "edge_container_type": "podman"}'
       post("#{report_edge}?data_type=ongoing", env: token_auth_header(role: @current_user, is_user: false)
                                .merge({'RAW_POST_DATA': missing_required})
                                .merge({'CONTENT_TYPE': 'application/json'}))

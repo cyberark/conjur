@@ -152,14 +152,16 @@ class EdgeController < RestController
       render(json: results)
     else
       results = []
-      hosts = scope.eager(:credentials).all
+      roles_with_creds = scope.eager(:credentials)
+      hosts = Role.roles_with_annotations(roles_with_creds).all
       hosts.each do |host|
-        hostToReturn = {}
-        hostToReturn[:id] = host[:role_id]
-        salt = OpenSSL::Random.random_bytes(32)
-        hostToReturn[:api_key] = Base64.strict_encode64(hmac_api_key(host.api_key, salt))
-        hostToReturn[:salt] = Base64.strict_encode64(salt)
-        hostToReturn[:memberships] = host.all_roles.all.select { |h| h[:role_id] != (host[:role_id]) }
+          hostToReturn = {}
+          hostToReturn[:id] = host[:role_id]
+          salt = OpenSSL::Random.random_bytes(32)
+          hostToReturn[:api_key] = Base64.strict_encode64(hmac_api_key(host.api_key, salt))
+          hostToReturn[:salt] = Base64.strict_encode64(salt)
+          hostToReturn[:memberships] = host.all_roles.all.select { |h| h[:role_id] != (host[:role_id]) }
+          hostToReturn[:annotations] = host[:annotations] == "[null]" ? [] : JSON.parse(host[:annotations])
         results << hostToReturn
       end
       logger.info(LogMessages::Endpoints::EndpointFinishedSuccessfullyWithLimitAndOffset.new(
@@ -196,11 +198,11 @@ class EdgeController < RestController
   end
 
   def all_edges
-    logger.info(LogMessages::Endpoints::EndpointRequested.new("edge/edges"))
+    logger.info(LogMessages::Endpoints::EndpointRequested.new("edge"))
     allowed_params = %i[account]
     options = params.permit(*allowed_params).to_h.symbolize_keys
     validate_conjur_admin_group(options[:account])
-    logger.info(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("edge/edges"))
+    logger.info(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("edge"))
     render(json: Edge.order(:name).all.map{|edge|
       {name: edge.name, ip: edge.ip, last_sync: edge.last_sync.to_i,
        version:edge.version, installation_date: edge.installation_date.to_i, platform: edge.platform}})

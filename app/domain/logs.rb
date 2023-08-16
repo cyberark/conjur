@@ -795,6 +795,25 @@ module LogMessages
     
   end
 
+  module Secrets
+
+    EphemeralSecretRequest = ::Util::TrackableLogMessageClass.new(
+      msg: "Received an ephemeral secret request. Platform ID [{0}], platform type [{1}], ephemeral method [{2}], Request ID [{3}]",
+      code: "CONJ00160I"
+    )
+
+    EphemeralSecretRemoteRequest = ::Util::TrackableLogMessageClass.new(
+      msg: "Calling the ephemeral secrets service. Request ID [{0}]",
+      code: "CONJ00161I"
+    )
+
+    EphemeralSecretRemoteResponse = ::Util::TrackableLogMessageClass.new(
+      msg: "Received the response from the ephemeral secrets service. Request ID [{0}], HTTP code [{1}]",
+      code: "CONJ00162I"
+    )
+
+  end
+
   # This are log messages so its okay there are many
   # :reek:TooManyConstants
   module Util

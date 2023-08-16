@@ -19,6 +19,9 @@ class Role < Sequel::Model
     extend: MembershipSearch,
     search_key: :role_id
   )
+
+  one_to_many :annotations, :key => :resource_id, :class => :Annotation
+  
   one_to_one :credentials, reciprocal: :role
 
   alias id role_id
@@ -62,6 +65,21 @@ class Role < Sequel::Model
       return id if kind == 'user'
 
       [kind, id].join('/')
+    end
+
+    def roles_with_annotations(roles)
+      #this subquery aggregates all annotation of a role to an array of key value pairs, key- annotation name, value- annotation value
+      subquery = Sequel.function(:jsonb_agg,
+                                 Sequel.case(
+                                   { Sequel.~(:name => nil)  =>
+                                       Sequel.function(:jsonb_build_object,
+                                                       "name", :name,
+                                                               "value", :value
+                                    )},
+                                   nil 
+                                 )).as(:annotations)
+      roles.left_join(:annotations, resource_id: :role_id).group_by(:role_id).select_group(:role_id)
+                                                                      .select_append(subquery)
     end
   end
 
