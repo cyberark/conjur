@@ -16,7 +16,7 @@ module Loader
 
       @loader.delete_shadowed_and_duplicate_rows
 
-      @loader.store_policy_in_db
+      @loader.store_policy_in_db(reject_duplicates: true)
 
       @loader.release_db_connection
     end
