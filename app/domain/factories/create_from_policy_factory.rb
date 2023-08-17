@@ -65,7 +65,10 @@ module Factories
               return @success.new(result) unless factory_template.schema['properties'].key?('variables')
 
               # Set Policy Factory variables
-              @renderer.render(template: "#{factory_template.policy_branch}/<%= id %>", variables: template_variables)
+              variables_path = ["<%= id %>"]
+              # If the variables are headed for the "root" namespace, we don't want the namespace in the path
+              variables_path.prepend(factory_template.policy_branch) unless policy_load_path == 'root'
+              @renderer.render(template: variables_path.join('/'), variables: template_variables)
                 .bind do |variable_path|
                   set_factory_variables(
                     schema_variables: factory_template.schema['properties']['variables']['properties'],
