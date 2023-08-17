@@ -74,7 +74,7 @@ gem 'websocket'
 # authn-oidc, gcp, azure, jwt
 gem 'jwt', '2.2.2' # version frozen due to authn-jwt requirements
 # authn-oidc
-gem 'openid_connect'
+gem 'openid_connect', '~> 2.0'
 
 gem "anyway_config"
 gem 'i18n', '~> 1.8.11'
