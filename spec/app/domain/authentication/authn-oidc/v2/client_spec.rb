@@ -638,7 +638,7 @@ RSpec.describe(Authentication::AuthnOidc::V2::Client) do
             )
           end.to raise_error(Errors::Authentication::AuthnOidc::InvalidCertificate) do |e|
             expect(e.message).to include(cert)
-            expect(e.message).to include("nested asn1 error")
+            expect(e.message).to include("Invalid certificate")
           end
         end
       end
