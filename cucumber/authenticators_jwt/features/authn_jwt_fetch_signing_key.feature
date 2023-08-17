@@ -628,9 +628,9 @@ Feature: JWT Authenticator - Fetch signing key
     And I save my place in the log file
     When I authenticate via authn-jwt with the ID token
     Then the HTTP response status code is 401
-    And The following appears in the log after my savepoint:
+    And The following matches the log after my savepoint:
     """
-    CONJ00011E Failed to discover Identity Provider (Provider URI: 'https://jwks'). Reason: '#<OpenIDConnect::Discovery::DiscoveryFailed: SSL_connect returned=1 errno=0 state=error: certificate verify failed (self signed certificate)>
+    CONJ00011E Failed to discover Identity Provider \(Provider URI: 'https:\/\/jwks'\). Reason: '#<OpenIDConnect::Discovery::DiscoveryFailed: SSL_connect returned=1 errno=0 peeraddr=\d+.\d+.\d+.\d+:443 state=error: certificate verify failed \(self-signed certificate\)>'
     """
 
   @negative @acceptance
@@ -660,9 +660,9 @@ Feature: JWT Authenticator - Fetch signing key
     And I save my place in the log file
     When I authenticate via authn-jwt with raw service ID
     Then the HTTP response status code is 401
-    And The following appears in the log after my savepoint:
+    And The following matches the log after my savepoint:
     """
-    CONJ00087E Failed to fetch JWKS from 'https://jwks'. Reason: '#<OpenSSL::SSL::SSLError: SSL_connect returned=1 errno=0 state=error: certificate verify failed (self signed certificate)>'>
+    CONJ00087E Failed to fetch JWKS from 'https:\/\/jwks'. Reason: '#<OpenSSL::SSL::SSLError: SSL_connect returned=1 errno=0 peeraddr=\d+.\d+.\d+.\d+:443 state=error: certificate verify failed \(self-signed certificate\)>'
     """
 
   @negative @acceptance
