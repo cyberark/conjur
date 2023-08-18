@@ -33,7 +33,7 @@ module Authentication
           LogMessages::Authentication::OAuth::IdentityProviderDiscoverySuccess.new
         )
         @discovered_provider
-      rescue HTTPClient::ConnectTimeoutError, Errno::ETIMEDOUT => e
+      rescue Errno::ETIMEDOUT => e
         raise_error(Errors::Authentication::OAuth::ProviderDiscoveryTimeout, e)
       rescue => e
         raise_error(Errors::Authentication::OAuth::ProviderDiscoveryFailed, e)
