@@ -17,7 +17,7 @@ Feature: Updating Policies with Annotations
   - create / add new         / POST  :   EXPECTED SUCCESS
   - create / add new         / PATCH :   EXPECTED FAIL - 403 on policy load
   - create / update existing / PUT   :   EXPECTED FAIL - 403 on policy load
-  - create / update existing / POST  :   EXPECTED FAIL - 400 on policy load
+  - create / update existing / POST  :   EXPECTED FAIL - 422 on policy load
   - create / update existing / PATCH :   EXPECTED FAIL - 403 on policy load
   - update / add new         / PUT   :   EXPECTED SUCCESS
   - update / add new         / POST  :   EXPECTED FAIL - 403 on policy load
@@ -186,7 +186,7 @@ Feature: Updating Policies with Annotations
       annotations:
         description: Success
     """
-    Then the HTTP response status code is 400
+    Then the HTTP response status code is 422
     And The following appears in the log after my savepoint:
     """
     Updating existing resource disallowed in additive policy operation
