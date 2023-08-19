@@ -343,7 +343,7 @@ GEM
     pry-rails (0.3.9)
       pry (>= 0.10.4)
     public_suffix (5.0.1)
-    puma (5.6.4)
+    puma (6.3.1)
       nio4r (~> 2.0)
     racc (1.7.1)
     rack (2.2.7)
@@ -564,14 +564,14 @@ DEPENDENCIES
   net-ldap
   net-ssh
   nokogiri (>= 1.8.2)
-  openid_connect (= 2.2.0)
+  openid_connect (~> 2.0)
   parallel
   parallel_tests
   pg
   prometheus-client
   pry-byebug
   pry-rails
-  puma (~> 5.6)
+  puma (~> 6.3)
   rack (~> 2.2)
   rack-rewrite
   rails (~> 6.1, >= 6.1.4.6)
