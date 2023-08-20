@@ -17,6 +17,7 @@ module EdgeLogic
         validate_params(options, input_validator)
 
         edge = Edge.get_by_hostname(hostname)
+        InstallHandler.update_installation_date(edge, -1) unless edge.installation_date
         edge.record_edge_access(options, ip)
         # Log Edge statistics to be collected by Datadog
         stats = options['edge_statistics']
