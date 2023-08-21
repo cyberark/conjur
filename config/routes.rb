@@ -78,16 +78,16 @@ Rails.application.routes.draw do
       get     "/secrets/:account/:kind/*identifier" => 'secrets#show'
       post    "/secrets/:account/:kind/*identifier" => 'secrets#create'
       get     "/secrets"                            => 'secrets#batch'
-      post    "/edge/:account"                      => 'edge_creator#create_edge'
-      get     "/edge/secrets/:account"              => 'edge#all_secrets'
-      get     "/edge/hosts/:account"                => 'edge#all_hosts'
-      get     "/edge/authenticators/:account"       => 'edge#all_authenticators'
-      get     "edge/edge-creds/:account/:edge_name" => 'edge#generate_install_token'
-      get     "/edge/:account"                      => 'edge#all_edges'
-      get     "/edge/max-allowed/:account"          => 'edge#max_edges_allowed'
+      post    "/edge/:account"                      => 'edge_creation#create_edge'
+      get     "/edge/secrets/:account"              => 'edge_secrets#all_secrets'
+      get     "/edge/hosts/:account"                => 'edge_hosts#all_hosts'
+      get     "/edge/authenticators/:account"       => 'edge_authenticators#all_authenticators'
+      get     "edge/edge-creds/:account/:edge_name" => 'edge_creation#generate_install_token'
+      get     "/edge/:account"                      => 'edge_visibility#all_edges'
+      get     "/edge/max-allowed/:account"          => 'edge_configuration#max_edges_allowed'
 
-      post    "/edge/data/:account"                 => 'edge#report_edge_data', :constraints => QueryParameterActionRecognizer.new("data_type")
-      get     "/edge/slosilo_keys/:account"         => 'edge#slosilo_keys'
+      post    "/edge/data/:account"                 => 'edge_handler#report_edge_data', :constraints => QueryParameterActionRecognizer.new("data_type")
+      get     "/edge/slosilo_keys/:account"         => 'edge_slosilo_keys#slosilo_keys'
 
       post    "/platforms/:account"             => 'platforms#create'
       delete  "/platforms/:account/:identifier" => 'platforms#delete'
