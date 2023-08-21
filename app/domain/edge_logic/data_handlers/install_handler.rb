@@ -13,13 +13,17 @@ module EdgeLogic
         begin
           edge = Edge.get_by_hostname(hostname)
           installation_date = params.require(:installation_date)
-          edge.update(installation_date: Time.at(installation_date))
+          InstallHandler.update_installation_date(edge, installation_date)
         rescue => e
           @error_message = e.message
           raise e
         ensure
           audit_installed(edge&.name, ip)
         end
+      end
+
+      def self.update_installation_date(edge, installation_date)
+        edge.update(installation_date: Time.at(installation_date))
       end
 
       private

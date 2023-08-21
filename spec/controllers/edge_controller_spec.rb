@@ -230,5 +230,18 @@ describe EdgeController, :type => :request do
                                .merge({'CONTENT_TYPE': 'application/json'}))
       expect(response.code).to eq("422")
     end
+
+    it "Report works even without installation" do
+      edgy = Edge["1234"]
+      edgy.update(installation_date: nil)
+
+      edge_details = '{"edge_statistics": {"last_synch_time": 222222222}, "edge_version": "1.1.1", "edge_container_type": "podman"}'
+      post("#{report_edge}?data_type=ongoing", env: token_auth_header(role: @current_user, is_user: false)
+                                                      .merge({'RAW_POST_DATA': edge_details})
+                                                      .merge({'CONTENT_TYPE': 'application/json'}))
+      expect(response.code).to eq("204")
+      edgy = Edge["1234"]
+      expect(edgy.installation_date).to eq(Time.at(-1))
+    end
   end
 end
