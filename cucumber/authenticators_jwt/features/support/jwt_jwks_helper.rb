@@ -219,7 +219,7 @@ module JwtJwksHelper
     cert.public_key = rsa_key.public_key
     cert.serial = 0x0
     cert.version = 2
-    cert.sign rsa_key, OpenSSL::Digest::SHA256.new
+    cert.sign(rsa_key, OpenSSL::Digest.new('SHA256'))
 
     cert
   end
