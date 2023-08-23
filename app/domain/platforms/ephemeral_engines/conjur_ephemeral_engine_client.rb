@@ -81,9 +81,6 @@ class ConjurEphemeralEngineClient
   end
 
   def tenant_id
-    result = ENV["HOSTNAME"]
-    result.split("-")[1] || ""
-  rescue
-    ""
+    Rails.application.config.conjur_config.tenant_id
   end
 end
