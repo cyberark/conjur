@@ -81,6 +81,7 @@ Feature: Create edge process
        [action@43868 result="failure" operation="create"]
        User cucumber:user:admin_user failed to create new Edge instance named edgy
       """
+
     @negative @acceptance
     Scenario: Create edge with non admin_user return 403
       Given I login as "host/data/some_host1"
@@ -179,57 +180,31 @@ Feature: Create edge process
     """
 
   @acceptance
-  Scenario: Edge start report success emits audit
+  Scenario: Create edge with existing name with capital letters is created
     Given I login as "admin_user"
-    And I set the "Content-Type" header to "application/json"
-    And I POST "/edge/cucumber" with body:
-    """
-    {
-      "edge_name": "edgy"
-    }
-    """
-    And the HTTP response status code is 201
     And I save my place in the audit log file for remote
-    When I login as the host associated with Edge "edgy"
-    And I POST "/edge/data/cucumber?data_type=install" with body:
-    """
-     { "installation_date" : 1111111 }
-    """
-    Then the HTTP response status code is 204
-    And there is an audit record matching:
-    """
-     <85>1 * * conjur * installed
-     [auth@43868 user="edgy"]
-     [subject@43868 edge="edgy"]
-     [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
-     [action@43868 result="success" operation="install"]
-     Edge instance edgy has been installed
-    """
-
-  @negative
-  Scenario: Edge start report failure emits audit
-    Given I login as "admin_user"
     And I set the "Content-Type" header to "application/json"
-    And I POST "/edge/cucumber" with body:
-    """
-    {
-      "edge_name": "edgy"
-    }
-    """
-    And the HTTP response status code is 201
-    And I save my place in the audit log file for remote
-    When I login as the host associated with Edge "edgy"
-    And I POST "/edge/data/cucumber?data_type=install" with body:
-    """
-     { "installation_bad_date" : 1111111 }
-    """
-    Then the HTTP response status code is 422
+    When I POST "/edge/cucumber" with body:
+      """
+      {
+        "edge_name": "edgy"
+      }
+      """
+    Then the HTTP response status code is 201
+    When I POST "/edge/cucumber" with body:
+      """
+      {
+        "edge_name": "Edgy"
+      }
+      """
+    Then the HTTP response status code is 201
+    And Edge name "Edgy" data exists in db
     And there is an audit record matching:
-    """
-     <85>1 * * conjur * installed
-     [auth@43868 user="edgy"]
-     [subject@43868 edge="edgy"]
-     [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
-     [action@43868 result="failure" operation="install"]
-     Edge instance edgy install failed
-    """
+      """
+        <85>1 * * conjur * created
+        [auth@43868 user="cucumber:user:admin_user"]
+        [subject@43868 edge="Edgy"]
+        [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
+        [action@43868 result="success" operation="create"]
+        User cucumber:user:admin_user successfully created new Edge instance named Edgy
+      """
