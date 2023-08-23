@@ -1,0 +1,7 @@
+FROM ruby
+
+COPY ./ /src/
+
+WORKDIR /src
+
+RUN bundle
