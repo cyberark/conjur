@@ -86,26 +86,29 @@ Feature: Fetching secrets from edge endpoint
   @acceptance
   Scenario: Fetching all authenticators with edge host and Accept-Encoding base64 header return 200 OK
     Given I login as "host/edge/edge-abcd1234567890/edge-host-abcd1234567890"
-    When I successfully GET "/edge/authenticators/cucumber"
     And I set the "Accept-Encoding" header to "base64"
+    When I successfully GET "/edge/authenticators/cucumber?kind=authn-jwt"
     Then the HTTP response status code is 200
 
   @negative
   Scenario: Fetching authenticators with non edge host return 403 error
     Given I login as "some_user"
-    When I GET "/edge/authenticators/cucumber"
+    And I set the "Accept-Encoding" header to "base64"
+    When I GET "/edge/authenticators/cucumber?kind=authn-jwt"
     Then the HTTP response status code is 403
     Given I login as "host/data/some_host1"
-    When I GET "/edge/authenticators/cucumber"
+    And I set the "Accept-Encoding" header to "base64"
+    When I GET "/edge/authenticators/cucumber?kind=authn-jwt"
     Then the HTTP response status code is 403
     Given I am the super-user
-    When I GET "/edge/authenticators/cucumber"
+    And I set the "Accept-Encoding" header to "base64"
+    When I GET "/edge/authenticators/cucumber?kind=authn-jwt"
     Then the HTTP response status code is 403
 
   @negative
   Scenario: Fetching all authenticators with edge host and without Accept-Encoding base64 header and return 500
     Given I login as "host/edge/edge-abcd1234567890/edge-host-abcd1234567890"
-    When I GET "/edge/authenticators/cucumber"
+    When I GET "/edge/authenticators/cucumber?kind=authn-jwt"
     Then the HTTP response status code is 500
 
 
