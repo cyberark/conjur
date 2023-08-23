@@ -39,7 +39,8 @@ module Conjur
       authn_api_key_default: true,
       authenticators: [],
       extensions: [],
-      slosilo_rotation_interval: 24 # Sloislo rotation should be every 24 hours
+      slosilo_rotation_interval: 24,  # Sloislo rotation should be every 24 hours
+      tenant_id: @tenant_id
     )
 
     def initialize(
@@ -50,7 +51,7 @@ module Conjur
       # The permissions checks emit log messages, so we need to initialize the
       # logger before verifying permissions.
       @logger = logger
-
+      @tenant_id = tenant_id
       # First verify that we have the permissions necessary to read the config
       # file.
       verify_config_is_readable
@@ -119,6 +120,16 @@ module Conjur
 
     def extensions=(val)
       super(str_to_list(val)&.uniq)
+    end
+
+    def tenant_id
+      #parsing tenant_id from hostname
+      begin
+        result = ENV["HOSTNAME"]
+        result.split("-")[1] || ""
+      rescue
+        ""
+      end
     end
 
     private
