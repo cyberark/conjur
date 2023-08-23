@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   (and update the corresponding date), or add a new version.
 
 ## [1.0.6-cloud] - 2023-08-21
+- get all authenticators endpoint, will be used by edge for replication.
 
 ## [1.0.5-cloud] - 2023-08-16
 ### Security
