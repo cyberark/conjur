@@ -76,7 +76,9 @@ RUN INSTALL_PKGS="gcc \
     yum -y clean all --enablerepo='*' && \
     # removing CA bundle of httpclient gem
     find / -name 'httpclient-*' -type d -exec find {} -name '*.pem' -type f -delete \; && \
-    find / -name 'httpclient-*' -type d -exec find {} -name '*.key' -type f -delete \;
+    find / -name 'httpclient-*' -type d -exec find {} -name '*.key' -type f -delete \; && \
+    # remove the private key in the oidc_connect gem spec directory
+    find / -name openid_connect -type d -exec find {} -name '*.pem' -type f -delete \;
 
 COPY . .
 
