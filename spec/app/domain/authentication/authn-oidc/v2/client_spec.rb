@@ -43,6 +43,96 @@ RSpec.describe(Authentication::AuthnOidc::V2::Client) do
         end
       end
     end
+
+    describe '.callback_with_temporary_cert', type: 'unit' do
+      context 'when credentials are valid', vcr: "authenticators/authn-oidc/v2/#{config[:service_id]}/client_callback-valid_oidc_credentials" do
+        context 'when no cert is required' do
+          it 'returns a valid JWT token' do
+            travel_to(Time.parse(config[:auth_time])) do
+              token = client(config).callback_with_temporary_cert(
+                code: config[:code],
+                code_verifier: config[:code_verifier],
+                nonce: config[:nonce]
+              )
+              expect(token).to be_a_kind_of(OpenIDConnect::ResponseObject::IdToken)
+              expect(token.raw_attributes['nonce']).to eq(config[:nonce])
+              expect(token.raw_attributes['preferred_username']).to eq(config[:username])
+              expect(token.aud).to eq(config[:client_id])
+            end
+          end
+        end
+
+        context 'when valid certificate is provided' do
+          let(:cert) { <<~EOF
+            -----BEGIN CERTIFICATE-----
+            MIIDqzCCApOgAwIBAgIJAP9vSJDyPfQdMA0GCSqGSIb3DQEBCwUAMGwxCzAJBgNV
+            BAYTAlVTMRYwFAYDVQQIDA1NYXNzYWNodXNldHRzMQ8wDQYDVQQHDAZOZXd0b24x
+            ETAPBgNVBAoMCEN5YmVyQXJrMQ8wDQYDVQQLDAZDb25qdXIxEDAOBgNVBAMMB1Jv
+            b3QgQ0EwHhcNMjMwODIzMjIyMjU1WhcNMzExMTA5MjIyMjU1WjBsMQswCQYDVQQG
+            EwJVUzEWMBQGA1UECAwNTWFzc2FjaHVzZXR0czEPMA0GA1UEBwwGTmV3dG9uMREw
+            DwYDVQQKDAhDeWJlckFyazEPMA0GA1UECwwGQ29uanVyMRAwDgYDVQQDDAdSb290
+            IENBMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA7YPg2tpJYygd37RB
+            JQrAEnqtMctB01jSB4Snm3oQVz33z1OfLulTeJA56gwWN4OVm737zUJM1GET6fFC
+            ZIVsrhk8WsKeilnyE3FeVMmpbbteUt7DcTS2bpmk6p0MlaN8Y3EoDmVLKmcAoRXS
+            xLi8iOkClJPbpSbjQDg2ZnpyfEFBE+jhOWaFkgaSVt2tTUrAt3+F/3o6rRtsXplC
+            m2Fj/qK9x4Yw5sw098ztLNNomMCmhSD4ACn4jSZoq0HTH9QrZ9agXTpKkDOeAjMJ
+            O08T4XqW61o1YJRPjgIYqwtyCs5DHSzj4AmuYRSDRBgK/mIDDiQd9XL0VFW8CcKP
+            DnxSdQIDAQABo1AwTjAdBgNVHQ4EFgQU2/KbZMd7y7ZBfK884/4vB0AAg+AwHwYD
+            VR0jBBgwFoAU2/KbZMd7y7ZBfK884/4vB0AAg+AwDAYDVR0TBAUwAwEB/zANBgkq
+            hkiG9w0BAQsFAAOCAQEAr2UxJLH5j+3iez0mSwPY2m6QqK57mUWDzgMFHCtuohYT
+            saqhBXzsgHqFElw2WM2fQpeSxHqr0R1MrDz+qBg/tgFJ6AnVkW56v41oJb+kZsi/
+            fhk7OhU9MhOqG9Wlnptp4QiLCCuKeDUUfQCnu15peR9vxQt0cLlzmr8MQdTuMvb9
+            Vi7jey+Y5P04D8sqNP4BNUSRW8TwAKWkPJ4r3GybMsoCwqhb9+zAeYUj30TaxzKK
+            VSC0BRw+2QY8OllJPYIE3SCPK+v4SZp72KZ9ooSV+52ezmOCARuNWaNZKCbdPSme
+            DBHPd2jZXDVr5nrOEppAnma6VgmlRSN393j6GOiNIw==
+            -----END CERTIFICATE-----
+          EOF
+          }
+          let(:expected_hash) { OpenSSL::X509::Certificate.new(cert).subject.hash.to_s(16) }
+          let(:symlink_path) { File.join(OpenSSL::X509::DEFAULT_CERT_DIR, "#{expected_hash}.0") }
+
+          context 'if a symlink for the certificate subject already exists' do
+            before(:each) do
+              @tempfile = Tempfile.new("rspec.pem")
+              File.symlink(@tempfile, symlink_path)
+            end
+
+            after(:each) do
+              @tempfile.close
+              @tempfile.unlink
+              File.unlink(symlink_path)
+            end
+
+            it 'maintains the certificate file' do
+              travel_to(Time.parse(config[:auth_time])) do
+                client(config).callback_with_temporary_cert(
+                  code: config[:code],
+                  code_verifier: config[:code_verifier],
+                  nonce: config[:nonce],
+                  cert_string: cert
+                )
+                expect(File.exist?(symlink_path)).to be true
+              end
+            end
+          end
+
+          context 'if the certificate does not already exist in the default cert store' do
+            it 'cleans up the temporary certificate file' do
+              travel_to(Time.parse(config[:auth_time])) do
+                expect(File.exist?(symlink_path)).to be false
+                client(config).callback_with_temporary_cert(
+                  code: config[:code],
+                  code_verifier: config[:code_verifier],
+                  nonce: config[:nonce],
+                  cert_string: cert
+                )
+                expect(File.exist?(symlink_path)).to be false
+              end
+            end
+          end
+        end
+      end
+    end
   end
 
   shared_examples 'token retrieval failures' do |config|
@@ -91,6 +181,21 @@ RSpec.describe(Authentication::AuthnOidc::V2::Client) do
             Errors::Authentication::AuthnOidc::TokenRetrievalFailed,
             "CONJ00133E Access Token retrieval failure: 'Authorization code is invalid or has expired'"
           )
+        end
+      end
+    end
+
+    describe '.callback_with_temporary_cert', type: 'unit' do
+      context 'when invalid certificate is provided', vcr: "enabled" do
+        it 'raises an error' do
+          expect do
+            client(config).callback_with_temporary_cert(
+              code: config[:code],
+              code_verifier: config[:code_verifier],
+              nonce: config[:nonce],
+              cert_string: "invalid certificate"
+            )
+          end.to raise_error(OpenSSL::X509::CertificateError)
         end
       end
     end
