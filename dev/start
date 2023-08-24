@@ -238,6 +238,7 @@ setup_keycloak() {
   pushd "../ci"
   # CC servers can't find it for some reason.  Local shellcheck is fine.
   # shellcheck disable=SC1091
+  export COMPOSE="docker compose"
   source "oauth/keycloak/keycloak_functions.sh"
   popd
 
