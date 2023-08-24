@@ -110,6 +110,42 @@ module Authentication
             raise Errors::Authentication::OAuth::ProviderDiscoveryFailed.new(@authenticator.provider_uri, e.message)
           end
         end
+
+        # discover wraps ::OpenIDConnect::Discovery::Provider::Config.discover!
+        # with commands to write & clean up a certificate to & from the default
+        # Conjur container certificate store.
+        #
+        # The temporary certificate file name is "x.0", where x is the hash of
+        # the certificate subject name. If this file already exists in the
+        # default cert store, the original certificate is used.
+        #
+        # discover is a class method, because there are a few contexts outside
+        # this class where the underlying discover! method is used. Call it by
+        # running Authentication::AuthnOIDC::Client.discover(...).
+        def self.discover(
+          provider_uri:,
+          discovery_configuration: ::OpenIDConnect::Discovery::Provider::Config,
+          cert_dir: OpenSSL::X509::DEFAULT_CERT_DIR,
+          cert_string: nil
+        )
+          d = -> { discovery_configuration.discover!(provider_uri) }
+
+          return d.call if cert_string.blank?
+
+          cert = OpenSSL::X509::Certificate.new(cert_string)
+          symlink = File.join(cert_dir, "#{cert.subject.hash.to_s(16)}.0")
+          return d.call if File.exist?(symlink)
+
+          Dir.mktmpdir do |tmp_dir|
+            tmp_file = File.join(tmp_dir, 'ca.pem')
+            File.write(tmp_file, cert_string)
+            File.symlink(tmp_file, symlink)
+
+            d.call
+          ensure
+            File.unlink(symlink) if symlink.present? && File.symlink?(symlink)
+          end
+        end
       end
     end
   end
