@@ -186,6 +186,188 @@ RSpec.describe(Authentication::AuthnOidc::V2::Client) do
         end
       end
     end
+
+    describe '.discover', type: 'unit' do
+      let(:target) { Authentication::AuthnOidc::V2::Client }
+      let(:provider_uri) { "https://oidcprovider.com" }
+      let(:mock_discovery) { double("Mock Discovery Config") }
+      let(:mock_response) { "Mock Discovery Response" }
+
+      before(:each) do
+        @cert_dir = Dir.mktmpdir
+      end
+
+      after(:each) do
+        FileUtils.remove_entry @cert_dir
+      end
+
+      context 'when no cert is required' do
+        context 'when credentials are valid', vcr: "authenticators/authn-oidc/v2/#{config[:service_id]}/discovery_endpoint-valid_oidc_credentials" do
+          it 'endpoint return valid data' do
+            resp = target.discover(provider_uri: config[:provider_uri])
+
+            expect(resp.authorization_endpoint).to eq("https://#{config[:host]}#{config[:expected_authz]}")
+            expect(resp.token_endpoint).to eq("https://#{config[:host]}#{config[:expected_token]}")
+            expect(resp.userinfo_endpoint).to eq("https://#{config[:host]}#{config[:expected_userinfo]}")
+            expect(resp.jwks_uri).to eq("https://#{config[:host]}#{config[:expected_keys]}")
+          end
+        end
+
+        context 'when provider URI is invalid', vcr: "authenticators/authn-oidc/v2/#{config[:service_id]}/discovery_endpoint-invalid_oidc_provider" do
+          it 'raises an error' do
+            expect do
+              target.discover(provider_uri: "https://foo.bar.com")
+            end.to raise_error(
+              OpenIDConnect::Discovery::DiscoveryFailed
+            )
+          end
+        end
+      end
+
+      context 'when cert is not provided' do
+        it 'does not write the certificate' do
+          allow(mock_discovery).to receive(:discover!).with(String) do
+            expect(Dir.entries(@cert_dir).select do |entry|
+              entry unless [".", ".."].include?(entry)
+            end).to be_empty
+          end
+
+          target.discover(
+            provider_uri: provider_uri,
+            discovery_configuration: mock_discovery,
+            cert_dir: @cert_dir,
+            cert_string: ""
+          )
+        end
+
+        it 'returns the discovery response' do
+          allow(mock_discovery).to receive(:discover!).with(String).and_return(
+            mock_response
+          )
+
+          expect(target.discover(
+            provider_uri: provider_uri,
+            discovery_configuration: mock_discovery,
+            cert_dir: @cert_dir,
+            cert_string: ""
+          )).to eq(mock_response)
+        end
+      end
+
+      context 'when valid cert is provided' do
+        let(:cert) { <<~EOF
+          -----BEGIN CERTIFICATE-----
+          MIIDqzCCApOgAwIBAgIJAP9vSJDyPfQdMA0GCSqGSIb3DQEBCwUAMGwxCzAJBgNV
+          BAYTAlVTMRYwFAYDVQQIDA1NYXNzYWNodXNldHRzMQ8wDQYDVQQHDAZOZXd0b24x
+          ETAPBgNVBAoMCEN5YmVyQXJrMQ8wDQYDVQQLDAZDb25qdXIxEDAOBgNVBAMMB1Jv
+          b3QgQ0EwHhcNMjMwODIzMjIyMjU1WhcNMzExMTA5MjIyMjU1WjBsMQswCQYDVQQG
+          EwJVUzEWMBQGA1UECAwNTWFzc2FjaHVzZXR0czEPMA0GA1UEBwwGTmV3dG9uMREw
+          DwYDVQQKDAhDeWJlckFyazEPMA0GA1UECwwGQ29uanVyMRAwDgYDVQQDDAdSb290
+          IENBMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA7YPg2tpJYygd37RB
+          JQrAEnqtMctB01jSB4Snm3oQVz33z1OfLulTeJA56gwWN4OVm737zUJM1GET6fFC
+          ZIVsrhk8WsKeilnyE3FeVMmpbbteUt7DcTS2bpmk6p0MlaN8Y3EoDmVLKmcAoRXS
+          xLi8iOkClJPbpSbjQDg2ZnpyfEFBE+jhOWaFkgaSVt2tTUrAt3+F/3o6rRtsXplC
+          m2Fj/qK9x4Yw5sw098ztLNNomMCmhSD4ACn4jSZoq0HTH9QrZ9agXTpKkDOeAjMJ
+          O08T4XqW61o1YJRPjgIYqwtyCs5DHSzj4AmuYRSDRBgK/mIDDiQd9XL0VFW8CcKP
+          DnxSdQIDAQABo1AwTjAdBgNVHQ4EFgQU2/KbZMd7y7ZBfK884/4vB0AAg+AwHwYD
+          VR0jBBgwFoAU2/KbZMd7y7ZBfK884/4vB0AAg+AwDAYDVR0TBAUwAwEB/zANBgkq
+          hkiG9w0BAQsFAAOCAQEAr2UxJLH5j+3iez0mSwPY2m6QqK57mUWDzgMFHCtuohYT
+          saqhBXzsgHqFElw2WM2fQpeSxHqr0R1MrDz+qBg/tgFJ6AnVkW56v41oJb+kZsi/
+          fhk7OhU9MhOqG9Wlnptp4QiLCCuKeDUUfQCnu15peR9vxQt0cLlzmr8MQdTuMvb9
+          Vi7jey+Y5P04D8sqNP4BNUSRW8TwAKWkPJ4r3GybMsoCwqhb9+zAeYUj30TaxzKK
+          VSC0BRw+2QY8OllJPYIE3SCPK+v4SZp72KZ9ooSV+52ezmOCARuNWaNZKCbdPSme
+          DBHPd2jZXDVr5nrOEppAnma6VgmlRSN393j6GOiNIw==
+          -----END CERTIFICATE-----
+        EOF
+        }
+        let(:cert_subject_hash) { OpenSSL::X509::Certificate.new(cert).subject.hash.to_s(16) }
+        let(:symlink_path) { File.join(@cert_dir, "#{cert_subject_hash}.0") }
+
+        context 'when target symlink does not already exist' do
+          it 'writes the certificate to the specified directory' do
+            allow(mock_discovery).to receive(:discover!).with(String) do
+              expect(File.exist?(symlink_path)).to be true
+              expect(File.read(symlink_path)).to eq(cert)
+            end
+
+            target.discover(
+              provider_uri: provider_uri,
+              discovery_configuration: mock_discovery,
+              cert_dir: @cert_dir,
+              cert_string: cert
+            )
+          end
+
+          it 'cleans up the certificate after fetching discovery information' do
+            allow(mock_discovery).to receive(:discover!).with(String)
+
+            target.discover(
+              provider_uri: provider_uri,
+              discovery_configuration: mock_discovery,
+              cert_dir: @cert_dir,
+              cert_string: cert
+            )
+
+            expect(File.exist?(symlink_path)).to be false
+          end
+        end
+
+        context 'when target symlink already exists' do
+          before(:each) do
+            @tempfile = Tempfile.new("rspec.pem")
+            @tempfile.write("existing content")
+            @tempfile.flush
+            @tempfile.close
+            File.symlink(@tempfile, symlink_path)
+          end
+
+          after(:each) do
+            @tempfile.unlink
+            File.unlink(symlink_path)
+          end
+
+          it 'does not write the new certificate data to the specified directory' do
+            allow(mock_discovery).to receive(:discover!).with(String) do
+              expect(File.read(@tempfile.path)).to eq("existing content")
+            end
+
+            target.discover(
+              provider_uri: provider_uri,
+              discovery_configuration: mock_discovery,
+              cert_dir: @cert_dir,
+              cert_string: cert
+            )
+          end
+
+          it 'maintains the certificate after fetching discovery information' do
+            allow(mock_discovery).to receive(:discover!).with(String)
+
+            target.discover(
+              provider_uri: provider_uri,
+              discovery_configuration: mock_discovery,
+              cert_dir: @cert_dir,
+              cert_string: cert
+            )
+
+            expect(File.exist?(symlink_path)).to be true
+            expect(File.read(@tempfile.path)).to eq("existing content")
+          end
+        end
+      end
+
+      context 'when invalid cert is provided' do
+        it 'raises an error' do
+          expect do
+            target.discover(
+              provider_uri: provider_uri,
+              discovery_configuration: mock_discovery,
+              cert_dir: @cert_dir,
+              cert_string: "invalid certificate"
+            )
+          end.to raise_error(OpenSSL::X509::CertificateError)
+        end
+      end
+    end
   end
 
   describe 'OIDC client targeting Okta' do
