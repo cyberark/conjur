@@ -19,7 +19,7 @@ gem 'http', '~> 4.2.0'
 gem 'iso8601'
 gem 'jbuilder', '~> 2.7.0'
 gem 'nokogiri', '>= 1.8.2'
-gem 'puma', '~> 5.6'
+gem 'puma', '~> 6'
 gem 'rack', '~> 2.2'
 gem 'rails', '~> 6.1', '>= 6.1.4.6'
 gem 'rake'
@@ -101,7 +101,7 @@ group :development, :test do
   gem 'rspec'
   gem 'rspec-core'
   gem 'rspec-rails'
-  gem 'ruby-debug-ide'
+#  gem 'ruby-debug-ide'
 
   # We use a post-coverage hook to sleep covered processes until we're ready to
   # collect the coverage reports in CI. Because of this, we don't want bundler
