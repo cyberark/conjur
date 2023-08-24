@@ -33,12 +33,13 @@ COPY Gemfile \
 COPY gems/ gems/
 
 
-RUN bundle --without test development
+RUN bundle --without test development && \
+    # Remove private keys brought in by gems in their test data
+    find / -name openid_connect -type d -exec find {} -name '*.pem' -type f -delete \; && \
+    find / -name 'httpclient-*' -type d -exec find {} -name '*.key' -type f -delete \; && \
+    find / -name httpclient -type d -exec find {} -name '*.pem' -type f -delete \;
 
 COPY . .
-
-# removing CA bundle of httpclient gem
-RUN find / -name httpclient -type d -exec find {} -name *.pem -type f -delete \;
 
 RUN ln -sf /opt/conjur-server/bin/conjurctl /usr/local/bin/
 
