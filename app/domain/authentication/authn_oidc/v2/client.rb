@@ -97,6 +97,46 @@ module Authentication
           decoded_id_token
         end
 
+
+        # callback_with_temporary_cert wraps the callback method with commands
+        # to write & clean up a certificate to & from Conjur's default
+        # certificate store.
+        #
+        # The temporary certificate file name is "x.0", where x is the hash of
+        # the certificate subject name. If this file already exists in the
+        # default cert store, the original certificate is used.
+        #
+        # Unlike self.discover, which wraps a single ::OpenIDConnect method,
+        # callback_with_temporary_cert wraps the entire callback method, which
+        # includes multiple calls to the OIDC provider, including at least one
+        # discover! call. The temporary certs will apply to all required
+        # operations.
+        def callback_with_temporary_cert(
+          code:,
+          nonce:,
+          code_verifier: nil,
+          cert_dir: OpenSSL::X509::DEFAULT_CERT_DIR,
+          cert_string: nil
+        )
+          c = -> { callback(code: code, nonce: nonce, code_verifier: code_verifier) }
+
+          return c.call if cert_string.blank?
+
+          cert = OpenSSL::X509::Certificate.new(cert_string)
+          symlink = File.join(cert_dir, "#{cert.subject.hash.to_s(16)}.0")
+          return c.call if File.exist?(symlink)
+
+          Dir.mktmpdir do |tmp_dir|
+            tmp_file = File.join(tmp_dir, 'ca.pem')
+            File.write(tmp_file, cert_string)
+            File.symlink(tmp_file, symlink)
+
+            c.call
+          ensure
+            File.unlink(symlink) if symlink.present? && File.symlink?(symlink)
+          end
+        end
+
         def discovery_information(invalidate: false)
           @cache.fetch(
             "#{@authenticator.account}/#{@authenticator.service_id}/#{URI::Parser.new.escape(@authenticator.provider_uri)}",
