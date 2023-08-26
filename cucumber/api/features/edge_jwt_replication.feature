@@ -88,6 +88,7 @@ Feature: Replicate jwt authenticators from edge endpoint
     When I GET "/edge/authenticators/cucumber?kind=authn-jwt"
     Then the HTTP response status code is 500
 
+    # todo : see why it is not returned 422 status
   @acceptance
   Scenario: Fetching authenticators with invalid kind and return 422
     Given I login as "host/edge/edge-abcd1234567890/edge-host-abcd1234567890"

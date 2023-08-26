@@ -39,6 +39,7 @@ class EdgeAuthenticatorsController < RestController
       begin
         response.set_header("Content-Encoding", "base64")
         logger.info(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("all-authenticators"))
+        # todo : encode the all returned scope with base64
         render(json: scope)
       rescue => e
         raise e
