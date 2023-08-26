@@ -50,6 +50,12 @@ module LogMessages
       msg: "{0} endpoint is finished successfully with {1}-limit {2}-offset",
       code: "CONJ00155I"
     )
+
+    EndpointFinishedSuccessfullyWithCount = ::Util::TrackableLogMessageClass.new(
+      msg: "{0} endpoint is finished successfully with {1}-count",
+      code: "CONJ00157I"
+    )
+
   end
 
   module Edge
