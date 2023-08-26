@@ -19,7 +19,13 @@ class EdgeAuthenticatorsController < RestController
       kinds = options[:kind].split(',')
       scope = get_authenticators_data(kinds)
       if params[:count] == 'true'
-        sumItems = scope.count('*'.lit)
+        sumItems={}
+        scope.each do |key, value|
+          sumItems[:key]=scope[:value].count('*'.lit)
+        end
+        results = { count: sumItems }
+        logger.info(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("all-authenticators:count"))
+        render(json: results)
       else
         verify_header(request)
       end
@@ -31,19 +37,13 @@ class EdgeAuthenticatorsController < RestController
       raise ApplicationController::InternalServerError, e.message
     end
 
-    if params[:count] == 'true'
-      results = { count: sumItems }
-      logger.info(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("all-authenticators:count"))
-      render(json: results)
-    else
-      begin
-        response.set_header("Content-Encoding", "base64")
-        logger.info(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("all-authenticators"))
-        # todo : encode the all returned scope with base64
-        render(json: scope)
-      rescue => e
-        raise e
-      end
+    begin
+      response.set_header("Content-Encoding", "base64")
+      logger.info(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("all-authenticators"))
+      # todo : encode the all returned scope with base64
+      render(json: scope)
+    rescue => e
+      raise ApplicationController::InternalServerError, e.message
     end
 
   end
