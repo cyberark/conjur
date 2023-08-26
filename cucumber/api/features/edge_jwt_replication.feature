@@ -91,3 +91,14 @@ Feature: Replicate jwt authenticators from edge endpoint
     Given I login as "host/edge/edge-abcd1234567890/edge-host-abcd1234567890"
     When I GET "/edge/authenticators/cucumber?kind=authn-jwt"
     Then the HTTP response status code is 500
+
+  @acceptance
+  Scenario: Fetching all authenticators with edge host and Accept-Encoding base64 header return 200 OK and json result
+    Given I login as "host/edge/edge-abcd1234567890/edge-host-abcd1234567890"
+    And I set the "Accept-Encoding" header to "base64"
+    When I successfully GET "/edge/authenticators/cucumber?kind=authn-jwt"
+    Then the HTTP response status code is 200
+    And the JSON should be:
+    """
+    {"authn-jwt":[]}
+    """
