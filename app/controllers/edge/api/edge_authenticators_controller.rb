@@ -1,3 +1,5 @@
+require_relative '../../../domain/edge_logic/replication/authenticators_replicator'
+
 class EdgeAuthenticatorsController < RestController
   include AccountValidator
   include BodyParser
@@ -5,7 +7,7 @@ class EdgeAuthenticatorsController < RestController
   include EdgeValidator
   include ExtractEdgeResources
   include GroupMembershipValidator
-
+  include AuthenticatorsReplicator
   def all_authenticators
     logger.info(LogMessages::Endpoints::EndpointRequested.new("all-authenticators"))
     allowed_params = %i[account kind limit offset count]
@@ -27,10 +29,14 @@ class EdgeAuthenticatorsController < RestController
     unless accepts_base64
       raise InternalServerError , "the header request must contain base64 accept-encoding"
     end
+
     response.set_header("Content-Encoding", "base64")
 
-    return_json = {}
-    kinds.each { |str| return_json[str] = [] }
+    begin
+      return_json = get_authenticators_data(kinds)
+    rescue => e
+      raise e
+    end
 
     logger.info(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("all-authenticators"))
     render(json: return_json)
