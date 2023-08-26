@@ -19,12 +19,13 @@ class EdgeAuthenticatorsController < RestController
       kinds = options[:kind].split(',')
       scope = get_authenticators_data(kinds)
       if params[:count] == 'true'
+        count=params[:count]
         sumItems={}
         scope.each do |key, value|
           sumItems[:key]=scope[:value].count('*'.lit)
         end
         results = { count: sumItems }
-        logger.info(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("all-authenticators:count"))
+        logger.info(LogMessages::Endpoints::EndpointFinishedSuccessfullyWithCount.new("all-authenticators", count))
         render(json: results)
       else
         verify_header(request)
