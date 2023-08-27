@@ -28,6 +28,11 @@ module LogMessages
       msg: "Slosilo key is rotated successfully",
       code: "CONJ00156I"
     )
+
+    GeneralError = ::Util::TrackableErrorClass.new(
+      msg: "Unexpected error occurred: {0}",
+      code: "CONJ00163E"
+    )
   end
 
   module Endpoints
@@ -782,15 +787,15 @@ module LogMessages
     end
   end
   
-  module Platforms
+  module Issuers
 
-    PlatformPolicyNotFound = ::Util::TrackableErrorClass.new(
-      msg: "The policy of platform {0} was not found",
+    IssuerPolicyNotFound = ::Util::TrackableErrorClass.new(
+      msg: "The policy of issuer {0} was not found",
       code: "CONJ00158E"
     )
 
-    PlatformEndpointForbidden = ::Util::TrackableErrorClass.new(
-      msg: "Action {0} is not allowed on the platforms endpoint",
+    IssuerEndpointForbidden = ::Util::TrackableErrorClass.new(
+      msg: "Action {0} is not allowed on the issuers endpoint",
       code: "CONJ00159E"
     )
     
@@ -799,7 +804,7 @@ module LogMessages
   module Secrets
 
     EphemeralSecretRequest = ::Util::TrackableLogMessageClass.new(
-      msg: "Received an ephemeral secret request. Platform ID [{0}], platform type [{1}], ephemeral method [{2}], Request ID [{3}]",
+      msg: "Received an ephemeral secret request. Issuer ID [{0}], issuer type [{1}], ephemeral method [{2}], Request ID [{3}]",
       code: "CONJ00160I"
     )
 

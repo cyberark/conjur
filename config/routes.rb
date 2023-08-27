@@ -88,10 +88,10 @@ Rails.application.routes.draw do
       post    "/edge/data/:account"                 => 'edge_handler#report_edge_data', :constraints => QueryParameterActionRecognizer.new("data_type")
       get     "/edge/slosilo_keys/:account"         => 'edge_slosilo_keys#slosilo_keys'
 
-      post    "/platforms/:account"             => 'platforms#create'
-      delete  "/platforms/:account/:identifier" => 'platforms#delete'
-      get     "/platforms/:account/:identifier" => 'platforms#get'
-      get     "/platforms/:account"             => 'platforms#list'
+      post    "/issuers/:account"             => 'issuers#create'
+      delete  "/issuers/:account/:identifier" => 'issuers#delete'
+      get     "/issuers/:account/:identifier" => 'issuers#get'
+      get     "/issuers/:account"             => 'issuers#list'
 
       put     "/policies/:account/:kind/*identifier" => 'policies#put'
       patch   "/policies/:account/:kind/*identifier" => 'policies#patch'
