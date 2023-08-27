@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require 'spec_helper'
 
-describe FindPlatformResource do
+describe FindIssuerResource do
   context "when resource cannot be found" do
     let(:resource) { nil }
     describe '#resource' do
@@ -21,7 +21,7 @@ describe FindPlatformResource do
 
   # Test controller class
   class Controller
-    include FindPlatformResource
+    include FindIssuerResource
   end
 
   subject(:controller) { Controller.new }
