@@ -179,12 +179,12 @@ class SecretsController < RestController
       variable_data[issuer_param] = annotation.value
     end
 
-    issuer = Issuer.where(account: account, issuer_id: variable_data["id"]).first
+    issuer = Issuer.first(account: account, issuer_id: variable_data["issuer"])
 
     # There shouldn't be a state where a variable belongs to an issuer that doesn't exit, but we check it to be safe
     raise ApplicationController::InternalServerError, "Issuer assigned to #{account}:#{params[:kind]}:#{params[:identifier]} was not found" unless issuer
 
-    logger.info(LogMessages::Secrets::EphemeralSecretRequest.new(variable_data["id"], issuer.issuer_type, variable_data["method"], request_id))
+    logger.info(LogMessages::Secrets::EphemeralSecretRequest.new(variable_data["issuer"], issuer.issuer_type, variable_data["method"], request_id))
 
     issuer_data = {
       max_ttl: issuer.max_ttl,
