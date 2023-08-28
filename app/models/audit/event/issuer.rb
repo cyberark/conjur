@@ -2,7 +2,7 @@ module Audit
   module Event
     # NOTE: Breaking this class up further would harm clarity.
     # :reek:TooManyInstanceVariables and :reek:TooManyParameters
-    class Platform
+    class Issuer
 
       attr_reader :message_id
 
@@ -52,14 +52,15 @@ module Audit
       def message
         if @operation == "list"
           attempted_action.message(
-            success_msg: "#{@user_id} listed platforms #{@subject[:account]}:platform:#{@subject[:platform]}",
-            failure_msg: "#{@user_id} tried to list platforms #{@subject[:account]}:platform:#{@subject[:platform]}",
+            success_msg: "#{@user_id} listed issuers #{@subject[:account]}:issuer:#{@subject[:issuer]}",
+            failure_msg: "#{@user_id} tried to list issuers #{@subject[:account]}:issuer:#{@subject[:issuer]}",
             error_msg: @error_message
           )
         else
+          past_tense_verb = "#{@operation.to_s.chomp('e')}ed"
           attempted_action.message(
-            success_msg: "#{@user_id} performed #{@operation} on platform #{@subject[:account]}:platform:#{@subject[:platform]}",
-            failure_msg: "#{@user_id} tried to #{@operation} platform #{@subject[:account]}:platform:#{@subject[:platform]}",
+            success_msg: "#{@user_id} #{past_tense_verb} #{@subject[:account]}:issuer:#{@subject[:issuer]}",
+            failure_msg: "#{@user_id} tried to #{@operation} #{@subject[:account]}:issuer:#{@subject[:issuer]}",
             error_msg: @error_message
           )
         end

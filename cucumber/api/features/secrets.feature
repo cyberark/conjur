@@ -223,7 +223,7 @@ Feature: Adding and fetching secrets
   Scenario: Fail on permissions first when trying to update an ephemeral secret value without permissions
 
     Given I create a new "variable" resource called "ephemeral"
-    And I set annotation "platform/id" to "my-platform"
+    And I set annotation "ephemeral/issuer" to "my-issuer"
     When I am a user named "alice"
     And I POST "/secrets/cucumber/variable/ephemeral" with body:
     """
@@ -239,15 +239,3 @@ Feature: Adding and fetching secrets
     Given I create a new "variable" resource called "data/ephemerals/ephemeral"
     When I GET "/secrets/cucumber/variable/data/ephemerals/ephemeral"
     Then the HTTP response status code is 500
-
-  @acceptance
-  Scenario: Succeed to retrieve a secret with a platform ID that's outside the expected policy
-
-    Given I create a new "variable" resource called "data/ephemeral"
-    And I set annotation "platform/id" to "my-platform"
-    And I POST "/secrets/cucumber/variable/data/ephemeral" with body:
-    """
-    v-1
-    """
-    When I GET "/secrets/cucumber/variable/data/ephemeral"
-    Then the HTTP response status code is 200
