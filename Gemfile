@@ -62,6 +62,9 @@ gem 'net-ldap'
 # for AWS rotator
 gem 'aws-sdk-iam', require: false
 
+# we need this version since any newer introduces braking change that causes issues with safe_yaml: https://github.com/ruby/psych/discussions/571
+gem 'psych', '=3.3.2'
+
 group :production do
   gem 'rails_12factor'
 end
@@ -90,6 +93,7 @@ group :development, :test do
   gem 'cucumber', '~> 7.1'
   gem 'database_cleaner', '~> 1.8'
   gem 'debase', '~> 0.2.5.beta2'
+  gem 'debase-ruby_core_source', '~> 3.2.1'
   gem 'json_spec', '~> 1.1'
   gem 'faye-websocket'
   gem 'net-ssh'
@@ -103,7 +107,7 @@ group :development, :test do
   gem 'rspec'
   gem 'rspec-core'
   gem 'rspec-rails'
-  gem 'ruby-debug-ide'
+  # gem 'ruby-debug-ide'
 
   # We use a post-coverage hook to sleep covered processes until we're ready to
   # collect the coverage reports in CI. Because of this, we don't want bundler
