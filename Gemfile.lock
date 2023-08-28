@@ -176,7 +176,7 @@ GEM
     date (3.3.3)
     debase (0.2.5.beta2)
       debase-ruby_core_source (>= 0.10.12)
-    debase-ruby_core_source (0.10.13)
+    debase-ruby_core_source (3.2.1)
     deep_merge (1.2.2)
     diff-lcs (1.4.4)
     docile (1.4.0)
@@ -342,6 +342,7 @@ GEM
       pry (~> 0.13.0)
     pry-rails (0.3.9)
       pry (>= 0.10.4)
+    psych (3.3.2)
     public_suffix (5.0.1)
     puma (6.3.1)
       nio4r (~> 2.0)
@@ -444,8 +445,6 @@ GEM
       unicode-display_width (~> 1.0, >= 1.0.1)
     rubocop-checkstyle_formatter (0.4.0)
       rubocop (>= 0.35.1)
-    ruby-debug-ide (0.7.3)
-      rake (>= 0.8.1)
     ruby-next-core (0.14.0)
     ruby-progressbar (1.11.0)
     ruby2_keywords (0.0.5)
@@ -544,6 +543,7 @@ DEPENDENCIES
   cucumber (~> 7.1)
   database_cleaner (~> 1.8)
   debase (~> 0.2.5.beta2)
+  debase-ruby_core_source (~> 3.2.1)
   dry-struct
   dry-types
   event_emitter
@@ -571,6 +571,7 @@ DEPENDENCIES
   prometheus-client
   pry-byebug
   pry-rails
+  psych (= 3.3.2)
   puma (~> 6)
   rack (~> 2.2)
   rack-rewrite
@@ -587,7 +588,6 @@ DEPENDENCIES
   rspec-rails
   rubocop (~> 0.58.0)
   rubocop-checkstyle_formatter
-  ruby-debug-ide
   sequel
   sequel-pg_advisory_locking
   sequel-postgres-schemata
