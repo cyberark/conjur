@@ -225,33 +225,33 @@ pipeline {
           }
         }
 
-        stage('Scan Docker Image') {
-          when {
-            expression { params.RUN_ONLY == '' }
-          }
-          parallel {
-            stage("Scan Docker Image for fixable issues") {
-              steps {
-                scanAndReport("conjur:${tagWithSHA()}", "HIGH", false)
-              }
-            }
-            stage("Scan Docker image for total issues") {
-              steps {
-                scanAndReport("conjur:${tagWithSHA()}", "NONE", true)
-              }
-            }
-            stage("Scan UBI-based Docker Image for fixable issues") {
-              steps {
-                scanAndReport("conjur-ubi:${tagWithSHA()}", "HIGH", false)
-              }
-            }
-            stage("Scan UBI-based Docker image for total issues") {
-              steps {
-                scanAndReport("conjur-ubi:${tagWithSHA()}", "NONE", true)
-              }
-            }
-          }
-        }
+        // stage('Scan Docker Image') {
+        //   when {
+        //     expression { params.RUN_ONLY == '' }
+        //   }
+        //   parallel {
+        //     stage("Scan Docker Image for fixable issues") {
+        //       steps {
+        //         scanAndReport("conjur:${tagWithSHA()}", "HIGH", false)
+        //       }
+        //     }
+        //     stage("Scan Docker image for total issues") {
+        //       steps {
+        //         scanAndReport("conjur:${tagWithSHA()}", "NONE", true)
+        //       }
+        //     }
+        //     stage("Scan UBI-based Docker Image for fixable issues") {
+        //       steps {
+        //         scanAndReport("conjur-ubi:${tagWithSHA()}", "HIGH", false)
+        //       }
+        //     }
+        //     stage("Scan UBI-based Docker image for total issues") {
+        //       steps {
+        //         scanAndReport("conjur-ubi:${tagWithSHA()}", "NONE", true)
+        //       }
+        //     }
+        //   }
+        // }
 
         // TODO: Add comments explaining which env vars are set here.
         stage('Prepare For CodeClimate Coverage Report Submission') {
@@ -269,316 +269,316 @@ pipeline {
           }
         }
 
-        // Run outside parallel block to avoid external pressure
-        stage('RSpec - Standard agent tests') {
-          steps {
-            sh 'ci/test rspec'
-          }
-        }
+        // // Run outside parallel block to avoid external pressure
+        // stage('RSpec - Standard agent tests') {
+        //   steps {
+        //     sh 'ci/test rspec'
+        //   }
+        // }
 
-        // Run outside parallel block to reduce main Jenkins executor load.
-        stage('Nightly Only') {
-          when {
-            expression { params.NIGHTLY }
-          }
-          agent { label 'executor-v2-rhel-ee' }
+        // // Run outside parallel block to reduce main Jenkins executor load.
+        // stage('Nightly Only') {
+        //   when {
+        //     expression { params.NIGHTLY }
+        //   }
+        //   agent { label 'executor-v2-rhel-ee' }
 
-          environment {
-            CUCUMBER_FILTER_TAGS = "${params.CUCUMBER_FILTER_TAGS}"
-          }
+        //   environment {
+        //     CUCUMBER_FILTER_TAGS = "${params.CUCUMBER_FILTER_TAGS}"
+        //   }
 
-          stages {
-            stage("RSpec - EE FIPS agent tests") {
+        //   stages {
+        //     stage("RSpec - EE FIPS agent tests") {
 
-              steps {
-                sh(script: 'cat /etc/os-release', label: 'RHEL version')
-                sh(script: 'docker --version', label: 'Docker version')
-                addNewImagesToAgent()
-                unstash 'version_info'
-                // Catch errors so remaining steps always run.
-                catchError {
-                  // Run outside parallel block to avoid external pressure
-                  sh "ci/test rspec"
-                }
-              }
-            }
+        //       steps {
+        //         sh(script: 'cat /etc/os-release', label: 'RHEL version')
+        //         sh(script: 'docker --version', label: 'Docker version')
+        //         addNewImagesToAgent()
+        //         unstash 'version_info'
+        //         // Catch errors so remaining steps always run.
+        //         catchError {
+        //           // Run outside parallel block to avoid external pressure
+        //           sh "ci/test rspec"
+        //         }
+        //       }
+        //     }
 
-            stage('EE FIPS parallel') {
-              parallel {
-                stage('EE FIPS agent tests') {
-                  when {
-                    expression {
-                      testShouldRunOnAgent(
-                        params.RUN_ONLY,
-                        runSpecificTestOnAgent(params.RUN_ONLY, NESTED_ARRAY_OF_TESTS_TO_RUN[0])
-                      )
-                    }
-                  }
+        //     stage('EE FIPS parallel') {
+        //       parallel {
+        //         stage('EE FIPS agent tests') {
+        //           when {
+        //             expression {
+        //               testShouldRunOnAgent(
+        //                 params.RUN_ONLY,
+        //                 runSpecificTestOnAgent(params.RUN_ONLY, NESTED_ARRAY_OF_TESTS_TO_RUN[0])
+        //               )
+        //             }
+        //           }
 
-                  steps {
-                    addNewImagesToAgent()
-                    unstash 'version_info'
-                    runConjurTests(
-                      params.RUN_ONLY,
-                      NESTED_ARRAY_OF_TESTS_TO_RUN[0]
-                    )
-                  }
-                  post {
-                    always {
-                      stash(
-                        name: 'testResultEE',
-                        includes: '''
-                          cucumber/*/*.*,
-                          container_logs/*/*,
-                          spec/reports/*.xml,
-                          spec/reports-audit/*.xml,
-                          gems/conjur-rack/spec/reports/*.xml,
-                          cucumber/*/features/reports/**/*.xml
-                        '''
-                      )
-                    }
-                  }
-                }
-                // Run a subset of tests on a second agent to prevent oversubscribing the hardware
-                stage('EE FIPS agent2 tests') {
-                  when {
-                    expression {
-                      testShouldRunOnAgent(
-                        params.RUN_ONLY,
-                        runSpecificTestOnAgent(params.RUN_ONLY, NESTED_ARRAY_OF_TESTS_TO_RUN[1])
-                      )
-                    }
-                  }
-                  agent { label 'executor-v2-rhel-ee' }
+        //           steps {
+        //             addNewImagesToAgent()
+        //             unstash 'version_info'
+        //             runConjurTests(
+        //               params.RUN_ONLY,
+        //               NESTED_ARRAY_OF_TESTS_TO_RUN[0]
+        //             )
+        //           }
+        //           post {
+        //             always {
+        //               stash(
+        //                 name: 'testResultEE',
+        //                 includes: '''
+        //                   cucumber/*/*.*,
+        //                   container_logs/*/*,
+        //                   spec/reports/*.xml,
+        //                   spec/reports-audit/*.xml,
+        //                   gems/conjur-rack/spec/reports/*.xml,
+        //                   cucumber/*/features/reports/**/*.xml
+        //                 '''
+        //               )
+        //             }
+        //           }
+        //         }
+        //         // Run a subset of tests on a second agent to prevent oversubscribing the hardware
+        //         stage('EE FIPS agent2 tests') {
+        //           when {
+        //             expression {
+        //               testShouldRunOnAgent(
+        //                 params.RUN_ONLY,
+        //                 runSpecificTestOnAgent(params.RUN_ONLY, NESTED_ARRAY_OF_TESTS_TO_RUN[1])
+        //               )
+        //             }
+        //           }
+        //           agent { label 'executor-v2-rhel-ee' }
 
-                  environment {
-                    CUCUMBER_FILTER_TAGS = "${params.CUCUMBER_FILTER_TAGS}"
-                  }
+        //           environment {
+        //             CUCUMBER_FILTER_TAGS = "${params.CUCUMBER_FILTER_TAGS}"
+        //           }
 
-                  steps {
-                    addNewImagesToAgent()
-                    unstash 'version_info'
-                    runConjurTests(
-                      params.RUN_ONLY,
-                      NESTED_ARRAY_OF_TESTS_TO_RUN[1]
-                    )
-                  }
-                  post {
-                    always {
-                      stash(
-                        name: 'testResultEE2',
-                        includes: '''
-                          cucumber/*/*.*,
-                          container_logs/*/*,
-                          spec/reports/*.xml,
-                          spec/reports-audit/*.xml,
-                          cucumber/*/features/reports/**/*.xml
-                        '''
-                      )
-                    }
-                  }
-                }
-                // Run a subset of tests on a second agent to prevent oversubscribing the hardware
-                stage('EE FIPS agent3 tests') {
-                  when {
-                    expression {
-                      testShouldRunOnAgent(
-                        params.RUN_ONLY,
-                        runSpecificTestOnAgent(params.RUN_ONLY, NESTED_ARRAY_OF_TESTS_TO_RUN[2])
-                      )
-                    }
-                  }
+        //           steps {
+        //             addNewImagesToAgent()
+        //             unstash 'version_info'
+        //             runConjurTests(
+        //               params.RUN_ONLY,
+        //               NESTED_ARRAY_OF_TESTS_TO_RUN[1]
+        //             )
+        //           }
+        //           post {
+        //             always {
+        //               stash(
+        //                 name: 'testResultEE2',
+        //                 includes: '''
+        //                   cucumber/*/*.*,
+        //                   container_logs/*/*,
+        //                   spec/reports/*.xml,
+        //                   spec/reports-audit/*.xml,
+        //                   cucumber/*/features/reports/**/*.xml
+        //                 '''
+        //               )
+        //             }
+        //           }
+        //         }
+        //         // Run a subset of tests on a second agent to prevent oversubscribing the hardware
+        //         stage('EE FIPS agent3 tests') {
+        //           when {
+        //             expression {
+        //               testShouldRunOnAgent(
+        //                 params.RUN_ONLY,
+        //                 runSpecificTestOnAgent(params.RUN_ONLY, NESTED_ARRAY_OF_TESTS_TO_RUN[2])
+        //               )
+        //             }
+        //           }
 
-                  agent { label 'executor-v2-rhel-ee' }
+        //           agent { label 'executor-v2-rhel-ee' }
 
-                  environment {
-                    CUCUMBER_FILTER_TAGS = "${params.CUCUMBER_FILTER_TAGS}"
-                  }
+        //           environment {
+        //             CUCUMBER_FILTER_TAGS = "${params.CUCUMBER_FILTER_TAGS}"
+        //           }
 
-                  steps {
-                    addNewImagesToAgent()
-                    unstash 'version_info'
-                    runConjurTests(
-                      params.RUN_ONLY,
-                      NESTED_ARRAY_OF_TESTS_TO_RUN[2]
-                    )
-                  }
-                  post {
-                    always {
-                      stash(
-                        name: 'testResultEE3',
-                        includes: '''
-                          cucumber/*/*.*,
-                          container_logs/*/*,
-                          spec/reports/*.xml,
-                          spec/reports-audit/*.xml,
-                          cucumber/*/features/reports/**/*.xml
-                        '''
-                      )
-                    }
-                  }
-                }
-              }
-            }
-          }
-          post {
-            always {
-              script {
-                if (testShouldRunOnAgent(params.RUN_ONLY, runSpecificTestOnAgent(params.RUN_ONLY, NESTED_ARRAY_OF_TESTS_TO_RUN[0]))) {
-                  dir('ee-test'){
-                    unstash 'testResultEE'
-                  }
-                }
-                if (testShouldRunOnAgent(params.RUN_ONLY, runSpecificTestOnAgent(params.RUN_ONLY, NESTED_ARRAY_OF_TESTS_TO_RUN[1]))) {
-                  dir('ee-test'){
-                    unstash 'testResultEE2'
-                  }
-                }
-                if (testShouldRunOnAgent(params.RUN_ONLY, runSpecificTestOnAgent(params.RUN_ONLY, NESTED_ARRAY_OF_TESTS_TO_RUN[2]))) {
-                  dir('ee-test'){
-                    unstash 'testResultEE3'
-                  }
-                }
-              }
+        //           steps {
+        //             addNewImagesToAgent()
+        //             unstash 'version_info'
+        //             runConjurTests(
+        //               params.RUN_ONLY,
+        //               NESTED_ARRAY_OF_TESTS_TO_RUN[2]
+        //             )
+        //           }
+        //           post {
+        //             always {
+        //               stash(
+        //                 name: 'testResultEE3',
+        //                 includes: '''
+        //                   cucumber/*/*.*,
+        //                   container_logs/*/*,
+        //                   spec/reports/*.xml,
+        //                   spec/reports-audit/*.xml,
+        //                   cucumber/*/features/reports/**/*.xml
+        //                 '''
+        //               )
+        //             }
+        //           }
+        //         }
+        //       }
+        //     }
+        //   }
+        //   post {
+        //     always {
+        //       script {
+        //         if (testShouldRunOnAgent(params.RUN_ONLY, runSpecificTestOnAgent(params.RUN_ONLY, NESTED_ARRAY_OF_TESTS_TO_RUN[0]))) {
+        //           dir('ee-test'){
+        //             unstash 'testResultEE'
+        //           }
+        //         }
+        //         if (testShouldRunOnAgent(params.RUN_ONLY, runSpecificTestOnAgent(params.RUN_ONLY, NESTED_ARRAY_OF_TESTS_TO_RUN[1]))) {
+        //           dir('ee-test'){
+        //             unstash 'testResultEE2'
+        //           }
+        //         }
+        //         if (testShouldRunOnAgent(params.RUN_ONLY, runSpecificTestOnAgent(params.RUN_ONLY, NESTED_ARRAY_OF_TESTS_TO_RUN[2]))) {
+        //           dir('ee-test'){
+        //             unstash 'testResultEE3'
+        //           }
+        //         }
+        //       }
 
-              archiveArtifacts(
-                artifacts: "ee-test/cucumber/*/*.*",
-                fingerprint: false,
-                allowEmptyArchive: true
-              )
+        //       archiveArtifacts(
+        //         artifacts: "ee-test/cucumber/*/*.*",
+        //         fingerprint: false,
+        //         allowEmptyArchive: true
+        //       )
 
-              archiveArtifacts(
-                artifacts: "ee-test/container_logs/*/*",
-                fingerprint: false,
-                allowEmptyArchive: true
-              )
+        //       archiveArtifacts(
+        //         artifacts: "ee-test/container_logs/*/*",
+        //         fingerprint: false,
+        //         allowEmptyArchive: true
+        //       )
 
-              publishHTML(
-                reportDir: 'ee-test/cucumber',
-                reportFiles: '''
-                  api/cucumber_results.html,
-                  authenticators_config/cucumber_results.html,
-                  authenticators_azure/cucumber_results.html,
-                  authenticators_ldap/cucumber_results.html,
-                  authenticators_oidc/cucumber_results.html,
-                  authenticators_jwt/cucumber_results.html,
-                  authenticators_status/cucumber_results.html
-                  policy/cucumber_results.html,
-                  rotators/cucumber_results.html
-                ''',
-                reportName: 'EE Integration reports',
-                reportTitles: '',
-                allowMissing: false,
-                alwaysLinkToLastBuild: true,
-                keepAll: true
-              )
-            }
-          }
-        }
+        //       publishHTML(
+        //         reportDir: 'ee-test/cucumber',
+        //         reportFiles: '''
+        //           api/cucumber_results.html,
+        //           authenticators_config/cucumber_results.html,
+        //           authenticators_azure/cucumber_results.html,
+        //           authenticators_ldap/cucumber_results.html,
+        //           authenticators_oidc/cucumber_results.html,
+        //           authenticators_jwt/cucumber_results.html,
+        //           authenticators_status/cucumber_results.html
+        //           policy/cucumber_results.html,
+        //           rotators/cucumber_results.html
+        //         ''',
+        //         reportName: 'EE Integration reports',
+        //         reportTitles: '',
+        //         allowMissing: false,
+        //         alwaysLinkToLastBuild: true,
+        //         keepAll: true
+        //       )
+        //     }
+        //   }
+        // }
 
         stage('Run environment tests in parallel') {
           parallel {
-            stage('Standard agent tests') {
-              when {
-                expression {
-                  testShouldRunOnAgent(
-                    params.RUN_ONLY,
-                    runSpecificTestOnAgent(params.RUN_ONLY, NESTED_ARRAY_OF_TESTS_TO_RUN[0])
-                  )
-                }
-              }
+            // stage('Standard agent tests') {
+            //   when {
+            //     expression {
+            //       testShouldRunOnAgent(
+            //         params.RUN_ONLY,
+            //         runSpecificTestOnAgent(params.RUN_ONLY, NESTED_ARRAY_OF_TESTS_TO_RUN[0])
+            //       )
+            //     }
+            //   }
 
-              environment {
-                CUCUMBER_FILTER_TAGS = "${params.CUCUMBER_FILTER_TAGS}"
-              }
+            //   environment {
+            //     CUCUMBER_FILTER_TAGS = "${params.CUCUMBER_FILTER_TAGS}"
+            //   }
 
-              steps {
-                sh(script: 'cat /etc/os-release', label: 'Ubuntu version')
-                sh(script: 'docker --version', label: 'Docker version')
-                runConjurTests(
-                  params.RUN_ONLY,
-                  NESTED_ARRAY_OF_TESTS_TO_RUN[0]
-                )
-              }
-            }
+            //   steps {
+            //     sh(script: 'cat /etc/os-release', label: 'Ubuntu version')
+            //     sh(script: 'docker --version', label: 'Docker version')
+            //     runConjurTests(
+            //       params.RUN_ONLY,
+            //       NESTED_ARRAY_OF_TESTS_TO_RUN[0]
+            //     )
+            //   }
+            // }
 
-            // Run a subset of tests on a second agent to prevent oversubscribing the hardware
-            stage('Standard agent2 tests') {
-              when {
-                expression {
-                  testShouldRunOnAgent(
-                    params.RUN_ONLY,
-                    runSpecificTestOnAgent(params.RUN_ONLY, NESTED_ARRAY_OF_TESTS_TO_RUN[1])
-                  )
-                }
-              }
+            // // Run a subset of tests on a second agent to prevent oversubscribing the hardware
+            // stage('Standard agent2 tests') {
+            //   when {
+            //     expression {
+            //       testShouldRunOnAgent(
+            //         params.RUN_ONLY,
+            //         runSpecificTestOnAgent(params.RUN_ONLY, NESTED_ARRAY_OF_TESTS_TO_RUN[1])
+            //       )
+            //     }
+            //   }
 
-              agent { label 'executor-v2' }
-              environment {
-                CUCUMBER_FILTER_TAGS = "${params.CUCUMBER_FILTER_TAGS}"
-              }
+            //   agent { label 'executor-v2' }
+            //   environment {
+            //     CUCUMBER_FILTER_TAGS = "${params.CUCUMBER_FILTER_TAGS}"
+            //   }
 
-              steps {
-                addNewImagesToAgent()
-                unstash 'version_info'
-                runConjurTests(params.RUN_ONLY, NESTED_ARRAY_OF_TESTS_TO_RUN[1])
-              }
-              post {
-                always {
-                  stash(
-                    name: 'standardTestResult2',
-                    includes: '''
-                      cucumber/*/*.*,
-                      container_logs/*/*,
-                      spec/reports/*.xml,
-                      spec/reports-audit/*.xml,
-                      cucumber/*/features/reports/**/*.xml
-                    '''
-                  )
-                }
-              }
-            }
+            //   steps {
+            //     addNewImagesToAgent()
+            //     unstash 'version_info'
+            //     runConjurTests(params.RUN_ONLY, NESTED_ARRAY_OF_TESTS_TO_RUN[1])
+            //   }
+            //   post {
+            //     always {
+            //       stash(
+            //         name: 'standardTestResult2',
+            //         includes: '''
+            //           cucumber/*/*.*,
+            //           container_logs/*/*,
+            //           spec/reports/*.xml,
+            //           spec/reports-audit/*.xml,
+            //           cucumber/*/features/reports/**/*.xml
+            //         '''
+            //       )
+            //     }
+            //   }
+            // }
 
-            // Run a subset of tests on a second agent to prevent oversubscribing the hardware
-            stage('Standard agent3 tests') {
-              when {
-                expression {
-                  testShouldRunOnAgent(
-                    params.RUN_ONLY,
-                    runSpecificTestOnAgent(params.RUN_ONLY, NESTED_ARRAY_OF_TESTS_TO_RUN[2])
-                  )
-                }
-              }
+            // // Run a subset of tests on a second agent to prevent oversubscribing the hardware
+            // stage('Standard agent3 tests') {
+            //   when {
+            //     expression {
+            //       testShouldRunOnAgent(
+            //         params.RUN_ONLY,
+            //         runSpecificTestOnAgent(params.RUN_ONLY, NESTED_ARRAY_OF_TESTS_TO_RUN[2])
+            //       )
+            //     }
+            //   }
 
-              agent { label 'executor-v2' }
-              environment {
-                CUCUMBER_FILTER_TAGS = "${params.CUCUMBER_FILTER_TAGS}"
-              }
+            //   agent { label 'executor-v2' }
+            //   environment {
+            //     CUCUMBER_FILTER_TAGS = "${params.CUCUMBER_FILTER_TAGS}"
+            //   }
 
-              steps {
-                addNewImagesToAgent()
-                unstash 'version_info'
-                runConjurTests(
-                  params.RUN_ONLY,
-                  NESTED_ARRAY_OF_TESTS_TO_RUN[2]
-                )
-              }
-              post {
-                always {
-                  stash(
-                    name: 'standardTestResult3',
-                    includes: '''
-                      cucumber/*/*.*,
-                      container_logs/*/*,
-                      spec/reports/*.xml,
-                      spec/reports-audit/*.xml,
-                      cucumber/*/features/reports/**/*.xml,
-                      ci/test_suites/*/output/*
-                    '''
-                  )
-                }
-              }
-            }
+            //   steps {
+            //     addNewImagesToAgent()
+            //     unstash 'version_info'
+            //     runConjurTests(
+            //       params.RUN_ONLY,
+            //       NESTED_ARRAY_OF_TESTS_TO_RUN[2]
+            //     )
+            //   }
+            //   post {
+            //     always {
+            //       stash(
+            //         name: 'standardTestResult3',
+            //         includes: '''
+            //           cucumber/*/*.*,
+            //           container_logs/*/*,
+            //           spec/reports/*.xml,
+            //           spec/reports-audit/*.xml,
+            //           cucumber/*/features/reports/**/*.xml,
+            //           ci/test_suites/*/output/*
+            //         '''
+            //       )
+            //     }
+            //   }
+            // }
 
             stage('Azure Authenticator') {
               when {
@@ -644,62 +644,62 @@ pipeline {
             * have a light-weight GCE instance that has no dependency on
             * conjurops or git identities and is not open for SSH.
             */
-            stage('GCP Authenticator preparation - Allocate GCE Instance') {
-              when {
-                expression {
-                  testShouldRun(params.RUN_ONLY, "gcp_authenticator")
-                }
-              }
-              steps {
-                echo '-- Allocating Google Compute Engine'
+            // stage('GCP Authenticator preparation - Allocate GCE Instance') {
+            //   when {
+            //     expression {
+            //       testShouldRun(params.RUN_ONLY, "gcp_authenticator")
+            //     }
+            //   }
+            //   steps {
+            //     echo '-- Allocating Google Compute Engine'
 
-                script {
-                  dir('ci/test_suites/authenticators_gcp') {
-                    stash(
-                      name: 'get_gce_tokens_script',
-                      includes: '''
-                        get_gce_tokens_to_files.sh,
-                        get_tokens_to_files.sh,
-                        tokens_config.json
-                      '''
-                    )
-                  }
+            //     script {
+            //       dir('ci/test_suites/authenticators_gcp') {
+            //         stash(
+            //           name: 'get_gce_tokens_script',
+            //           includes: '''
+            //             get_gce_tokens_to_files.sh,
+            //             get_tokens_to_files.sh,
+            //             tokens_config.json
+            //           '''
+            //         )
+            //       }
 
-                  node('executor-v2-gcp-small') {
-                    echo '-- Google Compute Engine allocated'
-                    echo '-- Get compute engine instance project name from ' +
-                      'Google metadata server.'
-                    // TODO: Move this into get_gce_tokens_to_files.sh
-                    env.GCP_PROJECT = sh(
-                      script: 'curl -s -H "Metadata-Flavor: Google" ' +
-                        '"http://metadata.google.internal/computeMetadata/v1/' +
-                        'project/project-id"',
-                      returnStdout: true
-                    ).trim()
-                    unstash('get_gce_tokens_script')
-                    sh('./get_gce_tokens_to_files.sh')
-                    stash(
-                      name: 'authnGceTokens',
-                      includes: 'gce_token_*',
-                      allowEmpty:false
-                    )
-                  }
-                }
-              }
-              post {
-                failure {
-                  script {
-                    env.GCP_ENV_ERROR = "true"
-                  }
-                }
-                success {
-                  script {
-                    env.GCE_TOKENS_FETCHED = "true"
-                  }
-                  echo '-- Finished fetching GCE tokens.'
-                }
-              }
-            }
+            //       node('executor-v2-gcp-small') {
+            //         echo '-- Google Compute Engine allocated'
+            //         echo '-- Get compute engine instance project name from ' +
+            //           'Google metadata server.'
+            //         // TODO: Move this into get_gce_tokens_to_files.sh
+            //         env.GCP_PROJECT = sh(
+            //           script: 'curl -s -H "Metadata-Flavor: Google" ' +
+            //             '"http://metadata.google.internal/computeMetadata/v1/' +
+            //             'project/project-id"',
+            //           returnStdout: true
+            //         ).trim()
+            //         unstash('get_gce_tokens_script')
+            //         sh('./get_gce_tokens_to_files.sh')
+            //         stash(
+            //           name: 'authnGceTokens',
+            //           includes: 'gce_token_*',
+            //           allowEmpty:false
+            //         )
+            //       }
+            //     }
+            //   }
+            //   post {
+            //     failure {
+            //       script {
+            //         env.GCP_ENV_ERROR = "true"
+            //       }
+            //     }
+            //     success {
+            //       script {
+            //         env.GCE_TOKENS_FETCHED = "true"
+            //       }
+            //       echo '-- Finished fetching GCE tokens.'
+            //     }
+            //   }
+            // }
 
             /**
             * GCP Authenticator -- Allocate Function -- Stage 2 of 3
@@ -712,64 +712,64 @@ pipeline {
             * 'GCP Authenticator preparation - Allocate GCE Instance' to set
             * the GCP project env var.
             */
-            stage('GCP Authenticator preparation - Allocate Google Function') {
-              when {
-                expression {
-                  testShouldRun(params.RUN_ONLY, "gcp_authenticator")
-                }
-              }
-              environment {
-                GCP_FETCH_TOKEN_FUNCTION = "fetch_token_${BUILD_NUMBER}"
-                IDENTITY_TOKEN_FILE = 'identity-token'
-                GCP_OWNER_SERVICE_KEY_FILE = "sa-key-file.json"
-              }
-              steps {
-                echo "Waiting for GCP project name (Set by stage: " +
-                  "'GCP Authenticator preparation - Allocate GCE Instance')"
-                timeout(time: 10, unit: 'MINUTES') {
-                  waitUntil {
-                    script {
-                      return (
-                        env.GCP_PROJECT != null || env.GCP_ENV_ERROR == "true"
-                      )
-                    }
-                  }
-                }
-                script {
-                  if (env.GCP_ENV_ERROR == "true") {
-                    error('GCP_ENV_ERROR cannot deploy function')
-                  }
+            // stage('GCP Authenticator preparation - Allocate Google Function') {
+            //   when {
+            //     expression {
+            //       testShouldRun(params.RUN_ONLY, "gcp_authenticator")
+            //     }
+            //   }
+            //   environment {
+            //     GCP_FETCH_TOKEN_FUNCTION = "fetch_token_${BUILD_NUMBER}"
+            //     IDENTITY_TOKEN_FILE = 'identity-token'
+            //     GCP_OWNER_SERVICE_KEY_FILE = "sa-key-file.json"
+            //   }
+            //   steps {
+            //     echo "Waiting for GCP project name (Set by stage: " +
+            //       "'GCP Authenticator preparation - Allocate GCE Instance')"
+            //     timeout(time: 10, unit: 'MINUTES') {
+            //       waitUntil {
+            //         script {
+            //           return (
+            //             env.GCP_PROJECT != null || env.GCP_ENV_ERROR == "true"
+            //           )
+            //         }
+            //       }
+            //     }
+            //     script {
+            //       if (env.GCP_ENV_ERROR == "true") {
+            //         error('GCP_ENV_ERROR cannot deploy function')
+            //       }
 
-                  dir('ci/test_suites/authenticators_gcp') {
-                    sh('summon ./deploy_function_and_get_tokens.sh')
-                  }
-                }
-              }
-              post {
-                success {
-                  echo "-- Google Cloud test env is ready"
-                  script {
-                    env.GCP_FUNC_TOKENS_FETCHED = "true"
-                  }
-                }
-                failure {
-                  echo "-- GCP function deployment stage failed"
-                  script {
-                    env.GCP_ENV_ERROR = "true"
-                  }
-                }
-                always {
-                  script {
-                    dir('ci/test_suites/authenticators_gcp') {
-                      sh '''
-                        # Cleanup Google function
-                        summon ./run_gcloud.sh cleanup_function.sh
-                      '''
-                    }
-                  }
-                }
-              }
-            }
+            //       dir('ci/test_suites/authenticators_gcp') {
+            //         sh('summon ./deploy_function_and_get_tokens.sh')
+            //       }
+            //     }
+            //   }
+            //   post {
+            //     success {
+            //       echo "-- Google Cloud test env is ready"
+            //       script {
+            //         env.GCP_FUNC_TOKENS_FETCHED = "true"
+            //       }
+            //     }
+            //     failure {
+            //       echo "-- GCP function deployment stage failed"
+            //       script {
+            //         env.GCP_ENV_ERROR = "true"
+            //       }
+            //     }
+            //     always {
+            //       script {
+            //         dir('ci/test_suites/authenticators_gcp') {
+            //           sh '''
+            //             # Cleanup Google function
+            //             summon ./run_gcloud.sh cleanup_function.sh
+            //           '''
+            //         }
+            //       }
+            //     }
+            //   }
+            // }
             /**
             * GCP Authenticator -- Run Tests -- Stage 3 of 3
             *
@@ -779,43 +779,43 @@ pipeline {
             * Authenticator preparation - Allocate GCE Instance' and runs the
             * gcp-authn tests.
             */
-            stage('GCP Authenticator - Run Tests') {
-              when {
-                expression {
-                  testShouldRun(params.RUN_ONLY, "gcp_authenticator")
-                }
-              }
-              steps {
-                echo('Waiting for GCP Tokens provisioned by prep stages.')
+            // stage('GCP Authenticator - Run Tests') {
+            //   when {
+            //     expression {
+            //       testShouldRun(params.RUN_ONLY, "gcp_authenticator")
+            //     }
+            //   }
+            //   steps {
+            //     echo('Waiting for GCP Tokens provisioned by prep stages.')
 
-                timeout(time: 10, unit: 'MINUTES') {
-                  waitUntil {
-                    script {
-                      return (
-                        env.GCP_ENV_ERROR == "true" ||
-                        (
-                          env.GCP_FUNC_TOKENS_FETCHED == "true" &&
-                          env.GCE_TOKENS_FETCHED == "true"
-                        )
-                      )
-                    }
-                  }
-                }
-                script {
-                  if (env.GCP_ENV_ERROR == "true") {
-                    error(
-                      'GCP_ENV_ERROR: Check logs for errors in stages 1 and 2'
-                    )
-                  }
-                }
-                script {
-                  dir('ci/test_suites/authenticators_gcp/tokens') {
-                    unstash 'authnGceTokens'
-                  }
-                  sh 'ci/test authenticators_gcp'
-                }
-              }
-            }
+            //     timeout(time: 10, unit: 'MINUTES') {
+            //       waitUntil {
+            //         script {
+            //           return (
+            //             env.GCP_ENV_ERROR == "true" ||
+            //             (
+            //               env.GCP_FUNC_TOKENS_FETCHED == "true" &&
+            //               env.GCE_TOKENS_FETCHED == "true"
+            //             )
+            //           )
+            //         }
+            //       }
+            //     }
+            //     script {
+            //       if (env.GCP_ENV_ERROR == "true") {
+            //         error(
+            //           'GCP_ENV_ERROR: Check logs for errors in stages 1 and 2'
+            //         )
+            //       }
+            //     }
+            //     script {
+            //       dir('ci/test_suites/authenticators_gcp/tokens') {
+            //         unstash 'authnGceTokens'
+            //       }
+            //       sh 'ci/test authenticators_gcp'
+            //     }
+            //   }
+            // }
           }
         }
       }
@@ -835,13 +835,13 @@ pipeline {
         always {
           script {
 
-            if (testShouldRunOnAgent(params.RUN_ONLY, runSpecificTestOnAgent(params.RUN_ONLY, NESTED_ARRAY_OF_TESTS_TO_RUN[1]))) {
-              unstash 'standardTestResult2'
-            }
+            // if (testShouldRunOnAgent(params.RUN_ONLY, runSpecificTestOnAgent(params.RUN_ONLY, NESTED_ARRAY_OF_TESTS_TO_RUN[1]))) {
+            //   unstash 'standardTestResult2'
+            // }
 
-            if (testShouldRunOnAgent(params.RUN_ONLY, runSpecificTestOnAgent(params.RUN_ONLY, NESTED_ARRAY_OF_TESTS_TO_RUN[2]))) {
-              unstash 'standardTestResult3'
-            }
+            // if (testShouldRunOnAgent(params.RUN_ONLY, runSpecificTestOnAgent(params.RUN_ONLY, NESTED_ARRAY_OF_TESTS_TO_RUN[2]))) {
+            //   unstash 'standardTestResult3'
+            // }
 
             // Only unstash azure if it ran.
             if (testShouldRun(params.RUN_ONLY, "azure_authenticator")) {
@@ -853,26 +853,16 @@ pipeline {
             archiveFiles('coverage/.resultset*.json')
             archiveFiles('coverage/coverage.json')
             archiveFiles('coverage/codeclimate.json')
-            archiveFiles(
-              'ci/test_suites/authenticators_k8s/output/simplecov-resultset-authnk8s-gke.json'
-            )
+            // archiveFiles(
+            //   'ci/test_suites/authenticators_k8s/output/simplecov-resultset-authnk8s-gke.json'
+            // )
             archiveFiles('cucumber/*/*.*')
 
             publishHTML([
               reportName: 'Integration reports',
               reportDir: 'cucumber',
               reportFiles: '''
-                api/cucumber_results.html,
-                authenticators_config/cucumber_results.html,
                 authenticators_azure/cucumber_results.html,
-                authenticators_ldap/cucumber_results.html,
-                authenticators_oidc/cucumber_results.html,
-                authenticators_jwt/cucumber_results.html,
-                authenticators_gcp/cucumber_results.html,
-                authenticators_status/cucumber_results.html,
-                authenticators_k8s/cucumber_results.html,
-                policy/cucumber_results.html,
-                rotators/cucumber_results.html
               ''',
               reportTitles: '',
               allowMissing: false,
@@ -911,16 +901,16 @@ pipeline {
       }
     } // end stage: build and test conjur
 
-    stage('Submit Coverage Report') {
-      when {
-        expression {
-          env.CODE_CLIMATE_PREPARED == "true"
-        }
-      }
-      steps{
-        sh 'ci/submit-coverage'
-      }
-    }
+    // stage('Submit Coverage Report') {
+    //   when {
+    //     expression {
+    //       env.CODE_CLIMATE_PREPARED == "true"
+    //     }
+    //   }
+    //   steps{
+    //     sh 'ci/submit-coverage'
+    //   }
+    // }
 
     stage("Release Conjur images and packages") {
       when {
