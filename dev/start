@@ -403,7 +403,7 @@ init_azure() {
 
   enabled_authenticators="$enabled_authenticators,authn-azure/prod"
 
-  ../ci/authn-azure/check_dependencies.sh
+  ../ci/test_suites/authenticators_azure/check_dependencies.sh
 
   client_load_policy \
     "/src/conjur-server/ci/test_suites/authenticators_azure/policies/policy.yml"

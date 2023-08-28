@@ -211,7 +211,7 @@ function enable_jwt() {
 
 function enable_azure() {
 
-  ../ci/authn-azure/check_dependencies.sh
+  ../dev/ci/test_suites/authenticators_azure/check_dependencies.sh
 
   echo "Setting Azure details as env variables"
 
