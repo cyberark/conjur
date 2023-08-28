@@ -297,6 +297,11 @@ module Errors
         msg: "Access Token retrieval failure: '{0-error}'",
         code: "CONJ00133E"
       )
+
+      InvalidCertificate = ::Util::TrackableErrorClass.new(
+        msg: "Invalid certificate: {0-message}",
+        code: "CONJ00135E"
+      )
     end
 
     module AuthnIam
