@@ -23,7 +23,7 @@ module Authentication
         verify_and_decode_token: ::Authentication::Jwt::VerifyAndDecodeToken.new,
         logger: Rails.logger
       },
-      inputs: %i[provider_uri token_jwt claims_to_verify]
+      inputs: %i[provider_uri token_jwt claims_to_verify ca_cert]
     ) do
       def call
         fetch_provider_keys
@@ -35,7 +35,8 @@ module Authentication
       def fetch_provider_keys(force_read: false)
         provider_keys = @fetch_provider_keys.call(
           provider_uri: @provider_uri,
-          refresh: force_read
+          refresh: force_read,
+          ca_cert: @ca_cert
         )
 
         @jwks = provider_keys.jwks
