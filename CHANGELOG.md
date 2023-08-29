@@ -49,6 +49,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   fail safe and the negative privilege statement (revoke, deny) is the final
   outcome
   [CONJSE-1785](https://ca-il-jira.il.cyber-ark.com:8443/browse/CONJSE-1785)
+- Update puma to 6.3.1 to address CVE-2023-40175.
+  [CNJR-2564](https://ca-il-jira.il.cyber-ark.com:8443/browse/CNJR-2564)
 
 ## [1.19.5] - 2023-06-29
 
