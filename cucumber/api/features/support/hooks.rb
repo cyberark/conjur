@@ -32,7 +32,7 @@ Before do
       Slosilo.send(:keystore).adapter.model[k].delete
     end
   end
-  
+
   Account.find_or_create_accounts_resource
   admin_role = Role.create(role_id: "cucumber:user:admin")
   Credentials.new(role: admin_role).save(raise_on_save_failure: true)
@@ -45,7 +45,7 @@ Before do
 end
 
 After do
-  FileUtils.remove_dir('cuke_export') if Dir.exists?('cuke_export')
+  FileUtils.remove_dir('cuke_export') if Dir.exist?('cuke_export')
 
   # Revert to original env
   @env.each do |key, value|
