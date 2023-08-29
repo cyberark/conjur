@@ -44,7 +44,8 @@ module Authentication
         # If successful, validate the new set of required variables
         if authenticator.present?
           Authentication::AuthnOidc::ValidateStatus.new(
-            required_variable_names: %w[provider-uri client-id client-secret claim-mapping]
+            required_variable_names: %w[provider-uri client-id client-secret claim-mapping],
+            optional_variable_names: %w[ca-cert]
           ).(
             account: authenticator_status_input.account,
             service_id: authenticator_status_input.service_id

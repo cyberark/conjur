@@ -5,7 +5,7 @@ module Authentication
         class Authenticator
 
           REQUIRED_VARIABLES = %i[provider_uri client_id client_secret claim_mapping].freeze
-          OPTIONAL_VARIABLES = %i[redirect_uri response_type provider_scope name token_ttl].freeze
+          OPTIONAL_VARIABLES = %i[redirect_uri response_type provider_scope name token_ttl ca_cert].freeze
 
           attr_reader(
             :provider_uri,
@@ -15,7 +15,8 @@ module Authentication
             :account,
             :service_id,
             :redirect_uri,
-            :response_type
+            :response_type,
+            :ca_cert
           )
 
           def initialize(
@@ -29,7 +30,8 @@ module Authentication
             name: nil,
             response_type: 'code',
             provider_scope: nil,
-            token_ttl: 'PT1H'
+            token_ttl: 'PT60M',
+            ca_cert: nil
           )
             @account = account
             @provider_uri = provider_uri
@@ -44,7 +46,8 @@ module Authentication
 
             # If variable is present but not set, token_ttl will come
             # through as an empty string.
-            @token_ttl = token_ttl.present? ? token_ttl : 'PT1H'
+            @token_ttl = token_ttl.present? ? token_ttl : 'PT60M'
+            @ca_cert = ca_cert
           end
 
           def scope

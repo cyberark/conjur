@@ -74,12 +74,12 @@ RSpec.describe(Authentication::AuthnOidc::V2::DataObjects::Authenticator) do
 
   describe '.token_ttl', type: 'unit' do
     context 'with default initializer' do
-      it { expect(authenticator.token_ttl).to eq(60.minutes) }
+      it { expect(authenticator.token_ttl).to eq(1.hour) }
     end
 
     context 'when initialized with a valid duration' do
-      let(:args) { default_args.merge({ token_ttl: 'PT2H' }) }
-      it { expect(authenticator.token_ttl).to eq(2.hours)}
+      let (:args) { default_args.merge({ token_ttl: 'PT2H'}) }
+      it { expect(authenticator.token_ttl).to eq(2.hour)}
     end
 
     context 'when initialized with an invalid duration' do
@@ -88,6 +88,17 @@ RSpec.describe(Authentication::AuthnOidc::V2::DataObjects::Authenticator) do
         expect { authenticator.token_ttl }
           .to raise_error(Errors::Authentication::DataObjects::InvalidTokenTTL)
       }
+    end
+  end
+
+  describe '.ca_cert', type: 'unit' do
+    context 'with default initializer' do
+      it { expect(authenticator.ca_cert).to eq(nil) }
+    end
+
+    context 'when initialized with a value' do
+      let (:args) { default_args.merge({ ca_cert: 'cert'}) }
+      it { expect(authenticator.ca_cert).to eq('cert')}
     end
   end
 end
