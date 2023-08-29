@@ -39,7 +39,8 @@ module Authentication
 
         def discovered_provider
           @discovered_provider ||= @discover_identity_provider.call(
-            provider_uri: @provider_uri
+            provider_uri: @provider_uri,
+            ca_cert: nil
           )
         end
 

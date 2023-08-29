@@ -19,6 +19,9 @@
   - !variable
     id: id-token-user-property
 
+  - !variable
+    id: ca-cert
+
   - !group
     id: users
     annotations:
