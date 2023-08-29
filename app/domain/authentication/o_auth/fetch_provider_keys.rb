@@ -8,7 +8,7 @@ module Authentication
         logger: Rails.logger,
         discover_identity_provider: DiscoverIdentityProvider.new
       },
-      inputs: %i[provider_uri]
+      inputs: %i[provider_uri ca_cert]
     ) do
       def call
         discover_provider
@@ -23,7 +23,8 @@ module Authentication
 
       def discovered_provider
         @discovered_provider ||= @discover_identity_provider.(
-          provider_uri: @provider_uri
+          provider_uri: @provider_uri,
+          ca_cert: @ca_cert
         )
       end
 

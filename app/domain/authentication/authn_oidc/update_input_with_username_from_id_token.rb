@@ -3,7 +3,6 @@ module Authentication
 
     UpdateInputWithUsernameFromIdToken ||= CommandClass.new(
       dependencies: {
-        fetch_authenticator_secrets: Authentication::Util::FetchAuthenticatorSecrets.new,
         validate_account_exists: ::Authentication::Security::ValidateAccountExists.new,
         verify_and_decode_token: ::Authentication::OAuth::VerifyAndDecodeToken.new,
         logger: Rails.logger
@@ -40,7 +39,8 @@ module Authentication
         @decoded_token = @verify_and_decode_token.(
           provider_uri: oidc_authenticator_secrets["provider-uri"],
           token_jwt: decoded_credentials["id_token"],
-          claims_to_verify: {} # We don't verify any claims
+          claims_to_verify: {}, # We don't verify any claims
+          ca_cert: oidc_authenticator_secrets["ca-cert"]
         )
       end
 
@@ -86,7 +86,9 @@ module Authentication
       end
 
       def oidc_authenticator_secrets
-        @oidc_authenticator_secrets ||= @fetch_authenticator_secrets.(
+        @oidc_authenticator_secrets ||= Authentication::Util::FetchAuthenticatorSecrets.new(
+          optional_variable_names: optional_variable_names
+        ).(
           service_id: service_id,
           conjur_account: account,
           authenticator_name: authenticator_name,
@@ -96,6 +98,10 @@ module Authentication
 
       def required_variable_names
         @required_variable_names ||= %w[provider-uri id-token-user-property]
+      end
+
+      def optional_variable_names
+        @optional_variable_names ||= %w[ca-cert]
       end
 
       def validate_conjur_username
