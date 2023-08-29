@@ -365,7 +365,7 @@ Feature: JWT Authenticator - Check registered claim
     Then the HTTP response status code is 401
     And The following appears in the log after my savepoint:
     """
-    CONJ00035E Failed to decode token (3rdPartyError ='#<JWT::InvalidIssuerError: Invalid issuer. Expected incorrect.com, received http://jwks>')>
+    CONJ00035E Failed to decode token (3rdPartyError ='#<JWT::InvalidIssuerError: Invalid issuer. Expected ["incorrect.com"], received http://jwks>')>
     """
 
   @negative @acceptance
@@ -454,7 +454,7 @@ Feature: JWT Authenticator - Check registered claim
     Then the HTTP response status code is 401
     And The following appears in the log after my savepoint:
     """
-    CONJ00035E Failed to decode token (3rdPartyError ='#<JWT::InvalidIssuerError: Invalid issuer. Expected invalid-issuer, received valid-issuer>')>
+    CONJ00035E Failed to decode token (3rdPartyError ='#<JWT::InvalidIssuerError: Invalid issuer. Expected ["invalid-issuer"], received valid-issuer>')>
     """
 
   @sanity
