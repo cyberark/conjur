@@ -549,7 +549,7 @@ Feature: JWT Authenticator - Fetch signing key
     Then the HTTP response status code is 401
     And The following appears in the log after my savepoint:
     """
-    CONJ00035E Failed to decode token (3rdPartyError ='#<JWT::VerificationError: Signature verification raised>')
+    CONJ00035E Failed to decode token (3rdPartyError ='#<JWT::VerificationError: Signature verification failed>')
     """
 
   @negative @acceptance
@@ -604,7 +604,7 @@ Feature: JWT Authenticator - Fetch signing key
     Then the HTTP response status code is 401
     And The following appears in the log after my savepoint:
     """
-    CONJ00035E Failed to decode token (3rdPartyError ='#<JWT::VerificationError: Signature verification raised>')
+    CONJ00035E Failed to decode token (3rdPartyError ='#<JWT::VerificationError: Signature verification failed>')
     """
 
   @negative @acceptance
