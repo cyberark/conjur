@@ -7,7 +7,7 @@ end
 Then(/^the export file exists(?: with label "([^"]*)")?$/) do |label|
   archive_name = label.nil? ? '*' : label
   Dir["/tmp/cuke_export/#{archive_name}.tar.xz.gpg"].any? || fail('No export archive file exists')
-  File.exists?('/tmp/cuke_export/key') || fail('No export archive key file exists')
+  File.exist?('/tmp/cuke_export/key') || fail('No export archive key file exists')
 end
 
 Then (/^the accounts file contains "([^"]*)"$/) do |contents|
