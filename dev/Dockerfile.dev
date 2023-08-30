@@ -1,6 +1,8 @@
-FROM cyberark/phusion-ruby-fips:latest
+FROM cyberark/ubuntu-ruby-postgres-fips:latest
 
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y \
+    libz-dev
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y \
     build-essential \
     ldap-utils \
     git \
@@ -30,11 +32,12 @@ RUN bundle
 # removing CA bundle of httpclient gem
 RUN find / -name httpclient -type d -exec find {} -name *.pem -type f -delete \;
 
-RUN rm /etc/service/sshd/down
 RUN ln -sf /src/conjur-server/bin/conjurctl /usr/local/bin/
-RUN rm /etc/my_init.d/10_syslog-ng.init
+RUN rm /etc/service/syslog-ng/run
 
 ENV PORT 3000
 ENV TERM xterm
 
 EXPOSE 3000
+
+ENTRYPOINT ["/usr/bin/runsvdir", "-P", "/etc/service"]
