@@ -412,7 +412,7 @@ Feature: Fetching secrets from edge endpoint
   """
 
   @negative @acceptance
-  Scenario: Fetching all secrets with edge host without Accept-Encoding base64 and special character secret, return 500
+  Scenario: Fetching all secrets with edge host without Accept-Encoding base64 return 200 and I have special character secret
 
     Given I login as "some_user"
     And I add the secret value "s1±" to the resource "cucumber:variable:data/secret1"
