@@ -283,7 +283,21 @@ module Loader
 
       def_delegators :@policy_object, :kind, :mime_type
 
-      def verify; end
+      def verify;
+        Rails.logger.info("+++++++++++++++ verify Variable 1")
+        Rails.logger.info("+++++++++++++++ verify Variable 2 self.annotations = #{self.annotations}, self.id = #{self.id}, self.resource = #{self.resource}")
+
+        if self.id.start_with?("data/ephemerals")
+          Rails.logger.info("+++++++++++++++ verify Variable 3")
+          if self.annotations["issuer"].nil?
+            message = "Ephemeral variable #{self.id} has no issuer annotation"
+            raise Exceptions::InvalidPolicyObject.new(self.id, message: message)
+          else
+            issuer = self.annotations["issuer"]
+            Rails.logger.info("+++++++++++++++ verify Variable 4 issuer = #{issuer}")
+          end
+        end
+      end
 
       def create!
         self.annotations ||= {}
