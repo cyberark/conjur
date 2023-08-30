@@ -9,11 +9,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
-## [1.0.6-cloud] - 2023-08-21
+## [1.0.6-cloud] - 2023-09-04
 ### Changed
 - Renamed `platforms` to `issuers`, changed internal structure of ephemeral secret requests and removed default issuer secret
   [ONYX-42993](https://ca-il-jira.il.cyber-ark.com:8443/browse/ONYX-42993)
-- get all authenticators endpoint, will be used by edge for replication.
+- Get all authenticators endpoint, will be used by edge for replication.
+- Modify edge logs.
+
+## [1.0.6-cloud] - 2023-08-21
+### Changed
+- Code refactoring
 
 ## [1.0.5-cloud] - 2023-08-16
 ### Security
