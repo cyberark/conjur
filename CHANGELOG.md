@@ -43,14 +43,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Security
 - Support plural syntax for revoke and deny
-  [CONJSE-1783](https://ca-il-jira.il.cyber-ark.com:8443/browse/CONJSE-1783)
+  [cyberark/conjur#2901](https://github.com/cyberark/conjur/pull/2901)
 - Previously, attempting to add and remove a privilege in the same policy load
   resulted in only the positive privilege (grant, permit) taking effect. Now we
   fail safe and the negative privilege statement (revoke, deny) is the final
   outcome
-  [CONJSE-1785](https://ca-il-jira.il.cyber-ark.com:8443/browse/CONJSE-1785)
+  [cyberark/conjur#2907](https://github.com/cyberark/conjur/pull/2907)
 - Update puma to 6.3.1 to address CVE-2023-40175.
-  [CNJR-2564](https://ca-il-jira.il.cyber-ark.com:8443/browse/CNJR-2564)
+  [cyberark/conjur#2925](https://github.com/cyberark/conjur/pull/2925)
 
 ## [1.19.5] - 2023-06-29
 
