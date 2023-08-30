@@ -26,26 +26,33 @@ shift # past argument or value
 done
 
 # Flatten resulting image.
+# This script will rewrite all properties of input image (PORT, ENV, WORKDIR, USER, ENTRYPOINT, CMD)
+# instead of hard-coding each of them.
+# shellcheck disable=SC2016
 function flatten() {
   local image="$1"
   echo "Flattening image '$image'..."
-
-  # Since `--squash` is still experimental, we have to flatten the image
-  # by exporting and importing a container based on the source image. By
-  # doing this though, we lose a lot of the Dockerfile variables that are
-  # required for running the image (ENV, EXPOSE, WORKDIR, etc) so we
-  # manually rebuild them.
-  # See here for more details: https://github.com/moby/moby/issues/8334
   local container
   container=$(docker create "$image")
+  local envs
+  envs=$(docker inspect -f '{{range $index, $value := .Config.Env}}{{$value}} {{end}}' "$container")
+  local workDir
+  workDir=$(docker inspect -f '{{ .Config.WorkingDir }}' "$container")
+  local user
+  user=$(docker inspect -f '{{ .Config.User }}' "$container")
+  local entrypoint
+  entrypoint=$(docker inspect -f '[{{range $index, $value := .Config.Entrypoint }}{{if $index}},{{end}}"{{$value}}"{{end}}]' "$container")
+  local cmd
+  cmd=$(docker inspect -f '[{{range $index, $value := .Config.Cmd }}{{if $index}},{{end}}"{{$value}}"{{end}}]' "$container")
+  local ports
+  IFS=":" read -r -a ports <<< "$(docker inspect -f '{{range $port, $empty := .Config.ExposedPorts}}--change:EXPOSE {{$port}}:{{end}}' "$container")"
   docker export "$container" | docker import \
-    --change "ENV PATH /usr/local/pgsql/bin:/var/lib/ruby/bin:/usr/local/ssl/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
-    --change "ENV LD_LIBRARY_PATH /usr/local/ssl/lib" \
-    --change "ENV OPENSSL_FIPS 1" \
-    --change "EXPOSE 80" \
-    --change "ENV RAILS_ENV=production" \
-    --change "WORKDIR /opt/conjur-server" \
-    --change 'ENTRYPOINT ["conjurctl"]' \
+    "${ports[@]}" \
+    --change "ENV $envs" \
+    --change "WORKDIR $workDir" \
+    --change "USER ${user:=0}" \
+    --change "ENTRYPOINT $entrypoint" \
+    --change "CMD $cmd" \
     - "$image"
   docker rm "$container"
 }
@@ -82,4 +89,5 @@ fi
 if image_doesnt_exist "conjur-ubi:$TAG"; then
   echo "Building image conjur-ubi:$TAG container"
   docker build --build-arg "VERSION=$TAG" -t "conjur-ubi:$TAG" -f Dockerfile.ubi .
+  flatten "conjur-ubi:$TAG"
 fi
