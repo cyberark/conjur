@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Fixed
 - Support plural syntax for revoke and deny 
-  [CONJSE-1783](https://ca-il-jira.il.cyber-ark.com:8443/browse/CONJSE-1783)
+  [CONJSE-1783](https://github.com/cyberark/conjur/pull/2901)
 
 ## [1.20.0] - 2023-07-11
 
