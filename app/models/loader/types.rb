@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-
+require '/opt/conjur-server/app/controllers/concerns/authorize_resource'
 
 module Loader
   module Types
@@ -282,6 +282,7 @@ module Loader
 
     class Variable < Record
       include CreateResource
+      include AuthorizeResource
 
       def_delegators :@policy_object, :kind, :mime_type
 
@@ -311,7 +312,14 @@ module Loader
               message = "Ephemeral variable #{self.id} issuer #{issuer_id} is not defined"
               raise Exceptions::InvalidPolicyObject.new(self.id, message: message)
             end
+            Rails.logger.info("+++++++++++++++ verify public Variable 4.7")
 
+
+            Sequel::Model.db.search_path = $basic_schema
+            resource = ::Resource["conjur:policy:conjur/issuers/" + issuer_id]
+            authorize(:use, resource)
+            Sequel::Model.db.search_path = current_schema
+            Rails.logger.info("+++++++++++++++ verify public Variable 4.8")
           end
         else
           Rails.logger.info("+++++++++++++++ verify public Variable 5")
