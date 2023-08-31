@@ -1,19 +1,34 @@
 # frozen_string_literal: true
 module AuthenticatorsManager
+
   def get_authenticators_data(kinds)
     return_json = {}
     kinds.each do |kind|
       if kind == "authn-jwt"
-        return_json[kind] = authn_jwt_handler
+        return_json[kind] = Authenticator.jwt
       end
     end
     return_json
   end
 
-  def authn_jwt_handler
+  def get_authenticators_parsed_data(kinds, offset, limit)
+    return_json = {}
+    kinds.each do |kind|
+      if kind == "authn-jwt"
+        return_json[kind] = authn_jwt_handler1(offset, limit)
+      end
+    end
+    return_json
+  end
+
+  def authn_jwt_handler1(offset,limit)
     results = []
     begin
       authenticators = Authenticator.jwt
+      authenticators = authenticators.order(:resource_id).limit(
+        (limit || 1000).to_i,
+        (offset || 0).to_i
+      )
       authenticators.each do |authenticator|
         authenticatorToReturn = {}
         authenticatorToReturn[:id] = authenticator[:resource_id]
@@ -42,12 +57,13 @@ module AuthenticatorsManager
         authenticatorToReturn[:claimAliases] = nil
         authenticatorToReturn[:audience] = nil
         results << authenticatorToReturn
-        end
+      end
     rescue => e
-        raise InternalServerError, e.message
+      raise InternalServerError, e.message
     end
     results
   end
+
 
   private
 
