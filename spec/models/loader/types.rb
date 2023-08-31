@@ -159,9 +159,9 @@ describe Loader::Types::Variable do
   end
 
   describe '.verify' do
-    context 'when CONJUR_AUTHN_API_KEY_DEFAULT is true' do
+    context 'when no issuer configured' do
       before do
-        allow(Rails.application.config.conjur_config).to receive(:authn_api_key_default).and_return(true)
+        #allow(Rails.application.config.conjur_config).to receive(:authn_api_key_default).and_return(true)
       end
 
       context 'when creating regular variable without ephemerals/issuer annotation' do
@@ -182,11 +182,29 @@ describe Loader::Types::Variable do
         it { expect { variable.verify }.to raise_error }
       end
 
-      #context 'when creating ephemeral variable with ephemerals/issuer annotation' do
-      #  let(:resource_id) { 'data/ephemerals/myvar2' }
-      #  let(:issuer) { 'aws1' }
-      #  it { expect { variable.verify }.to_not raise_error }
-      #end
+      context 'when creating ephemeral variable with ephemerals/issuer annotation' do
+        let(:resource_id) { 'data/ephemerals/myvar2' }
+        let(:issuer) { 'aws1' }
+        it { expect { variable.verify }.to raise_error }
+      end
+    end
+
+    context 'when issuer aws1 configured without permissions' do
+      before do
+        #allow(Rails.application.config.conjur_config).to receive(:authn_api_key_default).and_return(true)
+      end
+
+      context 'when creating regular variable with ephemerals/issuer annotation' do
+        let(:resource_id) { 'data/myvar2' }
+        let(:issuer) { 'aws1' }
+        it { expect { variable.verify }.to raise_error }
+      end
+
+      context 'when creating ephemeral variable with ephemerals/issuer annotation' do
+        let(:resource_id) { 'data/ephemerals/myvar2' }
+        let(:issuer) { 'aws1' }
+        it { expect { variable.verify }.to raise_error }
+      end
     end
   end
 end
