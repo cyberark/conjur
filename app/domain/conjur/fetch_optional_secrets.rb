@@ -13,21 +13,19 @@ module Conjur
     private
 
     def secret_values
-      transformed_secrets = secrets.transform_values do |secret|
+      secrets.transform_values do |secret|
         secret ? secret.value : nil
       end
-      transformed_secrets
     end 
     
     def resources
-      @resource_ids.map { |id| [id, @resource_class[id]] }.to_h
+      @resources ||= @resource_ids.map { |id| [id, @resource_class[id]] }.to_h
     end
     
     def secrets
-      transformed_secrets = resources.transform_values do |resource|
+      @secrets ||= resources.transform_values do |resource|
         resource ? resource.secret : nil
       end
-      @secrets ||= transformed_secrets
     end
   end
 end

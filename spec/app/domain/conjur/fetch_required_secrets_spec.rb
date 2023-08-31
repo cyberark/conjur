@@ -9,11 +9,10 @@ RSpec.describe('Conjur::FetchRequiredSecrets') do
       .(resource_ids: %w[resource1 resource2])
   end
 
-  DeepDouble = Util::Stubs::DeepDouble
 
   context 'when the secrets exist' do
     let(:repo_with_secrets) do
-      DeepDouble.new('ResourceRepo',
+      Util::Stubs::DeepDouble.new('ResourceRepo',
                      '[]': {
                        'resource1' => { secret: { value: 'secret1' } },
                        'resource2' => { secret: { value: 'secret2' } }
@@ -29,7 +28,7 @@ RSpec.describe('Conjur::FetchRequiredSecrets') do
 
   context 'when resources are missing' do
     let(:repo_missing_resource) do
-      DeepDouble.new('ResourceRepo',
+      Util::Stubs::DeepDouble.new('ResourceRepo',
                      '[]': {
                        'resource1' => nil,
                        'resource2' => { secret: { value: 'secret2' } }
@@ -45,7 +44,7 @@ RSpec.describe('Conjur::FetchRequiredSecrets') do
 
   context 'when secrets are missing' do
     let(:repo_missing_secret) do
-      DeepDouble.new('ResourceRepo',
+      Util::Stubs::DeepDouble.new('ResourceRepo',
                      '[]': {
                        'resource1' => { secret: { value: 'secret1' } },
                        'resource2' => { secret: nil }
