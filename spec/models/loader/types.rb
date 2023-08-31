@@ -147,3 +147,46 @@ describe Loader::Types::Host do
 
   end
 end
+
+describe Loader::Types::Variable do
+  let(:variable) do
+    variable = Conjur::PolicyParser::Types::Variable.new
+    variable.id = resource_id
+    if issuer != ''
+      variable.annotations =  { "ephemerals/issuer" => issuer }
+    end
+    Loader::Types.wrap(variable, self)
+  end
+
+  describe '.verify' do
+    context 'when CONJUR_AUTHN_API_KEY_DEFAULT is true' do
+      before do
+        allow(Rails.application.config.conjur_config).to receive(:authn_api_key_default).and_return(true)
+      end
+
+      context 'when creating regular variable without ephemerals/issuer annotation' do
+        let(:resource_id) { 'data/myvar1' }
+        let(:issuer) { '' }
+        it { expect { variable.verify }.to_not raise_error }
+      end
+
+      context 'when creating regular variable with ephemerals/issuer annotation' do
+        let(:resource_id) { 'data/myvar2' }
+        let(:issuer) { 'aws1' }
+        it { expect { variable.verify }.to raise_error }
+      end
+
+      context 'when creating ephemeral variable without ephemerals/issuer annotation' do
+        let(:resource_id) { 'data/ephemerals/myvar1' }
+        let(:issuer) { '' }
+        it { expect { variable.verify }.to raise_error }
+      end
+
+      #context 'when creating ephemeral variable with ephemerals/issuer annotation' do
+      #  let(:resource_id) { 'data/ephemerals/myvar2' }
+      #  let(:issuer) { 'aws1' }
+      #  it { expect { variable.verify }.to_not raise_error }
+      #end
+    end
+  end
+end
