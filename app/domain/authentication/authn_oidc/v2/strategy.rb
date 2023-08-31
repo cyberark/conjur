@@ -21,10 +21,11 @@ module Authentication
           end
 
           identity = resolve_identity(
-            jwt: @client.callback(
+            jwt: @client.callback_with_temporary_cert(
               code: args[:code],
               nonce: args[:nonce],
-              code_verifier: args[:code_verifier]
+              code_verifier: args[:code_verifier],
+              ca_cert: @authenticator.ca_cert
             )
           )
           unless identity.present?
