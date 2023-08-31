@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
+
 module Loader
   module Types
+
     class << self
       def find_or_create_root_policy(account)
         ::Resource[root_policy_id(account)] || create_root_policy(account)
@@ -283,7 +285,38 @@ module Loader
 
       def_delegators :@policy_object, :kind, :mime_type
 
-      def verify; end
+      def verify;
+        Rails.logger.info("+++++++++++++++ verify Variable 1")
+        Rails.logger.info("+++++++++++++++ verify Variable 2 self.annotations = #{self.annotations}, self.id = #{self.id}, self.resource = #{self.resource}")
+
+        if self.id.start_with?("data/ephemerals")
+          Rails.logger.info("+++++++++++++++ verify Variable 3")
+          if self.annotations["issuer"].nil?
+            message = "Ephemeral variable #{self.id} has no issuer annotation"
+            raise Exceptions::InvalidPolicyObject.new(self.id, message: message)
+          else
+            issuer_id = self.annotations["issuer"]
+            Rails.logger.info("+++++++++++++++ verify Variable 4 issuer_id = #{issuer_id}")
+
+            Rails.logger.info("+++++++++++++ verify public Variable 4.4 Sequel::Model.db.search_path = #{Sequel::Model.db.search_path}")
+            Rails.logger.info("+++++++++++++ verify public Variable 4.4.1 Issuer.db.search_path = #{Issuer.db.search_path}")
+            Rails.logger.info("+++++++++++++ verify public Variable 4.4.2 $basic_schema = #{$basic_schema}")
+            current_schema = Issuer.db.search_path
+            Issuer.db.search_path = $basic_schema
+            Rails.logger.info("+++++++++++++++ verify public Variable 4.5")
+            issuer = Issuer.where(account: "conjur", issuer_id: issuer_id).first
+            Rails.logger.info("+++++++++++++++ verify public Variable 4.6 issuer = #{issuer}")
+            Issuer.db.search_path = current_schema
+            if (issuer.nil?)
+              message = "Ephemeral variable #{self.id} issuer #{issuer_id} is not defined"
+              raise Exceptions::InvalidPolicyObject.new(self.id, message: message)
+            else
+              Rails.logger.info("+++++++++++++++ verify Variable 5 issuer = #{issuer}")
+            end
+
+          end
+        end
+      end
 
       def create!
         self.annotations ||= {}

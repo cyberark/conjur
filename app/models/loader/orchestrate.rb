@@ -422,13 +422,13 @@ module Loader
       # rubocop:enable Style/GuardClause
     end
 
+    $basic_schema = ""
+
     # Loads the records into the temporary schema (since the schema search path
     # contains only the temporary schema).
     def load_records
       raise "Policy version must be saved before loading" unless policy_version.resource_id
-
       create_records.map(&:create!)
-
       db[:role_memberships].where(admin_option: nil).update(admin_option: false)
       db[:role_memberships].where(ownership: nil).update(ownership: false)
       TABLES.each do |table|
@@ -451,15 +451,14 @@ module Loader
     # Creates a set of tables in the new schema to mirror the tables in the primary schema.
     # The new tables are not created with constraints, aside from primary keys.
     def create_schema
+      $basic_schema = db.search_path
+
       db.execute("CREATE SCHEMA #{schema_name}")
       db.search_path = schema_name
-
       TABLES.each do |table|
         db.execute("CREATE TABLE #{table} AS SELECT * FROM #{qualify_table(table)} WHERE 0 = 1")
       end
-
       db.execute(Functions.ownership_trigger_sql)
-
       db.execute(<<-SQL_STATEMENT)
       CREATE OR REPLACE FUNCTION account(id text) RETURNS text
       LANGUAGE sql IMMUTABLE
