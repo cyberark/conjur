@@ -160,7 +160,10 @@ module Authentication
             force: invalidate,
             skip_nil: true
           ) do
-            @discovery_configuration.discover!(@authenticator.provider_uri)
+            self.discover(
+              provider_uri: @authenticator.provider_uri,
+              cert_string: @authenticator.ca_cert
+            )
           rescue Errno::ETIMEDOUT => e
             raise Errors::Authentication::OAuth::ProviderDiscoveryTimeout.new(@authenticator.provider_uri, e.message)
           rescue => e
