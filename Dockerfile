@@ -1,12 +1,28 @@
+FROM cyberark/ubuntu-ruby-builder:latest as builder
+
+WORKDIR /opt/conjur-server
+
+COPY Gemfile Gemfile.lock ./
+COPY ./gems/ ./gems/
+
+RUN bundle --without test development && \
+    # Remove private keys brought in by gems in their test data
+    find / -name openid_connect -type d -exec find {} -name '*.pem' -type f -delete \; && \
+    find / -name 'httpclient-*' -type d -exec find {} -name '*.key' -type f -delete \; && \
+    find / -name httpclient -type d -exec find {} -name '*.pem' -type f -delete \;
+
 FROM cyberark/ubuntu-ruby-fips:latest
 
-ENV DEBIAN_FRONTEND=noninteractive \
-    PORT=80 \
-    LOG_DIR=/opt/conjur-server/log \
-    TMP_DIR=/opt/conjur-server/tmp \
-    SSL_CERT_DIRECTORY=/opt/conjur/etc/ssl
+ENV PORT=80 \
+    LOG_DIR=${CONJUR_HOME}/log \
+    TMP_DIR=${CONJUR_HOME}/tmp \
+    SSL_CERT_DIRECTORY=/opt/conjur/etc/ssl \
+    RAILS_ENV=production \
+    CONJUR_HOME=/opt/conjur-server
 
-EXPOSE 80
+ENV PATH="${PATH}:${CONJUR_HOME}/bin"
+
+WORKDIR ${CONJUR_HOME}
 
 RUN apt-get update -y && \
     apt-get -y dist-upgrade && \
@@ -19,8 +35,6 @@ RUN apt-get install -y build-essential \
                        tzdata \
     && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /opt/conjur-server
-
 # Ensure few required GID0-owned folders to run as a random UID (OpenShift requirement)
 RUN mkdir -p $TMP_DIR \
              $LOG_DIR \
@@ -28,21 +42,9 @@ RUN mkdir -p $TMP_DIR \
              $SSL_CERT_DIRECTORY/cert \
              /run/authn-local
 
-COPY Gemfile \
-     Gemfile.lock ./
-COPY gems/ gems/
-
-
-RUN bundle --without test development && \
-    # Remove private keys brought in by gems in their test data
-    find / -name openid_connect -type d -exec find {} -name '*.pem' -type f -delete \; && \
-    find / -name 'httpclient-*' -type d -exec find {} -name '*.key' -type f -delete \; && \
-    find / -name httpclient -type d -exec find {} -name '*.pem' -type f -delete \;
-
 COPY . .
+COPY --from=builder ${CONJUR_HOME} ${CONJUR_HOME}
 
-RUN ln -sf /opt/conjur-server/bin/conjurctl /usr/local/bin/
-
-ENV RAILS_ENV production
+EXPOSE ${PORT}
 
 ENTRYPOINT [ "conjurctl" ]
