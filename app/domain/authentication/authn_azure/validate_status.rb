@@ -34,7 +34,8 @@ module Authentication
 
       def validate_provider_is_responsive
         @discover_identity_provider.(
-          provider_uri: provider_uri
+          provider_uri: provider_uri,
+          ca_cert: nil
         )
       end
 

@@ -1,18 +1,17 @@
 require 'spec_helper'
-require 'conjur/fetch_required_secrets'
+require 'conjur/fetch_optional_secrets'
 require 'util/stubs/deep_double'
 
-RSpec.describe('Conjur::FetchRequiredSecrets') do
+RSpec.describe('Conjur::FetchOptionalSecrets') do
   def fetch_secrets(repo)
-    Conjur::FetchRequiredSecrets
+    Conjur::FetchOptionalSecrets
       .new(resource_class: repo)
       .(resource_ids: %w[resource1 resource2])
   end
 
-
   context 'when the secrets exist' do
     let(:repo_with_secrets) do
-      Util::Stubs::DeepDouble.new('ResourceRepo',
+      Util::Stubs::DeepDouble.new('OptionalResourceRepo',
                      '[]': {
                        'resource1' => { secret: { value: 'secret1' } },
                        'resource2' => { secret: { value: 'secret2' } }
@@ -35,9 +34,9 @@ RSpec.describe('Conjur::FetchRequiredSecrets') do
                      })
     end
 
-    it 'raises RequiredResourceMissing' do
-      expect{ fetch_secrets(repo_missing_resource) }.to raise_error(
-        Errors::Conjur::RequiredResourceMissing
+    it 'returns a hash of the requested resources with nil values' do
+      expect(fetch_secrets(repo_missing_resource)).to eq(
+        { 'resource1' => nil, 'resource2' => 'secret2' }
       )
     end
   end
@@ -51,9 +50,9 @@ RSpec.describe('Conjur::FetchRequiredSecrets') do
                      })
     end
 
-    it 'raises RequiredSecretMissing' do
-      expect{ fetch_secrets(repo_missing_secret) }.to raise_error(
-        Errors::Conjur::RequiredSecretMissing
+    it 'returns a hash of the secret values with nil values' do
+      expect(fetch_secrets(repo_missing_secret)).to eq(
+        { 'resource1' => 'secret1', 'resource2' => nil }
       )
     end
   end
