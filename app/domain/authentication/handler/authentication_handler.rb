@@ -5,22 +5,20 @@ module Authentication
     class AuthenticationHandler
       def initialize(
         authenticator_type:,
-        role: ::Role,
-        resource: ::Resource,
         authn_repo: DB::Repository::AuthenticatorRepository,
         namespace_selector: Authentication::Util::NamespaceSelector,
         logger: Rails.logger,
         audit_logger: ::Audit.logger,
         authentication_error: LogMessages::Authentication::AuthenticationError,
-        available_authenticators: Authentication::InstalledAuthenticators
+        available_authenticators: Authentication::InstalledAuthenticators,
+        role_repository: DB::Repository::AuthenticatorRoleRepository.new
       )
-        @role = role
-        @resource = resource
         @authenticator_type = authenticator_type
         @logger = logger
         @audit_logger = audit_logger
         @authentication_error = authentication_error
         @available_authenticators = available_authenticators
+        @role_repository = role_repository
 
         # Dynamically load authenticator specific classes
         namespace = namespace_selector.select(
@@ -53,6 +51,7 @@ module Authentication
           service_id: parameters[:service_id]
         )
 
+        # TODO: this error should be in the auth repository
         if authenticator.nil?
           raise(
             Errors::Conjur::RequestedResourceNotFound,
@@ -60,38 +59,21 @@ module Authentication
           )
         end
 
-        begin
-          role_id = @identity_resolver.new(authenticator: authenticator).call(
-            identifier: @strategy.new(
-              authenticator: authenticator
-            ).callback(parameters: parameters, request_body: request_body),
-            id: parameters[:id],
-            allowed_roles: find_allowed_roles(authenticator.resource_id)
-          )
-          role = ::Role[role_id]
-        rescue Errors::Authentication::Security::RoleNotFound => e
-          # This is a bit dirty, but now that we've shifted from looking up to
-          # selecting, this is needed to see if the role actually has permission
-          missing_role = e.message.scan(/'(.+)'/).flatten.first
-          identity = if missing_role.match(/^host\//)
-            "#{parameters[:account]}:host:#{missing_role.gsub(/^host\//, '')}"
-          else
-            "#{parameters[:account]}:user:#{missing_role}"
-          end
-          if (role = @role[identity])
-            if (webservice = @resource["#{parameters[:account]}:webservice:conjur/#{@authenticator_type}/#{parameters[:service_id]}"])
-              unless @role[identity].allowed_to?(:authenticate, webservice)
-                raise Errors::Authentication::Security::RoleNotAuthorizedOnResource.new(
-                  missing_role,
-                  :authenticate,
-                  webservice.resource_id
-                )
-              end
-            end
-          end
-          # If role or authenticator isn't present, raise the original exception
-          raise e
-        end
+        role_identifier = @strategy.new(
+          authenticator: authenticator
+        ).callback(parameters: parameters, request_body: request_body)
+
+        role = @role_repository.find(
+          role_identifier: role_identifier,
+          authenticator: authenticator
+        )
+
+        # Verify that the identified role is permitted to use this authenticator
+        RBAC::Permission.new.permitted?(
+          role_id: role.id,
+          resource_id: "#{parameters[:account]}:webservice:conjur/#{@authenticator_type}/#{parameters[:service_id]}",
+          privilege: :authenticate
+        )
 
         # Add an error message (this may actually never be hit as we raise
         # upstream if there is a problem with authentication & lookup)
@@ -113,18 +95,6 @@ module Authentication
         handle_error(e)
       end
 
-      def find_allowed_roles(resource_id)
-        @role.that_can(
-          :authenticate,
-          @resource[resource_id]
-        ).all.select(&:resource?).map do |role|
-          {
-            role_id: role.id,
-            annotations: {}.tap { |h| role.resource.annotations.each {|a| h[a.name] = a.value }}
-          }
-        end
-      end
-
       def handle_error(err)
         # Log authentication errors (but don't raise...)
         authentication_error = LogMessages::Authentication::AuthenticationError.new(err.inspect)
@@ -141,13 +111,13 @@ module Authentication
         when Errors::Authentication::RequestBody::MissingRequestParam,
           Errors::Authentication::AuthnOidc::TokenVerificationFailed,
           Errors::Authentication::AuthnOidc::TokenRetrievalFailed,
-          Errors::Authentication::Security::RoleNotFound,
-          Errors::Authentication::Security::AuthenticatorNotWhitelisted,
           Rack::OAuth2::Client::Error # Code value mismatch
           raise ApplicationController::BadRequest
 
         when Errors::Conjur::RequestedResourceNotFound,
-          Errors::Authentication::AuthnOidc::IdTokenClaimNotFoundOrEmpty
+          Errors::Authentication::Security::RoleNotFound,
+          Errors::Authentication::AuthnOidc::IdTokenClaimNotFoundOrEmpty,
+          Errors::Authentication::Security::AuthenticatorNotWhitelisted
           raise ApplicationController::Unauthorized
 
         when Errors::Authentication::Jwt::TokenExpired

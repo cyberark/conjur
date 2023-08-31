@@ -63,14 +63,29 @@ module Authentication
           end
           # rubocop:enable Metrics/ParameterLists
 
+          def annotations_required
+            true
+          end
+
+          def type
+            'authn-jwt'
+          end
+
           def resource_id
-            "#{@account}:webservice:conjur/authn-jwt/#{@service_id}"
+            "#{@account}:webservice:conjur/#{type}/#{@service_id}"
           end
 
           def token_ttl
             ActiveSupport::Duration.parse(@token_ttl.to_s)
           rescue ActiveSupport::Duration::ISO8601Parser::ParsingError
             raise Errors::Authentication::DataObjects::InvalidTokenTTL.new(resource_id, @token_ttl)
+          end
+
+          def aliased_enforced_claims
+            claim_aliases = claim_aliases_lookup.invert
+            enforced_claims.map do |claim|
+              claim_aliases.key?(claim) ? claim_aliases[claim] : claim
+            end
           end
 
           def enforced_claims

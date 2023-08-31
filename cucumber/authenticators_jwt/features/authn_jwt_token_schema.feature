@@ -127,7 +127,7 @@ Feature: JWT Authenticator - Token Schema
     Then the HTTP response status code is 401
     And The following appears in the log after my savepoint:
     """
-    CONJ00057E Role does not have the required constraints: '["ref"]'
+    CONJ00057E Role does not have the required constraints: 'ref'
     """
 
   @negative @acceptance
@@ -298,7 +298,7 @@ Feature: JWT Authenticator - Token Schema
     Then the HTTP response status code is 401
     And The following appears in the log after my savepoint:
     """
-    CONJ00057E Role does not have the required constraints: '["ref"]'
+    CONJ00057E Role does not have the required constraints: 'ref'
     """
     When I extend the policy with:
     """
@@ -488,7 +488,7 @@ Feature: JWT Authenticator - Token Schema
     Then the HTTP response status code is 401
     And The following appears in the log after my savepoint:
     """
-    CONJ00084E Claim 'ref (annotation: branch)' is missing from JWT token. Verify that you configured the host with permitted restrictions
+    CONJ00084E Claim 'ref' is missing from JWT token. Verify that you configured the host with permitted restrictions
     """
 
   @negative @acceptance

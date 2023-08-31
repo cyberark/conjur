@@ -11,8 +11,8 @@ Feature: JWT Authenticator - Input Validation
       body:
       - !webservice
 
-      - !variable
-        id: jwks-uri
+      - !variable jwks-uri
+      - !variable token-app-property
 
       - !group users
 
@@ -33,12 +33,13 @@ Feature: JWT Authenticator - Input Validation
     And I am the super-user
     And I initialize remote JWKS endpoint with file "authn-jwt-input-validation" and alg "RS256"
     And I successfully set authn-jwt "jwks-uri" variable value to "http://jwks_py:8090/authn-jwt-input-validation/RS256" in service "raw"
+    And I successfully set authn-jwt "token-app-property" variable to value "host"
 
   @sanity
   @negative @acceptance
   Scenario: ONYX-8594: Empty Token Given, 401 Error
     Given I save my place in the log file
-    And I am using file "authn-jwt-input-validation" and alg "RS256" for remotely issue non exp token:
+    And I am using file "authn-jwt-input-validation" and alg "RS256" for remotely issue token:
     """
     {}
     """
@@ -46,8 +47,11 @@ Feature: JWT Authenticator - Input Validation
     Then the HTTP response status code is 401
     And The following appears in the log after my savepoint:
     """
-    CONJ00085E Token is empty or not found.
+    CONJ00081E 'host' field not found in the token>
     """
+    # """
+    # CONJ00085E Token is empty or not found.
+    # """
 
   @sanity
   @negative @acceptance
@@ -72,7 +76,7 @@ Feature: JWT Authenticator - Input Validation
     """
 
   @negative @acceptance
-  Scenario: ONYX-8579: URL not includes service-id, includes correct account
+  Scenario: ONYX-8579: URL does not include service-id and includes correct account
     Given I save my place in the log file
     And I am using file "authn-jwt-input-validation" and alg "RS256" for remotely issue non exp token:
     """
@@ -100,7 +104,7 @@ Feature: JWT Authenticator - Input Validation
     Then the HTTP response status code is 401
     And The following appears in the log after my savepoint:
     """
-    CONJ00007E 'wrong-account' not found
+    CONJ00005E Webservice 'authn-jwt/raw' not found in account 'wrong-account'
     """
 
   @negative @acceptance

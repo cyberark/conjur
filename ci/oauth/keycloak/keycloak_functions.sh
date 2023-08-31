@@ -4,7 +4,7 @@ KEYCLOAK_SERVICE_NAME="keycloak"
 
 # This is executed by the main "ci/test" script after cd-ing into "ci".
 # shellcheck disable=SC1091
-source "./shared.sh"
+# source "./shared.sh"
 
 # Note: the single arg is a nameref, which this function sets to an array
 # containing items of the form "KEY=VAL".

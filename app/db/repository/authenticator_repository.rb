@@ -44,7 +44,7 @@ module DB
           )
         ).first
         unless webservice
-          raise Errors::Authentication::Security::WebserviceNotFound, "#{type}/#{service_id}"
+          raise Errors::Authentication::Security::WebserviceNotFound.new("#{type}/#{service_id}", account)
         end
 
         load_authenticator(account: account, service_id: service_id, type: type)

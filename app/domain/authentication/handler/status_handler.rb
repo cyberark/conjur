@@ -42,7 +42,7 @@ module Authentication
           if resource[webservice].blank?
             failed_response(
               key: key,
-              error: Errors::Authentication::Security::WebserviceNotFound.new(identifier)
+              error: Errors::Authentication::Security::WebserviceNotFound.new(identifier, values[:account])
             )
           end
         end
@@ -55,7 +55,7 @@ module Authentication
           if resource[webservice].blank?
             failed_response(
               key: key,
-              error: Errors::Authentication::Security::WebserviceNotFound.new(identifier)
+              error: Errors::Authentication::Security::WebserviceNotFound.new(identifier, values[:account])
             )
           end
         end

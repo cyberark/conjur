@@ -38,27 +38,26 @@ Given(/^I successfully set authn-jwt public-keys variable to value from remote J
 end
 
 When(/I authenticate via authn-jwt using given ([^"]*) service ID and without account in url/) do |service_id|
-  authenticate_jwt_token(jwt_token, service_id)
+  authenticate_jwt(jwt_token: jwt_token, service_id: service_id)
 end
 
 When(/I authenticate via authn-jwt with the JWT token/) do
-  authenticate_jwt_token(jwt_token)
+  authenticate_jwt(jwt_token: jwt_token)
 end
 
 When(/I authenticate via authn-jwt with ([^"]*) service ID/) do |service_id|
-  authenticate_jwt_token(jwt_token, service_id)
+  authenticate_jwt(jwt_token: jwt_token, service_id: service_id)
 end
 
-When(/I authenticate via authn-jwt using given ([^"]*) service ID and with ([^"]*) account in url/) do |service_id, account|
-  authenticate_jwt_with_url_identity(jwt_token, account, service_id)
+When(/I authenticate via authn-jwt using given ([^"]*) service ID and with ([^"]*) host in url/) do |service_id, host|
+  authenticate_jwt_with_url_identity(token: jwt_token, host: host, service_id: service_id)
+end
+When(/I authenticate via authn-jwt without service id but with ([^"]*) service_id in url/) do |service_id|
+  authenticate_jwt(jwt_token: jwt_token, service_id: service_id)
 end
 
-When(/I authenticate via authn-jwt without service id but with ([^"]*) account in url/) do |account|
-  authenticate_jwt_token(jwt_token, account)
-end
-
-When(/I authenticate via authn-jwt with ([^"]*) account in url/) do |account|
-  authenticate_jwt_with_url_identity(jwt_token, account)
+When(/I authenticate via authn-jwt with ([^"]*) host in url/) do |host|
+  authenticate_jwt_with_url_identity(token: jwt_token, host: host)
 end
 
 When(/I authenticate via authn-jwt with the ID token/) do
@@ -66,5 +65,5 @@ When(/I authenticate via authn-jwt with the ID token/) do
 end
 
 When (/I authenticate with string that is not token ([^"]*)/) do |text|
-  authenticate_jwt_token(text)
+  authenticate_jwt(jwt_token: text)
 end

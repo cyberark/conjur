@@ -289,7 +289,7 @@ Feature: JWT Authenticator - Configuration Check
     # CONJ00154E Invalid signing key settings: Failed to find a JWT decode option. Either `jwks-uri` or `public-keys` variable must be set
 
   @negative @acceptance
-  Scenario: ONYX-8696: None of provider-uri or jwks-uri are configured
+  Scenario: ONYX-8696: Neither provider-uri or jwks-uri are configured
     Given I load a policy:
     """
     - !policy
@@ -389,7 +389,7 @@ Feature: JWT Authenticator - Configuration Check
     """
 
   @negative @acceptance
-  Scenario: ONYX-8694: Both Token identity and host send in URL, error
+  Scenario: ONYX-8694: Token identity set and host in URL, error
     Given I load a policy:
     """
     - !policy
@@ -428,7 +428,7 @@ Feature: JWT Authenticator - Configuration Check
     }
     """
     And I save my place in the log file
-    When I authenticate via authn-jwt with myapp account in url
+    When I authenticate via authn-jwt with myapp host in url
     Then the HTTP response status code is 401
     And The following appears in the log after my savepoint:
     """

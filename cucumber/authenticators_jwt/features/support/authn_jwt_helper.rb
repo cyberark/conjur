@@ -7,11 +7,7 @@ module AuthnJwtHelper
   DEFAULT_SERVICE_ID = 'raw'
   OIDC_PROVIDER_SERVICE_ID = "keycloak"
 
-  def authenticate_jwt_token(jwt_token, service_id = DEFAULT_SERVICE_ID)
-    authenticate_jwt(jwt_token: jwt_token, service_id: service_id)
-  end
-
-  def authenticate_jwt(jwt_token:, service_id:)
+  def authenticate_jwt(jwt_token:, service_id: DEFAULT_SERVICE_ID)
     path = "#{conjur_hostname}/authn-jwt/#{service_id}/#{ACCOUNT}/authenticate"
     payload = {
       "jwt" => jwt_token
@@ -23,10 +19,10 @@ module AuthnJwtHelper
     authenticate_jwt(jwt_token: id_token, service_id: OIDC_PROVIDER_SERVICE_ID)
   end
 
-  def authenticate_jwt_with_url_identity(jwt_token, account_name, service_id = DEFAULT_SERVICE_ID)
-    path = "#{conjur_hostname}/authn-jwt/#{service_id}/#{ACCOUNT}/#{account_name}/authenticate"
+  def authenticate_jwt_with_url_identity(token:, host:, service_id: DEFAULT_SERVICE_ID)
+    path = "#{conjur_hostname}/authn-jwt/#{service_id}/#{ACCOUNT}/#{host}/authenticate"
     payload = {
-      "jwt" => jwt_token
+      "jwt" => token
     }
     post(path, payload)
   end

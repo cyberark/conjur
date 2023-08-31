@@ -73,7 +73,7 @@ Feature: JWT Authenticator - Fetch identity from URL
     }
     """
     And I save my place in the log file
-    When I authenticate via authn-jwt with user_test_from_url%40some_policy account in url
+    When I authenticate via authn-jwt with user_test_from_url%40some_policy host in url
     Then user "user_test_from_url@some_policy" has been authorized by Conjur
     And I successfully GET "/secrets/cucumber/variable/test-variable" with authorized user
     And The following appears in the log after my savepoint:
@@ -93,7 +93,7 @@ Feature: JWT Authenticator - Fetch identity from URL
     }
     """
     And I save my place in the log file
-    When I authenticate via authn-jwt with user_test_from_url account in url
+    When I authenticate via authn-jwt with user_test_from_url host in url
     Then user "user_test_from_url" has been authorized by Conjur
     And I successfully GET "/secrets/cucumber/variable/test-variable" with authorized user
     And The following appears in the log after my savepoint:
@@ -114,7 +114,7 @@ Feature: JWT Authenticator - Fetch identity from URL
     }
     """
     And I save my place in the log file
-    When I authenticate via authn-jwt with host%2Fsome_policy%2Fhost_test_from_url account in url
+    When I authenticate via authn-jwt with host%2Fsome_policy%2Fhost_test_from_url host in url
     Then host "some_policy/host_test_from_url" has been authorized by Conjur
     And I successfully GET "/secrets/cucumber/variable/test-variable" with authorized user
     And The following appears in the log after my savepoint:
@@ -134,7 +134,7 @@ Feature: JWT Authenticator - Fetch identity from URL
     }
     """
     And I save my place in the log file
-    When I authenticate via authn-jwt with host%2Fmyapp account in url
+    When I authenticate via authn-jwt with host%2Fmyapp host in url
     Then host "myapp" has been authorized by Conjur
     And I successfully GET "/secrets/cucumber/variable/test-variable" with authorized user
     And The following appears in the log after my savepoint:
@@ -151,7 +151,7 @@ Feature: JWT Authenticator - Fetch identity from URL
     }
     """
     And I save my place in the log file
-    When I authenticate via authn-jwt with invalid_host account in url
+    When I authenticate via authn-jwt with invalid_host host in url
     Then the HTTP response status code is 401
     And The following appears in the log after my savepoint:
     """
@@ -170,7 +170,7 @@ Feature: JWT Authenticator - Fetch identity from URL
     }
     """
     And I save my place in the log file
-    When I authenticate via authn-jwt with host%2Fsome_policy%2Fhost_test_from_url account in url
+    When I authenticate via authn-jwt with host%2Fsome_policy%2Fhost_test_from_url host in url
     Then host "some_policy/host_test_from_url" has been authorized by Conjur
     And I successfully GET "/secrets/cucumber/variable/test-variable" with authorized user
     And The following appears in the log after my savepoint:

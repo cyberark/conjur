@@ -34,7 +34,7 @@ module Authentication
       end
 
       def validate_webservice_exists
-        raise Errors::Authentication::Security::WebserviceNotFound, @webservice.name unless webservice_resource
+        raise Errors::Authentication::Security::WebserviceNotFound, @webservice.name, @account unless webservice_resource
       end
 
       def webservice_resource

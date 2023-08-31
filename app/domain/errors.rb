@@ -174,7 +174,7 @@ module Errors
       )
 
       WebserviceNotFound = ::Util::TrackableErrorClass.new(
-        msg: "Webservice '{0-webservice-name}' not found",
+        msg: "Webservice '{0-webservice-name}' not found in account '{1-account}'",
         code: "CONJ00005E"
       )
 
