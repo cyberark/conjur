@@ -291,11 +291,11 @@ module Loader
 
         if self.id.start_with?("data/ephemerals")
           Rails.logger.info("+++++++++++++++ verify Variable 3")
-          if self.annotations["issuer"].nil?
+          if self.annotations["ephemerals/issuer"].nil?
             message = "Ephemeral variable #{self.id} has no issuer annotation"
             raise Exceptions::InvalidPolicyObject.new(self.id, message: message)
           else
-            issuer_id = self.annotations["issuer"]
+            issuer_id = self.annotations["ephemerals/issuer"]
             Rails.logger.info("+++++++++++++++ verify Variable 4 issuer_id = #{issuer_id}")
 
             Rails.logger.info("+++++++++++++ verify public Variable 4.4 Sequel::Model.db.search_path = #{Sequel::Model.db.search_path}")
@@ -310,11 +310,17 @@ module Loader
             if (issuer.nil?)
               message = "Ephemeral variable #{self.id} issuer #{issuer_id} is not defined"
               raise Exceptions::InvalidPolicyObject.new(self.id, message: message)
-            else
-              Rails.logger.info("+++++++++++++++ verify Variable 5 issuer = #{issuer}")
             end
 
           end
+        else
+          Rails.logger.info("+++++++++++++++ verify public Variable 5")
+          if !(self.annotations.nil?) && !(self.annotations["ephemerals/issuer"].nil?)
+            Rails.logger.info("+++++++++++++++ verify public Variable 6")
+            message = "Regular variable #{self.id} issuer is defined"
+            raise Exceptions::InvalidPolicyObject.new(self.id, message: message)
+          end
+          Rails.logger.info("+++++++++++++++ verify public Variable 7")
         end
       end
 
