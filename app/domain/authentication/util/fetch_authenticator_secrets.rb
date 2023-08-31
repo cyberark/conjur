@@ -13,7 +13,7 @@ module Authentication
       inputs: %i[conjur_account authenticator_name service_id required_variable_names]
     ) do
       def call
-        secret_map_for(@required_variable_names, required_secrets).merge(secret_map_for(@optional_variable_names, optional_secrets))
+        secret_map_for(required_secrets).merge(secret_map_for(optional_secrets))
       end
 
       private
@@ -26,10 +26,10 @@ module Authentication
         @optional_secrets ||= @fetch_optional_secrets.(resource_ids: resource_ids_for(@optional_variable_names))
       end
 
-      def secret_map_for(variable_names, secret_values)
-        variable_names.each_with_object({}) do |variable_name, secrets|
-          full_variable_name     = full_variable_name(variable_name)
-          secrets[variable_name] = secret_values[full_variable_name]
+      def secret_map_for(secret_values)
+        secret_values.each_with_object({}) do |(full_name, value), secrets|
+          short_name = full_name.to_s.split('/')[-1]
+          secrets[short_name] = value
         end
       end
 
