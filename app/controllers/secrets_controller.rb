@@ -39,7 +39,7 @@ class SecretsController < RestController
     version = params[:version]
 
     if ephemeral_secret?
-      value = handle_ephemeral_secret
+      value, status_code = handle_ephemeral_secret
       mime_type = 'application/json'
     else
       unless (secret = resource.secret(version: version))
@@ -50,9 +50,10 @@ class SecretsController < RestController
       value = secret.value
       mime_type = \
         resource.annotation('conjur/mime_type') || 'application/octet-stream'
+      status_code = 200
     end
 
-    send_data(value, type: mime_type)
+    send_data(value, type: mime_type, status: status_code)
   rescue Exceptions::RecordNotFound
     raise Errors::Conjur::MissingSecretValue, resource_id
   ensure
@@ -184,7 +185,7 @@ class SecretsController < RestController
     # There shouldn't be a state where a variable belongs to an issuer that doesn't exit, but we check it to be safe
     raise ApplicationController::InternalServerError, "Issuer assigned to #{account}:#{params[:kind]}:#{params[:identifier]} was not found" unless issuer
 
-    logger.info(LogMessages::Secrets::EphemeralSecretRequest.new(variable_data["issuer"], issuer.issuer_type, variable_data["method"], request_id))
+    logger.info(LogMessages::Secrets::EphemeralSecretRequest.new(request_id, variable_data["issuer"], issuer.issuer_type, variable_data["method"]))
 
     issuer_data = {
       max_ttl: issuer.max_ttl,
