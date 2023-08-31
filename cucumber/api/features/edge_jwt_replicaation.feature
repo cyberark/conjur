@@ -56,6 +56,29 @@ Feature: Replicate jwt authenticators from edge endpoint
         - !webservice
         - !variable jwks-uri
         - !variable ca-cert
+    - !policy
+      id: conjur/authn-jwt/myVendor2
+      body:
+        - !webservice
+        - !variable jwks-uri
+        - !variable ca-cert
+        - !variable token-app-property
+        - !variable identity-path
+        - !variable issuer
+        - !variable enforced-claims
+        - !variable claim-aliases
+        - !variable audience
+        - !group apps
+        - !permit
+          role: !group apps
+          privilege: [read, authenticate]
+          resource: !webservice
+        - !webservice status
+        - !group operators
+        - !permit
+          role: !group operators
+          privilege: [read]
+          resource: !webservice status
     """
     And I add the secret value "https://www.googleapis.com/oauth2/v3/certs" to the resource "cucumber:variable:conjur/authn-jwt/myVendor/jwks-uri"
     And I add the secret value "app_name" to the resource "cucumber:variable:conjur/authn-jwt/myVendor/token-app-property"
@@ -76,7 +99,7 @@ Feature: Replicate jwt authenticators from edge endpoint
     Then the HTTP response status code is 200
     And the JSON should be:
     """
-{
+    {
         "authn-jwt": [
           {
             "id": "cucumber:webservice:conjur/authn-jwt/myVendor",
@@ -102,6 +125,29 @@ Feature: Replicate jwt authenticators from edge endpoint
             "audience": null
           },
           {
+            "audience": null,
+            "caCert": null,
+            "claimAliases": null,
+            "enabled": false,
+            "enforcedClaims": null,
+            "id": "cucumber:webservice:conjur/authn-jwt/myVendor2",
+            "identityPath": null,
+            "issuer": null,
+            "jwksUri": null,
+            "permissions": [
+              {
+                "privilege": "authenticate",
+                "role": "cucumber:group:conjur/authn-jwt/myVendor2/apps"
+              },
+              {
+                "privilege": "read",
+                "role": "cucumber:group:conjur/authn-jwt/myVendor2/apps"
+              }
+            ],
+            "publicKeys": null,
+            "tokenAppProperty": null
+          },
+          {
             "id": "cucumber:webservice:conjur/authn-jwt/withoutPermissions",
             "enabled": false,
             "permissions": null,
@@ -114,10 +160,19 @@ Feature: Replicate jwt authenticators from edge endpoint
             "enforcedClaims": null,
             "claimAliases": null,
             "audience": null
-          }
-        ]
-      }
-    """
+         }
+          ]
+        }
+       """
+      When I GET "/edge/secrets/cucumber" with parameters:
+      """
+      limit: 1000
+      offset: 4
+      """
+      And the JSON should be:
+      """{ }"""
+
+
 
   @negative
   Scenario: Fetching authenticators with non edge host return 403 error

@@ -15,13 +15,13 @@ module AuthenticatorsManager
     return_json = {}
     kinds.each do |kind|
       if kind == "authn-jwt"
-        return_json[kind] = authn_jwt_handler1(offset, limit)
+        return_json[kind] = authn_jwt_handler(offset, limit)
       end
     end
     return_json
   end
 
-  def authn_jwt_handler1(offset,limit)
+  def authn_jwt_handler(offset,limit)
     results = []
     begin
       authenticators = Authenticator.jwt
