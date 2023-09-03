@@ -191,20 +191,59 @@ describe Loader::Types::Variable do
 
     context 'when issuer aws1 configured without permissions' do
       before do
-        #allow(Rails.application.config.conjur_config).to receive(:authn_api_key_default).and_return(true)
+        allow(Issuer).to receive(:where).with("conjur", issuer_id).and_return(issuer_object)
       end
 
       context 'when creating regular variable with ephemerals/issuer annotation' do
         let(:resource_id) { 'data/myvar2' }
-        let(:issuer) { 'aws1' }
+        let(:issuer_id) { 'aws1' }
+        let(:issuer_object) { nil }
         it { expect { variable.verify }.to raise_error }
       end
 
       context 'when creating ephemeral variable with ephemerals/issuer annotation' do
         let(:resource_id) { 'data/ephemerals/myvar2' }
-        let(:issuer) { 'aws1' }
+        let(:issuer_id) { 'aws1' }
+        let(:issuer_object) { nil }
+        it { expect { variable.verify }.to raise_error }
+      end
+
+      context 'when creating ephemeral variable with ephemerals/issuer annotation' do
+        let(:resource_id) { 'data/ephemerals/myvar2' }
+        let(:issuer_id) { 'aws1' }
+        let(:issuer_object) { 'issuer' }
         it { expect { variable.verify }.to raise_error }
       end
     end
+
+    context 'when issuer aws1 configured with permissions' do
+      before do
+        allow(Issuer).to receive(:where).with("conjur", issuer_id).and_return(issuer_object)
+        #allow(authorize).to receive(:use, :resource)
+        #                       .and_raise('Forbidden')
+      end
+
+      context 'when creating regular variable with ephemerals/issuer annotation' do
+        let(:resource_id) { 'data/myvar2' }
+        let(:issuer_id) { 'aws1' }
+        let(:issuer_object) { nil }
+        it { expect { variable.verify }.to raise_error }
+      end
+
+      context 'when creating ephemeral variable with ephemerals/issuer annotation' do
+        let(:resource_id) { 'data/ephemerals/myvar2' }
+        let(:issuer_id) { 'aws1' }
+        let(:issuer_object) { nil }
+        it { expect { variable.verify }.to raise_error }
+      end
+
+      context 'when creating ephemeral variable with ephemerals/issuer annotation' do
+        let(:resource_id) { 'data/ephemerals/myvar2' }
+        let(:issuer_id) { 'aws1' }
+        let(:issuer_object) { 'issuer' }
+        it { expect { variable.verify }.to raise_error }
+      end
+    end
+
   end
 end
