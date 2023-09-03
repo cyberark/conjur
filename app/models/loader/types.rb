@@ -1,5 +1,4 @@
 # frozen_string_literal: true
-#require '/opt/conjur-server/app/controllers/concerns/authorize_resource'
 require_relative '../../controllers/concerns/authorize_resource'
 
 module Loader
