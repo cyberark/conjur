@@ -28,6 +28,11 @@ module LogMessages
       msg: "Slosilo key is rotated successfully",
       code: "CONJ00156I"
     )
+
+    GeneralError = ::Util::TrackableErrorClass.new(
+      msg: "Unexpected error occurred: {0}",
+      code: "CONJ00163E"
+    )
   end
 
   module Endpoints
@@ -45,13 +50,20 @@ module LogMessages
       msg: "{0} endpoint is finished successfully with {1}-limit {2}-offset",
       code: "CONJ00155I"
     )
+
+    EndpointFinishedSuccessfullyWithCount = ::Util::TrackableLogMessageClass.new(
+      msg: "{0} endpoint is finished successfully with {1}-count",
+      code: "CONJ00157I"
+    )
+
   end
 
   module Edge
     EdgeTelemetry = ::Util::TrackableLogMessageClass.new(
-      msg: "Edge {0} was last synced at {1}. Requests served during last sync interval: " \
-            "get secret: {2}, auth apikey: {3}, auth jwt: {4}, redirect {5}." \
-            "Edge Info: version: {6}, platform: {7}, install time: {8}",
+      msg:  "Requested from tenant: {0}." \
+            "Edge {1} was last synced at {2}. Requests served during last sync interval: " \
+            "get_secret={3}, auth_apikey={4}, auth_jwt={5}, redirect={6}." \
+            "Edge_Info: version={7}, platform={8}, install_time={9}.",
       code: "CONJ00158"
     )
   end
@@ -781,15 +793,15 @@ module LogMessages
     end
   end
   
-  module Platforms
+  module Issuers
 
-    PlatformPolicyNotFound = ::Util::TrackableErrorClass.new(
-      msg: "The policy of platform {0} was not found",
+    IssuerPolicyNotFound = ::Util::TrackableErrorClass.new(
+      msg: "The policy of issuer {0} was not found",
       code: "CONJ00158E"
     )
 
-    PlatformEndpointForbidden = ::Util::TrackableErrorClass.new(
-      msg: "Action {0} is not allowed on the platforms endpoint",
+    IssuerEndpointForbidden = ::Util::TrackableErrorClass.new(
+      msg: "Action {0} is not allowed on the issuers endpoint",
       code: "CONJ00159E"
     )
     
@@ -798,7 +810,7 @@ module LogMessages
   module Secrets
 
     EphemeralSecretRequest = ::Util::TrackableLogMessageClass.new(
-      msg: "Received an ephemeral secret request. Platform ID [{0}], platform type [{1}], ephemeral method [{2}], Request ID [{3}]",
+      msg: "Received an ephemeral secret request. Issuer ID [{0}], issuer type [{1}], ephemeral method [{2}], Request ID [{3}]",
       code: "CONJ00160I"
     )
 

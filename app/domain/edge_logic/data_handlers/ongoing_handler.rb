@@ -22,10 +22,13 @@ module EdgeLogic
         # Log Edge statistics to be collected by Datadog
         stats = options['edge_statistics']
         cycle_reqs = stats['cycle_requests'] || {}
-        @logger.info(LogMessages::Edge::EdgeTelemetry.new(edge.name, Time.at(stats['last_synch_time']),
+        #convert time to seconds 
+        last_synch_time_sec = Rational(stats['last_synch_time'], 1000)
+        installation_time_sec = Rational(edge.installation_date, 1000)
+        @logger.info(LogMessages::Edge::EdgeTelemetry.new(parsed_tenant_id, edge.name, Time.at(last_synch_time_sec),
                                                          cycle_reqs['get_secret'], cycle_reqs['apikey_authenticate'],
                                                          cycle_reqs['jwt_authenticate'], cycle_reqs['redirect'],
-                                                         edge.version, edge.platform, Time.at(edge.installation_date)))
+                                                         edge.version, edge.platform, Time.at(installation_time_sec)))
       end
 
       def input_validator
@@ -41,6 +44,18 @@ module EdgeLogic
             numeric_validator.call(k, v) || string_length_validator.call(k, v)
           end
         }
+      end
+
+      private
+
+      def parsed_tenant_id
+        tenant_id = Rails.application.config.conjur_config.tenant_id
+        if tenant_id.match?(/\A[a-f0-9]{32}\z/)
+          # Insert dashes at the specific positions to achieve the tenant-id format
+          formatted_output = "#{tenant_id[0..7]}-#{tenant_id[8..11]}-#{tenant_id[12..15]}-#{tenant_id[16..19]}-#{tenant_id[20..31]}"
+        else
+          ""
+        end
       end
 
     end

@@ -7,10 +7,10 @@ class MockConjurEngineClient < ConjurEphemeralEngineClient
     super(logger: logger, request_id: request_id, http_client: http_client)
   end
 
-  def hash_keys_to_camel_case(hash, level = 0)
+  def hash_keys_to_snake_case(hash, level = 0)
     super(hash, level)
   end
-  
+
   def tenant_id
     super
   end
@@ -21,7 +21,7 @@ class MockHttpResponse
     @body = body
     @code = code
   end
-  
+
   attr_reader :code
   attr_reader :body
 end
@@ -34,17 +34,11 @@ describe "Conjur ephemeral engine client validation" do
       "id" => "b549465d-140b-475e-ada3-bc50e07d09da",
       "ttl" => 1000,
       "data" => {
-        "Credentials" => {
-          "AccessKeyId" => "aws_key_id",
-          "SecretAccessKey" => "aws_key_secret",
-          "SessionToken" => "session_token",
-          "Expiration" => "2023-07-03T15:28:23+00:00"
-        },
-        "FederatedUser" => {
-          "FederatedUserId" => "238637036211:conjur,host,data.my-app", 
-          "Arn" => "arn:aws:sts::238637036211:federated-user/conjur,host,data.my-app"
-        },
-        "PackedPolicySize" => 16
+        "access_key_id" => "aws_key_id",
+        "secret_access_key" => "secret_access_key",
+        "session_token" => "session_token",
+        "federated_user_id" => "238637036211:conjur,host,data.my-app",
+        "federatedUserArn" => "arn:aws:sts::238637036211:federated-user/conjur,host,data.my-app"
       }
     }
   end
@@ -56,29 +50,29 @@ describe "Conjur ephemeral engine client validation" do
       "description" => "Error description"
     }
   end
-  
+
   def mock_ephemeral_secrets_service(response_code)
     double('net_http_post').tap do |net_http_post|
       if response_code
         allow(net_http_post).to receive(:request)
-          .and_return(MockHttpResponse.new(JSON.generate(mock_secret_error), response_code))
+                                  .and_return(MockHttpResponse.new(JSON.generate(mock_secret_error), response_code))
       else
         allow(net_http_post).to receive(:request)
-          .and_return(MockHttpResponse.new(JSON.generate(mock_secret_result), 201))
+                                  .and_return(MockHttpResponse.new(JSON.generate(mock_secret_result), 201))
       end
     end
   end
-  
+
   context "when all input is valid" do
     it "then an ephemeral secret is returned" do
-      platform_type = "aws"
-      platform_method = "iam_federation"
+      issuer_type = "aws"
+      issuer_method = "iam_federation"
       role_id = "conjur:host:data/my-host"
-      platform_data = {
+      issuer_data = {
         max_ttl: 3000,
         data: {
           access_key_id: "my_key_id",
-          access_key_secret: "my_secret_key"
+          secret_access_key: "my_secret_key"
         }
       }
       variable_data = {
@@ -89,12 +83,12 @@ describe "Conjur ephemeral engine client validation" do
 
       expect do
         MockConjurEngineClient.new(logger: logger, request_id: "abc", http_client: mock_ephemeral_secrets_service(nil))
-          .get_ephemeral_secret(platform_type, platform_method, role_id, platform_data, variable_data)
+                              .get_ephemeral_secret(issuer_type, issuer_method, role_id, issuer_data, variable_data)
       end
         .to_not raise_error
 
       result = MockConjurEngineClient.new(logger: logger, request_id: "abc", http_client: mock_ephemeral_secrets_service(nil))
-        .get_ephemeral_secret(platform_type, platform_method, role_id, platform_data, variable_data)
+                                     .get_ephemeral_secret(issuer_type, issuer_method, role_id, issuer_data, variable_data)
 
       expect(result).to eq(mock_secret_result)
     end
@@ -102,13 +96,13 @@ describe "Conjur ephemeral engine client validation" do
 
   context "when there are failures from the ephemeral secrets service" do
     it "then the appropriate exception is raised" do
-      platform_type = "aws"
-      platform_method = "iam_federation"
+      issuer_type = "aws"
+      issuer_method = "iam_federation"
       role_id = "conjur:host:data/my-host"
-      platform_data = {
+      issuer_data = {
         data: {
           access_key_id: "my_key_id",
-          access_key_secret: "my_secret_key"
+          secret_access_key: "my_secret_key"
         }
       }
       variable_data = {
@@ -119,14 +113,14 @@ describe "Conjur ephemeral engine client validation" do
 
       expect do
         MockConjurEngineClient.new(logger: logger, request_id: "abc", http_client: mock_ephemeral_secrets_service("400"))
-          .get_ephemeral_secret(platform_type, platform_method, role_id, platform_data, variable_data)
+                              .get_ephemeral_secret(issuer_type, issuer_method, role_id, issuer_data, variable_data)
       end.to raise_error(ApplicationController::BadRequest) do |error|
         expect(error.message).to eq("Failed to create the ephemeral secret. Code: Error code, Message: Error message, description: Error description")
       end
 
       expect do
         MockConjurEngineClient.new(logger: logger, request_id: "abc", http_client: mock_ephemeral_secrets_service("500"))
-          .get_ephemeral_secret(platform_type, platform_method, role_id, platform_data, variable_data)
+                              .get_ephemeral_secret(issuer_type, issuer_method, role_id, issuer_data, variable_data)
       end.to raise_error(ApplicationController::InternalServerError) do |error|
         expect(error.message).to eq("Failed to create the ephemeral secret. Code: Error code, Message: Error message, description: Error description")
       end
@@ -141,13 +135,13 @@ describe "Conjur ephemeral engine client validation" do
         "KeyThree": "ValueThree"
       }
     end
-    
+
     it "then they are trimmed and turned to upper case" do
       result = MockConjurEngineClient.new(logger: logger, request_id: "abc", http_client: mock_ephemeral_secrets_service(error: nil))
-        .hash_keys_to_camel_case(hash)
+                                     .hash_keys_to_snake_case(hash)
       expected_result = {
-        "keyOne" => "value-one",
-        "keyTwo" => "value_two",
+        "key_one" => "value-one",
+        "key_two" => "value_two",
         "keythree" => "ValueThree"
       }
 
@@ -169,13 +163,13 @@ describe "Conjur ephemeral engine client validation" do
 
     it "then the sub hash is transformed as well" do
       result = MockConjurEngineClient.new(logger: logger, request_id: "abc", http_client: mock_ephemeral_secrets_service(error: nil))
-        .hash_keys_to_camel_case(hash)
+                                     .hash_keys_to_snake_case(hash)
       expected_result = {
-        "keyOne" => "value-one",
-        "keyTwo" => "value_two",
+        "key_one" => "value-one",
+        "key_two" => "value_two",
         "data" => {
-          "subKeyOne" => "sub-key-value",
-          "subKeyTwo" => "sub_key_value"
+          "sub_key_one" => "sub-key-value",
+          "sub_key_two" => "sub_key_value"
         }
       }
 
@@ -194,10 +188,10 @@ describe "Conjur ephemeral engine client validation" do
 
     it "then they are transformed ok" do
       result = MockConjurEngineClient.new(logger: logger, request_id: "abc", http_client: mock_ephemeral_secrets_service(error: nil))
-        .hash_keys_to_camel_case(hash)
+                                     .hash_keys_to_snake_case(hash)
       expected_result = {
-        "keyOne" => "value-one",
-        "keyTwo" => "value_two",
+        "key_one" => "value-one",
+        "key_two" => "value_two",
         "keythree" => "valueThree"
       }
 
@@ -216,10 +210,10 @@ describe "Conjur ephemeral engine client validation" do
 
     it "then they are normalized into camel case" do
       result = MockConjurEngineClient.new(logger: logger, request_id: "abc", http_client: mock_ephemeral_secrets_service(error: nil))
-        .hash_keys_to_camel_case(hash)
+                                     .hash_keys_to_snake_case(hash)
       expected_result = {
-        "keyOne" => "value-one",
-        "keyTwo" => "value_two",
+        "key_one" => "value-one",
+        "key_two" => "value_two",
         "keythree" => "valueThree"
       }
 
@@ -238,10 +232,10 @@ describe "Conjur ephemeral engine client validation" do
 
     it "then they are normalized into camel case" do
       result = MockConjurEngineClient.new(logger: logger, request_id: "abc", http_client: mock_ephemeral_secrets_service(error: nil))
-        .hash_keys_to_camel_case(hash)
+                                     .hash_keys_to_snake_case(hash)
       expected_result = {
-        "keyOne#" => "value-one",
-        "key%two" => "value_two",
+        "key_one#" => "value-one",
+        "key_%two" => "value_two",
         "keythre*e" => "valueThree"
       }
 
@@ -250,11 +244,11 @@ describe "Conjur ephemeral engine client validation" do
   end
 
   context "when hash is empty" do
-    let(:hash) {{}}
+    let(:hash) { {} }
 
     it "then the result is empty as well" do
       result = MockConjurEngineClient.new(logger: logger, request_id: "abc", http_client: mock_ephemeral_secrets_service(error: nil))
-        .hash_keys_to_camel_case(hash)
+                                     .hash_keys_to_snake_case(hash)
       expected_result = {}
 
       expect(result).to eq(expected_result)

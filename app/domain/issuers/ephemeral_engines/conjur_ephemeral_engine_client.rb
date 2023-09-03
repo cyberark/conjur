@@ -20,13 +20,13 @@ class ConjurEphemeralEngineClient
     @request_id = request_id
   end
 
-  def get_ephemeral_secret(type, method, role_id, platform_data, variable_data)
+  def get_ephemeral_secret(type, method, role_id, issuer_data, variable_data)
     request_body = {
       type: type,
       method: method,
       role: role_id,
-      platform: hash_keys_to_camel_case(platform_data),
-      secret: hash_keys_to_camel_case(variable_data)
+      issuer: hash_keys_to_snake_case(issuer_data),
+      secret: hash_keys_to_snake_case(variable_data)
     }
 
     # Create the POST request
@@ -60,19 +60,15 @@ class ConjurEphemeralEngineClient
 
   protected
 
-  def hash_keys_to_camel_case(hash, level = 0)
+  def hash_keys_to_snake_case(hash, level = 0)
     result = {}
-    delimiters = %w[- _]
     hash.each do |key, value|
-      words = key.to_s.split(Regexp.union(delimiters))
-      current_word = words[0].downcase
-      (1...words.length).each do |index|
-        current_word += words[index].capitalize
-      end
+      transformed_key = key.to_s.gsub("-", "_").downcase
+
       # If the value is another hash, perform the same casting on that sub hash.
       # We don't want unexpected behavior so currently this is limited to one level of
-      result[current_word] = if value.is_a?(Hash) && level.zero?
-        hash_keys_to_camel_case(value, 1)
+      result[transformed_key] = if value.is_a?(Hash) && level.zero?
+        hash_keys_to_snake_case(value, 1)
       else
         value
       end
@@ -81,9 +77,6 @@ class ConjurEphemeralEngineClient
   end
 
   def tenant_id
-    result = ENV["HOSTNAME"]
-    result.split("-")[1] || ""
-  rescue
-    ""
+    Rails.application.config.conjur_config.tenant_id
   end
 end

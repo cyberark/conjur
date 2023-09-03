@@ -8,9 +8,6 @@ class SecretsController < RestController
 
   before_action :current_user
 
-  PLATFORM_PREFIX           = "platform/"
-  EPHEMERAL_VARIABLE_PREFIX = "data/ephemerals/"
-
   def create
     authorize(:update)
 
@@ -166,7 +163,7 @@ class SecretsController < RestController
   end
 
   def ephemeral_secret?
-    resource.kind == "variable" && resource.identifier.start_with?(EPHEMERAL_VARIABLE_PREFIX)
+    resource.kind == "variable" && resource.identifier.start_with?(Issuer::EPHEMERAL_VARIABLE_PREFIX)
   end
 
   def handle_ephemeral_secret
@@ -175,26 +172,26 @@ class SecretsController < RestController
     variable_data = {}
     request_id = request.env['action_dispatch.request_id']
 
-    # Filter the platform related annotations and remove the prefix
+    # Filter the issuer related annotations and remove the prefix
     resource_annotations.each do |annotation|
-      next unless annotation.name.start_with?(PLATFORM_PREFIX)
-      platform_param = annotation.name.to_s[PLATFORM_PREFIX.length..-1]
-      variable_data[platform_param] = annotation.value
+      next unless annotation.name.start_with?(Issuer::EPHEMERAL_ANNOTATION_PREFIX)
+      issuer_param = annotation.name.to_s[Issuer::EPHEMERAL_ANNOTATION_PREFIX.length..-1]
+      variable_data[issuer_param] = annotation.value
     end
 
-    platform = Platform.where(account: account, platform_id: variable_data["id"]).first
+    issuer = Issuer.first(account: account, issuer_id: variable_data["issuer"])
 
-    # There shouldn't be a state where a variable belongs to a platform that doesn't exit, but we check it to be safe
-    raise ApplicationController::InternalServerError, "Platform assigned to #{account}:#{params[:kind]}:#{params[:identifier]} was not found" unless platform
+    # There shouldn't be a state where a variable belongs to an issuer that doesn't exit, but we check it to be safe
+    raise ApplicationController::InternalServerError, "Issuer assigned to #{account}:#{params[:kind]}:#{params[:identifier]} was not found" unless issuer
 
-    logger.info(LogMessages::Secrets::EphemeralSecretRequest.new(variable_data["id"], platform.platform_type, variable_data["method"], request_id))
+    logger.info(LogMessages::Secrets::EphemeralSecretRequest.new(variable_data["issuer"], issuer.issuer_type, variable_data["method"], request_id))
 
-    platform_data = {
-      max_ttl: platform.max_ttl,
-      data: JSON.parse(platform.data)
+    issuer_data = {
+      max_ttl: issuer.max_ttl,
+      data: JSON.parse(issuer.data)
     }
 
     ConjurEphemeralEngineClient.new(logger: logger, request_id: request_id)
-                               .get_ephemeral_secret(platform.platform_type, variable_data["method"], @current_user.role_id, platform_data, variable_data)
+                               .get_ephemeral_secret(issuer.issuer_type, variable_data["method"], @current_user.role_id, issuer_data, variable_data)
   end
 end
