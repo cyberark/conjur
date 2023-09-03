@@ -107,10 +107,17 @@ module Loader
     class Record < Types::Base
       include CreateRole
       include CreateResource
+      include AuthorizeResource
 
       def verify
         message = "Verify method for entity #{self} does not exist"
         raise Exceptions::InvalidPolicyObject.new(self.id, message: message)
+      end
+
+      def auth_resource privilege, resource_id
+        Rails.logger.info("+++++++++++++ auth_resource privilege = #{privilege}, resource_id = #{resource_id}")
+        resource = ::Resource[resource_id]
+        authorize(privilege, resource)
       end
 
       def calculate_defaults!; end
@@ -282,7 +289,6 @@ module Loader
 
     class Variable < Record
       include CreateResource
-      include AuthorizeResource
 
       def_delegators :@policy_object, :kind, :mime_type
 
@@ -316,8 +322,8 @@ module Loader
 
 
             Sequel::Model.db.search_path = $basic_schema
-            resource = ::Resource["conjur:policy:conjur/issuers/" + issuer_id]
-            authorize(:use, resource)
+            resource_id = "conjur:policy:conjur/issuers/" + issuer_id
+            auth_resource(:use, resource_id)
             Sequel::Model.db.search_path = current_schema
             Rails.logger.info("+++++++++++++++ verify public Variable 4.8")
           end

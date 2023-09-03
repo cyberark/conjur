@@ -152,8 +152,8 @@ describe Loader::Types::Variable do
   let(:variable) do
     variable = Conjur::PolicyParser::Types::Variable.new
     variable.id = resource_id
-    if issuer != ''
-      variable.annotations =  { "ephemerals/issuer" => issuer }
+    if issuer_id != ''
+      variable.annotations =  { "ephemerals/issuer" => issuer_id }
     end
     Loader::Types.wrap(variable, self)
   end
@@ -161,37 +161,38 @@ describe Loader::Types::Variable do
   describe '.verify' do
     context 'when no issuer configured' do
       before do
-        #allow(Rails.application.config.conjur_config).to receive(:authn_api_key_default).and_return(true)
+        $basic_schema = "public"
       end
 
       context 'when creating regular variable without ephemerals/issuer annotation' do
         let(:resource_id) { 'data/myvar1' }
-        let(:issuer) { '' }
+        let(:issuer_id) { '' }
         it { expect { variable.verify }.to_not raise_error }
       end
 
       context 'when creating regular variable with ephemerals/issuer annotation' do
         let(:resource_id) { 'data/myvar2' }
-        let(:issuer) { 'aws1' }
+        let(:issuer_id) { 'aws1' }
         it { expect { variable.verify }.to raise_error }
       end
 
       context 'when creating ephemeral variable without ephemerals/issuer annotation' do
         let(:resource_id) { 'data/ephemerals/myvar1' }
-        let(:issuer) { '' }
+        let(:issuer_id) { '' }
         it { expect { variable.verify }.to raise_error }
       end
 
       context 'when creating ephemeral variable with ephemerals/issuer annotation' do
         let(:resource_id) { 'data/ephemerals/myvar2' }
-        let(:issuer) { 'aws1' }
+        let(:issuer_id) { 'aws1' }
         it { expect { variable.verify }.to raise_error }
       end
     end
 
     context 'when issuer aws1 configured without permissions' do
       before do
-        allow(Issuer).to receive(:where).with("conjur", issuer_id).and_return(issuer_object)
+        allow(Issuer).to receive(:where).with({:account=>"conjur", :issuer_id=>"aws1"}).and_return(issuer_object)
+        $basic_schema = "public"
       end
 
       context 'when creating regular variable with ephemerals/issuer annotation' do
@@ -218,9 +219,10 @@ describe Loader::Types::Variable do
 
     context 'when issuer aws1 configured with permissions' do
       before do
-        allow(Issuer).to receive(:where).with("conjur", issuer_id).and_return(issuer_object)
-        #allow(authorize).to receive(:use, :resource)
-        #                       .and_raise('Forbidden')
+        allow(Issuer).to receive(:where).with({:account=>"conjur", :issuer_id=>"aws1"})
+          .and_return(issuer_object)
+        allow(Conjur::PolicyParser::Types::Variable).to receive(:auth_resource).with({:privilege=>'use', resource_id=>:policy_resource})
+        $basic_schema = "public"
       end
 
       context 'when creating regular variable with ephemerals/issuer annotation' do
@@ -241,6 +243,7 @@ describe Loader::Types::Variable do
         let(:resource_id) { 'data/ephemerals/myvar2' }
         let(:issuer_id) { 'aws1' }
         let(:issuer_object) { 'issuer' }
+        #let(:policy_resource) { 'conjur:policy:conjur/issuers/aws1' }
         it { expect { variable.verify }.to raise_error }
       end
     end
