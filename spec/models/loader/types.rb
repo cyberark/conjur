@@ -152,6 +152,7 @@ describe Loader::Types::Variable do
   let(:variable) do
     variable = Conjur::PolicyParser::Types::Variable.new
     variable.id = resource_id
+    variable.account = "conjur"
     if issuer_id != ''
       variable.annotations =  { "ephemerals/issuer" => issuer_id }
     end
@@ -221,7 +222,7 @@ describe Loader::Types::Variable do
       before do
         allow(Issuer).to receive(:where).with({:account=>"conjur", :issuer_id=>"aws1"})
           .and_return(issuer_object)
-        allow(Conjur::PolicyParser::Types::Variable).to receive(:auth_resource).with({:privilege=>'use', resource_id=>:policy_resource})
+        allow_any_instance_of(AuthorizeResource).to receive(:authorize).with(:use, nil)
         $basic_schema = "public"
       end
 
@@ -243,8 +244,8 @@ describe Loader::Types::Variable do
         let(:resource_id) { 'data/ephemerals/myvar2' }
         let(:issuer_id) { 'aws1' }
         let(:issuer_object) { 'issuer' }
-        #let(:policy_resource) { 'conjur:policy:conjur/issuers/aws1' }
-        it { expect { variable.verify }.to raise_error }
+        let(:policy_resource) { 'conjur:policy:conjur/issuers/aws1' }
+        it { expect { variable.verify }.not_to raise_error }
       end
     end
 
