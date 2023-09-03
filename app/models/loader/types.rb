@@ -109,13 +109,23 @@ module Loader
       include CreateResource
       include AuthorizeResource
 
+      @current_schema = ""
+
+      def lookup_committed
+        @current_schema = Issuer.db.search_path
+        Sequel::Model.db.search_path = $basic_schema
+      end
+
+      def lookup_current
+        Sequel::Model.db.search_path = @current_schema
+      end
+
       def verify
         message = "Verify method for entity #{self} does not exist"
         raise Exceptions::InvalidPolicyObject.new(self.id, message: message)
       end
 
       def auth_resource privilege, resource_id
-        Rails.logger.info("+++++++++++++ auth_resource privilege = #{privilege}, resource_id = #{resource_id}")
         resource = ::Resource[resource_id]
         authorize(privilege, resource)
       end
@@ -123,7 +133,9 @@ module Loader
       def calculate_defaults!; end
 
       def create!
+        lookup_committed
         verify
+        lookup_current
         calculate_defaults!
         create_role! if policy_object.respond_to?(:roleid)
         create_resource! if policy_object.respond_to?(:resourceid)
@@ -293,48 +305,27 @@ module Loader
       def_delegators :@policy_object, :kind, :mime_type
 
       def verify;
-        Rails.logger.info("+++++++++++++++ verify Variable 1")
-        Rails.logger.info("+++++++++++++++ verify Variable 2 self.annotations = #{self.annotations}, self.id = #{self.id}, self.resource = #{self.resource}")
-
         if self.id.start_with?("data/ephemerals")
-          Rails.logger.info("+++++++++++++++ verify Variable 3")
           if self.annotations["ephemerals/issuer"].nil?
             message = "Ephemeral variable #{self.id} has no issuer annotation"
             raise Exceptions::InvalidPolicyObject.new(self.id, message: message)
           else
             issuer_id = self.annotations["ephemerals/issuer"]
-            Rails.logger.info("+++++++++++++++ verify Variable 4 issuer_id = #{issuer_id}")
 
-            Rails.logger.info("+++++++++++++ verify public Variable 4.4 Sequel::Model.db.search_path = #{Sequel::Model.db.search_path}")
-            Rails.logger.info("+++++++++++++ verify public Variable 4.4.1 Issuer.db.search_path = #{Issuer.db.search_path}")
-            Rails.logger.info("+++++++++++++ verify public Variable 4.4.2 $basic_schema = #{$basic_schema}")
-            current_schema = Issuer.db.search_path
-            Issuer.db.search_path = $basic_schema
-            Rails.logger.info("+++++++++++++++ verify public Variable 4.5")
-            issuer = Issuer.where(account: "conjur", issuer_id: issuer_id).first
-            Rails.logger.info("+++++++++++++++ verify public Variable 4.6 issuer = #{issuer}")
-            Issuer.db.search_path = current_schema
+            issuer = Issuer.where(account: @policy_object.account, issuer_id: issuer_id).first
             if (issuer.nil?)
               message = "Ephemeral variable #{self.id} issuer #{issuer_id} is not defined"
               raise Exceptions::InvalidPolicyObject.new(self.id, message: message)
             end
-            Rails.logger.info("+++++++++++++++ verify public Variable 4.7")
 
-
-            Sequel::Model.db.search_path = $basic_schema
-            resource_id = "conjur:policy:conjur/issuers/" + issuer_id
+            resource_id = @policy_object.account + ":policy:conjur/issuers/" + issuer_id
             auth_resource(:use, resource_id)
-            Sequel::Model.db.search_path = current_schema
-            Rails.logger.info("+++++++++++++++ verify public Variable 4.8")
           end
         else
-          Rails.logger.info("+++++++++++++++ verify public Variable 5")
           if !(self.annotations.nil?) && !(self.annotations["ephemerals/issuer"].nil?)
-            Rails.logger.info("+++++++++++++++ verify public Variable 6")
             message = "Regular variable #{self.id} issuer is defined"
             raise Exceptions::InvalidPolicyObject.new(self.id, message: message)
           end
-          Rails.logger.info("+++++++++++++++ verify public Variable 7")
         end
       end
 
