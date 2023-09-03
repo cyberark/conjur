@@ -24,6 +24,7 @@ class Authenticator
                                         (#{resources_with_authenticator_configs}) AS "authn_configs" ON "resources"."resource_id" = "authn_configs"."resource_id"
                                       WHERE "resources"."resource_id" LIKE '%#{authn_jwt_prefix}%'
                                       GROUP BY "resources"."resource_id", "authn_configs"."enabled"
+                                      ORDER BY "resources"."resource_id" ASC
                                           })
       scope
     end

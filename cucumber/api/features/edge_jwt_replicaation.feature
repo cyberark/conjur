@@ -97,11 +97,10 @@ Feature: Replicate jwt authenticators from edge endpoint
     And I set the "Accept-Encoding" header to "base64"
     When I successfully GET "/edge/authenticators/cucumber?kind=authn-jwt"
     Then the HTTP response status code is 200
-    And the JSON should be:
+    And the JSON response at "authn-jwt" should have 3 entries
+    And the JSON at "authn-jwt" should include:
     """
-    {
-        "authn-jwt": [
-          {
+      {
             "id": "cucumber:webservice:conjur/authn-jwt/myVendor",
             "enabled": true,
             "permissions": [
@@ -161,18 +160,114 @@ Feature: Replicate jwt authenticators from edge endpoint
             "claimAliases": null,
             "audience": null
          }
-          ]
-        }
-       """
-      When I GET "/edge/secrets/cucumber" with parameters:
-      """
-      limit: 1000
-      offset: 4
-      """
-      And the JSON should be:
-      """{ }"""
-
-
+    """
+    When I GET "/edge/authenticators/cucumber" with parameters:
+    """
+    kind: authn-jwt
+    limit: 1
+    offset: 0
+    """
+    Then the HTTP response status code is 200
+    And the JSON response at "authn-jwt" should have 1 entries
+    And the JSON at "authn-jwt" should include:
+    """
+      {
+        "id": "cucumber:webservice:conjur/authn-jwt/myVendor",
+        "enabled": true,
+        "permissions": [
+          {
+            "privilege": "authenticate",
+            "role": "cucumber:group:conjur/authn-jwt/myVendor/apps"
+          },
+          {
+            "privilege": "read",
+            "role": "cucumber:group:conjur/authn-jwt/myVendor/apps"
+          }
+      ],
+      "jwksUri": null,
+      "publicKeys": null,
+      "caCert": null,
+      "tokenAppProperty": null,
+      "identityPath": null,
+      "issuer": null,
+      "enforcedClaims": null,
+      "claimAliases": null,
+      "audience": null
+    }
+  """
+    When I GET "/edge/authenticators/cucumber" with parameters:
+    """
+    kind: authn-jwt
+    limit: 2
+    offset: 1
+    """
+    And the JSON at "authn-jwt" should include:
+    """
+    {
+    "audience": null,
+    "caCert": null,
+    "claimAliases": null,
+    "enabled": false,
+    "enforcedClaims": null,
+    "id": "cucumber:webservice:conjur/authn-jwt/myVendor2",
+    "identityPath": null,
+    "issuer": null,
+    "jwksUri": null,
+    "permissions": [
+    {
+    "privilege": "authenticate",
+    "role": "cucumber:group:conjur/authn-jwt/myVendor2/apps"
+    },
+    {
+    "privilege": "read",
+    "role": "cucumber:group:conjur/authn-jwt/myVendor2/apps"
+    }
+    ],
+    "publicKeys": null,
+    "tokenAppProperty": null
+    },
+    {
+    "id": "cucumber:webservice:conjur/authn-jwt/withoutPermissions",
+    "enabled": false,
+    "permissions": null,
+    "jwksUri": null,
+    "publicKeys": null,
+    "caCert": null,
+    "tokenAppProperty": null,
+    "identityPath": null,
+    "issuer": null,
+    "enforcedClaims": null,
+    "claimAliases": null,
+    "audience": null
+    }
+  """
+    When I GET "/edge/authenticators/cucumber" with parameters:
+    """
+    kind: authn-jwt
+    limit: 100
+    offset: 2
+    """
+    And the JSON should be:
+    """
+    {
+    "authn-jwt": [
+    {
+    "audience": null,
+    "caCert": null,
+    "claimAliases": null,
+    "enabled": false,
+    "enforcedClaims": null,
+    "id": "cucumber:webservice:conjur/authn-jwt/withoutPermissions",
+    "identityPath": null,
+    "issuer": null,
+    "jwksUri": null,
+    "permissions": null,
+    "publicKeys": null,
+    "tokenAppProperty": null
+    }
+    ]
+    }
+  """
 
   @negative
   Scenario: Fetching authenticators with non edge host return 403 error
