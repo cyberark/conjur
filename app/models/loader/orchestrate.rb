@@ -422,7 +422,7 @@ module Loader
       # rubocop:enable Style/GuardClause
     end
 
-    $basic_schema = ""
+    $primary_schema = ""
 
     # Loads the records into the temporary schema (since the schema search path
     # contains only the temporary schema).
@@ -451,7 +451,7 @@ module Loader
     # Creates a set of tables in the new schema to mirror the tables in the primary schema.
     # The new tables are not created with constraints, aside from primary keys.
     def create_schema
-      $basic_schema = db.search_path
+      $primary_schema = db.search_path
 
       db.execute("CREATE SCHEMA #{schema_name}")
       db.search_path = schema_name

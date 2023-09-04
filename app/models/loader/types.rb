@@ -111,9 +111,9 @@ module Loader
 
       @current_schema = ""
 
-      def lookup_committed
-        @current_schema = Issuer.db.search_path
-        Sequel::Model.db.search_path = $basic_schema
+      def lookup_primary
+        @current_schema = Sequel::Model.db.search_path
+        Sequel::Model.db.search_path = $primary_schema
       end
 
       def lookup_current
@@ -133,7 +133,7 @@ module Loader
       def calculate_defaults!; end
 
       def create!
-        lookup_committed
+        lookup_primary
         verify
         lookup_current
         calculate_defaults!
@@ -306,11 +306,11 @@ module Loader
 
       def verify;
         if self.id.start_with?("data/ephemerals")
-          if self.annotations["ephemerals/issuer"].nil?
+          if self.annotations["ephemeral/issuer"].nil?
             message = "Ephemeral variable #{self.id} has no issuer annotation"
             raise Exceptions::InvalidPolicyObject.new(self.id, message: message)
           else
-            issuer_id = self.annotations["ephemerals/issuer"]
+            issuer_id = self.annotations["ephemeral/issuer"]
 
             issuer = Issuer.where(account: @policy_object.account, issuer_id: issuer_id).first
             if (issuer.nil?)
@@ -322,7 +322,7 @@ module Loader
             auth_resource(:use, resource_id)
           end
         else
-          if !(self.annotations.nil?) && !(self.annotations["ephemerals/issuer"].nil?)
+          if !(self.annotations.nil?) && !(self.annotations["ephemeral/issuer"].nil?)
             message = "Regular variable #{self.id} issuer is defined"
             raise Exceptions::InvalidPolicyObject.new(self.id, message: message)
           end
