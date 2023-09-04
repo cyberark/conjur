@@ -305,12 +305,12 @@ module Loader
       def_delegators :@policy_object, :kind, :mime_type
 
       def verify;
-        if self.id.start_with?("data/ephemerals")
-          if self.annotations["ephemeral/issuer"].nil?
+        if self.id.start_with?(Issuer::EPHEMERAL_VARIABLE_PREFIX)
+          if self.annotations[Issuer::EPHEMERAL_ANNOTATION_PREFIX + "issuer"].nil?
             message = "Ephemeral variable #{self.id} has no issuer annotation"
             raise Exceptions::InvalidPolicyObject.new(self.id, message: message)
           else
-            issuer_id = self.annotations["ephemeral/issuer"]
+            issuer_id = self.annotations[Issuer::EPHEMERAL_ANNOTATION_PREFIX + "issuer"]
 
             issuer = Issuer.where(account: @policy_object.account, issuer_id: issuer_id).first
             if (issuer.nil?)
@@ -322,8 +322,8 @@ module Loader
             auth_resource(:use, resource_id)
           end
         else
-          if !(self.annotations.nil?) && !(self.annotations["ephemeral/issuer"].nil?)
-            message = "Regular variable #{self.id} issuer is defined"
+          if !(self.annotations.nil?) && !(self.annotations[Issuer::EPHEMERAL_ANNOTATION_PREFIX + "issuer"].nil?)
+            message = "Ephemeral variable #{self.id} not in right path"
             raise Exceptions::InvalidPolicyObject.new(self.id, message: message)
           end
         end

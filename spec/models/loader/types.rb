@@ -226,21 +226,21 @@ describe Loader::Types::Variable do
         $primary_schema = "public"
       end
 
-      context 'when creating regular variable with ephemerals/issuer annotation' do
+      context 'when creating regular variable with ephemerals/issuer aws1' do
         let(:resource_id) { 'data/myvar2' }
         let(:issuer_id) { 'aws1' }
         let(:issuer_object) { nil }
         it { expect { variable.verify }.to raise_error }
       end
 
-      context 'when creating ephemeral variable with ephemerals/issuer annotation' do
+      context 'when creating ephemeral variable with ephemerals/issuer aws1' do
         let(:resource_id) { 'data/ephemerals/myvar2' }
         let(:issuer_id) { 'aws1' }
         let(:issuer_object) { nil }
         it { expect { variable.verify }.to raise_error }
       end
 
-      context 'when creating ephemeral variable with ephemerals/issuer annotation' do
+      context 'when creating ephemeral variable with ephemerals/issuer aws1 and with permissions' do
         let(:resource_id) { 'data/ephemerals/myvar2' }
         let(:issuer_id) { 'aws1' }
         let(:issuer_object) { 'issuer' }
