@@ -154,7 +154,7 @@ describe Loader::Types::Variable do
     variable.id = resource_id
     variable.account = "conjur"
     if issuer_id != ''
-      variable.annotations =  { "ephemerals/issuer" => issuer_id }
+      variable.annotations =  { "ephemeral/issuer" => issuer_id }
     end
     Loader::Types.wrap(variable, self)
   end
@@ -162,7 +162,7 @@ describe Loader::Types::Variable do
   describe '.verify' do
     context 'when no issuer configured' do
       before do
-        $basic_schema = "public"
+        $primary_schema = "public"
       end
 
       context 'when creating regular variable without ephemerals/issuer annotation' do
@@ -193,7 +193,7 @@ describe Loader::Types::Variable do
     context 'when issuer aws1 configured without permissions' do
       before do
         allow(Issuer).to receive(:where).with({:account=>"conjur", :issuer_id=>"aws1"}).and_return(issuer_object)
-        $basic_schema = "public"
+        $primary_schema = "public"
       end
 
       context 'when creating regular variable with ephemerals/issuer annotation' do
@@ -223,7 +223,7 @@ describe Loader::Types::Variable do
         allow(Issuer).to receive(:where).with({:account=>"conjur", :issuer_id=>"aws1"})
           .and_return(issuer_object)
         allow_any_instance_of(AuthorizeResource).to receive(:authorize).with(:use, nil)
-        $basic_schema = "public"
+        $primary_schema = "public"
       end
 
       context 'when creating regular variable with ephemerals/issuer annotation' do
