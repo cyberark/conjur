@@ -110,8 +110,4 @@ class EdgeSecretsController < RestController
     variables
   end
 
-  def numeric? val
-    val == val.to_i.to_s
-  end
-
 end
