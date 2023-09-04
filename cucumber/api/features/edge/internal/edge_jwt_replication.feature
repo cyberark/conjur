@@ -62,6 +62,8 @@ Feature: Replicate jwt authenticators from edge endpoint
     And I add the secret value "data/myspace/jwt-apps" to the resource "cucumber:variable:conjur/authn-jwt/myVendor/identity-path"
     And I add the secret value "https://login.example.com" to the resource "cucumber:variable:conjur/authn-jwt/myVendor/issuer"
     And I add the secret value "additional_data/group_id" to the resource "cucumber:variable:conjur/authn-jwt/myVendor/enforced-claims"
+    And I add the secret value "google/claim, azure/claim" to the resource "cucumber:variable:conjur/authn-jwt/myVendor/enforced-claims"
+    And I add the secret value "claim:google/claim, myclaim:azure/claim" to the resource "cucumber:variable:conjur/authn-jwt/myVendor/claim-aliases"
     And I successfully PATCH "/authn-jwt/myVendor/cucumber" with body:
     """
     enabled=true
@@ -76,7 +78,7 @@ Feature: Replicate jwt authenticators from edge endpoint
     Then the HTTP response status code is 200
     And the JSON should be:
     """
-{
+       {
         "authn-jwt": [
           {
             "id": "cucumber:webservice:conjur/authn-jwt/myVendor",
@@ -91,23 +93,35 @@ Feature: Replicate jwt authenticators from edge endpoint
                 "role": "cucumber:group:conjur/authn-jwt/myVendor/apps"
               }
             ],
-            "jwksUri": null,
+            "jwksUri": "aHR0cHM6Ly93d3cuZ29vZ2xlYXBpcy5jb20vb2F1dGgyL3YzL2NlcnRz",
             "publicKeys": null,
-            "caCert": null,
-            "tokenAppProperty": null,
-            "identityPath": null,
-            "issuer": null,
-            "enforcedClaims": null,
-            "claimAliases": null,
-            "audience": null
+            "caCert": "",
+            "tokenAppProperty": "YXBwX25hbWU=",
+            "identityPath": "ZGF0YS9teXNwYWNlL2p3dC1hcHBz",
+            "issuer": "aHR0cHM6Ly9sb2dpbi5leGFtcGxlLmNvbQ==",
+            "enforcedClaims":  [
+               "Z29vZ2xlL2NsYWlt",
+               "IGF6dXJlL2NsYWlt"
+             ],
+            "claimAliases":  [
+               {
+                 "annotationName": "Y2xhaW0=",
+                 "claimName": "Z29vZ2xlL2NsYWlt"
+               },
+               {
+                 "annotationName": "IG15Y2xhaW0=",
+                 "claimName": "YXp1cmUvY2xhaW0="
+               }
+             ],
+            "audience": ""
           },
           {
             "id": "cucumber:webservice:conjur/authn-jwt/withoutPermissions",
             "enabled": false,
             "permissions": null,
-            "jwksUri": null,
+            "jwksUri": "",
             "publicKeys": null,
-            "caCert": null,
+            "caCert": "",
             "tokenAppProperty": null,
             "identityPath": null,
             "issuer": null,
@@ -155,3 +169,20 @@ Feature: Replicate jwt authenticators from edge endpoint
         }
       }
     """
+
+  @negative
+  Scenario: Fetching all authenticators with edge host and with not able to parse claim aliases by right structure and return 500
+    Given I login as "host/edge/edge-abcd1234567890/edge-host-abcd1234567890"
+    And I add the secret value "google/claim, myclaim:azure/claim" to the resource "cucumber:variable:conjur/authn-jwt/myVendor/claim-aliases"
+    And I set the "Accept-Encoding" header to "base64"
+    When I GET "/edge/authenticators/cucumber?kind=authn-jwt"
+    Then the HTTP response status code is 500
+
+  @negative
+  Scenario: Fetching all authenticators with edge host and with not able to parse claim aliases by right structure and return 500
+    Given I login as "host/edge/edge-abcd1234567890/edge-host-abcd1234567890"
+    And I add the secret value "google/claim, myclaim::azure/claim" to the resource "cucumber:variable:conjur/authn-jwt/myVendor/claim-aliases"
+    And I set the "Accept-Encoding" header to "base64"
+    When I GET "/edge/authenticators/cucumber?kind=authn-jwt"
+    Then the HTTP response status code is 500
+
