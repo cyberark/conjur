@@ -1,28 +1,36 @@
 # frozen_string_literal: true
 module AuthenticatorsManager
+
   def get_authenticators_data(kinds)
     return_json = {}
     kinds.each do |kind|
       if kind == "authn-jwt"
-        return_json[kind] = authn_jwt_handler
+        return_json[kind] = Authenticator.jwt.all
       end
     end
     return_json
   end
 
-  def authn_jwt_handler
+  def get_authenticators_parsed_data(kinds, offset, limit)
+    return_json = {}
+    kinds.each do |kind|
+      if kind == "authn-jwt"
+        return_json[kind] = authn_jwt_handler(offset, limit)
+      end
+    end
+    return_json
+  end
+
+  def authn_jwt_handler(offset,limit)
     results = []
     unique_properties = %w[jwksUri publicKeys caCert tokenAppProperty identityPath issuer enforcedClaims claimAliases audience]
     unique_properties_name_in_policy = %w[jwks-uri public-keys ca-cert token-app-property identity-path issuer enforced-claims claim-aliases audience]
     property_map = unique_properties_name_in_policy.zip(unique_properties).to_h
     begin
-      authenticators = Authenticator.jwt
+      authenticators = Authenticator.jwt.limit((limit || 1000).to_i, (offset || 0).to_i)
       authenticators.each do |authenticator|
         authenticatorToReturn = {}
         authenticatorToReturn[:id] = authenticator[:resource_id]
-        unless validate_authenticator_path(authenticator[:resource_id])
-          next
-        end
         # if the the enable is not configured the default value will be false
         authenticatorToReturn[:enabled] = authenticator[:enabled]
         # if there is no permissions for authenticator the default value will be nil
@@ -66,14 +74,7 @@ module AuthenticatorsManager
   end
 
   private
-  def validate_authenticator_path(resource_id)
-    # Valid authenticator is only two levels under conjur policy in the policy tree
-    # otherwise it is not a valid authenticator.
-    # valid : conjur/authn-jwt/myVendor
-    # not valid : conjur/authn-jwt/myVendor/status
-    resource_id.count("/") == 2
-  end
-
+  
   def build_enforced_claims(value)
     # enforced-claims should be a array of strings seperated by comma
     if value == ""

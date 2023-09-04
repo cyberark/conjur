@@ -58,9 +58,4 @@ class EdgeHostsController < RestController
     end
   end
 
-  private
-
-  def numeric? val
-    val == val.to_i.to_s
-  end
 end
