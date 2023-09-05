@@ -363,7 +363,8 @@ RSpec.describe(Authentication::AuthnOidc::V2::Client) do
     let(:target) { Authentication::AuthnOidc::V2::Client }
     let(:provider_uri) { "https://oidcprovider.com" }
     let(:mock_discovery) { double("Mock Discovery Config") }
-    let(:mock_response) { "Mock Discovery Response" }
+    let(:mock_response) { double("Mock Discovery Response") }
+    let(:mock_jwks_response) { "Mock JWKS Response" }
 
     before(:each) do
       @cert_dir = Dir.mktmpdir
@@ -400,6 +401,23 @@ RSpec.describe(Authentication::AuthnOidc::V2::Client) do
           cert_dir: @cert_dir,
           cert_string: ""
         )).to eq(mock_response)
+      end
+
+      it 'invokes the jwks uri when requested' do
+        allow(mock_discovery).to receive(:discover!).with(String).and_return(
+          mock_response
+        )
+        allow(mock_response).to receive(:jwks).and_return(
+          mock_jwks_response
+        )
+
+        expect(target.discover(
+          provider_uri: provider_uri,
+          discovery_configuration: mock_discovery,
+          cert_dir: @cert_dir,
+          cert_string: "",
+          jwks: true
+        )).to eq(mock_jwks_response)
       end
     end
 

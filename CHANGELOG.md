@@ -156,6 +156,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   [cyberark/conjur#2901](https://github.com/cyberark/conjur/pull/2901)
 
 ### Added
+- Support an optional`ca-cert` variable for providing custom certs/chains to verify
+  OIDC providers or proxies when using the OIDC authenticator
+  [cyberark/conjur#2933](https://github.com/cyberark/conjur/pull/2933)
 - New flag to `conjurctl server` command called `--no-migrate` which allows for skipping
   the database migration step when starting the server.
   [cyberark/conjur#2895](https://github.com/cyberark/conjur/pull/2895)

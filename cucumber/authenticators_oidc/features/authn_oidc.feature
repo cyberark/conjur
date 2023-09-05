@@ -15,6 +15,7 @@ Feature: OIDC Authenticator - Hosts can authenticate with OIDC authenticator
       | oidc_client_secret          | KEYCLOAK_CLIENT_SECRET | 1234                                                             |
       | oidc_provider_uri           | PROVIDER_URI           | https://keycloak:8443/auth/realms/master                         |
       | oidc_id_token_user_property | ID_TOKEN_USER_PROPERTY | preferred_username                                               |
+      | oidc_ca_cert                | KEYCLOAK_CA_CERT       |                                                                  |
 
     And I load a policy:
     """
@@ -30,6 +31,9 @@ Feature: OIDC Authenticator - Hosts can authenticate with OIDC authenticator
 
       - !variable
         id: id-token-user-property
+
+      - !variable
+        id: ca-cert
 
       - !group users
 
@@ -48,6 +52,7 @@ Feature: OIDC Authenticator - Hosts can authenticate with OIDC authenticator
       | variable_id                                       | context_variable            |
       | conjur/authn-oidc/keycloak/id-token-user-property | oidc_id_token_user_property |
       | conjur/authn-oidc/keycloak/provider-uri           | oidc_provider_uri           |
+      | conjur/authn-oidc/keycloak/ca-cert                | oidc_ca_cert                |
 
   @smoke
   Scenario: A valid id token in header to get Conjur access token

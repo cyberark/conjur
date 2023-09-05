@@ -13,6 +13,5 @@ openssl s_client \
     -outform PEM \
     >/etc/ssl/certs/keycloak.pem
 
-# Skip this step so we can test the 'ca-cert' variable configuration
-# hash=$(openssl x509 -hash -in /etc/ssl/certs/keycloak.pem -out /dev/null)
-# ln -s /etc/ssl/certs/keycloak.pem "/etc/ssl/certs/${hash}.0" || true
+hash=$(openssl x509 -hash -in /etc/ssl/certs/keycloak.pem -out /dev/null)
+ln -s /etc/ssl/certs/keycloak.pem "/etc/ssl/certs/${hash}.0" || true
