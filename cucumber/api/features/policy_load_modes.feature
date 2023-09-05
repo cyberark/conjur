@@ -172,17 +172,22 @@ Feature: Updating policies
 
   @acceptance
   Scenario: POST cannot update existing policy records
-    When I save my place in the log file
-    And I POST "/policies/cucumber/policy/dev/db" with body:
+    When I successfully POST "/policies/cucumber/policy/dev/db" with body:
     """
     - !variable
       id: b
       kind: private key
     """
-    Then the HTTP response status code is 400
-    And The following appears in the log after my savepoint:
+    When I successfully GET "/resources/cucumber/variable/dev/db/b"
+    Then the JSON at "annotations" should be:
     """
-    Updating existing resource disallowed in additive policy operation
+    [
+      {
+        "name": "conjur/kind",
+        "policy": "cucumber:policy:dev/db",
+        "value": "password"
+      }
+    ]
     """
 
   @negative @acceptance

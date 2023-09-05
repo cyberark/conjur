@@ -120,9 +120,8 @@ module Loader
     end
 
     # TODO: consider renaming this method
-    def store_policy_in_db(reject_duplicates: false)
-      removed_duplicates_count = eliminate_duplicates_pk
-      raise ApplicationController::BadRequest, "Updating existing resource disallowed in additive policy operation" if removed_duplicates_count.positive? && reject_duplicates
+    def store_policy_in_db
+      eliminate_duplicates_pk
 
       insert_new
 
@@ -244,9 +243,8 @@ module Loader
     end
 
     # Delete rows from the new policy which have the same primary keys as existing rows.
-    # Returns the total number of deleted rows.
     def eliminate_duplicates_pk
-      TABLES.sum do |table|
+      TABLES.each do |table|
         eliminate_duplicates(table, Array(model_for_table(table).primary_key) + [ :policy_id ])
       end
     end
