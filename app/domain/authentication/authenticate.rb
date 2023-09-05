@@ -20,10 +20,13 @@ module Authentication
     )
 
     def call
+      @logger = SemanticLogger[self.class.name]
+      @logger.info('++++++++++++++++++ call authenticate 1 ')
       validate_authenticator_exists
       validate_webservice_is_whitelisted
       validate_user_has_access_to_webservice
       validate_origin
+      @logger.debug('++++++++++++++++++ call authenticate 2 ')
       validate_credentials
       new_token
     rescue => e
