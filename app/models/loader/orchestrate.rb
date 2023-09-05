@@ -422,7 +422,7 @@ module Loader
       # rubocop:enable Style/GuardClause
     end
 
-    $primary_schema = ""
+    $primary_schema = "public"
 
     # Loads the records into the temporary schema (since the schema search path
     # contains only the temporary schema).
