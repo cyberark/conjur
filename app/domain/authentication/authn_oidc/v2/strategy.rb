@@ -30,7 +30,7 @@ module Authentication
               code: args[:code],
               nonce: args[:nonce],
               code_verifier: args[:code_verifier],
-              ca_cert: @authenticator.ca_cert
+              cert_string: @authenticator.ca_cert
             )
           )
           unless identity.present?
