@@ -59,7 +59,6 @@ class ApplicationController < ActionController::API
   rescue_from Sequel::ForeignKeyConstraintViolation, with: :foreign_key_constraint_violation
   rescue_from Conjur::PolicyParser::Invalid, with: :policy_invalid
   rescue_from Exceptions::InvalidPolicyObject, with: :policy_invalid
-  rescue_from Exceptions::DisallowedPolicyOperation, with: :disallowed_policy_operation
   rescue_from ArgumentError, with: :argument_error
   rescue_from ActionController::ParameterMissing, with: :argument_error
   rescue_from UnprocessableEntity, with: :unprocessable_entity
@@ -192,17 +191,6 @@ class ApplicationController < ActionController::API
     end
 
     render(json: { error: error }, status: :unprocessable_entity)
-  end
-
-  def disallowed_policy_operation e
-    logger.debug("#{e}\n#{e.backtrace.join("\n")}")
-
-    render(json: {
-      error: {
-        code: "disallowed_policy_operation",
-        message: e.message
-      }
-    }, status: :unprocessable_entity)
   end
 
   def argument_error e
