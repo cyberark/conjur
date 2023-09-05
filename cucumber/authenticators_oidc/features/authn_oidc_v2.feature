@@ -16,6 +16,7 @@ Feature: OIDC Authenticator V2 - Users can authenticate with OIDC authenticator
       | oidc_provider_uri          | PROVIDER_URI           | https://keycloak:8443/auth/realms/master                        |
       | oidc_claim_mapping         | ID_TOKEN_USER_PROPERTY | preferred_username                                              |
       | oidc_redirect_url          | KEYCLOAK_REDIRECT_URI  | http://conjur:3000/authn-oidc/keycloak2/cucumber/authenticate   |
+      | oidc_ca_cert               | KEYCLOAK_CA_CERT       |                                                                 |
 
     And I load a policy:
     """
@@ -36,6 +37,7 @@ Feature: OIDC Authenticator V2 - Users can authenticate with OIDC authenticator
           - !variable redirect-uri
           - !variable provider-scope
           - !variable token-ttl
+          - !variable ca-cert
           - !group users
           - !permit
             role: !group users
@@ -59,6 +61,7 @@ Feature: OIDC Authenticator V2 - Users can authenticate with OIDC authenticator
           - !variable redirect-uri
           - !variable provider-scope
           - !variable token-ttl
+          - !variable ca-cert
           - !group users
           - !permit
             role: !group users
@@ -83,6 +86,7 @@ Feature: OIDC Authenticator V2 - Users can authenticate with OIDC authenticator
       | conjur/authn-oidc/keycloak2/claim-mapping             | oidc_claim_mapping  |               |
       | conjur/authn-oidc/keycloak2/redirect-uri              | oidc_redirect_url   |               |
       | conjur/authn-oidc/keycloak2/response-type             |                     | code          |
+      | conjur/authn-oidc/keycloak2/ca-cert                   | oidc_ca_cert        |               |
       | conjur/authn-oidc/keycloak2-long-lived/provider-uri   | oidc_provider_uri   |               |
       | conjur/authn-oidc/keycloak2-long-lived/client-id      | oidc_client_id      |               |
       | conjur/authn-oidc/keycloak2-long-lived/client-secret  | oidc_client_secret  |               |
@@ -90,6 +94,7 @@ Feature: OIDC Authenticator V2 - Users can authenticate with OIDC authenticator
       | conjur/authn-oidc/keycloak2-long-lived/redirect-uri   | oidc_redirect_url   |               |
       | conjur/authn-oidc/keycloak2-long-lived/response-type  |                     | code          |
       | conjur/authn-oidc/keycloak2-long-lived/token-ttl      |                     | PT2H          |
+      | conjur/authn-oidc/keycloak2-long-lived/ca-cert        | oidc_ca_cert        |               |
 
   @smoke
   Scenario: A valid code to get Conjur access token from webservice with default token TTL

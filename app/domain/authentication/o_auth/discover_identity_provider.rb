@@ -30,6 +30,7 @@ module Authentication
       def discover_provider
         @discovered_provider = Authentication::AuthnOidc::V2::Client.discover(
           provider_uri: @provider_uri,
+          discovery_configuration: @open_id_discovery_service,
           cert_string: @ca_cert
         )
         @logger.debug(

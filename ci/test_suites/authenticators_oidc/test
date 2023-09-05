@@ -23,6 +23,7 @@ function _hydrate_all_env_args() {
   # shellcheck disable=SC2034
   arr=(
     "${keycloak_items[@]}"
+    "KEYCLOAK_CA_CERT=$($COMPOSE exec conjur cat /etc/ssl/certs/keycloak.pem)"
     "PROVIDER_URI=https://keycloak:8443/auth/realms/master"
     "PROVIDER_INTERNAL_URI=http://keycloak:8080/auth/realms/master/protocol/openid-connect"
     "PROVIDER_ISSUER=http://keycloak:8080/auth/realms/master"
@@ -48,6 +49,14 @@ function main() {
   wait_for_keycloak_server
   create_keycloak_users
   fetch_keycloak_certificate
+
+  # Delete the symlink so we can test with the 'ca-cert' variable
+  local conjur_parallel_services
+  read -ra conjur_parallel_services <<< "$(get_parallel_services 'conjur')"
+  for parallel_service in "${conjur_parallel_services[@]}"; do
+    hash=$($COMPOSE exec "${parallel_service}" openssl x509 -hash -in /etc/ssl/certs/keycloak.pem -out /dev/null)
+    $COMPOSE exec "${parallel_service}" rm "/etc/ssl/certs/$hash.0" || true
+  done
 
   additional_services='ldap-server keycloak'
   _run_cucumber_tests authenticators_oidc "$additional_services" \
