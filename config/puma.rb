@@ -60,6 +60,8 @@ before_fork do
 end
 
 on_worker_boot do
+  SemanticLogger.reopen
+
   # https://groups.google.com/forum/#!topic/sequel-talk/LBAtdstVhWQ
   Sequel::Model.db.disconnect
 
@@ -73,4 +75,3 @@ on_worker_boot do
     puts "- #{k} from #{v}"
   end
 end
-

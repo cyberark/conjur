@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'semantic_logger'
+
 class AuthenticateController < ApplicationController
   include BasicAuthenticator
   include AuthorizeResource
@@ -172,6 +174,21 @@ class AuthenticateController < ApplicationController
   end
 
   def authenticate(input = authenticator_input)
+
+    #Rails.logger.info("++++++++++++++++ Authenticate 1")
+    #SemanticLogger.add_appender(file_name: 'ofira_logfile.log')
+
+    #logger3 = SemanticLogger[self.class.name]
+    #logger3.level = :info
+    #get_logger(self.class.name).error('++++++++++++++++++ Hello from semantic kissi logger 1')
+    #get_logger(self.class.name).info('++++++++++++++++++ Hello from semantic kissi logger 2')
+    #get_logger(self.class.name).debug('++++++++++++++++++ Hello from semantic kissi logger 3')
+
+    @logger.error('++++++++++++++++++ Hello @logger from semantic kissi logger 1')
+    @logger.info('++++++++++++++++++ Hello @logger from semantic kissi logger 2')
+    @logger.debug('++++++++++++++++++ Hello @logger from semantic kissi logger 3')
+
+
     authn_token = Authentication::Authenticate.new.(
       authenticator_input: input,
       authenticators: installed_authenticators,

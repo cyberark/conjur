@@ -25,7 +25,9 @@ COPY Gemfile \
      Gemfile.lock ./
 COPY gems/ gems/
 
-RUN bundle
+RUN bundle --without test development
+
+COPY . .
 
 # removing CA bundle of httpclient gem
 RUN find / -name httpclient -type d -exec find {} -name *.pem -type f -delete \;
@@ -36,5 +38,7 @@ RUN rm /etc/my_init.d/10_syslog-ng.init
 
 ENV PORT 3000
 ENV TERM xterm
+
+ENV RAILS_ENV production
 
 EXPOSE 3000

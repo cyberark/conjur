@@ -1,8 +1,15 @@
 # frozen_string_literal: true
+require 'semantic_logger'
 
 class ApplicationController < ActionController::API
   include Authenticates
   include ::ActionView::Layouts
+
+  def initialize(*args, **kwargs)
+    super(*args, **kwargs)
+
+    @logger = SemanticLogger[self.class.name]
+  end
 
   class Unauthorized < RuntimeError
     attr_reader :return_message_in_response
@@ -77,10 +84,13 @@ class ApplicationController < ActionController::API
     ::Rack::DefaultContentType.content_type_by_path[path_match] = content_type
   end
 
+  logger = SemanticLogger[self.class.name]
+
   private
 
   # Wrap the request in a transaction.
   def run_with_transaction(&block)
+    logger.level = :info
     Sequel::Model.db.transaction(&block)
   end
 

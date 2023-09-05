@@ -26,6 +26,7 @@ gem 'rake'
 gem 'rufus-scheduler'
 
 gem 'pg'
+#gem 'semantic_logger'
 gem 'sequel'
 gem 'sequel-pg_advisory_locking'
 gem 'sequel-postgres-schemata', require: false
@@ -51,6 +52,9 @@ gem 'conjur-rack', path: 'gems/conjur-rack'
 gem 'conjur-rack-heartbeat'
 gem 'rack-rewrite'
 
+gem "amazing_print"
+gem "rails_semantic_logger"
+
 # Putting this here currently confuses debify, so instead load it in
 # application.rb gem 'conjur_audit', path: 'engines/conjur_audit'
 
@@ -62,7 +66,7 @@ gem 'net-ldap'
 gem 'aws-sdk-iam', require: false
 
 group :production do
-  gem 'rails_12factor'
+  #gem 'rails_12factor'
 end
 
 # authn-k8s

@@ -83,6 +83,7 @@ GEM
     addressable (2.8.0)
       public_suffix (>= 2.0.2, < 5.0)
     aes_key_wrap (1.1.0)
+    amazing_print (1.5.0)
     anyway_config (2.2.3)
       ruby-next-core (>= 0.14.0)
     aruba (2.0.0)
@@ -370,12 +371,11 @@ GEM
       nokogiri (>= 1.6)
     rails-html-sanitizer (1.5.0)
       loofah (~> 2.19, >= 2.19.1)
-    rails_12factor (0.0.3)
-      rails_serve_static_assets
-      rails_stdout_logging
     rails_layout (1.0.42)
-    rails_serve_static_assets (0.0.5)
-    rails_stdout_logging (0.0.5)
+    rails_semantic_logger (4.12.0)
+      rack
+      railties (>= 5.1)
+      semantic_logger (~> 4.13)
     railties (6.1.7.3)
       actionpack (= 6.1.7.3)
       activesupport (= 6.1.7.3)
@@ -437,6 +437,8 @@ GEM
     rufus-scheduler (3.9.1)
       fugit (~> 1.1, >= 1.1.6)
     safe_yaml (1.0.5)
+    semantic_logger (4.14.0)
+      concurrent-ruby (~> 1.0)
     sequel (5.51.0)
     sequel-pg_advisory_locking (1.0.1)
       sequel
@@ -509,6 +511,7 @@ PLATFORMS
 
 DEPENDENCIES
   activesupport (~> 6.1, >= 6.1.4.6)
+  amazing_print
   anyway_config
   aruba
   aws-sdk-iam
@@ -556,8 +559,8 @@ DEPENDENCIES
   rack-rewrite
   rails (~> 6.1, >= 6.1.4.6)
   rails-controller-testing
-  rails_12factor
   rails_layout
+  rails_semantic_logger
   rake
   rake_shared_context
   reek

@@ -42,7 +42,7 @@ services:
       CONJUR_ACCOUNT: cucumber
       CONJUR_PASSWORD_ALICE: SEcret12!!!!
       CONJUR_DATA_KEY:
-      RAILS_ENV:
+      RAILS_ENV: production
       CONJUR_LOG_LEVEL: debug
       AUDIT_DATABASE_URL:
       # TODO: Where should we be running rspec tests from, ideally?

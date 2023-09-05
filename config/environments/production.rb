@@ -32,6 +32,11 @@ Rails.application.configure do
   config.log_level = ENV['CONJUR_LOG_LEVEL'] || :info
   config.log_formatter = ConjurFormatter.new
 
+  config.rails_semantic_logger.started    = true
+  config.rails_semantic_logger.processing = true
+  config.rails_semantic_logger.rendered   = true
+  #config.log_level = "DEBUG".downcase.strip.to_sym
+
   # Specifies the header that your server uses for sending files.
   # config.action_dispatch.x_sendfile_header = 'X-Sendfile' # for Apache
   # config.action_dispatch.x_sendfile_header = 'X-Accel-Redirect' # for NGINX
