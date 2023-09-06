@@ -179,7 +179,7 @@ Feature: Updating policies
       id: b
       kind: private key
     """
-    Then the HTTP response status code is 400
+    Then the HTTP response status code is 422
     And The following appears in the log after my savepoint:
     """
     Updating existing resource disallowed in additive policy operation

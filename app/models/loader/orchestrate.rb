@@ -122,7 +122,7 @@ module Loader
     # TODO: consider renaming this method
     def store_policy_in_db(reject_duplicates: false)
       removed_duplicates_count = eliminate_duplicates_pk
-      raise ApplicationController::BadRequest, "Updating existing resource disallowed in additive policy operation" if removed_duplicates_count.positive? && reject_duplicates
+      raise Exceptions::DisallowedPolicyOperation if removed_duplicates_count.positive? && reject_duplicates
 
       insert_new
 
