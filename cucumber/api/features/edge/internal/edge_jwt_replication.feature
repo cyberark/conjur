@@ -56,6 +56,12 @@ Feature: Replicate jwt authenticators from edge endpoint
         - !webservice
         - !variable jwks-uri
         - !variable ca-cert
+    - !policy
+      id: conjur/authn-jwt/bestAuthenticator
+      body:
+        - !webservice
+        - !variable jwks-uri
+        - !variable ca-cert
     """
     And I add the secret value "https://www.googleapis.com/oauth2/v3/certs" to the resource "cucumber:variable:conjur/authn-jwt/myVendor/jwks-uri"
     And I add the secret value "app_name" to the resource "cucumber:variable:conjur/authn-jwt/myVendor/token-app-property"
@@ -80,6 +86,20 @@ Feature: Replicate jwt authenticators from edge endpoint
     """
        {
         "authn-jwt": [
+          {
+            "audience": null,
+            "caCert": "",
+            "claimAliases": null,
+            "enabled": false,
+            "enforcedClaims": null,
+            "id": "cucumber:webservice:conjur/authn-jwt/bestAuthenticator",
+            "identityPath": null,
+            "issuer": null,
+            "jwksUri": "",
+            "permissions": null,
+            "publicKeys": null,
+            "tokenAppProperty": null
+          },
           {
             "id": "cucumber:webservice:conjur/authn-jwt/myVendor",
             "enabled": true,
@@ -133,6 +153,124 @@ Feature: Replicate jwt authenticators from edge endpoint
       }
     """
 
+  @acceptance
+  Scenario: Fetching hosts with parameters
+    Given I login as "host/edge/edge-abcd1234567890/edge-host-abcd1234567890"
+    And I set the "Accept-Encoding" header to "base64"
+    When I GET "/edge/authenticators/cucumber" with parameters:
+    """
+    kind: authn-jwt
+    limit: 2
+    offset: 1
+    """
+    Then the HTTP response status code is 200
+    And the JSON should be:
+     """
+       {
+        "authn-jwt": [
+          {
+            "id": "cucumber:webservice:conjur/authn-jwt/myVendor",
+            "enabled": true,
+            "permissions": [
+              {
+                "privilege": "authenticate",
+                "role": "cucumber:group:conjur/authn-jwt/myVendor/apps"
+              },
+              {
+                "privilege": "read",
+                "role": "cucumber:group:conjur/authn-jwt/myVendor/apps"
+              }
+            ],
+            "jwksUri": "aHR0cHM6Ly93d3cuZ29vZ2xlYXBpcy5jb20vb2F1dGgyL3YzL2NlcnRz",
+            "publicKeys": null,
+            "caCert": "",
+            "tokenAppProperty": "YXBwX25hbWU=",
+            "identityPath": "ZGF0YS9teXNwYWNlL2p3dC1hcHBz",
+            "issuer": "aHR0cHM6Ly9sb2dpbi5leGFtcGxlLmNvbQ==",
+            "enforcedClaims":  [
+               "Z29vZ2xlL2NsYWlt",
+               "IGF6dXJlL2NsYWlt"
+             ],
+            "claimAliases":  [
+               {
+                 "annotationName": "Y2xhaW0=",
+                 "claimName": "Z29vZ2xlL2NsYWlt"
+               },
+               {
+                 "annotationName": "IG15Y2xhaW0=",
+                 "claimName": "YXp1cmUvY2xhaW0="
+               }
+             ],
+            "audience": ""
+          },
+          {
+            "id": "cucumber:webservice:conjur/authn-jwt/withoutPermissions",
+            "enabled": false,
+            "permissions": null,
+            "jwksUri": "",
+            "publicKeys": null,
+            "caCert": "",
+            "tokenAppProperty": null,
+            "identityPath": null,
+            "issuer": null,
+            "enforcedClaims": null,
+            "claimAliases": null,
+            "audience": null
+          }
+        ]
+      }
+     """
+    When I GET "/edge/authenticators/cucumber" with parameters:
+    """
+    kind: authn-jwt
+    limit: 10
+    offset: 0
+    """
+    Then the HTTP response status code is 200
+    And the JSON at "authn-jwt" should have 3 entries
+
+    When I GET "/edge/authenticators/cucumber" with parameters:
+    """
+    kind: authn-jwt
+    offset: 0
+    """
+    Then the HTTP response status code is 200
+    And the JSON at "authn-jwt" should have 3 entries
+    When I GET "/edge/authenticators/cucumber" with parameters:
+    """
+    kind: authn-jwt
+    offset: 2
+    """
+    Then the HTTP response status code is 200
+    And the JSON at "authn-jwt" should have 1 entries
+    When I GET "/edge/authenticators/cucumber" with parameters:
+    """
+    kind: authn-jwt
+    limit: 2
+    """
+    Then the HTTP response status code is 200
+    And the JSON at "authn-jwt" should have 2 entries
+    When I GET "/edge/authenticators/cucumber" with parameters:
+    """
+    kind: authn-jwt
+    limit: 5
+    """
+    Then the HTTP response status code is 200
+    And the JSON at "authn-jwt" should have 3 entries
+    When I GET "/edge/authenticators/cucumber" with parameters:
+    """
+    kind: authn-jwt
+    limit: 0
+    """
+    Then the HTTP response status code is 422
+    When I GET "/edge/authenticators/cucumber" with parameters:
+    """
+    kind: authn-jwt
+    limit: 2001
+    """
+    Then the HTTP response status code is 422
+
+
   @negative
   Scenario: Fetching authenticators with non edge host return 403 error
     Given I login as "some_user"
@@ -165,7 +303,7 @@ Feature: Replicate jwt authenticators from edge endpoint
     """
       {
         "count": {
-          "authn-jwt": 2
+          "authn-jwt": 3
         }
       }
     """
