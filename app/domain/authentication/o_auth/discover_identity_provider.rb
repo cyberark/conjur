@@ -28,7 +28,11 @@ module Authentication
       # is used is inside of FetchProviderKeys.  This is unlikely change, and hence
       # unlikely to be a problem
       def discover_provider
-        @discovered_provider = @open_id_discovery_service.discover!(@provider_uri)
+        @discovered_provider = Authentication::AuthnOidc::V2::Client.discover(
+          provider_uri: @provider_uri,
+          discovery_configuration: @open_id_discovery_service,
+          cert_string: @ca_cert
+        )
         @logger.debug(
           LogMessages::Authentication::OAuth::IdentityProviderDiscoverySuccess.new
         )

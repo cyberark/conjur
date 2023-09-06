@@ -160,7 +160,11 @@ module Authentication
             force: invalidate,
             skip_nil: true
           ) do
-            @discovery_configuration.discover!(@authenticator.provider_uri)
+            self.class.discover(
+              provider_uri: @authenticator.provider_uri,
+              discovery_configuration: @discovery_configuration,
+              cert_string: @authenticator.ca_cert
+            )
           rescue Errno::ETIMEDOUT => e
             raise Errors::Authentication::OAuth::ProviderDiscoveryTimeout.new(@authenticator.provider_uri, e.message)
           rescue => e
@@ -183,9 +187,15 @@ module Authentication
           provider_uri:,
           discovery_configuration: ::OpenIDConnect::Discovery::Provider::Config,
           cert_dir: OpenSSL::X509::DEFAULT_CERT_DIR,
-          cert_string: nil
+          cert_string: nil,
+          jwks: false
         )
-          d = -> { discovery_configuration.discover!(provider_uri) }
+          case jwks
+          when false
+            d = -> { discovery_configuration.discover!(provider_uri) }
+          when true
+            d = -> { discovery_configuration.discover!(provider_uri).jwks }
+          end
 
           return d.call if cert_string.blank?
 

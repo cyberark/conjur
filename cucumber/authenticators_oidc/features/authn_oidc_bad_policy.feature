@@ -15,6 +15,7 @@ Feature: OIDC Authenticator - Bad authenticator configuration leads to an error
       | oidc_client_secret          | KEYCLOAK_CLIENT_SECRET  | 1234                                                            |
       | oidc_provider_uri           | PROVIDER_URI            | https://keycloak:8443/auth/realms/master                        |
       | oidc_id_token_user_property | ID_TOKEN_USER_PROPERTY  | preferred_username                                              |
+      | oidc_ca_cert                | KEYCLOAK_CA_CERT        |                                                                 |
 
   @negative @acceptance
   Scenario: id-token-user-property variable missing in policy is denied
@@ -29,6 +30,9 @@ Feature: OIDC Authenticator - Bad authenticator configuration leads to an error
 
       - !variable
         id: provider-uri
+      
+      - !variable
+        id: ca-cert
 
       - !group users
 
@@ -46,6 +50,7 @@ Feature: OIDC Authenticator - Bad authenticator configuration leads to an error
     And I set the following conjur variables:
       | variable_id                             | context_variable  |
       | conjur/authn-oidc/keycloak/provider-uri | oidc_provider_uri |
+      | conjur/authn-oidc/keycloak/ca-cert      | oidc_ca_cert      |
     And I fetch an ID Token for username "alice" and password "alice"
     And I save my place in the log file
     When I authenticate via OIDC with id token
@@ -108,6 +113,9 @@ Feature: OIDC Authenticator - Bad authenticator configuration leads to an error
       - !variable
         id: id-token-user-property
 
+      - !variable
+        id: ca-cert
+
       - !group users
 
     - !user alice
@@ -120,6 +128,7 @@ Feature: OIDC Authenticator - Bad authenticator configuration leads to an error
       | variable_id                                       | context_variable            |
       | conjur/authn-oidc/keycloak/id-token-user-property | oidc_id_token_user_property |
       | conjur/authn-oidc/keycloak/provider-uri           | oidc_provider_uri           |
+      | conjur/authn-oidc/keycloak/ca-cert                | oidc_ca_cert                |
     And I fetch an ID Token for username "alice" and password "alice"
     And I save my place in the log file
     When I authenticate via OIDC with id token
@@ -146,6 +155,9 @@ Feature: OIDC Authenticator - Bad authenticator configuration leads to an error
         - !variable
           id: id-token-user-property
 
+        - !variable
+          id: ca-cert
+
         - !group users
 
         - !permit
@@ -163,6 +175,7 @@ Feature: OIDC Authenticator - Bad authenticator configuration leads to an error
       | variable_id                                       | context_variable            |
       | conjur/authn-oidc/keycloak/id-token-user-property | oidc_id_token_user_property |
       | conjur/authn-oidc/keycloak/provider-uri           | oidc_provider_uri           |
+      | conjur/authn-oidc/keycloak/ca-cert                | oidc_ca_cert                |
     And I fetch an ID Token for username "alice" and password "alice"
     And I save my place in the log file
     When I authenticate via OIDC with id token
