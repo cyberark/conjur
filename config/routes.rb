@@ -67,7 +67,7 @@ Rails.application.routes.draw do
       get     "/resources/:account"                   => "resources#index"
       get     "/resources"                            => "resources#index"
 
-      post    "hosts/:account/*identifier"            => "hosts#post"
+      post    "hosts/:account/*identifier"            => "workload#post"
 
       get     "/:authenticator/:account/providers"  => "providers#index"
 

@@ -2,7 +2,7 @@
 require_relative '../controllers/wrappers/policy_wrapper'
 require_relative '../controllers/wrappers/policy_audit'
 # 
-class HostsController < RestController
+class WorkloadController < RestController
   include AuthorizeResource
   include BodyParser
   include FindPolicyResource
@@ -26,7 +26,7 @@ class HostsController < RestController
     if !hostResource.nil?
       raise Exceptions::RecordExists.new("host", hostId)
     end
-    input = input_host_create(params)
+    input = input_workload_create(params)
     result = submit_policy(Loader::CreatePolicy, PolicyTemplates::CreateHost.new(), input, resource(params[:identifier]))
     hostPolicy = result[:policy]
     grantPolicies = grantHostToSafes(params)
@@ -52,7 +52,7 @@ def validateId(id)
   end
 end
 
-def input_host_create(json_body)
+def input_workload_create(json_body)
   {
     "id" => json_body[:id],
     "annotations" => json_body[:annotations],
