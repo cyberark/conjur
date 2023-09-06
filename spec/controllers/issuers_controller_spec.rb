@@ -141,6 +141,16 @@ describe IssuersController, type: :request do
         POLICY
       end
       it 'it returns conflict' do
+        post("/issuers/rspec",
+             env: token_auth_header(role: admin_user).merge(
+               'RAW_POST_DATA' => payload_create_issuer_input,
+               'CONTENT_TYPE' => "application/json"
+             ))
+        assert_response :created
+        expect(Resource.find(resource_id: "rspec:policy:conjur/issuers/my-new-aws-issuer")).not_to eq(nil)
+        expect(Resource.find(resource_id: "rspec:policy:conjur/issuers/my-new-aws-issuer/delegation")).not_to eq(nil)
+        expect(Resource.find(resource_id: "rspec:group:conjur/issuers/my-new-aws-issuer/delegation/consumers")).not_to eq(nil)
+
         post(
           '/policies/rspec/policy/root',
           env: token_auth_header(role: admin_user).merge(
@@ -149,15 +159,7 @@ describe IssuersController, type: :request do
         )
         assert_response :success
         expect(Resource.find(resource_id: "rspec:variable:data/ephemerals/related-ephemeral-variable")).to_not eq(nil)
-        post("/issuers/rspec",
-             env: token_auth_header(role: admin_user).merge(
-               'RAW_POST_DATA' => payload_create_issuer_input,
-               'CONTENT_TYPE' => "application/json"
-             ))
-        assert_response :internal_server_error
-        expect(Resource.find(resource_id: "rspec:policy:conjur/issuers/my-new-aws-issuer")).to eq(nil)
-        expect(Resource.find(resource_id: "rspec:policy:conjur/issuers/my-new-aws-issuer/delegation")).to eq(nil)
-        expect(Resource.find(resource_id: "rspec:group:conjur/issuers/my-new-aws-issuer/delegation/consumers")).to eq(nil)
+
       end
     end
 
@@ -337,6 +339,19 @@ describe IssuersController, type: :request do
           }
         BODY
       end
+      let(:payload_create_other_issuer) do
+        <<~BODY
+          {
+            "id": "my-other-issuer",
+            "max_ttl": 200,
+            "type": "aws",
+            "data": {
+              "access_key_id": "aaa",
+              "secret_access_key": "a"
+            }
+          }
+        BODY
+      end
       let(:payload_create_ephemeral_variables) do
         <<~POLICY
           - !policy
@@ -349,7 +364,7 @@ describe IssuersController, type: :request do
             - !variable
               id: unrelated-ephemeral-variable
               annotations:
-                ephemeral/issuer: my-other-issuer 
+                ephemeral/issuer: my-other-issuer
         POLICY
       end
       let(:payload_create_non_ephemeral_variable) do
@@ -369,6 +384,11 @@ describe IssuersController, type: :request do
                'RAW_POST_DATA' => payload_create_issuer,
                'CONTENT_TYPE' => "application/json"
              ))
+        post("/issuers/rspec",
+              env: token_auth_header(role: admin_user).merge(
+                'RAW_POST_DATA' => payload_create_other_issuer,
+                'CONTENT_TYPE' => "application/json"
+              ))
         assert_response :created
         post(
           '/policies/rspec/policy/root',
@@ -385,7 +405,7 @@ describe IssuersController, type: :request do
             'RAW_POST_DATA' => payload_create_non_ephemeral_variable
           )
         )
-        assert_response :success
+        assert_response :unprocessable_entity
 
         delete("/issuers/rspec/my-new-aws-issuer", env: token_auth_header(role: admin_user))
         assert_response :success
@@ -397,7 +417,7 @@ describe IssuersController, type: :request do
 
         # Non related ephemeral variables and non ephemeral variables are not deleted
         expect(Resource.find(resource_id: "rspec:variable:data/ephemerals/unrelated-ephemeral-variable")).to_not eq(nil)
-        expect(Resource.find(resource_id: "rspec:variable:data/non-ephemeral-variable")).to_not eq(nil)
+        expect(Resource.find(resource_id: "rspec:variable:data/non-ephemeral-variable")).to eq(nil)
       end
 
       context "when a user deletes a non existing issuer without permissions" do
