@@ -175,14 +175,15 @@ class AuthenticateController < ApplicationController
 
   def authenticate(input = authenticator_input)
 
-    #Rails.logger.info("++++++++++++++++ Authenticate 1")
+    Rails.logger.info("++++++++++++++++ Authenticate 1")
     #SemanticLogger.add_appender(file_name: 'ofira_logfile.log')
+    #SemanticLogger.add_appender(io: $stdout)
 
     #logger3 = SemanticLogger[self.class.name]
     #logger3.level = :info
-    #get_logger(self.class.name).error('++++++++++++++++++ Hello from semantic kissi logger 1')
-    #get_logger(self.class.name).info('++++++++++++++++++ Hello from semantic kissi logger 2')
-    #get_logger(self.class.name).debug('++++++++++++++++++ Hello from semantic kissi logger 3')
+    #logger3.error('++++++++++++++++++ Hello from semantic kissi logger 1')
+    #logger3.info('++++++++++++++++++ Hello from semantic kissi logger 2')
+    #logger3.debug('++++++++++++++++++ Hello from semantic kissi logger 3')
 
     @logger.error('++++++++++++++++++ Hello @logger from semantic kissi logger 1')
     @logger.info('++++++++++++++++++ Hello @logger from semantic kissi logger 2')
