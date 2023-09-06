@@ -1,7 +1,9 @@
 # frozen_string_literal: true
+require_relative '../../controllers/concerns/authorize_resource'
 
 module Loader
   module Types
+
     class << self
       def find_or_create_root_policy(account)
         ::Resource[root_policy_id(account)] || create_root_policy(account)
@@ -105,16 +107,35 @@ module Loader
     class Record < Types::Base
       include CreateRole
       include CreateResource
+      include AuthorizeResource
+
+      @current_schema = ""
+
+      def lookup_primary
+        @current_schema = Sequel::Model.db.search_path
+        Sequel::Model.db.search_path = $primary_schema
+      end
+
+      def lookup_current
+        Sequel::Model.db.search_path = @current_schema
+      end
 
       def verify
         message = "Verify method for entity #{self} does not exist"
         raise Exceptions::InvalidPolicyObject.new(self.id, message: message)
       end
 
+      def auth_resource privilege, resource_id
+        resource = ::Resource[resource_id]
+        authorize(privilege, resource)
+      end
+
       def calculate_defaults!; end
 
       def create!
+        lookup_primary
         verify
+        lookup_current
         calculate_defaults!
         create_role! if policy_object.respond_to?(:roleid)
         create_resource! if policy_object.respond_to?(:resourceid)
@@ -283,7 +304,30 @@ module Loader
 
       def_delegators :@policy_object, :kind, :mime_type
 
-      def verify; end
+      def verify;
+        if self.id.start_with?(Issuer::EPHEMERAL_VARIABLE_PREFIX)
+          if self.annotations[Issuer::EPHEMERAL_ANNOTATION_PREFIX + "issuer"].nil?
+            message = "Ephemeral variable #{self.id} has no issuer annotation"
+            raise Exceptions::InvalidPolicyObject.new(self.id, message: message)
+          else
+            issuer_id = self.annotations[Issuer::EPHEMERAL_ANNOTATION_PREFIX + "issuer"]
+
+            issuer = Issuer.where(account: @policy_object.account, issuer_id: issuer_id).first
+            if (issuer.nil?)
+              message = "Ephemeral variable #{self.id} issuer #{issuer_id} is not defined"
+              raise Exceptions::InvalidPolicyObject.new(self.id, message: message)
+            end
+
+            resource_id = @policy_object.account + ":policy:conjur/issuers/" + issuer_id
+            auth_resource(:use, resource_id)
+          end
+        else
+          if !(self.annotations.nil?) && !(self.annotations[Issuer::EPHEMERAL_ANNOTATION_PREFIX + "issuer"].nil?)
+            message = "Ephemeral variable #{self.id} not in right path"
+            raise Exceptions::InvalidPolicyObject.new(self.id, message: message)
+          end
+        end
+      end
 
       def create!
         self.annotations ||= {}
