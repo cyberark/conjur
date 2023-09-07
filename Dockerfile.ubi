@@ -1,7 +1,9 @@
 # Ruby builder
 FROM cyberark/ubi-ruby-builder:latest as builder
 
-WORKDIR /opt/conjur-server
+ENV CONJUR_HOME=/opt/conjur-server
+
+WORKDIR ${CONJUR_HOME}
 
 COPY Gemfile Gemfile.lock ./
 COPY ./gems/ ./gems/
@@ -13,7 +15,11 @@ RUN INSTALL_PKGS="openldap-clients \
     rpm -V $INSTALL_PKGS && \
     yum -y clean all --enablerepo='*'
 
-RUN bundle --without test development && \
+RUN bundle config set --local without 'test development' && \
+    bundle config set --local deployment true && \
+    bundle config set --local path vendor/bundle && \
+    bundle config --local jobs "$(nproc --all)" && \
+    bundle install && \
     # removing CA bundle of httpclient gem
     find / -name 'httpclient-*' -type d -exec find {} -name '*.pem' -type f -delete \; && \
     find / -name 'httpclient-*' -type d -exec find {} -name '*.key' -type f -delete \; && \
