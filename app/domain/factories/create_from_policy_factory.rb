@@ -130,7 +130,7 @@ module Factories
       ).bind do |rendered_policy|
         begin
           response = @http.post(
-            "http://localhost:3000/policies/#{account}/policy/#{policy_load_path}",
+            "http://localhost:#{ENV['PORT']}/policies/#{account}/policy/#{policy_load_path}",
             rendered_policy,
             'Authorization' => authorization
           )
@@ -175,7 +175,7 @@ module Factories
         secret_path = "secrets/#{account}/variable/#{variable_id}"
 
         @http.post(
-          "http://localhost:3000/#{secret_path}",
+          "http://localhost:#{ENV['PORT']}/#{secret_path}",
           factory_variables[factory_variable].to_s,
           { 'Authorization' => authorization }
         )
