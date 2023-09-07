@@ -186,10 +186,10 @@ Feature: Updating Policies with Annotations
       annotations:
         description: Success
     """
-    Then the HTTP response status code is 422
+    Then the HTTP response status code is 201
     And The following appears in the log after my savepoint:
     """
-    Updating existing resource disallowed in additive policy operation
+    WARNING: Updating existing resource disallowed in additive policy operations (POST). In a future release, loading this policy file will fail with a 422 error code. The following updates have not been applied, and have been discarded: {:annotations=>[{:resource_id=>"cucumber:host:hosts/annotated", :name=>"description", :diff=>{:value=>["Already annotated", "Success"]}}]}
     """
 
   @negative

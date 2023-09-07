@@ -36,7 +36,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   mitigates the possibility of a web worker becoming starved while waiting for
   a connection to become available.
   [cyberark/conjur#2875](https://github.com/cyberark/conjur/pull/2875)
-- Additive policy requests submitted via POST are rejected with a 400 status if
+- Additive policy requests submitted via POST are rejected with a 422 status if
   they attempt to update an existing resource.
   [cyberark/conjur#2888](https://github.com/cyberark/conjur/pull/2888)
 - Changed base-image tagging strategy
