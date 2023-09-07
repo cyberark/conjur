@@ -9,6 +9,11 @@ load File.expand_path('production.rb', __dir__)
 require 'rack/remember_uuid'
 require 'logger/formatter/conjur_formatter'
 
+def filter_logs(log)
+  (log.name == "AuthenticateController" ) || (log.name == "SecretsController" ) ||
+  !( log.name.end_with?("Controller") && log.message.include?("Completed"))
+end
+
 Rails.application.configure do
 
   # Code is not reloaded between requests.
@@ -31,14 +36,19 @@ Rails.application.configure do
   # Setting a new logger appears to overwrite any logger configuration that was
   # already applied so we must set this field again even though it was already
   # set in production.rb.
-  config.log_level = :info #ENV['CONJUR_LOG_LEVEL'] || :info
+  config.log_level = :warn #ENV['CONJUR_LOG_LEVEL'] || :info
 
-  SemanticLogger.default_level = :info
-  config.rails_semantic_logger.started    = true
-  config.rails_semantic_logger.processing = true
-  config.rails_semantic_logger.rendered   = true
+  SemanticLogger.default_level = :warn
+  config.rails_semantic_logger.started    = false
+  config.rails_semantic_logger.processing = false
+  config.rails_semantic_logger.rendered   = false
+  config.rails_semantic_logger.level = :warn
+  config.rails_semantic_logger.filter = Proc.new {
+    |log| filter_logs(log)
+  }
+  config.colorize_logging = false
 
-  SemanticLogger.add_appender(io: $stdout)
+  SemanticLogger.add_appender(io: $stdout, filter: config.rails_semantic_logger.filter)
 
   config.middleware.use Rack::RememberUuid
   config.audit_socket = '/run/conjur/audit.socket'

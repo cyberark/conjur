@@ -9,6 +9,7 @@ class ApplicationController < ActionController::API
     super(*args, **kwargs)
 
     @logger = SemanticLogger[self.class.name]
+    @logger.level = :info
   end
 
   class Unauthorized < RuntimeError
