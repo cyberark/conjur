@@ -2,6 +2,7 @@
 # frozen_string_literal: true
 
 require 'pathname'
+require 'bundler/setup'
 
 Dir.chdir(File.expand_path('..', File.dirname(Pathname.new(__FILE__).realpath)))
 
