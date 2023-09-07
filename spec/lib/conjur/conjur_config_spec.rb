@@ -316,6 +316,36 @@ describe Conjur::ConjurConfig do
         )
       end
     end
+
+    context "with tenant env var" do
+      before do
+        ENV['TENANT_ID'] = "44da7894-4cc5-4bcd-b37c-316ad40ec8c6"
+        ENV['TENANT_NAME'] = "tenant1"
+        ENV['TENANT_ENV'] = "test"
+        ENV['TENANT_REGION'] = "us-east-1"
+
+        # Anyway Config caches prefixed env vars at the class level so we must
+        # clear the cache to have it pick up the new var with a reload.
+        Anyway.env.clear
+      end
+
+      after do
+        ENV.delete('TENANT_ID')
+        ENV.delete('TENANT_NAME')
+        ENV.delete('TENANT_ENV')
+        ENV.delete('TENANT_REGION')
+
+        # Clear again to make sure we don't affect future tests.
+        Anyway.env.clear
+      end
+
+      it "overrides the config file value" do
+        expect(subject.tenant_id).to eq("44da7894-4cc5-4bcd-b37c-316ad40ec8c6")
+        expect(subject.tenant_name).to eq("tenant1")
+        expect(subject.tenant_env).to eq("test")
+        expect(subject.tenant_region).to eq("us-east-1")
+      end
+    end
   end
 end
 
