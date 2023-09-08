@@ -150,11 +150,18 @@ authenticators_jwt: >
   -r cucumber/authenticators_oidc
   cucumber/authenticators_jwt
 
+authenticators_k8s: >
+  --tags "not @skip and @authenticators_k8s"
+  --format pretty
+  -r cucumber/_authenticators_common
+  cucumber/authenticators_k8s
+
+
 # NOTE: We have to require the needed files from "api" individually, because
 #       if you mass require the folder it includes "api"s env.rb, which screws
 #       things up because (I think) it sets ENV['CONJUR_ACCOUNT'].  Cucumber
 #       profiles need to be thought through better and refactored most likely.
-#       
+#
 rotators: >
   --tags 'not @manual and @rotators'
   --format pretty
