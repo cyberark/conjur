@@ -12,9 +12,9 @@ def login username, request_ip, authn_k8s_host, pkey, headers = {}
       headers: headers
     )["inject_client_cert?request_ip=#{request_ip}"].post(csr.to_pem)
 
-  @cert = pod_certificate
+  @scenario_context.set(:cert, pod_certificate) # @cert = pod_certificate
 
-  if @cert.to_s.empty?
+  if @scenario_context.get(:cert).to_s.empty?
     puts("WARN: Certificate is empty!")
     warn("WARN: Certificate is empty!")
   end
@@ -36,16 +36,16 @@ end
 
 def login_with_username request_ip, username, success, headers = {}
   begin
-    @pkey = OpenSSL::PKey::RSA.new(2048)
-    response = login(username, request_ip, authn_k8s_host, @pkey, headers)
+    @scenario_context.set(:pkey, OpenSSL::PKey::RSA.new(2048))
+    response = login(username, request_ip, authn_k8s_host, @scenario_context.get(:pkey), headers)
     expect(response.code).to be(202)
   rescue
     raise if success
 
     @error = $!
   end
-
-  expect(@cert).to include("BEGIN CERTIFICATE") unless @cert.to_s.empty?
+  cert =  @scenario_context.get(:cert)
+  expect(cert).to include("BEGIN CERTIFICATE") unless cert.to_s.empty?
 end
 
 Then(/^I( can)? login to pod matching "([^"]*)" to authn-k8s as "([^"]*)"(?: with prefix "([^"]*)")?$/) do |success, objectid, host_id_suffix, host_id_prefix|
@@ -96,12 +96,12 @@ Then(/^at least one response status is (\d+)$/) do |arg1|
 end
 
 When(/^the certificate subject name is "([^"]*)"$/) do |subject_name|
-  certificate = OpenSSL::X509::Certificate.new(@cert)
+  certificate = OpenSSL::X509::Certificate.new(@scenario_context.get(:cert))
   expect(certificate.subject.to_s).to eq(substitute!(subject_name))
 end
 
 When(/^the certificate is valid for 3 days$/) do ||
-  certificate = OpenSSL::X509::Certificate.new(@cert)
+  certificate = OpenSSL::X509::Certificate.new(@scenario_context.get(:cert))
   expect(certificate.not_after - certificate.not_before).to eq(3 * 24 * 60 * 60)
 end
 
