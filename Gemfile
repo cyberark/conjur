@@ -24,6 +24,7 @@ gem 'rack', '~> 2.2'
 gem 'rails', '~> 6.1', '>= 6.1.4.6'
 gem 'rake'
 gem 'rufus-scheduler'
+gem 'redis'
 
 gem 'pg'
 gem 'sequel'
