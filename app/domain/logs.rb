@@ -810,7 +810,7 @@ module LogMessages
   module Secrets
 
     EphemeralSecretRequest = ::Util::TrackableLogMessageClass.new(
-      msg: "Received an ephemeral secret request. Issuer ID [{0}], issuer type [{1}], ephemeral method [{2}], Request ID [{3}]",
+      msg: "Received an ephemeral secret request. Request ID [{3}], Issuer ID [{0}], issuer type [{1}], ephemeral method [{2}]",
       code: "CONJ00160I"
     )
 
@@ -821,7 +821,22 @@ module LogMessages
 
     EphemeralSecretRemoteResponse = ::Util::TrackableLogMessageClass.new(
       msg: "Received the response from the ephemeral secrets service. Request ID [{0}], HTTP code [{1}]",
-      code: "CONJ00162I"
+      code: "CONJ00161D"
+    )
+
+    EphemeralSecretRemoteRequestFailure = ::Util::TrackableLogMessageClass.new(
+      msg: "Failed to send the request to the ephemeral secrets service. Request ID [{0}], error: {1}",
+      code: "CONJ00162E"
+    )
+
+    EphemeralSecretRemoteResponseFailure = ::Util::TrackableLogMessageClass.new(
+      msg: "Failed to create the ephemeral secret. Request ID [{0}], code: {1}, message: {2}, description: {3}",
+      code: "CONJ00163E"
+    )
+
+    EphemeralSecretRequestBody = ::Util::TrackableLogMessageClass.new(
+      msg: "Ephemeral secret request ID [{0}], body: {1}",
+      code: "CONJ00166D"
     )
 
   end
