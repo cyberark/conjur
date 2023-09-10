@@ -69,6 +69,11 @@ services:
     - ldap-server
     - keycloak
 
+  ephemeral-secrets:
+    image: 238637036211.dkr.ecr.us-east-1.amazonaws.com/mgmt-ephemeral-service-dev-repository-conjur:latest
+    ports:
+      - "8090:8080"
+
   cucumber:
     image: conjur-dev
     entrypoint: sleep

@@ -9,14 +9,14 @@ require_relative('ephemeral_engine_client')
 class ConjurEphemeralEngineClient
   include EphemeralEngineClient
 
-  @@secrets_service_address = ENV['EPHEMERAL_SECRETS_SERVICE_ADDRESS']
-  @@secrets_service_port = ENV['EPHEMERAL_SECRETS_SERVICE_PORT']
+  @@secrets_service_address = ENV['EPHEMERAL_SECRETS_SERVICE_ADDRESS'] || "ephemeral-secrets"
+  @@secrets_service_port = ENV['EPHEMERAL_SECRETS_SERVICE_PORT'] || "8080"
 
   def initialize(logger:, request_id:, http_client: nil)
     if http_client
       @client = http_client
     else
-      @client = Net::HTTP.new(@@secrets_service_address, @@secrets_service_port)
+      @client = Net::HTTP.new(@@secrets_service_address, @@secrets_service_port.to_i)
       @client.use_ssl = false  # Service mesh takes care of the TLS communication
     end
     @logger = logger
@@ -50,21 +50,20 @@ class ConjurEphemeralEngineClient
       raise ApplicationController::InternalServerError, e.message
     end
     @logger.debug(LogMessages::Secrets::EphemeralSecretRemoteResponse.new(@request_id, response.code))
-    # response_body = JSON.parse(response.body)
+    response_body = JSON.parse(response.body)
 
     case response.code.to_i
     when 200..299
-      # return response_body.to_json
-      return response.body, 200
-    when 400..499
-      response_body = JSON.parse(response.body)
-      @logger.error(LogMessages::Secrets::EphemeralSecretRemoteResponseFailure.new(@request_id, response_body['code'], response_body['message'], response_body['description']))
-      return response.body, 400
+      return response_body.to_json, response.code.to_i
     else
       response_body = JSON.parse(response.body)
-      error_message = LogMessages::Secrets::EphemeralSecretRemoteResponseFailure.new(@request_id, response_body['code'], response_body['message'], response_body['description'])
-      @logger.error(error_message)
-      raise ApplicationController::InternalServerError, error_message
+      @logger.error(LogMessages::Secrets::EphemeralSecretRemoteResponseFailure.new(@request_id, response_body['code'], response_body['message'], response_body['description']))
+      return response.body, response.code.to_i
+    # else
+    #   response_body = JSON.parse(response.body)
+    #   error_message = LogMessages::Secrets::EphemeralSecretRemoteResponseFailure.new(@request_id, response_body['code'], response_body['message'], response_body['description'])
+    #   @logger.error(error_message)
+    #   raise ApplicationController::InternalServerError, error_message
     end
   end
 
