@@ -36,13 +36,13 @@ Rails.application.configure do
   # Setting a new logger appears to overwrite any logger configuration that was
   # already applied so we must set this field again even though it was already
   # set in production.rb.
-  config.log_level = :warn #ENV['CONJUR_LOG_LEVEL'] || :info
+  config.log_level = ENV['CONJUR_LOG_LEVEL'] || :info
 
-  SemanticLogger.default_level = :warn
+  SemanticLogger.default_level = :info
   config.rails_semantic_logger.started    = false
   config.rails_semantic_logger.processing = false
   config.rails_semantic_logger.rendered   = false
-  config.rails_semantic_logger.level = :warn
+  config.rails_semantic_logger.level = :info
   config.rails_semantic_logger.filter = Proc.new {
     |log| filter_logs(log)
   }
