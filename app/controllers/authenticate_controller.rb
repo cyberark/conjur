@@ -172,6 +172,16 @@ class AuthenticateController < ApplicationController
   end
 
   def authenticate(input = authenticator_input)
+
+    Rails.logger.info("++++++++++++++++ 1 +++++++++++++++++++")
+
+    redis = Redis.new(url: "redis://clustercfg.ofira-redis1.68b8fl.use1.cache.amazonaws.com:6582")
+    redis.set("a", 1)
+    Rails.logger.info("++++++++++++++++ 2 +++++++++++++++++++")
+    # "OK"
+    redis.get("a")
+    # "1"
+    Rails.logger.info("++++++++++++++++ 3 +++++++++++++++++++")
     authn_token = Authentication::Authenticate.new.(
       authenticator_input: input,
       authenticators: installed_authenticators,
