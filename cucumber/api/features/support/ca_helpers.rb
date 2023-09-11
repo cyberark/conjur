@@ -76,7 +76,7 @@ module CAHelpers
     end
 
     def key_pem
-      @password.to_s.empty? ? @key.to_pem : @key.to_pem(OpenSSL::Cipher.new('aes-256-cbc'), @password)
+      @password.to_s.empty? ? @key.to_pem : @key.private_to_pem(OpenSSL::Cipher.new('aes-256-cbc'), @password)
     end
 
     def cert

@@ -205,7 +205,7 @@ module JwtJwksHelper
   end
 
   def base64_x5t_from_certificate(cert)
-    cert_thumbprint = OpenSSL::Digest::SHA1.hexdigest(cert.to_der)
+    cert_thumbprint = OpenSSL::Digest::SHA256.hexdigest(cert.to_der)
     Base64.urlsafe_encode64(cert_thumbprint, padding: false)
   end
 
@@ -219,7 +219,7 @@ module JwtJwksHelper
     cert.public_key = rsa_key.public_key
     cert.serial = 0x0
     cert.version = 2
-    cert.sign rsa_key, OpenSSL::Digest::SHA1.new
+    cert.sign(rsa_key, OpenSSL::Digest.new('SHA256'))
 
     cert
   end

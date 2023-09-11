@@ -22,7 +22,7 @@ Feature: JWT Authenticator - ca-cert variable tests
     And I successfully set authn-jwt "jwks-uri" variable to value "https://jwks/ca-cert-ONYX-15311.json"
     When I GET "/authn-jwt/raw/cucumber/status"
     Then the HTTP response status code is 500
-    And the authenticator status check fails with error "CONJ00087E Failed to fetch JWKS from 'https://jwks/ca-cert-ONYX-15311.json'. Reason: '#<OpenSSL::SSL::SSLError: SSL_connect returned=1 errno=0 state=error: certificate verify failed (self signed certificate)>'>"
+    And the authenticator status check fails with error matching "CONJ00087E Failed to fetch JWKS from 'https:\/\/jwks\/ca-cert-ONYX-15311.json'. Reason: '#<OpenSSL::SSL::SSLError: SSL_connect returned=1 errno=0 peeraddr=\d+.\d+.\d+.\d+:443 state=error: certificate verify failed \(self-signed certificate\)>'"
 
   @sanity
   @acceptance
@@ -75,7 +75,7 @@ Feature: JWT Authenticator - ca-cert variable tests
     And I successfully set authn-jwt "jwks-uri" variable to value "https://chained.mycompany.local/ca-cert-ONYX-15314.json"
     When I GET "/authn-jwt/raw/cucumber/status"
     Then the HTTP response status code is 500
-    And the authenticator status check fails with error "CONJ00087E Failed to fetch JWKS from 'https://chained.mycompany.local/ca-cert-ONYX-15314.json'. Reason: '#<OpenSSL::SSL::SSLError: SSL_connect returned=1 errno=0 state=error: certificate verify failed (self signed certificate in certificate chain)>'>"
+    And the authenticator status check fails with error matching "CONJ00087E Failed to fetch JWKS from 'https:\/\/chained.mycompany.local\/ca-cert-ONYX-15314.json'. Reason: '#<OpenSSL::SSL::SSLError: SSL_connect returned=1 errno=0 peeraddr=\d+.\d+.\d+.\d+:443 state=error: certificate verify failed \(self-signed certificate in certificate chain\)>'"
 
   @sanity
   @acceptance
@@ -116,4 +116,4 @@ Feature: JWT Authenticator - ca-cert variable tests
     And I successfully set authn-jwt "ca-cert" variable value to the "chained" certificate
     When I GET "/authn-jwt/raw/cucumber/status"
     Then the HTTP response status code is 500
-    And the authenticator status check fails with error "CONJ00087E Failed to fetch JWKS from 'https://login.microsoftonline.com/common/discovery/v2.0/keys'. Reason: '#<OpenSSL::SSL::SSLError: SSL_connect returned=1 errno=0 state=error: certificate verify failed (unable to get local issuer certificate)>'>"
+    And the authenticator status check fails with error matching "CONJ00087E Failed to fetch JWKS from 'https:\/\/login.microsoftonline.com\/common\/discovery\/v2.0\/keys'. Reason: '#<OpenSSL::SSL::SSLError: SSL_connect returned=1 errno=0 peeraddr=\d+.\d+.\d+.\d+:443 state=error: certificate verify failed \(unable to get local issuer certificate\)>'"
