@@ -228,6 +228,13 @@ services:
         python /usr/src/jwks/jwks_server.py -p 8090
     volumes:
       - ./jwt/:/usr/src/jwks/
+    
+  tinyproxy:
+    image: travix/tinyproxy
+    ports:
+      - 8888:8888
+    volumes:
+      - ./test_suites/authenticators_oidc/proxy/tinyproxy.conf:/etc/tinyproxy.conf
 
 volumes:
   authn-local:

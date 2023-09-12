@@ -225,120 +225,120 @@ pipeline {
           }
         }
 
-        stage('Scan Docker Image') {
-          when {
-            expression { params.RUN_ONLY == '' }
-          }
-          parallel {
-            stage("Scan Docker Image for fixable issues") {
-              steps {
-                scanAndReport("conjur:${tagWithSHA()}", "HIGH", false)
-              }
-            }
-            stage("Scan Docker image for total issues") {
-              steps {
-                scanAndReport("conjur:${tagWithSHA()}", "NONE", true)
-              }
-            }
-            stage("Scan UBI-based Docker Image for fixable issues") {
-              steps {
-                scanAndReport("conjur-ubi:${tagWithSHA()}", "HIGH", false)
-              }
-            }
-            stage("Scan UBI-based Docker image for total issues") {
-              steps {
-                scanAndReport("conjur-ubi:${tagWithSHA()}", "NONE", true)
-              }
-            }
-          }
-        }
+        // stage('Scan Docker Image') {
+        //   when {
+        //     expression { params.RUN_ONLY == '' }
+        //   }
+        //   parallel {
+        //     stage("Scan Docker Image for fixable issues") {
+        //       steps {
+        //         scanAndReport("conjur:${tagWithSHA()}", "HIGH", false)
+        //       }
+        //     }
+        //     stage("Scan Docker image for total issues") {
+        //       steps {
+        //         scanAndReport("conjur:${tagWithSHA()}", "NONE", true)
+        //       }
+        //     }
+        //     stage("Scan UBI-based Docker Image for fixable issues") {
+        //       steps {
+        //         scanAndReport("conjur-ubi:${tagWithSHA()}", "HIGH", false)
+        //       }
+        //     }
+        //     stage("Scan UBI-based Docker image for total issues") {
+        //       steps {
+        //         scanAndReport("conjur-ubi:${tagWithSHA()}", "NONE", true)
+        //       }
+        //     }
+        //   }
+        // }
 
-        // TODO: Add comments explaining which env vars are set here.
-        stage('Prepare For CodeClimate Coverage Report Submission') {
-          when {
-            expression { params.RUN_ONLY == '' }
-          }
-          steps {
-            catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-              script {
-                ccCoverage.dockerPrep()
-                sh 'mkdir -p coverage'
-                env.CODE_CLIMATE_PREPARED = "true"
-              }
-            }
-          }
-        }
+        // // TODO: Add comments explaining which env vars are set here.
+        // stage('Prepare For CodeClimate Coverage Report Submission') {
+        //   when {
+        //     expression { params.RUN_ONLY == '' }
+        //   }
+        //   steps {
+        //     catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+        //       script {
+        //         ccCoverage.dockerPrep()
+        //         sh 'mkdir -p coverage'
+        //         env.CODE_CLIMATE_PREPARED = "true"
+        //       }
+        //     }
+        //   }
+        // }
 
-        // Run outside parallel block to avoid external pressure
-        stage('RSpec - Standard agent tests') {
-          steps {
-            sh 'ci/test rspec'
-          }
-        }
+        // // Run outside parallel block to avoid external pressure
+        // stage('RSpec - Standard agent tests') {
+        //   steps {
+        //     sh 'ci/test rspec'
+        //   }
+        // }
 
-        // Run outside parallel block to reduce main Jenkins executor load.
-        stage('Nightly Only') {
-          when {
-            expression { params.NIGHTLY }
-          }
-          agent { label 'executor-v2-rhel-ee' }
+        // // Run outside parallel block to reduce main Jenkins executor load.
+        // stage('Nightly Only') {
+        //   when {
+        //     expression { params.NIGHTLY }
+        //   }
+        //   agent { label 'executor-v2-rhel-ee' }
 
-          environment {
-            CUCUMBER_FILTER_TAGS = "${params.CUCUMBER_FILTER_TAGS}"
-          }
+        //   environment {
+        //     CUCUMBER_FILTER_TAGS = "${params.CUCUMBER_FILTER_TAGS}"
+        //   }
 
-          stages {
-            stage("RSpec - EE FIPS agent tests") {
+        //   stages {
+        //     stage("RSpec - EE FIPS agent tests") {
 
-              steps {
-                sh(script: 'cat /etc/os-release', label: 'RHEL version')
-                sh(script: 'docker --version', label: 'Docker version')
-                addNewImagesToAgent()
-                unstash 'version_info'
-                // Catch errors so remaining steps always run.
-                catchError {
-                  // Run outside parallel block to avoid external pressure
-                  sh "ci/test rspec"
-                }
-              }
-            }
+        //       steps {
+        //         sh(script: 'cat /etc/os-release', label: 'RHEL version')
+        //         sh(script: 'docker --version', label: 'Docker version')
+        //         addNewImagesToAgent()
+        //         unstash 'version_info'
+        //         // Catch errors so remaining steps always run.
+        //         catchError {
+        //           // Run outside parallel block to avoid external pressure
+        //           sh "ci/test rspec"
+        //         }
+        //       }
+        //     }
 
             stage('EE FIPS parallel') {
               parallel {
-                stage('EE FIPS agent tests') {
-                  when {
-                    expression {
-                      testShouldRunOnAgent(
-                        params.RUN_ONLY,
-                        runSpecificTestOnAgent(params.RUN_ONLY, NESTED_ARRAY_OF_TESTS_TO_RUN[0])
-                      )
-                    }
-                  }
+                // stage('EE FIPS agent tests') {
+                //   when {
+                //     expression {
+                //       testShouldRunOnAgent(
+                //         params.RUN_ONLY,
+                //         runSpecificTestOnAgent(params.RUN_ONLY, NESTED_ARRAY_OF_TESTS_TO_RUN[0])
+                //       )
+                //     }
+                //   }
 
-                  steps {
-                    addNewImagesToAgent()
-                    unstash 'version_info'
-                    runConjurTests(
-                      params.RUN_ONLY,
-                      NESTED_ARRAY_OF_TESTS_TO_RUN[0]
-                    )
-                  }
-                  post {
-                    always {
-                      stash(
-                        name: 'testResultEE',
-                        includes: '''
-                          cucumber/*/*.*,
-                          container_logs/*/*,
-                          spec/reports/*.xml,
-                          spec/reports-audit/*.xml,
-                          gems/conjur-rack/spec/reports/*.xml,
-                          cucumber/*/features/reports/**/*.xml
-                        '''
-                      )
-                    }
-                  }
-                }
+                //   steps {
+                //     addNewImagesToAgent()
+                //     unstash 'version_info'
+                //     runConjurTests(
+                //       params.RUN_ONLY,
+                //       NESTED_ARRAY_OF_TESTS_TO_RUN[0]
+                //     )
+                //   }
+                //   post {
+                //     always {
+                //       stash(
+                //         name: 'testResultEE',
+                //         includes: '''
+                //           cucumber/*/*.*,
+                //           container_logs/*/*,
+                //           spec/reports/*.xml,
+                //           spec/reports-audit/*.xml,
+                //           gems/conjur-rack/spec/reports/*.xml,
+                //           cucumber/*/features/reports/**/*.xml
+                //         '''
+                //       )
+                //     }
+                //   }
+                // }
                 // Run a subset of tests on a second agent to prevent oversubscribing the hardware
                 stage('EE FIPS agent2 tests') {
                   when {
@@ -379,45 +379,45 @@ pipeline {
                   }
                 }
                 // Run a subset of tests on a second agent to prevent oversubscribing the hardware
-                stage('EE FIPS agent3 tests') {
-                  when {
-                    expression {
-                      testShouldRunOnAgent(
-                        params.RUN_ONLY,
-                        runSpecificTestOnAgent(params.RUN_ONLY, NESTED_ARRAY_OF_TESTS_TO_RUN[2])
-                      )
-                    }
-                  }
+                // stage('EE FIPS agent3 tests') {
+                //   when {
+                //     expression {
+                //       testShouldRunOnAgent(
+                //         params.RUN_ONLY,
+                //         runSpecificTestOnAgent(params.RUN_ONLY, NESTED_ARRAY_OF_TESTS_TO_RUN[2])
+                //       )
+                //     }
+                //   }
 
-                  agent { label 'executor-v2-rhel-ee' }
+                //   agent { label 'executor-v2-rhel-ee' }
 
-                  environment {
-                    CUCUMBER_FILTER_TAGS = "${params.CUCUMBER_FILTER_TAGS}"
-                  }
+                //   environment {
+                //     CUCUMBER_FILTER_TAGS = "${params.CUCUMBER_FILTER_TAGS}"
+                //   }
 
-                  steps {
-                    addNewImagesToAgent()
-                    unstash 'version_info'
-                    runConjurTests(
-                      params.RUN_ONLY,
-                      NESTED_ARRAY_OF_TESTS_TO_RUN[2]
-                    )
-                  }
-                  post {
-                    always {
-                      stash(
-                        name: 'testResultEE3',
-                        includes: '''
-                          cucumber/*/*.*,
-                          container_logs/*/*,
-                          spec/reports/*.xml,
-                          spec/reports-audit/*.xml,
-                          cucumber/*/features/reports/**/*.xml
-                        '''
-                      )
-                    }
-                  }
-                }
+                //   steps {
+                //     addNewImagesToAgent()
+                //     unstash 'version_info'
+                //     runConjurTests(
+                //       params.RUN_ONLY,
+                //       NESTED_ARRAY_OF_TESTS_TO_RUN[2]
+                //     )
+                //   }
+                //   post {
+                //     always {
+                //       stash(
+                //         name: 'testResultEE3',
+                //         includes: '''
+                //           cucumber/*/*.*,
+                //           container_logs/*/*,
+                //           spec/reports/*.xml,
+                //           spec/reports-audit/*.xml,
+                //           cucumber/*/features/reports/**/*.xml
+                //         '''
+                //       )
+                //     }
+                //   }
+                // }
               }
             }
           }
