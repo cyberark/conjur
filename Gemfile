@@ -13,6 +13,7 @@ git_source(:github) { |name| "https://github.com/#{name}.git" }
 # part of a Rails project. The Ruby version is also locked in place by the
 # Docker base image so it won't be updated with fuzzy matching.
 
+gem 'aws-sdk-appconfigdata'
 gem 'base58'
 gem 'command_class'
 gem 'http', '~> 4.2.0'
