@@ -48,8 +48,9 @@ class EdgeAuthenticatorsController < RestController
   private
   def verify_kind(kinds_param)
     allowed_kind = ['authn-jwt']
-    kinds = kinds_param.split(',')
-    unless kinds.all? { |value| allowed_kind.include?(value) }
+    kinds = kinds_param.to_s.split(',')
+    # the kind param cant be empty, and the values have to be from the allowed_kind list
+    unless kinds.present? && kinds.all? { |value| allowed_kind.include?(value) }
       raise ArgumentError , "authenticator kind parameter is not valid"
     end
   end

@@ -58,10 +58,10 @@ if [[ "${PUBLISH_INTERNAL}" = true ]]; then
   # Always push SHA versioned images internally
   tag_and_push "${VERSION}-${LOCAL_TAG}" "${LOCAL_IMAGE}" "registry.tld/conjur-cloud"
   tag_and_push "${VERSION}-${LOCAL_TAG}" "conjur-test:${LOCAL_TAG}" "registry.tld/conjur-test"
-  tag_and_push "${VERSION}-${LOCAL_TAG}" "conjur-ubi-cloud:${LOCAL_TAG}" "registry.tld/conjur-ubi-cloud"
+#  tag_and_push "${VERSION}-${LOCAL_TAG}" "conjur-ubi-cloud:${LOCAL_TAG}" "registry.tld/conjur-ubi-cloud"
 
   # Push SHA only tagged images to our internal registry
   tag_and_push "${LOCAL_TAG}" "${LOCAL_IMAGE}" "registry.tld/conjur-cloud"
   tag_and_push "${LOCAL_TAG}" "conjur-test:${LOCAL_TAG}" "registry.tld/conjur-test"
-  tag_and_push "${LOCAL_TAG}" "conjur-ubi-cloud:${LOCAL_TAG}" "registry.tld/conjur-ubi-cloud"
+#  tag_and_push "${LOCAL_TAG}" "conjur-ubi-cloud:${LOCAL_TAG}" "registry.tld/conjur-ubi-cloud"
 fi

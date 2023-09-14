@@ -79,7 +79,7 @@ if image_doesnt_exist "conjur-test:$TAG"; then
   docker build --build-arg "VERSION=$TAG" -t "conjur-test:$TAG" -f Dockerfile.test .
 fi
 
-if image_doesnt_exist "conjur-ubi-cloud:$TAG"; then
-  echo "Building image conjur-ubi-cloud:$TAG container"
-  docker build --build-arg "VERSION=$TAG" -t "conjur-ubi-cloud:$TAG" -f Dockerfile.ubi .
-fi
+#if image_doesnt_exist "conjur-ubi-cloud:$TAG"; then
+#  echo "Building image conjur-ubi-cloud:$TAG container"
+#  docker build --build-arg "VERSION=$TAG" -t "conjur-ubi-cloud:$TAG" -f Dockerfile.ubi .
+#fi

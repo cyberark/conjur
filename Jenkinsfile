@@ -165,16 +165,16 @@ pipeline {
                 scanAndReport("conjur-cloud:${tagWithSHA()}", "NONE", true)
               }
             }
-            stage("Scan UBI-based Docker Image for fixable issues") {
-              steps {
-                scanAndReport("conjur-ubi-cloud:${tagWithSHA()}", "HIGH", false)
-              }
-            }
-            stage("Scan UBI-based Docker image for total issues") {
-              steps {
-                scanAndReport("conjur-ubi-cloud:${tagWithSHA()}", "NONE", true)
-              }
-            }
+//             stage("Scan UBI-based Docker Image for fixable issues") {
+//               steps {
+//                 scanAndReport("conjur-ubi-cloud:${tagWithSHA()}", "HIGH", false)
+//               }
+//             }
+//             stage("Scan UBI-based Docker image for total issues") {
+//               steps {
+//                 scanAndReport("conjur-ubi-cloud:${tagWithSHA()}", "NONE", true)
+//               }
+//             }
           }
         }
 
