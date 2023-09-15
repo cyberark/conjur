@@ -94,14 +94,9 @@ Feature: OIDC Authenticator V2 - Users can authenticate with OIDC authenticator 
       | conjur/authn-oidc/keycloak2-long-lived/response-type  |                     | code          |
       | conjur/authn-oidc/keycloak2-long-lived/token-ttl      |                     | PT2H          |
       | conjur/authn-oidc/keycloak2-long-lived/ca-cert        | oidc_ca_cert        |               |
-    # And I set environment variable "http_proxy" to "http://tinyproxy:8888"
-    # And I set environment variable "https_proxy" to "http://tinyproxy:8888"
-    # And I set environment variable "HTTPS_PROXY" to "http://tinyproxy:8888"
-    # And I set environment variable "HTTP_PROXY" to "http://tinyproxy:8888"
 
   @smoke
   Scenario: A valid code to get Conjur access token from webservice with http_proxy set
-    # We want to verify the returned access token is valid for retrieving a secret
     Given I have a "variable" resource called "test-variable"
     And I permit user "alice" to "execute" it
     And I add the secret value "test-secret" to the resource "cucumber:variable:test-variable"
@@ -113,7 +108,6 @@ Feature: OIDC Authenticator V2 - Users can authenticate with OIDC authenticator 
 
   @smoke
   Scenario: A valid code to get Conjur access token from webservice with HTTP_PROXY set
-    # We want to verify the returned access token is valid for retrieving a secret
     Given I have a "variable" resource called "test-variable"
     And I permit user "alice" to "execute" it
     And I add the secret value "test-secret" to the resource "cucumber:variable:test-variable"
@@ -125,7 +119,6 @@ Feature: OIDC Authenticator V2 - Users can authenticate with OIDC authenticator 
 
   @smoke
   Scenario: A valid code to get Conjur access token from webservice with https_proxy set
-    # We want to verify the returned access token is valid for retrieving a secret
     Given I have a "variable" resource called "test-variable"
     And I permit user "alice" to "execute" it
     And I add the secret value "test-secret" to the resource "cucumber:variable:test-variable"
@@ -137,7 +130,6 @@ Feature: OIDC Authenticator V2 - Users can authenticate with OIDC authenticator 
 
   @smoke
   Scenario: A valid code to get Conjur access token from webservice with HTTP_PROXY set
-    # We want to verify the returned access token is valid for retrieving a secret
     Given I have a "variable" resource called "test-variable"
     And I permit user "alice" to "execute" it
     And I add the secret value "test-secret" to the resource "cucumber:variable:test-variable"
@@ -149,11 +141,9 @@ Feature: OIDC Authenticator V2 - Users can authenticate with OIDC authenticator 
 
   @negative @acceptance
   Scenario: Unauthenticated is raised in case of an invalid HTTPS_PROXY setting
-    Given I fetch a code for username "alice" and password "alice" from "keycloak2"
-    When I set environment variable "HTTPS_PROXY" to "https://fakeproxy"
-    # And I add the secret value "https://keycloak:1234" to the resource "cucumber:variable:conjur/authn-oidc/keycloak2/provider-uri"
+    Given I set environment variable "HTTPS_PROXY" to "https://fakeproxy"
     And I save my place in the log file
-    And I authenticate via OIDC V2 with code
+    When I fetch a code for username "alice" and password "alice" from "keycloak2"
     Then it is a bad request
     And The following appears in the log after my savepoint:
     """
@@ -162,11 +152,9 @@ Feature: OIDC Authenticator V2 - Users can authenticate with OIDC authenticator 
 
   @negative @acceptance
   Scenario: Unauthenticated is raised in case of an invalid https_proxy setting
-    Given I fetch a code for username "alice" and password "alice" from "keycloak2"
-    When I set environment variable "https_proxy" to "https://fakeproxy"
-    # And I add the secret value "https://keycloak:1234" to the resource "cucumber:variable:conjur/authn-oidc/keycloak2/provider-uri"
+    Given I set environment variable "https_proxy" to "https://fakeproxy"
     And I save my place in the log file
-    And I authenticate via OIDC V2 with code
+    When I fetch a code for username "alice" and password "alice" from "keycloak2"
     Then it is a bad request
     And The following appears in the log after my savepoint:
     """
@@ -175,11 +163,9 @@ Feature: OIDC Authenticator V2 - Users can authenticate with OIDC authenticator 
 
   @negative @acceptance
   Scenario: Unauthenticated is raised in case of an invalid HTTP_PROXY setting
-    Given I fetch a code for username "alice" and password "alice" from "keycloak2"
-    When I set environment variable "HTTP_PROXY" to "http://fakeproxy"
-    # And I add the secret value "http://keycloak:1234" to the resource "cucumber:variable:conjur/authn-oidc/keycloak2/provider-uri"
+    Given I set environment variable "HTTP_PROXY" to "https://fakeproxy"
     And I save my place in the log file
-    And I authenticate via OIDC V2 with code
+    When I fetch a code for username "alice" and password "alice" from "keycloak2"
     Then it is a bad request
     And The following appears in the log after my savepoint:
     """
@@ -188,11 +174,9 @@ Feature: OIDC Authenticator V2 - Users can authenticate with OIDC authenticator 
 
   @negative @acceptance
   Scenario: Unauthenticated is raised in case of an invalid http_proxy setting
-    Given I fetch a code for username "alice" and password "alice" from "keycloak2"
-    When I set environment variable "http_proxy" to "http://fakeproxy"
-    # And I add the secret value "http://keycloak:1234" to the resource "cucumber:variable:conjur/authn-oidc/keycloak2/provider-uri"
+    Given I set environment variable "http_proxy" to "https://fakeproxy"
     And I save my place in the log file
-    And I authenticate via OIDC V2 with code
+    When I fetch a code for username "alice" and password "alice" from "keycloak2"
     Then it is a bad request
     And The following appears in the log after my savepoint:
     """
