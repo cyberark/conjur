@@ -13,9 +13,9 @@ RUN bundle config set --local without 'test development' && \
     bundle config --local jobs "$(nproc --all)" && \
     bundle install && \
     # Remove private keys brought in by gems in their test data
-    find / -name openid_connect -type d -exec find {} -name '*.pem' -type f -delete \; && \
+    find / -name 'openid_connect-*' -type d -exec find {} -name '*.pem' -type f -delete \; && \
     find / -name 'httpclient-*' -type d -exec find {} -name '*.key' -type f -delete \; && \
-    find / -name httpclient -type d -exec find {} -name '*.pem' -type f -delete \;
+    find / -name 'httpclient-*' -type d -exec find {} -name '*.pem' -type f -delete \;
 
 FROM cyberark/ubuntu-ruby-fips:latest
 
