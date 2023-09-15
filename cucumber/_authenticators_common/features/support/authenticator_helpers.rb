@@ -72,7 +72,8 @@ module AuthenticatorHelpers
   def get(path, options = {})
     options = options.merge(
       method: :get,
-      url: path
+      url: path,
+      proxy: nil
     )
     result             = RestClient::Request.execute(options)
     @response_body     = result.body
@@ -84,6 +85,9 @@ module AuthenticatorHelpers
   end
 
   def post(path, payload, options = {})
+    options = options.merge(
+      proxy: nil
+    )
     result             = RestClient.post(path, payload, options)
     @response_body     = result.body
     @http_status       = result.code
@@ -94,6 +98,9 @@ module AuthenticatorHelpers
   end
 
   def execute(method, path, payload = {}, options = {})
+    options = options.merge(
+      proxy: nil
+    )
     result             = RestClient::Request.execute(method: method, url: path, payload: payload, **options)
     @response_body     = result.body
     @http_status       = result.code

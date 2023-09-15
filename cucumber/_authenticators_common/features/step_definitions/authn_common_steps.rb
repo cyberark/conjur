@@ -74,3 +74,7 @@ Given(/the following environment variables are available:/) do |table|
     @scenario_context.add(variable_hash['context_variable'].to_sym, value)
   end
 end
+
+Given(/^I set environment variable "([^"]*)" to "([^"]*)"$/) do |variable_name, variable_value|
+  ENV[variable_name] = variable_value
+end

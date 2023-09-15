@@ -303,204 +303,204 @@ pipeline {
         //       }
         //     }
 
-            stage('EE FIPS parallel') {
-              parallel {
-                // stage('EE FIPS agent tests') {
-                //   when {
-                //     expression {
-                //       testShouldRunOnAgent(
-                //         params.RUN_ONLY,
-                //         runSpecificTestOnAgent(params.RUN_ONLY, NESTED_ARRAY_OF_TESTS_TO_RUN[0])
-                //       )
-                //     }
-                //   }
+        //     stage('EE FIPS parallel') {
+        //       parallel {
+        //         stage('EE FIPS agent tests') {
+        //           when {
+        //             expression {
+        //               testShouldRunOnAgent(
+        //                 params.RUN_ONLY,
+        //                 runSpecificTestOnAgent(params.RUN_ONLY, NESTED_ARRAY_OF_TESTS_TO_RUN[0])
+        //               )
+        //             }
+        //           }
 
-                //   steps {
-                //     addNewImagesToAgent()
-                //     unstash 'version_info'
-                //     runConjurTests(
-                //       params.RUN_ONLY,
-                //       NESTED_ARRAY_OF_TESTS_TO_RUN[0]
-                //     )
-                //   }
-                //   post {
-                //     always {
-                //       stash(
-                //         name: 'testResultEE',
-                //         includes: '''
-                //           cucumber/*/*.*,
-                //           container_logs/*/*,
-                //           spec/reports/*.xml,
-                //           spec/reports-audit/*.xml,
-                //           gems/conjur-rack/spec/reports/*.xml,
-                //           cucumber/*/features/reports/**/*.xml
-                //         '''
-                //       )
-                //     }
-                //   }
-                // }
-                // Run a subset of tests on a second agent to prevent oversubscribing the hardware
-                stage('EE FIPS agent2 tests') {
-                  when {
-                    expression {
-                      testShouldRunOnAgent(
-                        params.RUN_ONLY,
-                        runSpecificTestOnAgent(params.RUN_ONLY, NESTED_ARRAY_OF_TESTS_TO_RUN[1])
-                      )
-                    }
-                  }
-                  agent { label 'executor-v2-rhel-ee' }
+        //           steps {
+        //             addNewImagesToAgent()
+        //             unstash 'version_info'
+        //             runConjurTests(
+        //               params.RUN_ONLY,
+        //               NESTED_ARRAY_OF_TESTS_TO_RUN[0]
+        //             )
+        //           }
+        //           post {
+        //             always {
+        //               stash(
+        //                 name: 'testResultEE',
+        //                 includes: '''
+        //                   cucumber/*/*.*,
+        //                   container_logs/*/*,
+        //                   spec/reports/*.xml,
+        //                   spec/reports-audit/*.xml,
+        //                   gems/conjur-rack/spec/reports/*.xml,
+        //                   cucumber/*/features/reports/**/*.xml
+        //                 '''
+        //               )
+        //             }
+        //           }
+        //         }
+        //         // Run a subset of tests on a second agent to prevent oversubscribing the hardware
+        //         stage('EE FIPS agent2 tests') {
+        //           when {
+        //             expression {
+        //               testShouldRunOnAgent(
+        //                 params.RUN_ONLY,
+        //                 runSpecificTestOnAgent(params.RUN_ONLY, NESTED_ARRAY_OF_TESTS_TO_RUN[1])
+        //               )
+        //             }
+        //           }
+        //           agent { label 'executor-v2-rhel-ee' }
 
-                  environment {
-                    CUCUMBER_FILTER_TAGS = "${params.CUCUMBER_FILTER_TAGS}"
-                  }
+        //           environment {
+        //             CUCUMBER_FILTER_TAGS = "${params.CUCUMBER_FILTER_TAGS}"
+        //           }
 
-                  steps {
-                    addNewImagesToAgent()
-                    unstash 'version_info'
-                    runConjurTests(
-                      params.RUN_ONLY,
-                      NESTED_ARRAY_OF_TESTS_TO_RUN[1]
-                    )
-                  }
-                  post {
-                    always {
-                      stash(
-                        name: 'testResultEE2',
-                        includes: '''
-                          cucumber/*/*.*,
-                          container_logs/*/*,
-                          spec/reports/*.xml,
-                          spec/reports-audit/*.xml,
-                          cucumber/*/features/reports/**/*.xml
-                        '''
-                      )
-                    }
-                  }
-                }
-                // Run a subset of tests on a second agent to prevent oversubscribing the hardware
-                // stage('EE FIPS agent3 tests') {
-                //   when {
-                //     expression {
-                //       testShouldRunOnAgent(
-                //         params.RUN_ONLY,
-                //         runSpecificTestOnAgent(params.RUN_ONLY, NESTED_ARRAY_OF_TESTS_TO_RUN[2])
-                //       )
-                //     }
-                //   }
+        //           steps {
+        //             addNewImagesToAgent()
+        //             unstash 'version_info'
+        //             runConjurTests(
+        //               params.RUN_ONLY,
+        //               NESTED_ARRAY_OF_TESTS_TO_RUN[1]
+        //             )
+        //           }
+        //           post {
+        //             always {
+        //               stash(
+        //                 name: 'testResultEE2',
+        //                 includes: '''
+        //                   cucumber/*/*.*,
+        //                   container_logs/*/*,
+        //                   spec/reports/*.xml,
+        //                   spec/reports-audit/*.xml,
+        //                   cucumber/*/features/reports/**/*.xml
+        //                 '''
+        //               )
+        //             }
+        //           }
+        //         }
+        //         // Run a subset of tests on a second agent to prevent oversubscribing the hardware
+        //         stage('EE FIPS agent3 tests') {
+        //           when {
+        //             expression {
+        //               testShouldRunOnAgent(
+        //                 params.RUN_ONLY,
+        //                 runSpecificTestOnAgent(params.RUN_ONLY, NESTED_ARRAY_OF_TESTS_TO_RUN[2])
+        //               )
+        //             }
+        //           }
 
-                //   agent { label 'executor-v2-rhel-ee' }
+        //           agent { label 'executor-v2-rhel-ee' }
 
-                //   environment {
-                //     CUCUMBER_FILTER_TAGS = "${params.CUCUMBER_FILTER_TAGS}"
-                //   }
+        //           environment {
+        //             CUCUMBER_FILTER_TAGS = "${params.CUCUMBER_FILTER_TAGS}"
+        //           }
 
-                //   steps {
-                //     addNewImagesToAgent()
-                //     unstash 'version_info'
-                //     runConjurTests(
-                //       params.RUN_ONLY,
-                //       NESTED_ARRAY_OF_TESTS_TO_RUN[2]
-                //     )
-                //   }
-                //   post {
-                //     always {
-                //       stash(
-                //         name: 'testResultEE3',
-                //         includes: '''
-                //           cucumber/*/*.*,
-                //           container_logs/*/*,
-                //           spec/reports/*.xml,
-                //           spec/reports-audit/*.xml,
-                //           cucumber/*/features/reports/**/*.xml
-                //         '''
-                //       )
-                //     }
-                //   }
-                // }
-              }
-            }
-          }
-          post {
-            always {
-              script {
-                if (testShouldRunOnAgent(params.RUN_ONLY, runSpecificTestOnAgent(params.RUN_ONLY, NESTED_ARRAY_OF_TESTS_TO_RUN[0]))) {
-                  dir('ee-test'){
-                    unstash 'testResultEE'
-                  }
-                }
-                if (testShouldRunOnAgent(params.RUN_ONLY, runSpecificTestOnAgent(params.RUN_ONLY, NESTED_ARRAY_OF_TESTS_TO_RUN[1]))) {
-                  dir('ee-test'){
-                    unstash 'testResultEE2'
-                  }
-                }
-                if (testShouldRunOnAgent(params.RUN_ONLY, runSpecificTestOnAgent(params.RUN_ONLY, NESTED_ARRAY_OF_TESTS_TO_RUN[2]))) {
-                  dir('ee-test'){
-                    unstash 'testResultEE3'
-                  }
-                }
-              }
+        //           steps {
+        //             addNewImagesToAgent()
+        //             unstash 'version_info'
+        //             runConjurTests(
+        //               params.RUN_ONLY,
+        //               NESTED_ARRAY_OF_TESTS_TO_RUN[2]
+        //             )
+        //           }
+        //           post {
+        //             always {
+        //               stash(
+        //                 name: 'testResultEE3',
+        //                 includes: '''
+        //                   cucumber/*/*.*,
+        //                   container_logs/*/*,
+        //                   spec/reports/*.xml,
+        //                   spec/reports-audit/*.xml,
+        //                   cucumber/*/features/reports/**/*.xml
+        //                 '''
+        //               )
+        //             }
+        //           }
+        //         }
+        //       }
+        //     }
+        //   }
+        //   post {
+        //     always {
+        //       script {
+        //         if (testShouldRunOnAgent(params.RUN_ONLY, runSpecificTestOnAgent(params.RUN_ONLY, NESTED_ARRAY_OF_TESTS_TO_RUN[0]))) {
+        //           dir('ee-test'){
+        //             unstash 'testResultEE'
+        //           }
+        //         }
+        //         if (testShouldRunOnAgent(params.RUN_ONLY, runSpecificTestOnAgent(params.RUN_ONLY, NESTED_ARRAY_OF_TESTS_TO_RUN[1]))) {
+        //           dir('ee-test'){
+        //             unstash 'testResultEE2'
+        //           }
+        //         }
+        //         if (testShouldRunOnAgent(params.RUN_ONLY, runSpecificTestOnAgent(params.RUN_ONLY, NESTED_ARRAY_OF_TESTS_TO_RUN[2]))) {
+        //           dir('ee-test'){
+        //             unstash 'testResultEE3'
+        //           }
+        //         }
+        //       }
 
-              archiveArtifacts(
-                artifacts: "ee-test/cucumber/*/*.*",
-                fingerprint: false,
-                allowEmptyArchive: true
-              )
+        //       archiveArtifacts(
+        //         artifacts: "ee-test/cucumber/*/*.*",
+        //         fingerprint: false,
+        //         allowEmptyArchive: true
+        //       )
 
-              archiveArtifacts(
-                artifacts: "ee-test/container_logs/*/*",
-                fingerprint: false,
-                allowEmptyArchive: true
-              )
+        //       archiveArtifacts(
+        //         artifacts: "ee-test/container_logs/*/*",
+        //         fingerprint: false,
+        //         allowEmptyArchive: true
+        //       )
 
-              publishHTML(
-                reportDir: 'ee-test/cucumber',
-                reportFiles: '''
-                  api/cucumber_results.html,
-                  authenticators_config/cucumber_results.html,
-                  authenticators_azure/cucumber_results.html,
-                  authenticators_ldap/cucumber_results.html,
-                  authenticators_oidc/cucumber_results.html,
-                  authenticators_jwt/cucumber_results.html,
-                  authenticators_status/cucumber_results.html
-                  policy/cucumber_results.html,
-                  rotators/cucumber_results.html
-                ''',
-                reportName: 'EE Integration reports',
-                reportTitles: '',
-                allowMissing: false,
-                alwaysLinkToLastBuild: true,
-                keepAll: true
-              )
-            }
-          }
-        }
+        //       publishHTML(
+        //         reportDir: 'ee-test/cucumber',
+        //         reportFiles: '''
+        //           api/cucumber_results.html,
+        //           authenticators_config/cucumber_results.html,
+        //           authenticators_azure/cucumber_results.html,
+        //           authenticators_ldap/cucumber_results.html,
+        //           authenticators_oidc/cucumber_results.html,
+        //           authenticators_jwt/cucumber_results.html,
+        //           authenticators_status/cucumber_results.html
+        //           policy/cucumber_results.html,
+        //           rotators/cucumber_results.html
+        //         ''',
+        //         reportName: 'EE Integration reports',
+        //         reportTitles: '',
+        //         allowMissing: false,
+        //         alwaysLinkToLastBuild: true,
+        //         keepAll: true
+        //       )
+        //     }
+        //   }
+        // }
 
         stage('Run environment tests in parallel') {
           parallel {
-            stage('Standard agent tests') {
-              when {
-                expression {
-                  testShouldRunOnAgent(
-                    params.RUN_ONLY,
-                    runSpecificTestOnAgent(params.RUN_ONLY, NESTED_ARRAY_OF_TESTS_TO_RUN[0])
-                  )
-                }
-              }
+            // stage('Standard agent tests') {
+            //   when {
+            //     expression {
+            //       testShouldRunOnAgent(
+            //         params.RUN_ONLY,
+            //         runSpecificTestOnAgent(params.RUN_ONLY, NESTED_ARRAY_OF_TESTS_TO_RUN[0])
+            //       )
+            //     }
+            //   }
 
-              environment {
-                CUCUMBER_FILTER_TAGS = "${params.CUCUMBER_FILTER_TAGS}"
-              }
+            //   environment {
+            //     CUCUMBER_FILTER_TAGS = "${params.CUCUMBER_FILTER_TAGS}"
+            //   }
 
-              steps {
-                sh(script: 'cat /etc/os-release', label: 'Ubuntu version')
-                sh(script: 'docker --version', label: 'Docker version')
-                runConjurTests(
-                  params.RUN_ONLY,
-                  NESTED_ARRAY_OF_TESTS_TO_RUN[0]
-                )
-              }
-            }
+            //   steps {
+            //     sh(script: 'cat /etc/os-release', label: 'Ubuntu version')
+            //     sh(script: 'docker --version', label: 'Docker version')
+            //     runConjurTests(
+            //       params.RUN_ONLY,
+            //       NESTED_ARRAY_OF_TESTS_TO_RUN[0]
+            //     )
+            //   }
+            // }
 
             // Run a subset of tests on a second agent to prevent oversubscribing the hardware
             stage('Standard agent2 tests') {
@@ -540,45 +540,45 @@ pipeline {
             }
 
             // Run a subset of tests on a second agent to prevent oversubscribing the hardware
-            stage('Standard agent3 tests') {
-              when {
-                expression {
-                  testShouldRunOnAgent(
-                    params.RUN_ONLY,
-                    runSpecificTestOnAgent(params.RUN_ONLY, NESTED_ARRAY_OF_TESTS_TO_RUN[2])
-                  )
-                }
-              }
+            // stage('Standard agent3 tests') {
+            //   when {
+            //     expression {
+            //       testShouldRunOnAgent(
+            //         params.RUN_ONLY,
+            //         runSpecificTestOnAgent(params.RUN_ONLY, NESTED_ARRAY_OF_TESTS_TO_RUN[2])
+            //       )
+            //     }
+            //   }
 
-              agent { label 'executor-v2' }
-              environment {
-                CUCUMBER_FILTER_TAGS = "${params.CUCUMBER_FILTER_TAGS}"
-              }
+            //   agent { label 'executor-v2' }
+            //   environment {
+            //     CUCUMBER_FILTER_TAGS = "${params.CUCUMBER_FILTER_TAGS}"
+            //   }
 
-              steps {
-                addNewImagesToAgent()
-                unstash 'version_info'
-                runConjurTests(
-                  params.RUN_ONLY,
-                  NESTED_ARRAY_OF_TESTS_TO_RUN[2]
-                )
-              }
-              post {
-                always {
-                  stash(
-                    name: 'standardTestResult3',
-                    includes: '''
-                      cucumber/*/*.*,
-                      container_logs/*/*,
-                      spec/reports/*.xml,
-                      spec/reports-audit/*.xml,
-                      cucumber/*/features/reports/**/*.xml,
-                      ci/test_suites/*/output/*
-                    '''
-                  )
-                }
-              }
-            }
+            //   steps {
+            //     addNewImagesToAgent()
+            //     unstash 'version_info'
+            //     runConjurTests(
+            //       params.RUN_ONLY,
+            //       NESTED_ARRAY_OF_TESTS_TO_RUN[2]
+            //     )
+            //   }
+            //   post {
+            //     always {
+            //       stash(
+            //         name: 'standardTestResult3',
+            //         includes: '''
+            //           cucumber/*/*.*,
+            //           container_logs/*/*,
+            //           spec/reports/*.xml,
+            //           spec/reports-audit/*.xml,
+            //           cucumber/*/features/reports/**/*.xml,
+            //           ci/test_suites/*/output/*
+            //         '''
+            //       )
+            //     }
+            //   }
+            // }
 
             stage('Azure Authenticator') {
               when {
