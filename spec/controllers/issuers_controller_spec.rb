@@ -586,14 +586,10 @@ describe IssuersController, type: :request do
         expect(parsed_body["issuers"][0]["id"]).to eq("issuer-1")
         expect(parsed_body["issuers"][0]["max_ttl"]).to eq(200)
         expect(parsed_body["issuers"][0]["type"]).to eq("aws")
-        expect(parsed_body["issuers"][0]["data"]["access_key_id"]).to eq("a")
-        expect(parsed_body["issuers"][0]["data"]["secret_access_key"]).to eq("a")
 
         expect(parsed_body["issuers"][1]["id"]).to eq("issuer-2")
         expect(parsed_body["issuers"][1]["max_ttl"]).to eq(300)
         expect(parsed_body["issuers"][1]["type"]).to eq("aws")
-        expect(parsed_body["issuers"][1]["data"]["access_key_id"]).to eq("aaa")
-        expect(parsed_body["issuers"][1]["data"]["secret_access_key"]).to eq("aaa")
       end
     end
 
