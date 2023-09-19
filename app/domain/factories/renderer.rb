@@ -9,7 +9,7 @@ module Factories
     end
 
     def render(template:, variables:)
-      @success.new(@render_engine.new(template, nil, '-').result_with_hash(variables))
+      @success.new(@render_engine.new(template, trim_mode: '-').result_with_hash(variables))
 
     # If variable in template is missing from variable list
     rescue NameError => e
