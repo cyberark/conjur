@@ -33,7 +33,9 @@ RUN bundle
 RUN find / -name httpclient -type d -exec find {} -name *.pem -type f -delete \;
 
 RUN ln -sf /src/conjur-server/bin/conjurctl /usr/local/bin/
-RUN rm /etc/service/syslog-ng/run
+
+# Stop Syslog-NG from starting
+# RUN touch /etc/service/syslog-ng/down
 
 ENV PORT 3000
 ENV TERM xterm
