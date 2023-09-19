@@ -12,9 +12,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [1.20.0] - 2023-08-16
 
 ### Fixed
+- Allow Factories with optional variables to save without error
+  [cyberark/conjur#2956](https://github.com/cyberark/conjur/pull/2956)
 - OIDC authenticators support `https_proxy` and `HTTPS_PROXY` environment variables
   [cyberark/conjur#2902](https://github.com/cyberark/conjur/pull/2902)
-- Support plural syntax for revoke and deny 
+- Support plural syntax for revoke and deny
   [cyberark/conjur#2901](https://github.com/cyberark/conjur/pull/2901)
 
 ### Added

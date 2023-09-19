@@ -169,14 +169,15 @@ module Factories
     end
 
     def set_factory_variables(schema_variables:, factory_variables:, variable_path:, authorization:, account:)
-      # Only set secrets defined in the policy
-      schema_variables.each_key do |factory_variable|
-        variable_id = @uri.encode_www_form_component("#{variable_path}/#{factory_variable}")
+      # Only set secrets defined in the policy and present in factory payload
+      (schema_variables.keys & factory_variables.keys).each do |schema_variable|
+
+        variable_id = @uri.encode_www_form_component("#{variable_path}/#{schema_variable}")
         secret_path = "secrets/#{account}/variable/#{variable_id}"
 
         @http.post(
           "http://localhost:#{ENV['PORT']}/#{secret_path}",
-          factory_variables[factory_variable].to_s,
+          factory_variables[schema_variable].to_s,
           { 'Authorization' => authorization }
         )
       rescue RestClient::ExceptionWithResponse => e
