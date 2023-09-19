@@ -24,6 +24,9 @@ module Factories
                     - !variable port
                     - !variable username
                     - !variable password
+                    - !variable ssl-certificate
+                    - !variable ssl-key
+                    - !variable ssl-ca-certificate
 
                   - !group consumers
                   - !group administrators
@@ -89,6 +92,18 @@ module Factories
                           "description": "Database Password",
                           "type": "string"
                         },
+                        "ssl-certificate": {
+                          "description": "Client SSL Certificate",
+                          "type": "string"
+                        },
+                        "ssl-key": {
+                          "description": "Client SSL Key",
+                          "type": "string"
+                        },
+                        "ssl-ca-certificate": {
+                          "description": "CA Root Certificate",
+                          "type": "string"
+                        }
                       },
                       "required": %w[url port username password]
                     }
