@@ -30,6 +30,8 @@ gem 'sequel'
 gem 'sequel-pg_advisory_locking'
 gem 'sequel-postgres-schemata', require: false
 gem 'sequel-rails'
+gem 'redis'
+gem 'hiredis'
 
 gem 'activesupport', '~> 6.1', '>= 6.1.4.6'
 gem 'base32-crockford'
