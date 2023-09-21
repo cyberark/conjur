@@ -125,9 +125,12 @@ module Loader
         raise Exceptions::InvalidPolicyObject.new(self.id, message: message)
       end
 
-      def auth_resource privilege, resource_id
+      def auth_resource(privilege, resource_id, issuer_id, account)
         resource = ::Resource[resource_id]
-        authorize(privilege, resource)
+        unless current_user.allowed_to?(privilege, resource)
+          issuer_exception_id = "#{account}:issuer:#{issuer_id}"
+          raise Exceptions::RecordNotFound, issuer_exception_id
+        end
       end
 
       def calculate_defaults!; end
@@ -319,7 +322,7 @@ module Loader
             end
 
             resource_id = @policy_object.account + ":policy:conjur/issuers/" + issuer_id
-            auth_resource(:use, resource_id)
+            auth_resource(:use, resource_id,issuer_id,@policy_object.account)
           end
         else
           if !(self.annotations.nil?) && !(self.annotations[Issuer::EPHEMERAL_ANNOTATION_PREFIX + "issuer"].nil?)
