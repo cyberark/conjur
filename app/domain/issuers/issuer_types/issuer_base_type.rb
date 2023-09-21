@@ -11,6 +11,7 @@ class IssuerBaseType
     validate_id(params[:id])
     validate_max_ttl(params[:max_ttl])
     validate_type(params[:type])
+    validate_not_nil_data(params[:data])
     validate_no_added_parameters(params)
   end
 end
@@ -61,6 +62,12 @@ def validate_type(type)
 
   if type.empty?
     raise ApplicationController::BadRequest, format(IssuerBaseType::REQUIRED_PARAM_MISSING, "type")
+  end
+end
+
+def validate_not_nil_data(data)
+  if data.nil?
+    raise ApplicationController::BadRequest, format(IssuerBaseType::REQUIRED_PARAM_MISSING, "data")
   end
 end
 
