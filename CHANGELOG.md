@@ -147,7 +147,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 - Remove auto-release options to allow for a pseudo-fork development on a branch
 
-## [1.20.0] - 2023-08-16
+## [1.20.0] - 2023-09-21
 
 ### Fixed
 - Allow Factories with optional variables to save without error
@@ -1231,7 +1231,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - The first tagged version.
 
-[Unreleased]: https://github.com/cyberark/conjur/compare/v1.19.5...HEAD
+[Unreleased]: https://github.com/cyberark/conjur/compare/v1.20.0...HEAD
+[1.20.0]: https://github.com/cyberark/conjur/compare/v1.19.5...v1.20.0
 [1.19.5]: https://github.com/cyberark/conjur/compare/v1.19.3...v1.19.5
 [1.19.3]: https://github.com/cyberark/conjur/compare/v1.19.2...v1.19.3
 [1.19.2]: https://github.com/cyberark/conjur/compare/v1.19.1...v1.19.2
