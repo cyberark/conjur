@@ -89,5 +89,6 @@ fi
 #if image_doesnt_exist "conjur-ubi:$TAG"; then
 #  echo "Building image conjur-ubi:$TAG container"
 #  docker build --pull --build-arg "VERSION=$TAG" --tag "conjur-ubi:$TAG" --file Dockerfile.ubi .
-#  flatten "conjur-ubi:$TAG"
+#  # Avoid flattening RH image for now, otherwise it fails to pass RH's preflight scan
+#  # flatten "conjur-ubi:$TAG"
 #fi
