@@ -16,6 +16,7 @@ module Factories
       @http = http
       @schema_validator = schema_validator
       @utilities = utilities
+      @logger = Rails.logger
 
       # JSON and URI are defined here for visibility. They are not currently
       # mocked in testing, thus, we're not setting them in the initializer.
@@ -128,6 +129,8 @@ module Factories
         template: policy_template,
         variables: variables
       ).bind do |rendered_policy|
+        @logger.debug("Policy Factory is applying the following policy to '/policies/#{account}/policy/#{policy_load_path}'")
+        @logger.debug("\n#{rendered_policy}")
         begin
           response = @http.post(
             "http://localhost:#{ENV['PORT']}/policies/#{account}/policy/#{policy_load_path}",
