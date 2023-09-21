@@ -50,6 +50,28 @@ describe IssuersController, type: :request do
       end
     end
 
+    context "when a user sends body with id only" do
+      let(:payload_create_4_fields_without_data) do
+        <<~BODY
+          {
+            "id": "aws-issuer-1",
+            "max_ttl": 3000,
+            "type": "aws",
+            "wrong": "wrong value"
+          }
+        BODY
+      end
+      it 'returns bad request' do
+        post("/issuers/rspec",
+             env: token_auth_header(role: admin_user).merge(
+               'RAW_POST_DATA' => payload_create_4_fields_without_data,
+               'CONTENT_TYPE' => "application/json"
+             ))
+        assert_response :bad_request
+        expect(response.body).to eq("{\"error\":{\"code\":\"bad_request\",\"message\":\"data is a required parameter and must be specified\"}}")
+      end
+    end
+
     context "when user sends body with id, max_ttl, type and data" do
       let(:payload_create_issuers_complete_input) do
         <<~BODY
