@@ -46,8 +46,12 @@ function flatten() {
   cmd=$(docker inspect -f '[{{range $index, $value := .Config.Cmd }}{{if $index}},{{end}}"{{$value}}"{{end}}]' "$container")
   local ports
   IFS=":" read -r -a ports <<< "$(docker inspect -f '{{range $port, $empty := .Config.ExposedPorts}}--change:EXPOSE {{$port}}:{{end}}' "$container")"
+  local labels
+  image_labels="$(docker inspect -f '{{range $key, $value := .Config.Labels}}--change;LABEL {{$key}}="{{$value}}";{{end}}' "$container")"
+  IFS=";" read -r -a labels <<< "$image_labels"
   docker export "$container" | docker import \
     "${ports[@]}" \
+    "${labels[@]}" \
     --change "ENV $envs" \
     --change "WORKDIR $workDir" \
     --change "USER ${user:=0}" \
