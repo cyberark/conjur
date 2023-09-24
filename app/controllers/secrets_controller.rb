@@ -36,43 +36,40 @@ class SecretsController < RestController
   end
 
   def show
-    authorize(:execute)
+    #authorize(:execute)
     version = params[:version]
-    Rails.logger.info("++++++++++++ Get from cache 1 resource.id = #{resource.id}")
+    ##value = "abcdef"
+    ##mime_type = "mime"
+    #Rails.logger.info("+++++++++++++++ Get from cache 1 params[:identifier] = #{params[:identifier]}")
+    resource_id = params[:account] + ":" + params[:kind] + ":" + params[:identifier]
+    value = $redis.get(resource_id)
+    #Rails.logger.info("++++++++++++ Get from cache 1.1 resource_id = #{resource_id}, value = #{value}")
 
-    r = Redis.new(url: "rediss://master.ofira-redis1.ejau9l.use2.cache.amazonaws.com:6582/") #, ssl_params: ssl) #, role: :master)
-
-    value2 = r.get(resource.id)
-    Rails.logger.info("++++++++++++ Get from cache 1.1 resource.id = #{resource.id}, value2 = #{value2}")
-
-    if (!(value2.nil?)) #(r.exists(resource.id))
-      Rails.logger.info("++++++++++++ Get from cache 2 resource.id = #{resource.id}")
-      value = r.get(resource.id)
-      mime_type = r.get(resource.id + "/mime_type")
-      Rails.logger.info("++++++++++++ Get from cache 3 value = #{value}, mime_type=#{mime_type}")
+    if (!(value.nil?))
+      #Rails.logger.info("++++++++++++ Get from cache 2 resource_id = #{resource_id}")
+      mime_type = $redis.get(resource_id + "/mime_type")
+      #Rails.logger.info("++++++++++++ Get from cache 3 value = #{value}, mime_type=#{mime_type}")
     else
-      Rails.logger.info("++++++++++++ Get from cache 4 resource.id = #{resource.id}")
+      #Rails.logger.info("++++++++++++ Get from cache 4 resource_id = #{resource_id}")
       if ephemeral_secret?
         value = handle_ephemeral_secret
         mime_type = 'application/json'
       else
         unless (secret = resource.secret(version: version))
           raise Exceptions::RecordNotFound.new(\
-            resource.id, message: "Requested version does not exist"
+            resource_id, message: "Requested version does not exist"
           )
         end
         value = secret.value
         mime_type = \
           resource.annotation('conjur/mime_type') || 'application/octet-stream'
       end
-      Rails.logger.info("++++++++++++ Set into cache 5 resource.id = #{resource.id}, value = #{value}")
-      r.set(resource.id, value)
-      r.set(resource.id + "/mime_type", mime_type)
+      #Rails.logger.info("++++++++++++ Set into cache 5 resource.id = #{resource.id}, value = #{value}")
+      $redis.setex(resource_id, 5, value)
+      $redis.setex(resource_id + "/mime_type", 5, mime_type)
 
-      value1 = r.get(resource.id)
-      Rails.logger.info("++++++++++++ Get from cache 5.1 resource.id = #{resource.id}, value1 = #{value1}")
     end
-    Rails.logger.info("++++++++++++ Get from cache 6 resource.id = #{resource.id}")
+    #Rails.logger.info("++++++++++++ Get from cache 6 resource_id = #{resource_id}")
     send_data(value, type: mime_type)
   rescue Exceptions::RecordNotFound
     raise Errors::Conjur::MissingSecretValue, resource_id

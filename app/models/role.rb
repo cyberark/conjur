@@ -21,7 +21,7 @@ class Role < Sequel::Model
   )
 
   one_to_many :annotations, :key => :resource_id, :class => :Annotation
-  
+
   one_to_one :credentials, reciprocal: :role
 
   alias id role_id
@@ -34,6 +34,13 @@ class Role < Sequel::Model
       response["id"] = response.delete("role_id")
       write_id_to_json(response, "policy")
     end
+  end
+
+  def from_json! string
+    self.role_id = JSON.load(string)["id"]
+    #JSON.load(string).each do |var, val|
+    #  self.instance_variable_set var, val
+    #end
   end
 
   class << self
@@ -76,7 +83,7 @@ class Role < Sequel::Model
                                                        "name", :name,
                                                                "value", :value
                                     )},
-                                   nil 
+                                   nil
                                  )).as(:annotations)
       roles.left_join(:annotations, resource_id: :role_id).group_by(:role_id).select_group(:role_id)
                                                                       .select_append(subquery)
