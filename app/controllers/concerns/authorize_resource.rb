@@ -2,12 +2,13 @@
 
 module AuthorizeResource
   extend ActiveSupport::Concern
-  
+
   included do
     include CurrentUser
   end
-  
+
   def authorize privilege, resource = self.resource
+    #Rails.logger.info("++++++++++++ authorize resource = #{resource}, self = #{self}")
     auth(current_user, privilege, resource)
   end
 

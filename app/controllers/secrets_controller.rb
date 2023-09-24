@@ -36,12 +36,23 @@ class SecretsController < RestController
   end
 
   def show
-    #authorize(:execute)
+
     version = params[:version]
-    ##value = "abcdef"
-    ##mime_type = "mime"
     #Rails.logger.info("+++++++++++++++ Get from cache 1 params[:identifier] = #{params[:identifier]}")
     resource_id = params[:account] + ":" + params[:kind] + ":" + params[:identifier]
+
+    resourceFromCache = $redis.get("resource/" + resource_id)
+    if (resourceFromCache.nil?)
+      resourceObj = self.resource
+      $redis.setex("resource/" + resource_id, 5, resourceObj.as_json)
+    else
+      resourceObj = Resource.new()
+      resourceObj.from_json!(resourceFromCache)
+    end
+
+    authorize(:execute, resourceObj)
+
+
     value = $redis.get(resource_id)
     #Rails.logger.info("++++++++++++ Get from cache 1.1 resource_id = #{resource_id}, value = #{value}")
 
