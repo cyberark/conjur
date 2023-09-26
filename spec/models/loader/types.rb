@@ -186,7 +186,7 @@ describe Loader::Types::Variable do
       context 'when creating ephemeral variable with ephemerals/issuer annotation' do
         let(:resource_id) { 'data/ephemerals/myvar2' }
         let(:issuer_id) { 'aws1' }
-        it { expect { variable.verify }.to raise_error }
+        it { expect { variable.verify }.to raise_error(Exceptions::InvalidPolicyObject,"Ephemeral variable data/ephemerals/myvar2 issuer aws1 is not defined" ) }
       end
     end
 
@@ -200,21 +200,33 @@ describe Loader::Types::Variable do
         let(:resource_id) { 'data/myvar2' }
         let(:issuer_id) { 'aws1' }
         let(:issuer_object) { nil }
-        it { expect { variable.verify }.to raise_error }
+        it "raise not InvalidPolicyObject" do
+          allow(Issuer).to receive(:where).with({:account=>"conjur", :issuer_id=>"aws1"}).and_return(issuer_object)
+          allow(issuer_object).to receive(:first).and_return(nil)
+          expect { variable.verify }.to raise_error(Exceptions::InvalidPolicyObject,"Ephemeral variable data/myvar2 not in right path")
+        end
       end
 
       context 'when creating ephemeral variable with ephemerals/issuer annotation' do
         let(:resource_id) { 'data/ephemerals/myvar2' }
         let(:issuer_id) { 'aws1' }
         let(:issuer_object) { nil }
-        it { expect { variable.verify }.to raise_error }
+
+        it "raise not InvalidPolicyObject" do
+          allow(Issuer).to receive(:where).with({:account=>"conjur", :issuer_id=>"aws1"}).and_return(issuer_object)
+          allow(issuer_object).to receive(:first).and_return(nil)
+          expect { variable.verify }.to raise_error(Exceptions::InvalidPolicyObject,"Ephemeral variable data/ephemerals/myvar2 issuer aws1 is not defined")
+        end
       end
 
       context 'when creating ephemeral variable with ephemerals/issuer annotation' do
         let(:resource_id) { 'data/ephemerals/myvar2' }
         let(:issuer_id) { 'aws1' }
         let(:issuer_object) { 'issuer' }
-        it { expect { variable.verify }.to raise_error }
+        it "raise not InvalidPolicyObject" do
+          allow_any_instance_of(Loader::Types::Record).to receive(:auth_resource).and_raise(Exceptions::RecordNotFound,"rspec:issuer:aws1")
+          expect { variable.verify }.to raise_error(Exceptions::RecordNotFound,"Issuer 'aws1' not found in account 'rspec'")
+        end
       end
     end
 
@@ -229,23 +241,31 @@ describe Loader::Types::Variable do
       context 'when creating regular variable with ephemerals/issuer aws1' do
         let(:resource_id) { 'data/myvar2' }
         let(:issuer_id) { 'aws1' }
-        let(:issuer_object) { nil }
-        it { expect { variable.verify }.to raise_error }
+        let(:issuer_object) { 'issuer'  }
+        it "raise not InvalidPolicyObject" do
+          expect { variable.verify }.to raise_error(Exceptions::InvalidPolicyObject,"Ephemeral variable data/myvar2 not in right path")
+        end
       end
 
       context 'when creating ephemeral variable with ephemerals/issuer aws1' do
         let(:resource_id) { 'data/ephemerals/myvar2' }
         let(:issuer_id) { 'aws1' }
-        let(:issuer_object) { nil }
-        it { expect { variable.verify }.to raise_error }
+        let(:issuer_object) { 'issuer'  }
+        it "raise not found record error" do
+          allow_any_instance_of(Loader::Types::Record).to receive(:auth_resource).and_raise(Exceptions::RecordNotFound,"rspec:issuer:aws1")
+          expect { variable.verify }.to raise_error(Exceptions::RecordNotFound,"Issuer 'aws1' not found in account 'rspec'")
+        end
       end
 
       context 'when creating ephemeral variable with ephemerals/issuer aws1 and with permissions' do
         let(:resource_id) { 'data/ephemerals/myvar2' }
         let(:issuer_id) { 'aws1' }
         let(:issuer_object) { 'issuer' }
-        let(:policy_resource) { 'conjur:policy:conjur/issuers/aws1' }
-        it { expect { variable.verify }.not_to raise_error }
+        it "should not raise error" do
+          allow_any_instance_of(Loader::Types::Record).to receive(:auth_resource)
+          expect { variable.verify }.not_to raise_error
+        end
+
       end
     end
 
