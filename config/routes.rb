@@ -90,7 +90,7 @@ Rails.application.routes.draw do
 
       post    "/edge/data/:account"                 => 'edge_handler#report_edge_data', :constraints => QueryParameterActionRecognizer.new("data_type")
       get     "/edge/slosilo_keys/:account"         => 'edge_slosilo_keys#slosilo_keys'
-
+      get     "/features"                       => "feature_flag#feature_flag"
       post    "/issuers/:account"             => 'issuers#create'
       delete  "/issuers/:account/:identifier" => 'issuers#delete'
       get     "/issuers/:account/:identifier" => 'issuers#get'

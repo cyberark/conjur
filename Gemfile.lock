@@ -96,6 +96,9 @@ GEM
     attr_required (1.0.1)
     aws-eventstream (1.2.0)
     aws-partitions (1.553.0)
+    aws-sdk-appconfigdata (1.4.0)
+      aws-sdk-core (~> 3, >= 3.126.0)
+      aws-sigv4 (~> 1.1)
     aws-sdk-core (3.126.0)
       aws-eventstream (~> 1, >= 1.0.2)
       aws-partitions (~> 1, >= 1.525.0)
@@ -511,6 +514,7 @@ DEPENDENCIES
   activesupport (~> 6.1, >= 6.1.4.6)
   anyway_config
   aruba
+  aws-sdk-appconfigdata
   aws-sdk-iam
   base32-crockford
   base58
