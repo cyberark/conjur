@@ -49,11 +49,6 @@ class Resource < Sequel::Model
   def from_json! string
     Rails.logger.info("+++++++++++++++ #{string}")
     self.resource_id = string["id"]
-    #self.owner = string["owner"]
-    #self.policy = string["policy"]
-    #self.permissions = string["permissions"]
-    #self.annotations = string["annotations"]
-    #self.secrets = string["secrets"]
   end
 
   class << self

@@ -29,7 +29,7 @@ module CurrentUser
     if (userFromCache.nil?)
       current = Role[token_user.roleid]
       #Rails.logger.info("+++++++++++++++ current.to_json = #{current.to_json}")
-      $redis.setex("user/" + token_user.roleid, 5, current.to_json)
+      $redis.setex("user/" + token_user.roleid, 500, current.to_json)
     else
       current = Role.new()
       current.from_json!(userFromCache)

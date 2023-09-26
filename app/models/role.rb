@@ -38,9 +38,6 @@ class Role < Sequel::Model
 
   def from_json! string
     self.role_id = JSON.load(string)["id"]
-    #JSON.load(string).each do |var, val|
-    #  self.instance_variable_set var, val
-    #end
   end
 
   class << self

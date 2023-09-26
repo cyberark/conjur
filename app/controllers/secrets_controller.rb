@@ -17,6 +17,12 @@ class SecretsController < RestController
     value = request.raw_post
 
     raise ArgumentError, "'value' may not be empty" if value.blank?
+    resource_id = params[:account] + ":" + params[:kind] + ":" + params[:identifier]
+    valueInRedis = $redis.get(resource_id)
+
+    if (!(valueInRedis.nil?))
+      $redis.setex(resource_id, 5, value)
+    end
 
     Secret.create(resource_id: resource.id, value: value)
     resource.enforce_secrets_version_limit
