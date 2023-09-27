@@ -1,0 +1,5 @@
+- !policy
+  id: data
+  body:
+    - !policy
+      id: ephemerals

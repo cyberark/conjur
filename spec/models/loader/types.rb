@@ -186,7 +186,7 @@ describe Loader::Types::Variable do
       context 'when creating ephemeral variable with ephemerals/issuer annotation' do
         let(:resource_id) { 'data/ephemerals/myvar2' }
         let(:issuer_id) { 'aws1' }
-        it { expect { variable.verify }.to raise_error(Exceptions::InvalidPolicyObject,"Ephemeral variable data/ephemerals/myvar2 issuer aws1 is not defined" ) }
+        it { expect { variable.verify }.to raise_error(Exceptions::RecordNotFound,"Issuer 'aws1' not found in account 'conjur'" ) }
       end
     end
 
@@ -215,7 +215,7 @@ describe Loader::Types::Variable do
         it "raise not InvalidPolicyObject" do
           allow(Issuer).to receive(:where).with({:account=>"conjur", :issuer_id=>"aws1"}).and_return(issuer_object)
           allow(issuer_object).to receive(:first).and_return(nil)
-          expect { variable.verify }.to raise_error(Exceptions::InvalidPolicyObject,"Ephemeral variable data/ephemerals/myvar2 issuer aws1 is not defined")
+          expect { variable.verify }.to raise_error(Exceptions::RecordNotFound,"Issuer 'aws1' not found in account 'conjur'")
         end
       end
 
