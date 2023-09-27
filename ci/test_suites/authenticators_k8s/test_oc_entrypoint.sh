@@ -173,9 +173,9 @@ function loadConjurPolicies() {
 
   oc exec $cli_pod -- conjur init -u conjur -a cucumber
   sleep 5
-  oc exec $cli_pod -- conjur authn login -u admin -p $API_KEY
+  oc exec $cli_pod -- conjur login -u admin -p $API_KEY
 
-  wait_for_it 300 "oc exec $cli_pod -- conjur policy load root /policies/policy.${TEMPLATE_TAG}yml"
+  wait_for_it 300 "oc exec $cli_pod -- conjur policy load -b root -f /policies/policy.${TEMPLATE_TAG}yml"
 
   # init ca certs
   conjur_pod=$(retrieve_pod conjur-authn-k8s)

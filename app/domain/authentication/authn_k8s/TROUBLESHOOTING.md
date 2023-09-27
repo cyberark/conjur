@@ -124,7 +124,7 @@ not to install a software load balancer such as
   CONJUR_NAMESPACE=conjur-oss
 
   # Create a Conjur CLI pod in the Conjur Open Source namespace
-  CLI_IMAGE=cyberark/conjur-cli:5-latest
+  CLI_IMAGE=cyberark/conjur-cli:8
   echo "
   ---
   apiVersion: apps/v1

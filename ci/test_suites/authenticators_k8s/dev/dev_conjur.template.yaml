@@ -171,7 +171,7 @@ spec:
     spec:
       containers:
       - name: conjur-cli
-        image: cyberark/conjur-cli:5
+        image: cyberark/conjur-cli:8
         imagePullPolicy: Always
         command: ["sleep", "infinity"]
         env:
