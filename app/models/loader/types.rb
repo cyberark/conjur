@@ -317,8 +317,8 @@ module Loader
 
             issuer = Issuer.where(account: @policy_object.account, issuer_id: issuer_id).first
             if (issuer.nil?)
-              message = "Ephemeral variable #{self.id} issuer #{issuer_id} is not defined"
-              raise Exceptions::InvalidPolicyObject.new(self.id, message: message)
+              issuer_exception_id = "#{@policy_object.account}:issuer:#{issuer_id}"
+              raise Exceptions::RecordNotFound, issuer_exception_id
             end
 
             resource_id = @policy_object.account + ":policy:conjur/issuers/" + issuer_id
