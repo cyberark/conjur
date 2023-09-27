@@ -203,13 +203,7 @@ class ResourcesController < RestController
 
   def is_ip_trusted
     request_ip = request.headers['HTTP_X_FORWARDED_FOR'].to_s.split(",")
-    ip_trusted = false
-    request_ip.each do |x|
-      if Rack::Request.ip_filter.call(x.strip)
-       ip_trusted = true
-     end
-    end
-    ip_trusted
+    request_ip.any?{|x| Rack::Request.ip_filter.call(x.strip)}
   end
 
 end

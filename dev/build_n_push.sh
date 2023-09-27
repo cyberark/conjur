@@ -1,3 +1,6 @@
+#Builds and deploys to ECR the mgmt-conjur-dev-repository-conjur image in region us-east-2
+#Usage from conjur folder run ./dev/build_n_push.sh <version>. aws sso login is required
+
 VERSION=$1
 
 bundle config set --local without test:development
