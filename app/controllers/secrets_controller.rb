@@ -11,7 +11,7 @@ class SecretsController < RestController
 
   # Wrap the request in a transaction.
   def run_with_transaction(&block)
-    Rails.logger.info("+++++++++++++++ Without transaction")
+    #Rails.logger.info("+++++++++++++++ Without transaction")
   end
 
   def create
@@ -23,10 +23,10 @@ class SecretsController < RestController
 
     raise ArgumentError, "'value' may not be empty" if value.blank?
     resource_id = params[:account] + ":" + params[:kind] + ":" + params[:identifier]
-    valueInRedis = $redis.get(resource_id)
+    valueInRedis = $redis.get(ENV['TENANT_ID'] + "/secrets/" + resource_id)
 
     if (!(valueInRedis.nil?))
-      $redis.setex(resource_id, 5, value)
+      $redis.setex(ENV['TENANT_ID'] + "/secrets/" + resource_id, 5, value)
     end
 
     Secret.create(resource_id: resource.id, value: value)
@@ -51,10 +51,10 @@ class SecretsController < RestController
     version = params[:version]
     resource_id = params[:account] + ":" + params[:kind] + ":" + params[:identifier]
 
-    resourceFromCache = $redis.get("resource/" + resource_id)
+    resourceFromCache = $redis.get(ENV['TENANT_ID'] + "/secrets/" + "resource/" + resource_id)
     if (resourceFromCache.nil?)
       resourceObj = self.resource
-      $redis.setex("resource/" + resource_id, 5, resourceObj.as_json)
+      $redis.setex(ENV['TENANT_ID'] + "/secrets/" + "resource/" + resource_id, 5, resourceObj.as_json)
     else
       resourceObj = Resource.new()
       resourceObj.from_json!(resourceFromCache)
@@ -63,9 +63,9 @@ class SecretsController < RestController
     authorize(:execute, resourceObj)
 
 
-    value = $redis.get(resource_id)
+    value = $redis.get(ENV['TENANT_ID'] + "/secrets/" + resource_id)
     if (!(value.nil?))
-      mime_type = $redis.get(resource_id + "/mime_type")
+      mime_type = $redis.get(ENV['TENANT_ID'] + "/secrets/" + resource_id + "/mime_type")
     else
       if ephemeral_secret?
         value = handle_ephemeral_secret
@@ -80,8 +80,8 @@ class SecretsController < RestController
         mime_type = \
           resource.annotation('conjur/mime_type') || 'application/octet-stream'
       end
-      $redis.setex(resource_id, 5, value)
-      $redis.setex(resource_id + "/mime_type", 5, mime_type)
+      $redis.setex(ENV['TENANT_ID'] + "/secrets/" + resource_id, 5, value)
+      $redis.setex(ENV['TENANT_ID'] + "/secrets/" + resource_id + "/mime_type", 5, mime_type)
     end
 
     send_data(value, type: mime_type)
