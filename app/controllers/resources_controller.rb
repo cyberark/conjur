@@ -61,8 +61,8 @@ class ResourcesController < RestController
 
   def show
     show_audit = true
-    #If the request came from UI ip and have the header we won't send audit
-    if is_ip_trusted && request.headers['X-Request-Source']=="UI"
+    #If the request came from UI ip and have query param with true value we won't send audit
+    if is_ip_trusted && params[:show_audit]=="false"
       show_audit = false
     end
     show_resource(show_audit)
