@@ -12,7 +12,7 @@ class Authenticator
       end
     end
     def jwt
-      authn_jwt_prefix = "webservice:conjur/authn-jwt/"
+      authn_jwt_regex = "webservice:conjur/authn-jwt/[^/]+$" # valid : conjur/authn-jwt/myVendor, not valid : conjur/authn-jwt/myVendor/status
       variable_jwt_prefix = "variable:conjur/authn-jwt/"
       resources_with_authenticator_configs = "SELECT resource_id, enabled
                                               FROM authenticator_configs"
@@ -30,7 +30,7 @@ class Authenticator
                           LEFT JOIN permissions ON resources.resource_id = permissions.resource_id
                           LEFT JOIN
                             (#{resources_with_authenticator_configs}) AS authn_configs ON resources.resource_id = authn_configs.resource_id
-                          WHERE resources.resource_id LIKE '%#{authn_jwt_prefix}%'
+                          WHERE resources.resource_id ~ '#{authn_jwt_regex}'
                           GROUP BY resources.resource_id, authn_configs.enabled"
 
       # extract all properties (secrets) that belongs to some authn-jwt
@@ -70,7 +70,7 @@ class Authenticator
                             FROM Shared
                             LEFT JOIN UniqueProps ON split_part(Shared.resource_id, '/', 3) = split_part(UniqueProps.property_id, '/', 3)
                             GROUP BY Shared.resource_id, Shared.permissions, Shared.enabled
-                            ORDER BY Shared.resource_id;
+                            ORDER BY Shared.resource_id
                           })
       scope
     end

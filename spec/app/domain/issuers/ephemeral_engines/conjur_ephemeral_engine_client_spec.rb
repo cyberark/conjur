@@ -90,7 +90,7 @@ describe "Conjur ephemeral engine client validation" do
       result = MockConjurEngineClient.new(logger: logger, request_id: "abc", http_client: mock_ephemeral_secrets_service(nil))
                                      .get_ephemeral_secret(issuer_type, issuer_method, role_id, issuer_data, variable_data)
 
-      expect(result).to eq(mock_secret_result)
+      expect(result).to eq(mock_secret_result.to_json)
     end
   end
 
@@ -114,14 +114,14 @@ describe "Conjur ephemeral engine client validation" do
       expect do
         MockConjurEngineClient.new(logger: logger, request_id: "abc", http_client: mock_ephemeral_secrets_service("400"))
                               .get_ephemeral_secret(issuer_type, issuer_method, role_id, issuer_data, variable_data)
-      end.to raise_error(ApplicationController::BadRequest) do |error|
+      end.to raise_error(ApplicationController::UnprocessableEntity) do |error|
         expect(error.message).to eq("Failed to create the ephemeral secret. Code: Error code, Message: Error message, description: Error description")
       end
 
       expect do
         MockConjurEngineClient.new(logger: logger, request_id: "abc", http_client: mock_ephemeral_secrets_service("500"))
                               .get_ephemeral_secret(issuer_type, issuer_method, role_id, issuer_data, variable_data)
-      end.to raise_error(ApplicationController::InternalServerError) do |error|
+      end.to raise_error(ApplicationController::UnprocessableEntity) do |error|
         expect(error.message).to eq("Failed to create the ephemeral secret. Code: Error code, Message: Error message, description: Error description")
       end
     end
@@ -257,25 +257,16 @@ describe "Conjur ephemeral engine client validation" do
 
   context "when the hostname is parsed for the tenant ID" do
     it "then the tenant ID is successfully found" do
-      ENV["HOSTNAME"] = "cnj-my_tenant_id-value1-value2"
+      ENV["TENANT_ID"] = "my_tenant_id"
       result = MockConjurEngineClient.new(logger: logger, request_id: "abc", http_client: mock_ephemeral_secrets_service(error: nil)).tenant_id
 
       expect(result).to eq("my_tenant_id")
     end
   end
 
-  context "when the hostname has an unexpected value" do
-    it "then the tenant ID is empty" do
-      ENV["HOSTNAME"] = "some_unexpected_value"
-      result = MockConjurEngineClient.new(logger: logger, request_id: "abc", http_client: mock_ephemeral_secrets_service(error: nil)).tenant_id
-
-      expect(result).to eq("")
-    end
-  end
-
   context "when the hostname does not exist" do
     it "then the tenant ID is empty" do
-      ENV["HOSTNAME"] = ""
+      ENV["TENANT_ID"] = ""
       result = MockConjurEngineClient.new(logger: logger, request_id: "abc", http_client: mock_ephemeral_secrets_service(error: nil)).tenant_id
 
       expect(result).to eq("")

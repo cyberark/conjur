@@ -3,7 +3,7 @@
 require 'spec_helper'
 DatabaseCleaner.strategy = :truncation
 
-describe HostsController, type: :request do
+describe WorkloadController, type: :request do
   let(:test_value) { "testvalue" }
   let(:url_variable) { "/secrets/rspec/variable" }
   before do

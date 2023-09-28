@@ -1,0 +1,6 @@
+
+- !policy
+  id: conjur
+  body:
+  - !policy
+    id: issuers

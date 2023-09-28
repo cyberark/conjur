@@ -42,8 +42,6 @@ module Commands
       #fork_authn_local_process
       fork_rotation_process
 
-      system("rake db:single-to-multi") #TODO: delete once single edge users are migrated to multi
-
       # Block until all child processes end
       wait_for_child_processes
     end

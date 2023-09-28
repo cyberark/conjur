@@ -45,7 +45,7 @@ describe EdgeHandlerController, :type => :request do
       edge_details = '{"edge_statistics": {"last_synch_time": 1692633684386, "cycle_requests": {
                         "get_secret":123,"apikey_authenticate": 234, "jwt_authenticate":345, "redirect": 456}},
                       "edge_version": "1.1.1", "edge_container_type": "podman"}'
-      ENV["HOSTNAME"] = " cnj-44da78944cc54bcdb37c316ad40ec8c6-85b9f7d95b-fwfm5"
+      ENV["TENANT_ID"] = "44da7894-4cc5-4bcd-b37c-316ad40ec8c6"
       post("#{report_edge}?data_type=ongoing", env: token_auth_header(role: @current_user, is_user: false)
                                .merge({'RAW_POST_DATA': edge_details})
                                .merge({'CONTENT_TYPE': 'application/json'}))
@@ -58,25 +58,6 @@ describe EdgeHandlerController, :type => :request do
       output = log_output.string
       expect(output).to include("EdgeTelemetry")
       %w[edgy 123 234 345 456 44da7894-4cc5-4bcd-b37c-316ad40ec8c6 2023-08-21].each {|arg| expect(output).to include(arg)}
-    end
-
-    it "Report ongoing data endpoint works with wrong tenant format" do
-      edge_details = '{"edge_statistics": {"last_synch_time": 222222223, "cycle_requests": {
-                        "get_secret":123,"apikey_authenticate": 234, "jwt_authenticate":345, "redirect": 456}},
-                      "edge_version": "1.1.2", "edge_container_type": "docker"}'
-      ENV["HOSTNAME"] = " cnj-44da78944cc54bcdb37c316ad40ec8c-85b9f7d95b-fwfm5"
-      post("#{report_edge}?data_type=ongoing", env: token_auth_header(role: @current_user, is_user: false)
-                                                      .merge({'RAW_POST_DATA': edge_details})
-                                                      .merge({'CONTENT_TYPE': 'application/json'}))
-
-      expect(response.code).to eq("204")
-      db_edgy = Edge.where(name: "edgy").first
-      expect(db_edgy.last_sync.to_i).to eq(222222223)
-      expect(db_edgy.version).to eq("1.1.2")
-      expect(db_edgy.platform).to eq("docker")
-      output = log_output.string
-      expect(output).to include("EdgeTelemetry")
-      %w[edgy 123 234 345 456 1970-01-03].each {|arg| expect(output).to include(arg)}
     end
 
     it "Report invalid data" do

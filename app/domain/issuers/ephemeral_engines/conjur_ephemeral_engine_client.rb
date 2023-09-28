@@ -9,11 +9,14 @@ require_relative('ephemeral_engine_client')
 class ConjurEphemeralEngineClient
   include EphemeralEngineClient
 
+  @@secrets_service_address = ENV['EPHEMERAL_SECRETS_SERVICE_ADDRESS'] || "ephemeral-secrets"
+  @@secrets_service_port = ENV['EPHEMERAL_SECRETS_SERVICE_PORT'] || "8080"
+
   def initialize(logger:, request_id:, http_client: nil)
     if http_client
       @client = http_client
     else
-      @client = Net::HTTP.new("http://127.0.0.1")
+      @client = Net::HTTP.new(@@secrets_service_address, @@secrets_service_port.to_i)
       @client.use_ssl = false  # Service mesh takes care of the TLS communication
     end
     @logger = logger
@@ -31,7 +34,7 @@ class ConjurEphemeralEngineClient
 
     # Create the POST request
     secret_request = Net::HTTP::Post.new("/secrets")
-    secret_request.body = request_body.as_json
+    secret_request.body = request_body.to_json
 
     # Add headers
     secret_request.add_field('Content-Type', 'application/json')
@@ -39,22 +42,22 @@ class ConjurEphemeralEngineClient
     secret_request.add_field('X-Tenant-ID', tenant_id)
 
     # Send the request and get the response
-    @logger.info(LogMessages::Secrets::EphemeralSecretRemoteRequest.new(@request_id))
+    @logger.debug(LogMessages::Secrets::EphemeralSecretRequestBody.new(@request_id, secret_request.body))
     begin
       response = @client.request(secret_request)
     rescue => e
+      @logger.error(LogMessages::Secrets::EphemeralSecretRemoteRequestFailure.new(@request_id, e.message))
       raise ApplicationController::InternalServerError, e.message
     end
-    @logger.info(LogMessages::Secrets::EphemeralSecretRemoteResponse.new(@request_id, response.code))
-    response_body = JSON.parse(response.body)
+    @logger.debug(LogMessages::Secrets::EphemeralSecretRemoteResponse.new(@request_id, response.code))
 
     case response.code.to_i
     when 200..299
-      return JSON.parse(response.body)
-    when 400..499
-      raise ApplicationController::BadRequest, "Failed to create the ephemeral secret. Code: #{response_body['code']}, Message: #{response_body['message']}, description: #{response_body['description']}"
+      return response.body
     else
-      raise ApplicationController::InternalServerError, "Failed to create the ephemeral secret. Code: #{response_body['code']}, Message: #{response_body['message']}, description: #{response_body['description']}"
+      response_body = JSON.parse(response.body)
+      @logger.error(LogMessages::Secrets::EphemeralSecretRemoteResponseFailure.new(@request_id, response_body['code'], response_body['message'], response_body['description']))
+      raise ApplicationController::UnprocessableEntity, "Failed to create the ephemeral secret. Code: #{response_body['code']}, Message: #{response_body['message']}, description: #{response_body['description']}"
     end
   end
 

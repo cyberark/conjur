@@ -147,3 +147,127 @@ describe Loader::Types::Host do
 
   end
 end
+
+describe Loader::Types::Variable do
+  let(:variable) do
+    variable = Conjur::PolicyParser::Types::Variable.new
+    variable.id = resource_id
+    variable.account = "conjur"
+    if issuer_id != ''
+      variable.annotations =  { "ephemeral/issuer" => issuer_id }
+    end
+    Loader::Types.wrap(variable, self)
+  end
+
+  describe '.verify' do
+    context 'when no issuer configured' do
+      before do
+        $primary_schema = "public"
+      end
+
+      context 'when creating regular variable without ephemerals/issuer annotation' do
+        let(:resource_id) { 'data/myvar1' }
+        let(:issuer_id) { '' }
+        it { expect { variable.verify }.to_not raise_error }
+      end
+
+      context 'when creating regular variable with ephemerals/issuer annotation' do
+        let(:resource_id) { 'data/myvar2' }
+        let(:issuer_id) { 'aws1' }
+        it { expect { variable.verify }.to raise_error }
+      end
+
+      context 'when creating ephemeral variable without ephemerals/issuer annotation' do
+        let(:resource_id) { 'data/ephemerals/myvar1' }
+        let(:issuer_id) { '' }
+        it { expect { variable.verify }.to raise_error }
+      end
+
+      context 'when creating ephemeral variable with ephemerals/issuer annotation' do
+        let(:resource_id) { 'data/ephemerals/myvar2' }
+        let(:issuer_id) { 'aws1' }
+        it { expect { variable.verify }.to raise_error(Exceptions::RecordNotFound,"Issuer 'aws1' not found in account 'conjur'" ) }
+      end
+    end
+
+    context 'when issuer aws1 configured without permissions' do
+      before do
+        allow(Issuer).to receive(:where).with({:account=>"conjur", :issuer_id=>"aws1"}).and_return(issuer_object)
+        $primary_schema = "public"
+      end
+
+      context 'when creating regular variable with ephemerals/issuer annotation' do
+        let(:resource_id) { 'data/myvar2' }
+        let(:issuer_id) { 'aws1' }
+        let(:issuer_object) { nil }
+        it "raise not InvalidPolicyObject" do
+          allow(Issuer).to receive(:where).with({:account=>"conjur", :issuer_id=>"aws1"}).and_return(issuer_object)
+          allow(issuer_object).to receive(:first).and_return(nil)
+          expect { variable.verify }.to raise_error(Exceptions::InvalidPolicyObject,"Ephemeral variable data/myvar2 not in right path")
+        end
+      end
+
+      context 'when creating ephemeral variable with ephemerals/issuer annotation' do
+        let(:resource_id) { 'data/ephemerals/myvar2' }
+        let(:issuer_id) { 'aws1' }
+        let(:issuer_object) { nil }
+
+        it "raise not InvalidPolicyObject" do
+          allow(Issuer).to receive(:where).with({:account=>"conjur", :issuer_id=>"aws1"}).and_return(issuer_object)
+          allow(issuer_object).to receive(:first).and_return(nil)
+          expect { variable.verify }.to raise_error(Exceptions::RecordNotFound,"Issuer 'aws1' not found in account 'conjur'")
+        end
+      end
+
+      context 'when creating ephemeral variable with ephemerals/issuer annotation' do
+        let(:resource_id) { 'data/ephemerals/myvar2' }
+        let(:issuer_id) { 'aws1' }
+        let(:issuer_object) { 'issuer' }
+        it "raise not InvalidPolicyObject" do
+          allow_any_instance_of(Loader::Types::Record).to receive(:auth_resource).and_raise(Exceptions::RecordNotFound,"rspec:issuer:aws1")
+          expect { variable.verify }.to raise_error(Exceptions::RecordNotFound,"Issuer 'aws1' not found in account 'rspec'")
+        end
+      end
+    end
+
+    context 'when issuer aws1 configured with permissions' do
+      before do
+        allow(Issuer).to receive(:where).with({:account=>"conjur", :issuer_id=>"aws1"})
+          .and_return(issuer_object)
+        allow_any_instance_of(AuthorizeResource).to receive(:authorize).with(:use, nil)
+        $primary_schema = "public"
+      end
+
+      context 'when creating regular variable with ephemerals/issuer aws1' do
+        let(:resource_id) { 'data/myvar2' }
+        let(:issuer_id) { 'aws1' }
+        let(:issuer_object) { 'issuer'  }
+        it "raise not InvalidPolicyObject" do
+          expect { variable.verify }.to raise_error(Exceptions::InvalidPolicyObject,"Ephemeral variable data/myvar2 not in right path")
+        end
+      end
+
+      context 'when creating ephemeral variable with ephemerals/issuer aws1' do
+        let(:resource_id) { 'data/ephemerals/myvar2' }
+        let(:issuer_id) { 'aws1' }
+        let(:issuer_object) { 'issuer'  }
+        it "raise not found record error" do
+          allow_any_instance_of(Loader::Types::Record).to receive(:auth_resource).and_raise(Exceptions::RecordNotFound,"rspec:issuer:aws1")
+          expect { variable.verify }.to raise_error(Exceptions::RecordNotFound,"Issuer 'aws1' not found in account 'rspec'")
+        end
+      end
+
+      context 'when creating ephemeral variable with ephemerals/issuer aws1 and with permissions' do
+        let(:resource_id) { 'data/ephemerals/myvar2' }
+        let(:issuer_id) { 'aws1' }
+        let(:issuer_object) { 'issuer' }
+        it "should not raise error" do
+          allow_any_instance_of(Loader::Types::Record).to receive(:auth_resource)
+          expect { variable.verify }.not_to raise_error
+        end
+
+      end
+    end
+
+  end
+end

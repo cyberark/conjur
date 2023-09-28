@@ -40,7 +40,10 @@ module Conjur
       authenticators: [],
       extensions: [],
       slosilo_rotation_interval: 24,  # Sloislo rotation should be every 24 hours
-      tenant_id: @tenant_id
+      tenant_id: @tenant_id,
+      tenant_name: @tenant_name,
+      tenant_env: @tenant_env,
+      tenant_region: @tenant_region
     )
 
     def initialize(
@@ -52,6 +55,9 @@ module Conjur
       # logger before verifying permissions.
       @logger = logger
       @tenant_id = tenant_id
+      @tenant_name = tenant_name
+      @tenant_env = tenant_env
+      @tenant_region = tenant_region
       # First verify that we have the permissions necessary to read the config
       # file.
       verify_config_is_readable
@@ -123,10 +129,32 @@ module Conjur
     end
 
     def tenant_id
-      #parsing tenant_id from hostname
       begin
-        result = ENV["HOSTNAME"]
-        result.split("-")[1] || ""
+        ENV["TENANT_ID"]
+      rescue
+        ""
+      end
+    end
+
+    def tenant_name
+      begin
+        ENV["TENANT_NAME"]
+      rescue
+        ""
+      end
+    end
+
+    def tenant_env
+      begin
+        ENV["TENANT_ENV"]
+      rescue
+        ""
+      end
+    end
+
+    def tenant_region
+      begin
+        ENV["TENANT_REGION"]
       rescue
         ""
       end

@@ -135,12 +135,12 @@ class IssuersController < RestController
     authorize(action, resource)
 
     issuers = list_issuers_from_db(params[:account])
-    result = []
+    results = []
     issuers.each do |item|
-      result.push(item.as_json)
+      results.push(item.as_json_for_list)
     end
     issuer_audit_success(params[:account], "*", "list")
-    render(json: { issuers: result }, status: :ok)
+    render(json: { issuers: results }, status: :ok)
 
     logger.info(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("GET issuers/#{params[:account]}"))
   rescue Exceptions::RecordNotFound => e
@@ -177,7 +177,7 @@ def get_issuer_from_db(account, issuer_id)
 end
 
 def list_issuers_from_db(account)
-  Issuer.where(account: account).all
+  Issuer.where(account: account).select(:issuer_id, :max_ttl, :issuer_type, :created_at, :modified_at).all
 end
 
 def issuer_audit_success(account, issuer_id, operation)
