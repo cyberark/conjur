@@ -69,10 +69,9 @@ Feature: Fetch resource details.
 
   @negative @acceptance
   Scenario: Trying to show a resource that does not exist with no audit
-    Given I set the "X-Request-Source" header to "UI"
-    And I set the "X_FORWARDED_FOR" header to "127.0.0.1"
+    Given I set the "X_FORWARDED_FOR" header to "127.0.0.1"
     And I save my place in the audit log file for remote
-    When I GET "/resources/cucumber/santa/noclaus"
+    When I GET "/resources/cucumber/santa/noclaus?show_audit=false"
     Then the HTTP response status code is 404
     And there is no audit record matching:
     """
