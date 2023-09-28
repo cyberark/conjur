@@ -187,6 +187,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   [cyberark/conjur#2827](https://github.com/cyberark/conjur/pull/2827)
 
 ### Security
+- Upgrade google/cloud-sdk in ci/test_suites/authenticators_k8s/dev/Dockerfile/test
+  to use latest version (448.0.0)
+  [cyberark/conjur#2972](https://github.com/cyberark/conjur/pull/2972)
 - Support plural syntax for revoke and deny
   [cyberark/conjur#2901](https://github.com/cyberark/conjur/pull/2901)
 - Previously, attempting to add and remove a privilege in the same policy load
