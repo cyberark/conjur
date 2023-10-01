@@ -21,8 +21,8 @@ module ParamsValidator
     @numeric_validator ||= ->(k, v){ v.is_a?(Numeric)}
   end
 
-  def string_length_validator
-    @string_length_validator ||= ->(k, v){(v.is_a?(String) && v.length <= 20)}
+  def string_length_validator(min_length=0, max_length=20)
+    @string_length_validator ||= ->(k, v){(v.is_a?(String) && v.length <= max_length && v.length >= min_length)}
   end
 
 end
