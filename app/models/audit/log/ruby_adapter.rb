@@ -40,7 +40,9 @@ module Audit
         # on it.
         severity = RubySeverity.new(event.severity)
         #temporary log message for ONYX-35595
-        logger.info("Audit message before sending to fluentd: #{event.to_s}")
+        @logger.info(
+          LogMessages::Util::LogBeforeFluentd.new(event.to_s)
+        )
         @ruby_logger.log(severity, event.to_s, ::Audit::Event.progname)
       end
     end
