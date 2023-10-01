@@ -79,7 +79,7 @@ describe WorkloadController, type: :request do
     context "when user send body with id only" do
       let(:payload_create_hosts) do
         <<~BODY
-          { "id": "new-host" }
+          { "id": "new-host_3" }
         BODY
       end
       it 'returns created' do
@@ -175,7 +175,7 @@ describe WorkloadController, type: :request do
 
     end
 
-    context "empty id or body" do
+    context "workload name validation" do
       let(:payload_empty) do
         <<~BODY
           {
@@ -211,6 +211,43 @@ describe WorkloadController, type: :request do
         )
         assert_response :unprocessable_entity
       end
+      let(:payload_short) do
+        <<~BODY
+          {
+            "id": "ab"
+          }
+        BODY
+      end
+      it "short id return unprocessable_entity" do
+        post("/hosts/rspec/dev",
+             env: token_auth_header(role: alice_user).merge(
+               {
+                 'RAW_POST_DATA' => payload_short,
+                 'CONTENT_TYPE' => "application/json"
+               }
+             )
+        )
+        assert_response :unprocessable_entity
+      end
+      let(:payload_long) do
+        <<~BODY
+          {
+            "id": "SuperExtremelyLongWorkloadName11111111111111111111111111111111111111111111111111"
+          }
+        BODY
+      end
+      it "long id return unprocessable_entity" do
+        post("/hosts/rspec/dev",
+             env: token_auth_header(role: alice_user).merge(
+               {
+                 'RAW_POST_DATA' => payload_long,
+                 'CONTENT_TYPE' => "application/json"
+               }
+             )
+        )
+        assert_response :unprocessable_entity
+      end
+
     end
 
 

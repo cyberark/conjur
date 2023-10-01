@@ -8,6 +8,7 @@ class WorkloadController < RestController
   include FindPolicyResource
   include PolicyAudit
   include PolicyWrapper
+  include ParamsValidator
 
   before_action :current_user
   before_action :find_or_create_root_policy
@@ -46,10 +47,11 @@ end
 
 private
 
-def validateId(id)
-  if id.nil? || id.empty?
-    raise ApplicationController::UnprocessableEntity, "id param is missing in body, must not be blank."
-  end
+def validateId(name)
+  validate_params({"workload_name" => name}, ->(k,v){
+    !v.nil? && !v.empty? &&
+      v.match?(/^[a-zA-Z0-9_-]+$/) && string_length_validator(3, 60).call(k, v)
+  })
 end
 
 def input_workload_create(json_body)
