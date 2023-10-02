@@ -28,6 +28,9 @@ module Audit
         # so we provide the correct Ruby severity that the "log" interface
         # expects.
         severity = RubySeverity.new(event.severity)
+        @logger.info(
+          LogMessages::Util::LogBeforeFluentd.new(event.to_s)
+        )
         @ruby_logger.log(severity, event, ::Audit::Event.progname)
       end
     end
