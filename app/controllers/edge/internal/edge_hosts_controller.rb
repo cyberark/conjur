@@ -1,3 +1,5 @@
+require_relative '../../../domain/edge_logic/replication_handler'
+
 class EdgeHostsController < RestController
   include AccountValidator
   include BodyParser
@@ -5,6 +7,7 @@ class EdgeHostsController < RestController
   include EdgeValidator
   include ExtractEdgeResources
   include GroupMembershipValidator
+  include ReplicationHandler
 
   def all_hosts
     logger.info(LogMessages::Endpoints::EndpointRequested.new("all_hosts"))
@@ -36,19 +39,7 @@ class EdgeHostsController < RestController
       logger.info(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("all_hosts:count"))
       render(json: results)
     else
-      results = []
-      roles_with_creds = scope.eager(:credentials)
-      hosts = Role.roles_with_annotations(roles_with_creds).all
-      hosts.each do |host|
-        hostToReturn = {}
-        hostToReturn[:id] = host[:role_id]
-        salt = OpenSSL::Random.random_bytes(32)
-        hostToReturn[:api_key] = Base64.strict_encode64(hmac_api_key(host.api_key, salt))
-        hostToReturn[:salt] = Base64.strict_encode64(salt)
-        hostToReturn[:memberships] = host.all_roles.all.select { |h| h[:role_id] != (host[:role_id]) }
-        hostToReturn[:annotations] = host[:annotations] == "[null]" ? [] : JSON.parse(host[:annotations])
-        results << hostToReturn
-      end
+      results = replicate_hosts(scope)
       logger.info(LogMessages::Endpoints::EndpointFinishedSuccessfullyWithLimitAndOffset.new(
         "all_hosts",
         limit,

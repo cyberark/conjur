@@ -844,6 +844,11 @@ module LogMessages
   # This are log messages so its okay there are many
   # :reek:TooManyConstants
   module Util
+    #temporary message
+    LogBeforeFluentd = ::Util::TrackableLogMessageClass.new(
+      msg: "Audit message before sending to fluentd: {0} - event",
+      code: "CONJ00201D"
+    )
 
     RateLimitedCacheUpdated = ::Util::TrackableLogMessageClass.new(
       msg: "Rate limited cache updated successfully",

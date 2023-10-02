@@ -90,7 +90,7 @@ class EdgeCreationController < RestController
   def validate_name(name)
     validate_params({"edge_name" => name}, ->(k,v){
       !v.nil? && !v.empty? &&
-      v.match?(/^[a-zA-Z0-9_]+$/) && string_length_validator.call(k, v)
+      v.match?(/^[a-zA-Z0-9_]+$/) && string_length_validator(0, 60).call(k, v)
     })
   end
 
