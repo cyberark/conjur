@@ -35,7 +35,7 @@ class IssuersController < RestController
                         modified_at: Sequel::CURRENT_TIMESTAMP,
                         policy_id: "#{params[:account]}:policy:conjur/issuers/#{params[:id]}")
 
-    raise ApplicationController::InternalServerError, "Found related variable/s to the given issuer id" if issuer.issuer_variables_exist?
+    raise ApplicationController::InternalServerError, "Found variables associated with the issuer id" if issuer.issuer_variables_exist?
 
     create_issuer_policy({ "id" => params[:id] })
     issuer.save
@@ -59,7 +59,7 @@ class IssuersController < RestController
       }
     }, status: :bad_request)
   rescue Sequel::UniqueConstraintViolation => e
-    logger.error("Issuer [#{params[:id]}] already exists")
+    logger.error("The issuer [#{params[:id]}] already exists")
     audit_failure(e, action)
     issuer_audit_failure(params[:account], params[:id], "add", e.message)
     raise Exceptions::RecordExists.new("issuer", params[:id])

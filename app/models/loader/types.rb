@@ -310,7 +310,7 @@ module Loader
       def verify;
         if self.id.start_with?(Issuer::EPHEMERAL_VARIABLE_PREFIX)
           if self.annotations[Issuer::EPHEMERAL_ANNOTATION_PREFIX + "issuer"].nil?
-            message = "Ephemeral variable #{self.id} has no issuer annotation"
+            message = "The ephemeral variable '#{self.id}' has no issuer annotation"
             raise Exceptions::InvalidPolicyObject.new(self.id, message: message)
           else
             issuer_id = self.annotations[Issuer::EPHEMERAL_ANNOTATION_PREFIX + "issuer"]
@@ -326,7 +326,7 @@ module Loader
           end
         else
           if !(self.annotations.nil?) && !(self.annotations[Issuer::EPHEMERAL_ANNOTATION_PREFIX + "issuer"].nil?)
-            message = "Ephemeral variable #{self.id} not in right path"
+            message = "The ephemeral variable '#{self.id}' is not in the correct path"
             raise Exceptions::InvalidPolicyObject.new(self.id, message: message)
           end
         end
