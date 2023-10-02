@@ -23,15 +23,15 @@ module Slosilo
     end
 
     @@get_by_fingerprint_result = Hash.new
-    @@semaphore = Mutex.new
+    #@@semaphore = Mutex.new
 
     def get_by_fingerprint fingerprint
-      @@semaphore.synchronize do
+      #@@semaphore.synchronize do
         if (@@get_by_fingerprint_result[fingerprint].nil?)
           @@get_by_fingerprint_result[fingerprint] = adapter.get_by_fingerprint fingerprint
         end
         return @@get_by_fingerprint_result[fingerprint]
-      end
+      #end
     end
 
     def each &_
