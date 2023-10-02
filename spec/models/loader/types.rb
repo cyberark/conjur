@@ -203,7 +203,7 @@ describe Loader::Types::Variable do
         it "raise not InvalidPolicyObject" do
           allow(Issuer).to receive(:where).with({:account=>"conjur", :issuer_id=>"aws1"}).and_return(issuer_object)
           allow(issuer_object).to receive(:first).and_return(nil)
-          expect { variable.verify }.to raise_error(Exceptions::InvalidPolicyObject,"Ephemeral variable data/myvar2 not in right path")
+          expect { variable.verify }.to raise_error(Exceptions::InvalidPolicyObject,"The ephemeral variable 'data/myvar2' is not in the correct path")
         end
       end
 
@@ -243,7 +243,7 @@ describe Loader::Types::Variable do
         let(:issuer_id) { 'aws1' }
         let(:issuer_object) { 'issuer'  }
         it "raise not InvalidPolicyObject" do
-          expect { variable.verify }.to raise_error(Exceptions::InvalidPolicyObject,"Ephemeral variable data/myvar2 not in right path")
+          expect { variable.verify }.to raise_error(Exceptions::InvalidPolicyObject,"The ephemeral variable 'data/myvar2' is not in the correct path")
         end
       end
 
