@@ -66,3 +66,19 @@ Feature: Fetch resource details.
       [action@43868 result="failure" operation="get"]
       cucumber:user:alice failed to fetch resource details: Santa 'claus' not found in account 'cucumber'
     """
+
+  @negative @acceptance
+  Scenario: Trying to show a resource that does not exist with no audit
+    Given I set the "X_FORWARDED_FOR" header to "127.0.0.1"
+    And I save my place in the audit log file for remote
+    When I GET "/resources/cucumber/santa/noclaus?show_audit=false"
+    Then the HTTP response status code is 404
+    And there is no audit record matching:
+    """
+      <84>1 * * conjur * resource
+      [auth@43868 user="cucumber:user:alice"]
+      [subject@43868 resource="cucumber:santa:noclaus"]
+      [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
+      [action@43868 result="failure" operation="get"]
+      cucumber:user:alice failed to fetch resource details: Santa 'noclaus' not found in account 'cucumber'
+    """

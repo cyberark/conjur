@@ -50,6 +50,28 @@ describe IssuersController, type: :request do
       end
     end
 
+    context "when a user sends body without data but other non-valid field" do
+      let(:payload_create_4_fields_without_data) do
+        <<~BODY
+          {
+            "id": "aws-issuer-1",
+            "max_ttl": 3000,
+            "type": "aws",
+            "wrong": "wrong value"
+          }
+        BODY
+      end
+      it 'returns bad request' do
+        post("/issuers/rspec",
+             env: token_auth_header(role: admin_user).merge(
+               'RAW_POST_DATA' => payload_create_4_fields_without_data,
+               'CONTENT_TYPE' => "application/json"
+             ))
+        assert_response :bad_request
+        expect(response.body).to eq("{\"error\":{\"code\":\"bad_request\",\"message\":\"data is a required parameter and must be specified\"}}")
+      end
+    end
+
     context "when user sends body with id, max_ttl, type and data" do
       let(:payload_create_issuers_complete_input) do
         <<~BODY
@@ -586,14 +608,10 @@ describe IssuersController, type: :request do
         expect(parsed_body["issuers"][0]["id"]).to eq("issuer-1")
         expect(parsed_body["issuers"][0]["max_ttl"]).to eq(200)
         expect(parsed_body["issuers"][0]["type"]).to eq("aws")
-        expect(parsed_body["issuers"][0]["data"]["access_key_id"]).to eq("a")
-        expect(parsed_body["issuers"][0]["data"]["secret_access_key"]).to eq("a")
 
         expect(parsed_body["issuers"][1]["id"]).to eq("issuer-2")
         expect(parsed_body["issuers"][1]["max_ttl"]).to eq(300)
         expect(parsed_body["issuers"][1]["type"]).to eq("aws")
-        expect(parsed_body["issuers"][1]["data"]["access_key_id"]).to eq("aaa")
-        expect(parsed_body["issuers"][1]["data"]["secret_access_key"]).to eq("aaa")
       end
     end
 

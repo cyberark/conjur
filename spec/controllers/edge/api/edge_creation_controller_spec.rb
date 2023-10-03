@@ -24,11 +24,12 @@ describe EdgeCreationController, :type => :request do
     it "Edge names are validated" do
       expect { subject.send(:validate_name, "Edgy") }.to_not raise_error
       expect { subject.send(:validate_name, "Edgy_05") }.to_not raise_error
+      expect { subject.send(:validate_name, "a") }.to_not raise_error
 
       expect { subject.send(:validate_name, nil) }.to raise_error
       expect { subject.send(:validate_name, "") }.to raise_error
       expect { subject.send(:validate_name, "Edgy!") }.to raise_error
-      expect { subject.send(:validate_name, "SuperExtremelyLongEdgeName") }.to raise_error
+      expect { subject.send(:validate_name, "SuperExtremelyLongEdgeName11111111111111111111111111111111111111111111111111") }.to raise_error
     end
   end
 

@@ -125,9 +125,12 @@ module Loader
         raise Exceptions::InvalidPolicyObject.new(self.id, message: message)
       end
 
-      def auth_resource privilege, resource_id
+      def auth_resource(privilege, resource_id, issuer_id, account)
         resource = ::Resource[resource_id]
-        authorize(privilege, resource)
+        unless current_user.allowed_to?(privilege, resource)
+          issuer_exception_id = "#{account}:issuer:#{issuer_id}"
+          raise Exceptions::RecordNotFound, issuer_exception_id
+        end
       end
 
       def calculate_defaults!; end
@@ -307,23 +310,23 @@ module Loader
       def verify;
         if self.id.start_with?(Issuer::EPHEMERAL_VARIABLE_PREFIX)
           if self.annotations[Issuer::EPHEMERAL_ANNOTATION_PREFIX + "issuer"].nil?
-            message = "Ephemeral variable #{self.id} has no issuer annotation"
+            message = "The ephemeral variable '#{self.id}' has no issuer annotation"
             raise Exceptions::InvalidPolicyObject.new(self.id, message: message)
           else
             issuer_id = self.annotations[Issuer::EPHEMERAL_ANNOTATION_PREFIX + "issuer"]
 
             issuer = Issuer.where(account: @policy_object.account, issuer_id: issuer_id).first
             if (issuer.nil?)
-              message = "Ephemeral variable #{self.id} issuer #{issuer_id} is not defined"
-              raise Exceptions::InvalidPolicyObject.new(self.id, message: message)
+              issuer_exception_id = "#{@policy_object.account}:issuer:#{issuer_id}"
+              raise Exceptions::RecordNotFound, issuer_exception_id
             end
 
             resource_id = @policy_object.account + ":policy:conjur/issuers/" + issuer_id
-            auth_resource(:use, resource_id)
+            auth_resource(:use, resource_id,issuer_id,@policy_object.account)
           end
         else
           if !(self.annotations.nil?) && !(self.annotations[Issuer::EPHEMERAL_ANNOTATION_PREFIX + "issuer"].nil?)
-            message = "Ephemeral variable #{self.id} not in right path"
+            message = "The ephemeral variable '#{self.id}' is not in the correct path"
             raise Exceptions::InvalidPolicyObject.new(self.id, message: message)
           end
         end

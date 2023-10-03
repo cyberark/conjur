@@ -60,12 +60,12 @@ class ResourcesController < RestController
   end
 
   def show
-    result = resource
-    audit_show_success
-    render(json: result)
-  rescue => e
-    audit_show_failure(e.message)
-    raise e
+    show_audit = true
+    #If the request came from UI ip and have query param with true value we won't send audit
+    if is_ip_trusted && params[:show_audit]=="false"
+      show_audit = false
+    end
+    show_resource(show_audit)
   end
 
   def permitted_roles
@@ -186,6 +186,24 @@ class ResourcesController < RestController
         error_message: error_message
       )
     )
+  end
+
+  def show_resource(show_audit)
+    result = resource
+    if show_audit
+      audit_show_success
+    end
+    render(json: result)
+  rescue => e
+    if show_audit
+      audit_show_failure(e.message)
+    end
+    raise e
+  end
+
+  def is_ip_trusted
+    request_ip = request.headers['HTTP_X_FORWARDED_FOR'].to_s.split(",")
+    request_ip.any?{|x| Rack::Request.ip_filter.call(x.strip)}
   end
 
 end

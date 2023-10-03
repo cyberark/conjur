@@ -25,6 +25,16 @@ class Issuer < Sequel::Model
     }
   end
 
+  def as_json_for_list
+    {
+      id: self.issuer_id,
+      max_ttl: self.max_ttl,
+      type: self.issuer_type,
+      created_at: self.created_at,
+      modified_at: self.modified_at
+    }
+  end
+
   def delete_issuer_variables
     # Find all the variables that belong to the account and start with the ephemrals prefix
     resource_ids = related_variables_query.select_map(:resource_id)

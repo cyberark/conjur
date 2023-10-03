@@ -35,7 +35,7 @@ class IssuersController < RestController
                         modified_at: Sequel::CURRENT_TIMESTAMP,
                         policy_id: "#{params[:account]}:policy:conjur/issuers/#{params[:id]}")
 
-    raise ApplicationController::InternalServerError, "Found related variable/s to the given issuer id" if issuer.issuer_variables_exist?
+    raise ApplicationController::InternalServerError, "Found variables associated with the issuer id" if issuer.issuer_variables_exist?
 
     create_issuer_policy({ "id" => params[:id] })
     issuer.save
@@ -59,7 +59,7 @@ class IssuersController < RestController
       }
     }, status: :bad_request)
   rescue Sequel::UniqueConstraintViolation => e
-    logger.error("Issuer [#{params[:id]}] already exists")
+    logger.error("The issuer [#{params[:id]}] already exists")
     audit_failure(e, action)
     issuer_audit_failure(params[:account], params[:id], "add", e.message)
     raise Exceptions::RecordExists.new("issuer", params[:id])
@@ -135,12 +135,12 @@ class IssuersController < RestController
     authorize(action, resource)
 
     issuers = list_issuers_from_db(params[:account])
-    result = []
+    results = []
     issuers.each do |item|
-      result.push(item.as_json)
+      results.push(item.as_json_for_list)
     end
     issuer_audit_success(params[:account], "*", "list")
-    render(json: { issuers: result }, status: :ok)
+    render(json: { issuers: results }, status: :ok)
 
     logger.info(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("GET issuers/#{params[:account]}"))
   rescue Exceptions::RecordNotFound => e
@@ -177,7 +177,7 @@ def get_issuer_from_db(account, issuer_id)
 end
 
 def list_issuers_from_db(account)
-  Issuer.where(account: account).all
+  Issuer.where(account: account).select(:issuer_id, :max_ttl, :issuer_type, :created_at, :modified_at).all
 end
 
 def issuer_audit_success(account, issuer_id, operation)
