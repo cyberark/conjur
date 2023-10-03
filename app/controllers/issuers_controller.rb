@@ -40,7 +40,7 @@ class IssuersController < RestController
     create_issuer_policy({ "id" => params[:id] })
     issuer.save
     issuer_audit_success(issuer.account, issuer.issuer_id, "add")
-
+    logger.info(LogMessages::Issuers::TelemetryIssuerLog.new("create", issuer.account, issuer.issuer_id, request.ip))
     render(json: issuer.as_json, status: :created)
 
     logger.info(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("POST issuers/#{params[:account]}"))
@@ -82,6 +82,7 @@ class IssuersController < RestController
       deleted_variables = issuer.delete_issuer_variables
       delete_issuer_policy({ "id" => params[:identifier] })
       issuer_audit_success(issuer.account, issuer.issuer_id, "remove")
+      logger.info(LogMessages::Issuers::TelemetryIssuerLog.new("delete", issuer.account, issuer.issuer_id, request.ip))
       issuer_variables_audit_delete(issuer.account, issuer.issuer_id, deleted_variables)
       head :ok
     else
@@ -110,9 +111,9 @@ class IssuersController < RestController
     issuer = get_issuer_from_db(params[:account], params[:identifier])
     if issuer
       issuer_audit_success(issuer.account, issuer.issuer_id, "fetch")
+      logger.info(LogMessages::Issuers::TelemetryIssuerLog.new("fetch", issuer.account, issuer.issuer_id, request.ip))
       render(json: issuer.as_json, status: :ok)
     else
-      # issuer_audit_failure(issuer.account, issuer.issuer_id, "get", ISSUER_NOT_FOUND)
       raise Exceptions::RecordNotFound.new(params[:identifier], message: ISSUER_NOT_FOUND)
     end
 
@@ -140,6 +141,7 @@ class IssuersController < RestController
       results.push(item.as_json_for_list)
     end
     issuer_audit_success(params[:account], "*", "list")
+    logger.info(LogMessages::Issuers::TelemetryIssuerLog.new("list", params[:account], "*", request.ip))
     render(json: { issuers: results }, status: :ok)
 
     logger.info(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("GET issuers/#{params[:account]}"))
