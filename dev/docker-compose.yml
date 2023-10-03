@@ -42,6 +42,8 @@ services:
       CONJUR_ACCOUNT: cucumber
       CONJUR_PASSWORD_ALICE: SEcret12!!!!
       CONJUR_DATA_KEY:
+      TENANT_ID: mytenant
+      REDIS_URL: redis://127.0.0.1:6379
       RAILS_ENV:
       CONJUR_LOG_LEVEL: debug
       AUDIT_DATABASE_URL:
