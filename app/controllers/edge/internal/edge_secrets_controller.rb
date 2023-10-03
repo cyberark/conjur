@@ -17,6 +17,7 @@ class EdgeSecretsController < RestController
     options = params.permit(*allowed_params)
                     .slice(*allowed_params).to_h.symbolize_keys
     begin
+
       verify_edge_host(options)
 
       scope = Resource.where(:resource_id.like(options[:account] + ":variable:data/%"))
@@ -59,8 +60,25 @@ class EdgeSecretsController < RestController
           failed.first
         ))
       end
+      #results = []
+      #failed = false
       render(json: { "secrets": results, "failed": failed })
     end
+  end
+
+  def build_variables_map(limit, offset, options)
+    variables = {}
+
+    Sequel::Model.db.fetch("SELECT * FROM secrets JOIN (SELECT resource_id, owner_id FROM resources WHERE (resource_id LIKE '" + options[:account] + ":variable:data/%') ORDER BY resource_id LIMIT " + limit.to_s + " OFFSET " + offset.to_s + ") AS res ON (res.resource_id = secrets.resource_id)") do |row|
+      if variables.key?(row[:resource_id])
+        if row[:version] > variables[row[:resource_id]][:version]
+          variables[row[:resource_id]] = row
+        end
+      else
+        variables[row[:resource_id]] = row
+      end
+    end
+    variables
   end
 
 end

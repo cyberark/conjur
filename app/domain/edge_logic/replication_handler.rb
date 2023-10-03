@@ -21,36 +21,47 @@ module ReplicationHandler
     results = []
     failed = []
 
-    variables = build_variables_map(limit, offset, options)
+    secretsPageFromCache = $redis.get(ENV['TENANT_ID'] + "/secrets/" + "replication/" + offset + "/" + limit + "/page")
 
-    variables.each do |id, variable|
-      variableToReturn = {}
-      variableToReturn[:id] = id
-      variableToReturn[:owner] = variable[:owner_id]
-      variableToReturn[:permissions] = []
-      Sequel::Model.db.fetch("SELECT * from permissions where resource_id='" + id + "' AND privilege = 'execute'") do |row|
-        permission = {}
-        permission[:privilege] = row[:privilege]
-        permission[:resource] = row[:resource_id]
-        permission[:role] = row[:role_id]
-        permission[:policy] = row[:policy_id]
-        variableToReturn[:permissions].append(permission)
+    if (secretsPageFromCache.nil?)
+
+      variables = build_variables_map(limit, offset, options)
+
+      variables.each do |id, variable|
+        variableToReturn = {}
+        variableToReturn[:id] = id
+        variableToReturn[:owner] = variable[:owner_id]
+        variableToReturn[:permissions] = []
+        Sequel::Model.db.fetch("SELECT * from permissions where resource_id='" + id + "' AND privilege = 'execute'") do |row|
+          permission = {}
+          permission[:privilege] = row[:privilege]
+          permission[:resource] = row[:resource_id]
+          permission[:role] = row[:role_id]
+          permission[:policy] = row[:policy_id]
+          variableToReturn[:permissions].append(permission)
+        end
+        secret_value = Slosilo::EncryptedAttributes.decrypt(variable[:value], aad: id)
+        variableToReturn[:value] = accepts_base64 ? Base64.strict_encode64(secret_value) : secret_value
+        variableToReturn[:version] = variable[:version]
+        variableToReturn[:versions] = []
+        value = {
+          "version": variableToReturn[:version],
+          "value": variableToReturn[:value]
+        }
+        variableToReturn[:versions] << value
+        begin
+          JSON.generate(variableToReturn)
+          results << variableToReturn
+        rescue => e
+          failed << { "id": id }
+        end
       end
-      secret_value = Slosilo::EncryptedAttributes.decrypt(variable[:value], aad: id)
-      variableToReturn[:value] = accepts_base64 ? Base64.strict_encode64(secret_value) : secret_value
-      variableToReturn[:version] = variable[:version]
-      variableToReturn[:versions] = []
-      value = {
-        "version": variableToReturn[:version],
-        "value": variableToReturn[:value]
-      }
-      variableToReturn[:versions] << value
-      begin
-        JSON.generate(variableToReturn)
-        results << variableToReturn
-      rescue => e
-        failed << { "id": id }
-      end
+
+      $redis.setex(ENV['TENANT_ID'] + "/secrets/" + "replication/" + offset + "/" + limit + "/page", 60, results)
+      $redis.setex(ENV['TENANT_ID'] + "/secrets/" + "replication/" + offset + "/" + limit + "/page/failed", 60, failed)
+    else
+      results = secretsPageFromCache
+      failed = $redis.get(ENV['TENANT_ID'] + "/secrets/" + "replication/" + offset + "/" + limit + "/page/failed")
     end
 
     [results, failed]
