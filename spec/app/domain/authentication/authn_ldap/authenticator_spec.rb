@@ -28,7 +28,11 @@ RSpec.describe(Authentication::AuthnLdap::Authenticator) do
     # Assume credentials will exist
     allow(::Credentials)
       .to receive(:[])
-      .and_return(Credentials.new.tap(&:rotate_api_key))
+      .and_return(Credentials.new.tap do |cred|
+        cred.role_id = 1234
+        cred.role = Role.new(role_id: cred.role_id)
+        cred.rotate_api_key
+      end)
   end
 
   context "as user alice" do

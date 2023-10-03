@@ -73,7 +73,7 @@ class Credentials < Sequel::Model
   def validate
     super
 
-    validates_presence([ :api_key ])
+    validates_presence([ :api_key ]) if self.role.api_key_expected?
 
     # We intentionally don't validate when there is no password
     # See flow in Account.create
@@ -89,11 +89,11 @@ class Credentials < Sequel::Model
   def before_validation
     super
 
-    self.api_key ||= self.class.random_api_key
+    self.api_key ||= self.class.random_api_key if self.role.api_key_expected?
   end
 
   def rotate_api_key
-    self.api_key = self.class.random_api_key
+    self.api_key = self.class.random_api_key if self.role.api_key_expected?
   end
 
   private

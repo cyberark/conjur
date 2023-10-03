@@ -37,4 +37,31 @@ describe Role, :type => :model do
   it "can find by login" do
     expect(Role.by_login(login, account: 'rspec')).to eq(the_user)
   end
+
+  context "Role has API key per annotation" do
+    before do
+      allow(Rails.application.config.conjur_config).to receive(:authn_api_key_default).and_return(false)
+    end
+
+    subject(:role) {  Role.create(role_id: "rspec:host:#{login}") }
+
+    it "has API key when annotation is set to true" do
+      allow(subject).to receive(:annotations).and_return([Annotation.new(name: "authn/api-key", value: "true")])
+      expect(subject.api_key).to be_present
+    end
+
+    it "has API key when annotation is set to false" do
+      allow(subject).to receive(:annotations).and_return([Annotation.new(name: "authn/api-key", value: "false")])
+      expect(subject.api_key).to be_nil
+    end
+
+    it "has API key when annotation is set to blabla" do
+      allow(subject).to receive(:annotations).and_return([Annotation.new(name: "authn/api-key", value: "blabla")])
+      expect(subject.api_key).to be_nil
+    end
+
+    it "has API key when annotation is not set" do
+      expect(subject.api_key).to be_nil
+    end
+  end
 end
