@@ -85,6 +85,14 @@ module Audit
         Syslog::LOG_AUTHPRIV
       end
 
+      def subject
+        @subject
+      end
+
+      def operation
+        @operation
+      end
+
       private
 
       def success_message

@@ -42,7 +42,6 @@ class PoliciesController < RestController
 
   def load_policy(action, loader_class, delete_permitted)
     authorize(action)
-
     policy = save_submitted_policy(delete_permitted: delete_permitted)
     loaded_policy = loader_class.from_policy(policy)
     created_roles = perform(loaded_policy)
@@ -60,6 +59,16 @@ class PoliciesController < RestController
   def audit_success(policy)
     policy.policy_log.lazy.map(&:to_audit_event).each do |event|
       Audit.logger.log(event)
+      log_ephemeral_variable(event)
+    end
+  end
+
+  def log_ephemeral_variable(audit_event)
+    if not audit_event.subject.is_a?(Audit::Subject::Resource)
+      return
+    end
+    if audit_event.subject.to_h[:resource].include?("variable:data/ephemerals")
+      logger.info(LogMessages::Ephemeral::EphemeralVariableTelemetry.new(audit_event.operation, audit_event.subject.to_h[:resource], request.ip))
     end
   end
 

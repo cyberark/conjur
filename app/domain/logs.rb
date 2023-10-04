@@ -68,6 +68,13 @@ module LogMessages
     )
   end
 
+  module Ephemeral
+    EphemeralVariableTelemetry = ::Util::TrackableLogMessageClass.new(
+      msg: "{0} ephemeral variable '{1}' for {2} at #{Time.now}",
+      code: "CONJ00168I"
+    )
+  end
+
   module Authentication
 
     LoginError = ::Util::TrackableErrorClass.new(
@@ -809,7 +816,12 @@ module LogMessages
       msg: "Action {0} is not allowed on the issuers endpoint",
       code: "CONJ00159E"
     )
-    
+
+    TelemetryIssuerLog = ::Util::TrackableLogMessageClass.new(
+      msg: "{0} issuer '{1}/issuers/{2}' for {3} at #{Time.now}",
+      code: "CONJ00167I"
+    )
+
   end
 
   module Secrets
