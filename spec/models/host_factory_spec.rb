@@ -134,6 +134,37 @@ describe "HostFactory" do
           it { expect { host_builder.create_host }.to raise_error }
         end
       end
+
+      context "Without validation API key is created as expected" do
+        before do
+          allow(Rails.application.config.conjur_config).to receive(:authn_api_key_default).and_return(false)
+          allow_any_instance_of(Loader::Types::Host).to receive(:future_api_key_auth_will_fail?).and_return(false)
+        end
+
+        context 'when creating host with api-key annotation true' do
+          let(:options) { {annotations: {'authn/api-key' => 'true'}} }
+          it { expect(host_builder.create_host[1]).not_to be_nil } # create_host returns [host, api_key]
+        end
+
+        context 'when creating host with api-key annotation true' do
+          let(:options) { {annotations: {'authn/api-key' => 'TRUE'}} }
+          it { expect(host_builder.create_host[1]).not_to be_nil } # create_host returns [host, api_key]
+        end
+
+        context 'when creating host with api-key annotation false' do
+          let(:options) { {annotations: {'authn/api-key' => false}} }
+          it { expect(host_builder.create_host[1]).to be_nil } # create_host returns [host, api_key]
+        end
+
+        context 'when creating host with api-key annotation False capital' do
+          let(:options) { {annotations: {'authn/api-key' => "FALSE"}} }
+          it { expect(host_builder.create_host[1]).to be_nil } # create_host returns [host, api_key]
+        end
+
+        context 'when creating host without api-key annotation' do
+          it { expect(host_builder.create_host[1]).to be_nil } # create_host returns [host, api_key]
+        end
+      end
      end
   end
 end

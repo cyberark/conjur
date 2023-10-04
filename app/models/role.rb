@@ -121,6 +121,8 @@ class Role < Sequel::Model
   end
 
   def api_key
+    return nil unless api_key_expected?
+
     unless self.credentials
       _, kind, id = self.id.split(":", 3)
       allowed_kind = %w[user host deputy].member?(kind)
@@ -130,6 +132,12 @@ class Role < Sequel::Model
     end
 
     self.credentials.api_key
+  end
+
+  def api_key_expected?
+    self.kind == 'user' ||
+    Rails.application.config.conjur_config.authn_api_key_default ||
+    self.annotations.any? { |a| a.name == 'authn/api-key' && a.value.downcase == 'true' }
   end
 
   def login
