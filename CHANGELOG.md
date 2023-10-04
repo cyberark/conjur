@@ -162,6 +162,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Use base images with newer Ubuntu and UBI.
   Display FIPS Mode status in the UI (requires temporary fix for OpenSSL gem).
   [cyberark/conjur#2874](https://github.com/cyberark/conjur/pull/2874)
+- Support for the no_proxy & NO_PROXY environment variables for the k8s authenticator.
+  [CNJR-2759](https://ca-il-jira.il.cyber-ark.com:8443/browse/CNJR-2759)
 
 ### Changed
 - The database thread pool max connection size is now based on the number of
