@@ -46,6 +46,10 @@ These are defined in runConjurTests, and also include the one-offs
     gcp_authenticator
 */
 
+// Break the total number of tests into a subset of tests.
+// This will give 3 nested lists of tests to run, which is
+// distributed over 3 jenkins agents.
+def NESTED_ARRAY_OF_TESTS_TO_RUN = collateTests()
 pipeline {
   agent { label 'executor-v2' }
 
@@ -190,84 +194,197 @@ pipeline {
           when {
             expression { params.NIGHTLY }
           }
+          agent { label 'executor-v2-rhel-ee' }
 
           environment {
             CUCUMBER_FILTER_TAGS = "${params.CUCUMBER_FILTER_TAGS}"
           }
 
           stages {
-            stage('EE FIPS agent tests') {
-              agent { label 'executor-v2-rhel-ee' }
+            stage("RSpec - EE FIPS agent tests") {
 
               steps {
                 sh(script: 'cat /etc/os-release', label: 'RHEL version')
                 sh(script: 'docker --version', label: 'Docker version')
+                addNewImagesToAgent()
                 unstash 'version_info'
                 // Catch errors so remaining steps always run.
                 catchError {
                   // Run outside parallel block to avoid external pressure
-                  script {
-                    stage("RSpec - EE FIPS agent tests") {
-                      sh "ci/test rspec"
+                  sh "ci/test rspec"
+                }
+              }
+            }
+
+            stage('EE FIPS parallel') {
+              parallel {
+                stage('EE FIPS agent tests') {
+                  when {
+                    expression {
+                      testShouldRunOnAgent(
+                        params.RUN_ONLY,
+                        runSpecificTestOnAgent(params.RUN_ONLY, NESTED_ARRAY_OF_TESTS_TO_RUN[0])
+                      )
                     }
                   }
 
-                  runConjurTests(params.RUN_ONLY)
+                  steps {
+                    addNewImagesToAgent()
+                    unstash 'version_info'
+                    runConjurTests(
+                      params.RUN_ONLY,
+                      NESTED_ARRAY_OF_TESTS_TO_RUN[0]
+                    )
+                  }
+                  post {
+                    always {
+                      stash(
+                        name: 'testResultEE',
+                        includes: '''
+                          cucumber/*/*.*,
+                          container_logs/*/*,
+                          spec/reports/*.xml,
+                          spec/reports-audit/*.xml,
+                          gems/conjur-rack/spec/reports/*.xml,
+                          gems/slosilo/spec/reports/*.xml,
+                        cucumber/*/features/reports/**/*.xml
+                      '''
+                    )}
+                  }
                 }
+                // Run a subset of tests on a second agent to prevent oversubscribing the hardware
+                stage('EE FIPS agent2 tests') {
+                  when {
+                    expression {
+                      testShouldRunOnAgent(
+                        params.RUN_ONLY,
+                        runSpecificTestOnAgent(params.RUN_ONLY, NESTED_ARRAY_OF_TESTS_TO_RUN[1])
+                      )
+                    }
+                  }
+                  agent { label 'executor-v2-rhel-ee' }
 
-                stash(
-                  name: 'testResultEE',
-                  includes: '''
-                    cucumber/*/*.*,
-                    container_logs/*/*,
-                    spec/reports/*.xml,
-                    spec/reports-audit/*.xml,
-                    gems/conjur-rack/spec/reports/*.xml,
-                    gems/slosilo/spec/reports/*.xml,
-                    cucumber/*/features/reports/**/*.xml
-                  '''
-                )
+                  environment {
+                    CUCUMBER_FILTER_TAGS = "${params.CUCUMBER_FILTER_TAGS}"
+                  }
+
+                  steps {
+                    addNewImagesToAgent()
+                    unstash 'version_info'
+                    runConjurTests(
+                      params.RUN_ONLY,
+                      NESTED_ARRAY_OF_TESTS_TO_RUN[1]
+                    )
+                  }
+                  post {
+                    always {
+                      stash(
+                        name: 'testResultEE2',
+                        includes: '''
+                          cucumber/*/*.*,
+                          container_logs/*/*,
+                          spec/reports/*.xml,
+                          spec/reports-audit/*.xml,
+                          cucumber/*/features/reports/**/*.xml
+                        '''
+                      )
+                    }
+                  }
+                }
+                // Run a subset of tests on a second agent to prevent oversubscribing the hardware
+                stage('EE FIPS agent3 tests') {
+                  when {
+                    expression {
+                      testShouldRunOnAgent(
+                        params.RUN_ONLY,
+                        runSpecificTestOnAgent(params.RUN_ONLY, NESTED_ARRAY_OF_TESTS_TO_RUN[2])
+                      )
+                    }
+                  }
+
+                  agent { label 'executor-v2-rhel-ee' }
+
+                  environment {
+                    CUCUMBER_FILTER_TAGS = "${params.CUCUMBER_FILTER_TAGS}"
+                  }
+
+                  steps {
+                    addNewImagesToAgent()
+                    unstash 'version_info'
+                    runConjurTests(
+                      params.RUN_ONLY,
+                      NESTED_ARRAY_OF_TESTS_TO_RUN[2]
+                    )
+                  }
+                  post {
+                    always {
+                      stash(
+                        name: 'testResultEE3',
+                        includes: '''
+                          cucumber/*/*.*,
+                          container_logs/*/*,
+                          spec/reports/*.xml,
+                          spec/reports-audit/*.xml,
+                          cucumber/*/features/reports/**/*.xml
+                        '''
+                      )
+                    }
+                  }
+                }
               }
-
-              post {
-                always {
+            }
+          }
+          post {
+            always {
+              script {
+                if (testShouldRunOnAgent(params.RUN_ONLY, runSpecificTestOnAgent(params.RUN_ONLY, NESTED_ARRAY_OF_TESTS_TO_RUN[0]))) {
                   dir('ee-test'){
                     unstash 'testResultEE'
                   }
-
-                  archiveArtifacts(
-                    artifacts: "ee-test/cucumber/*/*.*",
-                    fingerprint: false,
-                    allowEmptyArchive: true
-                  )
-
-                  archiveArtifacts(
-                    artifacts: "ee-test/container_logs/*/*",
-                    fingerprint: false,
-                    allowEmptyArchive: true
-                  )
-
-                  publishHTML(
-                    reportDir: 'ee-test/cucumber',
-                    reportFiles: '''
-                      api/cucumber_results.html,
-                      authenticators_config/cucumber_results.html,
-                      authenticators_azure/cucumber_results.html,
-                      authenticators_ldap/cucumber_results.html,
-                      authenticators_oidc/cucumber_results.html,
-                      authenticators_jwt/cucumber_results.html,
-                      authenticators_status/cucumber_results.html
-                      policy/cucumber_results.html,
-                      rotators/cucumber_results.html
-                    ''',
-                    reportName: 'EE Integration reports',
-                    reportTitles: '',
-                    allowMissing: false,
-                    alwaysLinkToLastBuild: true,
-                    keepAll: true
-                  )
+                }
+                if (testShouldRunOnAgent(params.RUN_ONLY, runSpecificTestOnAgent(params.RUN_ONLY, NESTED_ARRAY_OF_TESTS_TO_RUN[1]))) {
+                  dir('ee-test'){
+                    unstash 'testResultEE2'
+                  }
+                }
+                if (testShouldRunOnAgent(params.RUN_ONLY, runSpecificTestOnAgent(params.RUN_ONLY, NESTED_ARRAY_OF_TESTS_TO_RUN[2]))) {
+                  dir('ee-test'){
+                    unstash 'testResultEE3'
+                  }
                 }
               }
+
+              archiveArtifacts(
+                artifacts: "ee-test/cucumber/*/*.*",
+                fingerprint: false,
+                allowEmptyArchive: true
+              )
+
+              archiveArtifacts(
+                artifacts: "ee-test/container_logs/*/*",
+                fingerprint: false,
+                allowEmptyArchive: true
+              )
+
+              publishHTML(
+                reportDir: 'ee-test/cucumber',
+                reportFiles: '''
+                  api/cucumber_results.html,
+                  authenticators_config/cucumber_results.html,
+                  authenticators_azure/cucumber_results.html,
+                  authenticators_ldap/cucumber_results.html,
+                  authenticators_oidc/cucumber_results.html,
+                  authenticators_jwt/cucumber_results.html,
+                  authenticators_status/cucumber_results.html
+                  policy/cucumber_results.html,
+                  rotators/cucumber_results.html
+                ''',
+                reportName: 'EE Integration reports',
+                reportTitles: '',
+                allowMissing: false,
+                alwaysLinkToLastBuild: true,
+                keepAll: true
+              )
             }
           }
         }
@@ -275,14 +392,104 @@ pipeline {
         stage('Run environment tests in parallel') {
           parallel {
             stage('Standard agent tests') {
+              when {
+                expression {
+                  testShouldRunOnAgent(
+                    params.RUN_ONLY,
+                    runSpecificTestOnAgent(params.RUN_ONLY, NESTED_ARRAY_OF_TESTS_TO_RUN[0])
+                  )
+                }
+              }
+
               environment {
                 CUCUMBER_FILTER_TAGS = "${params.CUCUMBER_FILTER_TAGS}"
               }
 
               steps {
-                sh(script: 'cat /etc/os-release', label: 'RHEL version')
+                sh(script: 'cat /etc/os-release', label: 'Ubuntu version')
                 sh(script: 'docker --version', label: 'Docker version')
-                runConjurTests(params.RUN_ONLY)
+                runConjurTests(
+                  params.RUN_ONLY,
+                  NESTED_ARRAY_OF_TESTS_TO_RUN[0]
+                )
+              }
+            }
+
+            // Run a subset of tests on a second agent to prevent oversubscribing the hardware
+            stage('Standard agent2 tests') {
+              when {
+                expression {
+                  testShouldRunOnAgent(
+                    params.RUN_ONLY,
+                    runSpecificTestOnAgent(params.RUN_ONLY, NESTED_ARRAY_OF_TESTS_TO_RUN[1])
+                  )
+                }
+              }
+
+              agent { label 'executor-v2' }
+              environment {
+                CUCUMBER_FILTER_TAGS = "${params.CUCUMBER_FILTER_TAGS}"
+              }
+
+              steps {
+                addNewImagesToAgent()
+                unstash 'version_info'
+                runConjurTests(params.RUN_ONLY, NESTED_ARRAY_OF_TESTS_TO_RUN[1])
+              }
+              post {
+                always {
+                  stash(
+                    name: 'standardTestResult2',
+                    includes: '''
+                      cucumber/*/*.*,
+                      container_logs/*/*,
+                      spec/reports/*.xml,
+                      spec/reports-audit/*.xml,
+                      cucumber/*/features/reports/**/*.xml
+                    '''
+                  )
+                }
+              }
+            }
+
+            // Run a subset of tests on a second agent to prevent oversubscribing the hardware
+            stage('Standard agent3 tests') {
+              when {
+                expression {
+                  testShouldRunOnAgent(
+                    params.RUN_ONLY,
+                    runSpecificTestOnAgent(params.RUN_ONLY, NESTED_ARRAY_OF_TESTS_TO_RUN[2])
+                  )
+                }
+              }
+
+              agent { label 'executor-v2' }
+              environment {
+                CUCUMBER_FILTER_TAGS = "${params.CUCUMBER_FILTER_TAGS}"
+              }
+
+              steps {
+                addNewImagesToAgent()
+                unstash 'version_info'
+                runConjurTests(
+                  params.RUN_ONLY,
+                  NESTED_ARRAY_OF_TESTS_TO_RUN[2]
+                )
+              }
+              post {
+                always {
+                  stash(
+                    name: 'standardTestResult3',
+                    includes: '''
+                      cucumber/*/*.*,
+                      container_logs/*/*,
+                      spec/reports/*.xml,
+                      spec/reports-audit/*.xml,
+                      cucumber/*/features/reports/**/*.xml,
+                      ci/test_suites/*/output/*
+                    '''
+                  )
+                }
               }
             }
 
@@ -310,6 +517,7 @@ pipeline {
               }
 
               steps {
+                addNewImagesToAgent()
                 unstash 'version_info'
                 // Grant access to this Jenkins agent's IP to AWS security groups
                 // This is required for access to the internal docker registry
@@ -323,19 +531,19 @@ pipeline {
 
               post {
                 always {
-                    stash(
-                      name: 'testResultAzure',
-                      allowEmpty: true,
-                      includes: '''
-                        cucumber/*azure*/*.*,
-                        container_logs/*azure*/*,
-                        cucumber_results*.json
-                      '''
-                    )
-                    // Remove this Agent's IP from IPManager's prefix list
-                    // There are a limited number of entries, so it remove it
-                    // rather than waiting for it to expire.
-                    removeIPAccess()
+                  stash(
+                    name: 'testResultAzure',
+                    allowEmpty: true,
+                    includes: '''
+                      cucumber/*azure*/*.*,
+                      container_logs/*azure*/*,
+                      cucumber_results*.json
+                    '''
+                  )
+                  // Remove this Agent's IP from IPManager's prefix list
+                  // There are a limited number of entries, so it remove it
+                  // rather than waiting for it to expire.
+                  removeIPAccess()
                 }
               }
             }
@@ -529,6 +737,14 @@ pipeline {
         always {
           script {
 
+            if (testShouldRunOnAgent(params.RUN_ONLY, runSpecificTestOnAgent(params.RUN_ONLY, NESTED_ARRAY_OF_TESTS_TO_RUN[1]))) {
+              unstash 'standardTestResult2'
+            }
+
+            if (testShouldRunOnAgent(params.RUN_ONLY, runSpecificTestOnAgent(params.RUN_ONLY, NESTED_ARRAY_OF_TESTS_TO_RUN[2]))) {
+              unstash 'standardTestResult3'
+            }
+
             // Only unstash azure if it ran.
             if (testShouldRun(params.RUN_ONLY, "azure_authenticator")) {
               unstash 'testResultAzure'
@@ -606,7 +822,7 @@ pipeline {
       // cleanupAndNotify(buildStatus, slackChannel, additionalMessage, ticket)
       cleanupAndNotify(
         currentBuild.currentResult,
-        'Team - Palm Tree',
+        '#conjur-core',
         "${(params.NIGHTLY ? 'nightly' : '')}",
         true
       )
@@ -620,12 +836,22 @@ pipeline {
 
 // TODO: Do we want to move any of these functions to a separate file?
 
+def addNewImagesToAgent() {
+  // Pull and retag existing images onto new Jenkins agent
+  sh """
+    docker pull registry.tld/conjur-cloud:${tagWithSHA()}
+    docker pull registry.tld/conjur-test:${tagWithSHA()}
+    docker tag registry.tld/conjur-cloud:${tagWithSHA()} conjur-cloud:${tagWithSHA()}
+    docker tag registry.tld/conjur-test:${tagWithSHA()} conjur-test:${tagWithSHA()}
+    """
+}
+
 // Possible minor optimization: Could memoize this. Need to verify it's not
 // shared across builds.
 def tagWithSHA() {
   sh(
     returnStdout: true,
-    script: 'echo $(git rev-parse --short=8 HEAD)'
+    script: 'echo -n $(git rev-parse --short=8 HEAD)'
   )
 }
 
@@ -641,11 +867,37 @@ def testShouldRun(run_only_str, test) {
   return run_only_str == '' || run_only_str.split().contains(test)
 }
 
-// "run_only_str" is a space-separated string specifying the subset of tests to
-// run.  If it's empty, all tests are run.
-def runConjurTests(run_only_str) {
+def testShouldRunOnAgent(run_only_str, agent_specific_tests) {
+  return run_only_str == '' || ! agent_specific_tests.isEmpty()
+}
 
-  all_tests = [
+def runSpecificTestOnAgent(run_only_str, agent_specific_tests) {
+  // runSpecificTestOnAgent allows a subset of tests to be ran
+  // on an agent, determined by the agent's assigned subset of
+  // tests it normally runs.
+
+  // Args:
+  //  run_only_str: a space seperated string of test names
+  //  agent_specific_tests: an array of tests that the agent
+  //    is assigned to run
+
+  // Returns:
+  //  An array of test names to run
+  def run_only_tests = []
+  def find_tests = run_only_str.split()
+
+  find_tests.each { run_only_test ->
+    agent_specific_tests.find { agent_test ->
+      if (agent_test.contains(run_only_test)) {
+        run_only_tests.add(run_only_test)
+      }
+    }
+  }
+  return run_only_tests
+}
+
+def conjurTests() {
+  return [
     "authenticators_config": [
       "Authenticators Config - ${env.STAGE_NAME}": {
         sh 'ci/test authenticators_config'
@@ -656,16 +908,16 @@ def runConjurTests(run_only_str) {
         sh 'ci/test authenticators_status'
       }
     ],
-//     "authenticators_k8s": [
-//       "K8s Authenticator - ${env.STAGE_NAME}": {
-//         sh 'ci/test authenticators_k8s'
-//       }
-//     ],
 //     "authenticators_ldap": [
 //       "LDAP Authenticator - ${env.STAGE_NAME}": {
 //         sh 'ci/test authenticators_ldap'
 //       }
 //     ],
+    "api": [
+      "API - ${env.STAGE_NAME}": {
+        sh 'ci/test api'
+      }
+    ],
     "authenticators_oidc": [
       "OIDC Authenticator - ${env.STAGE_NAME}": {
           sh 'summon -f ./ci/test_suites/authenticators_oidc/secrets.yml -e ci ci/test authenticators_oidc'
@@ -681,16 +933,16 @@ def runConjurTests(run_only_str) {
         sh 'ci/test policy'
       }
     ],
-    "api": [
-      "API - ${env.STAGE_NAME}": {
-        sh 'ci/test api'
-      }
-    ],
     "rotators": [
       "Rotators - ${env.STAGE_NAME}": {
         sh 'ci/test rotators'
       }
     ],
+//     "authenticators_k8s": [
+//       "K8s Authenticator - ${env.STAGE_NAME}": {
+//         sh 'ci/test authenticators_k8s'
+//       }
+//     ],
     "rspec_audit": [
       "Audit - ${env.STAGE_NAME}": {
         sh 'ci/test rspec_audit'
@@ -712,13 +964,26 @@ def runConjurTests(run_only_str) {
       }
     ]
   ]
+}
 
-  // Filter for the tests we want run, if requested.
-  parallel_tests = all_tests
-  tests = run_only_str.split()
+def runConjurTests(run_only_str, cuke_test_names) {
+  // runConjurTests will build a parallel Jenkins block of code
+  // that will run the specified cucumber test stages.
 
-  if (tests.size() > 0) {
-    parallel_tests = all_tests.subMap(tests)
+  // Args:
+  //  cuke_test_names an array of test names to run.
+
+  // Returns:
+  //  A Jenkins block of parallel code.
+
+  def all_tests = conjurTests()
+  def run_only_tests = runSpecificTestOnAgent(run_only_str, cuke_test_names)
+  def parallel_tests = all_tests
+
+  if (run_only_tests.isEmpty()) {
+    parallel_tests = all_tests.subMap(cuke_test_names)
+  } else {
+    parallel_tests = all_tests.subMap(run_only_tests)
   }
 
   // Create the parallel pipeline.
@@ -726,11 +991,46 @@ def runConjurTests(run_only_str) {
   // Since + merges two maps together, sum() combines the individual values of
   // parallel_tests into one giant map whose keys are the stage names and
   // whose values are the blocks to be run.
+
   script {
     parallel(
       parallel_tests.values().sum()
     )
   }
+}
+
+def collateTests(jobs_per_agent=4) {
+  // collateTests will find the names of cucumber tests that should run
+  // and create a nested list of tests to be ran across mutliple Jenkins
+  // agents.
+
+  // Args:
+  //  jobs_per_agent: The nested list of tests names will be no more than
+  //    the specified integer.
+
+  // Returns: a nested list of test names.
+
+  def all_tests = conjurTests()
+  def all_test_names = []
+
+  all_tests.each{ k, _ ->
+    all_test_names.add(k)
+  }
+
+  def parallel_tests = []
+  // Create a subset of tests that can be ran by each Jenkins agent
+  int partitionCount = all_test_names.size() / jobs_per_agent
+
+  partitionCount.times { partitionNumber ->
+  def start = partitionNumber * jobs_per_agent
+  def end = start + jobs_per_agent - 1
+  parallel_tests.add(all_test_names[start..end])
+  }
+
+  if (all_tests.size() % jobs_per_agent) {
+    parallel_tests.add(all_test_names[partitionCount * jobs_per_agent..-1])
+  }
+  return parallel_tests
 }
 
 def defaultCucumberFilterTags(env) {

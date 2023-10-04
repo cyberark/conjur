@@ -7,6 +7,15 @@
 
 require 'cucumber/_common/slosilo_helper'
 Before do
+  parallel_cuke_vars = {}
+  parallel_cuke_vars['CONJUR_APPLIANCE_URL'] = "http://conjur#{ENV['TEST_ENV_NUMBER']}"
+  parallel_cuke_vars['DATABASE_URL'] = "postgres://postgres@pg#{ENV['TEST_ENV_NUMBER']}/postgres"
+  parallel_cuke_vars['CONJUR_AUTHN_API_KEY'] = ENV["CONJUR_AUTHN_API_KEY#{ENV['TEST_ENV_NUMBER']}"]
+
+  parallel_cuke_vars.each do |key, value|
+    ENV[key] = value
+  end
+
   @user_index = 0
 
   Role.truncate(cascade: true)

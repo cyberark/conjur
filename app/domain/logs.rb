@@ -324,6 +324,11 @@ module LogMessages
         code: "CONJ00036D"
       )
 
+      RetryWithGlobalEndpoint = ::Util::TrackableLogMessageClass.new(
+        msg: "Retrying IAM request signed in 'us-east-1' region with global STS endpoint.",
+        code: "CONJ00043D"
+      )
+
     end
 
     module AuthnAzure

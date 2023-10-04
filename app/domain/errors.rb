@@ -247,7 +247,7 @@ module Errors
     module AuthnOidc
       IdTokenClaimNotFoundOrEmpty = ::Util::TrackableErrorClass.new(
         msg: "Claim '{0-claim-name}' not found or empty in ID token. " \
-            "This claim is defined in the id-token-user-property variable.",
+            "This claim is defined in the {1-config-var} variable.",
         code: "CONJ00013E"
       )
 

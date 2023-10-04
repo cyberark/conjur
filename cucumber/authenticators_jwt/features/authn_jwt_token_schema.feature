@@ -875,32 +875,32 @@ Feature: JWT Authenticator - Token Schema
     - !variable conjur/authn-jwt/raw/enforced-claims
 
     - !host
-      id: myapp
+      id: myapp-01
       annotations:
         authn-jwt/raw/conjur.org/enforced-property: valid
 
     - !grant
       role: !group conjur/authn-jwt/raw/hosts
-      member: !host myapp
+      member: !host myapp-01
     """
     And I successfully set authn-jwt "enforced-claims" variable to value "conjur.org/enforced-property"
     And I successfully set authn-jwt "token-app-property" variable to value "conjur.org/host-property"
     And I add the secret value "test-secret" to the resource "cucumber:variable:test-variable"
-    And I permit host "myapp" to "execute" it
+    And I permit host "myapp-01" to "execute" it
     And I am using file "authn-jwt-token-schema" and alg "RS256" for remotely issue token:
     """
     {
       "conjur.org/enforced-property":"valid",
-      "conjur.org/host-property":"myapp"
+      "conjur.org/host-property":"myapp-01"
     }
     """
     And I save my place in the log file
     When I authenticate via authn-jwt with the JWT token
-    Then host "myapp" has been authorized by Conjur
+    Then host "myapp-01" has been authorized by Conjur
     And I successfully GET "/secrets/cucumber/variable/test-variable" with authorized user
     And The following appears in the log after my savepoint:
     """
-    cucumber:host:myapp successfully authenticated with authenticator authn-jwt service cucumber:webservice:conjur/authn-jwt/raw
+    cucumber:host:myapp-01 successfully authenticated with authenticator authn-jwt service cucumber:webservice:conjur/authn-jwt/raw
     """
 
   @sanity

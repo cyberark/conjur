@@ -54,13 +54,34 @@ module Authentication
 
       # Call to AWS STS endpoint using the provided authentication header
       def attempt_signed_request(signed_headers)
-        aws_request = URI("https://#{signed_headers['host']}/?Action=GetCallerIdentity&Version=2011-06-15")
-        begin
-          @client.get_response(aws_request, signed_headers)
+        region = extract_sts_region(signed_headers)
 
-          # Handle any network failures with a generic verification error
+        # Attempt request using the discovered region and return immediately if successful
+        response = aws_call(region: region, headers: signed_headers)
+        return response if response.code.to_i == 200
+      
+        # If the discovered region is `us-east-1`, fallback to the global endpoint
+        if region == 'us-east-1'
+          @logger.debug(LogMessages::Authentication::AuthnIam::RetryWithGlobalEndpoint.new)
+          fallback_response = aws_call(region: 'global', headers: signed_headers)
+          return fallback_response if fallback_response.code.to_i == 200
+        end
+
+        return response
+      end
+
+      def aws_call(region:, headers:)
+        host = if region == 'global'
+          'sts.amazonaws.com'
+        else
+          "sts.#{region}.amazonaws.com"
+        end
+        aws_request = URI("https://#{host}/?Action=GetCallerIdentity&Version=2011-06-15")
+        begin
+          @client.get_response(aws_request, headers)
         rescue StandardError => e
-          raise(Errors::Authentication::AuthnIam::VerificationError.new(e))
+          # Handle any network failures with a generic verification error
+          raise(Errors::Authentication::AuthnIam::VerificationError, e)
         end
       end
 
@@ -75,6 +96,25 @@ module Authentication
           Errors::Authentication::AuthnIam::InvalidAWSHeaders,
           body.dig('ErrorResponse', 'Error', 'Message').to_s.strip
         )
+      end
+
+      # Extracts the STS region from the host header if it exists.
+      # If not, we use the authorization header's credential string, i.e.:
+      # Credential=AKIAIOSFODNN7EXAMPLE/20220830/us-east-1/sts/aws4_request
+      def extract_sts_region(signed_headers)
+        host = signed_headers['host']
+
+        if host == 'sts.amazonaws.com'
+          return 'global'
+        end
+      
+        match = host&.match(%r{sts.([\w\-]+).amazonaws.com})
+        return match.captures.first if match
+      
+        match = signed_headers['authorization']&.match(%r{Credential=[^/]+/[^/]+/([^/]+)/})
+        return match.captures.first if match
+
+        raise Errors::Authentication::AuthnIam::InvalidAWSHeaders, 'Failed to extract AWS region from authorization header'
       end
     end
   end

@@ -19,29 +19,29 @@ that was used when you originally deployed your Conjur server.
 
 3. Pull the new Conjur image version:
    ```
-   docker-compose pull conjur
+   docker compose pull conjur
    ```
 
 4. Stop the Conjur container:
    ```
-   docker-compose stop conjur
+   docker compose stop conjur
    ```
 
 5. Bring up the Conjur service using the new image version without changing
    linked services:
    ```
-   docker-compose up -d --no-deps conjur
+   docker compose up -d --no-deps conjur
    ```
 
 6. View Docker containers and verify all are healthy, up and running:
    ```
-   docker-compose ps -a
+   docker compose ps -a
    ```
 
    It may also be useful to check if Conjur started successfully, which can be
    done by running
    ```
-   $ docker-compose exec conjur conjurctl wait
+   $ docker compose exec conjur conjurctl wait
     Waiting for Conjur to be ready...
     ...
     Conjur is ready!
@@ -56,7 +56,7 @@ environment variable first, you will be able to complete the steps without an
 visible/explicit error message, but the logs of the new Conjur container will
 show an error like:
 ```
-$ docker-compose logs conjur_server
+$ docker compose logs conjur_server
 rake aborted!
 No CONJUR_DATA_KEY
 ...
@@ -66,7 +66,7 @@ To fix this, set the `CONJUR_DATA_KEY` environment variable and run through
 the [process](#standard-process) again. This time when you check the logs of the Conjur server
 container you should see the service starting as expected:
 ```
-$ docker-compose logs conjur_server
+$ docker compose logs conjur_server
 ...
 => Booting Puma
 => Rails 5.2.4.3 application starting in production 

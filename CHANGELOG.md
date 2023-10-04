@@ -9,7 +9,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
-## [1.0.9-cloud] - 2023-10-08
+## [1.0.10-cloud] - 2023-10-22
+
+## [1.0.9-cloud] - 2023-10-15
 ### Added
 - Add feature flag endpoint
 
@@ -132,7 +134,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 - Remove auto-release options to allow for a pseudo-fork development on a branch
 
-## [1.19.5] - 2023-05-16
+## [1.19.6] - 2023-07-05
+
+### Fixed
+- Support Authn-IAM regional requests when host value is missing from signed headers.
+  [cyberark/conjur#2827](https://github.com/cyberark/conjur/pull/2827)
+
+## [1.19.5] - 2023-05-29
 
 ### Security
 - Update bundler to 2.2.33 to remove CVE-2021-43809
@@ -143,8 +151,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   [cyberark/conjur#2792](https://github.com/cyberark/conjur/pull/2792)
 - Authn-IAM now uses the host in the signed headers to determine which STS endpoint
   (global or regional) to use for validation.
-
-## [1.19.4] - 2023-05-12
 
 ### Changed
 - OIDC tokens will now have a default ttl of 60 mins
@@ -1168,7 +1174,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - The first tagged version.
 
-[Unreleased]: https://github.com/cyberark/conjur/compare/v1.19.3...HEAD
+[Unreleased]: https://github.com/cyberark/conjur/compare/v1.19.5...HEAD
+[1.19.5]: https://github.com/cyberark/conjur/compare/v1.19.3...v1.19.5
 [1.19.3]: https://github.com/cyberark/conjur/compare/v1.19.2...v1.19.3
 [1.19.2]: https://github.com/cyberark/conjur/compare/v1.19.1...v1.19.2
 [1.19.1]: https://github.com/cyberark/conjur/compare/v1.19.0...v1.19.1
