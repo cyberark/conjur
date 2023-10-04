@@ -134,17 +134,7 @@ module Authentication
       # environment. If the server connection uses TLS, then use the
       # https_proxy value, otherwise use the http_proxy value.
       def proxy_uri
-        @proxy_uri ||= begin
-          proxy_url = if secure?
-            ENV['https_proxy'] || ENV['HTTPS_PROXY']
-          else
-            ENV['http_proxy'] || ENV['HTTP_PROXY']
-          end
-
-          URI.parse(proxy_url)
-        rescue URI::InvalidURIError
-          nil
-        end
+        @proxy_uri ||= @uri.find_proxy
       end
 
       def secure?
