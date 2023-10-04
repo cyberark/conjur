@@ -1,7 +1,24 @@
 # frozen_string_literal: true
 
-workers Integer(ENV['WEB_CONCURRENCY'] || 2)
-threads_count = Integer(ENV['RAILS_MAX_THREADS'] || 5)
+begin
+  workers Integer(ENV['WEB_CONCURRENCY'] || 2)
+rescue ArgumentError
+  raise(
+    "Invalid value for WEB_CONCURRENCY environment variable: " \
+    "'#{ENV['WEB_CONCURRENCY']}'. " \
+    "Value must be a positive integer (default is 2)."
+  )
+end
+
+begin
+  threads_count = Integer(ENV['RAILS_MAX_THREADS'] || 5)
+rescue ArgumentError
+  raise(
+    "Invalid value for RAILS_MAX_THREADS environment variable: " \
+    "'#{ENV['RAILS_MAX_THREADS']}'. " \
+    "Value must be a positive integer (default is 5)."
+  )
+end
 threads threads_count, threads_count
 
 # The tag is displayed in the Puma process description, for example:
@@ -48,7 +65,6 @@ max_fast_inline Float(ENV['MAX_REQUESTS_PER_CONNECTION'] || Float::INFINITY)
 # available in this config file.
 preload_app!
 
-rackup      DefaultRackup
 port        ENV['PORT']     || 3000
 environment ENV['RACK_ENV'] || 'development'
 
@@ -57,6 +73,7 @@ environment ENV['RACK_ENV'] || 'development'
 # fail when started as a `puma` command, rather than using `rails server`.
 before_fork do
   Rails.logger.info(LogMessages::Conjur::FipsModeStatus.new(OpenSSL.fips_mode))
+
 end
 
 on_worker_boot do

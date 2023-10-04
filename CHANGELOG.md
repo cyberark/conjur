@@ -140,7 +140,60 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Support Authn-IAM regional requests when host value is missing from signed headers.
   [cyberark/conjur#2827](https://github.com/cyberark/conjur/pull/2827)
 
-## [1.19.5] - 2023-05-29
+## [1.20.0] - 2023-09-21
+
+### Fixed
+- Allow Factories with optional variables to save without error
+  [cyberark/conjur#2956](https://github.com/cyberark/conjur/pull/2956)
+- OIDC authenticators support `https_proxy` and `HTTPS_PROXY` environment variables
+  [cyberark/conjur#2902](https://github.com/cyberark/conjur/pull/2902)
+- Support plural syntax for revoke and deny
+  [cyberark/conjur#2901](https://github.com/cyberark/conjur/pull/2901)
+
+### Added
+- Support an optional`ca-cert` variable for providing custom certs/chains to verify
+  OIDC providers or proxies when using the OIDC authenticator
+  [cyberark/conjur#2933](https://github.com/cyberark/conjur/pull/2933)
+- New flag to `conjurctl server` command called `--no-migrate` which allows for skipping
+  the database migration step when starting the server.
+  [cyberark/conjur#2895](https://github.com/cyberark/conjur/pull/2895)
+- Telemetry support
+  [cyberark/conjur#2854](https://github.com/cyberark/conjur/pull/2854)
+- Introduces support for Policy Factory, which enables resource creation
+  through a new `factories` API.
+  [cyberark/conjur#2855](https://github.com/cyberark/conjur/pull/2855/files)
+- Use base images with newer Ubuntu and UBI.
+  Display FIPS Mode status in the UI (requires temporary fix for OpenSSL gem).
+  [cyberark/conjur#2874](https://github.com/cyberark/conjur/pull/2874)
+
+### Changed
+- The database thread pool max connection size is now based on the number of
+  web worker threads per process, rather than an arbitrary fixed number. This
+  mitigates the possibility of a web worker becoming starved while waiting for
+  a connection to become available.
+  [cyberark/conjur#2875](https://github.com/cyberark/conjur/pull/2875)
+- Changed base-image tagging strategy
+  [cyberark/conjur#2926](https://github.com/cyberark/conjur/pull/2926)
+
+### Fixed
+- Support Authn-IAM regional requests when host value is missing from signed headers.
+  [cyberark/conjur#2827](https://github.com/cyberark/conjur/pull/2827)
+
+### Security
+- Upgrade google/cloud-sdk in ci/test_suites/authenticators_k8s/dev/Dockerfile/test
+  to use latest version (448.0.0)
+  [cyberark/conjur#2972](https://github.com/cyberark/conjur/pull/2972)
+- Support plural syntax for revoke and deny
+  [cyberark/conjur#2901](https://github.com/cyberark/conjur/pull/2901)
+- Previously, attempting to add and remove a privilege in the same policy load
+  resulted in only the positive privilege (grant, permit) taking effect. Now we
+  fail safe and the negative privilege statement (revoke, deny) is the final
+  outcome
+  [cyberark/conjur#2907](https://github.com/cyberark/conjur/pull/2907)
+- Update puma to 6.3.1 to address CVE-2023-40175.
+  [cyberark/conjur#2925](https://github.com/cyberark/conjur/pull/2925)
+
+## [1.19.5] - 2023-06-29
 
 ### Security
 - Update bundler to 2.2.33 to remove CVE-2021-43809
@@ -193,7 +246,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   [cyberark/conjur#2739](https://github.com/cyberark/conjur/pull/2739)
 - Upgraded rack to v2.2.6.4 to resolve CVE-2023-27539
   [cyberark/conjur#2750](https://github.com/cyberark/conjur/pull/2750)
-- Updated nokogiri to 1.14.3 for CVE-2023-29469 and CVE-2023-28484 and rails to 
+- Updated nokogiri to 1.14.3 for CVE-2023-29469 and CVE-2023-28484 and rails to
   6.1.7.3 for CVE-2023-28120 in Gemfile.lock, nokogiri to 1.1.4.3 for CVE-2023-29469
   and commonmarker to 0.23.9 for CVE-2023-24824 and CVE-2023-26485 in docs/Gemfile.lock
   (all Medium severity issues flagged by Dependabot)
@@ -1174,7 +1227,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - The first tagged version.
 
-[Unreleased]: https://github.com/cyberark/conjur/compare/v1.19.5...HEAD
+[Unreleased]: https://github.com/cyberark/conjur/compare/v1.20.0...HEAD
+[1.20.0]: https://github.com/cyberark/conjur/compare/v1.19.5...v1.20.0
 [1.19.5]: https://github.com/cyberark/conjur/compare/v1.19.3...v1.19.5
 [1.19.3]: https://github.com/cyberark/conjur/compare/v1.19.2...v1.19.3
 [1.19.2]: https://github.com/cyberark/conjur/compare/v1.19.1...v1.19.2

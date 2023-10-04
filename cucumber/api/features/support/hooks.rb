@@ -12,7 +12,7 @@ require 'cucumber/_common/slosilo_helper'
 # run independently.
 Before do
   parallel_cuke_vars = {}
-  parallel_cuke_vars['CONJUR_APPLIANCE_URL'] = "http://conjur#{ENV['TEST_ENV_NUMBER']}"
+  parallel_cuke_vars['CONJUR_APPLIANCE_URL'] = ENV.fetch('CONJUR_APPLIANCE_URL', "http://conjur#{ENV['TEST_ENV_NUMBER']}")
   parallel_cuke_vars['DATABASE_URL'] = "postgres://postgres@pg#{ENV['TEST_ENV_NUMBER']}/postgres"
   parallel_cuke_vars['CONJUR_AUTHN_API_KEY'] = ENV["CONJUR_AUTHN_API_KEY#{ENV['TEST_ENV_NUMBER']}"]
   parallel_cuke_vars['AUTHN_LOCAL_SOCKET'] = ENV["AUTHN_LOCAL_SOCKET#{ENV['TEST_ENV_NUMBER']}"]
@@ -42,7 +42,7 @@ Before do
 end
 
 After do
-  FileUtils.remove_dir('cuke_export') if Dir.exists?('cuke_export')
+  FileUtils.remove_dir('cuke_export') if Dir.exist?('cuke_export')
 
   # Revert to original env
   @env.each do |key, value|

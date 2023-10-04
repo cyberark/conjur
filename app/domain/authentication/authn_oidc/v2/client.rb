@@ -97,17 +97,138 @@ module Authentication
           decoded_id_token
         end
 
+        # callback_with_temporary_cert wraps the callback method with commands
+        # to write & clean up a given certificate or cert chain in a given
+        # directory. By default, Conjur's default cert store is used.
+        #
+        # The temporary certificate file name is "x.n", where x is the hash of
+        # the certificate subject name, and n is incrememnted from 0 in case of
+        # collision.
+        #
+        # Unlike self.discover, which wraps a single ::OpenIDConnect method,
+        # callback_with_temporary_cert wraps the entire callback method, which
+        # includes multiple calls to the OIDC provider, including at least one
+        # discover! call. The temporary certs will apply to all required
+        # operations.
+        def callback_with_temporary_cert(
+          code:,
+          nonce:,
+          code_verifier: nil,
+          cert_dir: OpenSSL::X509::DEFAULT_CERT_DIR,
+          cert_string: nil
+        )
+          c = -> { callback(code: code, nonce: nonce, code_verifier: code_verifier) }
+
+          return c.call if cert_string.blank?
+
+          begin
+            certs_a = ::Conjur::CertUtils.parse_certs(cert_string)
+          rescue OpenSSL::X509::CertificateError => e
+            raise Errors::Authentication::AuthnOidc::InvalidCertificate, e.message
+          end
+          raise Errors::Authentication::AuthnOidc::InvalidCertificate, "provided string does not contain a certificate" if certs_a.empty?
+
+          symlink_a = []
+
+          Dir.mktmpdir do |tmp_dir|
+            certs_a.each_with_index do |cert, idx|
+              tmp_file = File.join(tmp_dir, "conjur-oidc-client.#{idx}.pem")
+              File.write(tmp_file, cert.to_s)
+
+              n = 0
+              hash = cert.subject.hash.to_s(16)
+              while true
+                symlink = File.join(cert_dir, "#{hash}.#{n}")
+                break unless File.exist?(symlink)
+
+                n += 1
+              end
+
+              File.symlink(tmp_file, symlink)
+              symlink_a << symlink
+            end
+
+            c.call
+          ensure
+            symlink_a.each{ |s| File.unlink(s) if s.present? && File.symlink?(s) }
+          end
+        end
+
         def discovery_information(invalidate: false)
           @cache.fetch(
             "#{@authenticator.account}/#{@authenticator.service_id}/#{URI::Parser.new.escape(@authenticator.provider_uri)}",
             force: invalidate,
             skip_nil: true
           ) do
-            @discovery_configuration.discover!(@authenticator.provider_uri)
-          rescue HTTPClient::ConnectTimeoutError, Errno::ETIMEDOUT => e
+            self.class.discover(
+              provider_uri: @authenticator.provider_uri,
+              discovery_configuration: @discovery_configuration,
+              cert_string: @authenticator.ca_cert
+            )
+          rescue Errno::ETIMEDOUT => e
             raise Errors::Authentication::OAuth::ProviderDiscoveryTimeout.new(@authenticator.provider_uri, e.message)
           rescue => e
             raise Errors::Authentication::OAuth::ProviderDiscoveryFailed.new(@authenticator.provider_uri, e.message)
+          end
+        end
+
+        # discover wraps ::OpenIDConnect::Discovery::Provider::Config.discover!
+        # with commands to write & clean up a given certificate or cert chain in
+        # a given directory. By default, Conjur's default cert store is used.
+        #
+        # The temporary certificate file name is "x.n", where x is the hash of
+        # the certificate subject name, and n is incremented from 0 in case of
+        # collision.
+        #
+        # discover is a class method, because there are a few contexts outside
+        # this class where the underlying discover! method is used. Call it by
+        # running Authentication::AuthnOIDC::V2::Client.discover(...).
+        def self.discover(
+          provider_uri:,
+          discovery_configuration: ::OpenIDConnect::Discovery::Provider::Config,
+          cert_dir: OpenSSL::X509::DEFAULT_CERT_DIR,
+          cert_string: nil,
+          jwks: false
+        )
+          case jwks
+          when false
+            d = -> { discovery_configuration.discover!(provider_uri) }
+          when true
+            d = -> { discovery_configuration.discover!(provider_uri).jwks }
+          end
+
+          return d.call if cert_string.blank?
+
+          begin
+            certs_a = ::Conjur::CertUtils.parse_certs(cert_string)
+          rescue OpenSSL::X509::CertificateError => e
+            raise Errors::Authentication::AuthnOidc::InvalidCertificate, e.message
+          end
+          raise Errors::Authentication::AuthnOidc::InvalidCertificate, "provided string does not contain a certificate" if certs_a.empty?
+
+          symlink_a = []
+
+          Dir.mktmpdir do |tmp_dir|
+            certs_a.each_with_index do |cert, idx|
+              tmp_file = File.join(tmp_dir, "conjur-oidc-client.#{idx}.pem")
+              File.write(tmp_file, cert.to_s)
+
+              n = 0
+              hash = cert.subject.hash.to_s(16)
+              while true
+                symlink = File.join(cert_dir, "#{hash}.#{n}")
+                break unless File.exist?(symlink)
+
+                n += 1
+              end
+
+              File.symlink(tmp_file, symlink)
+              symlink_a << symlink
+            end
+
+            d.call
+          ensure
+            symlink_a.each{ |s| File.unlink(s) if s.present? && File.symlink?(s) }
           end
         end
       end

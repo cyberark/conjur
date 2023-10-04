@@ -26,26 +26,33 @@ shift # past argument or value
 done
 
 # Flatten resulting image.
+# This script will rewrite all properties of input image (PORT, ENV, WORKDIR, USER, ENTRYPOINT, CMD)
+# instead of hard-coding each of them.
+# shellcheck disable=SC2016
 function flatten() {
   local image="$1"
   echo "Flattening image '$image'..."
-
-  # Since `--squash` is still experimental, we have to flatten the image
-  # by exporting and importing a container based on the source image. By
-  # doing this though, we lose a lot of the Dockerfile variables that are
-  # required for running the image (ENV, EXPOSE, WORKDIR, etc) so we
-  # manually rebuild them.
-  # See here for more details: https://github.com/moby/moby/issues/8334
   local container
   container=$(docker create "$image")
+  local envs
+  envs=$(docker inspect -f '{{range $index, $value := .Config.Env}}{{$value}} {{end}}' "$container")
+  local workDir
+  workDir=$(docker inspect -f '{{ .Config.WorkingDir }}' "$container")
+  local user
+  user=$(docker inspect -f '{{ .Config.User }}' "$container")
+  local entrypoint
+  entrypoint=$(docker inspect -f '[{{range $index, $value := .Config.Entrypoint }}{{if $index}},{{end}}"{{$value}}"{{end}}]' "$container")
+  local cmd
+  cmd=$(docker inspect -f '[{{range $index, $value := .Config.Cmd }}{{if $index}},{{end}}"{{$value}}"{{end}}]' "$container")
+  local ports
+  IFS=":" read -r -a ports <<< "$(docker inspect -f '{{range $port, $empty := .Config.ExposedPorts}}--change:EXPOSE {{$port}}:{{end}}' "$container")"
   docker export "$container" | docker import \
-    --change "ENV PATH /usr/local/pgsql/bin:/var/lib/ruby/bin:/usr/local/ssl/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
-    --change "ENV LD_LIBRARY_PATH /usr/local/ssl/lib" \
-    --change "ENV OPENSSL_FIPS 1" \
-    --change "EXPOSE 80" \
-    --change "ENV RAILS_ENV=production" \
-    --change "WORKDIR /opt/conjur-server" \
-    --change 'ENTRYPOINT ["conjurctl"]' \
+    "${ports[@]}" \
+    --change "ENV $envs" \
+    --change "WORKDIR $workDir" \
+    --change "USER ${user:=0}" \
+    --change "ENTRYPOINT $entrypoint" \
+    --change "CMD $cmd" \
     - "$image"
   docker rm "$container"
 }
@@ -59,7 +66,7 @@ git rev-parse HEAD > conjur_git_commit
 # 1. Always, when we're developing locally
 if [[ $jenkins = false ]]; then
   echo "Building image conjur-dev"
-  docker build -t conjur-dev -f dev/Dockerfile.dev .
+  docker build --tag conjur-dev --file dev/Dockerfile.dev .
   exit 0
 fi
 
@@ -70,16 +77,18 @@ image_doesnt_exist() {
 
 if image_doesnt_exist "conjur-cloud:$TAG"; then
   echo "Building image conjur-cloud:$TAG"
-  docker build -t "conjur-cloud:$TAG" .
+  docker build --pull --tag "conjur-cloud:$TAG" .
   flatten "conjur-cloud:$TAG"
 fi
 
 if image_doesnt_exist "conjur-test:$TAG"; then
   echo "Building image conjur-test:$TAG container"
-  docker build --build-arg "VERSION=$TAG" -t "conjur-test:$TAG" -f Dockerfile.test .
+  docker build --build-arg "VERSION=$TAG" --tag "conjur-test:$TAG" --file Dockerfile.test .
 fi
 
-#if image_doesnt_exist "conjur-ubi-cloud:$TAG"; then
-#  echo "Building image conjur-ubi-cloud:$TAG container"
-#  docker build --build-arg "VERSION=$TAG" -t "conjur-ubi-cloud:$TAG" -f Dockerfile.ubi .
+#if image_doesnt_exist "conjur-ubi:$TAG"; then
+#  echo "Building image conjur-ubi:$TAG container"
+#  docker build --pull --build-arg "VERSION=$TAG" --tag "conjur-ubi:$TAG" --file Dockerfile.ubi .
+#  # Avoid flattening RH image for now, otherwise it fails to pass RH's preflight scan
+#  # flatten "conjur-ubi:$TAG"
 #fi

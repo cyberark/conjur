@@ -30,6 +30,7 @@ ENABLE_AUTHN_IAM=false
 ENABLE_AUTHN_JWT=false
 ENABLE_AUTHN_LDAP=false
 ENABLE_AUTHN_OIDC=false
+ENABLE_METRICS=false
 ENABLE_OIDC_ADFS=false
 ENABLE_OIDC_IDENTITY=false
 ENABLE_OIDC_KEYCLOAK=false
@@ -37,6 +38,7 @@ ENABLE_OIDC_OKTA=false
 ENABLE_ROTATORS=false
 ENABLE_EPHEMERAL_SECRET=false
 IDENTITY_USER=""
+COMPOSE="docker compose"
 
 declare -a required_envvars
 required_envvars[identity]="IDENTITY_CLIENT_ID IDENTITY_CLIENT_SECRET IDENTITY_PROVIDER_URI"
@@ -76,6 +78,8 @@ main() {
   init_jwt
   init_oidc
   init_rotators
+  init_metrics
+
   init_ephemeral_secrets
   # Updates CONJUR_AUTHENTICATORS and restarts required services.
   start_auth_services
@@ -101,6 +105,7 @@ Usage: start [options]
                     'curl -X POST -d "alice" http://localhost:3000/authn-ldap/test/cucumber/alice/authenticate'
     -h, --help      Shows this help message.
     --identity-user Identity user to create in Conjur
+    --metrics       Starts with the prometheus telemetry features enabled
     --oidc-adfs     Adds to authn-oidc adfs static env configuration
     --oidc-identity Starts with authn-oidc/identity as available authenticator.
                     Must be paired with --identity-user flag.
@@ -127,6 +132,7 @@ parse_options() {
       --authn-iam ) ENABLE_AUTHN_IAM=true ; shift ;;
       --authn-jwt ) ENABLE_AUTHN_JWT=true ; ENABLE_OIDC_KEYCLOAK=true ; shift ;;
       --authn-ldap ) ENABLE_AUTHN_LDAP=true ; shift ;;
+      --metrics ) ENABLE_METRICS=true ; shift ;;
       -h | --help ) print_help ; shift ;;
       --identity-user ) IDENTITY_USER="$2" ; shift ; shift ;;
       --oidc-adfs ) ENABLE_AUTHN_OIDC=true ; ENABLE_OIDC_ADFS=true ; shift ;;
@@ -233,6 +239,7 @@ setup_keycloak() {
   pushd "../ci"
   # CC servers can't find it for some reason.  Local shellcheck is fine.
   # shellcheck disable=SC1091
+  export COMPOSE="docker compose"
   source "oauth/keycloak/keycloak_functions.sh"
   popd
 
@@ -298,6 +305,9 @@ configure_oidc_v1() {
   client_load_policy "/src/conjur-server/$policy_path"
   client_add_secret "conjur/authn-oidc/$service_id/provider-uri" "$provider_uri"
   client_add_secret "conjur/authn-oidc/$service_id/id-token-user-property" "$token_property"
+  if [ "$service_id" = "keycloak" ]; then
+    client_add_secret "conjur/authn-oidc/$service_id/ca-cert" "$($COMPOSE exec conjur cat /etc/ssl/certs/keycloak.pem)"
+  fi
 }
 
 configure_oidc_v2() {
@@ -313,6 +323,12 @@ configure_oidc_v2() {
   client_add_secret "conjur/authn-oidc/$service_id/client-secret" "$client_secret"
   client_add_secret "conjur/authn-oidc/$service_id/claim-mapping" "$claim_mapping"
   client_add_secret "conjur/authn-oidc/$service_id/redirect_uri" "http://localhost:3000/authn-oidc/$service_id/cucumber/authenticate"
+  if [ "$service_id" = "keycloak2" ]; then
+    client_add_secret "conjur/authn-oidc/$service_id/ca-cert" "$($COMPOSE exec conjur cat /etc/ssl/certs/keycloak.pem)"
+    # Delete the symlink so we can test with the 'ca-cert' variable
+    hash=$($COMPOSE exec conjur openssl x509 -hash -in /etc/ssl/certs/keycloak.pem -out /dev/null)
+    $COMPOSE exec conjur rm "/etc/ssl/certs/$hash.0" || true
+  fi
 
   client_load_policy "/src/conjur-server/dev/policies/authenticators/authn-oidc/$service_id-users.yml"
 }
@@ -496,6 +512,14 @@ init_iam() {
   docker compose exec conjur \
     conjurctl policy load cucumber \
     "/src/conjur-server/dev/files/authn-iam/policy.yml"
+}
+
+init_metrics() {
+  if [[ $ENABLE_METRICS != true ]]; then
+    return
+  fi
+  env_args+=(-e "CONJUR_TELEMETRY_ENABLED=true")
+  services+=(prometheus node-exporter)
 }
 
 start_auth_services() {

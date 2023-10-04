@@ -71,7 +71,7 @@ pipeline {
   parameters {
     booleanParam(
       name: 'NIGHTLY',
-      defaultValue: false,
+      defaultValue: true,  // Temporarily set to true for all branches
       description: 'Run tests on all agents and environment including: FIPS'
     )
     string(
@@ -304,6 +304,80 @@ pipeline {
 
                   agent { label 'executor-v2-rhel-ee' }
 
+                  environment {
+                    CUCUMBER_FILTER_TAGS = "${params.CUCUMBER_FILTER_TAGS}"
+                  }
+
+                  steps {
+                    addNewImagesToAgent()
+                    unstash 'version_info'
+                    runConjurTests(
+                      params.RUN_ONLY,
+                      NESTED_ARRAY_OF_TESTS_TO_RUN[1]
+                    )
+                  }
+                  post {
+                    always {
+                      stash(
+                        name: 'testResultEE2',
+                        includes: '''
+                          cucumber/*/*.*,
+                          container_logs/*/*,
+                          spec/reports/*.xml,
+                          spec/reports-audit/*.xml,
+                          cucumber/*/features/reports/**/*.xml
+                        '''
+                      )
+                    }
+                  }
+                }
+                // Run a subset of tests on a second agent to prevent oversubscribing the hardware
+                stage('EE FIPS agent3 tests') {
+                  when {
+                    expression {
+                      testShouldRunOnAgent(
+                        params.RUN_ONLY,
+                        runSpecificTestOnAgent(params.RUN_ONLY, NESTED_ARRAY_OF_TESTS_TO_RUN[2])
+                      )
+                    }
+                  }
+
+                  agent { label 'executor-v2-rhel-ee' }
+
+                  environment {
+                    CUCUMBER_FILTER_TAGS = "${params.CUCUMBER_FILTER_TAGS}"
+                  }
+
+                  steps {
+                    addNewImagesToAgent()
+                    unstash 'version_info'
+                    runConjurTests(
+                      params.RUN_ONLY,
+                      NESTED_ARRAY_OF_TESTS_TO_RUN[2]
+                    )
+                  }
+                  post {
+                    always {
+                      stash(
+                        name: 'testResultEE3',
+                        includes: '''
+                          cucumber/*/*.*,
+                          container_logs/*/*,
+                          spec/reports/*.xml,
+                          spec/reports-audit/*.xml,
+                          cucumber/*/features/reports/**/*.xml
+                        '''
+                      )
+                    }
+                  }
+                }
+              }
+            }
+          }
+          post {
+            always {
+              script {
+                if (testShouldRunOnAgent(params.RUN_ONLY, runSpecificTestOnAgent(params.RUN_ONLY, NESTED_ARRAY_OF_TESTS_TO_RUN[0]))) {
                   environment {
                     CUCUMBER_FILTER_TAGS = "${params.CUCUMBER_FILTER_TAGS}"
                   }
@@ -1041,5 +1115,9 @@ def defaultCucumberFilterTags(env) {
   }
 
   // For all other branch builds, only run the @smoke tests by default
-  return '@smoke'
+  // return '@smoke'
+
+  // Temporarily run all tests on all branches. The above line should be
+  // uncommented when 13.1 is released.
+  return ''
 }

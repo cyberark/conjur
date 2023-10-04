@@ -275,6 +275,11 @@ module Errors
         msg: "Access Token retrieval failure: '{0-error}'",
         code: "CONJ00133E"
       )
+
+      InvalidCertificate = ::Util::TrackableErrorClass.new(
+        msg: "Invalid certificate: {0-message}",
+        code: "CONJ00135E"
+      )
     end
 
     module AuthnIam
@@ -746,6 +751,14 @@ module Errors
     ConcurrencyLimitReachedBeforeCacheInitialization = ::Util::TrackableErrorClass.new(
       msg: "Concurrency limited cache reached before cache initialized",
       code: "CONJ00044E"
+    )
+  end
+
+  module Monitoring
+
+    InvalidOrMissingMetricType = ::Util::TrackableErrorClass.new(
+      msg: "Invalid or missing metric type: {0-metric-type}",
+      code: "CONJ00152E"
     )
   end
 end

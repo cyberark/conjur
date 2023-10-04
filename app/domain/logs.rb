@@ -924,4 +924,11 @@ module LogMessages
       code: "CONJ00150W"
     )
   end
+
+  module Monitoring
+    ExceptionDuringRequestRecording = ::Util::TrackableLogMessageClass.new(
+      msg: "Exception during request recording: {0-exception}",
+      code: "CONJ00151D"
+    )
+  end
 end

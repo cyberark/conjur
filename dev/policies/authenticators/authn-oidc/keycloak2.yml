@@ -8,6 +8,11 @@
           id: keycloak2
           body:
           - !webservice
+            id: status
+            annotations:
+              description: Status service to check that the authenticator is configured correctly
+
+          - !webservice
 
           - !variable provider-uri
           - !variable client-id
@@ -15,6 +20,9 @@
 
           # URI of Conjur instance
           - !variable redirect_uri
+
+          # Defines the cert chain to be used for TLS verification
+          - !variable ca-cert
 
           # Defines the JWT claim to use as the Conjur identifier
           - !variable claim-mapping

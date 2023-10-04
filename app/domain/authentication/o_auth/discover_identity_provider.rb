@@ -6,7 +6,7 @@ module Authentication
         logger: Rails.logger,
         open_id_discovery_service: OpenIDConnect::Discovery::Provider::Config
       },
-      inputs: %i[provider_uri]
+      inputs: %i[provider_uri ca_cert]
     ) do
       def call
         log_provider_uri
@@ -28,12 +28,16 @@ module Authentication
       # is used is inside of FetchProviderKeys.  This is unlikely change, and hence
       # unlikely to be a problem
       def discover_provider
-        @discovered_provider = @open_id_discovery_service.discover!(@provider_uri)
+        @discovered_provider = Authentication::AuthnOidc::V2::Client.discover(
+          provider_uri: @provider_uri,
+          discovery_configuration: @open_id_discovery_service,
+          cert_string: @ca_cert
+        )
         @logger.debug(
           LogMessages::Authentication::OAuth::IdentityProviderDiscoverySuccess.new
         )
         @discovered_provider
-      rescue HTTPClient::ConnectTimeoutError, Errno::ETIMEDOUT => e
+      rescue Errno::ETIMEDOUT => e
         raise_error(Errors::Authentication::OAuth::ProviderDiscoveryTimeout, e)
       rescue => e
         raise_error(Errors::Authentication::OAuth::ProviderDiscoveryFailed, e)

@@ -14,6 +14,7 @@ Feature: OIDC Authenticator - Users can authenticate with OIDC & LDAP authentica
       | oidc_client_secret          | KEYCLOAK_CLIENT_SECRET  | 1234                                                            |
       | oidc_provider_uri           | PROVIDER_URI            | https://keycloak:8443/auth/realms/master                        |
       | oidc_id_token_user_property | ID_TOKEN_USER_PROPERTY  | preferred_username                                              |
+      | oidc_ca_cert                | KEYCLOAK_CA_CERT        |                                                                 |
 
     # Configure OIDC authenticator
     And I load a policy:
@@ -28,6 +29,8 @@ Feature: OIDC Authenticator - Users can authenticate with OIDC & LDAP authentica
         id: provider-uri
       - !variable
         id: id-token-user-property
+      - !variable
+        id: ca-cert
       - !group users
       - !permit
         role: !group users
@@ -42,6 +45,7 @@ Feature: OIDC Authenticator - Users can authenticate with OIDC & LDAP authentica
       | variable_id                                       | context_variable            |
       | conjur/authn-oidc/keycloak/id-token-user-property | oidc_id_token_user_property |
       | conjur/authn-oidc/keycloak/provider-uri           | oidc_provider_uri           |
+      | conjur/authn-oidc/keycloak/ca-cert                | oidc_ca_cert                |
 
     # Configure LDAP authenticator
     And I extend the policy with:

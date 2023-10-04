@@ -1,25 +1,34 @@
-FROM cyberark/ubuntu-ruby-fips:2.0.7-697
+FROM cyberark/ubuntu-ruby-builder:latest as builder
 
-ENV DEBIAN_FRONTEND=noninteractive \
-    PORT=80 \
-    LOG_DIR=/opt/conjur-server/log \
-    TMP_DIR=/opt/conjur-server/tmp \
-    SSL_CERT_DIRECTORY=/opt/conjur/etc/ssl
+ENV CONJUR_HOME=/opt/conjur-server
 
-EXPOSE 80
+WORKDIR ${CONJUR_HOME}
 
-RUN apt-get update -y && \
-    apt-get -y dist-upgrade && \
-    apt-get install -y libz-dev
+COPY Gemfile Gemfile.lock ./
+COPY ./gems/ ./gems/
 
-RUN apt-get install -y build-essential \
-                       curl \
-                       git \
-                       ldap-utils \
-                       tzdata \
-    && rm -rf /var/lib/apt/lists/*
+RUN bundle config set --local without 'test development' && \
+    bundle config set --local deployment true && \
+    bundle config set --local path vendor/bundle && \
+    bundle config --local jobs "$(nproc --all)" && \
+    bundle install && \
+    # Remove private keys brought in by gems in their test data
+    find / -name 'openid_connect-*' -type d -exec find {} -name '*.pem' -type f -delete \; && \
+    find / -name 'httpclient-*' -type d -exec find {} -name '*.key' -type f -delete \; && \
+    find / -name 'httpclient-*' -type d -exec find {} -name '*.pem' -type f -delete \;
 
-WORKDIR /opt/conjur-server
+FROM cyberark/ubuntu-ruby-fips:latest
+
+ENV PORT=80 \
+    LOG_DIR=${CONJUR_HOME}/log \
+    TMP_DIR=${CONJUR_HOME}/tmp \
+    SSL_CERT_DIRECTORY=/opt/conjur/etc/ssl \
+    RAILS_ENV=production \
+    CONJUR_HOME=/opt/conjur-server
+
+ENV PATH="${PATH}:${CONJUR_HOME}/bin"
+
+WORKDIR ${CONJUR_HOME}
 
 # Ensure few required GID0-owned folders to run as a random UID (OpenShift requirement)
 RUN mkdir -p $TMP_DIR \
@@ -28,20 +37,9 @@ RUN mkdir -p $TMP_DIR \
              $SSL_CERT_DIRECTORY/cert \
              /run/authn-local
 
-COPY Gemfile \
-     Gemfile.lock ./
-COPY gems/ gems/
-
-
-RUN bundle --without test development
-
 COPY . .
+COPY --from=builder ${CONJUR_HOME} ${CONJUR_HOME}
 
-# removing CA bundle of httpclient gem
-RUN find / -name httpclient -type d -exec find {} -name *.pem -type f -delete \;
-
-RUN ln -sf /opt/conjur-server/bin/conjurctl /usr/local/bin/
-
-ENV RAILS_ENV production
+EXPOSE ${PORT}
 
 ENTRYPOINT [ "conjurctl" ]

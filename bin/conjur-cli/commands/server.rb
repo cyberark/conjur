@@ -1,16 +1,19 @@
 # frozen_string_literal: true
 
 require 'command_class'
+require 'sequel'
 
 # Required to use $CHILD_STATUS
 require 'English'
 
 require_relative 'db/migrate'
+require_relative 'connect_database'
 
 module Commands
   Server ||= CommandClass.new(
     dependencies: {
-      migrate_database: DB::Migrate.new
+      migrate_database: DB::Migrate.new,
+      connect_database: ConnectDatabase.new
     },
 
     inputs: %i[
@@ -19,6 +22,7 @@ module Commands
       file_name
       bind_address
       port
+      no_migrate
     ]
   ) do
     def call
@@ -26,7 +30,9 @@ module Commands
       # and the schema is up-to-date
       @migrate_database.call(
         preview: false
-      )
+      ) unless @no_migrate
+
+      @connect_database.call if @no_migrate
 
       # Create and bootstrap the initial
       # Conjur account and policy

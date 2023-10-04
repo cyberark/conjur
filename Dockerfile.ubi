@@ -1,14 +1,27 @@
+# Ruby builder
+FROM cyberark/ubi-ruby-builder:latest as builder
+
+ENV CONJUR_HOME=/opt/conjur-server
+
+WORKDIR ${CONJUR_HOME}
+
+COPY Gemfile Gemfile.lock ./
+COPY ./gems/ ./gems/
+
+RUN bundle config set --local without 'test development' && \
+    bundle config set --local deployment true && \
+    bundle config set --local path vendor/bundle && \
+    bundle config --local jobs "$(nproc --all)" && \
+    bundle install && \
+    # removing CA bundle of httpclient gem
+    find / -name 'httpclient-*' -type d -exec find {} -name '*.pem' -type f -delete \; && \
+    find / -name 'httpclient-*' -type d -exec find {} -name '*.key' -type f -delete \; && \
+    # remove the private key in the oidc_connect gem spec directory
+    find / -name 'openid_connect-*' -type d -exec find {} -name '*.pem' -type f -delete \;
+
 # Conjur Base Image (UBI)
 FROM cyberark/ubi-ruby-fips:latest
-
-EXPOSE 8080
 ARG VERSION
-
-ENV PORT=8080 \
-    LOG_DIR=/opt/conjur-server/log \
-    TMP_DIR=/opt/conjur-server/tmp \
-    SSL_CERT_DIRECTORY=/opt/conjur/etc/ssl \
-    RAILS_ENV=production
 
 LABEL name="conjur-ubi" \
       vendor="CyberArk" \
@@ -16,6 +29,15 @@ LABEL name="conjur-ubi" \
       release="$VERSION" \
       summary="Conjur UBI-based image" \
       description="Conjur provides secrets management and machine identity for modern infrastructure."
+
+ENV PORT=8080 \
+    LOG_DIR=${CONJUR_HOME}/log \
+    TMP_DIR=${CONJUR_HOME}/tmp \
+    SSL_CERT_DIRECTORY=/opt/conjur/etc/ssl \
+    RAILS_ENV=production \
+    CONJUR_HOME=/opt/conjur-server
+
+ENV PATH="${PATH}:${CONJUR_HOME}/bin"
 
 # Create conjur user with one that has known gid / uid.
 RUN groupadd -r conjur \
@@ -28,7 +50,7 @@ RUN groupadd -r conjur \
             -s /bin/bash \
             -u 777 conjur
 
-WORKDIR /opt/conjur-server
+WORKDIR ${CONJUR_HOME}
 
 # Ensure few required GID0-owned folders to run as a random UID (OpenShift requirement)
 RUN mkdir -p "$TMP_DIR" \
@@ -37,50 +59,23 @@ RUN mkdir -p "$TMP_DIR" \
              "$SSL_CERT_DIRECTORY/cert" \
              /run/authn-local && \
     # Use GID of 0 since that is what OpenShift will want to be able to read things
-    chown conjur:0 "$LOG_DIR" \
+    chown -R conjur:0 "$LOG_DIR" \
                    "$TMP_DIR" \
                    "$SSL_CERT_DIRECTORY" \
+                   "$CONJUR_HOME" \
                    /run/authn-local && \
     # We need open group permissions in these directories since OpenShift won't
     # match our UID when we try to write files to them
-    chmod 770 "$LOG_DIR" \
+    chmod -R 770 "$LOG_DIR" \
               "$TMP_DIR" \
               "$SSL_CERT_DIRECTORY" \
+              "$CONJUR_HOME" \
               /run/authn-local
 
-COPY Gemfile \
-     Gemfile.lock ./
-COPY gems/ gems/
+COPY --chown=conjur:0 . .
+COPY --from=builder --chown=conjur:0 ${CONJUR_HOME} ${CONJUR_HOME}
 
-# Install package dependencies for Conjur
-RUN INSTALL_PKGS="openldap-clients \
-                  tzdata" && \
-    yum install -y --setopt=tsflags=nodocs $INSTALL_PKGS && \
-    rpm -V $INSTALL_PKGS && \
-    yum -y clean all --enablerepo='*'
-
-# Install Gems (and build native gems) for Conjur
-RUN INSTALL_PKGS="gcc \
-                  gcc-c++ \
-                  git \
-                  glibc-devel \
-                  libxml2-devel \
-                  libxslt-devel \
-                  make" && \
-    yum install -y --setopt=tsflags=nodocs $INSTALL_PKGS && \
-    rpm -V $INSTALL_PKGS && \
-    # Install the gems dependencies
-    bundle --without test development && \
-    # Remove the build packages
-    yum remove -y $INSTALL_PKGS && \
-    yum -y clean all --enablerepo='*'
-
-COPY . .
-
-# removing CA bundle of httpclient gem
-RUN find / -name httpclient -type d -exec find {} -name *.pem -type f -delete \;
-
-RUN ln -sf /opt/conjur-server/bin/conjurctl /usr/local/bin/
+EXPOSE ${PORT}
 
 COPY LICENSE.md /licenses/
 

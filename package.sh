@@ -8,14 +8,16 @@ chmod +x docker-debify
 docker run --rm \
   -v "$(pwd)":"$(pwd)" \
   --workdir "$(pwd)" \
-  cyberark/phusion-ruby-fips:latest \
-  sh -c "apt-get update -y && apt-get install -y git && bundle lock --update=conjur-api"
+  cyberark/ubuntu-ruby-builder:latest \
+  sh -c "bundle lock --update=conjur-api"
 
 # Create possum deb
 ./docker-debify package \
   --dockerfile=Dockerfile.fpm \
   --output=deb \
   --version "$(<VERSION)" \
+  --image="cyberark/ubuntu-ruby-builder" \
+  --image-tag="latest" \
   possum \
   -- \
   --depends tzdata
@@ -27,6 +29,8 @@ docker run --rm \
   --dockerfile=Dockerfile.fpm \
   --output=rpm \
   --version "$(<VERSION)" \
+  --image="cyberark/ubuntu-ruby-builder" \
+  --image-tag="latest" \
   possum \
   -- \
   --depends tzdata \

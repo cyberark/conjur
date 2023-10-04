@@ -20,10 +20,13 @@ describe Conjur::ConjurConfig do
 
   it "uses default value if not set by environment variable or config file" do
     expect(subject.trusted_proxies).to eq([])
+    expect(subject.telemetry_enabled).to eq(false)
   end
 
   it "reports the attribute source as :defaults" do
     expect(subject.attribute_sources[:trusted_proxies]).
+      to eq(:defaults)
+    expect(subject.attribute_sources[:telemetry_enabled]).
       to eq(:defaults)
   end
 
@@ -32,6 +35,7 @@ describe Conjur::ConjurConfig do
       <<~YAML
         trusted_proxies:
           - 1.2.3.4
+        telemetry_enabled: true
       YAML
     end
 
@@ -58,10 +62,13 @@ describe Conjur::ConjurConfig do
 
     it "reads config value from file" do
       expect(subject.trusted_proxies).to eq(["1.2.3.4"])
+      expect(subject.telemetry_enabled).to eq(true)
     end
 
     it "reports the attribute source as :yml" do
       expect(subject.attribute_sources[:trusted_proxies]).
+        to eq(:yml)
+      expect(subject.attribute_sources[:telemetry_enabled]).
         to eq(:yml)
     end
 
@@ -121,6 +128,7 @@ describe Conjur::ConjurConfig do
     context "with prefixed env var" do
       before do
         ENV['CONJUR_TRUSTED_PROXIES'] = "5.6.7.8"
+        ENV['CONJUR_TELEMETRY_ENABLED'] = "false"
 
         # Anyway Config caches prefixed env vars at the class level so we must
         # clear the cache to have it pick up the new var with a reload.
@@ -129,6 +137,7 @@ describe Conjur::ConjurConfig do
 
       after do
         ENV.delete('CONJUR_TRUSTED_PROXIES')
+        ENV.delete('CONJUR_TELEMETRY_ENABLED')
 
         # Clear again to make sure we don't affect future tests.
         Anyway.env.clear
@@ -136,10 +145,13 @@ describe Conjur::ConjurConfig do
 
       it "overrides the config file value" do
         expect(subject.trusted_proxies).to eq(["5.6.7.8"])
+        expect(subject.telemetry_enabled).to eq(false)
       end
 
       it "reports the attribute source as :env" do
         expect(subject.attribute_sources[:trusted_proxies]).
+          to eq(:env)
+        expect(subject.attribute_sources[:telemetry_enabled]).
           to eq(:env)
       end
     end
@@ -171,7 +183,8 @@ describe Conjur::ConjurConfig do
     let(:config_kwargs) do
       {
         authenticators: "invalid-authn",
-        trusted_proxies: "boop"
+        trusted_proxies: "boop",
+        telemetry_enabled: "beep"
       }
     end
 
@@ -185,6 +198,8 @@ describe Conjur::ConjurConfig do
         to raise_error(/trusted_proxies/)
       expect { subject }.
         to raise_error(/authenticators/)
+      expect { subject }.
+        to raise_error(/telemetry_enabled/)
     end
 
     it "does not include the value that failed validation" do
@@ -192,6 +207,8 @@ describe Conjur::ConjurConfig do
         to_not raise_error(/boop/)
       expect { subject }.
         to_not raise_error(/invalid-authn/)
+      expect { subject }.
+        to_not raise_error(/beep/)
     end
   end
 
@@ -345,6 +362,13 @@ describe Conjur::ConjurConfig do
         expect(subject.tenant_env).to eq("test")
         expect(subject.tenant_region).to eq("us-east-1")
       end
+    end
+  end
+
+  describe "metrics endpoint is disabled by default", type: :request do
+    it "returns a 401" do
+      get '/metrics'
+      expect(response).to have_http_status(401)
     end
   end
 end
