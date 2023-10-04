@@ -8,6 +8,7 @@ describe WorkloadController, type: :request do
   let(:url_variable) { "/secrets/rspec/variable" }
   before do
     init_slosilo_keys("rspec")
+    ENV['IS_SECRETS_TRANSACTION_ON'] = "YES"
     # Load the test policy into Conjur
 
     put(
@@ -48,18 +49,18 @@ describe WorkloadController, type: :request do
         - !variable secret1
         - !variable secret2
         - !variable secret3
-      
+
 
       - !permit
         resource: !policy dev
         privilege: [ create, update ]
         role: !user alice
-      
+
       - !permit
         resource: !policy test
         privilege: [ create, update ]
         role: !user alice
-      
+
 
       - !permit
         resource: !variable dev/secret1

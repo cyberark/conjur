@@ -11,7 +11,9 @@ class SecretsController < RestController
 
   # Wrap the request in a transaction.
   def run_with_transaction(&block)
-    #Rails.logger.info("+++++++++++++++ Without transaction")
+    if (ENV['IS_SECRETS_TRANSACTION_ON'] == 'YES')
+      Sequel::Model.db.transaction(&block)
+    end
   end
 
   def create
