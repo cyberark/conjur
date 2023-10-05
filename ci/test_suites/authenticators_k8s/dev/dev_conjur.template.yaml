@@ -86,6 +86,10 @@ spec:
         name: conjur
         command: ["conjurctl", "server"]
         env:
+        - name: https_proxy
+          value: 'http://nonexistent_proxy.local'
+        - name: no_proxy
+          value: kubernetes.default.svc
         - name: DATABASE_URL
           value: postgres://postgres@postgres:5432/postgres
         - name: CONJUR_ADMIN_PASSWORD
