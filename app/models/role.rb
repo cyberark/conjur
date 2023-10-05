@@ -170,8 +170,22 @@ class Role < Sequel::Model
     ).first[:is_role_ancestor_of]
   end
 
-  def graph
-    Role.from(Sequel.function(:role_graph, id))
+  # Returns an array of [parent, child] pairs used to construct the role graph
+  # for the given user. Only roles that are visible (readable) to the user are
+  # contained within this response.
+  def graph(user_id)
+    Role.from(Sequel.as(Sequel.function(:role_graph, id), :t1))
+      .join(Sequel.as(
+              Sequel.function(:visible_resources, user_id), 
+              :t2
+            ),
+            # TODO: should we use Logical AND or OR here? Logical OR risks
+            # exposing child roles that are not visible to the user (and vice
+            # versa for parent roles). Or, a separate join might be more
+            # accurate.
+            (Sequel[{ resource_id: :parent }] | Sequel[{ resource_id: :child }]))
+      .select(:parent, :child)
+      .distinct(:parent, :child)
       .order(:parent, :child)
       .all
       .map(&:values)
