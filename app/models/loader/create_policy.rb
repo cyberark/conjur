@@ -24,5 +24,13 @@ module Loader
     def new_roles
       @loader.new_roles
     end
+
+    def track_role_changes(by_table, filter)
+      @loader.track_role_changes(by_table, filter)
+    end
+
+    def updated_roles
+      @loader.updated_roles
+    end
   end
 end

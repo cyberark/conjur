@@ -59,7 +59,7 @@ module Loader
     include Handlers::Password
     include Handlers::PublicKey
 
-    attr_reader :policy_version, :create_records, :delete_records, :new_roles, :schemata
+    attr_reader :policy_version, :create_records, :delete_records, :new_roles, :updated_roles, :schemata
 
     TABLES = %i[roles role_memberships resources permissions annotations]
 
@@ -136,6 +136,15 @@ module Loader
       store_restricted_to
     end
 
+    def track_role_changes(by_table, filter)
+      raise "by_table must be a member of TABLES" unless TABLES.include?(by_table)
+
+      @track_role_changes ||= {}
+      @track_role_changes.key?(by_table) ?
+        @track_role_changes[by_table] = ->(v){ @track_role_changes[by_table].call(v) && filter.call(v) } :
+        @track_role_changes[by_table] = filter
+    end
+
     def table_data schema = ""
       self.class.table_data(policy_version.policy.account, schema)
     end
@@ -158,7 +167,7 @@ module Loader
         begin
           TABLES.each do |table|
             model = Sequel::Model("#{schema}#{table}".to_sym)
-            account_column = TABLE_EQUIVALENCE_COLUMNS[table].include?(:resource_id) ? :resource_id : :role_id
+            account_column = get_id_column(table)
             io.write("#{table}\n")
             sort_columns = TABLE_EQUIVALENCE_COLUMNS[table] + [ :policy_id ]
             tp(*([ model.where("account(#{account_column})".lit => account).order(sort_columns).all ] + TABLE_EQUIVALENCE_COLUMNS[table] + [ :policy_id ]))
@@ -169,6 +178,12 @@ module Loader
         end
         io.rewind
         io.read
+      end
+
+      private
+
+      def get_id_column(table)
+        TABLE_EQUIVALENCE_COLUMNS[table].include?(:resource_id) ? :resource_id : :role_id
       end
     end
 
@@ -294,6 +309,12 @@ module Loader
             WHERE #{join_columns}
           UPDATE
         end
+      end
+
+      @updated_roles ||= {}
+      @track_role_changes.each do  |table, filter|
+        @updated_roles[table] = Sequel::Model(table).all.select(&filter)
+        .map(&self.class.send(:get_id_column, table)).uniq.map{|id| ::Role.new(role_id: id)}
       end
 
       # We want to use the if statement here to wrap the feature flag check
