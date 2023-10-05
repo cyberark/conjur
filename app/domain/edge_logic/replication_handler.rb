@@ -17,17 +17,21 @@ module ReplicationHandler
     results
   end
 
+  def authorize(privilege, resource)
+    return current_user.allowed_to?(privilege, resource)
+  end
+
   def replicate_secrets(limit, offset, options, accepts_base64)
     results = []
     failed = []
 
-    secretsPageFromCache = $redis.get(ENV['TENANT_ID'] + "/secrets/" + "replication/" + offset + "/" + limit + "/page")
-
-    if (secretsPageFromCache.nil?)
-
+    replicatorCachePath = ENV['TENANT_ID'] + "/secrets/" + "replication/replicationInCache/" + offset + "/" + limit
+    replicationInCache = $redis.get(replicatorCachePath)
+    if (replicationInCache.nil?)
+      Rails.logger.info("+++++++++++ replicate_secrets 2 offset = #{offset}, limit = #{limit}, replicatorCachePath=#{replicatorCachePath}")
       variables = build_variables_map(limit, offset, options)
-
       variables.each do |id, variable|
+        Rails.logger.info("+++++++++++ replicate_secrets 3 id = #{id}")
         variableToReturn = {}
         variableToReturn[:id] = id
         variableToReturn[:owner] = variable[:owner_id]
@@ -48,20 +52,59 @@ module ReplicationHandler
           "version": variableToReturn[:version],
           "value": variableToReturn[:value]
         }
+        #Rails.logger.info("+++++++++++ replicate_secrets 4 value = #{value}")
         variableToReturn[:versions] << value
-        begin
-          JSON.generate(variableToReturn)
-          results << variableToReturn
-        rescue => e
-          failed << { "id": id }
-        end
+        JSON.generate(variableToReturn)
+        Rails.logger.info("+++++++++++ replicate_secrets 4.1  id = #{id} variableToReturn = #{variableToReturn}")
+        $redis.set(ENV['TENANT_ID'] + "/secrets/" + "replication/" + id, variableToReturn)
       end
+      $redis.set(replicatorCachePath, "1")
+    end
 
-      $redis.setex(ENV['TENANT_ID'] + "/secrets/" + "replication/" + offset + "/" + limit + "/page", 60, results)
-      $redis.setex(ENV['TENANT_ID'] + "/secrets/" + "replication/" + offset + "/" + limit + "/page/failed", 60, failed)
-    else
-      results = secretsPageFromCache
-      failed = $redis.get(ENV['TENANT_ID'] + "/secrets/" + "replication/" + offset + "/" + limit + "/page/failed")
+    #query_str = "SELECT t.* FROM (SELECT resource_id FROM resources WHERE owner_id='" + current_user.id + "' UNION SELECT resource_id FROM permissions WHERE role_id='"  +
+    #  current_user.id + "') t ORDER BY t.resource_id LIMIT " + limit.to_s + " OFFSET " + offset.to_s
+
+    #query_str = "SELECT t.* FROM (SELECT resource_id FROM resources WHERE owner_id='" + current_user.id + "') t ORDER BY t.resource_id LIMIT " + limit.to_s + " OFFSET " + offset.to_s
+
+    #query_str = "SELECT resource_id FROM resources WHERE owner_id='" + current_user.id + "' AND (resource_id LIKE '" + options[:account] + ":variable:data/%')"
+
+    #query_str = "SELECT owner_id, resource_id FROM resources WHERE (resource_id LIKE '" + options[:account] + ":variable:data/%')"
+
+    #query_str = "SELECT resource_id FROM permissions WHERE role_id='" +  current_user.id + "'"
+    #query_str = "SELECT resource_id, role_id FROM permissions WHERE (resource_id LIKE '" + options[:account] + ":variable:data/%')"
+
+    query_str = "WITH all_roles AS (SELECT role_id FROM all_roles('conjur:user:admin'))
+    SELECT t.resource_id FROM (
+      SELECT role_id, resources.resource_id FROM all_roles, resources
+      WHERE owner_id = role_id
+        AND resource_id LIKE '" + options[:account] + ":variable:data/%'
+    UNION
+      SELECT role_id, resources.resource_id FROM ( all_roles JOIN permissions USING ( role_id ) ) JOIN resources USING ( resource_id )
+      WHERE privilege = 'execute'
+        AND resource_id LIKE '" + options[:account] + ":variable:data/%'
+    ) t GROUP BY t.resource_id ORDER BY t.resource_id LIMIT " + limit.to_s + " OFFSET " + offset.to_s
+
+    Rails.logger.info("+++++++++++ replicate_secrets 5 query_str = #{query_str}")
+    Sequel::Model.db.fetch(query_str) do |row|
+        #Rails.logger.info("+++++++++++ replicate_secrets 6 row = #{row}")
+
+    #resourceKeys = $redis.keys(ENV['TENANT_ID'] + "/secrets/" + "replication/*")
+    #resourceKeys.each do |redis_id|
+        #Rails.logger.info("+++++++++++ replicate_secrets 6 id = #{id}")
+        resourceObj = Resource.new()
+        resourceObj.resource_id = row[:resource_id] #redis_id.sub(ENV['TENANT_ID'] + "/secrets/" + "replication/", "")
+
+        #if (authorize(:execute, resourceObj))
+          redis_id = ENV['TENANT_ID'] + "/secrets/" + "replication/" + row[:resource_id]
+          variableToReturn = $redis.get(redis_id)
+          Rails.logger.info("+++++++++++ replicate_secrets 7 resourceObj.resource_id = #{resourceObj.resource_id}, variableToReturn = #{variableToReturn}")
+          begin
+            JSON.generate(variableToReturn)
+            results << variableToReturn
+          rescue => e
+            failed << { "id": id }
+          end
+      #end
     end
 
     [results, failed]
