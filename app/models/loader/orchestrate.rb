@@ -59,7 +59,7 @@ module Loader
     include Handlers::Password
     include Handlers::PublicKey
 
-    attr_reader :policy_version, :create_records, :delete_records, :new_roles, :updated_roles, :schemata
+    attr_reader :policy_version, :create_records, :delete_records, :new_roles, :schemata
 
     TABLES = %i[roles role_memberships resources permissions annotations]
 
@@ -311,10 +311,9 @@ module Loader
         end
       end
 
-      @updated_roles ||= {}
       @track_role_changes.each do  |table, filter|
-        @updated_roles[table] = Sequel::Model(table).all.select(&filter)
-        .map(&self.class.send(:get_id_column, table)).uniq.map{|id| ::Role.new(role_id: id)}
+        updated_roles.concat(Sequel::Model(table).all.select(&filter)
+        .map(&self.class.send(:get_id_column, table)).uniq.map{|id| ::Role.new(role_id: id)})
       end
 
       # We want to use the if statement here to wrap the feature flag check
@@ -327,6 +326,10 @@ module Loader
         )
       end
       # rubocop:enable Style/GuardClause
+    end
+
+    def updated_roles
+      @updated_roles ||= []
     end
 
     # Copy all remaining records in the new schema into the master schema.

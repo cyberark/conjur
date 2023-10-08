@@ -31,10 +31,11 @@ class PoliciesController < RestController
   def perform(policy_action)
     policy_action.track_role_changes(:annotations, ->(a) { a.name == 'authn/api-key'})
     policy_action.call
-    new_actor_roles = actor_roles(policy_action.new_roles)
-    modified_roles = create_roles(new_actor_roles)
-    updated_roles = policy_action.updated_roles
-    modified_roles.merge(update_roles(updated_roles))
+    new_actor_roles = actor_roles(policy_action.new_roles, %w[user host])
+    created_roles = create_roles(new_actor_roles)
+    updated_actor_roles = actor_roles(policy_action.updated_roles, %w[host])
+    updated_roles = update_roles(updated_actor_roles)
+    created_roles.merge(updated_roles)
   end
 
   def find_or_create_root_policy
@@ -114,9 +115,9 @@ class PoliciesController < RestController
     policy_version.save
   end
 
-  def actor_roles(roles)
+  def actor_roles(roles, kinds)
     roles.select do |role|
-      %w[user host].member?(role.kind)
+      kinds.member?(role.kind)
     end
   end
 
@@ -129,7 +130,7 @@ class PoliciesController < RestController
   end
 
   def update_roles(actor_roles)
-    actor_roles[:annotations].each_with_object({}) do |role, memo|
+    actor_roles.each_with_object({}) do |role, memo|
       credentials = Credentials[role_id: role.id]
       credentials.api_key = role.api_key
       credentials.save

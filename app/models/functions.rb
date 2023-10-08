@@ -127,5 +127,34 @@ class Functions
         DROP FUNCTION IF EXISTS #{table}_next_version();
       COUNTER_TRIGGER
     end
+
+    def create_authn_ann_trigger_sql(primary_schema)
+      <<-ANNOTATION_DELETION
+       CREATE OR REPLACE FUNCTION delete_api_key_by_annotation()
+        RETURNS TRIGGER AS $$     
+        BEGIN
+          -- Check if the deleted entry has 'name' = 'authn/api-key'
+          IF OLD.name = 'authn/api-key' THEN
+            -- Set 'api-key' in 'credentials' table to NULL where 'resource_id' matches 'role_id'
+            UPDATE #{primary_schema}.credentials
+            SET api_key = NULL
+            WHERE role_id = OLD.resource_id;
+          END IF;
+          RETURN OLD;
+        END;
+        $$ LANGUAGE plpgsql STRICT;
+        
+        CREATE TRIGGER trigger_delete_api_key_by_annotation_trigger
+        BEFORE DELETE ON annotations
+        FOR EACH ROW
+        EXECUTE FUNCTION delete_api_key_by_annotation();
+      ANNOTATION_DELETION
+    end
+
+    def drop_authn_anno_trigger_sql
+      <<-ANNOTATION_DELETION
+        DROP TRIGGER IF EXISTS trigger_delete_api_key_by_annotation_trigger ON annotations;
+      ANNOTATION_DELETION
+    end
   end
 end
