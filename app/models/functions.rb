@@ -134,7 +134,7 @@ class Functions
         RETURNS TRIGGER AS $$     
         BEGIN
           -- Check if the deleted entry has 'name' = 'authn/api-key'
-          IF OLD.name = 'authn/api-key' THEN
+          IF OLD.name = 'authn/api-key' AND OLD.value = 'true' THEN
             -- Set 'api-key' in 'credentials' table to NULL where 'resource_id' matches 'role_id'
             UPDATE #{primary_schema}.credentials
             SET api_key = NULL

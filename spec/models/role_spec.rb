@@ -2,6 +2,8 @@
 
 require 'spec_helper'
 
+include Authentication::OptionalApiKey
+
 describe Role, :type => :model do
   include_context "create user"
 
@@ -46,17 +48,17 @@ describe Role, :type => :model do
     subject(:role) {  Role.create(role_id: "rspec:host:#{login}") }
 
     it "has API key when annotation is set to true" do
-      allow(subject).to receive(:annotations).and_return([Annotation.new(name: "authn/api-key", value: "true")])
+      allow(subject).to receive(:annotations).and_return([Annotation.new(name: AUTHN_ANNOTATION, value: "true")])
       expect(subject.api_key).to be_present
     end
 
     it "has API key when annotation is set to false" do
-      allow(subject).to receive(:annotations).and_return([Annotation.new(name: "authn/api-key", value: "false")])
+      allow(subject).to receive(:annotations).and_return([Annotation.new(name: AUTHN_ANNOTATION, value: "false")])
       expect(subject.api_key).to be_nil
     end
 
     it "has API key when annotation is set to blabla" do
-      allow(subject).to receive(:annotations).and_return([Annotation.new(name: "authn/api-key", value: "blabla")])
+      allow(subject).to receive(:annotations).and_return([Annotation.new(name: AUTHN_ANNOTATION, value: "blabla")])
       expect(subject.api_key).to be_nil
     end
 

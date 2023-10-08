@@ -8,6 +8,7 @@ require_relative 'templates_renderer'
 module PolicyWrapper
   extend ActiveSupport::Concern
   include PolicyTemplates::TemplatesRenderer
+  include Authentication::OptionalApiKey
 
   def load_policy(loader_class, delete_permitted, resource)
     begin
@@ -47,14 +48,18 @@ module PolicyWrapper
   end
 
   def perform(policy_action)
+    policy_action.track_role_changes(:annotations, ->(a) { annotation_relevant?(a) })
     policy_action.call
-    new_actor_roles = actor_roles(policy_action.new_roles)
-    create_roles(new_actor_roles)
+    new_actor_roles = actor_roles(policy_action.new_roles, %w[user host])
+    created_roles = create_roles(new_actor_roles)
+    updated_actor_roles = actor_roles(policy_action.updated_roles, %w[host])
+    updated_roles = update_roles(updated_actor_roles)
+    created_roles.merge(updated_roles)
   end
 
-  def actor_roles(roles)
+  def actor_roles(roles, kinds)
     roles.select do |role|
-      %w[user host].member?(role.kind)
+      kinds.member?(role.kind)
     end
   end
 
@@ -63,6 +68,14 @@ module PolicyWrapper
       credentials = Credentials[role: role] || Credentials.create(role: role)
       role_id = role.id
       memo[role_id] = { id: role_id, api_key: credentials.api_key }
+    end
+  end
+
+  def update_roles(actor_roles)
+    actor_roles.each_with_object({}) do |role, memo|
+      api_key = update_role_credentials(role)
+      role_id = role.id
+      memo[role_id] = { id: role_id, api_key: api_key }
     end
   end
 end

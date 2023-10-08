@@ -3,6 +3,7 @@
 class PoliciesController < RestController
   include FindResource
   include AuthorizeResource
+  include Authentication::OptionalApiKey
   
   before_action :current_user
   before_action :find_or_create_root_policy
@@ -29,7 +30,7 @@ class PoliciesController < RestController
 
   # Returns newly created roles
   def perform(policy_action)
-    policy_action.track_role_changes(:annotations, ->(a) { a.name == 'authn/api-key'})
+    policy_action.track_role_changes(:annotations, ->(a) { annotation_relevant?(a) })
     policy_action.call
     new_actor_roles = actor_roles(policy_action.new_roles, %w[user host])
     created_roles = create_roles(new_actor_roles)
@@ -131,11 +132,9 @@ class PoliciesController < RestController
 
   def update_roles(actor_roles)
     actor_roles.each_with_object({}) do |role, memo|
-      credentials = Credentials[role_id: role.id]
-      credentials.api_key = role.api_key
-      credentials.save
+      api_key = update_role_credentials(role)
       role_id = role.id
-      memo[role_id] = { id: role_id, api_key: credentials.api_key }
+      memo[role_id] = { id: role_id, api_key: api_key }
     end
   end
 end
