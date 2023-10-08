@@ -311,10 +311,7 @@ module Loader
         end
       end
 
-      @track_role_changes.each do  |table, filter|
-        updated_roles.concat(Sequel::Model(table).all.select(&filter)
-        .map(&self.class.send(:get_id_column, table)).uniq.map{|id| ::Role.new(role_id: id)})
-      end
+      compute_updated_roles
 
       # We want to use the if statement here to wrap the feature flag check
       # rubocop:disable Style/GuardClause
@@ -346,7 +343,7 @@ module Loader
         )
       end
 
-      @new_roles = ::Role.all
+      @new_roles ||= ::Role.all
 
       in_primary_schema do
         disable_policy_log_trigger
@@ -540,6 +537,21 @@ module Loader
     # [docs](https://www.rubydoc.info/github/jeremyevans/sequel/Sequel/ShardedThreadedConnectionPool)
     def release_db_connection
       Sequel::Model.db.disconnect
+    end
+
+    private
+
+    def compute_updated_roles
+      updated_roles_by_table = []
+      @track_role_changes.each do |table, filter|
+        updated_roles_by_table.concat(Sequel::Model(table).all.select(&filter)
+                                                     .map(&self.class.send(:get_id_column, table)).uniq)
+      end
+      @new_roles ||= ::Role.all
+      new_role_ids = @new_roles.map(&:role_id)
+      updated_roles_by_table.reject! { |role| new_role_ids.include?(role) }
+      updated_roles_by_table.uniq!
+      @updated_roles = updated_roles_by_table.map{ |id| Role.new(role_id: id)}
     end
   end
   # rubocop:enable Metrics/ClassLength
