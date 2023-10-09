@@ -136,13 +136,12 @@ module Loader
       store_restricted_to
     end
 
-    def track_role_changes(by_table, filter)
+    def track_role_changes_by_table(by_table, filter)
       raise "by_table must be a member of TABLES" unless TABLES.include?(by_table)
 
-      @track_role_changes ||= {}
-      @track_role_changes.key?(by_table) ?
-        @track_role_changes[by_table] = ->(v){ @track_role_changes[by_table].call(v) && filter.call(v) } :
-        @track_role_changes[by_table] = filter
+      track_role_changes.key?(by_table) ?
+        track_role_changes[by_table] = ->(v){ track_role_changes[by_table].call(v) && filter.call(v) } :
+        track_role_changes[by_table] = filter
     end
 
     def table_data schema = ""
@@ -543,7 +542,7 @@ module Loader
 
     def compute_updated_roles
       updated_roles_by_table = []
-      @track_role_changes.each do |table, filter|
+      track_role_changes.each do |table, filter|
         updated_roles_by_table.concat(Sequel::Model(table).all.select(&filter)
                                                      .map(&self.class.send(:get_id_column, table)).uniq)
       end
@@ -552,6 +551,10 @@ module Loader
       updated_roles_by_table.reject! { |role| new_role_ids.include?(role) }
       updated_roles_by_table.uniq!
       @updated_roles = updated_roles_by_table.map{ |id| Role.new(role_id: id)}
+    end
+
+    def track_role_changes
+      @track_role_changes ||= {}
     end
   end
   # rubocop:enable Metrics/ClassLength

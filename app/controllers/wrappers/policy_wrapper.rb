@@ -48,7 +48,7 @@ module PolicyWrapper
   end
 
   def perform(policy_action)
-    policy_action.track_role_changes(:annotations, ->(a) { annotation_relevant?(a) })
+    policy_action.track_role_changes_by_table(:annotations, ->(a) { annotation_relevant?(a) })
     policy_action.call
     new_actor_roles = actor_roles(policy_action.new_roles, %w[user host])
     created_roles = create_roles(new_actor_roles)
