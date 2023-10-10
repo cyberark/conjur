@@ -258,18 +258,16 @@ module RestHelpers
   def create_role roleid, owner, api_key_annotation=false
     return if roles[roleid]
 
-    resource = Resource.create(resource_id: roleid, owner: owner)
-    # If needed add the annotation to create api key
-    puts "roleid:#{roleid}; api_key:#{api_key_annotation}"
-    if api_key_annotation
-      puts "adding annotation"
-      resource.annotations <<
-        Annotation.create(resource: resource,
-                          name: "authn/api-key",
-                          value: "true")
-    end
-
+    #resource = Resource.create(resource_id: roleid, owner: owner)
     Role.create(role_id: roleid).tap do |role|
+      resource = Resource.create(resource_id: roleid, owner: owner)
+      # If needed add the annotation to create api key
+      if api_key_annotation
+        role.annotations <<
+          Annotation.create(resource: resource,
+                            name: "authn/api-key",
+                            value: "true")
+      end
       Credentials[role: role] || Credentials.new(role: role).save(raise_on_save_failure: true)
       roles[roleid] = role
     end
