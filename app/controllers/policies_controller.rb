@@ -31,7 +31,9 @@ class PoliciesController < RestController
   def perform(policy_action)
     policy_action.call
     new_actor_roles = actor_roles(policy_action.new_roles)
-    create_roles(new_actor_roles)
+    created_roles = create_roles(new_actor_roles)
+    updated_roles = update_roles
+    created_roles.merge(updated_roles)
   end
 
   def find_or_create_root_policy
@@ -121,6 +123,15 @@ class PoliciesController < RestController
     actor_roles.each_with_object({}) do |role, memo|
       credentials = Credentials[role: role] || Credentials.create(role: role)
       role_id = role.id
+      memo[role_id] = { id: role_id, api_key: credentials.api_key }
+    end
+  end
+
+  # If annotation authn/api-key changed from false to true during policy load,
+  # the DB trigger set it to APIKEY. We need to update the api_key to a real one.
+  def update_roles
+    Credentials.where(api_key: 'APIKEY').each_with_object({}) do |credentials, memo|
+      role_id = credentials.role_id
       memo[role_id] = { id: role_id, api_key: credentials.api_key }
     end
   end

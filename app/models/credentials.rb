@@ -95,6 +95,16 @@ class Credentials < Sequel::Model
     self.api_key ||= self.class.random_api_key if self.role.api_key_expected?
   end
 
+  def api_key
+    # api_key is set to 'APIKEY' by trigger in case authn/api-key is set to true
+    # In this case, we want to rotate the api key to a real value
+    if self[:api_key] == 'APIKEY'
+      rotate_api_key
+      save_changes
+    end
+    super()
+  end
+
   def rotate_api_key
     if self.role.api_key_expected?
       self.api_key = self.class.random_api_key

@@ -3,6 +3,7 @@
 require('net/http')
 require('uri')
 
+include Authentication::OptionalApiKey
 # Utility methods for making API requests
 #
 module RestHelpers
@@ -265,7 +266,7 @@ module RestHelpers
       if api_key_annotation
         role.annotations <<
           Annotation.create(resource: resource,
-                            name: "authn/api-key",
+                            name: AUTHN_ANNOTATION,
                             value: "true")
       end
       Credentials[role: role] || Credentials.new(role: role).save(raise_on_save_failure: true)

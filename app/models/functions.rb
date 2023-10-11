@@ -127,5 +127,71 @@ class Functions
         DROP FUNCTION IF EXISTS #{table}_next_version();
       COUNTER_TRIGGER
     end
+
+    def create_authn_ann_trigger_sql(primary_schema)
+      <<-ANNOTATION_SET
+        CREATE OR REPLACE FUNCTION insert_api_key_by_annotation()
+        RETURNS TRIGGER AS $$     
+        BEGIN
+          IF NEW.name = 'authn/api-key' AND NEW.value = 'true' THEN
+            UPDATE #{primary_schema}.credentials
+            SET api_key = 'APIKEY'
+            WHERE role_id = NEW.resource_id;
+          END IF;
+          RETURN NEW;
+        END;
+        $$ LANGUAGE plpgsql STRICT;        
+        CREATE TRIGGER insert_api_key_by_annotation_trigger
+        AFTER INSERT ON annotations
+        FOR EACH ROW
+        EXECUTE FUNCTION insert_api_key_by_annotation();
+
+      CREATE OR REPLACE FUNCTION update_api_key_by_annotation()
+        RETURNS TRIGGER AS $$     
+        BEGIN
+          IF OLD.name = 'authn/api-key' AND NEW.name = 'authn/api-key' THEN
+            IF OLD.value = 'true' AND NEW.value != 'true' THEN
+              UPDATE #{primary_schema}.credentials
+              SET api_key = NULL
+              WHERE role_id = OLD.resource_id;
+            ELSIF OLD.value != 'true' AND NEW.value = 'true' THEN
+              UPDATE #{primary_schema}.credentials
+              SET api_key = 'APIKEY'
+              WHERE role_id = OLD.resource_id;
+            END IF;
+          END IF;
+          RETURN NEW;
+        END;
+        $$ LANGUAGE plpgsql STRICT;        
+        CREATE TRIGGER update_api_key_by_annotation_trigger
+        AFTER UPDATE ON annotations
+        FOR EACH ROW
+        EXECUTE FUNCTION update_api_key_by_annotation();
+
+        CREATE OR REPLACE FUNCTION delete_api_key_by_annotation()
+        RETURNS TRIGGER AS $$     
+        BEGIN
+          IF OLD.name = 'authn/api-key' AND OLD.value = 'true' THEN
+            UPDATE #{primary_schema}.credentials
+            SET api_key = NULL
+            WHERE role_id = OLD.resource_id;
+          END IF;
+          RETURN OLD;
+        END;
+        $$ LANGUAGE plpgsql STRICT;        
+        CREATE TRIGGER delete_api_key_by_annotation_trigger
+        BEFORE DELETE ON annotations
+        FOR EACH ROW
+        EXECUTE FUNCTION delete_api_key_by_annotation();
+      ANNOTATION_SET
+    end
+
+    def drop_authn_anno_trigger_sql
+      <<-ANNOTATION_SET
+        DROP TRIGGER IF EXISTS insert_api_key_by_annotation_trigger ON annotations;
+        DROP TRIGGER IF EXISTS update_api_key_by_annotation_trigger ON annotations;
+        DROP TRIGGER IF EXISTS delete_api_key_by_annotation_trigger ON annotations;
+      ANNOTATION_SET
+    end
   end
 end

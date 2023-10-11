@@ -2,6 +2,7 @@
 
 require 'spec_helper'
 
+include Authentication::OptionalApiKey
 describe "HostFactory" do
   include_context "create user"
 
@@ -96,12 +97,12 @@ describe "HostFactory" do
         end
 
         context 'when creating host with api-key annotation true' do
-          let(:options) { {annotations: {'authn/api-key' => true}} }
+          let(:options) { {annotations: { AUTHN_ANNOTATION => true}} }
           it { expect { host_builder.create_host }.to_not raise_error }
         end
 
         context 'when creating host with api-key annotation false' do
-          let(:options) { {annotations: {'authn/api-key' => false}} }
+          let(:options) { {annotations: {AUTHN_ANNOTATION => false}} }
           it { expect { host_builder.create_host }.to_not raise_error }
         end
 
@@ -116,17 +117,17 @@ describe "HostFactory" do
         end
 
         context 'when creating host with api-key annotation true' do
-          let(:options) { {annotations: {'authn/api-key' => true}} }
+          let(:options) { {annotations: {AUTHN_ANNOTATION => true}} }
           it { expect { host_builder.create_host }.to_not raise_error }
         end
 
         context 'when creating host with api-key annotation false' do
-          let(:options) { {annotations: {'authn/api-key' => false}} }
+          let(:options) { {annotations: {AUTHN_ANNOTATION => false}} }
           it { expect { host_builder.create_host }.to raise_error }
         end
 
         context 'when creating host with api-key annotation False capital' do
-          let(:options) { {annotations: {'authn/api-key' => "FALSE"}} }
+          let(:options) { {annotations: {AUTHN_ANNOTATION => "FALSE"}} }
           it { expect { host_builder.create_host }.to raise_error }
         end
 
@@ -142,22 +143,22 @@ describe "HostFactory" do
         end
 
         context 'when creating host with api-key annotation true' do
-          let(:options) { {annotations: {'authn/api-key' => 'true'}} }
+          let(:options) { {annotations: {AUTHN_ANNOTATION => 'true'}} }
           it { expect(host_builder.create_host[1]).not_to be_nil } # create_host returns [host, api_key]
         end
 
         context 'when creating host with api-key annotation true' do
-          let(:options) { {annotations: {'authn/api-key' => 'TRUE'}} }
+          let(:options) { {annotations: {AUTHN_ANNOTATION => 'TRUE'}} }
           it { expect(host_builder.create_host[1]).not_to be_nil } # create_host returns [host, api_key]
         end
 
         context 'when creating host with api-key annotation false' do
-          let(:options) { {annotations: {'authn/api-key' => false}} }
+          let(:options) { {annotations: {AUTHN_ANNOTATION => false}} }
           it { expect(host_builder.create_host[1]).to be_nil } # create_host returns [host, api_key]
         end
 
         context 'when creating host with api-key annotation False capital' do
-          let(:options) { {annotations: {'authn/api-key' => "FALSE"}} }
+          let(:options) { {annotations: {AUTHN_ANNOTATION => "FALSE"}} }
           it { expect(host_builder.create_host[1]).to be_nil } # create_host returns [host, api_key]
         end
 
