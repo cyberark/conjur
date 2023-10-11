@@ -4,7 +4,7 @@ Feature: Fetching host from edge endpoint
   Background:
     Given I create a new user "some_user"
     And I have host "data/some_host2"
-    And I have host "data/some_host3"
+    And I have host "data/some_host3" without api key
     And I have host "data/some_host4"
     And I have host "data/some_host5"
     And I have host "other_host1"
@@ -62,6 +62,10 @@ Feature: Fetching host from edge endpoint
     """
     [{"name": "authn/api-key", "value": "true"}]
     """
+    #And the JSON at "hosts/2/annotations" should be:
+    #"""
+    #[]
+    #"""
 
   @acceptance
   Scenario: Fetching hosts with parameters
