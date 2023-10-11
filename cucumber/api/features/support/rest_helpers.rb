@@ -250,17 +250,25 @@ module RestHelpers
   end
 
   # Create a regular host, owned by the admin user
-  def create_host login, owner
+  def create_host login, owner, api_key_annotation=true
     roleid = "cucumber:host:#{login}"
-    create_role(roleid, owner)
+    create_role(roleid, owner, api_key_annotation)
   end
 
-  def create_role roleid, owner
+  def create_role roleid, owner, api_key_annotation=false
     return if roles[roleid]
 
+    #resource = Resource.create(resource_id: roleid, owner: owner)
     Role.create(role_id: roleid).tap do |role|
+      resource = Resource.create(resource_id: roleid, owner: owner)
+      # If needed add the annotation to create api key
+      if api_key_annotation
+        role.annotations <<
+          Annotation.create(resource: resource,
+                            name: "authn/api-key",
+                            value: "true")
+      end
       Credentials[role: role] || Credentials.new(role: role).save(raise_on_save_failure: true)
-      Resource.create(resource_id: roleid, owner: owner)
       roles[roleid] = role
     end
   end
@@ -362,6 +370,9 @@ module RestHelpers
       patterns["#{key}_api_key"] = val.credentials.api_key
     end
     patterns.each do |key, val|
+      if val.nil?
+        val = ""
+      end
       str.gsub!(":#{key}", val)
       str.gsub!("@#{key}@", val)
       str.gsub!(CGI.escape(":#{key}"), CGI.escape(val))

@@ -9,6 +9,7 @@ Feature: Exchange a role's API key for a signed authentication token
   Background:
     Given I create a new user "alice"
     And I have host "app"
+    And I have host "appNoApiKey" without api key
 
   @smoke
   Scenario: A role's API key can be used to authenticate
@@ -163,6 +164,21 @@ Feature: Exchange a role's API key for a signed authentication token
       [action@43868 result="failure" operation="authenticate"]
       cucumber:host:app failed to authenticate with authenticator authn
     """
+
+  #@negative @acceptance
+  #Scenario: Attempting to use host API key to authenticate host without api key result in 401 error
+  #  Given I save my place in the audit log file for remote
+  #  When I POST "/authn/cucumber/host%2FappNoApiKey/authenticate" with plain text body ""
+  #  Then the HTTP response status code is 401
+  #  And there is an audit record matching:
+  #  """
+  #    <84>1 * * conjur * authn
+  #    [subject@43868 role="cucumber:host:appNoApiKey"]
+  #    [auth@43868 user="cucumber:host:appNoApiKey" authenticator="authn" service="cucumber:webservice:conjur/authn"]
+  #    [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
+  #    [action@43868 result="failure" operation="authenticate"]
+  #    cucumber:host:appNoApiKey failed to authenticate with authenticator authn
+  #  """
 
   @negative @acceptance
   Scenario: Attempting to use an invalid API key to authenticate with Accept-Encoding base64 result in 401 error

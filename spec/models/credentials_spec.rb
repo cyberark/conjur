@@ -136,7 +136,17 @@ describe Credentials, :type => :model do
         expect(credentials.valid_password?(password)).to be_truthy
       end
     end
-    
+
+    describe "role without api key" do
+      before {
+        credentials.api_key = nil
+        credentials.save
+      }
+      it "doesn't have a valid API key" do
+        expect(credentials.valid_api_key?("")).to be(false)
+      end
+    end
+
     describe "with expiration" do
       let(:now) { Time.now }
       let(:past) { now - 1.second }
