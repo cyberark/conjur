@@ -5,14 +5,20 @@ module ReplicationHandler
     roles_with_creds = scope.eager(:credentials)
     hosts = Role.roles_with_annotations(roles_with_creds).all
     hosts.each do |host|
-      hostToReturn = {}
-      hostToReturn[:id] = host[:role_id]
-      salt = OpenSSL::Random.random_bytes(32)
-      hostToReturn[:api_key] = Base64.strict_encode64(hmac_api_key(host.api_key, salt))
-      hostToReturn[:salt] = Base64.strict_encode64(salt)
-      hostToReturn[:memberships] = host.all_roles.all.select { |h| h[:role_id] != (host[:role_id]) }
-      hostToReturn[:annotations] = host[:annotations] == "[null]" ? [] : JSON.parse(host[:annotations])
-      results << hostToReturn
+      host_to_return = {}
+      host_to_return[:id] = host[:role_id]
+      host_api_key = host.api_key
+      if host_api_key.nil?
+        host_to_return[:api_key] = ""
+        host_to_return[:salt] = ""
+      else
+        salt = OpenSSL::Random.random_bytes(32)
+        host_to_return[:api_key] = Base64.strict_encode64(hmac_api_key(host.api_key, salt))
+        host_to_return[:salt] = Base64.strict_encode64(salt)
+      end
+      host_to_return[:memberships] = host.all_roles.all.select { |h| h[:role_id] != (host[:role_id]) }
+      host_to_return[:annotations] = host[:annotations] == "[null]" ? [] : JSON.parse(host[:annotations])
+      results << host_to_return
     end
     results
   end

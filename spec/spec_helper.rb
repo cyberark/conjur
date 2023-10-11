@@ -168,3 +168,23 @@ def token_auth_header(role:, account: 'rspec', is_user: true)
 
   { 'HTTP_AUTHORIZATION' => "Token token=\"#{base64_token}\"" }
 end
+
+def create_host(host_id, owner, api_key_annotation=true)
+  host_role = Role.create(role_id: host_id)
+  host_role.tap do |role|
+    resource = Resource.create(resource_id: host_id, owner: owner)
+    # If needed add the annotation to create api key
+    if api_key_annotation
+      role.annotations <<
+        Annotation.create(resource: resource,
+                          name: "authn/api-key",
+                          value: "true")
+    end
+    Credentials[role: role] || Credentials.new(role: role).save(raise_on_save_failure: true)
+  end
+  host_role
+end
+
+def create_host_without_apikey(host_id, owner)
+  create_host(host_id, owner, false)
+end
