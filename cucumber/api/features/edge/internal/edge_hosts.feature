@@ -60,7 +60,7 @@ Feature: Fetching host from edge endpoint
     """
     And the JSON at "hosts/1/annotations" should be:
     """
-    []
+    [{"name": "authn/api-key", "value": "true"}]
     """
 
   @acceptance

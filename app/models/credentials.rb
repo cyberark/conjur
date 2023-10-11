@@ -66,7 +66,10 @@ class Credentials < Sequel::Model
 
   def valid_api_key? key
     return false if expired?
-
+    if api_key.nil?
+      Rails.logger.warn("No api key exists for this role")
+      return false
+    end
     key && ActiveSupport::SecurityUtils.secure_compare(key, api_key)
   end
 

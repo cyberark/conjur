@@ -24,6 +24,12 @@ Given("I have host {string}") do |login|
   end
 end
 
+Given("I have host {string} without api key") do |login|
+  unless host_exists?(login)
+    create_host login, @current_user || admin_user, false
+  end
+end
+
 Given("I create a new admin-owned user {string}") do |login|
   create_user login, admin_user
 end
