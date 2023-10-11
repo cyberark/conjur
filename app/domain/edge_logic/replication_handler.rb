@@ -60,33 +60,18 @@ module ReplicationHandler
       end
       $redis.set(replicatorCachePath, "1")
     end
+    Rails.logger.info("+++++++++++ replicate_secrets 4.1.1")
 
-    #query_str = "SELECT t.* FROM (SELECT resource_id FROM resources WHERE owner_id='" + current_user.id + "' UNION SELECT resource_id FROM permissions WHERE role_id='"  +
-    #  current_user.id + "') t ORDER BY t.resource_id LIMIT " + limit.to_s + " OFFSET " + offset.to_s
+    #Rails.logger.info("+++++++++++ replicate_secrets 4.2")
+    #Sequel::Model.db.fetch("SELECT * from permitted_resources_per_role('" + current_user.id + "','conjur:variable:data/%', 10, 10)") do |row1|
+    #  Rails.logger.info("+++++++++++ replicate_secrets 4.3 row1=#{row1}")
+    #end
 
-    #query_str = "SELECT t.* FROM (SELECT resource_id FROM resources WHERE owner_id='" + current_user.id + "') t ORDER BY t.resource_id LIMIT " + limit.to_s + " OFFSET " + offset.to_s
-
-    #query_str = "SELECT resource_id FROM resources WHERE owner_id='" + current_user.id + "' AND (resource_id LIKE '" + options[:account] + ":variable:data/%')"
-
-    #query_str = "SELECT owner_id, resource_id FROM resources WHERE (resource_id LIKE '" + options[:account] + ":variable:data/%')"
-
-    #query_str = "SELECT resource_id FROM permissions WHERE role_id='" +  current_user.id + "'"
-    #query_str = "SELECT resource_id, role_id FROM permissions WHERE (resource_id LIKE '" + options[:account] + ":variable:data/%')"
-
-    hostPermisionsCachePath = ENV['TENANT_ID'] + "/secrets/" + "replication/hostPermisionsInCache/" + current_user.id + "/" + offset + "/" + limit
+    hostPermisionsCachePath = ENV['TENANT_ID'] + "/secrets/" + "replication/hostPermisionsInCache1/" + current_user.id + "/" + offset + "/" + limit
     hostPermisionsInCache = $redis.get(hostPermisionsCachePath)
     if (hostPermisionsInCache.nil?)
 
-      query_str = "WITH all_roles AS (SELECT role_id FROM all_roles('" + current_user.id + "'))
-      SELECT t.resource_id FROM (
-        SELECT role_id, resources.resource_id FROM all_roles, resources
-        WHERE owner_id = role_id
-          AND resource_id LIKE '" + options[:account] + ":variable:data/%'
-      UNION
-        SELECT role_id, resources.resource_id FROM ( all_roles JOIN permissions USING ( role_id ) ) JOIN resources USING ( resource_id )
-        WHERE privilege = 'execute'
-          AND resource_id LIKE '" + options[:account] + ":variable:data/%'
-      ) t GROUP BY t.resource_id ORDER BY t.resource_id LIMIT " + limit.to_s + " OFFSET " + offset.to_s
+      query_str = "SELECT * from permitted_resources_per_role('" + current_user.id + "','conjur:variable:data/%', " + limit.to_s + ", " + offset.to_s + ")"
 
       Rails.logger.info("+++++++++++ replicate_secrets 5 query_str = #{query_str}")
       hostPermisionsInCache = ""
@@ -97,7 +82,7 @@ module ReplicationHandler
 
     end
     resources_array = hostPermisionsInCache.split(",")
-    
+
     Rails.logger.info("+++++++++++ replicate_secrets 6 resources_array = #{resources_array}")
 
     #resourceKeys = $redis.keys(ENV['TENANT_ID'] + "/secrets/" + "replication/*")
