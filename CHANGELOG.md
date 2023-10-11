@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
+## [1.20.1] - 2023-10-13
+
+### Fixed
+- OIDC Authenticator now writes custom certs to a non-default directory instead
+  of the system default certificate store.
+  [cyberark/conjur#2988](https://github.com/cyberark/conjur/pull/2988)
+
 ## [1.20.0] - 2023-09-21
 
 ### Fixed

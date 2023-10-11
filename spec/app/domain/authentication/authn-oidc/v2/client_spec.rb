@@ -644,4 +644,76 @@ RSpec.describe(Authentication::AuthnOidc::V2::Client) do
       end
     end
   end
+
+  describe '.default_cert_dir', type: 'unit' do
+    let(:target)      { Authentication::AuthnOidc::V2::Client }
+    let(:conjur_root) { "/src/conjur-server" }
+    let(:dir)         { double("Mock Dir") }
+    let(:fileutils)   { double("Mock FileUtils") }
+
+    context 'when @default_cert_dir is blank' do
+      before(:each) do
+        target.instance_variable_set(:@default_cert_dir, nil)
+      end
+
+      context 'when default cert dir exists in filesystem' do
+        before(:each) do
+          allow(dir).to receive(:exist?).with(String).and_return(true)
+        end
+
+        it 'returns the default path' do
+          expect(target.default_cert_dir(dir: dir, fileutils: fileutils)).to eq("#{conjur_root}/tmp/certs")
+          expect(target.instance_variable_get(:@default_cert_dir)).to eq("#{conjur_root}/tmp/certs")
+        end
+      end
+
+      context 'when the default cert dir does not exist in filesystem' do
+        before(:each) do
+          allow(dir).to receive(:exist?).with(String).and_return(false)
+          allow(fileutils).to receive(:mkdir_p).with(String) do |s|
+            [s]
+          end
+        end
+
+        it 'creates the dir and returns the default path' do
+          expect(fileutils).to receive(:mkdir_p).with(String)
+          expect(target.default_cert_dir(dir: dir, fileutils: fileutils)).to eq("#{conjur_root}/tmp/certs")
+          expect(target.instance_variable_get(:@default_cert_dir)).to eq("#{conjur_root}/tmp/certs")
+        end
+      end
+
+    end
+
+    context 'when @default_cert_dir is not blank' do
+      before(:each) do
+        target.instance_variable_set(:@default_cert_dir, "/path/to/dir")
+      end
+
+      context 'when @default_cert_dir exists in filesystem' do
+        before(:each) do
+          allow(dir).to receive(:exist?).with(String).and_return(true)
+        end
+
+        it 'returns existing path' do
+          expect(target.default_cert_dir(dir: dir, fileutils: fileutils)).to eq("/path/to/dir")
+          expect(target.instance_variable_get(:@default_cert_dir)).to eq("/path/to/dir")
+        end
+      end
+
+      context 'when @default_cert_dir does not exist in filesystem' do
+        before(:each) do
+          allow(dir).to receive(:exist?).with(String).and_return(false)
+          allow(fileutils).to receive(:mkdir_p).with(String) do |s|
+            [s]
+          end
+        end
+
+        it 'creates the dir and returns the existing path' do
+          expect(fileutils).to receive(:mkdir_p).with(String)
+          expect(target.default_cert_dir(dir: dir, fileutils: fileutils)).to eq("/path/to/dir")
+          expect(target.instance_variable_get(:@default_cert_dir)).to eq("/path/to/dir")
+        end
+      end
+    end
+  end
 end
