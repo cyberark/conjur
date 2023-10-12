@@ -96,7 +96,11 @@ class Credentials < Sequel::Model
   end
 
   def rotate_api_key
-    self.api_key = self.class.random_api_key if self.role.api_key_expected?
+    if self.role.api_key_expected?
+      self.api_key = self.class.random_api_key
+    else
+      raise Exceptions::MethodNotAllowed, "Operation is not supported for host since it does not use api-key for authentication"
+    end
   end
 
   private
