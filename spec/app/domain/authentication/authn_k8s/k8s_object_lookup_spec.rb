@@ -10,10 +10,17 @@ RSpec.describe(Authentication::AuthnK8s::K8sObjectLookup) do
       authenticator_name: 'authn-k8s',
       service_id: 'MockService'
     )
-  end  
+  end
+
+  let(:proxy_uri) { URI.parse("http://uri") }
 
   context "inside of kubernetes" do
     include_context "running in kubernetes"
+
+    before do
+      allow(URI).to receive_message_chain(:parse, :find_proxy)
+        .and_return(proxy_uri)
+    end
 
     context "instantiation" do
       it "does not require a webservice" do
@@ -33,6 +40,10 @@ RSpec.describe(Authentication::AuthnK8s::K8sObjectLookup) do
 
     it "has the correct auth options" do
       expect(subject.options[:auth_options]).to include(bearer_token: kubernetes_service_token)
+    end
+
+    it "has the correct proxy uri" do
+      expect(subject.options[:http_proxy_uri]).to equal(proxy_uri)
     end
   end
 
