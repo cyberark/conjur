@@ -25,6 +25,48 @@ module ReplicationHandler
     results = []
     failed = []
 
+    implementation_version = 3
+    if (implementation_version == 3)
+
+      query_str = "SELECT * from allowed_secrets_per_role1('" + current_user.id + "','conjur:variable:data/%', " + limit.to_s + ", " + offset.to_s + ")"
+
+      Rails.logger.info("+++++++++++ replicate_secrets 1 query_str = #{query_str}")
+      Sequel::Model.db.fetch(query_str) do |variable|
+        Rails.logger.info("+++++++++++ replicate_secrets 1.1 variable=#{variable}")
+        variableToReturn = {}
+        variableToReturn[:id] = variable[:resource_id]
+        variableToReturn[:owner] = variable[:owner_id]
+        variableToReturn[:permissions] = []
+        Sequel::Model.db.fetch("SELECT * from permissions where resource_id='" + variable[:resource_id] + "' AND privilege = 'execute'") do |row|
+          permission = {}
+          permission[:privilege] = row[:privilege]
+          permission[:resource] = row[:resource_id]
+          permission[:role] = row[:role_id]
+          permission[:policy] = row[:policy_id]
+          variableToReturn[:permissions].append(permission)
+        end
+        secret_value = Slosilo::EncryptedAttributes.decrypt(variable[:value], aad: variable[:resource_id])
+        variableToReturn[:value] = accepts_base64 ? Base64.strict_encode64(secret_value) : secret_value
+        variableToReturn[:version] = variable[:version]
+        variableToReturn[:versions] = []
+        value = {
+          "version": variableToReturn[:version],
+          "value": variableToReturn[:value]
+        }
+        variableToReturn[:versions] << value
+        begin
+          JSON.generate(variableToReturn)
+          results << variableToReturn
+        rescue => e
+          failed << { "id": id }
+        end
+      end
+      Rails.logger.info("+++++++++++ replicate_secrets 1.2")
+
+    else
+    Rails.logger.info("+++++++++++ replicate_secrets 1.3")
+
+
     replicatorCachePath = ENV['TENANT_ID'] + "/secrets/" + "replication/replicationInCache/" + offset + "/" + limit
     replicationInCache = $redis.get(replicatorCachePath)
     if (replicationInCache.nil?)
@@ -61,11 +103,6 @@ module ReplicationHandler
       $redis.set(replicatorCachePath, "1")
     end
     Rails.logger.info("+++++++++++ replicate_secrets 4.1.1")
-
-    #Rails.logger.info("+++++++++++ replicate_secrets 4.2")
-    #Sequel::Model.db.fetch("SELECT * from permitted_resources_per_role('" + current_user.id + "','conjur:variable:data/%', 10, 10)") do |row1|
-    #  Rails.logger.info("+++++++++++ replicate_secrets 4.3 row1=#{row1}")
-    #end
 
     hostPermisionsCachePath = ENV['TENANT_ID'] + "/secrets/" + "replication/hostPermisionsInCache1/" + current_user.id + "/" + offset + "/" + limit
     hostPermisionsInCache = $redis.get(hostPermisionsCachePath)
@@ -115,6 +152,8 @@ module ReplicationHandler
         #  Rails.logger.info("+++++++++++ replicate_secrets 7.3 count = #{count}, limit = 400")
           #break
         #end
+    end
+
     end
 
     [results, failed]

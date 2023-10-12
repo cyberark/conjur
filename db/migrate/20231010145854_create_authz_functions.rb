@@ -29,12 +29,22 @@ Sequel.migration do
             ) t GROUP BY t.resource_id ORDER BY t.resource_id LIMIT $3 OFFSET $4
         $_$;)
 
-    execute %Q(CREATE OR REPLACE FUNCTION is_role_allowed_to4(role_id1 integer) RETURNS bigint
+    execute %Q(CREATE OR REPLACE FUNCTION allowed_secrets_per_role1(role_id text, resource_like text, limit1 bigint, offset1 bigint)
+    RETURNS table (resource_id text, value bytea, version text, owner_id text)
     LANGUAGE sql STABLE STRICT
     AS $_$
           WITH
-            all_roles AS (SELECT role_id FROM all_roles('conjur:user:admin'))
-          SELECT COUNT(*) from all_roles
+            all_roles AS (SELECT role_id FROM all_roles($1))
+            SELECT res.resource_id, secrets.value, secrets.version, res.owner_id FROM secrets JOIN (
+            SELECT t.resource_id, t.owner_id FROM (
+              SELECT role_id, resources.resource_id, owner_id FROM all_roles, resources
+              WHERE owner_id = role_id
+                AND resource_id LIKE $2
+            UNION
+              SELECT role_id, resources.resource_id, owner_id FROM ( all_roles JOIN permissions USING ( role_id ) ) JOIN resources USING ( resource_id )
+              WHERE privilege = 'execute'
+                AND resource_id LIKE $2
+            ) t GROUP BY t.resource_id, t.owner_id ORDER BY t.resource_id LIMIT $3 OFFSET $4 ) AS res ON (res.resource_id = secrets.resource_id)
         $_$;)
 
     execute %Q(CREATE OR REPLACE FUNCTION is_role_allowed_to(role_id text, privilege text, resource_id text) RETURNS boolean

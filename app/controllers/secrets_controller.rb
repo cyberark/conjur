@@ -10,13 +10,14 @@ class SecretsController < RestController
   before_action :current_user
 
   # Wrap the request in a transaction.
-  def run_with_transaction(&block)
-    if (ENV['IS_SECRETS_TRANSACTION_ON'] == 'YES')
-      Sequel::Model.db.transaction(&block)
-    end
-  end
+  #def run_with_transaction(&block)
+  #  if (ENV['IS_SECRETS_TRANSACTION_ON'] == 'YES')
+  #    Sequel::Model.db.transaction(&block)
+  #  end
+  #end
 
   def create
+    Rails.logger.info("+++++++++++++++ create secret 1")
     authorize(:update)
 
     raise Exceptions::MethodNotAllowed, "adding a static secret to an ephemeral secret variable is not allowed" if ephemeral_secret?
@@ -26,10 +27,10 @@ class SecretsController < RestController
     raise ArgumentError, "'value' may not be empty" if value.blank?
     resource_id = params[:account] + ":" + params[:kind] + ":" + params[:identifier]
     valueInRedis = $redis.get(ENV['TENANT_ID'] + "/secrets/" + resource_id)
-
     if (!(valueInRedis.nil?))
       $redis.setex(ENV['TENANT_ID'] + "/secrets/" + resource_id, 5, value)
     end
+    Rails.logger.info("+++++++++++++++ create secret 2 resource_id = #{resource_id}, value = #{value}")
 
     Secret.create(resource_id: resource.id, value: value)
     resource.enforce_secrets_version_limit

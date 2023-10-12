@@ -12,14 +12,14 @@ Sequel.migration do
               WHERE member_id = m.role_id
           ) SELECT role_id, bool_or(admin_option) FROM m GROUP BY role_id
         $_$;)
-    
+
     execute %Q(CREATE OR REPLACE FUNCTION is_role_allowed_to(role_id text, privilege text, resource_id text) RETURNS boolean
     LANGUAGE sql STABLE STRICT
     AS $_$
-        WITH 
+        WITH
           all_roles AS (SELECT role_id FROM all_roles($1))
         SELECT COUNT(*) > 0 FROM (
-          SELECT 1 FROM all_roles, resources 
+          SELECT 1 FROM all_roles, resources
           WHERE owner_id = role_id
             AND resources.resource_id = $3
         UNION
@@ -28,7 +28,7 @@ Sequel.migration do
             AND resources.resource_id = $3
         ) AS _
       $_$;)
-    
+
     execute %Q(CREATE OR REPLACE FUNCTION roles_that_can(permission text, resource_id text) RETURNS SETOF roles
     LANGUAGE sql STABLE STRICT ROWS 10
     AS $_$

@@ -9,6 +9,12 @@ class EdgeSecretsController < RestController
   include GroupMembershipValidator
   include ReplicationHandler
 
+  #def run_with_transaction(&block)
+  #  if (ENV['IS_SECRETS_TRANSACTION_ON'] == 'YES')
+  #    Sequel::Model.db.transaction(&block)
+  #  end
+  #end
+
   # Return all secrets within offset-limit frame. Default is 0-1000
   def all_secrets
     logger.info(LogMessages::Endpoints::EndpointRequested.new("all_secrets"))
@@ -16,13 +22,29 @@ class EdgeSecretsController < RestController
     allowed_params = %i[account limit offset]
     options = params.permit(*allowed_params)
                     .slice(*allowed_params).to_h.symbolize_keys
+    sumItems = 0
     begin
 
       verify_edge_host(options)
+      Rails.logger.info("++++++++++++++ all_secrets +++++++++++++")
+      #scope = Resource.where(:resource_id.like(options[:account] + ":variable:data/%").and())
 
-      scope = Resource.where(:resource_id.like(options[:account] + ":variable:data/%"))
       if params[:count] == 'true'
-        sumItems = scope.count('*'.lit)
+
+        count_query = "SELECT count(*) from allowed_secrets_per_role1('" + current_user.id + "','conjur:variable:data/%', '10000000', '0')"
+
+        #count_query = "SELECT count(*) FROM resources WHERE (resources.resource_id LIKE '" +
+        #  options[:account] + ":variable:data/%') AND ( resources.owner_id = '" + current_user.id + "' OR " +
+        #  " resources.resource_id in (SELECT permissions.resource_id from permissions WHERE permissions.role_id = '" +
+        #    current_user.id + "' AND permissions.privilege = 'execute' AND permissions.resource_id = resources.resource_id) )"
+        Rails.logger.info("++++++++++++++ count_query = #{count_query}")
+        Sequel::Model.db.fetch(count_query) do |row|
+          Rails.logger.info("++++++++++++++ row = #{row}")
+          sumItems = row[:count]
+          Rails.logger.info("++++++++++++++ do sumItems = #{sumItems}")
+          break
+        end
+        Rails.logger.info("++++++++++++++ sumItems = #{sumItems}")
       else
         offset = options[:offset] || "0"
         limit = options[:limit] || "1000"
@@ -64,21 +86,6 @@ class EdgeSecretsController < RestController
       #failed = false
       render(json: { "secrets": results, "failed": failed })
     end
-  end
-
-  def build_variables_map(limit, offset, options)
-    variables = {}
-
-    Sequel::Model.db.fetch("SELECT * FROM secrets JOIN (SELECT resource_id, owner_id FROM resources WHERE (resource_id LIKE '" + options[:account] + ":variable:data/%') ORDER BY resource_id LIMIT " + limit.to_s + " OFFSET " + offset.to_s + ") AS res ON (res.resource_id = secrets.resource_id)") do |row|
-      if variables.key?(row[:resource_id])
-        if row[:version] > variables[row[:resource_id]][:version]
-          variables[row[:resource_id]] = row
-        end
-      else
-        variables[row[:resource_id]] = row
-      end
-    end
-    variables
   end
 
 end
