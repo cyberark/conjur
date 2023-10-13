@@ -54,7 +54,7 @@ function main() {
   local conjur_parallel_services
   read -ra conjur_parallel_services <<< "$(get_parallel_services 'conjur')"
   for parallel_service in "${conjur_parallel_services[@]}"; do
-    hash=$($COMPOSE exec "${parallel_service}" openssl x509 -hash -in /etc/ssl/certs/keycloak.pem -out /dev/null)
+    hash=$($COMPOSE exec "${parallel_service}" openssl x509 -hash -in /etc/ssl/certs/keycloak.pem --noout)
     $COMPOSE exec "${parallel_service}" rm "/etc/ssl/certs/$hash.0" || true
   done
 
