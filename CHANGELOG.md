@@ -16,6 +16,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   of the system default certificate store.
   [cyberark/conjur#2988](https://github.com/cyberark/conjur/pull/2988)
 
+### Added
+- Support for the no_proxy & NO_PROXY environment variables for the k8s authenticator.
+  [CNJR-2759](https://ca-il-jira.il.cyber-ark.com:8443/browse/CNJR-2759)
+
+### Security
+- Upgrade google/cloud-sdk in ci/test_suites/authenticators_k8s/dev/Dockerfile/test
+  to use latest version (448.0.0)
+  [cyberark/conjur#2972](https://github.com/cyberark/conjur/pull/2972)
+
 ## [1.20.0] - 2023-09-21
 
 ### Fixed
@@ -50,8 +59,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Use base images with newer Ubuntu and UBI.
   Display FIPS Mode status in the UI (requires temporary fix for OpenSSL gem).
   [cyberark/conjur#2874](https://github.com/cyberark/conjur/pull/2874)
-- Support for the no_proxy & NO_PROXY environment variables for the k8s authenticator.
-  [CNJR-2759](https://ca-il-jira.il.cyber-ark.com:8443/browse/CNJR-2759)
 
 ### Changed
 - The database thread pool max connection size is now based on the number of
@@ -67,9 +74,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   [cyberark/conjur#2827](https://github.com/cyberark/conjur/pull/2827)
 
 ### Security
-- Upgrade google/cloud-sdk in ci/test_suites/authenticators_k8s/dev/Dockerfile/test
-  to use latest version (448.0.0)
-  [cyberark/conjur#2972](https://github.com/cyberark/conjur/pull/2972)
 - Support plural syntax for revoke and deny
   [cyberark/conjur#2901](https://github.com/cyberark/conjur/pull/2901)
 - Previously, attempting to add and remove a privilege in the same policy load
