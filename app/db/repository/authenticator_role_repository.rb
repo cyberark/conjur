@@ -12,12 +12,14 @@ module DB
     #     account, and service identifier.
     #
     class AuthenticatorRoleRepository
-      def initialize(role: Role, logger: Rails.logger)
+      def initialize(authenticator:, role_contract:, role: Role, logger: Rails.logger)
+        @authenticator = authenticator
+        @role_contract = role_contract
         @role = role
         @logger = logger
       end
 
-      def find(role_identifier:, authenticator:)
+      def find(role_identifier:)
         role = @role[role_identifier.role_identifier]
         unless role.present?
           raise(Errors::Authentication::Security::RoleNotFound, role_identifier.role_for_error)
@@ -25,7 +27,6 @@ module DB
 
         role_annotations = relevant_annotations(
           annotations: {}.tap { |h| role.resource.annotations.each {|a| h[a.name] = a.value }},
-          authenticator: authenticator
         )
         annotations_match?(
           role_annotations: role_annotations,
@@ -37,13 +38,13 @@ module DB
 
       private
 
-      def validate_role_annotations(annotations:, authenticator:)
-        if authenticator.annotations_required && annotations.empty?
+      def validate_role_annotations(annotations:)
+        if @authenticator.annotations_required && annotations.empty?
           raise(Errors::Authentication::Constraints::RoleMissingAnyRestrictions)
         end
 
         annotations.each do |annotation, value|
-          annotation_valid = Authentication::AuthnJwt::V2::DataObjects::RoleContract.new(authenticator: authenticator, utils: ::Util::ContractUtils).call(
+          annotation_valid = @role_contract.new(authenticator: @authenticator, utils: ::Util::ContractUtils).call(
             annotation: annotation,
             annotation_value: value,
             annotations: annotations
@@ -66,7 +67,7 @@ module DB
       #     authn-jwt/project_id: myproject
       #     authn-jwt/aud: myaud
 
-      def relevant_annotations(annotations:, authenticator:)
+      def relevant_annotations(annotations:, authenticator:, relevant_annotations:)
         # Verify that at least one service specific auth token is present
         if annotations.keys.any?{|k,_|k.include?(authenticator.type.to_s) } &&
             !annotations.keys.any?{|k,_|k.include?("#{authenticator.type}/#{authenticator.service_id}") }
@@ -86,7 +87,7 @@ module DB
 
         relevant_annotations = generic.merge(specific)
 
-        validate_role_annotations(annotations: relevant_annotations, authenticator: authenticator)
+        validate_role_annotations(annotations: relevant_annotations, authenticator: authenticator, relevant_annotations: relevant_annotations)
         relevant_annotations
       end
 

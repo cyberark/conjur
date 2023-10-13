@@ -61,7 +61,7 @@ module Authentication
         #
         # @return [Authenticator::RoleIdentifier] - Information required to match a Conjur Role
         #
-        # The parameter arguement is required buy the AuthenticationHandler,
+        # The parameter arguement is required by the AuthenticationHandler,
         # but not used by this strategy.
         #
         # rubocop:disable Lint/UnusedMethodArgument

@@ -25,7 +25,6 @@ module Authentication
           authenticator_type: authenticator_type
         )
 
-        @identity_resolver = "#{namespace}::ResolveIdentity".constantize
         @strategy = "#{namespace}::Strategy".constantize
         @authn_repo = authn_repo.new(
           data_object: "#{namespace}::DataObjects::Authenticator".constantize
