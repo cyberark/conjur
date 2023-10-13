@@ -54,6 +54,7 @@ class ApplicationController < ActionController::API
   rescue_from GatewayTimeout, with: :gateway_timeout
   rescue_from BadGateway, with: :bad_gateway
   rescue_from Exceptions::NotImplemented, with: :not_implemented
+  rescue_from Errors::Conjur::ReadOnly::ActionNotPermitted, with: :method_not_allowed
   rescue_from Sequel::ValidationFailed, with: :validation_failed
   rescue_from Sequel::NoMatchingRow, with: :no_matching_row
   rescue_from Sequel::ForeignKeyConstraintViolation, with: :foreign_key_constraint_violation

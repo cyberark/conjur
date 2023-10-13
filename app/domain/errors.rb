@@ -57,6 +57,13 @@ module Errors
       msg: "Resource '{0-resource}' requested by role '{1-role}' not found",
       code: "CONJ00123E"
     )
+
+    module ReadOnly
+      ActionNotPermitted = ::Util::TrackableErrorClass.new(
+        msg: "This action is not permitted when the server is in read-only mode",
+        code: "CONJ00153E"
+      )
+    end
   end
 
   module Authorization
