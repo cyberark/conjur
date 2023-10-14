@@ -1,3 +1,4 @@
+@authenticators_k8s
 Feature: A permitted Conjur host can authenticate with a valid resource restrictions
   that is defined in the id and the kubernetes host has a corresponding SSL certificate
 

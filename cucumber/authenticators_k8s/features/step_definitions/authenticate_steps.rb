@@ -41,11 +41,12 @@ Then(/^I( can)? authenticate with authn-k8s as "([^"]*)"( without cert and key)?
 
   cert = nil
   unless nocertkey
-    expect(@cert.to_s).not_to be_empty, "ERROR: Certificate fetched was empty or nil but was expected to be present!"
-    cert = OpenSSL::X509::Certificate.new(@cert)
+    cert = @scenario_context.get(:cert)
+    expect(cert.to_s).not_to be_empty, "ERROR: Certificate fetched was empty or nil but was expected to be present!"
+    cert = OpenSSL::X509::Certificate.new(cert)
   end
 
-  key = nocertkey ? nil : @pkey
+  key = nocertkey ? nil : @scenario_context.get(:pkey)
 
   begin
     response = authenticate_k8s(authn_k8s_host, cert, key, conjur_id)
@@ -69,8 +70,8 @@ Then(/^I( can)? authenticate pod matching "([^"]*)" with authn-k8s as "([^"]*)"(
     conjur_id = "#{hostid_prefix}/#{hostid_suffix}"
   end
 
-  cert = nocertkey ? nil : OpenSSL::X509::Certificate.new(@cert)
-  key = nocertkey ? nil : @pkey
+  cert = nocertkey ? nil : OpenSSL::X509::Certificate.new(@scenario_context.get(:cert))
+  key = nocertkey ? nil : @scenario_context.get(:pkey) #@pkey
 
   begin
     response = authenticate_k8s(authn_k8s_host, cert, key, conjur_id)
