@@ -3,6 +3,7 @@
 class Role < Sequel::Model
   extend Forwardable
   include HasId
+  include Authentication::OptionalApiKey
 
   unrestrict_primary_key
 
@@ -121,7 +122,6 @@ class Role < Sequel::Model
   end
 
   def api_key
-    return nil unless api_key_expected?
 
     unless self.credentials
       _, kind, id = self.id.split(":", 3)
@@ -137,7 +137,7 @@ class Role < Sequel::Model
   def api_key_expected?
     self.kind == 'user' ||
     Rails.application.config.conjur_config.authn_api_key_default ||
-    self.annotations.any? { |a| a.name == 'authn/api-key' && a.value.downcase == 'true' }
+    self.annotations.any? { |a| annotation_true?(a) }
   end
 
   def login

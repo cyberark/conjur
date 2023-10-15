@@ -30,6 +30,16 @@ Given("I have host {string} without api key") do |login|
   end
 end
 
+When(/^I set annotation "([^"]*)" to "([^"]*)" on role "([^"]*)"$/)  do |name, value, role|
+  Annotation[resource_id: role, name: name].tap do |a|
+    if a.nil?
+      Annotation.create(resource_id: role, name: name, value: value)
+    else
+      a.update(value: value)
+    end
+  end
+end
+
 Given("I create a new admin-owned user {string}") do |login|
   create_user login, admin_user
 end

@@ -153,6 +153,13 @@ describe Credentials, :type => :model do
       end
     end
 
+    describe "role with APIKEY api key" do
+      it "replaces temp APIKEY with real value" do
+        credentials[:api_key] = 'APIKEY'
+        expect(credentials.api_key).not_to eq('APIKEY')
+      end
+    end
+
     describe "with expiration" do
       let(:now) { Time.now }
       let(:past) { now - 1.second }

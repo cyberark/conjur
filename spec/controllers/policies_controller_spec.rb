@@ -7,20 +7,8 @@ DatabaseCleaner.strategy = :truncation
 
 describe PoliciesController, type: :request do
   before(:all) do
-    # there doesn't seem to be a sane way to get this
-    @original_database_cleaner_strategy =
-      DatabaseCleaner.connections.first.strategy
-        .class.name.downcase[/[^:]+$/].intern
-
-    # we need truncation here because the tests span many transactions
-    DatabaseCleaner.strategy = :truncation
-
     # init Slosilo key
     init_slosilo_keys("rspec")
-  end
-
-  after(:all) do
-    DatabaseCleaner.strategy = @original_database_cleaner_strategy
   end
 
   before do
@@ -36,7 +24,7 @@ describe PoliciesController, type: :request do
     Resource["rspec:variable:#{name}"]
   end
 
-  describe '#post' do
+  context '#post' do
     before { put_payload('[!variable preexisting]') }
 
     let(:policies_url) do
@@ -114,6 +102,32 @@ describe PoliciesController, type: :request do
         post_payload(policy)
       end
       vars.each { |var| expect(variable(var)).to exist }
+    end
+  end
+
+  context "Created and modified roles" do
+    let(:created1) { create_host('rspec:host:created1', current_user).tap{|h| h.credentials[:api_key] = '123456'} }
+    let(:updated1) { create_host('rspec:host:updated1', current_user).tap{|h| h.credentials[:api_key] = 'APIKEY'} }
+    let(:updated2) { create_host('rspec:host:updated2', current_user).tap{|h| h.credentials[:api_key] = 'APIKEY'} }
+
+    subject { described_class.new }
+
+    it "update_roles modifies API key for associated credentials" do
+      allow(Credentials).to receive(:where).with(api_key: 'APIKEY')
+                                           .and_return([updated1.credentials, updated2. credentials])
+
+      roles = subject.send(:update_roles)
+      expect(roles.values.map{|r| r[:api_key]}).not_to include('APIKEY')
+    end
+
+    it "created and updated roles are merged" do
+      policy_action = double('policy_action')
+      allow(policy_action).to receive(:call)
+      allow(policy_action).to receive(:new_roles).and_return([created1])
+      allow(Credentials).to receive(:where).with(api_key: 'APIKEY')
+                                           .and_return([updated1.credentials, updated2. credentials])
+      roles = subject.send(:perform, policy_action)
+      expect(roles.keys).to eq([created1.id, updated1.id, updated2.id])
     end
   end
 end

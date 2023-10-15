@@ -192,6 +192,16 @@ Then(/^the result is the API key for ([^"]*) "([^"]*)"$/) do |kind, login|
   expect(@result).to eq(role.credentials.api_key)
 end
 
+Then(/^the role "([^"]*)" has (:?non-)?empty API key$/) do |role_name, full|
+  role = lookup_role(role_name)
+  role.reload
+  if full
+    expect(role.credentials.api_key).to be
+  else
+    expect(role.credentials.api_key).to be_nil
+  end
+end
+
 Then(/^it's confirmed$/) do
   expect(@http_status).to be_blank
 end

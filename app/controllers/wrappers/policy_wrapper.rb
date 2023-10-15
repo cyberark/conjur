@@ -49,7 +49,9 @@ module PolicyWrapper
   def perform(policy_action)
     policy_action.call
     new_actor_roles = actor_roles(policy_action.new_roles)
-    create_roles(new_actor_roles)
+    created_roles = create_roles(new_actor_roles)
+    updated_roles = update_roles
+    created_roles.merge(updated_roles)
   end
 
   def actor_roles(roles)
@@ -62,6 +64,13 @@ module PolicyWrapper
     actor_roles.each_with_object({}) do |role, memo|
       credentials = Credentials[role: role] || Credentials.create(role: role)
       role_id = role.id
+      memo[role_id] = { id: role_id, api_key: credentials.api_key }
+    end
+  end
+
+  def update_roles
+    Credentials.where(api_key: 'APIKEY').each_with_object({}) do |credentials, memo|
+      role_id = credentials.role_id
       memo[role_id] = { id: role_id, api_key: credentials.api_key }
     end
   end
