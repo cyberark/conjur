@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require 'spec_helper'
 
 shared_context "existing account" do
   let(:validate_account_exists) { double("ValidateAccountExists") }
@@ -69,16 +70,20 @@ shared_context "create user" do
 end
 
 shared_context "create host" do
-  def create_host(host_login)
+  def create_host(host_login, api_key_annotation=true)
     id = "rspec:host:#{host_login}"
     host_role = Role.create(role_id: id).tap do |role|
+      Resource.create(resource_id: id, owner_id: id).tap do |resource|
+        # If needed add the annotation to create api key
+        add_api_key_annotation(resource, role, api_key_annotation)
+
+        resource.reload
+        host_role.reload unless host_role.nil?
+      end
+
       options = { role: role }
       Credentials.create(options)
       role.reload
-    end
-    Resource.create(resource_id: id, owner_id: id).tap do |resource|
-      resource.reload
-      host_role.reload
     end
 
     return host_role
@@ -86,6 +91,10 @@ shared_context "create host" do
 
   let(:host_login) { "default-host-login" }
   let(:host_api_key) { the_host.credentials.api_key }
+  let(:host_without_apikey_login) { "host-without-apikey" }
+  let!(:host_without_apikey) {
+    create_host(host_without_apikey_login, false)
+  }
 end
 
 shared_context "host authenticate Basic" do

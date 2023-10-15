@@ -11,6 +11,7 @@ Feature: Rotate the API key of a role
     - Bob himself
     - a user with update permission, "privileged_user"
     - a user without update permission, "unprivileged_user"
+    - a host with no api key, "privileged_host_without_apikey"
     - a host belonging to a layer with update permission, "privileged_host"
     - a host without update permission, "unprivileged_host"
   These roles attempt to rotate Bob's API key with all authentication methods
@@ -25,6 +26,7 @@ Feature: Rotate the API key of a role
     And I create a new user "unprivileged_user"
     And I have host "privileged_host"
     And I have host "unprivileged_host"
+    And I have host "privileged_host_without_apikey" without api key
     And I am the super-user
     And I successfully PUT "/policies/cucumber/policy/root" with body:
     """
@@ -41,6 +43,7 @@ Feature: Rotate the API key of a role
     - !policy strict_policy
     - !group super_users
     - !host privileged_host
+    - !host privileged_host_without_apikey
 
     # give privileged_user update permissions over user bob
     - !permit
@@ -90,6 +93,12 @@ Feature: Rotate the API key of a role
       role: !layer host_layer
       privilege: [ update ]
       resource: !user bob
+
+    #give update permission to a host without api key
+    - !permit
+      role: !host privileged_host
+      privilege: [ update ]
+      resource: !host privileged_host_without_apikey
     """
     And I log out
 
@@ -307,6 +316,12 @@ Feature: Rotate the API key of a role
     cucumber:host:privileged_host successfully rotated their API key
     """
 
+  @negative @acceptance @skip
+  Scenario: A Host without api key CANNOT rotate their own API key
+    Given I save my place in the audit log file
+    When I PUT "/authn/cucumber/api_key?role=host:privileged_host_without_apikey" with username "host/privileged_host_without_apikey" and password ":cucumber:host:api_key"
+    Then the HTTP response status code is 401
+
   @negative @acceptance
   Scenario: A Host CANNOT rotate their own API key using an access token
     Given I login as "host/privileged_host"
@@ -340,6 +355,18 @@ Feature: Rotate the API key of a role
     And The following appears in the audit log after my savepoint:
     """
     cucumber:host:privileged_host successfully rotated the api key for cucumber:user:bob
+    """
+
+   # A host with update permission rotating host without api key
+  @negative @acceptance @skip
+  Scenario: A Host with update privilege CANNOT rotate host API key that doesn't have api key
+    Given I login as "host/privileged_host"
+    And I save my place in the audit log file
+    When I PUT "/authn/cucumber/api_key?role=host:privileged_host_without_apikey"
+    Then the HTTP response status code is 405
+    And The following appears in the audit log after my savepoint:
+    """
+    Operation is not supported for host since it does not use api-key for authentication
     """
 
   @negative @acceptance
