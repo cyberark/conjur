@@ -35,8 +35,8 @@ describe EdgeHostsController, :type => :request do
       salt = Base64.strict_decode64(encoded_salt)
       test_api_key =  Base64.strict_encode64(Cryptography.hmac_api_key(@other_user.credentials.api_key, salt))
       expect(test_api_key).to eq(encoded_api_key)
-      #expect("").to eq(@result['hosts'][0]['api_key'])
-      #expect("").to eq(@result['hosts'][0]['salt'])
+      expect("").to eq(@result['hosts'][0]['api_key'])
+      expect("").to eq(@result['hosts'][0]['salt'])
     end
   end
 end

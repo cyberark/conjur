@@ -22,7 +22,7 @@ Feature: GCP Authenticator - GCE flow, Performance tests
         resource: !webservice
     """
     And I am the super-user
-    And I have host "test-app"
+    And I have host "test-app" without api key
     And I grant group "conjur/authn-gcp/apps" to host "test-app"
     And I set all valid GCE annotations to host "test-app"
     And I obtain a valid GCE identity token
@@ -34,7 +34,7 @@ Feature: GCP Authenticator - GCE flow, Performance tests
 
   @performance @negative
   Scenario: Unsuccessful requests with invalid resource restrictions
-    Given I have host "no-annotations-app"
+    Given I have host "no-annotations-app" without api key
     And I grant group "conjur/authn-gcp/apps" to host "no-annotations-app"
     When I authenticate 1000 times in 10 threads with authn-gcp using valid GCE token and existing account
     Then The avg authentication request responds in less than 0.75 seconds

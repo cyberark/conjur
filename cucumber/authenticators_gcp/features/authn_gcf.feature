@@ -22,7 +22,7 @@ Feature: GCP Authenticator - GCF flow, hosts can authenticate with GCP authentic
         privilege: [ read, authenticate ]
         resource: !webservice
     """
-    And I have host "test-app"
+    And I have host "test-app" without api key
     And I grant group "conjur/authn-gcp/apps" to host "test-app"
 
   @smoke
