@@ -3,9 +3,9 @@
 class PoliciesController < RestController
   include FindResource
   include AuthorizeResource
-  
   before_action :current_user
   before_action :find_or_create_root_policy
+  after_action :publish_event, if: -> { response.successful? }
 
   rescue_from Sequel::UniqueConstraintViolation, with: :concurrent_load
 
@@ -125,6 +125,10 @@ class PoliciesController < RestController
       role_id = role.id
       memo[role_id] = { id: role_id, api_key: credentials.api_key }
     end
+  end
+
+  def publish_event
+    Monitoring::PubSub.instance.publish('conjur.policy_loaded')
   end
 
   # If annotation authn/api-key changed from false to true during policy load,

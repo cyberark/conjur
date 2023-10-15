@@ -309,3 +309,62 @@ Feature: Deleting objects and relationships.
         record: !variable to_be_deleted
       """
       Then variable "to_be_deleted" does not exist
+    And I list the roles permitted to read variable "db/password"
+    Then the role list does not include host "host-01"
+
+  @smoke
+  Scenario: The bulk !deny statement can be used to revoke a permission from roles and members.
+    Given I load a policy:
+    """
+    - !variable db/address
+    - !variable db/username
+    - !variable db/password
+    - !host host-01
+    - !host host-02
+    - !host host-03
+    - !permit
+      resources:
+        - !variable db/address
+        - !variable db/username
+        - !variable db/password
+      privileges: [ update ]
+      roles:
+        - !host host-01
+        - !host host-02
+        - !host host-03
+    """
+    And I list the roles permitted to update variable "db/address"
+    Then the role list includes host "host-01"
+    Then the role list includes host "host-02"
+    Then the role list includes host "host-03"
+    And I list the roles permitted to update variable "db/username"
+    Then the role list includes host "host-01"
+    Then the role list includes host "host-02"
+    Then the role list includes host "host-03"
+    And I list the roles permitted to update variable "db/password"
+    Then the role list includes host "host-01"
+    Then the role list includes host "host-02"
+    Then the role list includes host "host-03"
+    And I update the policy with:
+    """
+    - !deny
+      resources:
+        - !variable db/address
+        - !variable db/username
+      privileges: [ update ]
+      roles:
+        - !host host-01
+        - !host host-02
+    """
+    When I list the roles permitted to update variable "db/address"
+    Then the role list does not include host "host-01"
+    And the role list does not include host "host-02"
+    And the role list includes host "host-03"
+    When I list the roles permitted to update variable "db/username"
+    Then the role list does not include host "host-01"
+    And the role list does not include host "host-02"
+    And the role list includes host "host-03"
+    When I list the roles permitted to update variable "db/password"
+    Then the role list includes host "host-01"
+    And the role list includes host "host-02"
+    And the role list includes host "host-03"
