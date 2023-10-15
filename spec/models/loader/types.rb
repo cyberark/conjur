@@ -86,68 +86,6 @@ describe Loader::Types::User do
   end
 end
 
-describe Loader::Types::Host do
-  let(:host) do
-    host = Conjur::PolicyParser::Types::Host.new
-    host.id = resource_id
-    if api_key != ''
-      host.annotations =  { "authn/api-key" => api_key }
-    end
-    Loader::Types.wrap(host, self)
-  end
-
-  describe '.verify' do
-    context 'when CONJUR_AUTHN_API_KEY_DEFAULT is true' do
-      before do
-        allow(Rails.application.config.conjur_config).to receive(:authn_api_key_default).and_return(true)
-      end
-
-      context 'when creating host with api-key annotation true' do
-        let(:resource_id) { 'myhost@admin' }
-        let(:api_key) { true }
-        it { expect { host.verify }.to_not raise_error }
-      end
-
-      context 'when creating host with api-key annotation false' do
-        let(:resource_id) { 'myhost@cyberark' }
-        let(:api_key) { false }
-        it { expect { host.verify }.to_not raise_error(Exceptions::InvalidPolicyObject) }
-      end
-
-      context 'when creating host without api-key annotation' do
-        let(:resource_id) { 'myhost@cyberark' }
-        let(:api_key) { '' }
-        it { expect { host.verify }.to_not raise_error(Exceptions::InvalidPolicyObject) }
-      end
-    end
-
-    context 'when CONJUR_AUTHN_API_KEY_DEFAULT is false' do
-      before do
-        allow(Rails.application.config.conjur_config).to receive(:authn_api_key_default).and_return(false)
-      end
-
-      context 'when creating host with api-key annotation true' do
-        let(:resource_id) { 'myhost@admin' }
-        let(:api_key) { true }
-        it { expect { host.verify }.to_not raise_error }
-      end
-
-      context 'when creating host with api-key annotation false' do
-        let(:resource_id) { 'alice@cyberark' }
-        let(:api_key) { false }
-        it { expect { host.verify }.to raise_error }
-      end
-
-      context 'when creating host without api-key annotation' do
-        let(:resource_id) { 'alice@cyberark' }
-        let(:api_key) { '' }
-        it { expect { host.verify }.to raise_error }
-      end
-    end
-
-  end
-end
-
 describe Loader::Types::Variable do
   let(:variable) do
     variable = Conjur::PolicyParser::Types::Variable.new

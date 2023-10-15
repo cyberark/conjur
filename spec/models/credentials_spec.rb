@@ -45,11 +45,11 @@ describe Credentials, :type => :model do
         credentials.rotate_api_key
         expect(credentials.api_key).to_not eq(api_key)
       end
-      #it "Fails changing the API key for host without api key" do
-      #  expect { host_without_apikey.credentials.rotate_api_key }.to raise_error(Exceptions::MethodNotAllowed) do |e|
-      #    expect(e.message).to eq("Operation is not supported for host since it does not use api-key for authentication")
-      #  end
-      #end
+      it "Fails changing the API key for host without api key" do
+       expect { host_without_apikey.credentials.rotate_api_key }.to raise_error(Exceptions::MethodNotAllowed) do |e|
+         expect(e.message).to eq("Operation is not supported for host since it does not use api-key for authentication")
+       end
+      end
     end
     
     describe '#password=' do
