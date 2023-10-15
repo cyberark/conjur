@@ -100,7 +100,8 @@ class Resource < Sequel::Model
         exclude = exclude.split(',')
         exclude.each do |item|
           # scope is exclude when the resource id is like the item
-          scope = scope.exclude(Sequel.like(:resource_id, "%#{item}%"))
+          # client who gives exclude param should write the prefix id just after the account
+          scope = scope.exclude(Sequel.like(:resource_id, "#{account}"+":#{item}%"))
         end
       end
 
