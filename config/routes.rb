@@ -85,6 +85,11 @@ Rails.application.routes.draw do
       patch   "/policies/:account/:kind/*identifier" => 'policies#patch'
       post    "/policies/:account/:kind/*identifier" => 'policies#post'
 
+      post    "/locks/:account" => 'locks#create'
+      get     "/locks/:account/*identifier" => 'locks#get'
+      patch   "/locks/:account/*identifier" => 'locks#update'
+      delete  "/locks/:account/*identifier" => 'locks#delete'
+
       get     "/public_keys/:account/:kind/*identifier" => 'public_keys#show'
 
       post     "/ca/:account/:service_id/sign" => 'certificate_authority#sign'
