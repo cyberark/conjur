@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [1.0.10-cloud] - 2023-10-22
 ### Added
 - Telemetry logs for ephemeral secrets
+- Return conflict for existing issuer when variables associated with it
 
 ## [1.0.9-cloud] - 2023-10-15
 ### Added

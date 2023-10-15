@@ -29,6 +29,11 @@ class IssuersController < RestController
     issuer_type = IssuerTypeFactory.new.create_issuer_type(params[:type])
     issuer_type.validate(body_params)
 
+    issuerResource = Issuer.find(issuer_id: params[:id])
+    if not issuerResource.nil?
+      raise Exceptions::RecordExists.new("issuer", params[:id])
+    end
+
     issuer = Issuer.new(issuer_id: params[:id], account: params[:account],
                         issuer_type: params[:type],
                         max_ttl: params[:max_ttl], data: params[:data].to_json,
@@ -58,11 +63,11 @@ class IssuersController < RestController
         message: e.message
       }
     }, status: :bad_request)
-  rescue Sequel::UniqueConstraintViolation => e
+  rescue Exceptions::RecordExists => e
     logger.error("The issuer [#{params[:id]}] already exists")
     audit_failure(e, action)
     issuer_audit_failure(params[:account], params[:id], "add", e.message)
-    raise Exceptions::RecordExists.new("issuer", params[:id])
+    raise e
   rescue => e
     audit_failure(e, action)
     issuer_audit_failure(params[:account], params[:id], "add", e.message)
