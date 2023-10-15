@@ -15,3 +15,12 @@ Feature: Retrieving an API key with conjurctl
   Scenario: Retrieve an API key of a non-existing user fails
     When I retrieve an API key for user "cucumber:user:non-existing-user" using conjurctl
     Then the stderr includes the error "role does not exist"
+
+  @smoke @skip
+  Scenario: Retrieve an API key for a host
+    Given I have host "api_key_host"
+    And I have host "without_api_key_host" without api key
+    When I retrieve an API key for user "cucumber:host:api_key_host" using conjurctl
+    Then the API key for "cucumber:host:api_key_host" is correct
+    When I retrieve an API key for user "cucumber:host:without_api_key_host" using conjurctl
+    Then the API key for "cucumber:host:without_api_key_host" is correct
