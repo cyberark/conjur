@@ -32,6 +32,7 @@ module LogsHelpers
 
     start_line = @saved_num_lines
     end_line = cur_num_lines
+    puts "Logs since savepoint: #{File.readlines(LOG_LOCATION)[start_line..end_line]}"
     File.readlines(LOG_LOCATION)[start_line..end_line].grep(/#{msg}/i).count
   end
 
