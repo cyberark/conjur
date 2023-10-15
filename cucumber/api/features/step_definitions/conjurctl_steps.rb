@@ -9,6 +9,10 @@ Then(/^the API key is correct$/) do
   expect(@conjurctl_stdout).to eq("#{Credentials['cucumber:user:admin'].api_key}\n")
 end
 
+Then(/^the API key for "([^"]*)" is correct$/) do |user_id|
+  expect(@conjurctl_stdout).to eq("#{Credentials[user_id].api_key}\n")
+end
+
 Then(/^the stderr includes the error "([^"]*)"$/) do |error|
   expect(@conjurctl_stderr).to include(error)
 end
