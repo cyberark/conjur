@@ -17,7 +17,7 @@ Feature: Updating Policies with Annotations
   - create / add new         / POST  :   EXPECTED SUCCESS
   - create / add new         / PATCH :   EXPECTED FAIL - 403 on policy load
   - create / update existing / PUT   :   EXPECTED FAIL - 403 on policy load
-  - create / update existing / POST  :   EXPECTED FAIL - 20x on policy load, annot not updated
+  - create / update existing / POST  :   EXPECTED FAIL - 422 on policy load
   - create / update existing / PATCH :   EXPECTED FAIL - 403 on policy load
   - update / add new         / PUT   :   EXPECTED SUCCESS
   - update / add new         / POST  :   EXPECTED FAIL - 403 on policy load
@@ -25,13 +25,6 @@ Feature: Updating Policies with Annotations
   - update / update existing / PUT   :   EXPECTED SUCCESS
   - update / update existing / POST  :   EXPECTED FAIL - 403 on policy load
   - update / update existing / PATCH :   EXPECTED SUCCESS
-
-  All these outcomes align with our expectations, but one may not align with
-  user expectations: ( create / update existing / POST ). A user may expect that
-  a policy load that tries and fails to update the content of a given annotation
-  should either provide a warning or fail outright.
-
-  How can we update how we handle policy to fail in this case?
 
   Background:
     Given I am the super-user
@@ -183,45 +176,20 @@ Feature: Updating Policies with Annotations
 
   @negative
   @acceptance
-  Scenario: User with create privilege CAN NOT update existing annotations with POST, but policy loads successfully
+  Scenario: User with create privilege CAN NOT update existing annotations with POST
     When I login as "alice"
-    Then I successfully POST "/policies/cucumber/policy/hosts" with body:
+    And I save my place in the log file
+    Then I POST "/policies/cucumber/policy/hosts" with body:
     """
     - !host
       id: annotated
       annotations:
         description: Success
     """
-    And I successfully GET "/resources/cucumber/host/hosts%2Fannotated"
-    Then the JSON should be:
+    Then the HTTP response status code is 201
+    And The following appears in the log after my savepoint:
     """
-    {
-      "annotations": [
-        {
-          "name": "description",
-          "policy": "cucumber:policy:hosts",
-          "value": "Already annotated"
-        }
-      ],
-      "id": "cucumber:host:hosts/annotated",
-      "owner": "cucumber:policy:hosts",
-      "permissions": [
-        {
-          "policy": "cucumber:policy:root",
-          "privilege": "read",
-          "role": "cucumber:user:bob"
-        },
-        {
-          "policy": "cucumber:policy:root",
-          "privilege": "read",
-          "role": "cucumber:user:alice"
-        }
-      ],
-      "policy": "cucumber:policy:hosts",
-      "restricted_to": [
-
-      ]
-    }
+    WARNING: Updating existing resource disallowed in additive policy operations (POST). In a future release, loading this policy file will fail with a 422 error code. The following updates have not been applied, and have been discarded: {:annotations=>[{:resource_id=>"cucumber:host:hosts/annotated", :name=>"description", :diff=>{:value=>["Already annotated", "Success"]}}]}
     """
 
   @negative

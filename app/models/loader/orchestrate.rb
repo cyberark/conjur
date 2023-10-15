@@ -120,7 +120,12 @@ module Loader
     end
 
     # TODO: consider renaming this method
-    def store_policy_in_db
+    def store_policy_in_db(reject_duplicates: false)
+      if reject_duplicates
+        duplicates = detect_duplicates_pk
+        Rails.logger.warn(Exceptions::DisallowedPolicyOperation.new(duplicates)) if duplicates.present?
+      end
+
       eliminate_duplicates_pk
 
       insert_new
@@ -243,10 +248,97 @@ module Loader
     end
 
     # Delete rows from the new policy which have the same primary keys as existing rows.
+    # Returns the total number of deleted rows.
     def eliminate_duplicates_pk
-      TABLES.each do |table|
+      TABLES.sum do |table|
         eliminate_duplicates(table, Array(model_for_table(table).primary_key) + [ :policy_id ])
       end
+    end
+
+    # Returns a hash of table names related to an array of hashes describing
+    # changes to existing resources made by the current policy load operation.
+    def detect_duplicates_pk
+      TABLES.each_with_object({}) do |table, duplicates|
+        table_dupes = duplicates_in_table(
+          table,
+          primary_keys(table) + [ :policy_id ],
+          non_primary_keys(table)
+        )
+        duplicates[table] = table_dupes if table_dupes.present?
+      end
+    end
+
+    # Finds entries in the temporary incoming schema's table that duplicate
+    # entries in the primary schema's table along it's primary_columns. Returns
+    # an array of hashes, where each hash describes an existing resource, and
+    # has a :diff entry describes changes made to the resource by the current
+    # policy load operation.
+    def duplicates_in_table table, primary_columns, non_primary_columns
+      primary_selections = primary_columns.map do |column|
+        "new_#{table}.#{column}"
+      end.join(', ')
+
+      non_primary_selections = non_primary_columns.map do |column|
+        "new_#{table}.#{column} AS new_#{column}, old_#{table}.#{column} AS old_#{column}"
+      end.join(', ')
+
+      selections = "#{primary_selections}"
+      selections << ", #{non_primary_selections}" unless non_primary_selections.blank?
+
+      comparisons = primary_columns.map do |column|
+        "new_#{table}.#{column} = old_#{table}.#{column}"
+      end.join(' AND ')
+
+      # This query returns an array of hashes. Each hash describes an existing
+      # resource that is being updated by the current policy load operation and
+      # the desired updates. Each hash contains:
+      # - a single entry for each primary key in the target table, and
+      # - two entries for each non-primary key in the target table, prepended
+      #   with "old_" and "new_".
+      query = <<~QUERY
+        SELECT #{selections}
+        FROM #{table} AS new_#{table}
+        JOIN #{qualify_table(table)} AS old_#{table}
+        ON #{comparisons}
+      QUERY
+
+      # Convert the hash returned by query into an easily consumable format.
+      consumable_diff(table, db[query].all)
+    end
+
+    # This method expects the duplicates argument to be an array of hashes as
+    # described in the method above. This method returns an array of hashes,
+    # where each contains:
+    # - a single entry for each primary key in the target table, and
+    # - a :diff entry, which stores a hash of non-primary keys related to both
+    #   its original and updated values.
+    def consumable_diff table, duplicates
+      duplicates.each_with_object([]) do |duplicate, dupes_a|
+        dupe_h = {}
+        pk_columns = primary_keys(table)
+        pk_columns.each do |column|
+          dupe_h[column] = duplicate[column]
+        end
+
+        dupe_h[:diff] = non_primary_keys(table).each_with_object({}) do |column, diff|
+          if duplicate["old_#{column}".to_sym] != duplicate["new_#{column}".to_sym]
+            diff[column] = [
+              duplicate["old_#{column}".to_sym],
+              duplicate["new_#{column}".to_sym]
+            ]
+          end
+        end
+
+        dupes_a << dupe_h
+      end
+    end
+
+    def primary_keys table
+      Array(model_for_table(table).primary_key)
+    end
+
+    def non_primary_keys table
+      TABLE_EQUIVALENCE_COLUMNS[table] - primary_keys(table)
     end
 
     # Eliminate duplicates from a table, using the specified comparison columns.
