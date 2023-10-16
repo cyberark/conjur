@@ -181,7 +181,12 @@ describe IssuersController, type: :request do
         )
         assert_response :success
         expect(Resource.find(resource_id: "rspec:variable:data/ephemerals/related-ephemeral-variable")).to_not eq(nil)
-
+        post("/issuers/rspec",
+             env: token_auth_header(role: admin_user).merge(
+               'RAW_POST_DATA' => payload_create_issuer_input,
+               'CONTENT_TYPE' => "application/json"
+             ))
+        assert_response :conflict
       end
     end
 
