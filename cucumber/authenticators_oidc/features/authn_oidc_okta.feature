@@ -48,4 +48,4 @@ Feature: OIDC Authenticator V2 - Users can authenticate with Okta using OIDC
     Given I retrieve OIDC configuration from the provider endpoint for "okta"
     And I authenticate and fetch a code from Okta
     When I authenticate via OIDC with code and service_id "okta"
-    Then the okta user has been authorized by conjur
+    Then the OIDC user has been authorized by conjur
