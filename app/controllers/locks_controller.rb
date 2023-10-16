@@ -1,19 +1,19 @@
 # frozen_string_literal: true
 
 class LocksController < RestController
-  # include FindResource
-  # include AuthorizeResource
+  include FindLock
+  include AuthorizeResource
   include BodyParser
 
-  # before_action :current_user
+  before_action :current_user
 
   LOCK_NOT_FOUND = "Lock not found"
 
   def create
     logger.info("POST /locks/:account started")
-    # authorize(:create)
+    authorize(:create)
 
-    delete_expired(params[:account])
+    delete_lock_if_expired(params[:account], params[:id])
 
     current_timestamp = Time.now
     expires_at = current_timestamp + params[:ttl]
@@ -32,15 +32,24 @@ class LocksController < RestController
 
   def get
     logger.info("GET /locks/:account/*identifier started")
-    # authorize(:read, resource)
-
-    delete_expired(params[:account])
+    authorize(:read)
 
     lock = get_lock_from_db(params[:account], params[:identifier])
-    if lock
+    if lock and delete_lock_if_expired(params[:account], params[:identifier]) == 0
       render(json: lock.as_json, status: :ok)
     else
-      raise Exceptions::RecordNotFound.new(params[:identifier], message: LOCK_NOT_FOUND)
+      render(json: {
+        error: {
+          code: "not_found",
+          message: "Lock not found",
+          target: "lock",
+          details: {
+            code: "not_found",
+            target: "id",
+            message: params[:identifier]
+          }
+        }
+      }, status: :not_found)
     end
 
     logger.info("GET /locks/:account/*identifier ended successfully")
@@ -48,39 +57,53 @@ class LocksController < RestController
 
   def update
     logger.info("PATCH /locks/:account/*identifier started")
-    # authorize(:update, resource)
-
-    delete_expired(params[:account])
+    authorize(:update)
 
     lock = get_lock_from_db(params[:account], params[:identifier])
-    if lock
+    if lock and delete_lock_if_expired(params[:account], params[:identifier]) == 0
       current_timestamp = Time.now
       expires_at = current_timestamp + params[:ttl]
-      lock.expires_at = expires_at
-      lock.modified_at = current_timestamp
-      lock.save
+      Lock.where(account: account, lock_id: params[:identifier]).update(modified_at: current_timestamp, expires_at: expires_at)
       render(json: lock.as_json, status: :ok)
     else
-      raise Exceptions::RecordNotFound.new(params[:identifier], message: LOCK_NOT_FOUND)
+      render(json: {
+        error: {
+          code: "not_found",
+          message: "Lock not found",
+          target: "lock",
+          details: {
+            code: "not_found",
+            target: "id",
+            message: params[:identifier]
+          }
+        }
+      }, status: :not_found)
     end
-
     logger.info("PATCH /locks/:account/*identifier ended successfully")
   end
 
   def delete
     logger.info("DELETE /locks/:account/*identifier started")
-    # authorize(:delete, resource)
-
-    delete_expired(params[:account])
+    authorize(:delete)
 
     lock = get_lock_from_db(params[:account], params[:identifier])
-    if lock
+    if lock and delete_lock_if_expired(params[:account], params[:identifier]) == 0
       lock.delete
       head :ok
     else
-      raise Exceptions::RecordNotFound.new(params[:identifier], message: LOCK_NOT_FOUND)
+      render(json: {
+        error: {
+          code: "not_found",
+          message: "Lock not found",
+          target: "lock",
+          details: {
+            code: "not_found",
+            target: "id",
+            message: params[:identifier]
+          }
+        }
+      }, status: :not_found)
     end
-
     logger.info("DELETE /locks/:account/*identifier ended successfully")
   end
 
@@ -90,7 +113,7 @@ class LocksController < RestController
     Lock.where(account: account, lock_id: lock_id).first
   end
 
-  def delete_expired(account)
-    Lock.where(Sequel.lit("account = ? AND expires_at <= NOW()", account)).delete
+  def delete_lock_if_expired(account, lock_id)
+    Lock.where(Sequel.lit("account = ? AND lock_id = ? AND expires_at <= NOW()", account, lock_id)).delete
   end
 end
