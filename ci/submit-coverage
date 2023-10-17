@@ -1,8 +1,6 @@
 #!/bin/bash
 
-# Script to submit simplecov coverage report to Code Climate.  Only one report
-# can be submitted per commit, so this can only run once pre build, not for
-# each test set.
+# Script to prepare simplecov coverage reports.
 
 # The rspec and cucumber reports are all written to repo_root/coverage
 # Simplecov handles locking and merging for parallel tests.  The GKE tests
@@ -11,7 +9,6 @@
 
 set -eux
 
-BIN="cc-test-reporter"
 DIR="coverage"
 REPORT="$DIR/.resultset.json"
 GKE_DIR="ci/test_suites/authenticators_k8s/output"
@@ -42,18 +39,6 @@ ensure_report_exists "$GKE_DIR" "$GKE_REPORT"
 
 echo "SimpleCov Reports Found: $REPORT, $GKE_REPORT"
 
-# The binary should always be available. A preparatory Jenkinsfile stage should
-# have called "ccCoverage.dockerPrep()", which downloads the binary from
-# CodeClimate.
-if [[ ! -x "$BIN" ]]; then
-  echo "ERROR: cc-test-reporter binary not found."
-  echo "Did 'ccCoverage.dockerPrep()' fail?"
-  echo "Not reporting coverage data to code climate."
-  echo "Here are the directory contents where the binary was expected to be:"
-  ls -laR "$DIR"
-  exit 1
-fi
-
 # Preserve a pre-merge version of the results from the non gke test branches.
 cp "$REPORT" "$DIR/.resultset-non-gke.json"
 
@@ -78,12 +63,4 @@ pushd ci/coverage-report-generator
   ./run.sh
 popd
 
-echo "Coverage reports prepared, submitting to CodeClimate."
-
-# vars GIT_COMMIT, GIT_BRANCH & TRID are set by ccCoverage.dockerPrep
-"./$BIN" after-build \
-    --coverage-input-type "simplecov" \
-    --id "$TRID" \
-    --debug
-
-echo "Successfully Reported Coverage Data"
+echo "Coverage reports prepared."
