@@ -140,7 +140,7 @@ services:
       CONJUR_DATA_KEY:
       REPORT_ROOT:
       CUCUMBER_NETWORK:
-      CUCUMBER_FILTER_TAGS:
+      INFRAPOOL_CUCUMBER_FILTER_TAGS:
       # TODO: Where should we be running rspec tests from, ideally?
       # See https://github.com/DatabaseCleaner/database_cleaner#safeguards
       DATABASE_CLEANER_ALLOW_REMOTE_DATABASE_URL: "true"
@@ -180,6 +180,10 @@ services:
 
   keycloak:
     image: jboss/keycloak:4.3.0.Final
+    ulimits:
+      nofile:
+        soft: 6114
+        hard: 6114
     environment:
       - KEYCLOAK_USER=admin
       - KEYCLOAK_PASSWORD=admin

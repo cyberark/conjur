@@ -13,7 +13,7 @@ cleanup_function() {
 
 validate_pre_requisites() {
   echo 'validate_pre_requisites'
-  if [ -z "$GCP_PROJECT" ]; then
+  if [ -z "$INFRAPOOL_GCP_PROJECT" ]; then
     echo "ERROR: function cannot be deleted, GCP project name is undefined."
     exit 1
   fi
@@ -31,10 +31,10 @@ validate_pre_requisites() {
 }
 
 delete_function() {
-  echo "Delete function: $GCF_FUNC_NAME in project: $GCP_PROJECT"
+  echo "Delete function: $GCF_FUNC_NAME in project: $INFRAPOOL_GCP_PROJECT"
 
   # Set the project for the following commands
-  gcloud config set project "$GCP_PROJECT"
+  gcloud config set project "$INFRAPOOL_GCP_PROJECT"
 
   # Authenticate using the service account key file
   # NOTE! The script that runs the container with this script provisions the file
@@ -60,7 +60,7 @@ delete_function() {
 # in the request header as bearer token.
 delete_identity_token() {
   echo 'delete_identity_token'
-  local token_file="$HOME/$IDENTITY_TOKEN_FILE"
+  local token_file="$HOME/$INFRAPOOL_IDENTITY_TOKEN_FILE"
   echo "Delete identity-token file: '$token_file'"
 
   if [ -f "$token_file" ]; then
