@@ -74,6 +74,7 @@ class LocksController < RestController
     if lock
       expires_at = Lock.db.get(Sequel.lit("CURRENT_TIMESTAMP + interval ?", "#{params[:ttl]} second"))
       Lock.where(account: account, lock_id: params[:identifier]).update(modified_at: Sequel::CURRENT_TIMESTAMP, expires_at: expires_at)
+      lock = get_lock_from_db(params[:account], params[:identifier])
       render(json: lock.as_json, status: :ok)
     else
       render(json: {

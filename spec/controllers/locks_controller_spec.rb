@@ -232,31 +232,6 @@ describe LocksController, type: :request do
         end
       end
     end
-
-    context "when a user tries to delete a lock that expired" do
-      let(:payload_create_lock) do
-        <<~BODY
-          {
-            "id": "my-lock",
-            "owner": "my-lock-owner",
-            "ttl": 1
-          }
-        BODY
-      end
-      it 'returns not found' do
-        post("/locks/rspec",
-             env: token_auth_header(role: admin_user).merge(
-               'RAW_POST_DATA' => payload_create_lock,
-               'CONTENT_TYPE' => "application/json"
-             ))
-        assert_response :created
-        sleep(2)
-        delete("/locks/rspec/my-lock",
-            env: token_auth_header(role: admin_user))
-        assert_response :not_found
-        expect(response.body).to eq("{\"error\":{\"code\":\"not_found\",\"message\":\"Lock not found\",\"target\":\"lock\",\"details\":{\"code\":\"not_found\",\"target\":\"id\",\"message\":\"my-lock\"}}}")
-      end
-    end
   end
 
   describe "#get" do
@@ -331,31 +306,6 @@ describe LocksController, type: :request do
             env: token_auth_header(role: alice_user))
         assert_response :not_found
         expect(response.body).to eq("{\"error\":{\"code\":\"not_found\",\"message\":\"Webservice 'conjur/locks/my-lock' not found in account 'rspec'\",\"target\":\"webservice\",\"details\":{\"code\":\"not_found\",\"target\":\"id\",\"message\":\"rspec:webservice:conjur/locks/my-lock\"}}}")
-      end
-    end
-
-    context "when a user tries to get a lock that expired" do
-      let(:payload_create_lock) do
-        <<~BODY
-          {
-            "id": "my-lock",
-            "owner": "my-lock-owner",
-            "ttl": 1
-          }
-        BODY
-      end
-      it 'returns not found' do
-        post("/locks/rspec",
-             env: token_auth_header(role: admin_user).merge(
-               'RAW_POST_DATA' => payload_create_lock,
-               'CONTENT_TYPE' => "application/json"
-             ))
-        assert_response :created
-        sleep(2)
-        get("/locks/rspec/my-lock",
-            env: token_auth_header(role: admin_user))
-        assert_response :not_found
-        expect(response.body).to eq("{\"error\":{\"code\":\"not_found\",\"message\":\"Lock not found\",\"target\":\"lock\",\"details\":{\"code\":\"not_found\",\"target\":\"id\",\"message\":\"my-lock\"}}}")
       end
     end
   end

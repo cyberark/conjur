@@ -70,3 +70,11 @@ Then(/^the binary data is preserved for "([^"]*)"$/) do |resource_id|
   data = Base64.decode64(@result[resource_id])
   expect(data).to eq(@value)
 end
+
+Then(/^the JSON response field "([^"]*)" is not equal to field "([^"]*)"$/) do |field1, field2|
+  expect(@result[field1]).to_not eq(@result[field2])
+end
+
+Then(/^the JSON response field "([^"]*)" is equal to field "([^"]*)"$/) do |field1, field2|
+  expect(@result[field1]).to eq(@result[field2])
+end
