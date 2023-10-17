@@ -459,6 +459,8 @@ GEM
       unicode-display_width (~> 1.0, >= 1.0.1)
     rubocop-checkstyle_formatter (0.4.0)
       rubocop (>= 0.35.1)
+    ruby-debug-ide (0.7.3)
+      rake (>= 0.8.1)
     ruby-next-core (0.14.0)
     ruby-progressbar (1.11.0)
     ruby2_keywords (0.0.5)
@@ -604,6 +606,7 @@ DEPENDENCIES
   rspec-rails
   rubocop (~> 0.58.0)
   rubocop-checkstyle_formatter
+  ruby-debug-ide
   rufus-scheduler
   sequel
   sequel-pg_advisory_locking
