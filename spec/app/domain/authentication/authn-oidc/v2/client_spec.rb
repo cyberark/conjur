@@ -43,6 +43,93 @@ RSpec.describe(Authentication::AuthnOidc::V2::Client) do
         end
       end
     end
+
+    describe '.callback_with_temporary_cert', type: 'unit' do
+      context 'when credentials are valid', vcr: "authenticators/authn-oidc/v2/#{config[:service_id]}/client_callback-valid_oidc_credentials" do
+        context 'when no cert is required' do
+          it 'returns a valid JWT token' do
+            travel_to(Time.parse(config[:auth_time])) do
+              token = client(config).callback_with_temporary_cert(
+                code: config[:code],
+                code_verifier: config[:code_verifier],
+                nonce: config[:nonce]
+              )
+              expect(token).to be_a_kind_of(OpenIDConnect::ResponseObject::IdToken)
+              expect(token.raw_attributes['nonce']).to eq(config[:nonce])
+              expect(token.raw_attributes['preferred_username']).to eq(config[:username])
+              expect(token.aud).to eq(config[:client_id])
+            end
+          end
+        end
+
+        context 'when valid certificate is provided' do
+          let(:cert) { <<~EOF
+            -----BEGIN CERTIFICATE-----
+            MIIDqzCCApOgAwIBAgIJAP9vSJDyPfQdMA0GCSqGSIb3DQEBCwUAMGwxCzAJBgNV
+            BAYTAlVTMRYwFAYDVQQIDA1NYXNzYWNodXNldHRzMQ8wDQYDVQQHDAZOZXd0b24x
+            ETAPBgNVBAoMCEN5YmVyQXJrMQ8wDQYDVQQLDAZDb25qdXIxEDAOBgNVBAMMB1Jv
+            b3QgQ0EwHhcNMjMwODIzMjIyMjU1WhcNMzExMTA5MjIyMjU1WjBsMQswCQYDVQQG
+            EwJVUzEWMBQGA1UECAwNTWFzc2FjaHVzZXR0czEPMA0GA1UEBwwGTmV3dG9uMREw
+            DwYDVQQKDAhDeWJlckFyazEPMA0GA1UECwwGQ29uanVyMRAwDgYDVQQDDAdSb290
+            IENBMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA7YPg2tpJYygd37RB
+            JQrAEnqtMctB01jSB4Snm3oQVz33z1OfLulTeJA56gwWN4OVm737zUJM1GET6fFC
+            ZIVsrhk8WsKeilnyE3FeVMmpbbteUt7DcTS2bpmk6p0MlaN8Y3EoDmVLKmcAoRXS
+            xLi8iOkClJPbpSbjQDg2ZnpyfEFBE+jhOWaFkgaSVt2tTUrAt3+F/3o6rRtsXplC
+            m2Fj/qK9x4Yw5sw098ztLNNomMCmhSD4ACn4jSZoq0HTH9QrZ9agXTpKkDOeAjMJ
+            O08T4XqW61o1YJRPjgIYqwtyCs5DHSzj4AmuYRSDRBgK/mIDDiQd9XL0VFW8CcKP
+            DnxSdQIDAQABo1AwTjAdBgNVHQ4EFgQU2/KbZMd7y7ZBfK884/4vB0AAg+AwHwYD
+            VR0jBBgwFoAU2/KbZMd7y7ZBfK884/4vB0AAg+AwDAYDVR0TBAUwAwEB/zANBgkq
+            hkiG9w0BAQsFAAOCAQEAr2UxJLH5j+3iez0mSwPY2m6QqK57mUWDzgMFHCtuohYT
+            saqhBXzsgHqFElw2WM2fQpeSxHqr0R1MrDz+qBg/tgFJ6AnVkW56v41oJb+kZsi/
+            fhk7OhU9MhOqG9Wlnptp4QiLCCuKeDUUfQCnu15peR9vxQt0cLlzmr8MQdTuMvb9
+            Vi7jey+Y5P04D8sqNP4BNUSRW8TwAKWkPJ4r3GybMsoCwqhb9+zAeYUj30TaxzKK
+            VSC0BRw+2QY8OllJPYIE3SCPK+v4SZp72KZ9ooSV+52ezmOCARuNWaNZKCbdPSme
+            DBHPd2jZXDVr5nrOEppAnma6VgmlRSN393j6GOiNIw==
+            -----END CERTIFICATE-----
+          EOF
+          }
+          let(:cert_subject_hash) { OpenSSL::X509::Certificate.new(cert).subject.hash.to_s(16) }
+          let(:symlink_path) { File.join(OpenSSL::X509::DEFAULT_CERT_DIR, "#{cert_subject_hash}.0") }
+
+          it 'cleans up the temporary certificate file' do
+            travel_to(Time.parse(config[:auth_time])) do
+              expect(File.exist?(symlink_path)).to be false
+              client(config).callback_with_temporary_cert(
+                code: config[:code],
+                code_verifier: config[:code_verifier],
+                nonce: config[:nonce],
+                cert_string: cert
+              )
+              expect(File.exist?(symlink_path)).to be false
+            end
+          end
+
+          context 'if a symlink for the certificate subject already exists' do
+            before(:each) do
+              @tempfile = Tempfile.new("rspec.pem")
+              File.symlink(@tempfile, symlink_path)
+            end
+
+            after(:each) do
+              @tempfile.close!
+              File.unlink(symlink_path)
+            end
+
+            it 'maintains the certificate file' do
+              travel_to(Time.parse(config[:auth_time])) do
+                client(config).callback_with_temporary_cert(
+                  code: config[:code],
+                  code_verifier: config[:code_verifier],
+                  nonce: config[:nonce],
+                  cert_string: cert
+                )
+                expect(File.exist?(symlink_path)).to be true
+              end
+            end
+          end
+        end
+      end
+    end
   end
 
   shared_examples 'token retrieval failures' do |config|
@@ -78,7 +165,7 @@ RSpec.describe(Authentication::AuthnOidc::V2::Client) do
           )
         end
       end
-  
+
       context 'when code has expired', vcr: "authenticators/authn-oidc/v2/#{config[:service_id]}/client_callback-expired_code-valid_oidc_credentials" do
         it 'raise an exception' do
           expect do
@@ -91,6 +178,45 @@ RSpec.describe(Authentication::AuthnOidc::V2::Client) do
             Errors::Authentication::AuthnOidc::TokenRetrievalFailed,
             "CONJ00133E Access Token retrieval failure: 'Authorization code is invalid or has expired'"
           )
+        end
+      end
+    end
+
+    describe '.callback_with_temporary_cert', type: 'unit' do
+      context 'when invalid cert is provided', vcr: 'enabled' do
+        context 'string does not contain a certificate' do
+          let(:cert) { "does not contain a certificate" }
+
+          it 'raises an error' do
+            expect do
+              client(config).callback_with_temporary_cert(
+                code: config[:code],
+                code_verifier: config[:code_verifier],
+                nonce: config[:nonce],
+                cert_string: cert
+              )
+            end.to raise_error(Errors::Authentication::AuthnOidc::InvalidCertificate)
+          end
+        end
+
+        context 'string contains malformed certificate' do
+          let(:cert) { <<~EOF
+            -----BEGIN CERTIFICATE-----
+            hello future contributor :)
+            -----END CERTIFICATE-----
+          EOF
+          }
+
+          it 'raises an error' do
+            expect do
+              client(config).callback_with_temporary_cert(
+                code: config[:code],
+                code_verifier: config[:code_verifier],
+                nonce: config[:nonce],
+                cert_string: cert
+              )
+            end.to raise_error(Errors::Authentication::AuthnOidc::InvalidCertificate)
+          end
         end
       end
     end
@@ -231,5 +357,273 @@ RSpec.describe(Authentication::AuthnOidc::V2::Client) do
 
     include_examples 'client setup', config
     include_examples 'token retrieval failures', config
+  end
+
+  describe '.discover', type: 'unit' do
+    let(:target) { Authentication::AuthnOidc::V2::Client }
+    let(:provider_uri) { "https://oidcprovider.com" }
+    let(:mock_discovery) { double("Mock Discovery Config") }
+    let(:mock_response) { "Mock Discovery Response" }
+
+    before(:each) do
+      @cert_dir = Dir.mktmpdir
+    end
+
+    after(:each) do
+      FileUtils.remove_entry @cert_dir
+    end
+
+    context 'when cert is not provided' do
+      it 'does not write the certificate' do
+        allow(mock_discovery).to receive(:discover!).with(String) do
+          expect(Dir.entries(@cert_dir).select do |entry|
+            entry unless [".", ".."].include?(entry)
+          end).to be_empty
+        end
+
+        target.discover(
+          provider_uri: provider_uri,
+          discovery_configuration: mock_discovery,
+          cert_dir: @cert_dir,
+          cert_string: ""
+        )
+      end
+
+      it 'returns the discovery response' do
+        allow(mock_discovery).to receive(:discover!).with(String).and_return(
+          mock_response
+        )
+
+        expect(target.discover(
+          provider_uri: provider_uri,
+          discovery_configuration: mock_discovery,
+          cert_dir: @cert_dir,
+          cert_string: ""
+        )).to eq(mock_response)
+      end
+    end
+
+    context 'when valid cert is provided' do
+      let(:cert) { <<~EOF
+        -----BEGIN CERTIFICATE-----
+        MIIDqzCCApOgAwIBAgIJAP9vSJDyPfQdMA0GCSqGSIb3DQEBCwUAMGwxCzAJBgNV
+        BAYTAlVTMRYwFAYDVQQIDA1NYXNzYWNodXNldHRzMQ8wDQYDVQQHDAZOZXd0b24x
+        ETAPBgNVBAoMCEN5YmVyQXJrMQ8wDQYDVQQLDAZDb25qdXIxEDAOBgNVBAMMB1Jv
+        b3QgQ0EwHhcNMjMwODIzMjIyMjU1WhcNMzExMTA5MjIyMjU1WjBsMQswCQYDVQQG
+        EwJVUzEWMBQGA1UECAwNTWFzc2FjaHVzZXR0czEPMA0GA1UEBwwGTmV3dG9uMREw
+        DwYDVQQKDAhDeWJlckFyazEPMA0GA1UECwwGQ29uanVyMRAwDgYDVQQDDAdSb290
+        IENBMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA7YPg2tpJYygd37RB
+        JQrAEnqtMctB01jSB4Snm3oQVz33z1OfLulTeJA56gwWN4OVm737zUJM1GET6fFC
+        ZIVsrhk8WsKeilnyE3FeVMmpbbteUt7DcTS2bpmk6p0MlaN8Y3EoDmVLKmcAoRXS
+        xLi8iOkClJPbpSbjQDg2ZnpyfEFBE+jhOWaFkgaSVt2tTUrAt3+F/3o6rRtsXplC
+        m2Fj/qK9x4Yw5sw098ztLNNomMCmhSD4ACn4jSZoq0HTH9QrZ9agXTpKkDOeAjMJ
+        O08T4XqW61o1YJRPjgIYqwtyCs5DHSzj4AmuYRSDRBgK/mIDDiQd9XL0VFW8CcKP
+        DnxSdQIDAQABo1AwTjAdBgNVHQ4EFgQU2/KbZMd7y7ZBfK884/4vB0AAg+AwHwYD
+        VR0jBBgwFoAU2/KbZMd7y7ZBfK884/4vB0AAg+AwDAYDVR0TBAUwAwEB/zANBgkq
+        hkiG9w0BAQsFAAOCAQEAr2UxJLH5j+3iez0mSwPY2m6QqK57mUWDzgMFHCtuohYT
+        saqhBXzsgHqFElw2WM2fQpeSxHqr0R1MrDz+qBg/tgFJ6AnVkW56v41oJb+kZsi/
+        fhk7OhU9MhOqG9Wlnptp4QiLCCuKeDUUfQCnu15peR9vxQt0cLlzmr8MQdTuMvb9
+        Vi7jey+Y5P04D8sqNP4BNUSRW8TwAKWkPJ4r3GybMsoCwqhb9+zAeYUj30TaxzKK
+        VSC0BRw+2QY8OllJPYIE3SCPK+v4SZp72KZ9ooSV+52ezmOCARuNWaNZKCbdPSme
+        DBHPd2jZXDVr5nrOEppAnma6VgmlRSN393j6GOiNIw==
+        -----END CERTIFICATE-----
+      EOF
+      }
+      let(:cert_subject_hash) { OpenSSL::X509::Certificate.new(cert).subject.hash.to_s(16) }
+      let(:symlink_path) { File.join(@cert_dir, "#{cert_subject_hash}.0") }
+
+      it 'writes the certificate to the specified directory' do
+        allow(mock_discovery).to receive(:discover!).with(String) do
+          expect(File.exist?(symlink_path)).to be true
+          expect(File.read(symlink_path)).to eq(cert)
+        end
+
+        target.discover(
+          provider_uri: provider_uri,
+          discovery_configuration: mock_discovery,
+          cert_dir: @cert_dir,
+          cert_string: cert
+        )
+      end
+
+      it 'cleans up the certificate after fetching discovery information' do
+        allow(mock_discovery).to receive(:discover!).with(String)
+
+        target.discover(
+          provider_uri: provider_uri,
+          discovery_configuration: mock_discovery,
+          cert_dir: @cert_dir,
+          cert_string: cert
+        )
+
+        expect(File.exist?(symlink_path)).to be false
+      end
+
+      context 'when target symlink already exists' do
+        before(:each) do
+          @tempfile = Tempfile.new("rspec.pem")
+          File.symlink(@tempfile, symlink_path)
+        end
+
+        after(:each) do
+          @tempfile.close!
+          File.unlink(symlink_path)
+        end
+
+        it 'writes the certificate to the specified directory with incremented name' do
+          allow(mock_discovery).to receive(:discover!).with(String) do
+            expect(File.exist?(symlink_path)).to be true
+
+            incremented = File.join(@cert_dir, "#{cert_subject_hash}.1")
+            expect(File.exist?(incremented))
+            expect(File.read(incremented)).to eq(cert)
+          end
+
+          target.discover(
+            provider_uri: provider_uri,
+            discovery_configuration: mock_discovery,
+            cert_dir: @cert_dir,
+            cert_string: cert
+          )
+        end
+
+        it 'maintains the original while cleaning up the created cert' do
+          allow(mock_discovery).to receive(:discover!).with(String)
+
+          target.discover(
+            provider_uri: provider_uri,
+            discovery_configuration: mock_discovery,
+            cert_dir: @cert_dir,
+            cert_string: cert
+          )
+
+          expect(File.exist?(symlink_path)).to be true
+          expect(File.exist?(File.join(@cert_dir, "#{cert_subject_hash}.1"))).to be false
+        end
+      end
+    end
+
+    context 'when valid cert chain is provided' do
+      let(:client_cert) { <<~EOF
+        -----BEGIN CERTIFICATE-----
+        MIIC6zCCAlQCAQEwDQYJKoZIhvcNAQELBQAwdjELMAkGA1UEBhMCVVMxFjAUBgNV
+        BAgMDU1hc3NhY2h1c2V0dHMxDzANBgNVBAcMBk5ld3RvbjERMA8GA1UECgwIQ3li
+        ZXJBcmsxDzANBgNVBAsMBkNvbmp1cjEaMBgGA1UEAwwRVW5pdCBUZXN0IFJvb3Qg
+        Q0EwHhcNMjMwODI1MTgxMzM1WhcNMzMwODIyMTgxMzM1WjCBgTELMAkGA1UEBhMC
+        VVMxFjAUBgNVBAgMDU1hc3NhY2h1c2V0dHMxDzANBgNVBAcMBk5ld3RvbjERMA8G
+        A1UECgwIQ3liZXJBcmsxDzANBgNVBAsMBkNvbmp1cjElMCMGA1UEAwwcVW5pdCBU
+        ZXN0IENsaWVudCBDZXJ0aWZpY2F0ZTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCC
+        AQoCggEBAMPeuIWmjgF381jSV2/lgS2tZYkD53ukM9nlnIEI3N4QZ46aD0+tcet+
+        2gZ5+TdwceZMc8R8krSuA25Kojn2tvKInyrmWWbIGV2JA+iBeRiMSjbbh4keAWYW
+        /HKawCRfdxmYheBEFbbKtFcsKxuIqEmFEdwG7TeJx6wr2zIayenC7I8HzAk7LQSW
+        pJb6Fv/gpbagNmnoITeIC58s+ibF77OVk5XW0hFkyO/La46R+WhATp8ayYmXpwWT
+        yVemxs4P60N5AK8NvmvRPxuQfOSAP154W0WYD5FtKUcPP3CdOQEZhGjWGiScZ7mr
+        6aLYuac4gS7b/kOC+Fzqw3NNY7vUs6MCAwEAATANBgkqhkiG9w0BAQsFAAOBgQB5
+        O4a3Qs5zPO2cGW4fX92nmB9jj1sxik+3hVV/aTHNUfAYJ0aula+kKqghbVlrlsAm
+        6Oqdw3WCoBkUjqUQqqPlLqmmxA/AW+izqLzvaZnBCGyHiFGYUFhMilk9mfE/m63v
+        EhjKF017l50ptBaUYiD1W9IXGWZJ9b1nxnr/S+CXCQ==
+        -----END CERTIFICATE-----
+      EOF
+      }
+      let(:client_hash) { OpenSSL::X509::Certificate.new(client_cert).subject.hash.to_s(16) }
+      let(:ca_cert) { <<~EOF
+        -----BEGIN CERTIFICATE-----
+        MIICYzCCAcwCCQCtimZfxnGkRTANBgkqhkiG9w0BAQsFADB2MQswCQYDVQQGEwJV
+        UzEWMBQGA1UECAwNTWFzc2FjaHVzZXR0czEPMA0GA1UEBwwGTmV3dG9uMREwDwYD
+        VQQKDAhDeWJlckFyazEPMA0GA1UECwwGQ29uanVyMRowGAYDVQQDDBFVbml0IFRl
+        c3QgUm9vdCBDQTAeFw0yMzA4MjUxODA5MjJaFw0zMzA4MjIxODA5MjJaMHYxCzAJ
+        BgNVBAYTAlVTMRYwFAYDVQQIDA1NYXNzYWNodXNldHRzMQ8wDQYDVQQHDAZOZXd0
+        b24xETAPBgNVBAoMCEN5YmVyQXJrMQ8wDQYDVQQLDAZDb25qdXIxGjAYBgNVBAMM
+        EVVuaXQgVGVzdCBSb290IENBMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQD0
+        r78pu6hJZTKXR4qLHNbZ8sM4IWrTBRerBumf5Qjq3LmNhvMCXYee1Z9YmHOh5UrA
+        JbONCM3ASt1INbf3pD52JJEEWA8udEvGhONsnrjuXI2DoBg/W/4rye9p6+SagOSF
+        O9oLUIczL4XxIgE1CXi89uwCwn0BxjLnaLraMxvbgQIDAQABMA0GCSqGSIb3DQEB
+        CwUAA4GBANUZ4iQLe83CIb4DV73a+OUwZ19YJ0DCMvXDMWW0CTwVv4DhxM8ZkTpu
+        1FQ/uXrA9FP/kulYAMLqo8RkYiE+u64Jbs/vWebupyV89dh5sFEsp0PafQa415C6
+        h1Tg+4C+eSkQIEIGVm8tLVG8JQL4sweo/gQGdzcxfCSfPZHqInzD
+        -----END CERTIFICATE-----
+      EOF
+      }
+      let(:ca_hash) { OpenSSL::X509::Certificate.new(ca_cert).subject.hash.to_s(16) }
+      let(:cert_strings) { [ client_cert, ca_cert ] }
+      let(:hashes) { [ client_hash, ca_hash ] }
+      let(:cert_chain) { "#{client_cert}\n#{ca_cert}" }
+
+      it 'writes all certificates to the specified directory' do
+        allow(mock_discovery).to receive(:discover!).with(String) do
+          hashes.each_with_index do |hash, i|
+            cert_path = File.join(@cert_dir, "#{hash}.0")
+            expect(File.exist?(cert_path)).to be true
+            expect(File.symlink?(cert_path)).to be true
+            expect(File.read(cert_path)).to eq(cert_strings[i])
+          end
+        end
+
+        target.discover(
+          provider_uri: provider_uri,
+          discovery_configuration: mock_discovery,
+          cert_dir: @cert_dir,
+          cert_string: cert_chain
+        )
+      end
+
+      it 'cleans up all certificates after fetching discovery information' do
+        allow(mock_discovery).to receive(:discover!).with(String)
+
+        target.discover(
+          provider_uri: provider_uri,
+          discovery_configuration: mock_discovery,
+          cert_dir: @cert_dir,
+          cert_string: cert_chain
+        )
+
+        hashes.each do |hash|
+          cert_path = File.join(@cert_dir, "#{hash}.0")
+          expect(File.exist?(cert_path)).to be false
+        end
+      end
+    end
+
+    context 'when invalid cert is provided' do
+      context 'string does not contain a certificate' do
+        let(:cert) { "does not contain a certificate" }
+
+        it 'raises an error' do
+          expect do
+            target.discover(
+              provider_uri: provider_uri,
+              discovery_configuration: mock_discovery,
+              cert_dir: @cert_dir,
+              cert_string: cert
+            )
+          end.to raise_error(Errors::Authentication::AuthnOidc::InvalidCertificate) do |e|
+            expect(e.message).to include("provided string does not contain a certificate")
+          end
+        end
+      end
+
+      context 'string contains malformed certificate' do
+        let(:cert) { <<~EOF
+          -----BEGIN CERTIFICATE-----
+          hellofuturecontributor:)
+          -----END CERTIFICATE-----
+        EOF
+        }
+
+        it 'raises an error' do
+          expect do
+            target.discover(
+              provider_uri: provider_uri,
+              discovery_configuration: mock_discovery,
+              cert_dir: @cert_dir,
+              cert_string: cert
+            )
+          end.to raise_error(Errors::Authentication::AuthnOidc::InvalidCertificate) do |e|
+            expect(e.message).to include(cert)
+            expect(e.message).to include("nested asn1 error")
+          end
+        end
+      end
+    end
   end
 end

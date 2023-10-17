@@ -36,7 +36,8 @@ module Authentication
             claims_to_verify: {
               verify_iss: true,
               iss: provider_uri
-            }
+            },
+            ca_cert: nil
           ),
           logger: @logger
         )

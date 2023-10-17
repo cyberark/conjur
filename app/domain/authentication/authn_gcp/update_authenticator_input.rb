@@ -50,7 +50,8 @@ module Authentication
               iss: PROVIDER_URI,
               verify_iat: true,
               verify_expiration: true
-            }
+            },
+            ca_cert: nil
           ),
           logger: @logger
         )

@@ -22,7 +22,8 @@ RSpec.describe(Authentication::OAuth::DiscoverIdentityProvider) do
       Authentication::OAuth::DiscoverIdentityProvider.new(
         open_id_discovery_service: mock_discovery_provider(error: nil)
       ).call(
-        provider_uri: test_provider_uri
+        provider_uri: test_provider_uri,
+        ca_cert: nil
       )
     end
 
@@ -39,9 +40,10 @@ RSpec.describe(Authentication::OAuth::DiscoverIdentityProvider) do
     context "that fails on a timeout error" do
       subject do
         Authentication::OAuth::DiscoverIdentityProvider.new(
-          open_id_discovery_service: mock_discovery_provider(error: HTTPClient::ConnectTimeoutError)
+          open_id_discovery_service: mock_discovery_provider(error: Errno::ETIMEDOUT)
         ).call(
-          provider_uri: test_provider_uri
+          provider_uri: test_provider_uri,
+          ca_cert: nil
         )
       end
 
@@ -54,7 +56,8 @@ RSpec.describe(Authentication::OAuth::DiscoverIdentityProvider) do
           Authentication::OAuth::DiscoverIdentityProvider.new(
             open_id_discovery_service: mock_discovery_provider(error: test_error)
           ).call(
-            provider_uri: test_provider_uri
+            provider_uri: test_provider_uri,
+            ca_cert: nil
           )
         end
 

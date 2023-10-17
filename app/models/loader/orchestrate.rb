@@ -120,8 +120,9 @@ module Loader
     end
 
     # TODO: consider renaming this method
-    def store_policy_in_db
-      eliminate_duplicates_pk
+    def store_policy_in_db(reject_duplicates: false)
+      removed_duplicates_count = eliminate_duplicates_pk
+      raise Exceptions::DisallowedPolicyOperation if removed_duplicates_count.positive? && reject_duplicates
 
       insert_new
 
@@ -243,8 +244,9 @@ module Loader
     end
 
     # Delete rows from the new policy which have the same primary keys as existing rows.
+    # Returns the total number of deleted rows.
     def eliminate_duplicates_pk
-      TABLES.each do |table|
+      TABLES.sum do |table|
         eliminate_duplicates(table, Array(model_for_table(table).primary_key) + [ :policy_id ])
       end
     end

@@ -38,6 +38,7 @@ ENABLE_OIDC_OKTA=false
 ENABLE_ROTATORS=false
 ENABLE_EPHEMERAL_SECRET=false
 IDENTITY_USER=""
+COMPOSE="docker compose"
 
 declare -a required_envvars
 required_envvars[identity]="IDENTITY_CLIENT_ID IDENTITY_CLIENT_SECRET IDENTITY_PROVIDER_URI"
@@ -238,6 +239,7 @@ setup_keycloak() {
   pushd "../ci"
   # CC servers can't find it for some reason.  Local shellcheck is fine.
   # shellcheck disable=SC1091
+  export COMPOSE="docker compose"
   source "oauth/keycloak/keycloak_functions.sh"
   popd
 
@@ -303,6 +305,9 @@ configure_oidc_v1() {
   client_load_policy "/src/conjur-server/$policy_path"
   client_add_secret "conjur/authn-oidc/$service_id/provider-uri" "$provider_uri"
   client_add_secret "conjur/authn-oidc/$service_id/id-token-user-property" "$token_property"
+  if [ "$service_id" = "keycloak" ]; then
+    client_add_secret "conjur/authn-oidc/$service_id/ca-cert" "$($COMPOSE exec conjur cat /etc/ssl/certs/keycloak.pem)"
+  fi
 }
 
 configure_oidc_v2() {
@@ -318,6 +323,9 @@ configure_oidc_v2() {
   client_add_secret "conjur/authn-oidc/$service_id/client-secret" "$client_secret"
   client_add_secret "conjur/authn-oidc/$service_id/claim-mapping" "$claim_mapping"
   client_add_secret "conjur/authn-oidc/$service_id/redirect_uri" "http://localhost:3000/authn-oidc/$service_id/cucumber/authenticate"
+  if [ "$service_id" = "keycloak2" ]; then
+    client_add_secret "conjur/authn-oidc/$service_id/ca-cert" "$($COMPOSE exec conjur cat /etc/ssl/certs/keycloak.pem)"
+  fi
 
   client_load_policy "/src/conjur-server/dev/policies/authenticators/authn-oidc/$service_id-users.yml"
 }

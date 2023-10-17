@@ -6,7 +6,7 @@ module Authentication
         logger: Rails.logger,
         open_id_discovery_service: OpenIDConnect::Discovery::Provider::Config
       },
-      inputs: %i[provider_uri]
+      inputs: %i[provider_uri ca_cert]
     ) do
       def call
         log_provider_uri
@@ -33,7 +33,7 @@ module Authentication
           LogMessages::Authentication::OAuth::IdentityProviderDiscoverySuccess.new
         )
         @discovered_provider
-      rescue HTTPClient::ConnectTimeoutError, Errno::ETIMEDOUT => e
+      rescue Errno::ETIMEDOUT => e
         raise_error(Errors::Authentication::OAuth::ProviderDiscoveryTimeout, e)
       rescue => e
         raise_error(Errors::Authentication::OAuth::ProviderDiscoveryFailed, e)
