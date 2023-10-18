@@ -26,7 +26,7 @@ Feature: Azure Authenticator - Performance tests
     """
     And I am the super-user
     And I successfully set Azure provider-uri variable with the correct values
-    And I have host "test-app"
+    And I have host "test-app" without api key
     And I set Azure annotations to host "test-app"
     And I grant group "conjur/authn-azure/prod/apps" to host "test-app"
 
@@ -50,7 +50,7 @@ Feature: Azure Authenticator - Performance tests
 
   @performance @negative
   Scenario: Unsuccessful requests with invalid resource restrictions
-    Given I have host "no-azure-annotations-app"
+    Given I have host "no-azure-annotations-app" without api key
     And I grant group "conjur/authn-azure/prod/apps" to host "no-azure-annotations-app"
     And I fetch a non-assigned-identity Azure access token from inside machine
     When I authenticate 1000 times in 10 threads via Azure with token as host "no-azure-annotations-app"

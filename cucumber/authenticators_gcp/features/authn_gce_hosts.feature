@@ -19,7 +19,7 @@ Feature: GCP Authenticator - GCE flow, test hosts can authentication scenarios
         privilege: [ read, authenticate ]
         resource: !webservice
     """
-    And I have host "test-app"
+    And I have host "test-app" without api key
     And I obtain a valid GCE identity token
     And I grant group "conjur/authn-gcp/apps" to host "test-app"
 
@@ -126,7 +126,7 @@ Feature: GCP Authenticator - GCE flow, test hosts can authentication scenarios
 
   @smoke
   Scenario: Hosts defined outside of root can authenticate with GCP authenticator and fetch secret
-    Given I have host "non-rooted/test-app"
+    Given I have host "non-rooted/test-app" without api key
     And I set all valid GCE annotations to host "non-rooted/test-app"
     And I grant group "conjur/authn-gcp/apps" to host "non-rooted/test-app"
     And I have a "variable" resource called "test-variable"

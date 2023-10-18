@@ -41,9 +41,6 @@ describe Role, :type => :model do
   end
 
   context "Role has API key per annotation" do
-    before do
-      allow(Rails.application.config.conjur_config).to receive(:authn_api_key_default).and_return(false)
-    end
 
     subject(:role) {  Role.create(role_id: "rspec:host:#{login}") }
 

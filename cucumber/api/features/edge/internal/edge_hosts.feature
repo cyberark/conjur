@@ -62,10 +62,10 @@ Feature: Fetching host from edge endpoint
     """
     [{"name": "authn/api-key", "value": "true"}]
     """
-    #And the JSON at "hosts/2/annotations" should be:
-    #"""
-    #[]
-    #"""
+    And the JSON at "hosts/2/annotations" should be:
+    """
+    []
+    """
 
   @acceptance
   Scenario: Fetching hosts with parameters

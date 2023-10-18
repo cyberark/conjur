@@ -160,34 +160,7 @@ module Loader
     class Host < Record
       def_delegators :@policy_object, :restricted_to
 
-      # This is a temporary policy validation check to ensure that we're not
-      # creating hosts that will fail API key-based authentication by default
-      # in the future.
-      def future_api_key_auth_will_fail?
-        # The default config value is to allow API key authentication, so if this is
-        # either the default or set to true, then future API key authentication will
-        # continue to work and we don't need to reject this policy.
-        return false if Rails.application.config.conjur_config.authn_api_key_default
-
-        # If the default API authentication config is to disallow it, and the host
-        # does not explicitly state the policy authors intentions with the
-        # `authn/api-key` annotation with value true, then we should reject this until the annotation
-        # is added to the policy object.
-        self.annotations&.[]("authn/api-key").nil? || self.annotations["authn/api-key"].to_s.casecmp?("false")
-      end
-
-      def verify
-        # If policy contains a host with annotation authn/api-key effectively false, either by explicit
-        # value or by default value, then policy load is blocked.
-        if future_api_key_auth_will_fail?
-          message = "API key authentication for hosts is disabled by default and " \
-              "will be removed in a future release. Add the 'authn/api-key' " \
-              "annotation to this host with the value 'true' to " \
-              "ensure authentication works as expected for this host in the " \
-              "future."
-          raise Exceptions::InvalidPolicyObject.new(self.id, message: message)
-        end
-      end
+      def verify; end
 
       def create!
         self.handle_restricted_to(self.roleid, restricted_to)

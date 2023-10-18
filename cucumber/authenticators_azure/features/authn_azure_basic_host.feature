@@ -27,7 +27,7 @@ Feature: Azure Authenticator - Hosts can authenticate with Azure authenticator
     """
     And I am the super-user
     And I successfully set Azure provider-uri variable with the correct values
-    And I have host "test-app"
+    And I have host "test-app" without api key
     And I set Azure annotations to host "test-app"
     And I grant group "conjur/authn-azure/prod/apps" to host "test-app"
 

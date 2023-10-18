@@ -10,11 +10,11 @@ describe Authentication::OptionalApiKey do
       Class.new { include Authentication::OptionalApiKey }.new
     end
 
-    it { subject.annotation_true?(Annotation.new(name: 'authn/api-key', value: 'true')).should be_truthy }
+    it { expect(subject.api_key_annotation_true?(Annotation.new(name: 'authn/api-key', value: 'true'))).to be_truthy }
 
-    it { subject.annotation_true?(Annotation.new(name: 'authn/api-key', value: 'false')).should be_falsey }
+    it { expect(subject.api_key_annotation_true?(Annotation.new(name: 'authn/api-key', value: 'false'))).to be_falsey }
 
-    it { subject.annotation_true?(Annotation.new(name: 'authn/other-key', value: 'true')).should be_falsey }
+    it { expect(subject.api_key_annotation_true?(Annotation.new(name: 'authn/other-key', value: 'true'))).to be_falsey }
   end
 end
 

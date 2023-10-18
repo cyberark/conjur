@@ -19,7 +19,7 @@ Feature: GCP Authenticator - GCE flow, test malformed configuration
 
       - !group apps
     """
-    And I have host "test-app"
+    And I have host "test-app" without api key
     And I set all valid GCE annotations to host "test-app"
     And I grant group "conjur/authn-gcp/apps" to host "test-app"
     And I save my place in the log file
@@ -46,7 +46,7 @@ Feature: GCP Authenticator - GCE flow, test malformed configuration
         privilege: [ read ]
         resource: !webservice
     """
-    And I have host "test-app"
+    And I have host "test-app" without api key
     And I set all valid GCE annotations to host "test-app"
     And I grant group "conjur/authn-gcp/apps" to host "test-app"
     And I save my place in the log file

@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   (and update the corresponding date), or add a new version.
 
 ## [1.0.11-cloud] - 2023-10-29
+### Changed
+- Make API-key optional for hosts
 
 ## [1.0.10-cloud] - 2023-10-22
 ### Added

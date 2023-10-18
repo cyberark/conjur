@@ -1,4 +1,4 @@
-@api @skip
+@api
 Feature: API key for host is created and removed based on host's annotation
   Background:
     Given I am the super-user

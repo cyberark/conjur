@@ -135,9 +135,8 @@ class Role < Sequel::Model
   end
 
   def api_key_expected?
-    self.kind == 'user' ||
-    Rails.application.config.conjur_config.authn_api_key_default ||
-    self.annotations.any? { |a| annotation_true?(a) }
+    self.id == 'admin' || self.kind == 'user' ||
+    self.annotations.any? { |a| api_key_annotation_true?(a) }
   end
 
   def login
