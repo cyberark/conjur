@@ -1,9 +1,9 @@
-
+# frozen_string_literal: true
 
 module Authentication
   module AuthnJwt
     module V2
-      module DataObjects
+      module Validations
 
         # Contract for validating role claim mapping
         class RoleContract < Dry::Validation::Contract

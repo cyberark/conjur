@@ -11,7 +11,7 @@ module Authentication
         audit_logger: ::Audit.logger,
         authentication_error: LogMessages::Authentication::AuthenticationError,
         available_authenticators: Authentication::InstalledAuthenticators,
-        role_repository: DB::Repository::AuthenticatorRoleRepository.new
+        role_repository: DB::Repository::AuthenticatorRoleRepository
       )
         @authenticator_type = authenticator_type
         @logger = logger
@@ -21,14 +21,22 @@ module Authentication
         @role_repository = role_repository
 
         # Dynamically load authenticator specific classes
-        namespace = namespace_selector.select(
+        @namespace = namespace_selector.select(
           authenticator_type: authenticator_type
         )
 
-        @strategy = "#{namespace}::Strategy".constantize
+        @strategy = "#{@namespace}::Strategy".constantize
         @authn_repo = authn_repo.new(
-          data_object: "#{namespace}::DataObjects::Authenticator".constantize
+          data_object: "#{@namespace}::DataObjects::Authenticator".constantize
         )
+        @contract = set_if_present { "#{@namespace}::Validations::AuthenticatorContract".constantize.new(utils: ::Util::ContractUtils) }
+        @role_contract = set_if_present { "#{@namespace}::Validations::RoleContract".constantize }
+      end
+
+      def set_if_present(&block)
+        block.call
+      rescue NameError
+        nil
       end
 
       def params_allowed
@@ -38,51 +46,47 @@ module Authentication
       end
 
       def call(request_ip:, parameters:, request_body: nil, action: nil)
-        # verify authenticator is whitelisted....
-        unless @available_authenticators.enabled_authenticators.include?("#{parameters[:authenticator]}/#{parameters[:service_id]}")
-          raise Errors::Authentication::Security::AuthenticatorNotWhitelisted, "#{parameters[:authenticator]}/#{parameters[:service_id]}"
-        end
+        authenticator_identifier = [parameters[:authenticator], parameters[:service_id]].compact.join('/')
 
-        # Load Authenticator policy and values (validates data stored as variables)
-        authenticator = @authn_repo.find(
-          type: @authenticator_type,
+        authenticator = retrieve_authenticator(
+          identifier: authenticator_identifier,
           account: parameters[:account],
           service_id: parameters[:service_id]
         )
 
-        # TODO: this error should be in the auth repository
-        if authenticator.nil?
-          raise(
-            Errors::Conjur::RequestedResourceNotFound,
-            "#{parameters[:account]}:webservice:conjur/#{parameters[:authenticator]}/#{parameters[:service_id]}"
-          )
-        end
-
-        role_identifier = @strategy.new(
+        role_identifier_response = @strategy.new(
           authenticator: authenticator
         ).callback(parameters: parameters, request_body: request_body)
 
-        role = @role_repository.find(
-          role_identifier: role_identifier,
-          authenticator: authenticator
-        )
+        if role_identifier_response.success?
+          role_identifier = role_identifier_response.result
+        else
+          role = role_identifier_response.message.role_identifier
+          raise role_identifier_response.exception
+        end
 
-        # Verify that the identified role is permitted to use this authenticator
-        RBAC::Permission.new.permitted?(
-          role_id: role.id,
-          resource_id: "#{parameters[:account]}:webservice:conjur/#{@authenticator_type}/#{parameters[:service_id]}",
-          privilege: :authenticate
+        role = @role_repository.new(
+          authenticator: authenticator
+        ).find(
+          role_identifier: role_identifier,
+          role_contract: @role_contract
         )
 
         # Add an error message (this may actually never be hit as we raise
         # upstream if there is a problem with authentication & lookup)
         raise Errors::Authorization::AuthenticationFailed unless role
 
+        permitted?(
+          role: role,
+          authenticator_identifier: authenticator_identifier,
+          account: parameters[:account]
+        )
+
         unless role.valid_origin?(request_ip)
           raise Errors::Authentication::InvalidOrigin
         end
 
-        log_audit_success(authenticator, role.role_id, request_ip, @authenticator_type)
+        log_audit_success(authenticator, role.role_id, request_ip, authenticator.type)
 
         TokenFactory.new.signed_token(
           account: parameters[:account],
@@ -90,20 +94,53 @@ module Authentication
           user_ttl: authenticator.token_ttl
         )
       rescue => e
-        log_audit_failure(authenticator, role&.role_id, request_ip, @authenticator_type, e)
+        role_identifier = role.is_a?(String) ? role : role&.role_id
+        log_audit_failure(authenticator, role_identifier, request_ip, authenticator.type, e)
         handle_error(e)
       end
 
-      def find_allowed_roles(resource_id)
-        @role.that_can(
-          :authenticate,
-          @resource[resource_id]
-        ).all.select(&:resource?).map do |role|
-          {
-            role_id: role.id,
-            annotations: {}.tap { |h| role.resource.annotations.each {|a| h[a.name] = a.value }}
-          }
+      private
+
+      def permitted?(role:, authenticator_identifier:, account:)
+        return true if @available_authenticators.native_authenticators.include?(authenticator_identifier)
+
+        # Verify that the identified role is permitted to use this authenticator
+        RBAC::Permission.new.permitted?(
+          role_id: role.id,
+          resource_id: "#{account}:webservice:conjur/#{authenticator_identifier}",
+          privilege: :authenticate
+        )
+      end
+
+
+      def retrieve_authenticator(identifier:, service_id:, account:)
+        # verify authenticator is whitelisted....
+        unless @available_authenticators.enabled_authenticators.include?(identifier)
+          raise Errors::Authentication::Security::AuthenticatorNotWhitelisted, identifier
         end
+
+        authenticator = if @available_authenticators.native_authenticators.include?(identifier)
+          set_if_present do
+            "#{@namespace}::DataObjects::Authenticator".constantize.new(
+              account: account
+            )
+          end
+        else
+          # Load Authenticator policy and values (validates data stored as variables)
+          @authn_repo.find(
+            type: @authenticator_type,
+            account: account,
+            service_id: service_id
+          )
+        end
+
+        return authenticator unless authenticator.nil?
+
+        # TODO: this error should be in the authn repository
+        raise(
+          Errors::Conjur::RequestedResourceNotFound,
+          "#{parameters[:account]}:webservice:conjur/#{authenticator_identifier}"
+        )
       end
 
       def handle_error(err)

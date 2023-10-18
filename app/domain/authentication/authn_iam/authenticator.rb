@@ -59,7 +59,7 @@ module Authentication
         # Attempt request using the discovered region and return immediately if successful
         response = aws_call(region: region, headers: signed_headers)
         return response if response.code.to_i == 200
-      
+
         # If the discovered region is `us-east-1`, fallback to the global endpoint
         if region == 'us-east-1'
           @logger.debug(LogMessages::Authentication::AuthnIam::RetryWithGlobalEndpoint.new)
@@ -79,7 +79,7 @@ module Authentication
         aws_request = URI("https://#{host}/?Action=GetCallerIdentity&Version=2011-06-15")
         begin
           @client.get_response(aws_request, headers)
-        rescue StandardError => e
+        rescue => e
           # Handle any network failures with a generic verification error
           raise(Errors::Authentication::AuthnIam::VerificationError, e)
         end
@@ -107,10 +107,10 @@ module Authentication
         if host == 'sts.amazonaws.com'
           return 'global'
         end
-      
+
         match = host&.match(%r{sts.([\w\-]+).amazonaws.com})
         return match.captures.first if match
-      
+
         match = signed_headers['authorization']&.match(%r{Credential=[^/]+/[^/]+/([^/]+)/})
         return match.captures.first if match
 

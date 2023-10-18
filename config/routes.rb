@@ -28,8 +28,12 @@ Rails.application.routes.draw do
           get '/:authenticator/:service_id/:account/authenticate' => 'authenticate#authenticate_via_get'
         end
 
-        constraints authenticator: /authn-jwt/ do
-          post '/:authenticator/:service_id/:account(/:id)/authenticate' => 'authenticate#authenticate_via_post'
+        constraints authenticator: /authn/ do
+          post '/:authenticator/:account(/:id)/authenticate' => 'authenticate#authenticate_via_post'
+        end
+
+        constraints authenticator: /authn|authn-jwt|authn-iam/ do
+          post '/:authenticator(/:service_id)/:account(/:id)/authenticate' => 'authenticate#authenticate_via_post'
         end
 
         constraints authenticator: /authn-jwt/ do

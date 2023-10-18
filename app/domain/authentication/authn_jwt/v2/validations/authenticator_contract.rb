@@ -4,7 +4,7 @@ require 'json'
 module Authentication
   module AuthnJwt
     module V2
-      module DataObjects
+      module Validations
         # General utilities used by this authenticator contract
         class Utils
           class << self

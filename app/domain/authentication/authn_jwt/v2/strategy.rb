@@ -4,33 +4,8 @@ require 'jwt'
 require 'openid_connect'
 
 module Authentication
-<<<<<<< HEAD
-  class RoleIdentifier
-    attr_reader :role_id, :account, :annotations, :type
-
-    def initialize(role_id:, type:, account:, annotations: {})
-      @role_id = role_id
-      @type = type
-      @account = account
-      @annotations = annotations
-    end
-
-    def role_identifier
-      [@account, @type, @role_id].join(':')
-    end
-
-    def role_for_error
-      type == 'host' ? "host/#{role_id}" : role_id
-    end
-  end
-
   module AuthnJwt
     module V2
-
-=======
-  module AuthnJwt
-    module V2
->>>>>>> 4f861170 (Authn-JWT refactor)
       # Handles validation of the request body for JWT
       class Strategy
         def initialize(
@@ -87,12 +62,15 @@ module Authentication
           required_jwt_claims_present?(token)
 
           annotations = gather_enforced_claims(flatten_hash(token))
+          role_identifier = extract_role_and_type(id: parameters[:id], jwt: token)
 
-          RoleIdentifier.new(
-            **{
-              account: @authenticator.account,
-              annotations: annotations
-            }.merge(extract_role_and_type(id: parameters[:id], jwt: token))
+          Authentication::Base::RoleIdentifier.new(
+            role_identifier: role_identifier,
+            annotations: annotations
+            # **{
+            #   account: @authenticator.account,
+            #   annotations: annotations
+            # }.merge(extract_role_and_type(id: parameters[:id], jwt: token))
           )
         end
         # rubocop:enable Lint/UnusedMethodArgument
@@ -109,13 +87,17 @@ module Authentication
           if id
             if id.match(%r{^host/})
               role_identifier = id.gsub(%r{^host/}, '')
-              { role_id: role_identifier, type: 'host' }
+              "#{@account}:host:#{role_identifier}"
+              # { role_id: role_identifier, type: 'host' }
             else
-              { role_id: id, type: 'user' }
+              "#{@account}:user:#{role_identifier}"
+              # { role_id: id, type: 'user' }
             end
           else
             # If we're resolving from the JWT, assume it's a host
-            { role_id: retrieve_identity_from_jwt(jwt: jwt), type: 'host' }
+            role_identifier = retrieve_identity_from_jwt(jwt: jwt)
+            # { role_id: retrieve_identity_from_jwt(jwt: jwt), type: 'host' }
+            "#{@account}:host:#{role_identifier}"
           end
         end
 

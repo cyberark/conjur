@@ -43,6 +43,10 @@ module Authentication
         enabled_authenticators.join(',')
       end
 
+      def native_authenticators
+        %w[authn]
+      end
+
       private
 
       def db_enabled_authenticators

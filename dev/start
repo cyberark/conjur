@@ -5,6 +5,8 @@ set -ex
 set -o pipefail
 export PARALLEL_PROCESSES=1
 
+export COMPOSE='docker compose'
+
 # SCRIPT GLOBAL STATE
 
 # Set up VERSION file for local development

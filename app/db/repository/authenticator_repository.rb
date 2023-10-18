@@ -19,7 +19,11 @@ module DB
       )
         @resource_repository = resource_repository
         @data_object = data_object
-        @contract = "#{data_object}Contract".constantize.new(utils: ::Util::ContractUtils)
+        begin
+          @contract = "#{data_object}Contract".constantize.new(utils: ::Util::ContractUtils)
+        rescue NameError
+          @contract = nil
+        end
         @logger = logger
       end
 

@@ -19,11 +19,11 @@ module Authentication
         end
 
         def validate!
+            # DataObjects::AuthenticatorContract
+            # DataObjects::RoleContract
           %w[
             Strategy
             DataObjects::Authenticator
-            DataObjects::AuthenticatorContract
-            DataObjects::RoleContract
           ].each do |klass|
             full_class_name = "#{@cls}::#{klass}".classify
             unless class_exists?(full_class_name)

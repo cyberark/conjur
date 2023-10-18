@@ -5,6 +5,10 @@ module Authentication
     class NamespaceSelector
       def self.select(authenticator_type:)
         case authenticator_type
+        when 'authn'
+          'Authentication::AuthnApiKey::V2'
+        when 'authn-iam'
+          'Authentication::AuthnAws::V2'
         when 'authn-jwt'
           'Authentication::AuthnJwt::V2'
         when 'authn-oidc'

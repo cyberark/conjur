@@ -2,10 +2,9 @@ module Authentication
   module AuthnOidc
     module V2
       module DataObjects
-        class Authenticator
+        class Authenticator < Authentication::Base::DataObject
 
-          REQUIRED_VARIABLES = %i[provider_uri client_id client_secret claim_mapping].freeze
-          OPTIONAL_VARIABLES = %i[redirect_uri response_type provider_scope name token_ttl ca_cert].freeze
+          REQUIRES_ROLE_ANNOTIONS = false
 
           attr_reader(
             :provider_uri,
@@ -58,16 +57,6 @@ module Authentication
             @name || @service_id.titleize
           end
 
-          def resource_id
-            "#{account}:webservice:conjur/authn-oidc/#{service_id}"
-          end
-
-          # Returns the validity duration, in seconds, of an instance's access tokens.
-          def token_ttl
-            ActiveSupport::Duration.parse(@token_ttl)
-          rescue ActiveSupport::Duration::ISO8601Parser::ParsingError
-            raise Errors::Authentication::DataObjects::InvalidTokenTTL.new(resource_id, @token_ttl)
-          end
         end
       end
     end
