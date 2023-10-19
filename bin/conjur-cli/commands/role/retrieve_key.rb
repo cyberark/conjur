@@ -20,9 +20,9 @@ module Commands
         @connect_database.call
 
         fail('key retrieval failed') unless @role_ids.map do |id|
-          stdout, stderr, = Open3.capture3("rake 'role:retrieve-key[#{id}]'")
+          stdout, stderr, status = Open3.capture3("rake 'role:retrieve-key[#{id}]'")
 
-          if stderr.empty?
+          if status.success?
             # Only print last line of stdout to omit server config logging
             puts(stdout.split("\n").last)
             true

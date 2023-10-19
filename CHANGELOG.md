@@ -153,6 +153,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - OIDC Authenticator now writes custom certs to a non-default directory instead
   of the system default certificate store.
   [cyberark/conjur#2988](https://github.com/cyberark/conjur/pull/2988)
+- conjurctl role retrieve-key will now work when debug logging is turned on.
+  [CNJR-2954](https://ca-il-jira.il.cyber-ark.com:8443/browse/CNJR-2759)
 
 ### Added
 - Support for the no_proxy & NO_PROXY environment variables for the k8s authenticator.
