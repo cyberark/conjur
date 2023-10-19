@@ -29,6 +29,10 @@ Rails.application.routes.draw do
 
         get '/:authenticator(/:service_id)/:account/login' => 'authenticate#login'
 
+        constraints authenticator: /authn/ do
+          post '/:authenticator/:account(/:id)/authenticate' => 'authenticate#authenticate_via_post'
+        end
+
         constraints authenticator: /authn|authn-azure|authn-iam|authn-k8s|authn-ldap/ do
           post '/:authenticator(/:service_id)/:account/:id/authenticate' => 'authenticate#authenticate'
         end

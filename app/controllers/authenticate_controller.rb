@@ -4,6 +4,21 @@ class AuthenticateController < ApplicationController
   include BasicAuthenticator
   include AuthorizeResource
 
+  def authenticate_via_post
+    auth_token = Authentication::Handler::AuthenticationHandler.new(
+      authenticator_type: params[:authenticator]
+    ).call(
+      parameters: params,
+      request_body: request.body.read,
+      request_ip: request.ip
+    )
+
+    render_authn_token(auth_token)
+  rescue => e
+    log_backtrace(e)
+    raise e
+  end
+
   def oidc_authenticate_code_redirect
     # TODO: need a mechanism for an authenticator strategy to define the required
     # params. This will likely need to be done via the Handler.

@@ -26,12 +26,13 @@ end
 # Responsible for handling "failed" requests.
 # Log level and Response code are both option.
 class FailureResponse
-  attr_reader :message, :status
+  attr_reader :message, :status, :exception
 
-  def initialize(message, level: :warn, status: :unauthorized)
+  def initialize(message, level: :warn, status: :unauthorized, exception: nil)
     @message = message
     @level = level
     @status = status
+    @exception = exception
   end
 
   def success?
