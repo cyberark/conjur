@@ -4,6 +4,23 @@ class AuthenticateController < ApplicationController
   include BasicAuthenticator
   include AuthorizeResource
 
+  def authenticate_via_get
+    handler = Authentication::Handler::AuthenticationHandler.new(
+      authenticator_type: params[:authenticator]
+    )
+
+    # Allow an authenticator to define the params it's expecting
+    auth_token = handler.call(
+      parameters: params.permit(handler.params_allowed).to_h.symbolize_keys,
+      request_ip: request.ip
+    )
+
+    render_authn_token(auth_token)
+  rescue => e
+    log_backtrace(e)
+    raise e
+  end
+
   def authenticate_via_post
     auth_token = Authentication::Handler::AuthenticationHandler.new(
       authenticator_type: params[:authenticator]
