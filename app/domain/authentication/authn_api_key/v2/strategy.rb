@@ -33,7 +33,7 @@ module Authentication
           end
 
           role_identifier = Authentication::Base::RoleIdentifier.new(
-            role_identifier: role_id
+            identifier: role_id
           )
 
           if @role[role_id].nil?
