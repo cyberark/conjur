@@ -13,6 +13,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y \
     vim \
     curl \
     wget \
+    redis-server \
     && rm -rf /var/lib/apt/lists/*
 
 RUN mkdir -p /src/conjur-server

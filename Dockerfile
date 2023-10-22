@@ -12,6 +12,17 @@ RUN apt-get update -y && \
     apt-get -y dist-upgrade && \
     apt-get install -y libz-dev
 
+RUN apt-get update -y && apt-get install -y telnet
+
+#RUN apt-get update && \
+#    apt-get install -y build-essential pkg-config libssl-dev tcl libjemalloc-dev wget && \
+#    wget http://download.redis.io/redis-stable.tar.gz && \
+#    tar xvzf redis-stable.tar.gz && \
+#    cd redis-stable && \
+#    make distclean && \
+#    make BUILD_TLS=yes
+
+
 RUN apt-get install -y build-essential \
                        curl \
                        git \

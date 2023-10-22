@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'English'
+require 'redis'
 
 class SecretsController < RestController
   include FindResource
@@ -8,7 +9,15 @@ class SecretsController < RestController
 
   before_action :current_user
 
+  # Wrap the request in a transaction.
+  #def run_with_transaction(&block)
+  #  if (ENV['IS_SECRETS_TRANSACTION_ON'] == 'YES')
+  #    Sequel::Model.db.transaction(&block)
+  #  end
+  #end
+
   def create
+    Rails.logger.info("+++++++++++++++ create secret 1")
     authorize(:update)
 
     raise Exceptions::MethodNotAllowed, "adding a static secret to an ephemeral secret variable is not allowed" if ephemeral_secret?
@@ -16,6 +25,12 @@ class SecretsController < RestController
     value = request.raw_post
 
     raise ArgumentError, "'value' may not be empty" if value.blank?
+    resource_id = params[:account] + ":" + params[:kind] + ":" + params[:identifier]
+    valueInRedis = $redis.get(ENV['TENANT_ID'] + "/secrets/" + resource_id)
+    if (!(valueInRedis.nil?))
+      $redis.setex(ENV['TENANT_ID'] + "/secrets/" + resource_id, 5, value)
+    end
+    Rails.logger.info("+++++++++++++++ create secret 2 resource_id = #{resource_id}, value = #{value}")
 
     Secret.create(resource_id: resource.id, value: value)
     resource.enforce_secrets_version_limit
@@ -35,21 +50,41 @@ class SecretsController < RestController
   end
 
   def show
-    authorize(:execute)
-    version = params[:version]
 
-    if ephemeral_secret?
-      value = handle_ephemeral_secret
-      mime_type = 'application/json'
+    version = params[:version]
+    resource_id = params[:account] + ":" + params[:kind] + ":" + params[:identifier]
+
+    resourceFromCache = $redis.get(ENV['TENANT_ID'] + "/secrets/" + "resource/" + resource_id)
+    if (resourceFromCache.nil?)
+      resourceObj = self.resource
+      $redis.setex(ENV['TENANT_ID'] + "/secrets/" + "resource/" + resource_id, 5, resourceObj.as_json)
     else
-      unless (secret = resource.secret(version: version))
-        raise Exceptions::RecordNotFound.new(\
-          resource.id, message: "Requested version does not exist"
-        )
+      resourceObj = Resource.new()
+      resourceObj.from_json!(resourceFromCache)
+    end
+
+    authorize(:execute, resourceObj)
+
+
+    value = $redis.get(ENV['TENANT_ID'] + "/secrets/" + resource_id)
+    if (!(value.nil?))
+      mime_type = $redis.get(ENV['TENANT_ID'] + "/secrets/" + resource_id + "/mime_type")
+    else
+      if ephemeral_secret?
+        value = handle_ephemeral_secret
+        mime_type = 'application/json'
+      else
+        unless (secret = resource.secret(version: version))
+          raise Exceptions::RecordNotFound.new(\
+            resource_id, message: "Requested version does not exist"
+          )
+        end
+        value = secret.value
+        mime_type = \
+          resource.annotation('conjur/mime_type') || 'application/octet-stream'
       end
-      value = secret.value
-      mime_type = \
-        resource.annotation('conjur/mime_type') || 'application/octet-stream'
+      $redis.setex(ENV['TENANT_ID'] + "/secrets/" + resource_id, 5, value)
+      $redis.setex(ENV['TENANT_ID'] + "/secrets/" + resource_id + "/mime_type", 5, mime_type)
     end
 
     send_data(value, type: mime_type)

@@ -171,6 +171,8 @@ describe AuthenticateController, :type => :request do
     # Init Slosilo key
     init_slosilo_keys("rspec")
     Role.create(role_id: 'rspec:user:admin')
+
+    ENV['IS_SECRETS_TRANSACTION_ON'] = "YES"
   end
 
   describe "#authenticate" do
