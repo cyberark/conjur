@@ -22,7 +22,7 @@ class WorkloadController < RestController
           .to_h.symbolize_keys
     authorize(action, resource(params[:identifier]))
     validateId(params[:id])
-    hostId = "#{params[:account]}:host:#{build_host_name_without_slash(params)}"
+    hostId = "#{params[:account]}:host:#{build_host_name_without_slash(params[:id], params[:identifier])}"
     hostResource = Resource.find(resource_id: hostId)
     if !hostResource.nil?
       raise Exceptions::RecordExists.new("host", hostId)
@@ -42,6 +42,42 @@ class WorkloadController < RestController
   rescue => e
     audit_failure(e, action)
     raise e
+  end
+
+  def create
+    logger.info(LogMessages::Endpoints::EndpointRequested.new("Create Host"))
+    action = :create
+    params.permit(:host_id, :account, :policy_tree, :annotations, :auth_apikey)
+          .to_h.symbolize_keys
+    policy_tree = params[:policy_tree]
+    host_id = params[:host_id]
+    # check there is permission on the policy tree
+    authorize(action, resource(policy_tree))
+    # validate host id
+    validateId(host_id)
+    # validate host doesn't exist
+    full_host_id = "#{params[:account]}:host:#{build_host_name_without_slash(host_id, policy_tree)}"
+    host_resource = Resource.find(resource_id: full_host_id)
+    unless host_resource.nil?
+      raise Exceptions::RecordExists.new("host", full_host_id)
+    end
+    # build policy json
+    annotations = build_annotations(params)
+    input = build_workload_policy(params, annotations)
+    # submit policy
+    result = submit_policy(Loader::CreatePolicy, PolicyTemplates::CreateHost.new(), input, resource(policy_tree))
+    host_policy = result[:policy]
+    audit_success(host_policy)
+    logger.info(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("Create Host"))
+    render_response(full_host_id, host_id, policy_tree, result)
+  rescue => e
+    audit_failure(e, action)
+    if e.instance_of?(Forbidden)
+      #when accessing restricted resources we should always return the code 404 (not found) and never 403 (forbidden) in order to avoid resource enumeration
+      raise RecordNotFound.new(e.message)
+    else
+      raise e
+    end
   end
 end
 
@@ -75,10 +111,10 @@ def build_host_name(params)
 end
 
 
-def build_host_name_without_slash(params)
+def build_host_name_without_slash(host_id, policy_tree)
   path = []
-  path << params[:identifier] unless params[:identifier] == "root"
-  path << params[:id]
+  path << policy_tree unless policy_tree == "root"
+  path << host_id
   path.join('/')
 end
 
@@ -100,4 +136,37 @@ def grantHostToSafes(params)
     policies << result[:policy]
   end
   return policies
+end
+
+def render_response(full_host_id, host_id, policy_tree, result)
+  unless params[:auth_apikey].nil?
+    render(json: {
+      host_id: host_id,
+      policy_tree: policy_tree,
+      annotations: params[:annotations],
+      api_key: result[:created_roles][full_host_id][:api_key]
+    }, status: :created)
+  else
+    render(json: {
+      host_id: host_id,
+      policy_tree: policy_tree,
+      annotations: params[:annotations],
+    }, status: :created)
+  end
+end
+
+def build_annotations(params)
+  annotations = params[:annotations]
+  # Add api key annotation if needed
+  unless params[:auth_apikey].nil?
+    annotations["authn/api-key"] = params[:auth_apikey]
+  end
+  annotations
+end
+
+def build_workload_policy(json_body, annotations)
+  {
+    "id" => json_body[:host_id],
+    "annotations" => annotations
+  }
 end

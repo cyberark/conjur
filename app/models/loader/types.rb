@@ -167,13 +167,12 @@ module Loader
         # The default config value is to allow API key authentication, so if this is
         # either the default or set to true, then future API key authentication will
         # continue to work and we don't need to reject this policy.
-        return false if Rails.application.config.conjur_config.authn_api_key_default
+        return false
 
         # If the default API authentication config is to disallow it, and the host
         # does not explicitly state the policy authors intentions with the
         # `authn/api-key` annotation with value true, then we should reject this until the annotation
         # is added to the policy object.
-        self.annotations&.[]("authn/api-key").nil? || self.annotations["authn/api-key"].to_s.casecmp?("false")
       end
 
       def verify
