@@ -21,6 +21,7 @@ Rails.application.routes.draw do
       resources :accounts, only: [ :create, :index, :destroy ]
     end
 
+    # Authenticators
     constraints account: /[^\/?]+/ do
       constraints authenticator: /authn-?[^\/]*/, id: /[^\/?]+/ do
         get '/authn-jwt/:service_id/:account/status' => 'authenticate#authn_jwt_status'
@@ -41,15 +42,10 @@ Rails.application.routes.draw do
         post '/authn-oidc(/:service_id)/:account/authenticate' => 'authenticate#authenticate_oidc'
         post '/authn-jwt/:service_id/:account(/:id)/authenticate' => 'authenticate#authenticate_jwt'
 
-        # Update password is only relevant when using the default authenticator
-        put  '/authn/:account/password' => 'credentials#update_password', defaults: { authenticator: 'authn' }
-
         # The API key this rotates is the internal Conjur API key. Because some
         # other authenticators will return this at login (e.g. LDAP), we want
         # this to be accessible when using other authenticators to login.
         put  '/:authenticator/:account/api_key'  => 'credentials#rotate_api_key'
-
-        post '/authn-k8s/:service_id/inject_client_cert' => 'authenticate#k8s_inject_client_cert'
       end
 
       # Factories
@@ -57,6 +53,7 @@ Rails.application.routes.draw do
       get "/factories/:account/:kind/(:version)/:id" => "policy_factories#show"
       get "/factories/:account" => "policy_factories#index"
 
+      # Roles
       get     "/roles/:account/:kind/*identifier" => "roles#graph", :constraints => QueryParameterActionRecognizer.new("graph")
       get     "/roles/:account/:kind/*identifier" => "roles#all_memberships", :constraints => QueryParameterActionRecognizer.new("all")
       get     "/roles/:account/:kind/*identifier" => "roles#direct_memberships", :constraints => QueryParameterActionRecognizer.new("memberships")
@@ -65,6 +62,7 @@ Rails.application.routes.draw do
       delete  "/roles/:account/:kind/*identifier" => "roles#delete_member", :constraints => QueryParameterActionRecognizer.new("members")
       get     "/roles/:account/:kind/*identifier" => "roles#show"
 
+      # Resources
       get     "/resources/:account/:kind/*identifier" => 'resources#check_permission', :constraints => QueryParameterActionRecognizer.new("check")
       get     "/resources/:account/:kind/*identifier" => 'resources#permitted_roles', :constraints => QueryParameterActionRecognizer.new("permitted_roles")
       get     "/resources/:account/:kind/*identifier" => "resources#show"
@@ -72,10 +70,10 @@ Rails.application.routes.draw do
       get     "/resources/:account"                   => "resources#index"
       get     "/resources"                            => "resources#index"
 
+      # Workloads
       post    "hosts/:account/*identifier"            => "workload#post"
 
-      get     "/:authenticator/:account/providers"  => "providers#index"
-
+      # Secrets
       # NOTE: the order of these routes matters: we need the expire
       #       route to come first.
       post    "/secrets/:account/:kind/*identifier" => "secrets#expire",
@@ -83,6 +81,8 @@ Rails.application.routes.draw do
       get     "/secrets/:account/:kind/*identifier" => 'secrets#show'
       post    "/secrets/:account/:kind/*identifier" => 'secrets#create'
       get     "/secrets"                            => 'secrets#batch'
+
+      # Edge
       post    "/edge/:account"                      => 'edge_creation#create_edge'
       delete  "/edge/:account/:identifier"          => 'edge_deletion#delete_edge'
       get     "/edge/secrets/:account"              => 'edge_secrets#all_secrets'
@@ -95,21 +95,23 @@ Rails.application.routes.draw do
 
       post    "/edge/data/:account"                 => 'edge_handler#report_edge_data', :constraints => QueryParameterActionRecognizer.new("data_type")
       get     "/edge/slosilo_keys/:account"         => 'edge_slosilo_keys#slosilo_keys'
+
+      # Feature flag
       get     "/features"                       => "feature_flag#feature_flag"
+
+      # Ephemeral secrets
       post    "/issuers/:account"             => 'issuers#create'
       delete  "/issuers/:account/:identifier" => 'issuers#delete'
       get     "/issuers/:account/:identifier" => 'issuers#get'
       get     "/issuers/:account"             => 'issuers#list'
 
+      # Policies
       put     "/policies/:account/:kind/*identifier" => 'policies#put'
       patch   "/policies/:account/:kind/*identifier" => 'policies#patch'
       post    "/policies/:account/:kind/*identifier" => 'policies#post'
-
-      get     "/public_keys/:account/:kind/*identifier" => 'public_keys#show'
-
-      post     "/ca/:account/:service_id/sign" => 'certificate_authority#sign'
     end
 
+    # Host Factory
     post "/host_factories/hosts" => 'host_factories#create_host'
     post "/host_factory_tokens" => 'host_factory_tokens#create'
     delete "/host_factory_tokens/:id" => 'host_factory_tokens#destroy'
