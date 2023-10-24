@@ -21,13 +21,13 @@ class WorkloadController < RestController
     params.permit(:identifier, :account, :id, :annotations, :safes)
           .to_h.symbolize_keys
     authorize(action, resource(params[:identifier]))
-    validateId(params[:id])
+    validate_id(params[:id])
     hostId = "#{params[:account]}:host:#{build_host_name_without_slash(params[:id], params[:identifier])}"
     hostResource = Resource.find(resource_id: hostId)
     if !hostResource.nil?
       raise Exceptions::RecordExists.new("host", hostId)
     end
-    input = input_workload_create(params)
+    input = build_workload_policy(params[:id], params[:annotations])
     result = submit_policy(Loader::CreatePolicy, PolicyTemplates::CreateHost.new(), input, resource(params[:identifier]))
     hostPolicy = result[:policy]
     grantPolicies = grantHostToSafes(params)
@@ -54,7 +54,9 @@ class WorkloadController < RestController
     # check there is permission on the policy tree
     authorize(action, resource(policy_tree))
     # validate host id
-    validateId(host_id)
+    validate_id(host_id)
+    # validate policy
+    validate_policy(policy_tree)
     # validate host doesn't exist
     full_host_id = "#{params[:account]}:host:#{build_host_name_without_slash(host_id, policy_tree)}"
     host_resource = Resource.find(resource_id: full_host_id)
@@ -63,13 +65,13 @@ class WorkloadController < RestController
     end
     # build policy json
     annotations = build_annotations(params)
-    input = build_workload_policy(params, annotations)
+    input = build_workload_policy(host_id, annotations)
     # submit policy
     result = submit_policy(Loader::CreatePolicy, PolicyTemplates::CreateHost.new(), input, resource(policy_tree))
     host_policy = result[:policy]
     audit_success(host_policy)
-    logger.info(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("Create Host"))
     render_response(full_host_id, host_id, policy_tree, result)
+    logger.info(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("Create Host"))
   rescue => e
     audit_failure(e, action)
     if e.instance_of?(Forbidden)
@@ -83,17 +85,23 @@ end
 
 private
 
-def validateId(name)
+def validate_id(name)
   validate_params({"id" => name}, ->(k,v){
     !v.nil? && !v.empty? &&
       v.match?(/^[a-zA-Z0-9_-]+$/) && string_length_validator(3, 60).call(k, v)
   })
 end
 
-def input_workload_create(json_body)
+def validate_policy(policy)
+  if policy.start_with?("data/ephemeral")
+    raise ApplicationController::UnprocessableEntity, "Value provided for policy #{policy} is invalid"
+  end
+end
+
+def build_workload_policy(host_id, annotations)
   {
-    "id" => json_body[:id],
-    "annotations" => json_body[:annotations],
+    "id" => host_id,
+    "annotations" => annotations
   }
 end
 
@@ -139,20 +147,18 @@ def grantHostToSafes(params)
 end
 
 def render_response(full_host_id, host_id, policy_tree, result)
-  unless params[:auth_apikey].nil?
-    render(json: {
-      host_id: host_id,
-      policy_tree: policy_tree,
-      annotations: params[:annotations],
-      api_key: result[:created_roles][full_host_id][:api_key]
-    }, status: :created)
-  else
-    render(json: {
-      host_id: host_id,
-      policy_tree: policy_tree,
-      annotations: params[:annotations],
-    }, status: :created)
+  response = {
+    host_id: host_id,
+    policy_tree: policy_tree,
+  }
+  unless params[:annotations].nil?
+    response["annotations"] = params[:annotations]
   end
+  unless params[:auth_apikey].nil?
+    response["api_key"] = result[:created_roles][full_host_id][:api_key]
+  end
+
+  render(json: response, status: :created)
 end
 
 def build_annotations(params)
@@ -164,9 +170,4 @@ def build_annotations(params)
   annotations
 end
 
-def build_workload_policy(json_body, annotations)
-  {
-    "id" => json_body[:host_id],
-    "annotations" => annotations
-  }
-end
+
