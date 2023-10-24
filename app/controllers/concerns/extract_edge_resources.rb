@@ -3,6 +3,9 @@ module ExtractEdgeResources
 
   def extract_max_edge_value(account)
     id = account + ":variable:edge/edge-configuration/max-edge-allowed"
-    Secret.where(:resource_id.like(id)).last.value
+    secret = Resource[resource_id: id].secret
+    raise Exceptions::RecordNotFound.new(id,
+                message: "max-edge-allowed secret doesn't exist. This might indicate that Edge was not enabled for this tenant") unless secret
+    secret.value
   end
 end
