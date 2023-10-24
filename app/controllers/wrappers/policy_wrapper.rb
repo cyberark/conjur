@@ -20,10 +20,10 @@ module PolicyWrapper
     end
   end
 
-  def submit_policy(policy_loader, policy_tamplate, input, resource)
+  def submit_policy(policy_loader, policy_tamplate, input, resource, delete_permitted=false)
     result_yaml = renderer(policy_tamplate, input)
     set_raw_policy(result_yaml)
-    result = load_policy(policy_loader, false, resource)
+    result = load_policy(policy_loader, delete_permitted, resource)
     result
   end
 
