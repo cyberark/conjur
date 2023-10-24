@@ -43,13 +43,16 @@ Feature: Policies can be organized into hierarchies with specific update permiss
       privileges: [ read, execute ]
       resources: *variables
 
-    - !host 01
+    - !host
+      id: h01
+      annotations:
+        authn/api-key: true
 
     - !grant
       role: !layer
-      member: !host 01
+      member: !host h01
     """
     When I log in as user "admin"
     Then I can add a secret to variable resource "prod/frontend/ssl/cert"
-    And I log in as host "prod/frontend/01"
+    And I log in as host "prod/frontend/h01"
     Then I can fetch a secret from variable resource "prod/frontend/ssl/cert"
