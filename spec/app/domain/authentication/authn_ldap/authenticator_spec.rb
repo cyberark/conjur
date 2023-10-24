@@ -29,14 +29,14 @@ RSpec.describe(Authentication::AuthnLdap::Authenticator) do
     allow(::Credentials)
       .to receive(:[])
       .and_return(Credentials.new.tap do |cred|
-        cred.role_id = 1234
+        cred.role_id = username
         cred.role = Role.new(role_id: cred.role_id)
         cred.rotate_api_key
       end)
   end
 
   context "as user alice" do
-    let(:username) { 'alice'}
+    let(:username) { 'rspec:user:alice'}
 
     context "with valid non-empty password" do
       let(:password) { 'secret' }

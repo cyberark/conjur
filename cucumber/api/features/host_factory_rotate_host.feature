@@ -62,6 +62,8 @@ Feature: Rotate a host api key using the host factory.
     - !host
       id: brand-new-host
       owner: !host-factory database/users
+      annotations:
+        authn/api-key: true
     """
     And I create a host factory token for "database/users"
     And I authorize the request with the host factory token
@@ -70,7 +72,7 @@ Feature: Rotate a host api key using the host factory.
     And our JSON should be:
     """
     {
-      "annotations" : [],
+      "annotations" : [{"name": "authn/api-key", "policy": "cucumber:policy:root", "value": "true"}],
       "id": "cucumber:host:brand-new-host",
       "owner": "cucumber:host_factory:database/users",
       "policy": "cucumber:policy:root",

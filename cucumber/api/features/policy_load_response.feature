@@ -12,7 +12,10 @@ Feature: Policy load response
       - !layer
 
     - !user bob
-    - !host host-01
+    - !host
+      id: host-01
+      annotations:
+        authn/api-key: true
     """
     Then the JSON should have "created_roles"
     And the JSON at "created_roles" should have 2 entries

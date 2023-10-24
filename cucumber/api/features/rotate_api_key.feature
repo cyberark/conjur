@@ -316,7 +316,7 @@ Feature: Rotate the API key of a role
     cucumber:host:privileged_host successfully rotated their API key
     """
 
-  @negative @acceptance @skip
+  @negative @acceptance
   Scenario: A Host without api key CANNOT rotate their own API key
     Given I save my place in the audit log file
     When I PUT "/authn/cucumber/api_key?role=host:privileged_host_without_apikey" with username "host/privileged_host_without_apikey" and password ":cucumber:host:api_key"
@@ -358,7 +358,7 @@ Feature: Rotate the API key of a role
     """
 
    # A host with update permission rotating host without api key
-  @negative @acceptance @skip
+  @negative @acceptance
   Scenario: A Host with update privilege CANNOT rotate host API key that doesn't have api key
     Given I login as "host/privileged_host"
     And I save my place in the audit log file
