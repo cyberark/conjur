@@ -1,3 +1,4 @@
+@api
 Feature: Edge data endpoint
 
   Background:
