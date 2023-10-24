@@ -76,7 +76,7 @@ image_doesnt_exist() {
 }
 
 if image_doesnt_exist "conjur-cloud:$TAG"; then
-  echo "Building image conju-cloudr:$TAG"
+  echo "Building image conju-cloud:$TAG"
   docker build --pull --tag "conjur-cloud:$TAG" .
   flatten "conjur-cloud:$TAG"
 fi

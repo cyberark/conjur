@@ -39,6 +39,7 @@ RUN ln -sf /src/conjur-server/bin/conjurctl /usr/local/bin/
 
 ENV PORT 3000
 ENV TERM xterm
+ENV OPENSSL_CONF=/usr/lib/ssl/openssl_non_fips.cnf
 
 EXPOSE 3000
 

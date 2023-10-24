@@ -24,7 +24,8 @@ ENV PORT=80 \
     TMP_DIR=${CONJUR_HOME}/tmp \
     SSL_CERT_DIRECTORY=/opt/conjur/etc/ssl \
     RAILS_ENV=production \
-    CONJUR_HOME=/opt/conjur-server
+    CONJUR_HOME=/opt/conjur-server \
+    OPENSSL_CONF=/usr/lib/ssl/openssl_non_fips.cnf
 
 ENV PATH="${PATH}:${CONJUR_HOME}/bin"
 

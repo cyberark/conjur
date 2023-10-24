@@ -25,6 +25,7 @@ FROM conjur-cloud:${VERSION}
 
 ENV GEM_HOME=/usr/local/bundle
 ENV PATH="${GEM_HOME}/bin:${PATH}"
+ENV OPENSSL_CONF=/usr/lib/ssl/openssl_non_fips.cnf
 
 RUN bundle config unset --local without && \
     bundle config unset --local path && \

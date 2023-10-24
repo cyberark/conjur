@@ -14,4 +14,4 @@ ENV BUNDLER_VERSION=2.4.14
 RUN gem install bundler -v ${BUNDLER_VERSION} && \
     bundle install
 
-ENV OPENSSL_CONF=/usr/lib/ssl/openssl.cnf
+ENV OPENSSL_CONF=/usr/lib/ssl/openssl_non_fips.cnf
