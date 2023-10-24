@@ -20,7 +20,7 @@ Feature: GCP Authenticator - GCE flow, test token error handling
         privilege: [ read, authenticate ]
         resource: !webservice
     """
-    And I have host "test-app"
+    And I have host "test-app" without api key
     And I grant group "conjur/authn-gcp/apps" to host "test-app"
     And I set all valid GCE annotations to host "test-app"
 
@@ -104,7 +104,7 @@ Feature: GCP Authenticator - GCE flow, test token error handling
 
   @negative @acceptance
   Scenario: Authenticate using token in standard format and host with only service-account-email annotation set is denied
-    Given I have host "test-app"
+    Given I have host "test-app" without api key
     And I remove all annotations from host "test-app"
     When I set "authn-gcp/service-account-email" GCE annotation to host "test-app"
     And I save my place in the log file
@@ -118,7 +118,7 @@ Feature: GCP Authenticator - GCE flow, test token error handling
 
   @negative @acceptance
   Scenario: Authenticate using token in standard format and host with only project-id annotation set is denied
-    Given I have host "test-app"
+    Given I have host "test-app" without api key
     And I remove all annotations from host "test-app"
     When I set "authn-gcp/project-id" GCE annotation to host "test-app"
     And I save my place in the log file
@@ -132,7 +132,7 @@ Feature: GCP Authenticator - GCE flow, test token error handling
 
   @negative @acceptance
   Scenario: Authenticate using token in standard format and host with only instance-name annotation set is denied
-    Given I have host "test-app"
+    Given I have host "test-app" without api key
     And I remove all annotations from host "test-app"
     When I set "authn-gcp/instance-name" GCE annotation to host "test-app"
     And I save my place in the log file

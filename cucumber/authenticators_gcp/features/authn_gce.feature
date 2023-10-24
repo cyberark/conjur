@@ -23,7 +23,7 @@ Feature: GCP Authenticator - GCE flow, hosts can authenticate with GCP authentic
         resource: !webservice
     """
     And I am the super-user
-    And I have host "test-app"
+    And I have host "test-app" without api key
     And I grant group "conjur/authn-gcp/apps" to host "test-app"
 
   @smoke
@@ -44,7 +44,7 @@ Feature: GCP Authenticator - GCE flow, hosts can authenticate with GCP authentic
 
   @acceptance
   Scenario: Host can authenticate with only project-id annotation set
-    Given I have host "test-app"
+    Given I have host "test-app" without api key
     And I grant group "conjur/authn-gcp/apps" to host "test-app"
     And I remove all annotations from host "test-app"
     And I set "authn-gcp/project-id" GCE annotation to host "test-app"
@@ -59,7 +59,7 @@ Feature: GCP Authenticator - GCE flow, hosts can authenticate with GCP authentic
 
   @acceptance
   Scenario: Host can authenticate with only service-account-id annotation set
-    Given I have host "test-app"
+    Given I have host "test-app" without api key
     And I grant group "conjur/authn-gcp/apps" to host "test-app"
     And I remove all annotations from host "test-app"
     And I set "authn-gcp/service-account-id" GCE annotation to host "test-app"
@@ -74,7 +74,7 @@ Feature: GCP Authenticator - GCE flow, hosts can authenticate with GCP authentic
 
   @acceptance
   Scenario: Host can authenticate with only service-account-email annotation set
-    Given I have host "test-app"
+    Given I have host "test-app" without api key
     And I grant group "conjur/authn-gcp/apps" to host "test-app"
     And I remove all annotations from host "test-app"
     And I set "authn-gcp/service-account-email" GCE annotation to host "test-app"
@@ -89,7 +89,7 @@ Feature: GCP Authenticator - GCE flow, hosts can authenticate with GCP authentic
 
   @acceptance
   Scenario: Host can not authenticate with only instance-name annotation set
-    Given I have host "test-app"
+    Given I have host "test-app" without api key
     And I grant group "conjur/authn-gcp/apps" to host "test-app"
     And I remove all annotations from host "test-app"
     And I set "authn-gcp/instance-name" GCE annotation to host "test-app"
@@ -133,7 +133,7 @@ Feature: GCP Authenticator - GCE flow, hosts can authenticate with GCP authentic
 
   @acceptance
   Scenario: Authenticate using token in standard format and host with only service-account-id annotation set
-    Given I have host "test-app"
+    Given I have host "test-app" without api key
     And I grant group "conjur/authn-gcp/apps" to host "test-app"
     And I remove all annotations from host "test-app"
     And I set "authn-gcp/service-account-id" GCE annotation to host "test-app"
