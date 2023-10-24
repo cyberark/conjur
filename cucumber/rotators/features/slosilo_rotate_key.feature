@@ -22,7 +22,10 @@ Feature: Rotate Slosilo key. When rotation occurs twice in a row,
   Scenario: Logged in as host, Slosilo is rotated twice
     Given I load a policy:
     """
-    - !host myapp
+    - !host
+       id: myapp
+       annotations:
+         authn/api-key: true
     - !variable
       id: app-password
       owner: !host myapp
