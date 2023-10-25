@@ -73,7 +73,6 @@ Rails.application.routes.draw do
       get     "/resources"                            => "resources#index"
 
       post    "hosts/:account/*identifier"            => "workload#post"
-      post    "hosts/:account"                        => "workload#create"
 
       get     "/:authenticator/:account/providers"  => "providers#index"
 

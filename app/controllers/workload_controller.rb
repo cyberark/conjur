@@ -92,6 +92,7 @@ def validate_id(name)
   })
 end
 
+#TODO: should move loader/types.rb. resource verify method
 def validate_policy(policy)
   if policy.start_with?("data/ephemeral")
     raise ApplicationController::UnprocessableEntity, "Value provided for policy #{policy} is invalid"

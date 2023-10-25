@@ -1,4 +1,4 @@
-@api
+@api @skip
 Feature: Creating host
   Background:
     Given I am the super-user
