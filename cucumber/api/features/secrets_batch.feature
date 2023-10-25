@@ -154,7 +154,7 @@ Feature: Batch retrieval of secrets
     """
 
   @negative @smoke
-    Scenario: Fails with 404 on get batch secrets for same secret
+    Scenario: Fails with 400 on get batch secrets for same secret
       When I GET "/secrets?variable_ids=cucumber:variable:secret1,cucumber:variable:secret2,cucumber:variable:secret1"
       Then the HTTP response status code is 400
       And there is an error
