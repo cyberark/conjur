@@ -106,7 +106,7 @@ group :development, :test do
   gem 'rspec'
   gem 'rspec-core'
   gem 'rspec-rails'
-  # gem 'ruby-debug-ide'
+  gem 'ruby-debug-ide'
 
   # We use a post-coverage hook to sleep covered processes until we're ready to
   # collect the coverage reports in CI. Because of this, we don't want bundler
