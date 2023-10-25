@@ -36,7 +36,7 @@ Feature: Create a host using the host factory.
       "annotations" : [],
       "id": "cucumber:host:host-01",
       "owner": "cucumber:host_factory:the-layer-factory",
-      "api_key": "@response_api_key@",
+      "api_key": null,
       "permissions": [],
       "restricted_to": []
     }
