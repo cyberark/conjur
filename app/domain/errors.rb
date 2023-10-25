@@ -761,4 +761,13 @@ module Errors
       code: "CONJ00152E"
     )
   end
+
+  module Edge
+
+    MaxEdgeAllowedNotFound = ::Util::TrackableErrorClass.new(
+      msg: "max-edge-allowed secret doesn't exist. This might indicate that Edge was not enabled for this tenant",
+      code: "CONJ00169E",
+      base_error_class: Exceptions::RecordNotFound
+      )
+  end
 end
