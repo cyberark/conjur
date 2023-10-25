@@ -1,16 +1,24 @@
+FROM cyberark/ubuntu-ruby-builder:latest as builder
+
+RUN mkdir -p /src/conjur-server
+WORKDIR /src/conjur-server
+
+COPY Gemfile \
+     Gemfile.lock ./
+COPY gems/ gems/
+
+# this is a workaround to allow installation of ruby-debug-ide, for unknown
+# reasons the first attempt to install it fails but the subsequent call is
+# successful, therefore we try to install again if the first invocation fails
+RUN bundle install || bundle install
+
 FROM cyberark/ubuntu-ruby-postgres-fips:latest
 
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y \
-    libz-dev
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y \
-    build-essential \
-    ldap-utils \
     git \
     jq \
-    tzdata \
     libfontconfig1 \
-    libfontconfig1-dev
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y \
+    libfontconfig1-dev \
     unattended-upgrades \
     vim \
     curl \
@@ -23,11 +31,8 @@ ADD .pryrc /root
 
 WORKDIR /src/conjur-server
 
-COPY Gemfile \
-     Gemfile.lock ./
-COPY gems/ gems/
-
-RUN bundle
+COPY --from=builder . .
+COPY --from=builder /var/lib/ruby /var/lib/ruby
 
 # removing CA bundle of httpclient gem
 RUN find / -name httpclient -type d -exec find {} -name *.pem -type f -delete \;
