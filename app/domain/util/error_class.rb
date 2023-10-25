@@ -6,10 +6,13 @@
 module Util
 
   class ErrorClass
-    def self.new(msg)
-      Class.new(RuntimeError) do
-        def initialize(*args)
+    def self.new(msg, base_error_class: RuntimeError)
+      Class.new(base_error_class) do
+        def initialize(*args, **kwargs)
           @args = args
+          kwargs.each do |name, value|
+            instance_variable_set("@#{name}", value)
+          end
         end
         define_method(:to_s) do
           @args.each_with_index.reduce(msg) do |m, (x, arg_index)|

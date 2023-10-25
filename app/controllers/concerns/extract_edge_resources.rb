@@ -3,6 +3,8 @@ module ExtractEdgeResources
 
   def extract_max_edge_value(account)
     id = account + ":variable:edge/edge-configuration/max-edge-allowed"
-    Secret.where(:resource_id.like(id)).last.value
+    secret = Resource[resource_id: id]&.secret
+    raise Errors::Edge::MaxEdgeAllowedNotFound.new(id: id) unless secret
+    secret.value
   end
 end

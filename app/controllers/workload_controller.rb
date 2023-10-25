@@ -21,7 +21,7 @@ class WorkloadController < RestController
     params.permit(:identifier, :account, :id, :annotations, :safes)
           .to_h.symbolize_keys
     authorize(action, resource(params[:identifier]))
-    validate_id(params[:id])
+    validate_workload_id(params[:id])
     hostId = "#{params[:account]}:host:#{build_host_name_without_slash(params[:id], params[:identifier])}"
     hostResource = Resource.find(resource_id: hostId)
     if !hostResource.nil?
@@ -54,7 +54,7 @@ class WorkloadController < RestController
     # check there is permission on the policy tree
     authorize(action, resource(policy_tree))
     # validate host id
-    validate_id(host_id)
+    validate_workload_id(host_id)
     # validate policy
     validate_policy(policy_tree)
     # validate host doesn't exist
@@ -85,7 +85,7 @@ end
 
 private
 
-def validate_id(name)
+def validate_workload_id(name)
   validate_params({"id" => name}, ->(k,v){
     !v.nil? && !v.empty? &&
       v.match?(/^[a-zA-Z\/0-9_-]+$/) && string_length_validator(3, 60).call(k, v)

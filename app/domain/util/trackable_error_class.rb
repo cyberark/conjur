@@ -6,8 +6,8 @@ require_relative 'error_class'
 #
 module Util
   class TrackableErrorClass
-    def self.new(msg:, code:)
-      ErrorClass.new("#{code} #{msg}")
+    def self.new(msg:, code:, **kwargs) # **kwargs can contain only base_error_class:
+      ErrorClass.new("#{code} #{msg}", **kwargs)
     end
   end
 end
