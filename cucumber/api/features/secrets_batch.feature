@@ -152,3 +152,10 @@ Feature: Batch retrieval of secrets
     """
     { "cucumber:variable:secret2": "v2" }
     """
+
+  @negative @smoke
+    Scenario: Fails with 404 on get batch secrets for same secret
+      When I GET "/secrets?variable_ids=cucumber:variable:secret1,cucumber:variable:secret2,cucumber:variable:secret1"
+      Then the HTTP response status code is 400
+      And there is an error
+      And the error message is "CONJ00160E The request contained the following duplicate variable ids: cucumber:variable:secret1."

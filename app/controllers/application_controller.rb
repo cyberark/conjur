@@ -45,6 +45,7 @@ class ApplicationController < ActionController::API
 
   rescue_from Exceptions::RecordNotFound, with: :record_not_found
   rescue_from Errors::Conjur::MissingSecretValue, with: :render_secret_not_found
+  rescue_from Errors::Conjur::DuplicateVariable, with: :render_duplicate_variable
   rescue_from Exceptions::RecordExists, with: :record_exists
   rescue_from Exceptions::Forbidden, with: :forbidden
   rescue_from Exceptions::MethodNotAllowed, with: :method_not_allowed
@@ -271,6 +272,16 @@ class ApplicationController < ActionController::API
         message: e.message
       }
     }, status: :unprocessable_entity)
+  end
+
+  def render_duplicate_variable e
+    logger.error("#{e}\n#{e.backtrace.join("\n")}")
+    render(json: {
+      error: {
+        code: :bad_request,
+        message: e.message
+      }
+    }, status: :bad_request)
   end
 
   def bad_secret_encoding e
