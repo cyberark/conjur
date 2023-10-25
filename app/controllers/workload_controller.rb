@@ -50,7 +50,7 @@ private
 def validateId(name)
   validate_params({"id" => name}, ->(k,v){
     !v.nil? && !v.empty? &&
-      v.match?(/^[a-zA-Z0-9_-]+$/) && string_length_validator(3, 60).call(k, v)
+      v.match?(/^[a-zA-Z\/0-9_-]+$/) && string_length_validator(3, 60).call(k, v)
   })
 end
 
