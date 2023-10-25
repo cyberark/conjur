@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
+## [1.0.12-cloud] - 2023-11-05
+### Changed
+- support '/' for workload name in workload wizard
+
 ## [1.0.11-cloud] - 2023-10-29
 ### Changed
 - Make API-key optional for hosts
