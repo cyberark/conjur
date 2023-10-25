@@ -247,6 +247,42 @@ describe WorkloadController, type: :request do
         )
         assert_response :unprocessable_entity
       end
+      let(:payload_invalid) do
+        <<~BODY
+          {
+            "id": "host+invalid"
+          }
+        BODY
+      end
+      it "invalid id return unprocessable_entity" do
+        post("/hosts/rspec/dev",
+             env: token_auth_header(role: alice_user).merge(
+               {
+                 'RAW_POST_DATA' => payload_long,
+                 'CONTENT_TYPE' => "application/json"
+               }
+             )
+        )
+        assert_response :unprocessable_entity
+      end
+      let(:payload) do
+        <<~BODY
+          {
+            "id": "h/oSt_c1-s"
+          }
+        BODY
+      end
+      it "all valid chars are accepted" do
+        post("/hosts/rspec/dev",
+             env: token_auth_header(role: alice_user).merge(
+               {
+                 'RAW_POST_DATA' => payload,
+                 'CONTENT_TYPE' => "application/json"
+               }
+             )
+        )
+        assert_response :created
+      end
 
     end
 

@@ -120,7 +120,10 @@ Feature: Secrets can be managed through policies.
 
     - !user alice
 
-    - !host myapp-01
+    - !host
+       id: myapp-01
+       annotations:
+         authn/api-key: true
 
     - !grant
       role: !layer myapp
