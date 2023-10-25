@@ -38,7 +38,7 @@ describe FeatureFlagController, type: :request do
         get("/features", env: token_auth_header(role: @current_user, is_user: true))
         expect(response.code).to eq("200")
         resp = JSON.parse(response.body)
-        expect(resp).to eq(%w[FEATURE1 FEATURE3 FEATURE4 FEATURE7])
+        expect(resp).to eq({"featureFlags" => %w[FEATURE1 FEATURE3 FEATURE4 FEATURE7]})
       end
 
       it "app config is invoked once despite multiple calls" do
