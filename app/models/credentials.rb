@@ -109,7 +109,7 @@ class Credentials < Sequel::Model
     if self.role.api_key_expected?
       self.api_key = self.class.random_api_key
     else
-      raise Exceptions::MethodNotAllowed, "Operation is not supported for host since it does not use api-key for authentication"
+      raise ::Errors::Conjur::ApiKeyNotFound.new(self.role.role_id)
     end
   end
 
