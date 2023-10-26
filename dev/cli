@@ -253,7 +253,7 @@ while true ; do
         load )
           account="$3"
           policy_file=$4
-          docker compose exec conjur conjurctl policy load "$account" "/src/conjur-server/$policy_file"
+          docker compose exec -T conjur conjurctl policy load "$account" "/src/conjur-server/$policy_file"
           shift 4 ;;
         * ) if [ -z "$1" ]; then break; else echo "$1 is not a valid option"; exit 1; fi;;
       esac ;;

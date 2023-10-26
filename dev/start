@@ -62,9 +62,9 @@ main() {
 
   # Install gems, create DB, and create cucumber account.
   docker compose up -d --no-deps "${services[@]}"
-  docker compose exec conjur bundle
-  docker compose exec conjur conjurctl db migrate
-  docker compose exec conjur conjurctl account create cucumber || true
+  docker compose exec -T conjur bundle
+  docker compose exec -T conjur conjurctl db migrate
+  docker compose exec -T conjur conjurctl account create cucumber || true
 
   migrate_audit_db
 
@@ -181,7 +181,7 @@ check_env_vars() {
 client_load_policy() {
   local policy_file=$1
 
-  docker compose exec client \
+  docker compose exec -T client \
     conjur policy load root "$policy_file"
 }
 
@@ -189,13 +189,13 @@ client_add_secret() {
   local variable=$1
   local value=$2
 
-  docker compose exec client \
+  docker compose exec -T client \
     conjur variable values add "$variable" "$value"
 }
 
 start_conjur_server() {
   echo "Starting Conjur server"
-  docker compose exec -d conjur conjurctl server
+  docker compose exec -T -d conjur conjurctl server
 
   echo 'Checking if Conjur server is ready'
   wait_for_conjur
@@ -209,7 +209,7 @@ wait_for_conjur() {
 
   docker compose exec -T conjur conjurctl wait
 
-  docker compose exec client conjur authn login -u admin -p "$api_key"
+  docker compose exec -T client conjur authn login -u admin -p "$api_key"
 }
 
 configure_oidc_authenticators() {
@@ -273,7 +273,7 @@ setup_okta() {
 
 setup_adfs() {
   echo "Initialize ADFS certificate in conjur server"
-  docker compose exec conjur \
+  docker compose exec -T conjur \
     /src/conjur-server/dev/files/authn-oidc/adfs/fetchCertificate
 
   configure_oidc_v1 \
@@ -302,7 +302,7 @@ configure_oidc_v1() {
   client_add_secret "conjur/authn-oidc/$service_id/provider-uri" "$provider_uri"
   client_add_secret "conjur/authn-oidc/$service_id/id-token-user-property" "$token_property"
   if [ "$service_id" = "keycloak" ]; then
-    client_add_secret "conjur/authn-oidc/$service_id/ca-cert" "$($COMPOSE exec conjur cat /etc/ssl/certs/keycloak.pem)"
+    client_add_secret "conjur/authn-oidc/$service_id/ca-cert" "$($COMPOSE exec -T conjur cat /etc/ssl/certs/keycloak.pem)"
   fi
 }
 
@@ -320,10 +320,10 @@ configure_oidc_v2() {
   client_add_secret "conjur/authn-oidc/$service_id/claim-mapping" "$claim_mapping"
   client_add_secret "conjur/authn-oidc/$service_id/redirect_uri" "http://localhost:3000/authn-oidc/$service_id/cucumber/authenticate"
   if [ "$service_id" = "keycloak2" ]; then
-    client_add_secret "conjur/authn-oidc/$service_id/ca-cert" "$($COMPOSE exec conjur cat /etc/ssl/certs/keycloak.pem)"
+    client_add_secret "conjur/authn-oidc/$service_id/ca-cert" "$($COMPOSE exec -T conjur cat /etc/ssl/certs/keycloak.pem)"
     # Delete the symlink so we can test with the 'ca-cert' variable
-    hash=$($COMPOSE exec conjur openssl x509 -hash -in /etc/ssl/certs/keycloak.pem --noout)
-    $COMPOSE exec conjur rm "/etc/ssl/certs/$hash.0" || true
+    hash=$($COMPOSE exec -T conjur openssl x509 -hash -in /etc/ssl/certs/keycloak.pem --noout)
+    $COMPOSE exec -T conjur rm "/etc/ssl/certs/$hash.0" || true
   fi
 
   client_load_policy "/src/conjur-server/dev/policies/authenticators/authn-oidc/$service_id-users.yml"
@@ -402,7 +402,7 @@ init_ldap() {
   enabled_authenticators="$enabled_authenticators,authn-ldap/test,authn-ldap/secure"
 
   # Using conjur policy load doesn't work here (not sure why).
-  docker compose exec conjur \
+  docker compose exec -T conjur \
     conjurctl policy load cucumber \
     "/src/conjur-server/dev/files/authn-ldap/policy.yml"
 }
@@ -419,7 +419,7 @@ init_azure() {
   client_load_policy \
     "/src/conjur-server/ci/test_suites/authenticators_azure/policies/policy.yml"
 
-  docker compose exec client \
+  docker compose exec -T client \
     conjur variable values add \
     conjur/authn-azure/prod/provider-uri "https://sts.windows.net/$AZURE_TENANT_ID/"
 
@@ -457,7 +457,7 @@ init_jwt() {
   enable_oidc_authenticators
 
   echo "Configure jwks provider"
-  docker compose exec jwks "/tmp/create_nginx_certificate.sh"
+  docker compose exec -T jwks "/tmp/create_nginx_certificate.sh"
 }
 
 init_oidc() {
@@ -494,7 +494,7 @@ init_iam() {
   enabled_authenticators="$enabled_authenticators,authn-iam/prod"
 
   # Using conjur policy load doesn't work here (not sure why).
-  docker compose exec conjur \
+  docker compose exec -T conjur \
     conjurctl policy load cucumber \
     "/src/conjur-server/dev/files/authn-iam/policy.yml"
 }
@@ -528,7 +528,7 @@ create_alice() {
 
 kill_conjur() {
   echo "killing the conjur server process"
-  docker compose exec conjur /src/conjur-server/dev/files/killConjurServer
+  docker compose exec -T conjur /src/conjur-server/dev/files/killConjurServer
 }
 
 enter_container() {
