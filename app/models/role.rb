@@ -160,6 +160,14 @@ class Role < Sequel::Model
     ).first[:is_role_allowed_to]
   end
 
+  # Checks if a user has update permissions on a given policy and all of its
+  # descendants.
+  def policy_permissions?(policy, permission)
+    Role.from(
+      Sequel.function(:policy_permissions, id, permission, policy.id)
+    ).first[:policy_permissions]
+  end
+
   def all_roles
     Role.from(Sequel.function(:all_roles, id))
   end
