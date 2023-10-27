@@ -16,6 +16,9 @@ module Authentication
           @discovery_configuration = discovery_configuration
           @cache = cache
           @logger = logger
+
+          @success = ::SuccessResponse
+          @failure = ::FailureResponse
         end
 
         # Writing certificates to the default system cert store requires
@@ -56,21 +59,11 @@ module Authentication
           begin
             bearer_token = oidc_client.access_token!(**access_token_args)
           rescue Rack::OAuth2::Client::Error => e
-            # Only handle the expected errors related to access token retrieval.
-            case e.message
-            when /PKCE verification failed/, # Okta's PKCE failure msg
-                 /challenge mismatch/        # Identity's PKCE failure msg
-              raise Errors::Authentication::AuthnOidc::TokenRetrievalFailed,
-                    'PKCE verification failed'
-            when /The authorization code is invalid or has expired/, # Okta's reused code msg
-                 /supplied code does not match known request/        # Identity's reused code msg
-              raise Errors::Authentication::AuthnOidc::TokenRetrievalFailed,
-                    'Authorization code is invalid or has expired'
-            when /Code not valid/
-              raise Errors::Authentication::AuthnOidc::TokenRetrievalFailed,
-                    'Authorization code is invalid'
-            end
-            raise e
+            return @failure.new(
+              e.message,
+              exception: Errors::Authentication::AuthnOidc::TokenRetrievalFailed.new(e.message),
+              status: :bad_request
+            )
           end
           id_token = bearer_token.id_token || bearer_token.access_token
 
@@ -80,10 +73,16 @@ module Authentication
               id_token,
               discovery_information.jwks
             )
-          rescue StandardError => e
-            attempts += 1
-            raise e if attempts > 1
 
+          rescue => e
+            attempts += 1
+            if attempts > 1
+              return @failure.new(
+                'JWKS signing check failed',
+                exception: e,
+                status: :unauthorized
+              )
+            end
             # If the JWKS verification fails, blow away the existing cache and
             # try again. This is intended to handle the case where the OIDC certificate
             # changes, and we want to cache the new certificate without decode failing.
@@ -97,17 +96,14 @@ module Authentication
               client_id: @authenticator.client_id,
               nonce: nonce
             )
-          rescue OpenIDConnect::ResponseObject::IdToken::InvalidNonce
-            raise Errors::Authentication::AuthnOidc::TokenVerificationFailed,
-                  'Provided nonce does not match the nonce in the JWT'
-          rescue OpenIDConnect::ResponseObject::IdToken::ExpiredToken
-            raise Errors::Authentication::AuthnOidc::TokenVerificationFailed,
-                  'JWT has expired'
-          rescue OpenIDConnect::ValidationFailed => e
-            raise Errors::Authentication::AuthnOidc::TokenVerificationFailed,
-                  e.message
+            @success.new(decoded_id_token)
+          rescue => e
+            @failure.new(
+              e.message,
+              exception: e,
+              status: :bad_request
+            )
           end
-          decoded_id_token
         end
 
         # callback_with_temporary_cert wraps the callback method with commands

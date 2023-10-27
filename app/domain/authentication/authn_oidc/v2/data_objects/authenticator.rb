@@ -2,10 +2,9 @@ module Authentication
   module AuthnOidc
     module V2
       module DataObjects
-        class Authenticator
+        class Authenticator < Authentication::Base::DataObject
 
-          REQUIRED_VARIABLES = %i[provider_uri client_id client_secret claim_mapping].freeze
-          OPTIONAL_VARIABLES = %i[redirect_uri response_type provider_scope name token_ttl ca_cert].freeze
+          REQUIRES_ROLE_ANNOTIONS = false
 
           attr_reader(
             :provider_uri,
@@ -19,6 +18,8 @@ module Authentication
             :ca_cert
           )
 
+          # rubocop:disable Metrics/ParameterLists
+          # rubocop:disable Lint/MissingSuper
           def initialize(
             provider_uri:,
             client_id:,
@@ -30,7 +31,7 @@ module Authentication
             name: nil,
             response_type: 'code',
             provider_scope: nil,
-            token_ttl: 'PT60M',
+            token_ttl: '',
             ca_cert: nil
           )
             @account = account
@@ -43,9 +44,13 @@ module Authentication
             @name = name
             @provider_scope = provider_scope
             @redirect_uri = redirect_uri
-            @token_ttl = token_ttl
             @ca_cert = ca_cert
+
+            # Set TTL to 60 minutes by default
+            @token_ttl = token_ttl.present? ? token_ttl : 'PT60M'
           end
+          # rubocop:enable Metrics/ParameterLists
+          # rubocop:enable Lint/MissingSuper
 
           def scope
             (%w[openid email profile] + [*@provider_scope.to_s.split(' ')]).uniq.join(' ')
@@ -53,17 +58,6 @@ module Authentication
 
           def name
             @name || @service_id.titleize
-          end
-
-          def resource_id
-            "#{account}:webservice:conjur/authn-oidc/#{service_id}"
-          end
-
-          # Returns the validity duration, in seconds, of an instance's access tokens.
-          def token_ttl
-            ActiveSupport::Duration.parse(@token_ttl)
-          rescue ActiveSupport::Duration::ISO8601Parser::ParsingError
-            raise Errors::Authentication::DataObjects::InvalidTokenTTL.new(resource_id, @token_ttl)
           end
         end
       end

@@ -10,30 +10,45 @@ class AuthenticateController < ApplicationController
     )
 
     # Allow an authenticator to define the params it's expecting
-    auth_token = handler.call(
+    response = handler.call(
       parameters: params.permit(handler.params_allowed).to_h.symbolize_keys,
       request_ip: request.ip
-    )
+    ).bind do |auth_token|
+      return render_authn_token(auth_token)
+    end
 
-    render_authn_token(auth_token)
+    error_response(response)
   rescue => e
     log_backtrace(e)
     raise e
   end
 
   def authenticate_via_post
-    auth_token = Authentication::Handler::AuthenticationHandler.new(
+    response = Authentication::Handler::AuthenticationHandler.new(
       authenticator_type: params[:authenticator]
     ).call(
       parameters: params,
       request_body: request.body.read,
       request_ip: request.ip
-    )
+    ).bind do |auth_token|
+      return render_authn_token(auth_token)
+    end
 
-    render_authn_token(auth_token)
+    error_response(response)
   rescue => e
     log_backtrace(e)
     raise e
+  end
+
+  def error_response(response)
+    logger.info(LogMessages::Authentication::AuthenticationError.new(response.exception))
+    logger.info("Exception: #{response.exception.class.name}: #{response.exception.message}")
+    [*response.exception.backtrace].each { |line| logger.info(line) }
+
+    render(
+      json: { error: response.exception.message },
+      status: response.status
+    )
   end
 
   def oidc_authenticate_code_redirect

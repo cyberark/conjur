@@ -2,24 +2,38 @@
 
 module RBAC
   class Permission
-    def initialize(role_library: Role, resource_library: Resource)
-      @role_library = role_library
+    def initialize(resource_library: ::Resource)
       @resource_library = resource_library
+
+      @success = ::SuccessResponse
+      @failure = ::FailureResponse
     end
 
-    def permitted?(role_id:, resource_id:, privilege:)
-      role = @role_library[role_id]
+    def permitted?(role:, resource_id:, privilege:)
       resource = @resource_library[resource_id]
 
-      return true if role.present? && role.allowed_to?(privilege, resource)
-
-      raise(
-        Errors::Authentication::Security::RoleNotAuthorizedOnResource.new(
-          [role.kind, role.identifier].join('/'),
-          privilege,
-          resource.id
+      unless resource.present?
+        return @failure.new(
+          "Resource '#{resource_id}' was not found",
+          status: :unauthorized,
+          exception: Errors::Conjur::RequiredResourceMissing.new(resource_id)
         )
-      )
+      end
+
+      # binding.pry
+      if role.present? && role.allowed_to?(privilege, resource)
+        @success.new(role)
+      else
+        @failure.new(
+          role,
+          status: :forbidden,
+          exception: Errors::Authentication::Security::RoleNotAuthorizedOnResource.new(
+            [role.try(:kind), role.try(:identifier)].join('/'),
+            privilege,
+            resource_id
+          )
+        )
+      end
     end
   end
 end

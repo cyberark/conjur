@@ -15,17 +15,18 @@ module Authentication
           @logger = logger
           @credentials = credentials
           @role = role
+
           @success = ::SuccessResponse
           @failure = ::FailureResponse
         end
 
+        # Parameter `id` is guaranteed to be present based on the
+        # upstream routes file.
         def callback(request_body:, parameters:)
-          # TODO: Check that `id` is present in the parameters list
-
           role_id = parameters['id']
           api_key = request_body
 
-          role_id = if role_id.match?(/^host\/./)
+          full_role_id = if role_id.match?(/^host\/./)
             id = role_id.split('/')[1..-1].join
             "#{@authenticator.account}:host:#{id}"
           else
@@ -33,17 +34,17 @@ module Authentication
           end
 
           role_identifier = Authentication::Base::RoleIdentifier.new(
-            identifier: role_id
+            identifier: full_role_id
           )
 
-          if @role[role_id].nil?
+          if @role[full_role_id].nil?
             return @failure.new(
               role_identifier,
               exception: Errors::Authentication::Security::RoleNotFound.new(role_id)
             )
           end
 
-          role_credentials = @credentials[role_id]
+          role_credentials = @credentials[full_role_id]
           if role_credentials.nil?
             return @failure.new(
               role_identifier,

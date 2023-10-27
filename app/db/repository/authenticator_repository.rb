@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module DB
   module Repository
     # This class is responsible for loading the variables associated with a
@@ -13,42 +15,62 @@ module DB
     #
     class AuthenticatorRepository
       def initialize(
-        data_object:,
-        validations: nil,
         resource_repository: ::Resource,
+        available_authenticators: Authentication::InstalledAuthenticators,
         logger: Rails.logger
       )
         @resource_repository = resource_repository
-        @data_object = data_object
-        @validations = validations
+        @available_authenticators = available_authenticators
         @logger = logger
+
+        @success = ::SuccessResponse
+        @failure = ::FailureResponse
       end
 
       def find_all(type:, account:)
-        authenticator_webservices(type: type, account: account).map do |webservice|
+        authenticators = authenticator_webservices(type: type, account: account).map do |webservice|
           service_id = service_id_from_resource_id(webservice.id)
           begin
-            load_authenticator(account: account, service_id: service_id, type: type)
+            load_authenticator_variables(account: account, service_id: service_id, type: type)
           rescue => e
             @logger.info("failed to load #{type} authenticator '#{service_id}' do to validation failure: #{e.message}")
             nil
           end
         end.compact
+        @success.new(authenticators)
       end
 
-      def find(type:, account:,  service_id:)
-        webservice_identifier = [type, service_id].compact.join('/')
+      def find(type:, account:, service_id: nil, &block)
+        identifier = [type, service_id].compact.join('/')
+
         webservice = @resource_repository.where(
           Sequel.like(
             :resource_id,
-            "#{account}:webservice:conjur/#{webservice_identifier}"
+            "#{account}:webservice:conjur/#{identifier}"
           )
         ).first
         unless webservice
-          raise Errors::Authentication::Security::WebserviceNotFound.new(webservice_identifier, account)
+          return @failure.new(
+            "Failed to find a webservice: '#{account}:webservice:conjur/#{identifier}'",
+            exception: Errors::Authentication::Security::WebserviceNotFound.new(identifier, account)
+          )
         end
 
-        load_authenticator(account: account, service_id: service_id, type: type)
+        begin
+          @success.new(
+            load_authenticator_variables(
+              account: account,
+              service_id: service_id,
+              type: type
+            )
+          )
+        rescue => e
+          @failure.new(
+            e.message,
+            exception: e,
+            level: :debug
+          )
+        end
       end
 
       private
@@ -72,7 +94,7 @@ module DB
         full_id.split('/')[2]
       end
 
-      def load_authenticator(type:, account:, service_id:)
+      def load_authenticator_variables(type:, account:, service_id:)
         identifier = [type, service_id].compact.join('/')
         variables = @resource_repository.where(
           Sequel.like(
@@ -80,7 +102,7 @@ module DB
             "#{account}:variable:conjur/#{identifier}/%"
           )
         ).eager(:secrets).all
-        args_list = {}.tap do |args|
+        {}.tap do |args|
           args[:account] = account
           args[:service_id] = service_id
           variables.each do |variable|
@@ -90,23 +112,6 @@ module DB
             value = variable.secret ? variable.secret.value : ''
             args[variable.resource_id.split('/')[-1].underscore.to_sym] = value
           end
-        end
-
-        # Validate the variables against the authenticator contract
-        result = @validations.call(args_list)
-        if result.success?
-          @data_object.new(**result.to_h)
-        else
-          errors = result.errors
-          @logger.info(errors.to_h.inspect)
-
-          # If contract fails, raise the first defined exception...
-          error = errors.first
-          raise(error.meta[:exception]) if error.meta[:exception].present?
-
-          # Otherwise, it's a validation error so raise the appropriate exception
-          raise(Errors::Conjur::RequiredSecretMissing,
-                "#{account}:variable:conjur/#{type}/#{service_id}/#{error.path.first.to_s.dasherize}")
         end
       end
     end
