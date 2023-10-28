@@ -9,11 +9,12 @@ module Authentication
 
         def initialize(
           authenticator:,
-          client: Authentication::AuthnOidc::V2::Client,
+          oidc_client: OidcClient,
+          # client: Authentication::AuthnOidc::V2::Client,
           logger: Rails.logger
         )
           @authenticator = authenticator
-          @client = client.new(authenticator: authenticator)
+          @oidc_client = oidc_client.new(authenticator: authenticator)
           @logger = logger
 
           @success = ::SuccessResponse
@@ -40,7 +41,8 @@ module Authentication
         # Called by status handler. This handles checking as much of the strategy
         # integrity as possible without performing an actual authentication.
         def verify_status
-          @client.discover
+          # @client.discover
+          @oidc_client.configuration
         end
 
         private
@@ -61,16 +63,23 @@ module Authentication
         end
 
         def validate_jwt_token(parameters)
-          @client.callback_with_temporary_cert(
+          @oidc_client.exchange(
             code: parameters[:code],
             nonce: parameters[:nonce],
-            code_verifier: parameters[:code_verifier],
-            cert_string: @authenticator.ca_cert
+            code_verifier: parameters[:code_verifier]
           )
+          # @client.callback_with_temporary_cert(
+          #   code: parameters[:code],
+          #   nonce: parameters[:nonce],
+          #   code_verifier: parameters[:code_verifier],
+          #   cert_string: @authenticator.ca_cert
+          # )
         end
 
         def resolve_identity(jwt:)
-          identity = jwt.raw_attributes.with_indifferent_access[@authenticator.claim_mapping]
+          # binding.pry
+          # identity = jwt.raw_attributes.with_indifferent_access[@authenticator.claim_mapping]
+          identity = jwt[@authenticator.claim_mapping]
           return @success.new(identity) if identity.present?
 
           @failure.new(
