@@ -65,7 +65,7 @@ module Errors
     )
 
     DuplicateVariable = ::Util::TrackableErrorClass.new(
-      msg: "The request contained the following duplicate variable ids: {0}.",
+      msg: "The request contains duplicated variable ids: {0}.",
       code: "CONJ00160E"
     )
   end
