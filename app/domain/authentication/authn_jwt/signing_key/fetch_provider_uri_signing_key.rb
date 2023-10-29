@@ -33,7 +33,7 @@ module Authentication
         private
 
         def discover_provider
-          @logger.info(LogMessages::Authentication::AuthnJwt::FetchingJwksFromProvider.new(@provider_uri))
+          @logger.debug(LogMessages::Authentication::AuthnJwt::FetchingJwksFromProvider.new(@provider_uri))
           discovered_provider
         end
 

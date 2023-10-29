@@ -361,12 +361,12 @@ module LogMessages
 
       IssuerResourceNameConfiguration = ::Util::TrackableLogMessageClass.new(
         msg: "\"issuer\" value will be taken from '{0-resource-id}'",
-        code: "CONJ00054I"
+        code: "CONJ00054D"
       )
 
       RetrievedIssuerValue = ::Util::TrackableLogMessageClass.new(
         msg: "Retrieved \"issuer\" with value '{0}'",
-        code: "CONJ00055I"
+        code: "CONJ00055D"
       )
 
       ParsingIssuerFromUri = ::Util::TrackableLogMessageClass.new(
@@ -386,12 +386,12 @@ module LogMessages
 
       SelectedIdentityProviderInterface = ::Util::TrackableLogMessageClass.new(
         msg: "Selected identity provider interface: '{0-identity-provider-interface-name}'",
-        code: "CONJ00059I"
+        code: "CONJ00059D"
       )
 
       RetrievedResourceValue = ::Util::TrackableLogMessageClass.new(
         msg: "Retrieved value '{0-resource-value}' of resource name '{1-resource-name}'",
-        code: "CONJ00060I"
+        code: "CONJ00060D"
       )
 
       CheckingIdentityFieldExists = ::Util::TrackableLogMessageClass.new(
@@ -431,7 +431,7 @@ module LogMessages
 
       FetchedJwtClaimsToValidate = ::Util::TrackableLogMessageClass.new(
         msg: "Fetched JWT claims '{0-claims-list}' to validate",
-        code: "CONJ00068I"
+        code: "CONJ00068D"
       )
 
       AddingJwtClaimToValidate = ::Util::TrackableLogMessageClass.new(
@@ -451,7 +451,7 @@ module LogMessages
 
       FetchingJwksFromProvider = ::Util::TrackableLogMessageClass.new(
         msg: "Fetching JWKS from '{0-uri}'...",
-        code: "CONJ00072I"
+        code: "CONJ00072D"
       )
 
       FetchJwtUriKeysSuccess = ::Util::TrackableLogMessageClass.new(
@@ -471,7 +471,7 @@ module LogMessages
 
       SelectedSigningKeyInterface = ::Util::TrackableLogMessageClass.new(
         msg: "Selected signing key interface: '{0-signing-key-interface-name}'",
-        code: "CONJ00076I"
+        code: "CONJ00076D"
       )
 
       ConvertingJwtClaimToVerificationOption = ::Util::TrackableLogMessageClass.new(
@@ -581,7 +581,7 @@ module LogMessages
 
       FoundJwtIdentity= ::Util::TrackableLogMessageClass.new(
         msg: "Successfully found JWT identity '{0}'",
-        code: "CONJ00098I"
+        code: "CONJ00098D"
       )
 
       ValidatedJwtStatusConfiguration = ::Util::TrackableLogMessageClass.new(
@@ -621,12 +621,12 @@ module LogMessages
 
       CreateJwtRestrictionsValidatorInstance = ::Util::TrackableLogMessageClass.new(
         msg: "Creating JWT restrictions validator (validate_restrictions) instance...",
-        code: "CONJ00108I"
+        code: "CONJ00108D"
       )
 
       CreatedJwtRestrictionsValidatorInstance = ::Util::TrackableLogMessageClass.new(
         msg: "Successfully created JWT restrictions validator (validate_restrictions) instance",
-        code: "CONJ00109I"
+        code: "CONJ00109D"
       )
 
       FetchingIdentityPath = ::Util::TrackableLogMessageClass.new(
@@ -636,7 +636,7 @@ module LogMessages
 
       FetchedIdentityPath = ::Util::TrackableLogMessageClass.new(
         msg: "Successfully fetched JWT identity path '{0-identity-path}'",
-        code: "CONJ00111I"
+        code: "CONJ00111D"
       )
 
       FetchingIdentityByInterface = ::Util::TrackableLogMessageClass.new(
@@ -646,7 +646,7 @@ module LogMessages
 
       FetchedIdentityByInterface = ::Util::TrackableLogMessageClass.new(
         msg: "Successfully fetched identity '{0-identity}' by interface: '{1-interface-name}'",
-        code: "CONJ00113I"
+        code: "CONJ00113D"
       )
 
       AddingIdentityPrefixToIdentity = ::Util::TrackableLogMessageClass.new(
@@ -701,7 +701,7 @@ module LogMessages
 
       FetchedEnforcedClaims = ::Util::TrackableLogMessageClass.new(
         msg: "Successfully fetched enforced claims '{0-enforced-claims}'",
-        code: "CONJ00124I"
+        code: "CONJ00124D"
       )
 
       ParsingClaimAliases = ::Util::TrackableLogMessageClass.new(
@@ -730,17 +730,17 @@ module LogMessages
 
       FetchedClaimAliases = ::Util::TrackableLogMessageClass.new(
         msg: "Successfully fetched claim aliases '{0-claim-aliases}'",
-        code: "CONJ00130I"
+        code: "CONJ00130D"
       )
 
       CreateContraintsFromPolicy = ::Util::TrackableLogMessageClass.new(
         msg: "Creating constraints from policy...",
-        code: "CONJ00131I"
+        code: "CONJ00131D"
       )
 
       CreatedConstraintsFromPolicy = ::Util::TrackableLogMessageClass.new(
         msg: "Successfully created constraints from policy",
-        code: "CONJ00132I"
+        code: "CONJ00132D"
       )
 
       ConvertingClaimAccordingToAlias = ::Util::TrackableLogMessageClass.new(
@@ -775,7 +775,7 @@ module LogMessages
 
       FetchedAudienceValue = ::Util::TrackableLogMessageClass.new(
         msg: "Successfully fetched audience value '{0-value}'",
-        code: "CONJ00139I"
+        code: "CONJ00139D"
       )
 
       ValidatedAudienceConfiguration = ::Util::TrackableLogMessageClass.new(
@@ -795,7 +795,7 @@ module LogMessages
 
       ParsingStaticSigningKeys = ::Util::TrackableLogMessageClass.new(
         msg: "Parsing JWKS from public-keys value...",
-        code: "CONJ00143I"
+        code: "CONJ00143D"
       )
 
       ParsedStaticSigningKeys = ::Util::TrackableLogMessageClass.new(

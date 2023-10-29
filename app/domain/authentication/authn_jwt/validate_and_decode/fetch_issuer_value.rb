@@ -38,24 +38,24 @@ module Authentication
         # In case the resource is configured but the not initialized with secret, throw an error
         def fetch_issuer_value
           if issuer_resource_exists?
-            @logger.info(LogMessages::Authentication::AuthnJwt::IssuerResourceNameConfiguration.new(ISSUER_RESOURCE_NAME))
+            @logger.debug(LogMessages::Authentication::AuthnJwt::IssuerResourceNameConfiguration.new(ISSUER_RESOURCE_NAME))
 
             @issuer_value = issuer_secret_value
           else
             validate_issuer_configuration
 
             if provider_uri_resource_exists?
-              @logger.info(LogMessages::Authentication::AuthnJwt::IssuerResourceNameConfiguration.new(PROVIDER_URI_RESOURCE_NAME))
+              @logger.debug(LogMessages::Authentication::AuthnJwt::IssuerResourceNameConfiguration.new(PROVIDER_URI_RESOURCE_NAME))
 
               @issuer_value = provider_uri_secret_value
             elsif jwks_uri_resource_exists?
-              @logger.info(LogMessages::Authentication::AuthnJwt::IssuerResourceNameConfiguration.new(JWKS_URI_RESOURCE_NAME))
+              @logger.debug(LogMessages::Authentication::AuthnJwt::IssuerResourceNameConfiguration.new(JWKS_URI_RESOURCE_NAME))
 
               @issuer_value = fetch_issuer_from_jwks_uri_secret
             end
           end
 
-          @logger.info(LogMessages::Authentication::AuthnJwt::RetrievedIssuerValue.new(@issuer_value))
+          @logger.debug(LogMessages::Authentication::AuthnJwt::RetrievedIssuerValue.new(@issuer_value))
         end
 
         def issuer_resource_exists?

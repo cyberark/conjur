@@ -20,7 +20,7 @@ module Authentication
           @logger.debug(LogMessages::Authentication::AuthnJwt::FetchingJwtClaimsToValidate.new)
           validate_decoded_token_exists
           fetch_jwt_claims_to_validate
-          @logger.info(
+          @logger.debug(
             LogMessages::Authentication::AuthnJwt::FetchedJwtClaimsToValidate.new(
               jwt_claims_names_to_validate
             )

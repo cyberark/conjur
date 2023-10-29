@@ -23,7 +23,7 @@ module Authentication
         # These is command class so only call is called from outside. Other functions are needed here.
         # :reek:TooManyMethods
         def call
-          @logger.info(LogMessages::Authentication::AuthnJwt::CreateContraintsFromPolicy.new)
+          @logger.debug(LogMessages::Authentication::AuthnJwt::CreateContraintsFromPolicy.new)
           fetch_enforced_claims
           fetch_claim_aliases
           map_enforced_claims
@@ -32,7 +32,7 @@ module Authentication
           add_required_constraint
           add_non_permitted_constraint
           create_multiple_constraint
-          @logger.info(LogMessages::Authentication::AuthnJwt::CreatedConstraintsFromPolicy.new)
+          @logger.debug(LogMessages::Authentication::AuthnJwt::CreatedConstraintsFromPolicy.new)
           multiple_constraint
         end
 

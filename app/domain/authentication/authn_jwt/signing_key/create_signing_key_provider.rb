@@ -61,7 +61,7 @@ module Authentication
         end
 
         def fetch_provider_uri_signing_key
-          @logger.info(
+          @logger.debug(
             LogMessages::Authentication::AuthnJwt::SelectedSigningKeyInterface.new(PROVIDER_URI_INTERFACE_NAME)
           )
           @fetch_provider_uri_signing_key ||= @fetch_provider_uri_signing_key_class.new(
@@ -71,7 +71,7 @@ module Authentication
         end
 
         def fetch_jwks_uri_signing_key
-          @logger.info(
+          @logger.debug(
             LogMessages::Authentication::AuthnJwt::SelectedSigningKeyInterface.new(JWKS_URI_INTERFACE_NAME)
           )
           @fetch_jwks_uri_signing_key ||= @fetch_jwks_uri_signing_key_class.new(
@@ -82,7 +82,7 @@ module Authentication
         end
 
         def fetch_public_keys_signing_key
-          @logger.info(
+          @logger.debug(
             LogMessages::Authentication::AuthnJwt::SelectedSigningKeyInterface.new(PUBLIC_KEYS_INTERFACE_NAME)
           )
           @fetch_public_keys_signing_key ||= @fetch_public_keys_signing_key_class.new(

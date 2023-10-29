@@ -30,7 +30,7 @@ module Authentication
           return @identity_path if @identity_path
 
           if identity_path_resource_exists?
-            @logger.info(
+            @logger.debug(
               LogMessages::Authentication::AuthnJwt::RetrievedResourceValue.new(
                 identity_path_secret_value,
                 IDENTITY_PATH_RESOURCE_NAME
@@ -46,7 +46,7 @@ module Authentication
             @identity_path = IDENTITY_PATH_DEFAULT_VALUE
           end
 
-          @logger.info(LogMessages::Authentication::AuthnJwt::FetchedIdentityPath.new(@identity_path))
+          @logger.debug(LogMessages::Authentication::AuthnJwt::FetchedIdentityPath.new(@identity_path))
           @identity_path
         end
 
