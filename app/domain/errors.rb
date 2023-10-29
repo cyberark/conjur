@@ -49,8 +49,9 @@ module Errors
     )
 
     ApiKeyNotFound = ::Util::TrackableErrorClass.new(
-      msg: "Role '{0-role}' API key not found",
-      code: "CONJ00121E"
+      msg: "Role '{0-role}' does not have an API key",
+      code: "CONJ00170E",
+      base_error_class: ::Exceptions::MethodNotAllowed
     )
 
     RequestedResourceNotFound = ::Util::TrackableErrorClass.new(
