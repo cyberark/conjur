@@ -10,7 +10,7 @@ class EdgeHostsController < RestController
   include ReplicationHandler
 
   def all_hosts
-    logger.info(LogMessages::Endpoints::EndpointRequested.new("all_hosts"))
+    logger.debug(LogMessages::Endpoints::EndpointRequested.new("all_hosts"))
 
     allowed_params = %i[account limit offset]
     options = params.permit(*allowed_params)
@@ -36,11 +36,11 @@ class EdgeHostsController < RestController
     end
     if params[:count] == 'true'
       results = { count: sumItems }
-      logger.info(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("all_hosts:count"))
+      logger.debug(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("all_hosts:count"))
       render(json: results)
     else
       results = replicate_hosts(scope)
-      logger.info(LogMessages::Endpoints::EndpointFinishedSuccessfullyWithLimitAndOffset.new(
+      logger.debug(LogMessages::Endpoints::EndpointFinishedSuccessfullyWithLimitAndOffset.new(
         "all_hosts",
         limit,
         offset

@@ -11,7 +11,7 @@ class EdgeSecretsController < RestController
 
   # Return all secrets within offset-limit frame. Default is 0-1000
   def all_secrets
-    logger.info(LogMessages::Endpoints::EndpointRequested.new("all_secrets"))
+    logger.debug(LogMessages::Endpoints::EndpointRequested.new("all_secrets"))
 
     allowed_params = %i[account limit offset]
     options = params.permit(*allowed_params)
@@ -45,13 +45,13 @@ class EdgeSecretsController < RestController
 
       results, failed = replicate_secrets(limit, offset, options, accepts_base64)
 
-      logger.info(LogMessages::Endpoints::EndpointFinishedSuccessfullyWithLimitAndOffset.new(
+      logger.debug(LogMessages::Endpoints::EndpointFinishedSuccessfullyWithLimitAndOffset.new(
         "all_secrets",
         limit,
         offset
       ))
       if (failed.size > 0)
-        logger.info(LogMessages::Util::FailedSerializationOfResources.new(
+        logger.debug(LogMessages::Util::FailedSerializationOfResources.new(
           "all_secrets",
           limit,
           offset,

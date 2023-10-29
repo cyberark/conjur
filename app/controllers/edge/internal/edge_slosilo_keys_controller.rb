@@ -7,7 +7,7 @@ class EdgeSlosiloKeysController < RestController
   include GroupMembershipValidator
 
   def slosilo_keys
-    logger.info(LogMessages::Endpoints::EndpointRequested.new("slosilo_keys"))
+    logger.debug(LogMessages::Endpoints::EndpointRequested.new("slosilo_keys"))
     allowed_params = %i[account]
     options = params.permit(*allowed_params).to_h.symbolize_keys
     begin
@@ -29,7 +29,7 @@ class EdgeSlosiloKeysController < RestController
     prev_key_obj = prev_key.nil? ? [] : [get_key_object(prev_key)]
     return_json[:previousSlosiloKeys] = prev_key_obj
 
-    logger.info(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("slosilo_keys"))
+    logger.debug(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("slosilo_keys"))
     render(json: return_json)
   end
 

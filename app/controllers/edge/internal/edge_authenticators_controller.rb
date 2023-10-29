@@ -9,7 +9,7 @@ class EdgeAuthenticatorsController < RestController
   include EdgeValidator
   include AuthenticatorsManager
   def all_authenticators
-    logger.info(LogMessages::Endpoints::EndpointRequested.new("all-authenticators"))
+    logger.debug(LogMessages::Endpoints::EndpointRequested.new("all-authenticators"))
     allowed_params = %i[account kind limit offset count]
     options = params.permit(*allowed_params).to_h.symbolize_keys
 
@@ -33,7 +33,7 @@ class EdgeAuthenticatorsController < RestController
         verify_header(request)
         response.set_header("Content-Encoding", "base64")
         parsed_data = get_authenticators_parsed_data(kinds, offset, limit)
-        logger.info(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("all-authenticators"))
+        logger.debug(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("all-authenticators"))
         render(json: parsed_data)
       end
     rescue ApplicationController::Forbidden
