@@ -4,79 +4,97 @@ module Authentication
   module AuthnOidc
     module V2
       class NetworkTransporter
-        def initialize(authenticator:)
-          @authenticator = authenticator
+        def initialize(hostname:, ca_certificate: nil, temp_directory: './tmp/certificates', http: Net::HTTP)
+          # Set as empty so we can check it later when making network calls
+          @ca_certificate = nil
+          if ca_certificate.present?
+            @temp_directory = temp_directory
+            create_directory_if_missing(temp_directory)
+            @ca_certificate = ca_certificate
+          end
+
+          # Set the default hostname
+          @uri = URI(hostname)
+          # Stripping path if present
+          @uri.path = ''
+
+          @http = http
 
           @success = ::SuccessResponse
           @failure = ::FailureResponse
         end
 
-        def get(url)
-          # make_call do |client|
-          #   client.post(url, body, headers).body
-          # end
-          with_ssl do |ssl_options|
-            network_call(ssl_options) do |client|
-              client.get(url).body
-            end
-          end
-        end
-
-        def post(url:, body:, headers: {})
-          with_ssl do |ssl_options|
-            network_call(ssl_options) do |client|
-              @success.new(client.post(url, body, headers).body)
+        def get(path)
+          http_client.start do |http|
+            request = Net::HTTP::Get.new(@uri.to_s + URI(path).path)
+            response = http.request(request)
+            if response.code == '200'
+              @success.new(JSON.parse(response.body))
+            else
+              @failure.new(response)
             end
           end
         rescue => e
           @failure.new(e.message, exception: e, status: :bad_request)
         end
 
+        def post(path:, body: '', basic_auth: [])
+          http_client.start do |http|
+            request = Net::HTTP::Post.new(@uri + URI(path).path)
+            request.body = body
+            request.basic_auth(*basic_auth) unless basic_auth.empty?
+            response = http.request(request)
+            begin
+              if response.code == '200'
+                @success.new(JSON.parse(response.body))
+              else
+                @failure.new(response)
+              end
+            rescue => e
+              @failure.new(e.message, exception: e, status: :bad_request)
+            end
+          end
+        end
+
         private
 
-        def make_call(&block)
-          with_ssl do |ssl_options|
-            network_call(ssl_options) do |client|
-              block.call(client)
-              # client.post(url, body, headers).body
+        def http_client
+          @http_client ||= begin
+            http = @http.new(@uri.host, @uri.port)
+            return http unless @uri.instance_of?(URI::HTTPS)
+
+            # Enable SSL support
+            http.use_ssl = true
+            http.verify_mode = OpenSSL::SSL::VERIFY_PEER
+
+            store = OpenSSL::X509::Store.new
+            # If CA Certificate is available, we write it to a tempfile for
+            # import. This allows us to handle certificate chains.
+            if @ca_certificate.present?
+              with_ca_certificate(@ca_certificate) do |file|
+                store.add_file(file.path)
+              end
+            else
+              # Auto-include system CAs unless a CA has been defined
+              store.set_default_paths
             end
+            http.cert_store = store
+
+            # return the http object
+            http
           end
         end
 
-        def with_ca(ssl_options, &block)
-          Dir.mkdir('./tmp/certificates') unless Dir.exist?('./tmp/certificates')
-          Tempfile.create('ca', './tmp/certificates/') do |ca_certificate|
-            ca_certificate.write(@authenticator.ca_cert)
-            ca_certificate.flush
-            ssl_options[:ca_file] = ca_certificate.path
-
-            block.call(ssl_options)
-
-          ensure
-            File.delete(ca_certificate.path) if File.exist?(ca_certificate.path)
+        def with_ca_certificate(certificate_content, &block)
+          Tempfile.create('ca', @temp_directory) do |ca_certificate|
+            ca_certificate.write(certificate_content)
+            ca_certificate.close
+            block.call(ca_certificate)
           end
         end
 
-        def with_ssl(&block)
-          ssl_options = {}
-          if @authenticator.ca_cert.present?
-            with_ca(ssl_options) do |updated_ssl_options|
-              block.call(updated_ssl_options)
-            end
-          else
-            block.call(ssl_options)
-          end
-        end
-
-        def network_call(ssl_options, &block)
-          client = Faraday.new(@authenticator.provider_uri, ssl: ssl_options) do |conn|
-            conn.response(:json, content_type: /\bjson$/)
-            conn.response(:raise_error)
-
-            conn.adapter(Faraday.default_adapter)
-          end
-
-          block.call(client)
+        def create_directory_if_missing(path)
+          Dir.mkdir(path) unless Dir.exist?(path)
         end
       end
     end
