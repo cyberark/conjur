@@ -117,7 +117,7 @@ RSpec.describe('Authentication::AuthnJwt::SigningKey::FetchProviderUriSigningKey
         it "does not raise error and write appropriate logs" do
           expect(subject).to eql(valid_jwks_result)
           expect(log_output.string.split("\n")).to eq([
-                                                        "INFO,CONJ00072I Fetching JWKS from 'https://provider-uri.com/provider'...",
+                                                        "DEBUG,CONJ00072D Fetching JWKS from 'https://provider-uri.com/provider'...",
                                                         "DEBUG,CONJ00009D Fetched Identity Provider keys from provider successfully"
                                                       ])
         end

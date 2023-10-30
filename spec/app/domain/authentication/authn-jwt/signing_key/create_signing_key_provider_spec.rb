@@ -110,7 +110,7 @@ RSpec.describe('Authentication::AuthnJwt::SigningKey::CreateSigningKeyProvider')
         expect(subject).to be_a(Authentication::AuthnJwt::SigningKey::FetchJwksUriSigningKey)
         expect(log_output.string.split("\n")).to eq([
                                                       "DEBUG,CONJ00075D Selecting signing key interface...",
-                                                      "INFO,CONJ00076I Selected signing key interface: 'jwks-uri'"
+                                                      "DEBUG,CONJ00076D Selected signing key interface: 'jwks-uri'"
                                                     ])
       end
     end
@@ -130,7 +130,7 @@ RSpec.describe('Authentication::AuthnJwt::SigningKey::CreateSigningKeyProvider')
         expect(subject).to be_a(Authentication::AuthnJwt::SigningKey::FetchProviderUriSigningKey)
         expect(log_output.string.split("\n")).to eq([
                                                       "DEBUG,CONJ00075D Selecting signing key interface...",
-                                                      "INFO,CONJ00076I Selected signing key interface: 'provider-uri'"
+                                                      "DEBUG,CONJ00076D Selected signing key interface: 'provider-uri'"
                                                     ])
       end
     end
@@ -150,7 +150,7 @@ RSpec.describe('Authentication::AuthnJwt::SigningKey::CreateSigningKeyProvider')
         expect(subject).to be_a(Authentication::AuthnJwt::SigningKey::FetchPublicKeysSigningKey)
         expect(log_output.string.split("\n")).to eq([
                                                       "DEBUG,CONJ00075D Selecting signing key interface...",
-                                                      "INFO,CONJ00076I Selected signing key interface: 'public-keys'"
+                                                      "DEBUG,CONJ00076D Selected signing key interface: 'public-keys'"
                                                     ])
       end
     end

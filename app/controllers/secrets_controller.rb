@@ -60,6 +60,9 @@ class SecretsController < RestController
   end
 
   def batch
+    #check if there is id that repeats itself
+    check_input_correct
+
     variables = Resource.where(resource_id: variable_ids).eager(:secrets).all
 
     unless variable_ids.count == variables.count
@@ -150,6 +153,14 @@ class SecretsController < RestController
   end
 
   private
+
+  def check_input_correct
+    unique_variables = variable_ids.uniq
+    unless variable_ids.count == unique_variables.count
+      duplicate_ids = variable_ids.find_all { |e| variable_ids.count(e) > 1 }.uniq
+      raise Errors::Conjur::DuplicateVariable, duplicate_ids.join(",")
+    end
+  end
 
   def variable_ids
     return @variable_ids if @variable_ids
