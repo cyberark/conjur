@@ -6,9 +6,15 @@ module Authentication
       class NetworkTransporter
         def initialize(authenticator:)
           @authenticator = authenticator
+
+          @success = ::SuccessResponse
+          @failure = ::FailureResponse
         end
 
         def get(url)
+          # make_call do |client|
+          #   client.post(url, body, headers).body
+          # end
           with_ssl do |ssl_options|
             network_call(ssl_options) do |client|
               client.get(url).body
@@ -19,12 +25,23 @@ module Authentication
         def post(url:, body:, headers: {})
           with_ssl do |ssl_options|
             network_call(ssl_options) do |client|
-              client.post(url, body, headers).body
+              @success.new(client.post(url, body, headers).body)
             end
           end
+        rescue => e
+          @failure.new(e.message, exception: e, status: :bad_request)
         end
 
         private
+
+        def make_call(&block)
+          with_ssl do |ssl_options|
+            network_call(ssl_options) do |client|
+              block.call(client)
+              # client.post(url, body, headers).body
+            end
+          end
+        end
 
         def with_ca(ssl_options, &block)
           Dir.mkdir('./tmp/certificates') unless Dir.exist?('./tmp/certificates')

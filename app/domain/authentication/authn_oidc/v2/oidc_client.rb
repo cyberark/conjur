@@ -51,21 +51,24 @@ module Authentication
           args[:code_verifier] = code_verifier if code_verifier.present?
           args[:redirect_uri] = ERB::Util.url_encode(@authenticator.redirect_uri) if @authenticator.redirect_uri.present?
 
-          begin
+          # begin
+            # binding.pry
             response = @client.post(
               url: configuration['token_endpoint'].gsub("#{@authenticator.provider_uri}/", ''),
               body: args.map { |k, v| "#{k}=#{v}" }.join('&'),
               headers: { 'Authorization' => "Basic #{Base64.strict_encode64([@authenticator.client_id, @authenticator.client_secret].join(':'))}" }
-            )
-          rescue => e
-            return @failure.new(
-              e.message,
+            ).bind do |response|
+              return @success.new(response['id_token'] || response['access_token'])
+            end
+          # rescue => e
+            # binding.pry
+            @failure.new(
+              response.message,
               exception: Errors::Authentication::AuthnOidc::TokenRetrievalFailed.new(e.message),
-              status: :bad_request
+              status: :unauthorized
             )
-          end
-
-          @success.new(response['id_token'] || response['access_token'])
+          # end
+            # binding.pry
         end
 
         def decode_token(encoded_token)
