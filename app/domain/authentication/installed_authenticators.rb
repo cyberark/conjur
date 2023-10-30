@@ -44,8 +44,12 @@ module Authentication
         enabled_authenticators.join(',')
       end
 
+      def native_authenticators
+        %w[authn]
+      end
+
       private
-      
+
       def db_enabled_authenticators
         # Always include 'authn' when enabling authenticators via CLI so that it
         # doesn't get disabled when another authenticator is enabled

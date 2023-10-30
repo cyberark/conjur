@@ -185,13 +185,25 @@ GEM
       multi_json
     domain_name (0.5.20190701)
       unf (>= 0.0.5, < 1.0.0)
+    dry-configurable (1.1.0)
+      dry-core (~> 1.0, < 2)
+      zeitwerk (~> 2.6)
     dry-core (1.0.0)
       concurrent-ruby (~> 1.0)
       zeitwerk (~> 2.6)
     dry-inflector (1.0.0)
+    dry-initializer (3.1.1)
     dry-logic (1.5.0)
       concurrent-ruby (~> 1.0)
       dry-core (~> 1.0, < 2)
+      zeitwerk (~> 2.6)
+    dry-schema (1.13.3)
+      concurrent-ruby (~> 1.0)
+      dry-configurable (~> 1.0, >= 1.0.1)
+      dry-core (~> 1.0, < 2)
+      dry-initializer (~> 3.0)
+      dry-logic (>= 1.4, < 2)
+      dry-types (>= 1.7, < 2)
       zeitwerk (~> 2.6)
     dry-struct (1.6.0)
       dry-core (~> 1.0, < 2)
@@ -203,6 +215,12 @@ GEM
       dry-core (~> 1.0)
       dry-inflector (~> 1.0)
       dry-logic (~> 1.4)
+      zeitwerk (~> 2.6)
+    dry-validation (1.10.0)
+      concurrent-ruby (~> 1.0)
+      dry-core (~> 1.0, < 2)
+      dry-initializer (~> 3.0)
+      dry-schema (>= 1.12, < 2)
       zeitwerk (~> 2.6)
     erubi (1.12.0)
     event_emitter (0.2.6)
@@ -542,6 +560,7 @@ DEPENDENCIES
   debase-ruby_core_source (~> 3.2.1)
   dry-struct
   dry-types
+  dry-validation
   event_emitter
   faye-websocket
   ffi (>= 1.9.24)
