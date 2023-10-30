@@ -65,7 +65,7 @@ module Authentication
           return @claim_aliases if @claim_aliases
 
           @claim_aliases ||= @parse_claim_aliases.call(claim_aliases: claim_aliases_secret_value)
-          @logger.info(LogMessages::Authentication::AuthnJwt::FetchedClaimAliases.new(@claim_aliases))
+          @logger.debug(LogMessages::Authentication::AuthnJwt::FetchedClaimAliases.new(@claim_aliases))
 
           @claim_aliases
         end

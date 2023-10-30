@@ -21,7 +21,7 @@ module Authentication
           )
           raise Errors::Authentication::AuthnJwt::IdentityMisconfigured unless username_exists?
 
-          @logger.info(
+          @logger.debug(
             LogMessages::Authentication::AuthnJwt::FetchedIdentityByInterface.new(
               username,
               URL_IDENTITY_PROVIDER_INTERFACE_NAME

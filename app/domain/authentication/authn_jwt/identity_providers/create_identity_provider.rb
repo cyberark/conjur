@@ -50,7 +50,7 @@ module Authentication
         end
 
         def identity_from_decoded_token_provider
-          @logger.info(
+          @logger.debug(
             LogMessages::Authentication::AuthnJwt::SelectedIdentityProviderInterface.new(
               TOKEN_IDENTITY_PROVIDER_INTERFACE_NAME
             )
@@ -66,7 +66,7 @@ module Authentication
         end
 
         def identity_from_url_provider
-          @logger.info(
+          @logger.debug(
             LogMessages::Authentication::AuthnJwt::SelectedIdentityProviderInterface.new(
               URL_IDENTITY_PROVIDER_INTERFACE_NAME
             )

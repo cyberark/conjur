@@ -61,7 +61,7 @@ module Authentication
           return @parse_enforced_claims_secret_value if @parse_enforced_claims_secret_value
 
           @parse_enforced_claims_secret_value ||= @parse_enforced_claims.call(enforced_claims: enforced_claims_secret_value)
-          @logger.info(LogMessages::Authentication::AuthnJwt::FetchedEnforcedClaims.new(@parse_enforced_claims_secret_value))
+          @logger.debug(LogMessages::Authentication::AuthnJwt::FetchedEnforcedClaims.new(@parse_enforced_claims_secret_value))
           
           @parse_enforced_claims_secret_value
         end

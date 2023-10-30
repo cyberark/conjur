@@ -23,7 +23,7 @@ module Authentication
           fetch_audience_secret_value
           validate_audience_secret_has_value
 
-          @logger.info(LogMessages::Authentication::AuthnJwt::FetchedAudienceValue.new(audience_secret_value))
+          @logger.debug(LogMessages::Authentication::AuthnJwt::FetchedAudienceValue.new(audience_secret_value))
 
           audience_secret_value
         end

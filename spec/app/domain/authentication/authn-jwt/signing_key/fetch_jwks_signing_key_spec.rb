@@ -187,7 +187,7 @@ RSpec.describe('Authentication::AuthnJwt::SigningKey::FetchJwksUriSigningKey') d
       it "returns jwks value and writes appropriate logs" do
         expect(subject).to eql(valid_jwks)
         expect(log_output.string.split("\n")).to eq([
-                                                      "INFO,CONJ00072I Fetching JWKS from 'https://jwks-uri.com/jwks'...",
+                                                      "DEBUG,CONJ00072D Fetching JWKS from 'https://jwks-uri.com/jwks'...",
                                                       "DEBUG,CONJ00073D Successfully fetched JWKS"
                                                     ])
       end

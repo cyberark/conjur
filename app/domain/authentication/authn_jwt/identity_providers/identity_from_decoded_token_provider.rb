@@ -36,7 +36,7 @@ module Authentication
           #     File.join('/a/b/', '/c/d/', '/e') => "/a/b/c/d/e"
           full_host_id = File.join(host_prefix, id_path, @id_from_token)
 
-          @logger.info(
+          @logger.debug(
             LogMessages::Authentication::AuthnJwt::FetchedIdentityByInterface.new(
               full_host_id,
               TOKEN_IDENTITY_PROVIDER_INTERFACE_NAME
