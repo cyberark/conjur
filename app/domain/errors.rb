@@ -63,6 +63,11 @@ module Errors
       msg: "Failed to rotate Sloislo key. Reason: '{0}'",
       code: "CONJ00157E"
     )
+
+    DuplicateVariable = ::Util::TrackableErrorClass.new(
+      msg: "The request contains duplicated variable ids: {0}.",
+      code: "CONJ00160E"
+    )
   end
 
   module Authorization
