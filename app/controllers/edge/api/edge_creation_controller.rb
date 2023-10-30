@@ -12,7 +12,7 @@ class EdgeCreationController < RestController
   include ParamsValidator
 
   def generate_install_token
-    logger.info(LogMessages::Endpoints::EndpointRequested.new("edge/edge-creds"))
+    logger.debug(LogMessages::Endpoints::EndpointRequested.new("edge/edge-creds"))
     allowed_params = %i[account edge_name]
     options = params.permit(*allowed_params).to_h.symbolize_keys
     audit_params = { edge_name: options[:edge_name], user: current_user.role_id, client_ip: request.ip }
@@ -30,14 +30,14 @@ class EdgeCreationController < RestController
     ensure
       Audit.logger.log(Audit::Event::CredsGeneration.new(**audit_params))
     end
-    logger.info(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("edge/edge-creds"))
+    logger.debug(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("edge/edge-creds"))
     response.set_header("Content-Encoding", "base64")
     render(plain: Base64.strict_encode64(edge_host_name + ":" + installer_token))
   end
 
   #this endpoint loads a policy with the edge host values + adds the edge name to Edge table
   def create_edge
-    logger.info(LogMessages::Endpoints::EndpointRequested.new('create edge'))
+    logger.debug(LogMessages::Endpoints::EndpointRequested.new('create edge'))
     allowed_params = %i[account edge_name]
     url_params = params.permit(*allowed_params)
     validate_conjur_admin_group(url_params[:account])
@@ -56,7 +56,7 @@ class EdgeCreationController < RestController
     ensure
       created_audit(edge_name)
     end
-    logger.info(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("create edge"))
+    logger.debug(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("create edge"))
     head :created
   end
 
