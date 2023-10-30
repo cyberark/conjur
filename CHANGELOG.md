@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 - support '/' for workload name in workload wizard
 - bad request error for duplicate variable in batch fetch secret
+- Add delete edge endpoint [ONYX-46630](https://ca-il-jira.il.cyber-ark.com:8443/browse/ONYX-46630)
 
 ## [1.0.11-cloud] - 2023-10-29
 ### Changed

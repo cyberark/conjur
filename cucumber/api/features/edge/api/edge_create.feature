@@ -31,7 +31,7 @@ Feature: Create edge process
       """
     And I add the secret value "3" to the resource "cucumber:variable:edge/edge-configuration/max-edge-allowed"
 
-    @acceptance
+    @acceptance @smoke
     Scenario: Create edge host return 201 OK
       Given I login as "admin_user"
       And I save my place in the audit log file for remote

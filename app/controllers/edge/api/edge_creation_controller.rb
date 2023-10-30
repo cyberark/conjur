@@ -4,8 +4,9 @@ require_relative '../../wrappers/policy_wrapper'
 class EdgeCreationController < RestController
   include AccountValidator
   include BodyParser
-  include EdgeValidator
   include ExtractEdgeResources
+  include EdgeValidator
+  include EdgeYamls
   include FindEdgePolicyResource
   include GroupMembershipValidator
   include PolicyWrapper
@@ -71,12 +72,6 @@ class EdgeCreationController < RestController
   def add_edge_host_policy(host_id)
     input = input_post_yaml(host_id)
     submit_policy(Loader::CreatePolicy, PolicyTemplates::CreateEdge.new(), input,resource)
-  end
-
-  def input_post_yaml(json_body)
-    {
-      "edge_identifier" => json_body
-    }
   end
 
   def created_audit(edge_name = "not-found")
