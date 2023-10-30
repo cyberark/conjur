@@ -87,12 +87,12 @@ class ApplicationController < ActionController::API
   end
 
   def resource_not_found e
-    logger.error("#{e}\n#{e.backtrace.join("\n")}")
+    log_error(e)
     render_resource_not_not_found(e)
   end
 
   def render_resource_not_not_found e
-    logger.error("#{e}\n#{e.backtrace.join("\n")}")
+    log_error(e)
     render(json: {
       error: {
         code: "not_found",
@@ -102,12 +102,12 @@ class ApplicationController < ActionController::API
   end
 
   def record_not_found e
-    logger.error("#{e}\n#{e.backtrace.join("\n")}")
+    log_error(e)
     render_record_not_found(e)
   end
 
   def no_matching_row e
-    logger.error("#{e}\n#{e.backtrace.join("\n")}")
+    log_error(e)
     target = e.dataset.model.table_name.to_s.underscore rescue nil
     render(json: {
       error: {
@@ -119,7 +119,7 @@ class ApplicationController < ActionController::API
   end
 
   def foreign_key_constraint_violation e
-    logger.error("#{e}\n#{e.backtrace.join("\n")}")
+    log_error(e)
 
     # check if this is a violation of role_memberships_member_id_fkey
     # or role_memberships_role_id_fkey
@@ -153,7 +153,7 @@ class ApplicationController < ActionController::API
   end
 
   def validation_failed e
-    logger.error("#{e}\n#{e.backtrace.join("\n")}")
+    log_error(e)
     message = e.errors.map do |field, messages|
       messages.map do |message|
         [field, message].join(' ')
@@ -180,7 +180,7 @@ class ApplicationController < ActionController::API
   end
 
   def policy_invalid e
-    logger.error("#{e}\n#{e.backtrace.join("\n")}")
+    log_error(e)
 
     error = { code: "policy_invalid", message: e.message }
 
@@ -197,7 +197,7 @@ class ApplicationController < ActionController::API
   end
 
   def disallowed_policy_operation e
-    logger.error("#{e}\n#{e.backtrace.join("\n")}")
+    log_error(e)
 
     render(json: {
       error: {
@@ -208,7 +208,7 @@ class ApplicationController < ActionController::API
   end
 
   def argument_error e
-    logger.error("#{e}\n#{e.backtrace.join("\n")}")
+    log_error(e)
 
     render(json: {
       error: {
@@ -219,7 +219,7 @@ class ApplicationController < ActionController::API
   end
 
   def record_exists e
-    logger.error("#{e}\n#{e.backtrace.join("\n")}")
+    log_error(e)
     render(json: {
       error: {
         code: "conflict",
@@ -235,12 +235,12 @@ class ApplicationController < ActionController::API
   end
 
   def forbidden e
-    logger.error("#{e}\n#{e.backtrace.join("\n")}")
+    log_error(e)
     head(:forbidden)
   end
 
   def method_not_allowed e
-    logger.error("#{e}\n#{e.backtrace.join("\n")}")
+    log_error(e)
     render(json: {
       error: {
         code: :method_not_allowed,
@@ -250,7 +250,7 @@ class ApplicationController < ActionController::API
   end
 
   def conflict e
-    logger.error("#{e}\n#{e.backtrace.join("\n")}")
+    log_error(e)
     render(json: {
       error: {
         code: :conflict,
@@ -260,12 +260,12 @@ class ApplicationController < ActionController::API
   end
 
   def bad_request e
-    logger.error("#{e}\n#{e.backtrace.join("\n")}")
+    log_error(e)
     head(:bad_request)
   end
 
   def unprocessable_entity e
-    logger.error("#{e}\n#{e.backtrace.join("\n")}")
+    log_error(e)
     render(json: {
       error: {
         code: :unprocessable_entity,
@@ -275,7 +275,7 @@ class ApplicationController < ActionController::API
   end
 
   def render_duplicate_variable e
-    logger.error("#{e}\n#{e.backtrace.join("\n")}")
+    log_error(e)
     render(json: {
       error: {
         code: :bad_request,
@@ -285,7 +285,7 @@ class ApplicationController < ActionController::API
   end
 
   def bad_secret_encoding e
-    logger.error("#{e}\n#{e.backtrace.join("\n")}")
+    log_error(e)
     render(json: {
       error: {
         code: :not_acceptable,
@@ -295,7 +295,7 @@ class ApplicationController < ActionController::API
   end
 
   def unauthorized e
-    logger.error("#{e}\n#{e.backtrace.join("\n")}")
+    log_error(e)
     if e.return_message_in_response
       render(json: {
         error: {
@@ -309,27 +309,27 @@ class ApplicationController < ActionController::API
   end
 
   def internal_server_error e
-    logger.error("#{e}\n#{e.backtrace.join("\n")}")
+    log_error(e)
     head(:internal_server_error)
   end
 
   def service_unavailable e
-    logger.error("#{e}\n#{e.backtrace.join("\n")}")
+    log_error(e)
     head(:service_unavailable)
   end
 
   def gateway_timeout e
-    logger.error("#{e}\n#{e.backtrace.join("\n")}")
+    log_error(e)
     head(:gateway_timeout)
   end
 
   def bad_gateway e
-    logger.error("#{e}\n#{e.backtrace.join("\n")}")
+    log_error(e)
     head(:bad_gateway)
   end
 
   def not_implemented e
-    logger.error("#{e}\n#{e.backtrace.join("\n")}")
+    log_error(e)
     render(json: {
       error: {
         code: "not_implemented",
@@ -344,7 +344,7 @@ class ApplicationController < ActionController::API
   end
 
   def render_secret_not_found e
-    logger.error("#{e}\n#{e.backtrace.join("\n")}")
+    log_error(e)
     render(json: {
       error: {
         code: "not_found",
@@ -354,7 +354,7 @@ class ApplicationController < ActionController::API
   end
 
   def render_record_not_found e
-    logger.error("#{e}\n#{e.backtrace.join("\n")}")
+    log_error(e)
     render(json: {
       error: {
         code: "not_found",
@@ -371,5 +371,13 @@ class ApplicationController < ActionController::API
 
   def error_code_of_exception_class cls
     cls.to_s.underscore.split('/')[-1]
+  end
+
+  def log_error e
+    if e.backtrace.nil?
+      logger.error("#{e}")
+    else
+      logger.error("#{e}\n#{e.backtrace.join("\n")}")
+    end
   end
 end
