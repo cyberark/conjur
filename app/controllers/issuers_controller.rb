@@ -22,7 +22,7 @@ class IssuersController < RestController
   ISSUER_NOT_FOUND = "Issuer not found"
 
   def create
-    logger.info(LogMessages::Endpoints::EndpointRequested.new("POST issuers/#{params[:account]}"))
+    logger.debug(LogMessages::Endpoints::EndpointRequested.new("POST issuers/#{params[:account]}"))
     action = :create
     authorize(action, resource)
 
@@ -48,7 +48,7 @@ class IssuersController < RestController
     logger.info(LogMessages::Issuers::TelemetryIssuerLog.new("create", issuer.account, issuer.issuer_id, request.ip))
     render(json: issuer.as_json, status: :created)
 
-    logger.info(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("POST issuers/#{params[:account]}"))
+    logger.debug(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("POST issuers/#{params[:account]}"))
   rescue Exceptions::RecordNotFound => e
     logger.error(LogMessages::Issuers::IssuerEndpointForbidden.new("create"))
     audit_failure(e, action)
@@ -76,7 +76,7 @@ class IssuersController < RestController
   end
 
   def delete
-    logger.info(LogMessages::Endpoints::EndpointRequested.new("DELETE issuers/#{params[:account]}/#{params[:identifier]}"))
+    logger.debug(LogMessages::Endpoints::EndpointRequested.new("DELETE issuers/#{params[:account]}/#{params[:identifier]}"))
     action = :update
     authorize(action, resource)
 
@@ -94,7 +94,7 @@ class IssuersController < RestController
       raise Exceptions::RecordNotFound.new(params[:identifier], message: ISSUER_NOT_FOUND)
     end
 
-    logger.info(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("DELETE issuers/#{params[:account]}/#{params[:identifier]}"))
+    logger.debug(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("DELETE issuers/#{params[:account]}/#{params[:identifier]}"))
   rescue Exceptions::RecordNotFound => e
     logger.error(LogMessages::Issuers::IssuerPolicyNotFound.new(resource_id))
     audit_failure(e, action)
@@ -108,7 +108,7 @@ class IssuersController < RestController
   end
 
   def get
-    logger.info(LogMessages::Endpoints::EndpointRequested.new("GET issuers/#{params[:account]}/#{params[:identifier]}"))
+    logger.debug(LogMessages::Endpoints::EndpointRequested.new("GET issuers/#{params[:account]}/#{params[:identifier]}"))
     # If I can update the issuer policy, it means I am allowed to view it as well
     action = :update
     authorize(action, resource)
@@ -122,7 +122,7 @@ class IssuersController < RestController
       raise Exceptions::RecordNotFound.new(params[:identifier], message: ISSUER_NOT_FOUND)
     end
 
-    logger.info(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("GET issuers/#{params[:account]}/#{params[:identifier]}"))
+    logger.debug(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("GET issuers/#{params[:account]}/#{params[:identifier]}"))
   rescue Exceptions::RecordNotFound => e
     issuer_audit_failure(params[:account], params[:identifier], "fetch", ISSUER_NOT_FOUND)
     logger.error(LogMessages::Issuers::IssuerPolicyNotFound.new(resource_id))
@@ -135,7 +135,7 @@ class IssuersController < RestController
   end
 
   def list
-    logger.info(LogMessages::Endpoints::EndpointRequested.new("GET issuers/#{params[:account]}"))
+    logger.debug(LogMessages::Endpoints::EndpointRequested.new("GET issuers/#{params[:account]}"))
     # If I can update the issuer policy, it means I am allowed to view it as well
     action = :update
     authorize(action, resource)
@@ -149,7 +149,7 @@ class IssuersController < RestController
     logger.info(LogMessages::Issuers::TelemetryIssuerLog.new("list", params[:account], "*", request.ip))
     render(json: { issuers: results }, status: :ok)
 
-    logger.info(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("GET issuers/#{params[:account]}"))
+    logger.debug(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("GET issuers/#{params[:account]}"))
   rescue Exceptions::RecordNotFound => e
     logger.error(LogMessages::Issuers::IssuerEndpointForbidden.new("list"))
     issuer_audit_failure(params[:account], "*", "list", e.message)

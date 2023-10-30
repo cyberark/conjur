@@ -38,12 +38,12 @@ module LogMessages
   module Endpoints
     EndpointRequested = ::Util::TrackableLogMessageClass.new(
       msg: "{0} endpoint is called",
-      code: "CONJ00152I"
+      code: "CONJ00152D"
     )
 
     EndpointFinishedSuccessfully = ::Util::TrackableLogMessageClass.new(
       msg: "{0} endpoint is finished successfully",
-      code: "CONJ00153I"
+      code: "CONJ00153D"
     )
 
     EndpointFinishedSuccessfullyWithLimitAndOffset = ::Util::TrackableLogMessageClass.new(

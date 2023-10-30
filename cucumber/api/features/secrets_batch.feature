@@ -158,4 +158,4 @@ Feature: Batch retrieval of secrets
       When I GET "/secrets?variable_ids=cucumber:variable:secret1,cucumber:variable:secret2,cucumber:variable:secret1"
       Then the HTTP response status code is 400
       And there is an error
-      And the error message is "CONJ00160E The request contained the following duplicate variable ids: cucumber:variable:secret1."
+      And the error message is "CONJ00160E The request contains duplicated variable ids: cucumber:variable:secret1."
