@@ -16,7 +16,7 @@ class WorkloadController < RestController
   set_default_content_type_for_path(%r{^/hosts}, 'application/json')
 
   def post
-    logger.info(LogMessages::Endpoints::EndpointRequested.new("hosts/:account/*identifier"))
+    logger.debug(LogMessages::Endpoints::EndpointRequested.new("hosts/:account/*identifier"))
     action = :create
     params.permit(:identifier, :account, :id, :annotations, :safes)
           .to_h.symbolize_keys
@@ -35,7 +35,7 @@ class WorkloadController < RestController
     grantPolicies.each do |policy|
       audit_success(policy)
     end
-    logger.info(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("hosts/:account/*identifier"))
+    logger.debug(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("hosts/:account/*identifier"))
     render(json: {
       created_roles: result[:created_roles]
     }, status: :created)
@@ -45,7 +45,7 @@ class WorkloadController < RestController
   end
 
   def create
-    logger.info(LogMessages::Endpoints::EndpointRequested.new("Create Host"))
+    logger.debug(LogMessages::Endpoints::EndpointRequested.new("Create Host"))
     action = :create
     params.permit(:host_id, :account, :policy_tree, :annotations, :auth_apikey)
           .to_h.symbolize_keys
@@ -71,7 +71,7 @@ class WorkloadController < RestController
     host_policy = result[:policy]
     audit_success(host_policy)
     render_response(full_host_id, host_id, policy_tree, result)
-    logger.info(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("Create Host"))
+    logger.debug(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("Create Host"))
   rescue => e
     audit_failure(e, action)
     if e.instance_of?(Forbidden)

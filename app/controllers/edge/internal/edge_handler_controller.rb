@@ -9,7 +9,7 @@ class EdgeHandlerController < RestController
   include GroupMembershipValidator
 
   def report_edge_data
-    logger.info(LogMessages::Endpoints::EndpointRequested.new('edge/data'))
+    logger.debug(LogMessages::Endpoints::EndpointRequested.new('edge/data'))
     allowed_params = %i[account data_type]
     url_params = params.permit(*allowed_params)
     verify_edge_host(url_params)
@@ -19,7 +19,7 @@ class EdgeHandlerController < RestController
 
     handler.new(logger).call(params, current_user.role_id, request.ip)
 
-    logger.info(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("edge/data"))
+    logger.debug(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("edge/data"))
   end
 
 end

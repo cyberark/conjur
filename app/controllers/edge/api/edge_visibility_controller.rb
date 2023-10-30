@@ -7,11 +7,11 @@ class EdgeVisibilityController < RestController
   include GroupMembershipValidator
 
   def all_edges
-    logger.info(LogMessages::Endpoints::EndpointRequested.new("edge"))
+    logger.debug(LogMessages::Endpoints::EndpointRequested.new("edge"))
     allowed_params = %i[account]
     options = params.permit(*allowed_params).to_h.symbolize_keys
     validate_conjur_admin_group(options[:account])
-    logger.info(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("edge"))
+    logger.debug(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("edge"))
     render(json: Edge.order(:name).all.map{|edge|
       {name: edge.name, ip: edge.ip, last_sync: edge.last_sync.to_i,
        version:edge.version, installation_date: edge.installation_date.to_i, platform: edge.platform}})
