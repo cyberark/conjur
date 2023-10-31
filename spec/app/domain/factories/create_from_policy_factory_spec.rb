@@ -3,6 +3,7 @@
 require 'spec_helper'
 
 RSpec.describe(Factories::CreateFromPolicyFactory) do
+  let(:port) { ENV.fetch('PORT', '80') }
   let(:rest_client) { spy(RestClient) }
   subject do
     Factories::CreateFromPolicyFactory
@@ -70,20 +71,20 @@ RSpec.describe(Factories::CreateFromPolicyFactory) do
           let(:request) { { id: 'foo%', branch: 'b@r' }.to_json }
           it 'submits the expected policy to Conjur with invalid characters removed' do
             expect(subject.success?).to be(true)
-            expect(rest_client).to have_received(:post).with('http://localhost:3000/policies/rspec/policy/br', "- !user\n  id: foo\n  annotations:\n    factory: core/v1/user\n", { 'Authorization' => 'foo-bar' })
+            expect(rest_client).to have_received(:post).with("http://localhost:#{port}/policies/rspec/policy/br", "- !user\n  id: foo\n  annotations:\n    factory: core/v1/user\n", { 'Authorization' => 'foo-bar' })
           end
         end
         context 'when request body is valid' do
           let(:request) { { id: 'foo', branch: 'bar' }.to_json }
           it 'submits the expected policy to Conjur' do
             expect(subject.success?).to be(true)
-            expect(rest_client).to have_received(:post).with('http://localhost:3000/policies/rspec/policy/bar', "- !user\n  id: foo\n  annotations:\n    factory: core/v1/user\n", { 'Authorization' => 'foo-bar' })
+            expect(rest_client).to have_received(:post).with("http://localhost:#{port}/policies/rspec/policy/bar", "- !user\n  id: foo\n  annotations:\n    factory: core/v1/user\n", { 'Authorization' => 'foo-bar' })
           end
           context 'when inputs include a hash (ex. for annotations)' do
             let(:request) { { id: 'foo', branch: 'bar', annotations: { 'foo' => 'bar', 'bing' => 'bang' } }.to_json }
             it 'submits the expected policy to Conjur' do
               expect(subject.success?).to be(true)
-              expect(rest_client).to have_received(:post).with('http://localhost:3000/policies/rspec/policy/bar', "- !user\n  id: foo\n  annotations:\n    factory: core/v1/user\n    foo: bar\n    bing: bang\n", { 'Authorization' => 'foo-bar' })
+              expect(rest_client).to have_received(:post).with("http://localhost:#{port}/policies/rspec/policy/bar", "- !user\n  id: foo\n  annotations:\n    factory: core/v1/user\n    foo: bar\n    bing: bang\n", { 'Authorization' => 'foo-bar' })
             end
           end
           context 'when the Conjur API returns an error' do
@@ -167,6 +168,7 @@ RSpec.describe(Factories::CreateFromPolicyFactory) do
         )
       end
       let(:request) { { id: 'bar', branch: 'foo', variables: variables }.to_json }
+      let(:policy_body) { "- !policy\n  id: bar\n  annotations:\n    factory: connections/v1/database\n  \n  body:\n  - &variables\n    - !variable url\n    - !variable port\n    - !variable username\n    - !variable password\n    - !variable ssl-certificate\n    - !variable ssl-key\n    - !variable ssl-ca-certificate\n\n  - !group consumers\n  - !group administrators\n\n  # consumers can read and execute\n  - !permit\n    resource: *variables\n    privileges: [ read, execute ]\n    role: !group consumers\n\n  # administrators can update (and read and execute, via role grant)\n  - !permit\n    resource: *variables\n    privileges: [ update ]\n    role: !group administrators\n\n  # administrators has role consumers\n  - !grant\n    member: !group administrators\n    role: !group consumers\n" }
       context 'when request body is missing values' do
         let(:variables) { { port: '1234', url: 'http://localhost', username: 'super-user' } }
         it 'returns a failure response' do
@@ -206,8 +208,8 @@ RSpec.describe(Factories::CreateFromPolicyFactory) do
         it 'applies policy and variables' do
           allow(rest_client).to receive(:post)
             .with(
-              'http://localhost:3000/policies/rspec/policy/foo',
-              "- !policy\n  id: bar\n  annotations:\n    factory: connections/v1/database\n  \n  body:\n  - &variables\n    - !variable url\n    - !variable port\n    - !variable username\n    - !variable password\n\n  - !group consumers\n  - !group administrators\n\n  # consumers can read and execute\n  - !permit\n    resource: *variables\n    privileges: [ read, execute ]\n    role: !group consumers\n\n  # administrators can update (and read and execute, via role grant)\n  - !permit\n    resource: *variables\n    privileges: [ update ]\n    role: !group administrators\n\n  # administrators has role consumers\n  - !grant\n    member: !group administrators\n    role: !group consumers\n",
+              "http://localhost:#{port}/policies/rspec/policy/foo",
+              policy_body,
               { 'Authorization' => 'foo-bar' }
             ).and_return(
               double(RestClient::Response, code: 201, body: '{"created_roles":{},"version":13}')
@@ -216,7 +218,7 @@ RSpec.describe(Factories::CreateFromPolicyFactory) do
           variables.each do |variable, value|
             allow(rest_client).to receive(:post)
               .with(
-                "http://localhost:3000/secrets/rspec/variable/foo%2Fbar%2F#{variable}",
+                "http://localhost:#{port}/secrets/rspec/variable/foo%2Fbar%2F#{variable}",
                 value,
                 { 'Authorization' => 'foo-bar' }
               ).and_return(
@@ -226,14 +228,47 @@ RSpec.describe(Factories::CreateFromPolicyFactory) do
           expect(subject.success?).to be(true)
         end
       end
+      context 'when request body includes required and optional values' do
+        let(:variables) { { port: '1234', url: 'http://localhost', username: 'super-user', password: 'foo-bar', 'ssl-certificate': 'cert-body', 'ssl-key': 'cert-key-body' } }
+        it 'applies policy and relevant variables' do
+          allow(rest_client).to receive(:post)
+            .with(
+              "http://localhost:#{port}/policies/rspec/policy/foo",
+              policy_body,
+              { 'Authorization' => 'foo-bar' }
+            ).and_return(
+              double(RestClient::Response, code: 201, body: '{"created_roles":{},"version":13}')
+            )
+
+          variables.each do |variable, value|
+            allow(rest_client).to receive(:post)
+              .with(
+                "http://localhost:#{port}/secrets/rspec/variable/foo%2Fbar%2F#{variable}",
+                value,
+                { 'Authorization' => 'foo-bar' }
+              ).and_return(
+                double(RestClient::Response, code: 201, body: '')
+              )
+          end
+
+          expect(subject.success?).to be(true)
+
+          variables.each do |variable, value|
+            expect(rest_client).to have_received(:post).with(
+              "http://localhost:#{port}/secrets/rspec/variable/foo%2Fbar%2F#{variable}",
+              value,
+              { 'Authorization' => 'foo-bar' }
+            )
+          end
+        end
+      end
       context 'when request body includes extra variable values' do
         let(:variables) { { foo: 'bar', port: '1234', url: 'http://localhost', username: 'super-user', password: 'foo-bar' } }
-        # let(:request) { { id: 'bar', branch: 'foo', variables: variables }.to_json }
         it 'only saves variables defined in the factory' do
           allow(rest_client).to receive(:post)
             .with(
-              'http://localhost:3000/policies/rspec/policy/foo',
-              "- !policy\n  id: bar\n  annotations:\n    factory: connections/v1/database\n  \n  body:\n  - &variables\n    - !variable url\n    - !variable port\n    - !variable username\n    - !variable password\n\n  - !group consumers\n  - !group administrators\n\n  # consumers can read and execute\n  - !permit\n    resource: *variables\n    privileges: [ read, execute ]\n    role: !group consumers\n\n  # administrators can update (and read and execute, via role grant)\n  - !permit\n    resource: *variables\n    privileges: [ update ]\n    role: !group administrators\n\n  # administrators has role consumers\n  - !grant\n    member: !group administrators\n    role: !group consumers\n",
+              "http://localhost:#{port}/policies/rspec/policy/foo",
+              policy_body,
               { 'Authorization' => 'foo-bar' }
             ).and_return(
               double(RestClient::Response, code: 201, body: '{"created_roles":{},"version":13}')
@@ -243,7 +278,7 @@ RSpec.describe(Factories::CreateFromPolicyFactory) do
           variables.each do |variable, value|
             allow(rest_client).to receive(:post)
               .with(
-                "http://localhost:3000/secrets/rspec/variable/foo%2Fbar%2F#{variable}",
+                "http://localhost:#{port}/secrets/rspec/variable/foo%2Fbar%2F#{variable}",
                 value,
                 { 'Authorization' => 'foo-bar' }
               ).and_return(
@@ -259,8 +294,8 @@ RSpec.describe(Factories::CreateFromPolicyFactory) do
           it 'applies policy and variables' do
             allow(rest_client).to receive(:post)
               .with(
-                'http://localhost:3000/policies/rspec/policy/foo',
-                "- !policy\n  id: bar\n  annotations:\n    factory: connections/v1/database\n  \n  body:\n  - &variables\n    - !variable url\n    - !variable port\n    - !variable username\n    - !variable password\n\n  - !group consumers\n  - !group administrators\n\n  # consumers can read and execute\n  - !permit\n    resource: *variables\n    privileges: [ read, execute ]\n    role: !group consumers\n\n  # administrators can update (and read and execute, via role grant)\n  - !permit\n    resource: *variables\n    privileges: [ update ]\n    role: !group administrators\n\n  # administrators has role consumers\n  - !grant\n    member: !group administrators\n    role: !group consumers\n",
+                "http://localhost:#{port}/policies/rspec/policy/foo",
+                policy_body,
                 { 'Authorization' => 'foo-bar' }
               ).and_return(
                 double(RestClient::Response, code: 201, body: '{"created_roles":{},"version":13}')
@@ -268,7 +303,7 @@ RSpec.describe(Factories::CreateFromPolicyFactory) do
 
             allow(rest_client).to receive(:post)
               .with(
-                "http://localhost:3000/secrets/rspec/variable/foo%2Fbar%2Furl",
+                "http://localhost:#{port}/secrets/rspec/variable/foo%2Fbar%2Furl",
                 'http://localhost',
                 { 'Authorization' => 'foo-bar' }
               ).and_raise(
@@ -286,8 +321,8 @@ RSpec.describe(Factories::CreateFromPolicyFactory) do
           it 'applies policy and variables' do
             allow(rest_client).to receive(:post)
               .with(
-                'http://localhost:3000/policies/rspec/policy/foo',
-                "- !policy\n  id: bar\n  annotations:\n    factory: connections/v1/database\n  \n  body:\n  - &variables\n    - !variable url\n    - !variable port\n    - !variable username\n    - !variable password\n\n  - !group consumers\n  - !group administrators\n\n  # consumers can read and execute\n  - !permit\n    resource: *variables\n    privileges: [ read, execute ]\n    role: !group consumers\n\n  # administrators can update (and read and execute, via role grant)\n  - !permit\n    resource: *variables\n    privileges: [ update ]\n    role: !group administrators\n\n  # administrators has role consumers\n  - !grant\n    member: !group administrators\n    role: !group consumers\n",
+                "http://localhost:#{port}/policies/rspec/policy/foo",
+                policy_body,
                 { 'Authorization' => 'foo-bar' }
               ).and_return(
                 double(RestClient::Response, code: 201, body: '{"created_roles":{},"version":13}')
@@ -295,7 +330,7 @@ RSpec.describe(Factories::CreateFromPolicyFactory) do
 
             allow(rest_client).to receive(:post)
               .with(
-                "http://localhost:3000/secrets/rspec/variable/foo%2Fbar%2Furl",
+                "http://localhost:#{port}/secrets/rspec/variable/foo%2Fbar%2Furl",
                 'http://localhost',
                 { 'Authorization' => 'foo-bar' }
               ).and_raise(
@@ -313,8 +348,8 @@ RSpec.describe(Factories::CreateFromPolicyFactory) do
           it 'fails with an appropriate error' do
             allow(rest_client).to receive(:post)
               .with(
-                'http://localhost:3000/policies/rspec/policy/foo',
-                "- !policy\n  id: bar\n  annotations:\n    factory: connections/v1/database\n  \n  body:\n  - &variables\n    - !variable url\n    - !variable port\n    - !variable username\n    - !variable password\n\n  - !group consumers\n  - !group administrators\n\n  # consumers can read and execute\n  - !permit\n    resource: *variables\n    privileges: [ read, execute ]\n    role: !group consumers\n\n  # administrators can update (and read and execute, via role grant)\n  - !permit\n    resource: *variables\n    privileges: [ update ]\n    role: !group administrators\n\n  # administrators has role consumers\n  - !grant\n    member: !group administrators\n    role: !group consumers\n",
+                "http://localhost:#{port}/policies/rspec/policy/foo",
+                policy_body,
                 { 'Authorization' => 'foo-bar' }
               ).and_return(
                 double(RestClient::Response, code: 201, body: '{"created_roles":{},"version":13}')
@@ -322,7 +357,7 @@ RSpec.describe(Factories::CreateFromPolicyFactory) do
 
             allow(rest_client).to receive(:post)
               .with(
-                "http://localhost:3000/secrets/rspec/variable/foo%2Fbar%2Furl",
+                "http://localhost:#{port}/secrets/rspec/variable/foo%2Fbar%2Furl",
                 'http://localhost',
                 { 'Authorization' => 'foo-bar' }
               ).and_raise(
@@ -340,8 +375,8 @@ RSpec.describe(Factories::CreateFromPolicyFactory) do
           it 'applies policy and variables' do
             allow(rest_client).to receive(:post)
               .with(
-                'http://localhost:3000/policies/rspec/policy/foo',
-                "- !policy\n  id: bar\n  annotations:\n    factory: connections/v1/database\n  \n  body:\n  - &variables\n    - !variable url\n    - !variable port\n    - !variable username\n    - !variable password\n\n  - !group consumers\n  - !group administrators\n\n  # consumers can read and execute\n  - !permit\n    resource: *variables\n    privileges: [ read, execute ]\n    role: !group consumers\n\n  # administrators can update (and read and execute, via role grant)\n  - !permit\n    resource: *variables\n    privileges: [ update ]\n    role: !group administrators\n\n  # administrators has role consumers\n  - !grant\n    member: !group administrators\n    role: !group consumers\n",
+                "http://localhost:#{port}/policies/rspec/policy/foo",
+                policy_body,
                 { 'Authorization' => 'foo-bar' }
               ).and_return(
                 double(RestClient::Response, code: 201, body: '{"created_roles":{},"version":13}')
@@ -349,7 +384,7 @@ RSpec.describe(Factories::CreateFromPolicyFactory) do
 
             allow(rest_client).to receive(:post)
               .with(
-                "http://localhost:3000/secrets/rspec/variable/foo%2Fbar%2Furl",
+                "http://localhost:#{port}/secrets/rspec/variable/foo%2Fbar%2Furl",
                 'http://localhost',
                 { 'Authorization' => 'foo-bar' }
               ).and_raise(
@@ -367,8 +402,8 @@ RSpec.describe(Factories::CreateFromPolicyFactory) do
           it 'returns the appropriate error' do
             allow(rest_client).to receive(:post)
               .with(
-                'http://localhost:3000/policies/rspec/policy/foo',
-                "- !policy\n  id: bar\n  annotations:\n    factory: connections/v1/database\n  \n  body:\n  - &variables\n    - !variable url\n    - !variable port\n    - !variable username\n    - !variable password\n\n  - !group consumers\n  - !group administrators\n\n  # consumers can read and execute\n  - !permit\n    resource: *variables\n    privileges: [ read, execute ]\n    role: !group consumers\n\n  # administrators can update (and read and execute, via role grant)\n  - !permit\n    resource: *variables\n    privileges: [ update ]\n    role: !group administrators\n\n  # administrators has role consumers\n  - !grant\n    member: !group administrators\n    role: !group consumers\n",
+                "http://localhost:#{port}/policies/rspec/policy/foo",
+                policy_body,
                 { 'Authorization' => 'foo-bar' }
               ).and_return(
                 double(RestClient::Response, code: 201, body: '{"created_roles":{},"version":13}')
@@ -376,7 +411,7 @@ RSpec.describe(Factories::CreateFromPolicyFactory) do
 
             allow(rest_client).to receive(:post)
               .with(
-                "http://localhost:3000/secrets/rspec/variable/foo%2Fbar%2Furl",
+                "http://localhost:#{port}/secrets/rspec/variable/foo%2Fbar%2Furl",
                 'http://localhost',
                 { 'Authorization' => 'foo-bar' }
               ).and_raise(

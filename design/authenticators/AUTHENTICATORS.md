@@ -4,24 +4,26 @@ Authenticators allow you to customize the user login and authentication methods
 for Conjur. There are two endpoints used by Conjur to authenticate users and
 services to the API.
 
-* '/login' is used to authenticate users with a username and password. This
+- '/login' is used to authenticate users with a username and password. This
   endpoint allows users to initially authenticate with a memorable password
   and exchange it for an API key. The format of this key is configurable by
   the authenticator.
 
-* '/authenticate' is used to authenticate either a user or service and returns
+- '/authenticate' is used to authenticate either a user or service and returns
   a short-lived access token for API requests.
 
 ## Existing Authenticators
 
 Links to the current Authenticator Feature specs:
-* [Authn-LDAP](authn_ldap.md)
-* [Authn-IAM](authn_iam.md)
-* [Authn-OIDC](authn_oidc.md)
-* [Authn-Azure](authn_azure/authn_azure_solution_design.md)
-* [Authn-GCP](authn_gcp/authn_gcp_solution_design.md)
+
+- [Authn-LDAP](authn_ldap.md)
+- [Authn-IAM](authn_iam.md)
+- [Authn-OIDC](authn_oidc.md)
+- [Authn-Azure](authn_azure/authn_azure_solution_design.md)
+- [Authn-GCP](authn_gcp/authn_gcp_solution_design.md)
 
 ## Authenticator Status
+
 This feature allows the person who configures an authenticator to get immediate feedback on 
 its configuration. If there was a problem during the authenticator configuration process, 
 the reason will be returned to the user so that they can make the necessary changes.
@@ -35,9 +37,11 @@ separate login step allows users to authenticate with a memorable password,
 while using a random, rotatable access key for actual API authentication.
 
 To login, send a `GET` request to:
-```
+
+```txt
 /:authenticator-type/:optional-service-id/:conjur-account/login
 ```
+
 [Basic Authentication](https://developer.mozilla.org/en-US/docs/Web/HTTP/Authentication)
 is used to send the username and password.
 
@@ -68,9 +72,11 @@ Successful authentication returns a new **Conjur token**, which you can use to
 make subsequent requests to protected Conjur services.
 
 To authenticate and receive this token, `POST` to:
-```
+
+```txt
 /:authenticator-type/:optional-service-id/:conjur-account/:username/authenticate
 ```
+
 with the key (or other credential relevant to your authenticator) as plain
 text in the request body.
 
@@ -79,7 +85,6 @@ The request parameters are the same as login with the addition of:
 - **request body:** The plain text password or other credential relevant to
   your authenticator.  This could be an ordinary password, an API key, an
   OAuth token, etc -- depending on the type of authenticator.
-
 
 ## Security requirements
 
@@ -99,7 +104,8 @@ authenticators must be explicitly whitelisted via the environment variable
 
 Here is an example `CONJUR_AUTHENTICATORS` which whitelists an LDAP
 authenticator as well as the default Conjur authenticator:
-```
+
+```txt
 CONJUR_AUTHENTICATORS=authn-ldap/sysadmins,authn
 ```
 
@@ -112,22 +118,26 @@ webservices in your Conjur policy, and users must be authorized to use them.
 This requires two steps:
 
 1. Add the authenticator as a webservice in your conjur policy:
-```yaml
-- !policy
-  id: conjur/my-authenticator/optional-service-id
-```
+
+  ```yaml
+  - !policy
+    id: conjur/my-authenticator/optional-service-id
+  ```
+
 2. Add any users that need to access it to your policy, and grant them the
    `authenticate` privilege.
 
-
-## Creating custom authenticators:
+## Creating custom authenticators
 
 1. Create a new directory under `/app/domain/authentication`.  For example:
-```
+
+```txt
 /app/domain/authentication/my_authenticator
 ```
+
 2. That directory must contain a file named `authenticator.rb`, with the
-   following structure:
+  following structure:
+
 ```ruby
 module Authentication
   module MyAuthenticator
@@ -182,6 +192,7 @@ end
    authenticator is instantiated by conjur, it will be passed the `ENV` through
    the kwarg `env`.  If you don't need any configuration from the environment,
    you can opt out like so:
+
 ```ruby
 module Authentication
   module MyAuthenticator

@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
+## [1.0.13-cloud] - 2023-11-12
+
 ## [1.0.12-cloud] - 2023-11-05
 ### Changed
 - support '/' for workload name in workload wizard
@@ -147,15 +149,38 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 - Remove auto-release options to allow for a pseudo-fork development on a branch
 
-## [1.20.0] - 2023-08-16
+## [1.20.1] - 2023-10-13
 
 ### Fixed
+- OIDC Authenticator now writes custom certs to a non-default directory instead
+  of the system default certificate store.
+  [cyberark/conjur#2988](https://github.com/cyberark/conjur/pull/2988)
+- conjurctl role retrieve-key will now work when debug logging is turned on.
+  [CNJR-2954](https://ca-il-jira.il.cyber-ark.com:8443/browse/CNJR-2759)
+
+### Added
+- Support for the no_proxy & NO_PROXY environment variables for the k8s authenticator.
+  [CNJR-2759](https://ca-il-jira.il.cyber-ark.com:8443/browse/CNJR-2759)
+
+### Security
+- Upgrade google/cloud-sdk in ci/test_suites/authenticators_k8s/dev/Dockerfile/test
+  to use latest version (448.0.0)
+  [cyberark/conjur#2972](https://github.com/cyberark/conjur/pull/2972)
+
+## [1.20.0] - 2023-09-21
+
+### Fixed
+- Allow Factories with optional variables to save without error
+  [cyberark/conjur#2956](https://github.com/cyberark/conjur/pull/2956)
 - OIDC authenticators support `https_proxy` and `HTTPS_PROXY` environment variables
   [cyberark/conjur#2902](https://github.com/cyberark/conjur/pull/2902)
 - Support plural syntax for revoke and deny
   [cyberark/conjur#2901](https://github.com/cyberark/conjur/pull/2901)
 
 ### Added
+- Support an optional`ca-cert` variable for providing custom certs/chains to verify
+  OIDC providers or proxies when using the OIDC authenticator
+  [cyberark/conjur#2933](https://github.com/cyberark/conjur/pull/2933)
 - New flag to `conjurctl server` command called `--no-migrate` which allows for skipping
   the database migration step when starting the server.
   [cyberark/conjur#2895](https://github.com/cyberark/conjur/pull/2895)
@@ -164,6 +189,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Introduces support for Policy Factory, which enables resource creation
   through a new `factories` API.
   [cyberark/conjur#2855](https://github.com/cyberark/conjur/pull/2855/files)
+- Use base images with newer Ubuntu and UBI.
+  Display FIPS Mode status in the UI (requires temporary fix for OpenSSL gem).
+  [cyberark/conjur#2874](https://github.com/cyberark/conjur/pull/2874)
 
 ### Changed
 - The database thread pool max connection size is now based on the number of
@@ -171,9 +199,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   mitigates the possibility of a web worker becoming starved while waiting for
   a connection to become available.
   [cyberark/conjur#2875](https://github.com/cyberark/conjur/pull/2875)
-- Additive policy requests submitted via POST are rejected with a 400 status if
-  they attempt to update an existing resource.
-  [cyberark/conjur#2888](https://github.com/cyberark/conjur/pull/2888)
+- Changed base-image tagging strategy
+  [cyberark/conjur#2926](https://github.com/cyberark/conjur/pull/2926)
 
 ### Fixed
 - Support Authn-IAM regional requests when host value is missing from signed headers.
@@ -1224,7 +1251,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - The first tagged version.
 
-[Unreleased]: https://github.com/cyberark/conjur/compare/v1.19.5...HEAD
+[Unreleased]: https://github.com/cyberark/conjur/compare/v1.20.0...HEAD
+[1.20.0]: https://github.com/cyberark/conjur/compare/v1.19.5...v1.20.0
 [1.19.5]: https://github.com/cyberark/conjur/compare/v1.19.3...v1.19.5
 [1.19.3]: https://github.com/cyberark/conjur/compare/v1.19.2...v1.19.3
 [1.19.2]: https://github.com/cyberark/conjur/compare/v1.19.1...v1.19.2

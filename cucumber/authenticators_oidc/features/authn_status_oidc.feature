@@ -6,6 +6,7 @@ Feature: OIDC Authenticator - Status Check
       | context_variable           | environment_variable   | default_value                                                   |
       | oidc_provider_uri          | PROVIDER_URI           | https://keycloak:8443/auth/realms/master                        |
       | oidc_claim_mapping         | ID_TOKEN_USER_PROPERTY | preferred_username                                              |
+      | oidc_ca_cert               | KEYCLOAK_CA_CERT       |                                                                 |
 
   @smoke
   Scenario: A properly configured OIDC authenticator returns a successful response
@@ -28,6 +29,9 @@ Feature: OIDC Authenticator - Status Check
 
       - !variable
         id: id-token-user-property
+      
+      - !variable
+        id: ca-cert
 
       - !group users
 
@@ -60,7 +64,7 @@ Feature: OIDC Authenticator - Status Check
       | variable_id                                       | context_variable   | default_value  |
       | conjur/authn-oidc/keycloak/provider-uri           | oidc_provider_uri  |                |
       | conjur/authn-oidc/keycloak/id-token-user-property | oidc_claim_mapping |                |
-
+      | conjur/authn-oidc/keycloak/ca-cert | oidc_ca_cert |                    |
     And I login as "alice"
     When I GET "/authn-oidc/keycloak/cucumber/status"
     Then the HTTP response status code is 200

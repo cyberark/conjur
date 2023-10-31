@@ -16,6 +16,7 @@ module Factories
       @http = http
       @schema_validator = schema_validator
       @utilities = utilities
+      @logger = Rails.logger
 
       # JSON and URI are defined here for visibility. They are not currently
       # mocked in testing, thus, we're not setting them in the initializer.
@@ -128,9 +129,11 @@ module Factories
         template: policy_template,
         variables: variables
       ).bind do |rendered_policy|
+        @logger.debug("Policy Factory is applying the following policy to '/policies/#{account}/policy/#{policy_load_path}'")
+        @logger.debug("\n#{rendered_policy}")
         begin
           response = @http.post(
-            "http://localhost:3000/policies/#{account}/policy/#{policy_load_path}",
+            "http://localhost:#{ENV['PORT']}/policies/#{account}/policy/#{policy_load_path}",
             rendered_policy,
             'Authorization' => authorization
           )
@@ -169,14 +172,15 @@ module Factories
     end
 
     def set_factory_variables(schema_variables:, factory_variables:, variable_path:, authorization:, account:)
-      # Only set secrets defined in the policy
-      schema_variables.each_key do |factory_variable|
-        variable_id = @uri.encode_www_form_component("#{variable_path}/#{factory_variable}")
+      # Only set secrets defined in the policy and present in factory payload
+      (schema_variables.keys & factory_variables.keys).each do |schema_variable|
+
+        variable_id = @uri.encode_www_form_component("#{variable_path}/#{schema_variable}")
         secret_path = "secrets/#{account}/variable/#{variable_id}"
 
         @http.post(
-          "http://localhost:3000/#{secret_path}",
-          factory_variables[factory_variable].to_s,
+          "http://localhost:#{ENV['PORT']}/#{secret_path}",
+          factory_variables[schema_variable].to_s,
           { 'Authorization' => authorization }
         )
       rescue RestClient::ExceptionWithResponse => e

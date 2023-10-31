@@ -60,7 +60,7 @@ module Authentication
             cert_store: @cert_store,
             verify_ssl: OpenSSL::SSL::VERIFY_PEER
           },
-          http_proxy_uri: ENV['https_proxy'] || ENV['http_proxy']
+          http_proxy_uri: URI.parse(api_url).find_proxy
         }
       end
 

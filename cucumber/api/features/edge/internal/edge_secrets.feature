@@ -423,6 +423,32 @@ Feature: Fetching secrets from edge endpoint
     """
     {"secrets":[
       {
+       "id": "cucumber:variable:data/secret1",
+       "owner": "cucumber:policy:data",
+       "permissions": [
+       {
+         "policy": "cucumber:policy:root",
+         "privilege": "execute",
+         "resource": "cucumber:variable:data/secret1",
+         "role": "cucumber:host:data/some_host1"
+       },
+       {
+         "policy": "cucumber:policy:root",
+         "privilege": "execute",
+         "resource": "cucumber:variable:data/secret1",
+         "role": "cucumber:host:data/some_host2"
+       }
+       ],
+       "value": "s1±",
+       "version": 2,
+       "versions": [
+       {
+        "value": "s1±",
+        "version": 2
+       }
+       ]
+      },
+      {
         "id": "cucumber:variable:data/secret2",
         "owner": "cucumber:policy:data",
         "permissions": [],
@@ -475,9 +501,7 @@ Feature: Fetching secrets from edge endpoint
         ]
       }
     ],
-    "failed":[
-    {"id":"cucumber:variable:data/secret1"}
-    ]}
+    "failed": []}
     """
 
   @acceptance

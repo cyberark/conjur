@@ -325,6 +325,9 @@ configure_oidc_v2() {
   client_add_secret "conjur/authn-oidc/$service_id/redirect_uri" "http://localhost:3000/authn-oidc/$service_id/cucumber/authenticate"
   if [ "$service_id" = "keycloak2" ]; then
     client_add_secret "conjur/authn-oidc/$service_id/ca-cert" "$($COMPOSE exec conjur cat /etc/ssl/certs/keycloak.pem)"
+    # Delete the symlink so we can test with the 'ca-cert' variable
+    hash=$($COMPOSE exec conjur openssl x509 -hash -in /etc/ssl/certs/keycloak.pem --noout)
+    $COMPOSE exec conjur rm "/etc/ssl/certs/$hash.0" || true
   fi
 
   client_load_policy "/src/conjur-server/dev/policies/authenticators/authn-oidc/$service_id-users.yml"

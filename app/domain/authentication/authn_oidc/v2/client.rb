@@ -18,6 +18,19 @@ module Authentication
           @logger = logger
         end
 
+        # Writing certificates to the default system cert store requires
+        # superuser privilege. Instead, Conjur will use ${CONJUR_ROOT}/tmp/certs.
+        def self.default_cert_dir(dir: Dir, fileutils: FileUtils)
+          if @default_cert_dir.blank?
+            conjur_root = __dir__.slice(0..(__dir__.index('/app')))
+            @default_cert_dir = File.join(conjur_root, "tmp/certs")
+          end
+
+          fileutils.mkdir_p(@default_cert_dir) unless dir.exist?(@default_cert_dir.to_s)
+
+          @default_cert_dir
+        end
+
         def oidc_client
           @oidc_client ||= begin
             issuer_uri = URI(@authenticator.provider_uri)
@@ -99,7 +112,7 @@ module Authentication
 
         # callback_with_temporary_cert wraps the callback method with commands
         # to write & clean up a given certificate or cert chain in a given
-        # directory. By default, Conjur's default cert store is used.
+        # directory. By default, ${CONJUR_ROOT}/tmp/certs is used.
         #
         # The temporary certificate file name is "x.n", where x is the hash of
         # the certificate subject name, and n is incrememnted from 0 in case of
@@ -114,7 +127,7 @@ module Authentication
           code:,
           nonce:,
           code_verifier: nil,
-          cert_dir: OpenSSL::X509::DEFAULT_CERT_DIR,
+          cert_dir: Authentication::AuthnOidc::V2::Client.default_cert_dir,
           cert_string: nil
         )
           c = -> { callback(code: code, nonce: nonce, code_verifier: code_verifier) }
@@ -148,6 +161,27 @@ module Authentication
               symlink_a << symlink
             end
 
+            if OpenIDConnect.http_config.nil? || OpenIDConnect.http_client.ssl.ca_path != cert_dir
+              config_proc = proc do |config|
+                config.ssl.ca_path = cert_dir
+                config.ssl.verify_mode = OpenSSL::SSL::VERIFY_PEER
+              end
+
+              # OpenIDConnect gem only accepts a single Faraday configuration
+              # through calls to its .http_config method, and future calls to
+              # the #http_config method return the first config instance.
+              #
+              # On the first call to OpenIDConnect.http_config, it will pass the
+              # new Faraday configuration to its dependency gems that also have
+              # nil configs. We can't be certain that each gem is configured
+              # with the same Faraday config and need them synchronized, so we
+              # inject them manually.
+              OpenIDConnect.class_variable_set(:@@http_config, config_proc)
+              WebFinger.instance_variable_set(:@http_config, config_proc)
+              SWD.class_variable_set(:@@http_config, config_proc)
+              Rack::OAuth2.class_variable_set(:@@http_config, config_proc)
+            end
+
             c.call
           ensure
             symlink_a.each{ |s| File.unlink(s) if s.present? && File.symlink?(s) }
@@ -160,7 +194,11 @@ module Authentication
             force: invalidate,
             skip_nil: true
           ) do
-            @discovery_configuration.discover!(@authenticator.provider_uri)
+            self.class.discover(
+              provider_uri: @authenticator.provider_uri,
+              discovery_configuration: @discovery_configuration,
+              cert_string: @authenticator.ca_cert
+            )
           rescue Errno::ETIMEDOUT => e
             raise Errors::Authentication::OAuth::ProviderDiscoveryTimeout.new(@authenticator.provider_uri, e.message)
           rescue => e
@@ -170,7 +208,7 @@ module Authentication
 
         # discover wraps ::OpenIDConnect::Discovery::Provider::Config.discover!
         # with commands to write & clean up a given certificate or cert chain in
-        # a given directory. By default, Conjur's default cert store is used.
+        # a given directory. By default, ${CONJUR_ROOT}/tmp/certs is used.
         #
         # The temporary certificate file name is "x.n", where x is the hash of
         # the certificate subject name, and n is incremented from 0 in case of
@@ -182,10 +220,16 @@ module Authentication
         def self.discover(
           provider_uri:,
           discovery_configuration: ::OpenIDConnect::Discovery::Provider::Config,
-          cert_dir: OpenSSL::X509::DEFAULT_CERT_DIR,
-          cert_string: nil
+          cert_dir: default_cert_dir,
+          cert_string: nil,
+          jwks: false
         )
-          d = -> { discovery_configuration.discover!(provider_uri) }
+          case jwks
+          when false
+            d = -> { discovery_configuration.discover!(provider_uri) }
+          when true
+            d = -> { discovery_configuration.discover!(provider_uri).jwks }
+          end
 
           return d.call if cert_string.blank?
 
@@ -214,6 +258,27 @@ module Authentication
 
               File.symlink(tmp_file, symlink)
               symlink_a << symlink
+            end
+
+            if OpenIDConnect.http_config.nil? || OpenIDConnect.http_client.ssl.ca_path != cert_dir
+              config_proc = proc do |config|
+                config.ssl.ca_path = cert_dir
+                config.ssl.verify_mode = OpenSSL::SSL::VERIFY_PEER
+              end
+
+              # OpenIDConnect gem only accepts a single Faraday configuration
+              # through calls to its .http_config method, and future calls to
+              # the #http_config method return the first config instance.
+              #
+              # On the first call to OpenIDConnect.http_config, it will pass the
+              # new Faraday configuration to its dependency gems that also have
+              # nil configs. We can't be certain that each gem is configured
+              # with the same Faraday config and need them synchronized, so we
+              # inject them manually.
+              OpenIDConnect.class_variable_set(:@@http_config, config_proc)
+              WebFinger.instance_variable_set(:@http_config, config_proc)
+              SWD.class_variable_set(:@@http_config, config_proc)
+              Rack::OAuth2.class_variable_set(:@@http_config, config_proc)
             end
 
             d.call
