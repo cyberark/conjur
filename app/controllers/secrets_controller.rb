@@ -99,7 +99,7 @@ class SecretsController < RestController
       response.set_header("Content-Encoding", "base64")
       Base64.encode64(secret_value)
     else
-      secret_value
+      secret_value.force_encoding('UTF-8')
     end
   end
 

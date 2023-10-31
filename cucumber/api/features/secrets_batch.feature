@@ -130,6 +130,16 @@ Feature: Batch retrieval of secrets
     Then the binary data is preserved for "cucumber:variable:secret3"
 
   @negative @acceptance
+  Scenario: Returns non-latin character in UTF-8 encoding
+    Given I add the secret value "שלום" to the resource "cucumber:variable:secret3"
+    When I GET "/secrets?variable_ids=cucumber:variable:secret3"
+    Then the HTTP response status code is 200
+    And the JSON should be:
+    """
+    { "cucumber:variable:secret3": "שלום" }
+    """
+
+  @negative @acceptance
   Scenario: Fails with 406 on retrieval of single binary secret with improper header
     Given I create a binary secret value for resource "cucumber:variable:secret3"
     And I set the "Accept-Encoding" header to "*"
