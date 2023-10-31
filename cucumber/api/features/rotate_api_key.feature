@@ -366,7 +366,7 @@ Feature: Rotate the API key of a role
     Then the HTTP response status code is 405
     And The following appears in the audit log after my savepoint:
     """
-    Operation is not supported for host since it does not use api-key for authentication
+    CONJ00170E Role 'cucumber:host:privileged_host_without_apikey' does not have an API key
     """
 
   @negative @acceptance
