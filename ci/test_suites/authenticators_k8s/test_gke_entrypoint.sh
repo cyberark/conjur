@@ -246,7 +246,7 @@ function loadConjurPolicies() {
   # init ca certs
   # kubectl wait not needed -- already done in launchConjurMaster.
   kubectl exec "$(retrieve_pod conjur-authn-k8s)" -- \
-    rake authn_k8s:ca_init["conjur/authn-k8s/minikube"]
+    bundle exec rake authn_k8s:ca_init["conjur/authn-k8s/minikube"]
 }
 
 function launchInventoryServices() {

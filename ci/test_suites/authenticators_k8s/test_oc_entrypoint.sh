@@ -179,7 +179,7 @@ function loadConjurPolicies() {
 
   # init ca certs
   conjur_pod=$(retrieve_pod conjur-authn-k8s)
-  oc exec $conjur_pod -- rake authn_k8s:ca_init["conjur/authn-k8s/minikube"]
+  oc exec $conjur_pod -- bundle exec rake authn_k8s:ca_init["conjur/authn-k8s/minikube"]
 }
 
 function launchInventoryServices() {

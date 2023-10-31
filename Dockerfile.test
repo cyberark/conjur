@@ -14,7 +14,10 @@ RUN bundle config unset --local without && \
     bundle config unset --local path && \
     bundle config set --local deployment false && \
     bundle config --local jobs "$(nproc --all)" && \
-    bundle install && \
+    # this is a workaround to allow installation of ruby-debug-ide, for unknown
+    # reasons the first attempt to install it fails but the subsequent call is
+    # successful, therefore we try to install again if the first invocation fails
+    (bundle install || bundle install) && \
     # removing CA bundle of httpclient gem
     find / -name 'httpclient-*' -type d -exec find {} -name '*.pem' -type f -delete \; && \
     find / -name 'httpclient-*' -type d -exec find {} -name '*.key' -type f -delete \; && \
