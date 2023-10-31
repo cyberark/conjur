@@ -161,6 +161,11 @@ module Errors
         code: "CONJ00006E"
       )
 
+      RoleNotAuthorizedOnPolicyDescendants = ::Util::TrackableErrorClass.new(
+        msg: "'{0-role-name}' does not have '{1-privilege}' privilege on some children of {2-policy-name}",
+        code: "CONJ00136E"
+      )
+
       RoleNotFound = ::Util::TrackableErrorClass.new(
         msg: "'{0-role-name}' not found",
         code: "CONJ00007E"

@@ -17,6 +17,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   [cyberark/conjur#2988](https://github.com/cyberark/conjur/pull/2988)
 - conjurctl role retrieve-key will now work when debug logging is turned on.
   [CNJR-2954](https://ca-il-jira.il.cyber-ark.com:8443/browse/CNJR-2759)
+- Policy PUT requests will now reject with 403 if a user doesn't have update 
+  permissions on all resources in the requested policy.
+  [CONJSE-1648](https://ca-il-jira.il.cyber-ark.com:8443/browse/CONJSE-1648)
 
 ### Added
 - Support for the no_proxy & NO_PROXY environment variables for the k8s authenticator.

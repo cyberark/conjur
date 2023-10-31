@@ -28,5 +28,18 @@ module Loader
     def new_roles
       @loader.new_roles
     end
+
+    def self.authorize(current_user, resource)
+      return if current_user.policy_permissions?(resource, 'update')
+
+      logger.info(
+        Errors::Authentication::Security::RoleNotAuthorizedOnPolicyDescendants.new(
+          current_user.role_id,
+          'update',
+          resource.resource_id
+        )
+      )
+      raise ApplicationController::Forbidden
+    end
   end
 end

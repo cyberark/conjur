@@ -24,5 +24,9 @@ module Loader
     def new_roles
       @loader.new_roles
     end
+
+    def self.authorize(current_user, resource)
+      # No-op
+    end
   end
 end
