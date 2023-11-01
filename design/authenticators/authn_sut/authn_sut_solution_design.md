@@ -148,6 +148,7 @@ user.
 | | Scenario | Log message |
 |--- |-----------------------------------------------------------------------  |----------------------------------------------------------------------------------------|
 | 1  | Attempt to use SUT for different user | Single use token for {0-role-name} is not valid for {1-role-name}    |
+| 2  | Attempt to use SUT that expires in the distant future | Single use token for {0-role-name} expires in the distant future and may have been tampered with   |
 
 ###### Debug Log level
 
@@ -160,7 +161,10 @@ user.
 ##### Audit Log Messages
 
 Same as other authenticators - one message for successful authentication, one for failed authentication, with
-one additional event for attempt to use SUT for a different user.
+two additional events:
+
+- Attempt to use SUT for a different user
+- Attempt to use SUT that expires in the distant future (tampered expiration time)
 
 #### Policy
 
@@ -276,6 +280,15 @@ it to the hash stored in the database. We do not need to salt the hash since the
 SUT is already a cryptographically secure random string, as opposed to a
 password which is likely to be reapeated across users.
 
+When hashing the token, we should include the user/role ID in the hash to
+prevent an attacker from using a SUT for a different user by changing the
+user/role ID in the database. For instance, we could hash the SUT and user ID
+together, separated by a delimiter, and store the hash in the database. When
+authenticating with the SUT, we would hash the SUT and user ID together and
+compare it to the hash stored in the database.
+
+Example: `SHA256("lkduj...account:user:john.doe")`
+
 ##### SUT Format
 
 We cannot use JWTs for the SUT as we need the ability to revoke the SUT after it
@@ -300,6 +313,15 @@ specifics of this effort will be left to be determined as part of the
 implementation. In any case, when deleting used or expired SUTs, we must not
 cascade the delete since this would delete any related audit logs.
 
+###### Expiration Sanity Check
+
+When attempting to authenticate with a SUT, we will perform a sanity check to
+ensure that the SUT has not beed modified in the database to have an expiration
+time far in the future. We should check the expiration time against the current
+time plus the default expiration interval. If it's beyond this time, we should
+treat the SUT as expired and delete it from the database. We should additionally
+log a warning message and an audit log.
+
 ##### Code Verifier and Code Challenge
 
 As an additional layer of security, the client will generate a code verifier,
@@ -322,7 +344,7 @@ The code challenge and code verifier flow are modeled after OIDC PKCE.
 ##### Example Database Table
 
 | role_id | token_hash | code_challenge | code_challenge_algorithm | expires_at |
-|---------|-----------|----------------|--------------------------|------------|
+|---------|------------|----------------|--------------------------|------------|
 | account:user:john.doe | lkduj...  | 3iod... | sha256 | 2023-09-28 12:08:23 |
 | account:user:demo.user | 2k1g2...  | kld80... | sha256 | 2023-09-28 12:09:45 |
 
@@ -362,6 +384,15 @@ Much of the security of this feature will be provided by the underlying
 authenticator architecture, so we only need to be concerned with the security of
 the SUT and the implementation of the SUT authenticator plugin.
 
+We should make sure to look carefully at our handling of sensitive data in
+memory. In Ruby, this is primarily done by avoiding the passing around of
+secrets from one method to another, ensuring that they can be garbage collected
+as soon as possible. It is also a good idea to set variables to `nil` after they
+are no longer needed to remove the values from memory. In terms of what
+sensitive data we will be handling, this will include Single Use Tokens as well
+as Code Challenges and Code Verifiers. We should ensure that we follow these
+best practices for handling these values.
+
 ## Testing
 
 ### Unit Tests
@@ -390,6 +421,7 @@ the following scenarios should be covered by RSpec controller tests:
 | Authenticate with SUT - Disabled authenticator | Sad | Verify that a user cannot authenticate to Conjur with a disabled authenticator | | |
 | Authenticate with SUT - Authenticator not enabled for user | Sad | Verify that a user cannot authenticate to Conjur with a disabled user | | |
 | Authenticate with SUT - Incorrect user | Sad | Verify that a user cannot authenticate to Conjur with a SUT for a different user | | |
+| Authenticate with SUT - Tampered expiration | Sad | Verify that a user cannot authenticate to Conjur with a SUT that expires in the distant future | | |
 | Authenticate with SUT - Missing code verifier | Sad | Verify that a user cannot authenticate to Conjur without a code verifier | | |
 | Authenticate with SUT - Invalid code verifier | Sad | Verify that a user cannot authenticate to Conjur with an invalid code verifier | | |
 | Generate & Authenticate - Multiple SUTs | Sad | Generate two SUTs for a user. Verify that the first one cannot be used after the second is created. | | |
