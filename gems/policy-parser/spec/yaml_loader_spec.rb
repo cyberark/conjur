@@ -28,6 +28,7 @@ describe Conjur::PolicyParser::YAML::Loader do
   end
   
   it_should_behave_like 'round-trip dsl', 'empty'
+  it_should_behave_like 'round-trip dsl', 'empty-document'
   it_should_behave_like 'round-trip dsl', 'sequence'
   it_should_behave_like 'round-trip dsl', 'record'
   it_should_behave_like 'round-trip dsl', 'members'
@@ -54,4 +55,5 @@ describe Conjur::PolicyParser::YAML::Loader do
   it_should_behave_like 'error message', 'invalid-cidr-3'
   it_should_behave_like 'error message', 'invalid-cidr-in-array'
   it_should_behave_like 'error message', 'multiple-invalid-cidr-in-array'
+  it_should_behave_like 'error message', 'multiple-documents'
 end
