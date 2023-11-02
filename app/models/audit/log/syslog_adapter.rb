@@ -28,6 +28,13 @@ module Audit
         # so we provide the correct Ruby severity that the "log" interface
         # expects.
         severity = RubySeverity.new(event.severity)
+
+        tenant_env = Rails.application.config.conjur_config.tenant_env
+        if tenant_env == 'dev' || tenant_env == 'test'
+          @logger.info(
+            LogMessages::Util::LogBeforeFluentd.new(event.to_s)
+          )
+        end
         @ruby_logger.log(severity, event, ::Audit::Event.progname)
       end
     end
