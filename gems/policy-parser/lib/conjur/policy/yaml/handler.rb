@@ -38,6 +38,12 @@ module Conjur
           def alias anchor
             raise "Unexpected alias #{anchor}"
           end
+
+          # Start a new document. 
+          # If the handler wants to accept the message, it should return a new handler.
+          def start_document version, tag_directives, implicit
+            raise "Unexpected document"
+          end
           
           # Start a new mapping with the specified tag. 
           # If the handler wants to accept the message, it should return a new handler.
@@ -51,6 +57,11 @@ module Conjur
             raise "Unexpected sequence"
           end
           
+          # End the current document.
+          def end_document
+            raise "Unexpected end of document"
+          end
+
           # End the current sequence. The handler should populate the sequence into the parent handler.
           def end_sequence
             raise "Unexpected end of sequence"
@@ -101,12 +112,25 @@ module Conjur
             
             @handler = handler
             @result = nil
+            @started_document = false
           end          
           
           def sequence seq
             raise "Already got sequence result" if @result
 
             @result = seq
+          end
+
+          def start_document(version, tag_directives, implicit)
+            raise "Already got document" if @started_document
+
+            @started_document = true
+            # Just to follow the pattern. This is immediately followed by a pop
+            push_handler
+          end
+
+          def end_document
+            pop_handler
           end
           
           # The document root is expected to start with a sequence. 
@@ -120,8 +144,13 @@ module Conjur
           def end_sequence
             pop_handler
           end
+
+          def scalar *args
+            value, anchor, tag, _, quoted = args
+            super unless value.empty?
+          end
         end
-        
+
         # Handles a sequence. The sequence has:
         # +record_type+ default record type, inferred from the field name on the parent record.
         # +args+ the start_sequence arguments.
@@ -340,6 +369,11 @@ module Conjur
           log {"#{indent}anchor '#{key}'=#{anchor(key)}"}
           handler.alias(key)
         end
+
+        def start_document *args
+          log {"#{indent}start document : #{args}"}
+          handler.start_document(*args)
+        end
         
         def start_mapping *args
           log {"#{indent}start mapping #{args}"}
@@ -352,6 +386,11 @@ module Conjur
           log {"#{indent}start sequence : #{args}"}
           anchor, = args
           handler.start_sequence(anchor)
+        end
+
+        def end_document *args
+          log {"#{indent}end document"}
+          handler.end_document
         end
         
         def end_sequence
