@@ -12,7 +12,12 @@ class EdgeConfigurationController < RestController
     options = params.permit(*allowed_params).to_h.symbolize_keys
     validate_conjur_admin_group(options[:account])
     secret_value = extract_max_edge_value(options[:account])
-    render(plain: secret_value, content_type: "text/plain")
-    logger.debug(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("edge/max-allowed"))
+    begin
+      render(plain: secret_value, content_type: "text/plain")
+      logger.debug(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("edge/max-allowed"))
+    rescue => e
+      logger.error(LogMessages::Conjur::GeneralError.new(e.message))
+      raise e
+    end
   end
 end

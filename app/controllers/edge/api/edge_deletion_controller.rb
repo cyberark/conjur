@@ -10,7 +10,7 @@ class EdgeDeletionController < RestController
   EDGE_NOT_FOUND = "Edge not found"
 
   def delete_edge
-    logger.info(LogMessages::Endpoints::EndpointRequested.new("DELETE edge/#{params[:account]}/#{params[:identifier]}"))
+    logger.debug(LogMessages::Endpoints::EndpointRequested.new("DELETE edge/#{params[:account]}/#{params[:identifier]}"))
     validate_conjur_admin_group(params[:account])
     edge_record = get_edge_from_db(params[:identifier])
     unless edge_record
@@ -19,17 +19,16 @@ class EdgeDeletionController < RestController
     delete_edge_host_policy(edge_record.id)
     edge_record.destroy
     head(204)
-    deleted_audit(params[:identifier])
-    logger.info(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("DELETE edge/#{params[:account]}/#{params[:identifier]}"))
+    logger.debug(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("DELETE edge/#{params[:account]}/#{params[:identifier]}"))
   rescue Exceptions::RecordNotFound => e
     @error_message = e.message
-    deleted_audit(params[:identifier])
     raise Exceptions::RecordNotFound.new(params[:identifier], message: EDGE_NOT_FOUND)
   rescue => e
     @error_message = e.message
-    deleted_audit(params[:identifier])
     logger.error(LogMessages::Conjur::GeneralError.new(e.message))
     raise e
+  ensure
+    deleted_audit(params[:identifier])
   end
 
   private

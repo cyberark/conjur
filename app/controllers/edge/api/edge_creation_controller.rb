@@ -13,9 +13,9 @@ class EdgeCreationController < RestController
   include ParamsValidator
 
   def generate_install_token
-    logger.debug(LogMessages::Endpoints::EndpointRequested.new("edge/edge-creds"))
     allowed_params = %i[account edge_name]
     options = params.permit(*allowed_params).to_h.symbolize_keys
+    logger.debug(LogMessages::Endpoints::EndpointRequested.new("edge/edge-creds/#{options[:account]}/#{options[:edge_name]}"))
     audit_params = { edge_name: options[:edge_name], user: current_user.role_id, client_ip: request.ip }
     begin
       validate_conjur_admin_group(options[:account])
@@ -25,20 +25,21 @@ class EdgeCreationController < RestController
 
       edge_host_name = Role.username_from_roleid(edge.get_edge_host_name(options[:account]))
 
+      response.set_header("Content-Encoding", "base64")
+      render(plain: Base64.strict_encode64(edge_host_name + ":" + installer_token))
+      logger.debug(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("edge/edge-creds/#{options[:account]}/#{options[:edge_name]}"))
     rescue => e
       audit_params[:error_message] = e.message
+      logger.error(LogMessages::Conjur::GeneralError.new(e.message))
       raise e
     ensure
       Audit.logger.log(Audit::Event::CredsGeneration.new(**audit_params))
     end
-    logger.debug(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("edge/edge-creds"))
-    response.set_header("Content-Encoding", "base64")
-    render(plain: Base64.strict_encode64(edge_host_name + ":" + installer_token))
   end
 
   #this endpoint loads a policy with the edge host values + adds the edge name to Edge table
   def create_edge
-    logger.debug(LogMessages::Endpoints::EndpointRequested.new('create edge'))
+    logger.debug(LogMessages::Endpoints::EndpointRequested.new("create edge #{params[:edge_name]}"))
     allowed_params = %i[account edge_name]
     url_params = params.permit(*allowed_params)
     validate_conjur_admin_group(url_params[:account])
@@ -51,14 +52,16 @@ class EdgeCreationController < RestController
       Edge.new_edge(name: edge_name)
       edge = Edge[name: edge_name]
       add_edge_host_policy(edge[:id])
+
+      head :created
+      logger.debug(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("create edge #{url_params[:edge_name]}"))
     rescue => e
       @error_message = e.message
+      logger.error(LogMessages::Conjur::GeneralError.new(e.message))
       raise e
     ensure
       created_audit(edge_name)
     end
-    logger.debug(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("create edge"))
-    head :created
   end
 
   private
