@@ -3,6 +3,7 @@ Feature: Fetching host from edge endpoint
 
   Background:
     Given I create a new user "some_user"
+    And I create a new user "admin_user"
     And I have host "data/some_host2"
     And I have host "data/some_host3" without api key
     And I have host "data/some_host4"
@@ -12,26 +13,16 @@ Feature: Fetching host from edge endpoint
     And I am the super-user
     When I successfully PUT "/policies/cucumber/policy/root" with body:
     """
-    - !policy
+   - !policy
       id: edge
       body:
         - !group edge-hosts
-        - !policy
-            id: edge-abcd1234567890
-            body:
-            - !host
-              id: edge-host-abcd1234567890
-              annotations:
-                authn/api-key: true
+        - !group edge-installer-group
         - !policy
             id: edge-configuration
             body:
               - &edge-variables
                 - !variable max-edge-allowed
-    - !grant
-      role: !group edge/edge-hosts
-      members:
-        - !host edge/edge-abcd1234567890/edge-host-abcd1234567890
 
     - !policy
       id: data
@@ -42,13 +33,29 @@ Feature: Fetching host from edge endpoint
                 authn/api-key: true
                 test2: test1
                 test:
+
+    - !group Conjur_Cloud_Admins
+    - !grant
+      role: !group Conjur_Cloud_Admins
+      member: !user admin_user
     """
+    And I add the secret value "3" to the resource "cucumber:variable:edge/edge-configuration/max-edge-allowed"
+    Given I login as "admin_user"
+    And I set the "Content-Type" header to "application/json"
+    When I POST "/edge/cucumber" with body:
+      """
+      {
+        "edge_name": "edge_host_rep"
+      }
+      """
+    Then the HTTP response status code is 201
+    And Edge name "edge_host_rep" data exists in db
+    And I clear the "Content-Type" header
     And I log out
 
   @acceptance @smoke
   Scenario: Fetching hosts with edge host return 200 OK
-
-    Given I login as "host/edge/edge-abcd1234567890/edge-host-abcd1234567890"
+    Given I login as the host associated with Edge "edge_host_rep"
     When I GET "/edge/hosts/cucumber"
     Then the HTTP response status code is 200
     And the JSON response at "hosts" should have 5 entries
@@ -69,8 +76,7 @@ Feature: Fetching host from edge endpoint
 
   @acceptance
   Scenario: Fetching hosts with parameters
-
-    Given I login as "host/edge/edge-abcd1234567890/edge-host-abcd1234567890"
+    Given I login as the host associated with Edge "edge_host_rep"
     When I GET "/edge/hosts/cucumber" with parameters:
     """
     limit: 2
@@ -85,7 +91,6 @@ Feature: Fetching host from edge endpoint
     """
     Then the HTTP response status code is 200
     And the JSON at "hosts" should have 3 entries
-    Given I login as "host/edge/edge-abcd1234567890/edge-host-abcd1234567890"
     When I GET "/edge/hosts/cucumber" with parameters:
     """
     offset: 0
@@ -129,22 +134,18 @@ Feature: Fetching host from edge endpoint
 
   @acceptance
   Scenario: Fetching hosts count
-
-    Given I login as "host/edge/edge-abcd1234567890/edge-host-abcd1234567890"
+    Given I login as the host associated with Edge "edge_host_rep"
     When I successfully GET "/edge/hosts/cucumber?count=true"
     Then I receive a count of 5
 
   @acceptance
   Scenario: Fetching hosts count with limit has no effect
-
-    Given I login as "host/edge/edge-abcd1234567890/edge-host-abcd1234567890"
+    Given I login as the host associated with Edge "edge_host_rep"
     When I successfully GET "/edge/hosts/cucumber?count=true&limit=2&offset=0"
     Then I receive a count of 5
 
-
   @negative @acceptance
   Scenario: Fetching hosts with non edge host return 403
-
     Given I login as "some_user"
     When I GET "/edge/hosts/cucumber"
     Then the HTTP response status code is 403

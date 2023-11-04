@@ -3,6 +3,7 @@ Feature: Fetching secrets from edge endpoint
 
   Background:
     Given I create a new user "some_user"
+    And I create a new user "admin_user"
     And I have host "data/some_host2"
     And I have host "data/some_host3"
     And I have host "data/some_host4"
@@ -13,22 +14,17 @@ Feature: Fetching secrets from edge endpoint
       id: edge
       body:
         - !group edge-hosts
-        - !policy
-            id: edge-abcd1234567890
-            body:
-            - !host
-              id: edge-host-abcd1234567890
-              annotations:
-                authn/api-key: true
+        - !group edge-installer-group
         - !policy
             id: edge-configuration
             body:
               - &edge-variables
                 - !variable max-edge-allowed
+
+    - !group Conjur_Cloud_Admins
     - !grant
-      role: !group edge/edge-hosts
-      members:
-        - !host edge/edge-abcd1234567890/edge-host-abcd1234567890
+      role: !group Conjur_Cloud_Admins
+      member: !user admin_user
 
     - !policy
       id: data
@@ -60,17 +56,28 @@ Feature: Fetching secrets from edge endpoint
           privilege: [ write ]
           resource: !variable secret1
     """
+    And I add the secret value "3" to the resource "cucumber:variable:edge/edge-configuration/max-edge-allowed"
     And I add the secret value "s1" to the resource "cucumber:variable:data/secret1"
     And I add the secret value "s2" to the resource "cucumber:variable:data/secret2"
     And I add the secret value "s3" to the resource "cucumber:variable:data/secret3"
     And I add the secret value "s4" to the resource "cucumber:variable:data/secret4"
     And I add the secret value "s5" to the resource "cucumber:variable:data/secret5"
+    Given I login as "admin_user"
+    And I set the "Content-Type" header to "application/json"
+    When I POST "/edge/cucumber" with body:
+      """
+      {
+        "edge_name": "edge_secrets"
+      }
+      """
+    Then the HTTP response status code is 201
+    And Edge name "edge_secrets" data exists in db
+    And I clear the "Content-Type" header
     And I log out
 
   @acceptance @smoke
   Scenario: Fetching all secrets with edge host return 200 OK with json results
-
-    Given I login as "host/edge/edge-abcd1234567890/edge-host-abcd1234567890"
+    Given I login as the host associated with Edge "edge_secrets"
     When I GET "/edge/secrets/cucumber"
     Then the HTTP response status code is 200
     And the JSON should be:
@@ -159,7 +166,6 @@ Feature: Fetching secrets from edge endpoint
 
   @negative @acceptance
   Scenario: Fetching secrets with non edge host return 403 error
-
     Given I login as "some_user"
     When I GET "/edge/secrets/cucumber"
     Then the HTTP response status code is 403
@@ -173,8 +179,7 @@ Feature: Fetching secrets from edge endpoint
 
   @acceptance
   Scenario: Fetching secrets by batch with edge host return right json every batch call
-
-    Given I login as "host/edge/edge-abcd1234567890/edge-host-abcd1234567890"
+    Given I login as the host associated with Edge "edge_secrets"
     When I GET "/edge/secrets/cucumber" with parameters:
     """
     limit: 2
@@ -295,8 +300,7 @@ Feature: Fetching secrets from edge endpoint
 
   @acceptance
   Scenario: Fetching secrets by batch with edge host return right number of results
-
-    Given I login as "host/edge/edge-abcd1234567890/edge-host-abcd1234567890"
+    Given I login as the host associated with Edge "edge_secrets"
     When I GET "/edge/secrets/cucumber" with parameters:
     """
     limit: 2
@@ -311,7 +315,6 @@ Feature: Fetching secrets from edge endpoint
     """
     Then the HTTP response status code is 200
     And the JSON at "secrets" should have 3 entries
-    Given I login as "host/edge/edge-abcd1234567890/edge-host-abcd1234567890"
     When I GET "/edge/secrets/cucumber" with parameters:
     """
     offset: 0
@@ -355,24 +358,21 @@ Feature: Fetching secrets from edge endpoint
 
   @acceptance
   Scenario: Fetching secrets count
-
-    Given I login as "host/edge/edge-abcd1234567890/edge-host-abcd1234567890"
+    Given I login as the host associated with Edge "edge_secrets"
     When I successfully GET "/edge/secrets/cucumber?count=true"
     Then I receive a count of 6
 
   @acceptance
   Scenario: Fetching secrets count with limit has no effect
-
-    Given I login as "host/edge/edge-abcd1234567890/edge-host-abcd1234567890"
+    Given I login as the host associated with Edge "edge_secrets"
     When I successfully GET "/edge/secrets/cucumber?count=true&limit=2&offset=0"
     Then I receive a count of 6
 
   @acceptance
   Scenario: Fetching special characters secret with edge host and Accept-Encoding base64 return 200 OK with json results
-
     Given I login as "some_user"
     And I add the secret value "s1±\" to the resource "cucumber:variable:data/secret1"
-    And I login as "host/edge/edge-abcd1234567890/edge-host-abcd1234567890"
+    Given I login as the host associated with Edge "edge_secrets"
     And I set the "Accept-Encoding" header to "base64"
     When I GET "/edge/secrets/cucumber" with parameters:
   """
@@ -413,10 +413,9 @@ Feature: Fetching secrets from edge endpoint
 
   @negative @acceptance
   Scenario: Fetching all secrets with edge host without Accept-Encoding base64 return 200 and I have special character secret
-
     Given I login as "some_user"
     And I add the secret value "s1±" to the resource "cucumber:variable:data/secret1"
-    And I login as "host/edge/edge-abcd1234567890/edge-host-abcd1234567890"
+    Given I login as the host associated with Edge "edge_secrets"
     When I GET "/edge/secrets/cucumber"
     Then the HTTP response status code is 200
     And the JSON should be:
@@ -506,10 +505,9 @@ Feature: Fetching secrets from edge endpoint
 
   @acceptance
   Scenario: Fetching special character secret1 with edge host without Accept-Encoding base64, return 200 and json result with escaping
-
     Given I login as "some_user"
     And I add the secret value "s1\" to the resource "cucumber:variable:data/secret1"
-    And I login as "host/edge/edge-abcd1234567890/edge-host-abcd1234567890"
+    Given I login as the host associated with Edge "edge_secrets"
     When I GET "/edge/secrets/cucumber" with parameters:
   """
   limit: 1

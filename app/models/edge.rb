@@ -24,6 +24,14 @@ class Edge < Sequel::Model
                                                                 message: "Edge for host #{hostname} not found"))
     end
 
+    def get_name_by_hostname(hostname)
+      begin
+        get_by_hostname(hostname).name
+      rescue Exceptions::RecordNotFound
+        ""  # Return empty string in case the edge instance is not in DB
+      end
+    end
+
     def hostname_to_id(hostname)
       regex = Regexp.new(EDGE_HOST_PATTERN.sub("ACCOUNT", '\w+').gsub("IDENTIFIER","(.+)"))
       hostname.match(regex)&.captures&.first

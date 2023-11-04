@@ -11,22 +11,12 @@ Feature: Replicate jwt authenticators from edge endpoint
       id: edge
       body:
         - !group edge-hosts
-        - !policy
-            id: edge-abcd1234567890
-            body:
-            - !host
-              id: edge-host-abcd1234567890
-              annotations:
-                authn/api-key: true
+        - !group edge-installer-group
         - !policy
             id: edge-configuration
             body:
               - &edge-variables
                 - !variable max-edge-allowed
-    - !grant
-      role: !group edge/edge-hosts
-      members:
-        - !host edge/edge-abcd1234567890/edge-host-abcd1234567890
     - !policy
       id: conjur/authn-jwt/myVendor
       body:
@@ -64,6 +54,11 @@ Feature: Replicate jwt authenticators from edge endpoint
         - !webservice
         - !variable jwks-uri
         - !variable ca-cert
+
+    - !group Conjur_Cloud_Admins
+    - !grant
+      role: !group Conjur_Cloud_Admins
+      member: !user admin_user
     """
     And I add the secret value "https://www.googleapis.com/oauth2/v3/certs" to the resource "cucumber:variable:conjur/authn-jwt/myVendor/jwks-uri"
     And I add the secret value "app_name" to the resource "cucumber:variable:conjur/authn-jwt/myVendor/token-app-property"
@@ -76,11 +71,24 @@ Feature: Replicate jwt authenticators from edge endpoint
     """
     enabled=true
     """
+    Given I add the secret value "3" to the resource "cucumber:variable:edge/edge-configuration/max-edge-allowed"
+    Given I login as "admin_user"
+    And I set the "Content-Type" header to "application/json"
+    When I POST "/edge/cucumber" with body:
+      """
+      {
+        "edge_name": "edge_authn"
+      }
+      """
+    Then the HTTP response status code is 201
+    And Edge name "edge_authn" data exists in db
+    And I clear the "Content-Type" header
     And I log out
+
 
   @acceptance
   Scenario: Fetching all authenticators with edge host and Accept-Encoding base64 header return 200 OK
-    Given I login as "host/edge/edge-abcd1234567890/edge-host-abcd1234567890"
+    Given I login as the host associated with Edge "edge_authn"
     And I set the "Accept-Encoding" header to "base64"
     When I successfully GET "/edge/authenticators/cucumber?kind=authn-jwt"
     Then the HTTP response status code is 200
@@ -170,7 +178,7 @@ Feature: Replicate jwt authenticators from edge endpoint
 
   @acceptance
   Scenario: Fetching authenticators with parameters
-    Given I login as "host/edge/edge-abcd1234567890/edge-host-abcd1234567890"
+    Given I login as the host associated with Edge "edge_authn"
     And I set the "Accept-Encoding" header to "base64"
     When I GET "/edge/authenticators/cucumber" with parameters:
     """
@@ -312,34 +320,34 @@ Feature: Replicate jwt authenticators from edge endpoint
 
   @negative
   Scenario: Fetching all authenticators with edge host and without Accept-Encoding base64 header and return 500
-    Given I login as "host/edge/edge-abcd1234567890/edge-host-abcd1234567890"
+    Given I login as the host associated with Edge "edge_authn"
     When I GET "/edge/authenticators/cucumber?kind=authn-jwt"
     Then the HTTP response status code is 500
 
   @acceptance
   Scenario: Fetching authenticators with invalid kind and return 422
-    Given I login as "host/edge/edge-abcd1234567890/edge-host-abcd1234567890"
+    Given I login as the host associated with Edge "edge_authn"
     And I set the "Accept-Encoding" header to "base64"
     When I GET "/edge/authenticators/cucumber?kind=authn-something"
     Then the HTTP response status code is 422
 
   @acceptance
   Scenario: Fetching authenticators with empty kind and return 422
-    Given I login as "host/edge/edge-abcd1234567890/edge-host-abcd1234567890"
+    Given I login as the host associated with Edge "edge_authn"
     And I set the "Accept-Encoding" header to "base64"
     When I GET "/edge/authenticators/cucumber?kind="
     Then the HTTP response status code is 422
 
   @acceptance
   Scenario: Fetching authenticators with no kind and return 422
-    Given I login as "host/edge/edge-abcd1234567890/edge-host-abcd1234567890"
+    Given I login as the host associated with Edge "edge_authn"
     And I set the "Accept-Encoding" header to "base64"
     When I GET "/edge/authenticators/cucumber"
     Then the HTTP response status code is 422
 
   @acceptance
   Scenario: Fetching authenticators count
-    Given I login as "host/edge/edge-abcd1234567890/edge-host-abcd1234567890"
+    Given I login as the host associated with Edge "edge_authn"
     When I successfully GET "/edge/authenticators/cucumber?kind=authn-jwt&count=true"
     And the JSON should be:
     """
