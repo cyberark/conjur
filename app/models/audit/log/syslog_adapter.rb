@@ -29,11 +29,15 @@ module Audit
         # expects.
         severity = RubySeverity.new(event.severity)
 
-        tenant_env = Rails.application.config.conjur_config.tenant_env
-        if tenant_env == 'dev' || tenant_env == 'test'
-          @ruby_logger.info(
-            LogMessages::Util::LogBeforeFluentd.new(event.to_s)
-          )
+        begin
+          tenant_env = Rails.application.config.conjur_config.tenant_env
+          if tenant_env == 'dev' || tenant_env == 'test'
+            Rails.logger.info(
+              LogMessages::Util::LogBeforeFluentd.new(event.to_s)
+            )
+          end
+        rescue => e
+          Rails.logger.error(e.message)
         end
         @ruby_logger.log(severity, event, ::Audit::Event.progname)
       end
