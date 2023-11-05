@@ -2,6 +2,7 @@
 
 class ApplicationController < ActionController::API
   include Authenticates
+  include PrintBacktrace
   include ::ActionView::Layouts
 
   class Unauthorized < RuntimeError
@@ -362,10 +363,7 @@ class ApplicationController < ActionController::API
   end
 
   def log_error e
-    if e.backtrace.nil?
-      logger.error("#{e}")
-    else
-      logger.error("#{e}\n#{e.backtrace.join("\n")}")
-    end
+    logger.error("#{e}")
+    log_backtrace(e) unless e.backtrace.nil?
   end
 end

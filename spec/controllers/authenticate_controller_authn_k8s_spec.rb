@@ -370,7 +370,7 @@ describe AuthenticateController, :type => :request do
         )
         expect(response).to have_http_status(:unauthorized)
 
-        expect(@info_log_args).to satisfy { |args|
+        expect(@error_log_args).to satisfy { |args|
           args.any? { |arg|
             arg.to_s.include?("CONJ00131E")
           }
@@ -405,7 +405,7 @@ describe AuthenticateController, :type => :request do
         )
         expect(response).to have_http_status(:unauthorized)
 
-        expect(@info_log_args).to satisfy { |args|
+        expect(@error_log_args).to satisfy { |args|
           args.any? { |arg|
             arg.to_s.include?("CONJ00132E")
           }
