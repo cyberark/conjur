@@ -908,6 +908,11 @@ module LogMessages
       code: "CONJ00154I"
     )
 
+    LogBeforeFluentd = ::Util::TrackableLogMessageClass.new(
+      msg: "Event sent to audit is: {0}",
+      code: "CONJ00500I"
+    )
+
   end
 
   module Config
