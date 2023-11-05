@@ -31,7 +31,7 @@ module Audit
 
         tenant_env = Rails.application.config.conjur_config.tenant_env
         if tenant_env == 'dev' || tenant_env == 'test'
-          @logger.info(
+          @ruby_logger.info(
             LogMessages::Util::LogBeforeFluentd.new(event.to_s)
           )
         end
