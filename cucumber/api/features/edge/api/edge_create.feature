@@ -54,6 +54,31 @@ Feature: Create edge process
         User cucumber:user:admin_user successfully created new Edge instance named edgy
       """
 
+    @acceptance
+    Scenario: Create edge host with custom uuid return 201 OK
+      Given I login as "admin_user"
+      And I save my place in the audit log file for remote
+      And I set the "Content-Type" header to "application/json"
+      When I POST "/edge/cucumber" with body:
+        """
+        {
+          "edge_name": "edgy",
+          "edge_id": "54dbe71c-e82a-455d-b90d8bbe0a7b4963"
+        }
+        """
+      Then the HTTP response status code is 201
+      And Edge name "edgy" data exists in db
+      And Edge id "54dbe71c-e82a-455d-b90d-8bbe0a7b4963" exists in db
+      And there is an audit record matching:
+        """
+          <85>1 * * conjur * created
+          [auth@43868 user="cucumber:user:admin_user"]
+          [subject@43868 edge="edgy"]
+          [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
+          [action@43868 result="success" operation="create"]
+          User cucumber:user:admin_user successfully created new Edge instance named edgy
+        """
+
     @negative @acceptance
     Scenario: Create edge with existing name return 409
       Given I login as "admin_user"
