@@ -17,13 +17,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   [cyberark/conjur#2988](https://github.com/cyberark/conjur/pull/2988)
 - conjurctl role retrieve-key will now work when debug logging is turned on.
   [CNJR-2954](https://ca-il-jira.il.cyber-ark.com:8443/browse/CNJR-2759)
-- Policy PUT requests will now reject with 403 if a user doesn't have update 
+- Policy PUT requests will now reject with 403 if a user doesn't have update
   permissions on all resources in the requested policy.
   [CONJSE-1648](https://ca-il-jira.il.cyber-ark.com:8443/browse/CONJSE-1648)
 
 ### Added
 - Support for the no_proxy & NO_PROXY environment variables for the k8s authenticator.
   [CNJR-2759](https://ca-il-jira.il.cyber-ark.com:8443/browse/CNJR-2759)
+- The Kubernetes authenticator now supports the
+  [status](https://docs.conjur.org/Latest/en/Content/Developer/Conjur_API_authenticator_status.htm
+  API for verifying authenticator configuration.
+  [Conjur-Enterprise/conjur#48](https://github.cyberng.com/Conjur-Enterprise/conjur/pull/48)
 
 ### Security
 - Upgrade google/cloud-sdk in ci/test_suites/authenticators_k8s/dev/Dockerfile/test
@@ -1114,7 +1118,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - The first tagged version.
 
-[Unreleased]: https://github.com/cyberark/conjur/compare/v1.20.0...HEAD
+[Unreleased]: https://github.com/cyberark/conjur/compare/v1.20.1...HEAD
+[1.20.1]: https://github.com/cyberark/conjur/compare/v1.20.0...v1.20.1
 [1.20.0]: https://github.com/cyberark/conjur/compare/v1.19.5...v1.20.0
 [1.19.5]: https://github.com/cyberark/conjur/compare/v1.19.3...v1.19.5
 [1.19.3]: https://github.com/cyberark/conjur/compare/v1.19.2...v1.19.3
