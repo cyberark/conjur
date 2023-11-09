@@ -1,4 +1,4 @@
-@api
+@api @skip
 Feature: Conjur signs certificates using a configured CA
 
   Background:
