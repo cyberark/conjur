@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
+## [1.0.14-cloud] - 2023-11-19
+### Added
+- Support custom uuid to edge creation
+
 ## [1.0.13-cloud] - 2023-11-12
 
 ## [1.0.12-cloud] - 2023-11-05
