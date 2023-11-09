@@ -40,7 +40,7 @@ Feature: OIDC Authenticator V2 - Users can authenticate with Identity using OIDC
       | conjur/authn-oidc/identity/provider-uri   | oidc_provider_uri   |                     |
       | conjur/authn-oidc/identity/client-id      | oidc_client_id      |                     |
       | conjur/authn-oidc/identity/client-secret  | oidc_client_secret  |                     |
-      | conjur/authn-oidc/identity/claim-mapping  |                     | preferred_username  |
+      | conjur/authn-oidc/identity/claim-mapping  |                     | email               |
       | conjur/authn-oidc/identity/redirect-uri   | oidc_redirect_url   |                     |
 
   @smoke
