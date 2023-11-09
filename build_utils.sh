@@ -30,3 +30,20 @@ function tag_and_push() {
     docker push "$target"
   done
 }
+
+# prepare_manifest image tag
+function prepare_manifest() {
+  local image="$1"
+  local tag="$2"
+
+  docker pull "${image}:${tag}-amd64"
+  docker pull "${image}:${tag}-arm64"
+
+  docker manifest create \
+    --insecure \
+    "${image}:${tag}" \
+    --amend "${image}:${tag}-amd64" \
+    --amend "${image}:${tag}-arm64"
+
+  docker manifest push --insecure "${image}:${tag}"
+}

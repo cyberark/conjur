@@ -124,7 +124,7 @@ not to install a software load balancer such as
   CONJUR_NAMESPACE=conjur-oss
 
   # Create a Conjur CLI pod in the Conjur Open Source namespace
-  CLI_IMAGE=cyberark/conjur-cli:5-latest
+  CLI_IMAGE=cyberark/conjur-cli:8
   echo "
   ---
   apiVersion: apps/v1
@@ -166,8 +166,8 @@ not to install a software load balancer such as
   export CLI_POD="$(kubectl get pods -n $CONJUR_NAMESPACE -l app=conjur-cli \
           -o jsonpath='{.items[0].metadata.name}')"
   CONJUR_URL="https://conjur-oss.$CONJUR_NAMESPACE.svc.cluster.local"
-  kubectl exec -n $CONJUR_NAMESPACE $CLI_POD -- bash -c "yes yes | conjur init -a $CONJUR_ACCOUNT -u $CONJUR_URL"
-  kubectl exec -n $CONJUR_NAMESPACE $CLI_POD -- conjur authn login -u admin -p $ADMIN_PASSWORD 
+  kubectl exec -n $CONJUR_NAMESPACE $CLI_POD -- bash -c "yes yes | conjur init --account $CONJUR_ACCOUNT --url $CONJUR_URL"
+  kubectl exec -n $CONJUR_NAMESPACE $CLI_POD -- conjur login --id admin --password $ADMIN_PASSWORD 
 
   # Create a 'conjur' command alias 
   alias conjur="kubectl exec -n conjur-oss $CLI_POD -- conjur"
@@ -864,7 +864,7 @@ of your Conjur authentication configuration.
      CONJUR_ACCOUNT="myConjurAccount"
 
      HOST_RESOURCE="$CONJUR_ACCOUNT:$(echo $CONJUR_AUTHN_LOGIN | sed 's/\//:/')"
-     conjur show $HOST_RESOURCE
+     conjur resource show $HOST_RESOURCE
      ```
    </details>
 
@@ -875,7 +875,7 @@ of your Conjur authentication configuration.
      <summary>Click to see example Conjur authentication host definition.</summary>
 
      ```
-     $ conjur show $HOST_RESOURCE
+     $ conjur resource show $HOST_RESOURCE
      {
        "created_at": "2020-11-05T20:43:20.039+00:00",
        "id": "myConjurAccount:host:conjur/authn-k8s/my-authenticator-id/apps/test-app-secretless",
@@ -944,7 +944,7 @@ of your Conjur authentication configuration.
      e.g.:
      
      ```sh-session
-     $ conjur list -k webservice -s $AUTHENTICATOR_ID
+     $ conjur list --kind webservice --search $AUTHENTICATOR_ID
      [
        "myConjurAccount:webservice:conjur/authn-k8s/my-authenticator-id"
      ]
@@ -955,7 +955,7 @@ of your Conjur authentication configuration.
      Webserver resource. For example:
 
      ```sh-session
-     $ conjur show myConjurAccount:webservice:conjur/authn-k8s/my-authenticator-id
+     $ conjur role show myConjurAccount:webservice:conjur/authn-k8s/my-authenticator-id
      {
        "created_at": "2020-11-05T20:43:20.884+00:00",
        "id": "myConjurAccount:webservice:conjur/authn-k8s/my-authenticator-id",
@@ -996,16 +996,16 @@ of your Conjur authentication configuration.
 
   ```
   # Example: List all hosts associated with a Kubernetes authenticator ID
-  conjur list -k host -s my-authenticator-id
+  conjur list --kind host --search my-authenticator-id
 
   # Example: Show a host definition
-  conjur show myConjurAccount:host:conjur/authn-k8s/my-authenticator-id/apps/test-app-secretless
+  conjur role show myConjurAccount:host:conjur/authn-k8s/my-authenticator-id/apps/test-app-secretless
 
   # Example: Show members of a layer
-  conjur role members  myConjurAccount:layer:conjur/authn-k8s/my-authenticator-id/apps
+  conjur role members myConjurAccount:layer:conjur/authn-k8s/my-authenticator-id/apps
 
   # Example: List Webservices associated with a Kubernetes authenticator ID, with details
-  conjur list -k webservice -s my-authenticator-id --inspect
+  conjur list --kind webservice --search my-authenticator-id --inspect
   ```
 
 ### Failure Conditions and How to Troubleshoot

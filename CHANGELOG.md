@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
+## [1.0.29-cloud] - 2024-06-07
+### Changed
+- First part of the sync (conjur cloud with conjur enterprise), support for arm64 + cli version 8 + Add ARM64 packages build
+
 ## [1.0.28-cloud] - 2024-06-02
 ### Changed
 - Updated first PCloud fetch telemetry

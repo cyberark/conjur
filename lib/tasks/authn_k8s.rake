@@ -13,7 +13,7 @@ namespace :authn_k8s do
 
     puts "Populated CA and Key of service #{service_name}"
     puts "To print values:"
-    puts " conjur variable value #{Resource[cert_resource.cert_id].identifier}"
-    puts " conjur variable value #{Resource[cert_resource.key_id].identifier}"
+    puts " conjur variable get --id #{Resource[cert_resource.cert_id].identifier}"
+    puts " conjur variable get --id #{Resource[cert_resource.key_id].identifier}"
   end
 end
