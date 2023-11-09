@@ -309,7 +309,7 @@ pipeline {
           }
 
           environment {
-            INFRAPOOL_CUCUMBER_FILTER_TAGS = "${params.CUCUMBER_FILTER_TAGS}"
+            INFRAPOOL_CUCUMBER_FILTER_TAGS = "${params.INFRAPOOL_CUCUMBER_FILTER_TAGS}"
           }
 
           stages {
@@ -382,7 +382,7 @@ pipeline {
                   }
 
                   environment {
-                    INFRAPOOL_CUCUMBER_FILTER_TAGS = "${params.CUCUMBER_FILTER_TAGS}"
+                    INFRAPOOL_CUCUMBER_FILTER_TAGS = "${params.INFRAPOOL_CUCUMBER_FILTER_TAGS}"
                   }
 
                   steps {
@@ -425,7 +425,7 @@ pipeline {
                   }
 
                   environment {
-                    INFRAPOOL_CUCUMBER_FILTER_TAGS = "${params.CUCUMBER_FILTER_TAGS}"
+                    INFRAPOOL_CUCUMBER_FILTER_TAGS = "${params.INFRAPOOL_CUCUMBER_FILTER_TAGS}"
                   }
 
                   steps {
@@ -527,7 +527,7 @@ pipeline {
               }
 
               environment {
-                INFRAPOOL_CUCUMBER_FILTER_TAGS = "${params.CUCUMBER_FILTER_TAGS}"
+                INFRAPOOL_CUCUMBER_FILTER_TAGS = "${params.INFRAPOOL_CUCUMBER_FILTER_TAGS}"
               }
 
               steps {
@@ -571,7 +571,7 @@ pipeline {
               }
 
               environment {
-                INFRAPOOL_CUCUMBER_FILTER_TAGS = "${params.CUCUMBER_FILTER_TAGS}"
+                INFRAPOOL_CUCUMBER_FILTER_TAGS = "${params.INFRAPOOL_CUCUMBER_FILTER_TAGS}"
               }
 
               steps {
@@ -615,7 +615,7 @@ pipeline {
               }
 
               environment {
-                INFRAPOOL_CUCUMBER_FILTER_TAGS = "${params.CUCUMBER_FILTER_TAGS}"
+                INFRAPOOL_CUCUMBER_FILTER_TAGS = "${params.INFRAPOOL_CUCUMBER_FILTER_TAGS}"
               }
 
               steps {
@@ -1137,7 +1137,13 @@ def conjurTests(infrapool) {
     ],
     "authenticators_oidc": [
       "OIDC Authenticator - ${env.STAGE_NAME}": {
+        withCredentials([
+          conjurSecretCredential(credentialsId: "RnD-Global-Conjur-Ent-Conjur_Operating_System-WindowsDomainAccountDailyRotation-cyberng.com-svc_cnjr_enterprise_username", variable: 'INFRAPOOL_IDENTITY_USERNAME'),
+          conjurSecretCredential(credentialsId: "RnD-Global-Conjur-Ent-Conjur_Operating_System-WindowsDomainAccountDailyRotation-cyberng.com-svc_cnjr_enterprise_password", variable: 'INFRAPOOL_IDENTITY_PASSWORD')
+        ]) 
+        {
           infrapool.agentSh 'summon -f ./ci/test_suites/authenticators_oidc/secrets.yml -e ci ci/test authenticators_oidc'
+        }
       }
     ],
     "authenticators_jwt": [
