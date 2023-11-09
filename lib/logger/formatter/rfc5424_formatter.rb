@@ -29,7 +29,7 @@ class Logger
         end
 
         def to_s
-          [
+          audit_message = [
             header,
             timestamp,
             hostname,
@@ -39,6 +39,18 @@ class Logger
             sd,
             @msg
           ].map {|part| part || '-'}.join(" ") + "\n"
+
+          begin
+            tenant_env = Rails.application.config.conjur_config.tenant_env
+            if tenant_env == 'dev' || tenant_env == 'test'
+              Rails.logger.info(
+                LogMessages::Util::LogBeforeFluentd.new(audit_message)
+              )
+            end
+          rescue => e
+            Rails.logger.error(e.message)
+          end
+          audit_message
         end
 
         def header
