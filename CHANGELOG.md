@@ -17,6 +17,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 - Removed unsupported apis
 
+### Fixed
+- Fix permissions visibility bug
+
 ## [1.0.13-cloud] - 2023-11-12
 
 ## [1.0.12-cloud] - 2023-11-05
