@@ -54,7 +54,7 @@ Feature: Create edge process
         User cucumber:user:admin_user successfully created new Edge instance named edgy
       """
 
-    @acceptance
+    @acceptance @smoke
     Scenario: Create edge host with custom uuid return 201 OK
       Given I login as "admin_user"
       And I save my place in the audit log file for remote
@@ -63,7 +63,7 @@ Feature: Create edge process
         """
         {
           "edge_name": "edgy",
-          "edge_id": "54dbe71c-e82a-455d-b90d8bbe0a7b4963"
+          "edge_id": "54dbe71c-e82a-455d-b90d-8bbe0a7b4963"
         }
         """
       Then the HTTP response status code is 201
