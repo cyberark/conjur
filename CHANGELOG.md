@@ -12,6 +12,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [1.0.14-cloud] - 2023-11-19
 ### Added
 - Support custom uuid to edge creation
+- Api for checking agent permissions to call edge apis
+
+### Changed
+- Removed unsupported apis
 
 ## [1.0.13-cloud] - 2023-11-12
 
