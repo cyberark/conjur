@@ -92,6 +92,7 @@ Rails.application.routes.draw do
       get     "edge/edge-creds/:account/:edge_name" => 'edge_creation#generate_install_token'
       get     "/edge/:account"                      => 'edge_visibility#all_edges'
       get     "/edge/max-allowed/:account"          => 'edge_configuration#max_edges_allowed'
+      get     "/agent/validate-permission/:account"          => 'edge_configuration#validate_permission'
 
       post    "/edge/data/:account"                 => 'edge_handler#report_edge_data', :constraints => QueryParameterActionRecognizer.new("data_type")
       get     "/edge/slosilo_keys/:account"         => 'edge_slosilo_keys#slosilo_keys'
