@@ -165,7 +165,7 @@ module LogMessages
 
       RetrievedAnnotationValue = ::Util::TrackableLogMessageClass.new(
         msg: "Retrieved value of annotation '{0-annotation-name}'",
-        code: "CONJ00024I"
+        code: "CONJ00024D"
       )
 
       ValidatingResourceRestrictions = ::Util::TrackableLogMessageClass.new(
@@ -180,7 +180,7 @@ module LogMessages
 
       ExtractingRestrictionsFromResource = ::Util::TrackableLogMessageClass.new(
         msg: "Extracting resource restrictions for authenticator '{0-authn-name}' from host '{1-host-name}'",
-        code: "CONJ00032I"
+        code: "CONJ00032D"
       )
 
       ExtractedResourceRestrictions = ::Util::TrackableLogMessageClass.new(
