@@ -19,9 +19,9 @@ describe CredentialsController, :type => :request do
   let(:login_url) do
     "/#{authenticator}/#{account}/login"
   end
-  let(:update_password_url) do
-    "/authn/#{account}/password"
-  end
+  #let(:update_password_url) do
+  #  "/authn/#{account}/password"
+  #end
   let(:update_api_key_url) do
     "/#{authenticator}/#{account}/api_key"
   end
@@ -75,7 +75,8 @@ describe CredentialsController, :type => :request do
     end
 
     context "without auth" do
-      it "is unauthorized" do
+      #API is removed
+      xit "is unauthorized" do
         put(update_password_url)
         expect(response.code).to eq("401")
       end
@@ -103,7 +104,8 @@ describe CredentialsController, :type => :request do
           }
         }
 
-        it "is is malformed" do
+        #API is removed
+        xit "is is malformed" do
           put(update_password_url, env: request_env)
           expect(response.code).to eq("422")
           expect(response.body).to eq(errors.to_json)
@@ -116,7 +118,8 @@ describe CredentialsController, :type => :request do
         context "and valid password" do
           let(:pw_payload) { { 'RAW_POST_DATA' => new_password } }
 
-          it "updates the password" do
+          #API is removed
+          xit "updates the password" do
             put(update_password_url, env: full_env)
             expect(response.code).to eq("204")
 
@@ -145,7 +148,8 @@ describe CredentialsController, :type => :request do
             }
           }
 
-          it "reports the error" do
+          #API is removed
+          xit "reports the error" do
             put(update_password_url, env: full_env)
             expect(response.code).to eq("422")
             expect(response.body).to eq(errors.to_json)
@@ -168,7 +172,8 @@ describe CredentialsController, :type => :request do
         context "and valid password" do
           let(:pw_payload) { { 'RAW_POST_DATA' => new_password } }
 
-          it "reports the error" do
+          #API is removed
+          xit "reports the error" do
             put(update_password_url, env: full_env)
             expect(response.code).to eq("403")
             can_auth = the_host.credentials.authenticate(new_password)

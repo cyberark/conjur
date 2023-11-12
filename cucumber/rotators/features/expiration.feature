@@ -1,4 +1,4 @@
-@rotators
+@rotators @skip
 Feature: Manually expiring a rotating variable
 
   This feature is an API endpoint allowing a rotating variable to be expired

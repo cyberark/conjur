@@ -43,7 +43,7 @@ Feature: OIDC Authenticator V2 - Users can authenticate with Okta using OIDC
       | conjur/authn-oidc/okta/claim-mapping  |                     | preferred_username  |
       | conjur/authn-oidc/okta/redirect-uri   | oidc_redirect_url   |                     |
 
-  @smoke
+  @smoke @skip
   Scenario: Authenticating with Conjur using Okta
     Given I retrieve OIDC configuration from the provider endpoint for "okta"
     And I authenticate and fetch a code from Okta

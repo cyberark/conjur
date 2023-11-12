@@ -1,4 +1,4 @@
-@api
+@api @skip
 Feature: Change the password of a role
 
   Each role can have a password. This is typically used for human users, not for machine roles.
