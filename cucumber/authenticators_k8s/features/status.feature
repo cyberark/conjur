@@ -1,6 +1,8 @@
 @authenticators_k8s
 Feature: Kubernetes Authenticator - Status Check
 
+  # TODO: This test is missing step definitions
+  @skip
   @smoke
   Scenario: A properly configured Kubernetes authenticator returns a successful response
     Given I load a policy:
