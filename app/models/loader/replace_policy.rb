@@ -32,7 +32,7 @@ module Loader
     def self.authorize(current_user, resource)
       return if current_user.policy_permissions?(resource, 'update')
 
-      logger.info(
+      Rails.logger.info(
         Errors::Authentication::Security::RoleNotAuthorizedOnPolicyDescendants.new(
           current_user.role_id,
           'update',
