@@ -28,7 +28,9 @@ module Authentication
 
       def secret_map_for(secret_values)
         secret_values.each_with_object({}) do |(full_name, value), secrets|
-          short_name = full_name.to_s.split('/')[-1]
+          # Strip the authenticator id prefix from the secret name to get the
+          # short name.
+          short_name = full_name.to_s.split('/')[3..].join('/')
           secrets[short_name] = value
         end
       end
