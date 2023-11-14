@@ -45,16 +45,20 @@ class ResourcesController < RestController
     end
 
     result =
-      if params[:count] == 'true'
-        { count: scope.count('*'.lit) }
-      else
-        scope.select(:resources.*).
-          eager(:annotations).
-          eager(:permissions).
-          eager(:secrets).
-          eager(:policy_versions).
-          all
-      end
+    if params[:count] == 'true'
+      { count: scope.count('*'.lit) }
+    else
+      role = assumed_role(query_role)
+      # all_roles- find all role memberships, expanded recursively.
+      role_membership = role.all_roles.map(&:role_id)
+      result = scope.select(:resources.*).
+        eager(:annotations).
+        eager(:permissions => lambda { |permission| permission.where(role_id: role_membership) }).
+        eager(:secrets).
+        eager(:policy_versions).
+        all
+      result
+    end
     audit_list_success(options)
     render(json: result)
   end
