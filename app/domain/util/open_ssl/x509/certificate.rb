@@ -30,8 +30,8 @@ module Util
           cert.not_before = now
           cert.not_after = now + good_for.to_i
           cert.public_key = public_key
-          cert.serial = SecureRandom.random_number(2**160) # 20 bytes
-          cert.version = 2
+          cert.serial = serial
+          cert.version = version
 
           ef = OpenSSL::X509::ExtensionFactory.new
           ef.subject_certificate = cert
