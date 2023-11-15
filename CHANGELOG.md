@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
+## [1.20.2] - 2023-10-30
+
+### Fixed
+- conjurctl role retrieve-key will now work when debug logging is turned on.
+  [CNJR-2954](https://ca-il-jira.il.cyber-ark.com:8443/browse/CNJR-2759)
+
+### Added
+- The Kubernetes authenticator now supports the
+  [status](https://docs.conjur.org/Latest/en/Content/Developer/Conjur_API_authenticator_status.htm)
+  API for verifying authenticator configuration.
+  [Conjur-Enterprise/conjur#48](https://github.cyberng.com/Conjur-Enterprise/conjur/pull/48)
+
 ## [1.20.1] - 2023-10-13
 
 ### Fixed
@@ -1118,7 +1130,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - The first tagged version.
 
-[Unreleased]: https://github.com/cyberark/conjur/compare/v1.20.1...HEAD
+[Unreleased]: https://github.com/cyberark/conjur/compare/v1.20.2...HEAD
+[1.20.2]: https://github.com/cyberark/conjur/compare/v1.20.1...v1.20.2
 [1.20.1]: https://github.com/cyberark/conjur/compare/v1.20.0...v1.20.1
 [1.20.0]: https://github.com/cyberark/conjur/compare/v1.19.5...v1.20.0
 [1.19.5]: https://github.com/cyberark/conjur/compare/v1.19.3...v1.19.5
