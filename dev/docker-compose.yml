@@ -49,6 +49,18 @@ services:
       # See https://github.com/DatabaseCleaner/database_cleaner#safeguards
       DATABASE_CLEANER_ALLOW_REMOTE_DATABASE_URL: "true"
       BUNDLE_GEMFILE: /src/conjur-server/Gemfile
+      # Adding the following envvars allows users to run Cucumber tests for
+      # AuthnOIDC V2 with Okta and Identity from the dev environment.
+      OKTA_CLIENT_ID: ${OKTA_CLIENT_ID}
+      OKTA_CLIENT_SECRET: ${OKTA_CLIENT_SECRET}
+      OKTA_PROVIDER_URI: ${OKTA_PROVIDER_URI}oauth2/default
+      OKTA_USERNAME: ${OKTA_USERNAME}
+      OKTA_PASSWORD: ${OKTA_PASSWORD}
+      IDENTITY_CLIENT_ID: ${IDENTITY_CLIENT_ID}
+      IDENTITY_CLIENT_SECRET: ${IDENTITY_CLIENT_SECRET}
+      IDENTITY_PROVIDER_URI: ${IDENTITY_PROVIDER_URI}
+      IDENTITY_USERNAME: ${IDENTITY_USERNAME}
+      IDENTITY_PASSWORD: ${IDENTITY_PASSWORD}
     cap_add:
       - SYSLOG
     ports:

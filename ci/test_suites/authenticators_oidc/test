@@ -33,7 +33,26 @@ function _hydrate_all_env_args() {
     "OKTA_PROVIDER_URI=${OKTA_PROVIDER_URI}oauth2/default"
     "OKTA_USERNAME=$OKTA_USERNAME"
     "OKTA_PASSWORD=$OKTA_PASSWORD"
+    "IDENTITY_CLIENT_ID=$IDENTITY_CLIENT_ID"
+    "IDENTITY_CLIENT_SECRET=$IDENTITY_CLIENT_SECRET"
+    "IDENTITY_PROVIDER_URI=$IDENTITY_PROVIDER_URI"
+    "IDENTITY_USERNAME=$IDENTITY_USERNAME"
+    "IDENTITY_PASSWORD=$INFRAPOOL_IDENTITY_PASSWORD"
   )
+}
+
+function validate_identity_vars() {
+  if [ -z "$INFRAPOOL_IDENTITY_USERNAME" ]; then
+    echo "-- env var 'INFRAPOOL_IDENTITY_USERNAME' is undefined"
+    exit 1
+  fi
+
+  if [ -z "$INFRAPOOL_IDENTITY_PASSWORD" ]; then
+    echo "-- env var 'INFRAPOOL_IDENTITY_PASSWORD' is undefined"
+    exit 1
+  fi
+
+  export IDENTITY_USERNAME="${INFRAPOOL_IDENTITY_USERNAME}@cyberark.com"
 }
 
 function main() {
@@ -54,9 +73,11 @@ function main() {
   local conjur_parallel_services
   read -ra conjur_parallel_services <<< "$(get_parallel_services 'conjur')"
   for parallel_service in "${conjur_parallel_services[@]}"; do
-    hash=$($COMPOSE exec "${parallel_service}" openssl x509 -hash -in /etc/ssl/certs/keycloak.pem --noout)
+    hash=$($COMPOSE exec "${parallel_service}" openssl x509 -hash -in /etc/ssl/certs/keycloak.pem --noout) || true
     $COMPOSE exec "${parallel_service}" rm "/etc/ssl/certs/$hash.0" || true
   done
+
+  validate_identity_vars
 
   additional_services='ldap-server keycloak'
   _run_cucumber_tests authenticators_oidc "$additional_services" \
