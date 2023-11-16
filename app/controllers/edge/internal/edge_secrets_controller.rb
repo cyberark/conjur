@@ -25,8 +25,7 @@ class EdgeSecretsController < RestController
       if params[:count] == 'true'
         sumItems = scope.count('*'.lit)
       else
-        offset = options[:offset] || "0"
-        limit = options[:limit] || "1000"
+        limit, offset = self.get_offset_limit(options)
         validate_scope(limit, offset)
       end
     rescue ApplicationController::Forbidden
@@ -47,6 +46,11 @@ class EdgeSecretsController < RestController
   end
 
   private
+  def get_offset_limit(options)
+    offset = options[:offset] || "0"
+    limit = options[:limit] || "1000"
+    [limit, offset]
+  end
 
   def generate_secrets_result(limit, offset, options)
     accepts_base64 = String(request.headers['Accept-Encoding']).casecmp?('base64')
