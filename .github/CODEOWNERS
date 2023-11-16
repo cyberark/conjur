@@ -1,10 +1,12 @@
-* @cyberark/conjur-core-team @conjurinc/conjur-core-team @conjurdemos/conjur-core-team @conjur-enterprise/conjur-core
+* @cyberark/conjur-core-team @conjurinc/conjur-core-team @conjurdemos/conjur-core-team @conjur-enterprise/conjur-core @conjur-enterprise/community-and-integrations
 
 # Changes to .trivyignore require Security Architect approval
 .trivyignore @cyberark/security-architects @conjurinc/security-architects @conjurdemos/security-architects  @conjur-enterprise/conjur-security
 
 # Changes to .codeclimate.yml require Quality Architect approval
 .codeclimate.yml @cyberark/quality-architects @conjurinc/quality-architects @conjurdemos/quality-architects @conjur-enterprise/conjur-quality
+
+*.md @conjur-enterprise/r-d-developers
 
 # Changes to SECURITY.md require Security Architect approval
 SECURITY.md @cyberark/security-architects @conjurinc/security-architects @conjurdemos/security-architects @conjur-enterprise/conjur-security
