@@ -90,7 +90,7 @@ class RolesController < RestController
 
   # Returns a graph of the roles anchored on the current Role
   def graph
-    render(json: role.graph)
+    render(json: role.graph(current_user.role_id))
   end
 
   # update_member will add or modify an existing role membership
