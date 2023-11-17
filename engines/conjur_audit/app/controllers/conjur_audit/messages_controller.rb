@@ -5,7 +5,9 @@ require_dependency "conjur_audit/application_controller"
 module ConjurAudit
   class MessagesController < ApplicationController
     def index
-      render(json: messages_json, status: messages.any? ? :ok : :not_found)
+      messages_hash = messages.map(&:to_hash)
+      messages_json = JSON.dump(messages_hash)
+      render(json: messages_json, status: messages_hash.empty? ? :not_found : :ok)
     end
 
     private
@@ -13,7 +15,7 @@ module ConjurAudit
     DIRECT_FIELDS = %i[facility severity hostname appname procid msgid].freeze
 
     PAGING_FIELDS = %i[limit offset].freeze
-    
+
     def query
       @query ||= request.query_parameters
     end
@@ -21,7 +23,7 @@ module ConjurAudit
     def direct_filter
       query.slice(*DIRECT_FIELDS)
     end
-    
+
     def sdata_query
       query.except(*DIRECT_FIELDS, *PAGING_FIELDS, :resource, :role, :entity)
     end
@@ -35,7 +37,7 @@ module ConjurAudit
         (filter[id] ||= {})[param] = value
       end
     end
-    
+
     def messages_with_entity_filter
       msgs = Message
       if (id = params[:entity])
@@ -55,7 +57,7 @@ module ConjurAudit
       msgs = messages_with_entity_filter
       filter.empty? ? msgs : msgs.matching_sdata(filter)
     end
-    
+
     def messages
       dataset = messages_with_data_filter.where(direct_filter).order(Sequel.desc(:timestamp))
 
@@ -68,15 +70,6 @@ module ConjurAudit
       end
 
       @messages ||= dataset
-    end
-
-    # Convert messages to JSON.
-    # Note: For performance, we use JSON.dump directly.
-    # Giving messages to render(json:) renders it using ActiveSupport
-    # which does a lot of things we don't need and is an order of
-    # magnitude slower.
-    def messages_json
-      JSON.dump(messages.map(&:to_hash))
     end
   end
 end
