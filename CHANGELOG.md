@@ -40,6 +40,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   [status](https://docs.conjur.org/Latest/en/Content/Developer/Conjur_API_authenticator_status.htm
   API for verifying authenticator configuration.
   [Conjur-Enterprise/conjur#48](https://github.cyberng.com/Conjur-Enterprise/conjur/pull/48)
+- The Kubernetes authenticator status API now verifies the presence and syntax
+  of the configuration variables in the authenticator policy.
+  [Conjur-Enterprise/conjur#57](https://github.cyberng.com/Conjur-Enterprise/conjur/pull/57)
 
 ### Security
 - Upgrade google/cloud-sdk in ci/test_suites/authenticators_k8s/dev/Dockerfile/test

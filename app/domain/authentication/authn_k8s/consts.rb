@@ -4,6 +4,13 @@ module Authentication
   module AuthnK8s
 
     AUTHENTICATOR_NAME = 'authn-k8s'
+    REQUIRED_VARIABLE_NAMES = %w[
+      kubernetes/service-account-token
+      kubernetes/ca-cert
+      kubernetes/api-url
+      ca/cert
+      ca/key
+    ].freeze
 
     module Restrictions
 

@@ -424,6 +424,26 @@ module Errors
         msg: "Unable to establish Kubernetes client to execute method: \#{0}",
         code: "CONJ00132E"
       )
+
+      InvalidServiceAccountToken = ::Util::TrackableErrorClass.new(
+        msg: "Invalid service account token: {0}",
+        code: "CONJ00153E"
+      )
+
+      InvalidApiCert = ::Util::TrackableErrorClass.new(
+        msg: "Invalid Kubernetes API CA certificate: {0}",
+        code: "CONJ00154E"
+      )
+
+      InvalidSigningCert = ::Util::TrackableErrorClass.new(
+        msg: "Invalid signing certificate: {0}",
+        code: "CONJ00155E"
+      )
+
+      InvalidSigningKey = ::Util::TrackableErrorClass.new(
+        msg: "Invalid signing key: {0}",
+        code: "CONJ00156E"
+      )
     end
 
     module AuthnAzure
