@@ -130,7 +130,7 @@ module Conjur
       
       RECOGNIZED_CLAIMS = [
         'iat', 'exp', # recognized by Slosilo
-        'cidr', 'sub',
+        'cidr', 'sub', 'tid',
         'iss', 'aud', 'jti' # RFC 7519, not handled but recognized
       ].freeze
 

@@ -168,7 +168,7 @@ describe Conjur::Rack::Authenticator do
   # protected internal methods
 
   describe '#verify_authorization_and_get_identity' do
-    it "accepts JWT tokens without CIDR restrictions" do
+    it "accepts JWT tokens without CIDR restrictions and tenant id" do
       mock_jwt sub: 'user'
       expect { subject.send :verify_authorization_and_get_identity }.to_not raise_error
     end

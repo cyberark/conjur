@@ -9,7 +9,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
-## [1.0.15-cloud] - 2023-11-26
+## [1.0.15-cloud] - 2023-12-03
+### Added
+- Tenant Id in the authentication token
 
 ## [1.0.14-cloud] - 2023-11-19
 ### Added
