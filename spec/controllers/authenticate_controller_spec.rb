@@ -65,13 +65,15 @@ describe AuthenticateController, :type => :request do
   describe "#authenticate" do
     include_context "create user"
     
-    RSpec::Matchers.define(:have_valid_token_for) do |login|
+    RSpec::Matchers.define(:have_valid_token_for) do |login, tenant_id|
       match do |response|
         expect(response).to be_ok
         token = Slosilo::JWT.parse_json(response.body)
         expect(token.claims['sub']).to eq(login)
         expect(token.signature).to be
         expect(token.claims).to have_key('iat')
+        expect(token.claims).to have_key('tid')
+        expect(token.claims['tid']).to eq(tenant_id)
       end
     end
     
@@ -83,11 +85,17 @@ describe AuthenticateController, :type => :request do
     context "with api key" do
       it "succeeds" do
         invoke
-        expect(response).to have_valid_token_for(login)
+        expect(response).to have_valid_token_for(login, nil)
       end
 
       it "is fast", :performance do
         expect{ invoke }.to handle(30).requests_per_second
+      end
+
+      it "have tenant id in token" do
+        allow_any_instance_of(Conjur::ConjurConfig).to receive(:tenant_id).and_return("1234")
+        invoke
+        expect(response).to have_valid_token_for(login, "1234")
       end
     end
   end
