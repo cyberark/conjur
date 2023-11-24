@@ -5,6 +5,14 @@
 # # My local RUBY_VERSION is set to ruby-#.#.# so this allows running locally.
 # RUBY_VERSION=$(cut -d '-' -f 2 <<< $RUBY_VERSION)
 
+# Create a value to determine if the runtime container
+# for Jenkins can run Compose v2 syntax
+COMPOSE="docker compose"
+if grep -m 1 'Red Hat' /etc/os-release; then
+  COMPOSE="docker-compose"
+fi
+export COMPOSE
+
 main() {
   build
   run_tests "$@"
@@ -13,11 +21,11 @@ main() {
 # internal functions
 
 build() {
-  docker-compose build --pull
+  $COMPOSE build --pull
 }
 
 run_tests() {
-  docker-compose run test "$@"
+  $COMPOSE run test "$@"
 }
 
 main "$@"

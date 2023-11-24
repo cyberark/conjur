@@ -28,8 +28,9 @@ module Audit
         # so we provide the correct Ruby severity that the "log" interface
         # expects.
         severity = RubySeverity.new(event.severity)
-
-        @ruby_logger.log(severity, event, ::Audit::Event.progname)
+        Mutex.new.synchronize do
+          @ruby_logger.log(severity, event, ::Audit::Event.progname)
+        end
       end
     end
   end
