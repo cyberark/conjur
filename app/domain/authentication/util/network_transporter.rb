@@ -6,6 +6,7 @@ module Authentication
       def initialize(
         hostname:,
         ca_certificate: nil,
+        proxy: nil,
         http: Net::HTTP,
         certificate_utilities: Conjur::CertUtils,
         http_post: Net::HTTP::Post
@@ -86,11 +87,11 @@ module Authentication
         @failure.new("Invalid Request: #{e.message}", exception: e, status: :bad_request)
       end
 
-      # If proxy settings are available via environment variables, grab the relevant proxy settings
+      # If proxy settings are set via environment variables, grab the relevant settingsq
       def proxy_settings
         return [] unless @proxy.present?
 
-        # if proxy is present, set with the appropriate scheme, host, and port. Also set username and password if present.
+        # if proxy is present, set with the appropriate host and port. Set username and password if present.
         [@proxy.host, @proxy.port, @proxy.user, @proxy.password].compact
       end
 

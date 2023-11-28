@@ -2,20 +2,20 @@
 
 require 'spec_helper'
 
-RSpec.describe('Authentication::AuthnOidc::V2::Views::ProviderContext') do
+RSpec.describe(Authentication::AuthnOidc::V2::Views::ProviderContext) do
   let(:client) do
-    class_double(::Authentication::AuthnOidc::V2::Client).tap do |double|
+    class_double(::Authentication::AuthnOidc::V2::OidcClient).tap do |double|
       allow(double).to receive(:new).and_return(current_client)
     end
   end
 
   let(:current_client) do
-    instance_double(::Authentication::AuthnOidc::V2::Client).tap do |double|
-      allow(double).to receive(:discovery_information).and_return(endpoint)
+    instance_double(::Authentication::AuthnOidc::V2::OidcClient).tap do |double|
+      allow(double).to receive(:oidc_configuration).and_return(endpoint)
     end
   end
 
-  let(:endpoint) { double(authorization_endpoint: '"http://test"') }
+  let(:endpoint) { SuccessResponse.new({ 'authorization_endpoint' => 'http://test' }) }
 
   let(:foo) do
     Authentication::AuthnOidc::V2::DataObjects::Authenticator.new(
@@ -49,7 +49,7 @@ RSpec.describe('Authentication::AuthnOidc::V2::Views::ProviderContext') do
     [
       {
         name: "foo",
-        redirect_uri: "\"http://test\"?client_id=ConjurClient&response_type=code&scope=openid%20email%20profile" \
+        redirect_uri: "http://test?client_id=ConjurClient&response_type=code&scope=openid%20email%20profile" \
          "&nonce=random-string&code_challenge=random-sha&code_challenge_method=S256&redirect_uri=http%3A%2F%2Fconjur%2Fauthn-oidc%2Fcucumber%2Fauthenticate",
         service_id: "foo",
         type: "authn-oidc",
@@ -57,7 +57,7 @@ RSpec.describe('Authentication::AuthnOidc::V2::Views::ProviderContext') do
         code_verifier: 'random-string'
       }, {
         name: "bar",
-        redirect_uri: "\"http://test\"?client_id=ConjurClient&response_type=code&scope=openid%20email%20profile" \
+        redirect_uri: "http://test?client_id=ConjurClient&response_type=code&scope=openid%20email%20profile" \
          "&nonce=random-string&code_challenge=random-sha&code_challenge_method=S256&redirect_uri=http%3A%2F%2Fconjur%2Fauthn-oidc%2Fcucumber%2Fauthenticate",
         service_id: "bar",
         type: "authn-oidc",
@@ -108,10 +108,8 @@ RSpec.describe('Authentication::AuthnOidc::V2::Views::ProviderContext') do
 
     context 'when authenticator discovery endpoint is unreachable' do
       let(:current_client) do
-        instance_double(::Authentication::AuthnOidc::V2::Client).tap do |double|
-          allow(double).to receive(:discovery_information).and_raise(
-            Errors::Authentication::OAuth::ProviderDiscoveryFailed
-          )
+        instance_double(::Authentication::AuthnOidc::V2::OidcClient).tap do |double|
+          allow(double).to receive(:oidc_configuration).and_return(FailureResponse.new('bad provider'))
         end
       end
       it 'does not cause an exception' do
