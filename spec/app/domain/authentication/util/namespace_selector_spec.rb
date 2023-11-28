@@ -3,36 +3,25 @@
 require 'spec_helper'
 
 RSpec.describe(Authentication::Util::NamespaceSelector) do
-  describe '#select', type: 'unit' do
+  describe '#type_to_module', type: 'unit' do
     context 'when type is a supported authenticator type' do
       context 'when type is `authn-oidc`' do
         it 'returns the valid namespace' do
-          expect(
-            Authentication::Util::NamespaceSelector.select(
-              authenticator_type: 'authn-oidc'
-            )
-          ).to eq('Authentication::AuthnOidc::V2')
+          expect(described_class.type_to_module('authn-oidc')).to eq('AuthnOidc')
+        end
+      end
+      context 'when type is `authn`' do
+        it 'returns the valid namespace' do
+          expect(described_class.type_to_module('authn')).to eq('AuthnApiKey')
         end
       end
     end
-    context 'when type is not supported' do
-      context 'when type is `authn-k8s`' do
-        it 'raises an error' do
-          expect {
-            Authentication::Util::NamespaceSelector.select(
-              authenticator_type: 'authn-k8s'
-            )
-          }.to raise_error(RuntimeError, "'authn-k8s' is not a supported authenticator type")
-        end
-      end
-      context 'when type is missing' do
-        it 'raises an error' do
-          expect {
-            Authentication::Util::NamespaceSelector.select(
-              authenticator_type: nil
-            )
-          }.to raise_error(RuntimeError, "'' is not a supported authenticator type")
-        end
+    context 'when type is missing' do
+      it 'raises an error' do
+        expect { described_class.type_to_module(nil) }.to raise_error(
+          RuntimeError,
+          'Authenticator type is missing or nil'
+        )
       end
     end
   end

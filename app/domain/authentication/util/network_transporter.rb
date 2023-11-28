@@ -1,0 +1,122 @@
+# frozen_string_literal: true
+
+module Authentication
+  module Util
+    class NetworkTransporter
+      def initialize(
+        hostname:,
+        ca_certificate: nil,
+        http: Net::HTTP,
+        certificate_utilities: Conjur::CertUtils,
+        http_post: Net::HTTP::Post
+      )
+        # Set the default hostname
+        @uri = URI(hostname)
+        # Stripping path if present
+        @uri.path = ''
+
+        @ca_certificate = ca_certificate
+
+        @http = http
+        @http_post = http_post # to facilitate dependency injection for testing
+        @certificate_utilities = certificate_utilities
+
+        # Find and set the proxy
+        @proxy = identify_proxy(proxy)
+
+        @success = ::SuccessResponse
+        @failure = ::FailureResponse
+      end
+
+      def get(path)
+        as_response do
+          get_request(request_path: path)
+        end
+      end
+
+      def post(path:, body: '', basic_auth: [], headers: {})
+        as_response do
+          post_request(path: path, body: body, basic_auth: basic_auth, headers: headers)
+        end
+      end
+
+      private
+
+      def identify_proxy(proxy)
+        proxy_url = if proxy.present?
+          proxy
+        elsif @uri.scheme == 'https'
+          ENV['HTTPS_PROXY'] || ENV['https_proxy'] || ENV['ALL_PROXY']
+        else
+          ENV['http_proxy'] || ENV['ALL_PROXY']
+        end
+
+        proxy_uri = URI.parse(proxy_url.to_s)
+        proxy_uri.is_a?(URI::HTTP) ? proxy_uri : nil
+      end
+
+      def get_request(request_path:)
+        http_client.start do |http|
+          http.get(URI(request_path).path)
+        end
+      end
+
+      def post_request(path:, body: '', basic_auth: [], headers: {})
+        http_client.start do |http|
+          request = @http_post.new(URI(path).path)
+          request.body = body
+          headers.each do |key, value|
+            request[key] = value
+          end
+          request.basic_auth(*basic_auth) unless basic_auth.empty?
+          http.request(request)
+        end
+      end
+
+      def as_response(&block)
+        response = block.call
+        if response.code.match(/^2\d{2}/)
+          @success.new(JSON.parse(response.body.to_s))
+        else
+          @failure.new("Error Response Code: '#{response.code}' from '#{response.uri}'")
+        end
+      rescue JSON::ParserError => e
+        @failure.new("Invalid JSON: #{e.message}", exception: e, status: :bad_request)
+      rescue => e
+        @failure.new("Invalid Request: #{e.message}", exception: e, status: :bad_request)
+      end
+
+      # If proxy settings are available via environment variables, grab the relevant proxy settings
+      def proxy_settings
+        return [] unless @proxy.present?
+
+        # if proxy is present, set with the appropriate scheme, host, and port. Also set username and password if present.
+        [@proxy.host, @proxy.port, @proxy.user, @proxy.password].compact
+      end
+
+      def http_client
+        @http_client ||= begin
+          http = @http.new(@uri.host, @uri.port, *proxy_settings)
+          return http unless @uri.instance_of?(URI::HTTPS)
+
+          # Enable SSL support
+          http.use_ssl = true
+          http.verify_mode = OpenSSL::SSL::VERIFY_PEER
+
+          store = OpenSSL::X509::Store.new
+          # If CA Certificate is available, add it to the certificate store
+          if @ca_certificate.present?
+            @certificate_utilities.add_chained_cert(store, @ca_certificate)
+          else
+            # Auto-include system CAs unless a CA has been defined
+            store.set_default_paths
+          end
+          http.cert_store = store
+
+          # return the http object
+          http
+        end
+      end
+    end
+  end
+end

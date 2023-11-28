@@ -7,10 +7,15 @@ module Authentication
 
     class << self
       def authenticators(env, authentication_module: ::Authentication)
-        loaded_authenticators(authentication_module)
+        v2_authenticators = Authentication::Util::V2::AuthenticatorLoader.all
+
+        v1_authenticators = loaded_authenticators(authentication_module)
           .select { |cls| valid?(cls) }
           .map { |cls| [url_for(cls), authenticator_instance(cls, env)] }
           .to_h
+
+        # Merge the V1 and V2 authenticators prioritizing V1
+        v2_authenticators.merge(v1_authenticators)
       end
 
       def login_authenticators(env, authentication_module: ::Authentication)
@@ -35,7 +40,7 @@ module Authentication
 
       def enabled_authenticators
         # Enabling via environment overrides enabling via CLI
-        authenticators = 
+        authenticators =
           Rails.application.config.conjur_config.authenticators
         authenticators.empty? ? db_enabled_authenticators : authenticators
       end
