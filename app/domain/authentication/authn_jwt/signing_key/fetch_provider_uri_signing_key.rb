@@ -7,6 +7,7 @@ module Authentication
         def initialize(
           provider_uri:,
           fetch_signing_key:,
+          ca_certificate: nil,
           discover_identity_provider: Authentication::OAuth::DiscoverIdentityProvider.new,
           logger: Rails.logger
         )
@@ -14,6 +15,7 @@ module Authentication
           @discover_identity_provider = discover_identity_provider
 
           @provider_uri = provider_uri
+          @ca_certificate = ca_certificate
           @fetch_signing_key = fetch_signing_key
         end
 
@@ -40,7 +42,7 @@ module Authentication
         def discovered_provider
           @discovered_provider ||= @discover_identity_provider.call(
             provider_uri: @provider_uri,
-            ca_cert: nil
+            ca_cert: @ca_certificate
           )
         end
 
