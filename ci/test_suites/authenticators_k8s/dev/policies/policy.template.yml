@@ -1,7 +1,11 @@
 - !policy
   id: conjur/authn-k8s/minikube
   body:
+  # Webservice for the authentication endpoint
   - !webservice
+
+  # Webservice for the status endpoint
+  - !webservice status
 
   - !policy
     id: ca
@@ -15,13 +19,19 @@
       id: key
       annotations:
         description: CA key for Kubernetes Pods.
-  
+
   - !group clients
 
   - !permit
     role: !group clients
     privilege: [ read, authenticate ]
     resource: !webservice
+
+  # Permit all roles in the clients group to check the authenticator status
+  - !permit
+    role: !group clients
+    privilege: [ read ]
+    resource: !webservice status
 
   - !policy
     id: apps
@@ -65,7 +75,7 @@
         id: {{CONJUR_AUTHN_K8S_TEST_NAMESPACE}}/node/inventory-node
         annotations:
           kubernetes/authentication-container-name: authenticator
-          
+
       - !host
         id: {{CONJUR_AUTHN_K8S_TEST_NAMESPACE}}/pod/different-service-host
         annotations:
