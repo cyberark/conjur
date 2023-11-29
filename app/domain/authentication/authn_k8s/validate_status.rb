@@ -4,7 +4,9 @@ module Authentication
     # authenticator is not configured properly or with inadequate permissions.
     ValidateStatus = CommandClass.new(
       dependencies: {
-        fetch_authenticator_secrets: Authentication::Util::FetchAuthenticatorSecrets.new
+        fetch_authenticator_secrets: Authentication::Util::FetchAuthenticatorSecrets.new(
+          optional_variable_names: OPTIONAL_VARIABLE_NAMES
+        )
       },
       inputs: %i[account service_id]
     ) do
@@ -77,25 +79,60 @@ module Authentication
 
       def k8s_service_account_token
         @k8s_service_account_token ||= \
-          JWT.decode(
-            authenticator_secrets['kubernetes/service-account-token'],
-            nil,
-            false
+          JWT.decode(k8s_service_account_token_input, nil, false)
+      end
+
+      def k8s_service_account_token_input
+        # First check if we're using a service account token file (i.e when
+        # we're running inside of Kubernetes)
+        if File.exist?(SERVICEACCOUNT_TOKEN_PATH)
+          return File.read(SERVICEACCOUNT_TOKEN_PATH)
+        end
+
+        # Because this variable is optional, it's possible for it to be nil and
+        # we need to handle that case.
+        authenticator_secrets['kubernetes/service-account-token'] || \
+          raise(
+            Errors::Conjur::RequiredResourceMissing,
+            'kubernetes/service-account-token'
           )
       end
 
       def k8s_ca_certificate
         @k8s_ca_certificate ||= \
-          OpenSSL::X509::Certificate.new(
-            authenticator_secrets['kubernetes/ca-cert']
-          )
+          OpenSSL::X509::Certificate.new(k8s_ca_certificate_input)
+      end
+
+      def k8s_ca_certificate_input
+        # First check if we're using a CA bundle file (i.e when we're running
+        # inside of Kubernetes)
+        if File.exist?(SERVICEACCOUNT_CA_PATH)
+          return File.read(SERVICEACCOUNT_CA_PATH)
+        end
+
+        # Because this variable is optional, it's possible for it to be nil and
+        # we need to handle that case.
+        authenticator_secrets['kubernetes/ca-cert'] || \
+          raise(Errors::Conjur::RequiredResourceMissing, 'kubernetes/ca-cert')
       end
 
       def k8s_api_url
-        @k8s_api_url ||= \
-          URI.parse(
-            authenticator_secrets['kubernetes/api-url']
-          )
+        @k8s_api_url ||= URI.parse(k8s_api_url_input)
+      end
+
+      def k8s_api_url_input
+        # The API URL may come from environment variables, if they're present
+        host = ENV['KUBERNETES_SERVICE_HOST']
+        port = ENV['KUBERNETES_SERVICE_PORT']
+
+        if host.present? && port.present?
+          return "https://#{host}:#{port}"
+        end
+
+        # Because this variable is optional, it's possible for it to be nil and
+        # we need to handle that case.
+        authenticator_secrets['kubernetes/api-url'] || \
+          raise(Errors::Conjur::RequiredResourceMissing, 'kubernetes/api-url')
       end
 
       def conjur_ca_certificate
