@@ -1,0 +1,9 @@
+#!/bin/sh
+
+# This script adds a symlink to the keycloak certificate in the trusted store.
+if [ ! -f /etc/ssl/certs/keycloak.pem ]; then
+  ./fetch_certificate
+fi
+
+hash=$(openssl x509 -hash -in /etc/ssl/certs/keycloak.pem --noout)
+ln -s /etc/ssl/certs/keycloak.pem "/etc/ssl/certs/${hash}.0" || true

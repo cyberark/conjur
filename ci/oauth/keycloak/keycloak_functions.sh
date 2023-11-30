@@ -87,7 +87,7 @@ function wait_for_keycloak_server() {
 function fetch_keycloak_certificate() {
   # there's a dep on the docker-compose.yml volumes.
   # Fetch SSL cert to communicate with keycloak (OIDC provider).
-  echo "Initialize keycloak certificate in conjur server"
+  echo "Saving keycloak certificate in conjur server"
 
   local parallel_services
   read -ra parallel_services <<< "$(get_parallel_services 'conjur')"
@@ -95,5 +95,17 @@ function fetch_keycloak_certificate() {
   for parallel_service in "${parallel_services[@]}"; do
     $COMPOSE exec -T \
       "${parallel_service}" /oauth/keycloak/scripts/fetch_certificate
+  done
+}
+
+function add_keycloak_certificate_to_truststore() {
+  echo "Adding keycloak certificate in conjur truststore"
+
+  local parallel_services
+  read -ra parallel_services <<< "$(get_parallel_services 'conjur')"
+
+  for parallel_service in "${parallel_services[@]}"; do
+    $COMPOSE exec -T \
+      "${parallel_service}" /oauth/keycloak/scripts/link_certificate
   done
 }
