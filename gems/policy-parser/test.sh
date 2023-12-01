@@ -13,11 +13,11 @@ main() {
 # internal functions
 
 build() {
-  docker-compose build --pull
+  docker compose build --pull
 }
 
 run_tests() {
-  docker-compose run test "$@"
+  docker compose run test "$@"
 }
 
 main "$@"
