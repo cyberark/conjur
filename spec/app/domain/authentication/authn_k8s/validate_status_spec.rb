@@ -229,6 +229,22 @@ describe(Authentication::AuthnK8s::ValidateStatus) do
     )
   end
 
+  context 'when the API CA is expired' do
+    let(:k8s_ca_certificate) do
+      Util::OpenSsl::X509::Certificate.from_subject(
+        subject: 'CN=Test CA',
+        good_for: -1.day
+      )
+    end
+
+    include_examples(
+      'raises an error',
+      Errors::Authentication::AuthnK8s::InvalidApiCert,
+      "CONJ00154E Invalid Kubernetes API CA certificate: " \
+        "Certificate has expired: /CN=Test CA"
+    )
+  end
+
   context 'when the API CA file is present' do
     # Remove the API CA from the authenticator secrets so it can only succeed
     # with the file.

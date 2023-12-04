@@ -35,10 +35,20 @@ module Authentication
       end
 
       def validate_k8s_ca_certificate
-        k8s_ca_certificate
+        # Ensure that none of the provided certificates have expired
+        k8s_ca_certificate.each do |certificate|
+          next unless certificate.not_after < Time.now
+
+          raise(
+            Errors::Authentication::AuthnK8s::InvalidApiCert,
+            "Certificate has expired: #{certificate.subject}"
+          )
+        end
       rescue OpenSSL::X509::CertificateError => e
-        raise Errors::Authentication::AuthnK8s::InvalidApiCert,
-              "Unable to read certificate: #{e.message}"
+        raise(
+          Errors::Authentication::AuthnK8s::InvalidApiCert,
+          "Unable to read certificate: #{e.message}"
+        )
       end
 
       def validate_k8s_api_url
@@ -99,8 +109,10 @@ module Authentication
       end
 
       def k8s_ca_certificate
-        @k8s_ca_certificate ||= \
-          OpenSSL::X509::Certificate.new(k8s_ca_certificate_input)
+        # This value may contain multiple certificates or certificate chains
+        @k8s_ca_certificate ||= ::Conjur::CertUtils.parse_certs(
+          k8s_ca_certificate_input
+        )
       end
 
       def k8s_ca_certificate_input
