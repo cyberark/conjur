@@ -139,7 +139,6 @@ module Authentication
           rescue OpenSSL::X509::CertificateError => e
             raise Errors::Authentication::AuthnOidc::InvalidCertificate, e.message
           end
-          raise Errors::Authentication::AuthnOidc::InvalidCertificate, "provided string does not contain a certificate" if certs_a.empty?
 
           symlink_a = []
 

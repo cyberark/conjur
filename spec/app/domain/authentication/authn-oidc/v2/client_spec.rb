@@ -615,7 +615,7 @@ RSpec.describe(Authentication::AuthnOidc::V2::Client) do
               cert_string: cert
             )
           end.to raise_error(Errors::Authentication::AuthnOidc::InvalidCertificate) do |e|
-            expect(e.message).to include("provided string does not contain a certificate")
+            expect(e.message).to include("PEM_read_bio_X509: no start line")
           end
         end
       end
