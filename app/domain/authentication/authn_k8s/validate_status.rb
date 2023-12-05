@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Authentication
   module AuthnK8s
     # AuthnK8s::ValidateStatus raises an exception if the Kubernetes
@@ -22,9 +24,12 @@ module Authentication
         validate_k8s_ca_certificate
         validate_k8s_api_url
 
-        # Validate configuration values for issuing authentication certificates
-        validate_conjur_ca_certificate
+        # Validate configuration values for issuing authentication certificates.
+        # ---
+        # The certificate validation uses the private key, so we validate the
+        # private key first.
         validate_conjur_ca_private_key
+        validate_conjur_ca_certificate
       end
 
       def validate_k8s_service_account_token
@@ -63,7 +68,51 @@ module Authentication
       end
 
       def validate_conjur_ca_certificate
-        conjur_ca_certificate
+        # Is the certificate expired?
+        if conjur_ca_certificate.not_after < Time.now
+          raise(
+            Errors::Authentication::AuthnK8s::InvalidSigningCert,
+            "Certificate has expired"
+          )
+        end
+
+        # Does the certificate have the correct attributes for certificate signing?
+        # basicConstraints should include CA:TRUE
+        basic_constraints_present = conjur_ca_certificate
+          .extensions
+          .find do |ext|
+            ext.oid == 'basicConstraints' && ext.value.include?('CA:TRUE')
+          end
+        unless basic_constraints_present
+          raise(
+            Errors::Authentication::AuthnK8s::InvalidSigningCert,
+            "Certificate does not include basicConstraints attribute: CA:TRUE"
+          )
+        end
+
+        # keyUsage should include Certificate Sign. This comes by setting the
+        # value 'keyCertSign' when creating the certificate
+        key_cert_sign_present = conjur_ca_certificate
+          .extensions
+          .find do |ext|
+            ext.oid == 'keyUsage' && ext.value.include?('Certificate Sign')
+          end
+        unless key_cert_sign_present
+          raise(
+            Errors::Authentication::AuthnK8s::InvalidSigningCert,
+            "Certificate does not include keyUsage attribute: 'Certificate Sign'"
+          )
+        end
+
+        # Is the certificate valid with the private key?
+        keys_match = conjur_ca_certificate.public_key.to_s == \
+          conjur_ca_private_key.public_key.to_s
+        unless keys_match
+          raise(
+            Errors::Authentication::AuthnK8s::InvalidSigningCert,
+            "Certificate and private key do not match"
+          )
+        end
       rescue OpenSSL::X509::CertificateError => e
         raise Errors::Authentication::AuthnK8s::InvalidSigningCert,
               "Unable to read certificate: #{e.message}"
@@ -148,10 +197,22 @@ module Authentication
       end
 
       def conjur_ca_certificate
-        @conjur_ca_certificate ||= \
-          OpenSSL::X509::Certificate.new(
+        @conjur_ca_certificate ||= begin
+          certs = ::Conjur::CertUtils.parse_certs(
             authenticator_secrets['ca/cert']
           )
+
+          # Should only be one
+          if certs.length > 1
+            raise(
+              Errors::Authentication::AuthnK8s::InvalidSigningCert,
+              "Value is a certificate chain. " \
+              "Only a single signing certificate allowed"
+            )
+          end
+
+          certs.first
+        end
       end
 
       def conjur_ca_private_key

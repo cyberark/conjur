@@ -54,9 +54,18 @@ describe(Authentication::AuthnK8s::ValidateStatus) do
   let(:conjur_ca_certificate) do
     Util::OpenSsl::X509::Certificate.from_subject(
       subject: 'CN=Conjur Issuing CA',
-      key: conjur_ca_private_key
+      key: conjur_ca_private_key,
+      extensions: conjur_ca_certificate_extensions,
+      good_for: conjur_ca_certificate_good_for
     )
   end
+  let(:conjur_ca_certificate_extensions) do
+    [
+      ['basicConstraints', 'CA:TRUE', true],
+      ['keyUsage', 'keyCertSign', true]
+    ]
+  end
+  let(:conjur_ca_certificate_good_for) { 10.years }
 
   let(:conjur_ca_private_key_pem) { conjur_ca_private_key.to_pem }
   let(:conjur_ca_private_key) do
@@ -327,6 +336,70 @@ describe(Authentication::AuthnK8s::ValidateStatus) do
     let(:conjur_ca_certificate_pem) { "#{conjur_ca_certificate.to_pem}\r\n" }
 
     include_examples 'does not raise an error'
+  end
+
+  context 'when the Conjur signing certificate is expired' do
+    # Certificate expired yesterday
+    let(:conjur_ca_certificate_good_for) { -1.day }
+
+    include_examples(
+      'raises an error',
+      Errors::Authentication::AuthnK8s::InvalidSigningCert,
+      "CONJ00155E Invalid signing certificate: " \
+        "Certificate has expired"
+    )
+  end
+
+  context 'when the Conjur signing certificate is not a CA' do
+    let(:conjur_ca_certificate_extensions) do
+      [
+        # CA:FALSE instead of CA:TRUE
+        ['basicConstraints', 'CA:FALSE', true],
+        ['keyUsage', 'keyCertSign', true]
+      ]
+    end
+
+    include_examples(
+      'raises an error',
+      Errors::Authentication::AuthnK8s::InvalidSigningCert,
+      "CONJ00155E Invalid signing certificate: " \
+        "Certificate does not include basicConstraints attribute: CA:TRUE"
+    )
+  end
+
+  context 'when the Conjur signing certificate is not authorized to sign certificates' do
+    let(:conjur_ca_certificate_extensions) do
+      [
+        ['basicConstraints', 'CA:TRUE', true],
+        # The key usage doesn't contain 'keyCertSign'
+        ['keyUsage', 'digitalSignature', true]
+      ]
+    end
+
+    include_examples(
+      'raises an error',
+      Errors::Authentication::AuthnK8s::InvalidSigningCert,
+      "CONJ00155E Invalid signing certificate: " \
+        "Certificate does not include keyUsage attribute: 'Certificate Sign'"
+    )
+  end
+
+  context 'when the Conjur signing key and certificate do not match' do
+    let(:conjur_ca_certificate) do
+      # Issue the certificate with a new generated private key
+      Util::OpenSsl::X509::Certificate.from_subject(
+        subject: 'CN=Conjur Issuing CA',
+        extensions: conjur_ca_certificate_extensions,
+        good_for: conjur_ca_certificate_good_for
+      )
+    end
+
+    include_examples(
+      'raises an error',
+      Errors::Authentication::AuthnK8s::InvalidSigningCert,
+      "CONJ00155E Invalid signing certificate: " \
+        "Certificate and private key do not match"
+    )
   end
 
   context 'when the Conjur signing key is empty' do
