@@ -51,7 +51,14 @@ module Util
           key: nil,
           issuer: nil,
           alt_name: nil,
-          good_for: 10.years
+          good_for: 10.years,
+          extensions: [
+            # The format is [name, value, critical?], critical is optional and
+            # defaults to false
+            ['basicConstraints', 'CA:TRUE', true],
+            ['subjectKeyIdentifier', 'hash'],
+            ['authorityKeyIdentifier', 'keyid:always,issuer:always']
+          ]
         )
           key    ||= OpenSSL::PKey::RSA.new(2048)
           issuer ||= subject
@@ -61,11 +68,7 @@ module Util
             issuer: issuer,
             public_key: key.public_key,
             good_for: good_for,
-            extensions: [
-              ['basicConstraints', 'CA:TRUE', true],
-              %w[subjectKeyIdentifier hash],
-              ['authorityKeyIdentifier', 'keyid:always,issuer:always']
-            ] + alt_name_ext(alt_name)
+            extensions: Array(extensions) + alt_name_ext(alt_name)
           )
           cert.sign(key, OpenSSL::Digest.new('SHA256'))
           cert
