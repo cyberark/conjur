@@ -236,6 +236,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - The Kubernetes authenticator status now verifies that the Conjur issuing
   certificate and key are valid and match one another.
   [Conjur-Enterprise/conjur#79](https://github.cyberng.com/Conjur-Enterprise/conjur/pull/79)
+- The Kubernetes authenticator status now verifies that the access token is able
+  to authenticate with the Kubernetes API.
+  [Conjur-Enterprise#88](https://github.cyberng.com/Conjur-Enterprise/conjur/pull/88)
 
 ## [1.20.1] - 2023-10-13
 

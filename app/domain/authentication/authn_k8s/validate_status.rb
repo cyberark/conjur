@@ -30,6 +30,9 @@ module Authentication
         # private key first.
         validate_conjur_ca_private_key
         validate_conjur_ca_certificate
+
+        # Validate Kubernetes API access and authorization
+        validate_k8s_api_access
       end
 
       def validate_k8s_service_account_token
@@ -127,6 +130,39 @@ module Authentication
               "Unable to read private key"
       end
 
+      def validate_k8s_api_access
+        # To check our access token, we'll attempt to retrieve the base API
+        # discovery URI. If we get a "401 Unauthorized response", then it
+        # means the access token is invalid.
+        #
+        # Note, it is possible to configure Kubernetes such that API discovery
+        # is publicly accessible, but that's not the default configuration and
+        # isn't a configuration change we expect or support validating. In that
+        # case, accessing the API discovery may not indicate the service account
+        # token is valid.
+        url = "#{k8s_api_url}/apis"
+
+        RestClient.proxy = k8s_api_url.find_proxy
+
+        headers = {
+          Authorization: "Bearer #{k8s_service_account_token_input}",
+          Accept: 'application/json'
+        }
+        RestClient::Request.execute(
+          method: :get,
+          url: url,
+          headers: headers,
+          ssl_cert_store: k8s_cert_store
+        )
+      rescue RestClient::Unauthorized => e
+        raise(
+          Errors::Authentication::AuthnK8s::InvalidServiceAccountToken,
+          e.message
+        )
+      end
+
+      private
+
       def authenticator_secrets
         @authenticator_secrets ||= @fetch_authenticator_secrets.call(
           service_id: @service_id,
@@ -223,7 +259,7 @@ module Authentication
           if certs.length > 1
             raise(
               Errors::Authentication::AuthnK8s::InvalidSigningCert,
-              "Value is a certificate chain. " \
+              "Value contains multiple certificates. " \
               "Only a single signing certificate allowed"
             )
           end
@@ -237,6 +273,23 @@ module Authentication
           OpenSSL::PKey::RSA.new(
             authenticator_secrets['ca/key']
           )
+      end
+
+      def k8s_cert_store
+        @k8s_cert_store ||= OpenSSL::X509::Store.new.tap do |store|
+          store.set_default_paths
+
+          k8s_ca_certificate.each do |cert|
+            store.add_cert(cert)
+          end
+
+          if ENV.key?('SSL_CERT_DIRECTORY')
+            ::Conjur::CertUtils.load_certificates(
+              store,
+              File.join(ENV['SSL_CERT_DIRECTORY'], 'ca')
+            )
+          end
+        end
       end
     end
   end
