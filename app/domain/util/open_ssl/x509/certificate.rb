@@ -56,6 +56,7 @@ module Util
             # The format is [name, value, critical?], critical is optional and
             # defaults to false
             ['basicConstraints', 'CA:TRUE', true],
+            ['keyUsage', 'keyCertSign', true],
             ['subjectKeyIdentifier', 'hash'],
             ['authorityKeyIdentifier', 'keyid:always,issuer:always']
           ]
