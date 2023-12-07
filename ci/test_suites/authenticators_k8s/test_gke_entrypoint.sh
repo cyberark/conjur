@@ -210,6 +210,11 @@ function launchConjurMaster() {
       conjurctl account create cucumber | tail -n 1 | awk '{ print $NF }'
   )
   export API_KEY
+
+  # Write the API key to a file in the Cucumber runner pod so that the test
+  # steps can use it to perform API operations as the Conjur admin.
+  kubectl exec "$(retrieve_pod cucumber-authn-k8s)" -- \
+    bash -c "echo \"${API_KEY}\" > /run/conjur_api_key"
 }
 
 function copyNginxSSLCert() {

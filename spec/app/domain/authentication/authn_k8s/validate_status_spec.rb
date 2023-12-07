@@ -66,6 +66,14 @@ describe(Authentication::AuthnK8s::ValidateStatus) do
   let(:account) { 'rspec' }
   let(:service_id) { 'test'}
 
+  before do
+    # We'll place expectations on these later, so allow other calls for the
+    # file as a whole.
+    allow(File).to receive(:exist?).and_call_original
+    allow(File).to receive(:read).and_call_original
+    allow(ENV).to receive(:[]).and_call_original
+  end
+
   shared_examples_for 'raises an error' do |error_class, error_message|
     it 'raises an error' do
       expect do
@@ -97,6 +105,33 @@ describe(Authentication::AuthnK8s::ValidateStatus) do
     )
   end
 
+  context 'when the access token file is present' do
+    # Remove the token from the authenticator secrets so it can only succeed
+    # with the file.
+    let(:authenticator_secrets) do
+      {
+        'kubernetes/ca-cert' => k8s_ca_certificate_pem,
+        'kubernetes/api-url' => k8s_api_url,
+        'ca/cert' => conjur_ca_certificate_pem,
+        'ca/key' => conjur_ca_private_key_pem
+      }
+    end
+
+    before do
+      allow(File)
+        .to receive(:exist?)
+        .with(Authentication::AuthnK8s::SERVICEACCOUNT_TOKEN_PATH)
+        .and_return(true)
+
+      allow(File)
+        .to receive(:read)
+        .with(Authentication::AuthnK8s::SERVICEACCOUNT_TOKEN_PATH)
+        .and_return(k8s_service_account_token)
+    end
+
+    include_examples 'does not raise an error'
+  end
+
   context 'when the access token has leading whitespace' do
     let(:k8s_service_account_token) do
       "\r\n#{JWT.encode({ data: 'test' }, nil, 'none')}"
@@ -121,6 +156,36 @@ describe(Authentication::AuthnK8s::ValidateStatus) do
       Errors::Authentication::AuthnK8s::InvalidApiUrl,
       "CONJ00042E Received invalid Kubernetes API url: ''"
     )
+  end
+
+  context 'when the API url is configured in the environment' do
+    # Remove the API URL from the authenticator secrets so it can only succeed
+    # using the environment variables
+    let(:authenticator_secrets) do
+      {
+        'kubernetes/service-account-token' => k8s_service_account_token,
+        'kubernetes/ca-cert' => k8s_ca_certificate_pem,
+        'ca/cert' => conjur_ca_certificate_pem,
+        'ca/key' => conjur_ca_private_key_pem
+      }
+    end
+
+    let(:k8s_host) { 'k8s_host' }
+    let(:k8s_port) { '8443' }
+
+    before do
+      allow(ENV)
+        .to receive(:[])
+        .with('KUBERNETES_SERVICE_HOST')
+        .and_return(k8s_host)
+
+      allow(ENV)
+        .to receive(:[])
+        .with('KUBERNETES_SERVICE_PORT')
+        .and_return(k8s_port)
+    end
+
+    include_examples 'does not raise an error'
   end
 
   context 'when the API url is invalid' do
@@ -162,6 +227,33 @@ describe(Authentication::AuthnK8s::ValidateStatus) do
       "CONJ00154E Invalid Kubernetes API CA certificate: " \
         "Unable to read certificate: PEM_read_bio_X509: no start line"
     )
+  end
+
+  context 'when the API CA file is present' do
+    # Remove the API CA from the authenticator secrets so it can only succeed
+    # with the file.
+    let(:authenticator_secrets) do
+      {
+        'kubernetes/service-account-token' => k8s_service_account_token,
+        'kubernetes/api-url' => k8s_api_url,
+        'ca/cert' => conjur_ca_certificate_pem,
+        'ca/key' => conjur_ca_private_key_pem
+      }
+    end
+
+    before do
+      allow(File)
+        .to receive(:exist?)
+        .with(Authentication::AuthnK8s::SERVICEACCOUNT_CA_PATH)
+        .and_return(true)
+
+      allow(File)
+        .to receive(:read)
+        .with(Authentication::AuthnK8s::SERVICEACCOUNT_CA_PATH)
+        .and_return(k8s_ca_certificate_pem)
+    end
+
+    include_examples 'does not raise an error'
   end
 
   context 'when the API CA is not a valid certificate' do
