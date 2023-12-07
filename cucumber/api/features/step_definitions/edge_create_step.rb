@@ -24,6 +24,12 @@ When(/^I login as the host associated with Edge "([^"]*)"$/) do |edge_name|
   Credentials.new(role: @current_user).save unless @current_user.credentials
 end
 
+Given("Previous host slosilo key is null") do
+  if Slosilo["authn:cucumber:host:previous"]
+    Slosilo.send(:keystore).adapter.model["authn:cucumber:host:previous"].destroy
+  end
+end
+
 After do |scenario|
   Edge.dataset.delete
 end
