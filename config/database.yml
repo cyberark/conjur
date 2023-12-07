@@ -1,0 +1,7 @@
+cloud:
+  adapter: postgres
+  database: postgres
+  search_path: "<%= ENV['DATABASE_SCHEMA'] %>,public"
+  user: <%= ENV['DATABASE_USER'] %>
+  host: <%= ENV['DATABASE_HOSTNAME']&.split(':')&.first %>
+  password:

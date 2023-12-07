@@ -45,6 +45,7 @@ module Conjur
 
     config.encoding = "utf-8"
     config.active_support.escape_html_entities_in_json = true
+    config.sequel.test_connect = false # Do not test the DB too early
 
     # Sets all the blank Environment Variables to nil. This ensures that nil
     # checks are sufficient to verify the usage of an environment variable.

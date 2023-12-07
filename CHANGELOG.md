@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [1.0.16-cloud] - 2023-01-07
 ### Added
+- Connect to Database using AWS IAM role
 - Add 'short' param to list resources api
 - New Add member to group API
 - Save first fetch time of pCloud secrets
