@@ -20,6 +20,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   [status](https://docs.conjur.org/Latest/en/Content/Developer/Conjur_API_authenticator_status.htm)
   API for verifying authenticator configuration.
   [Conjur-Enterprise/conjur#48](https://github.cyberng.com/Conjur-Enterprise/conjur/pull/48)
+- The Kubernetes authenticator status now verifies that the Kubernetes API
+  CA certificate has not expired.
+  [Conjur-Enterprise/conjur#78](https://github.cyberng.com/Conjur-Enterprise/conjur/pull/78)
 
 ## [1.20.1] - 2023-10-13
 
