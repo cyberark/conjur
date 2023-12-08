@@ -1,5 +1,5 @@
 # 5, 3
-# Already got document
+# Multiple YAML documents encountered. Only a single document is permitted per policy.
 ---
 []
 ...

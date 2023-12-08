@@ -28,7 +28,9 @@ describe Conjur::PolicyParser::YAML::Loader do
   end
   
   it_should_behave_like 'round-trip dsl', 'empty'
+  it_should_behave_like 'round-trip dsl', 'empty-with-comment'
   it_should_behave_like 'round-trip dsl', 'empty-document'
+  it_should_behave_like 'round-trip dsl', 'empty-document-with-comment'
   it_should_behave_like 'round-trip dsl', 'sequence'
   it_should_behave_like 'round-trip dsl', 'record'
   it_should_behave_like 'round-trip dsl', 'members'

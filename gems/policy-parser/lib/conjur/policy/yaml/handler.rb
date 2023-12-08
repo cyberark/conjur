@@ -42,7 +42,7 @@ module Conjur
           # Start a new document. 
           # If the handler wants to accept the message, it should return a new handler.
           def start_document version, tag_directives, implicit
-            raise "Unexpected document"
+            raise "Unexpected start of document"
           end
           
           # Start a new mapping with the specified tag. 
@@ -122,7 +122,7 @@ module Conjur
           end
 
           def start_document(version, tag_directives, implicit)
-            raise "Already got document" if @started_document
+            raise "Multiple YAML documents encountered. Only a single document is permitted per policy." if @started_document
 
             @started_document = true
             # Just to follow the pattern. This is immediately followed by a pop
