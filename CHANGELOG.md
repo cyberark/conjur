@@ -14,6 +14,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Fixed
 - conjurctl role retrieve-key will now work when debug logging is turned on.
   [CNJR-2954](https://ca-il-jira.il.cyber-ark.com:8443/browse/CNJR-2759)
+- conjur-policy-parser now handles explicitly declared YAML document/s, providing
+  helpful error messages when appropriate.
+  [CNJR-3059](https://ca-il-jira.il.cyber-ark.com:8443/browse/CNJR-3059)
 
 ### Added
 - The Kubernetes authenticator now supports the
