@@ -890,7 +890,7 @@ pipeline {
           script {
             if (env.BRANCH_NAME == 'master') {
               build(
-                job:'../cyberark--secrets-provider-for-k8s/main',
+                job:'/Conjur-Enterprise/Conjur-Enterprise-secrets-provider-for-k8s/main/Conjur-Enterprise-secrets-provider-for-k8s-main-full/main',
                 wait: false
               )
             }
@@ -1140,7 +1140,7 @@ def conjurTests(infrapool) {
         withCredentials([
           conjurSecretCredential(credentialsId: "RnD-Global-Conjur-Ent-Conjur_Operating_System-WindowsDomainAccountDailyRotation-cyberng.com-svc_cnjr_enterprise_username", variable: 'INFRAPOOL_IDENTITY_USERNAME'),
           conjurSecretCredential(credentialsId: "RnD-Global-Conjur-Ent-Conjur_Operating_System-WindowsDomainAccountDailyRotation-cyberng.com-svc_cnjr_enterprise_password", variable: 'INFRAPOOL_IDENTITY_PASSWORD')
-        ]) 
+        ])
         {
           infrapool.agentSh 'summon -f ./ci/test_suites/authenticators_oidc/secrets.yml -e ci ci/test authenticators_oidc'
         }
