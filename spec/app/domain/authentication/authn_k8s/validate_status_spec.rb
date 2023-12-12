@@ -154,7 +154,12 @@ describe(Authentication::AuthnK8s::ValidateStatus) do
       "#{JWT.encode({ data: 'test' }, nil, 'none')}\r\n"
     end
 
-    include_examples 'does not raise an error'
+    include_examples(
+      'raises an error',
+      Errors::Authentication::AuthnK8s::InvalidServiceAccountToken,
+      "CONJ00153E Invalid service account token: " \
+        "Invalid characters in token: \n, \r"
+    )
   end
 
   context 'when the API url is empty' do
