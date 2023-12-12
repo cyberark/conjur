@@ -41,6 +41,19 @@ module Conjur
           raise unless e.message == 'cert already in hash table'
         end
       end
+
+      # Attempts to load all of the certificate files from a given directory
+      # into a certificate store.
+      def load_certificates(cert_store, ssl_cert_directory)
+        return unless Dir.exist?(ssl_cert_directory)
+
+        Dir["#{ssl_cert_directory}/*"].each do |file_name|
+          # skip this iteration if the file doesn't exist
+          next unless File.exist?(file_name)
+
+          add_chained_cert(cert_store, File.read(file_name))
+        end
+      end
     end
   end
 end
