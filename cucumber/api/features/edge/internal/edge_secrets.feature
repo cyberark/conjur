@@ -33,8 +33,7 @@ Feature: Fetching secrets from edge endpoint
         - !variable secret2
         - !variable secret3
         - !variable secret4
-        - !variable secret5
-        - !variable secret6
+        - !variable secret5'
         - !host
               id: some_host1
               annotations:
@@ -61,7 +60,7 @@ Feature: Fetching secrets from edge endpoint
     And I add the secret value "s2" to the resource "cucumber:variable:data/secret2"
     And I add the secret value "s3" to the resource "cucumber:variable:data/secret3"
     And I add the secret value "s4" to the resource "cucumber:variable:data/secret4"
-    And I add the secret value "s5" to the resource "cucumber:variable:data/secret5"
+    And I add the secret value "s5" to the resource "cucumber:variable:data/secret5'"
     Given I login as "admin_user"
     And I set the "Content-Type" header to "application/json"
     When I POST "/edge/cucumber" with body:
@@ -148,7 +147,7 @@ Feature: Fetching secrets from edge endpoint
         ]
       },
       {
-        "id": "cucumber:variable:data/secret5",
+        "id": "cucumber:variable:data/secret5'",
         "owner": "cucumber:policy:data",
         "permissions": [],
         "value": "s5",
@@ -281,7 +280,7 @@ Feature: Fetching secrets from edge endpoint
     """
     {"secrets":[
       {
-        "id": "cucumber:variable:data/secret5",
+        "id": "cucumber:variable:data/secret5'",
         "owner": "cucumber:policy:data",
         "permissions": [
         ],
@@ -360,13 +359,13 @@ Feature: Fetching secrets from edge endpoint
   Scenario: Fetching secrets count
     Given I login as the host associated with Edge "edge_secrets"
     When I successfully GET "/edge/secrets/cucumber?count=true"
-    Then I receive a count of 6
+    Then I receive a count of 5
 
   @acceptance
   Scenario: Fetching secrets count with limit has no effect
     Given I login as the host associated with Edge "edge_secrets"
     When I successfully GET "/edge/secrets/cucumber?count=true&limit=2&offset=0"
-    Then I receive a count of 6
+    Then I receive a count of 5
 
   @acceptance
   Scenario: Fetching special characters secret with edge host and Accept-Encoding base64 return 200 OK with json results
@@ -487,7 +486,7 @@ Feature: Fetching secrets from edge endpoint
         ]
       },
       {
-        "id": "cucumber:variable:data/secret5",
+        "id": "cucumber:variable:data/secret5'",
         "owner": "cucumber:policy:data",
         "permissions": [],
         "value": "s5",

@@ -34,7 +34,7 @@ module ReplicationHandler
       variableToReturn[:id] = id
       variableToReturn[:owner] = variable[:owner_id]
       variableToReturn[:permissions] = []
-      Sequel::Model.db.fetch("SELECT * from permissions where resource_id='" + id + "' AND privilege = 'execute'") do |row|
+      Permission.where(resource_id:id, privilege:'execute').each do |row|
         permission = {}
         permission[:privilege] = row[:privilege]
         permission[:resource] = row[:resource_id]
