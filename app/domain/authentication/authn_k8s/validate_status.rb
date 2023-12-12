@@ -137,6 +137,23 @@ module Authentication
       end
 
       def k8s_service_account_token
+        # Ensure there are no invalid characters in the service account token
+        #
+        # This array must use double-quotes to ensure it's the special character
+        # that we're checking for.
+        invalid_chars = ["\n", "\r"]
+        invalid_chars_present = invalid_chars.select do |char|
+          k8s_service_account_token_input.include?(char)
+        end
+
+        if invalid_chars_present.any?
+          raise(
+            Errors::Authentication::AuthnK8s::InvalidServiceAccountToken,
+            "Invalid characters in token: " \
+              "#{invalid_chars_present.join(', ')}"
+          )
+        end
+
         @k8s_service_account_token ||= \
           JWT.decode(k8s_service_account_token_input, nil, false)
       end
