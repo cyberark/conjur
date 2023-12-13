@@ -27,11 +27,12 @@ describe ResourcesController, type: :request do
       '/policies/rspec/policy/root'
     end
 
-    def list_resources(limit: nil, offset: nil, count: false)
+    def list_resources(limit: nil, offset: nil, count: false, short: false)
       params = {}
       params.merge!({ :limit => limit }) if limit
       params.merge!({ :offset => offset }) if offset
       params.merge!({ :count => count }) if count
+      params.merge!({ :short => short }) if short
       get(
         resources_url,
         env: token_auth_header(role: current_user),
@@ -52,6 +53,16 @@ describe ResourcesController, type: :request do
     end
 
     context 'with default configuration' do
+      context 'with short param defined' do
+        it 'should return only resources' do
+          list_resources(short: true)
+          @resources = JSON.parse(response.body)
+          expect(@resources.size).to eq(12)
+          # For short result validate that each resource is a simple string = the resource id
+          expect(@resources[0].is_a?(String))
+          expect(@resources[0]).to eq("rspec:host:a")
+        end
+      end
       context 'with no query params defined' do
         before(:each) do
           list_resources()
@@ -64,6 +75,9 @@ describe ResourcesController, type: :request do
 
         it 'should list all resources' do
           expect(@resources.size).to eq(12)
+          # For full result validate that each resource is a complex object
+          expect not(@resources[0].is_a?(String))
+          expect(@resources[0]['id']).to eq("rspec:host:a")
         end
 
         it 'should order resources alphabetically by resource id' do
