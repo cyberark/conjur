@@ -135,6 +135,12 @@ module Authentication
         # discovery URI. If we get a "401 Unauthorized response", then it
         # means the access token is invalid.
         #
+        # If the response is "403 Forbidden", then it means the access token
+        # is valid for authentication, but the service account is missing
+        # authorization to perform API discovery. This requires the
+        # 'system:discovery' role to be bound to the service account. See:
+        # https://kubernetes.io/docs/reference/access-authn-authz/rbac/#discovery-roles
+        #
         # Note, it is possible to configure Kubernetes such that API discovery
         # is publicly accessible, but that's not the default configuration and
         # isn't a configuration change we expect or support validating. In that
@@ -158,6 +164,13 @@ module Authentication
         raise(
           Errors::Authentication::AuthnK8s::InvalidServiceAccountToken,
           e.message
+        )
+      rescue RestClient::Forbidden => e
+        raise(
+          Errors::Authentication::AuthnK8s::InvalidServiceAccountToken,
+          "Service account is unauthorized to perform API discovery: " \
+            "#{e.message}. Ensure the 'system:discovery' role is bound to " \
+            "service account"
         )
       end
 
