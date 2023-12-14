@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
+## [1.20.3] - 2023-12-06
+
+### Fixed
+- Conjur API now returns the correct role graph, no longer showing resources that 
+  the user does not have read permissions on.
+
 ## [1.20.2] - 2023-10-30
 
 ### Fixed
