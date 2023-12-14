@@ -196,6 +196,19 @@ describe(Authentication::AuthnK8s::ValidateStatus) do
     )
   end
 
+  context 'when the kubernetes API returns 403 Forbidden' do
+    let(:kubernetes_api_response_code) { 403 }
+
+    include_examples(
+      'raises an error',
+      Errors::Authentication::AuthnK8s::InvalidServiceAccountToken,
+      "CONJ00153E Invalid service account token: " \
+        "Service account is unauthorized to perform API discovery: " \
+        "403 Forbidden. Ensure the 'system:discovery' role is bound to " \
+        "service account"
+    )
+  end
+
   context 'when the API url is empty' do
     let(:k8s_api_url) { '' }
 
