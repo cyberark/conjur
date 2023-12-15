@@ -48,7 +48,11 @@ describe(Authentication::AuthnK8s::ValidateStatus) do
     )
   end
 
-  let(:k8s_api_url) { 'https://valid_url' }
+  let(:k8s_api_url) do
+    "https://#{k8s_api_host}#{":#{k8s_api_port}" if k8s_api_port}"
+  end
+  let(:k8s_api_host) { 'valid_url' }
+  let(:k8s_api_port) { nil }
 
   let(:conjur_ca_certificate_pem) { conjur_ca_certificate.to_pem }
   let(:conjur_ca_certificate) do
@@ -75,12 +79,27 @@ describe(Authentication::AuthnK8s::ValidateStatus) do
   let(:account) { 'rspec' }
   let(:service_id) { 'test'}
 
+  let(:kubernetes_api_response_code) { 200 }
+
   before do
     # We'll place expectations on these later, so allow other calls for the
     # file as a whole.
     allow(File).to receive(:exist?).and_call_original
     allow(File).to receive(:read).and_call_original
     allow(ENV).to receive(:[]).and_call_original
+
+    # Stub the HTTP calls to the Kubernetes API
+    stub_request(:get, "#{k8s_api_url.strip}/apis")
+      .with(
+        headers: {
+          'Accept' => 'application/json',
+          'Accept-Encoding' => /^.*$/,
+          'Authorization' => "Bearer #{k8s_service_account_token.strip}",
+          'Host' => "#{k8s_api_host}#{":#{k8s_api_port}" if k8s_api_port}",
+          'User-Agent' => %r{^rest-client/.*$}
+        }
+      )
+      .to_return(status: kubernetes_api_response_code, body: "", headers: {})
   end
 
   shared_examples_for 'raises an error' do |error_class, error_message|
@@ -146,7 +165,12 @@ describe(Authentication::AuthnK8s::ValidateStatus) do
       "\r\n#{JWT.encode({ data: 'test' }, nil, 'none')}"
     end
 
-    include_examples 'does not raise an error'
+    include_examples(
+      'raises an error',
+      Errors::Authentication::AuthnK8s::InvalidServiceAccountToken,
+      "CONJ00153E Invalid service account token: " \
+        "Invalid characters in token: \n, \r"
+    )
   end
 
   context 'when the access token has trailing whitespace' do
@@ -154,7 +178,22 @@ describe(Authentication::AuthnK8s::ValidateStatus) do
       "#{JWT.encode({ data: 'test' }, nil, 'none')}\r\n"
     end
 
-    include_examples 'does not raise an error'
+    include_examples(
+      'raises an error',
+      Errors::Authentication::AuthnK8s::InvalidServiceAccountToken,
+      "CONJ00153E Invalid service account token: " \
+        "Invalid characters in token: \n, \r"
+    )
+  end
+
+  context 'when the kubernetes API returns 401 unauthorized' do
+    let(:kubernetes_api_response_code) { 401 }
+
+    include_examples(
+      'raises an error',
+      Errors::Authentication::AuthnK8s::InvalidServiceAccountToken,
+      "CONJ00153E Invalid service account token: 401 Unauthorized"
+    )
   end
 
   context 'when the API url is empty' do
@@ -179,19 +218,19 @@ describe(Authentication::AuthnK8s::ValidateStatus) do
       }
     end
 
-    let(:k8s_host) { 'k8s_host' }
-    let(:k8s_port) { '8443' }
+    let(:k8s_api_host) { 'k8s_host' }
+    let(:k8s_api_port) { '8443' }
 
     before do
       allow(ENV)
         .to receive(:[])
         .with('KUBERNETES_SERVICE_HOST')
-        .and_return(k8s_host)
+        .and_return(k8s_api_host)
 
       allow(ENV)
         .to receive(:[])
         .with('KUBERNETES_SERVICE_PORT')
-        .and_return(k8s_port)
+        .and_return(k8s_api_port)
     end
 
     include_examples 'does not raise an error'
@@ -367,6 +406,20 @@ describe(Authentication::AuthnK8s::ValidateStatus) do
     )
   end
 
+  context 'when the Conjur signing certificate holds multiple certificates' do
+    let(:conjur_ca_certificate_pem) do
+      [conjur_ca_certificate.to_pem, conjur_ca_certificate.to_pem].join('\r\n')
+    end
+
+    include_examples(
+      'raises an error',
+      Errors::Authentication::AuthnK8s::InvalidSigningCert,
+      "CONJ00155E Invalid signing certificate: " \
+        "Value contains multiple certificates. " \
+        "Only a single signing certificate allowed"
+    )
+  end
+
   context 'when the Conjur signing certificate is not authorized to sign certificates' do
     let(:conjur_ca_certificate_extensions) do
       [
@@ -434,5 +487,21 @@ describe(Authentication::AuthnK8s::ValidateStatus) do
     let(:conjur_ca_private_key_pem) { "#{conjur_ca_private_key.to_pem}\r\n" }
 
     include_examples 'does not raise an error'
+  end
+
+  context 'when an SSL cert directory is configured' do
+    around do |example|
+      original_ssl_cert_directory = ENV['SSL_CERT_DIRECTORY']
+      ENV['SSL_CERT_DIRECTORY'] = '/path/to/cert/directory'
+      example.run
+      ENV['SSL_CERT_DIRECTORY'] = original_ssl_cert_directory
+    end
+
+    it 'loads the additional certificates' do
+      expect(::Conjur::CertUtils).to receive(:load_certificates)
+        .with(anything, '/path/to/cert/directory/ca')
+
+      subject.call(account: account, service_id: service_id)
+    end
   end
 end

@@ -38,6 +38,7 @@ $LOAD_PATH << './bin/conjur-cli'
 # is passed to the RSpec block. Calling VCR with `VCR.use_cassette` will
 # not work.
 require 'vcr'
+require 'webmock/rspec'
 VCR.configure do |config|
   config.hook_into(:webmock)
   config.cassette_library_dir = 'spec/fixtures/vcr_cassettes'
