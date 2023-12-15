@@ -38,6 +38,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - The Kubernetes authenticator status now verifies that the access token is able
   to authenticate with the Kubernetes API.
   [Conjur-Enterprise#88](https://github.cyberng.com/Conjur-Enterprise/conjur/pull/88)
+- The Kubernetes authenticator status now verifies that the access token has
+  permission to perform API discovery.
+  [Conjur-Enterprise#90](https://github.cyberng.com/Conjur-Enterprise/conjur/pull/90)
 
 ## [1.20.1] - 2023-10-13
 
