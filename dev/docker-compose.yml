@@ -159,6 +159,11 @@ services:
       - ../ci/oauth/keycloak:/scripts
       - ../ci/oauth/keycloak/standalone.xml:/opt/jboss/keycloak/standalone/configuration/standalone.xml
 
+  tinyproxy:
+    image: travix/tinyproxy
+    volumes:
+      - ../ci/test_suites/authenticators_oidc/proxy/tinyproxy.conf:/etc/tinyproxy.conf
+
   okta-ldap-agent:
     image: weareenvoy/okta-ldap-agent
     volumes:

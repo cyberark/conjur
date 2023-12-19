@@ -174,3 +174,17 @@ manual-rotators: >
   -r cucumber/rotators/features/support
   -r cucumber/rotators/features/step_definitions
   cucumber/rotators
+
+proxy: >
+  --tags @proxy
+  --format pretty
+  -r cucumber/api/features/support/step_def_transforms.rb
+  -r cucumber/api/features/support/rest_helpers.rb
+  -r cucumber/api/features/support/logs_helpers.rb
+  -r cucumber/api/features/step_definitions/request_steps.rb
+  -r cucumber/api/features/step_definitions/user_steps.rb
+  -r cucumber/policy/features/support/policy_helpers.rb
+  -r cucumber/policy/features/step_definitions/policy_steps.rb
+  -r cucumber/_authenticators_common
+  -r cucumber/authenticators_status/features/step_definitions/authn_status_steps.rb
+  cucumber/proxy
