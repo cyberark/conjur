@@ -128,8 +128,6 @@ class ApplicationController < ActionController::API
       e.cause.is_a?(PG::ForeignKeyViolation) &&
       (e.cause.result.error_field(PG::PG_DIAG_MESSAGE_DETAIL) =~ /Key \(([^)]+)\)=\(([^)]+)\) is not present in table "([^"]+)"/  rescue false)
       violating_key = $2
-      # referenced_table = $3
-      # referenced_table = referenced_table.capitalize.singularize
       
       exc = Exceptions::RecordNotFound.new(violating_key)
       render_record_not_found(exc)
