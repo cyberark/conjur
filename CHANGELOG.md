@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   (and update the corresponding date), or add a new version.
 
 ## [1.0.16-cloud] - 2023-12-31
+### Added
+- Add 'short' param to list resources api
 
 ## [1.0.15-cloud] - 2023-12-17
 ### Added

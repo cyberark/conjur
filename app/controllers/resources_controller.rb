@@ -51,12 +51,22 @@ class ResourcesController < RestController
       role = assumed_role(query_role)
       # all_roles- find all role memberships, expanded recursively.
       role_membership = role.all_roles.map(&:role_id)
-      result = scope.select(:resources.*).
-        eager(:annotations).
-        eager(:permissions => lambda { |permission| permission.where(role_id: role_membership) }).
-        eager(:secrets).
-        eager(:policy_versions).
-        all
+      # Get all resources
+      result = scope.select(:resources.*)
+      # If we want only the short result map only the resource ids
+      if params[:short] == 'true'
+        # Map only the resources id
+        result = result.select(:resource_id).all.map { |obj| obj.id }
+      else
+        # Add information about the resources
+        result = result.
+          eager(:annotations).
+          eager(:permissions => lambda { |permission| permission.where(role_id: role_membership) }).
+          eager(:secrets).
+          eager(:policy_versions)
+        # run the query
+        result = result.all
+      end
       result
     end
     audit_list_success(options)
