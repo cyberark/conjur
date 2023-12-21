@@ -118,30 +118,18 @@ class ApplicationController < ActionController::API
   def foreign_key_constraint_violation e
     logger.debug("#{e}\n#{e.backtrace.join("\n")}")
 
-    # check if this is a violation of role_memberships_member_id_fkey
-    # or role_memberships_role_id_fkey
-    # sample exceptions:
-    # PG::ForeignKeyViolation: ERROR:  insert or update on table "role_memberships" violates foreign key constraint "role_memberships_member_id_fkey"
-    # DETAIL:  Key (member_id)=(cucumber:group:security-admin) is not present in table "roles".
-    # or
-    # PG::ForeignKeyViolation: ERROR:  insert or update on table "role_memberships" violates foreign key constraint "role_memberships_role_id_fkey"
-    # DETAIL:  Key (role_id)=(cucumber:group:developers) is not present in table "roles".
-    if e.message.index(/role_memberships_member_id_fkey/) ||
-      e.message.index(/role_memberships_role_id_fkey/)
-
-      key_string = ''
-      e.message.split(" ").map do |text|
-        if text["(member_id)"] || text["(role_id)"]
-          key_string = text
-          break
-        end
-      end
-
-      # the member ID is inside the second set of parentheses of the key_string
-      key_index = key_string.index(/\(/, 1) + 1
-      key = key_string[key_index, key_string.length - key_index - 1]
-
-      exc = Exceptions::RecordNotFound.new(key, message: "Role #{key} does not exist")
+    # Check if a foreign key constraint violation is specifically a missing record, and handle it accordingly
+    #
+    # Here's a sample exception:
+    # <Sequel::ForeignKeyConstraintViolation: PG::ForeignKeyViolation: ERROR:  insert or update on table "permissions" violates foreign key constraint "permissions_resource_id_fkey"
+    # DETAIL:  Key (resource_id)=(myConjurAccount:layer:ops) is not present in table "resources".
+    # >
+    if e.is_a?(Sequel::ForeignKeyConstraintViolation) &&
+      e.cause.is_a?(PG::ForeignKeyViolation) &&
+      (e.cause.result.error_field(PG::PG_DIAG_MESSAGE_DETAIL) =~ /Key \(([^)]+)\)=\(([^)]+)\) is not present in table "([^"]+)"/  rescue false)
+      violating_key = $2
+      
+      exc = Exceptions::RecordNotFound.new(violating_key)
       render_record_not_found(exc)
     else
       # if this isn't a case we're handling yet, let the exception proceed

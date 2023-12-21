@@ -12,6 +12,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [1.20.3] - 2023-12-06
 
 ### Fixed
+- Improved error messaging when a foreign key constraint violation occurs during
+  a policy replace.
+  [Conjur-Enterprise/conjur#93](https://github.cyberng.com/Conjur-Enterprise/conjur/pull/93)
 - Conjur API now returns the correct role graph, no longer showing resources that 
   the user does not have read permissions on.
 
@@ -58,7 +61,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Support for the no_proxy & NO_PROXY environment variables for the k8s authenticator.
   [CNJR-2759](https://ca-il-jira.il.cyber-ark.com:8443/browse/CNJR-2759)
 - The Kubernetes authenticator now supports the
-  [status](https://docs.conjur.org/Latest/en/Content/Developer/Conjur_API_authenticator_status.htm
+  [status](https://docs.conjur.org/Latest/en/Content/Developer/Conjur_API_authenticator_status.htm)
   API for verifying authenticator configuration.
   [Conjur-Enterprise/conjur#48](https://github.cyberng.com/Conjur-Enterprise/conjur/pull/48)
 - The Kubernetes authenticator status API now verifies the presence and syntax
