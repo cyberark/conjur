@@ -16,7 +16,6 @@ describe IssuersController, type: :request do
       )
     )
     assert_response :success
-
   end
 
   let(:data_issuers_policy) do
@@ -32,6 +31,237 @@ describe IssuersController, type: :request do
   let(:current_user_id) { 'rspec:user:admin' }
   let(:alice_user) { Role.find_or_create(role_id: alice_user_id) }
   let(:alice_user_id) { 'rspec:user:alice' }
+  
+
+  describe "#update" do
+    context "when a user updates an issuer that does not exist" do
+      payload_update_issuer = <<~BODY
+        {
+          "id": "non-existing-issuer",
+          "max_ttl": 200,
+          "type": "aws",
+          "data": {
+            "access_key_id": "a",
+            "secret_access_key": "a"
+          }
+        }
+      BODY
+        
+      it 'it returns not found' do
+        put("/issuers/rspec/non-existing-issuer",
+            env: token_auth_header(role: admin_user).merge(
+              'RAW_POST_DATA' => payload_update_issuer,
+              'CONTENT_TYPE' => "application/json"
+            ))
+        assert_response :not_found
+        expected_respones_body = <<-TEXT.squish
+          {"error":{"code":"not_found","message":"Issuer not found","target":null,"details":{"code":"not_found","target":"id","message":"non-existing-issuer"}}}
+        TEXT
+        expect(response.body).to eq(expected_respones_body)
+      end
+    end
+
+    context "when a user updates an issuer with invalid data" do
+      payload_create_issuers = <<~BODY
+        {
+          "id": "aws-issuer-1",
+          "max_ttl": 3000,
+          "type": "aws",
+          "data": {
+            "access_key_id": "my-key-id",
+            "secret_access_key": "my-key-secret"
+          }
+        }
+      BODY
+
+      payload_update_issuer = <<~BODY
+        {
+          "id": "aws-issuer-1",
+          "max_ttl": 200,
+          "type": "aws",
+          "data": {
+            "access_key_id": "a",
+            "secret_access_key": "a",
+            "invalid": "invalid"
+          }
+        }
+      BODY
+
+      it 'returns bad request and does not change the user' do
+        post("/issuers/rspec",
+             env: token_auth_header(role: admin_user).merge(
+               'RAW_POST_DATA' => payload_create_issuers,
+               'CONTENT_TYPE' => "application/json"
+             ))
+        put("/issuers/rspec/aws-issuer-1",
+            env: token_auth_header(role: admin_user).merge(
+              'RAW_POST_DATA' => payload_update_issuer,
+              'CONTENT_TYPE' => "application/json"
+            ))
+
+        assert_response :bad_request
+        get("/issuers/rspec/aws-issuer-1",
+            env: token_auth_header(role: admin_user))
+        assert_response :success
+
+        parsed_body = JSON.parse(response.body)
+        expect(parsed_body["id"]).to eq("aws-issuer-1")
+        expect(parsed_body["max_ttl"]).to eq(3000)
+        expect(parsed_body["type"]).to eq("aws")
+        expect(parsed_body["data"]["access_key_id"]).to eq("my-key-id")
+        expect(parsed_body["data"]["secret_access_key"]).to eq("my-key-secret")
+        expect(response.body).to include("\"created_at\"")
+        expect(response.body).to include("\"modified_at\"")
+      end
+    end
+
+    context "when a user decrease TTL" do
+      payload_create_issuers = <<~BODY
+        {
+          "id": "aws-issuer-1",
+          "max_ttl": 3000,
+          "type": "aws",
+          "data": {
+            "access_key_id": "my-key-id",
+            "secret_access_key": "my-key-secret"
+          }
+        }
+      BODY
+
+      payload_update_issuer = <<~BODY
+        {
+          "id": "aws-issuer-1",
+          "max_ttl": 2000,
+          "type": "aws",
+          "data": {
+            "access_key_id": "changed-key",
+            "secret_access_key": "changed-secret"
+          }
+        }
+      BODY
+
+      it 'returns bad request and does not change the TTL' do
+        post("/issuers/rspec",
+             env: token_auth_header(role: admin_user).merge(
+               'RAW_POST_DATA' => payload_create_issuers,
+               'CONTENT_TYPE' => "application/json"
+             ))
+        put("/issuers/rspec/aws-issuer-1",
+            env: token_auth_header(role: admin_user).merge(
+              'RAW_POST_DATA' => payload_update_issuer,
+              'CONTENT_TYPE' => "application/json"
+            ))
+
+        assert_response :bad_request 
+        expect(response.body).to eq("{\"error\":{\"code\":\"bad_request\",\"message\":\"max TTL cannot be decreased\"}}")
+      end
+    end
+    context "when a user updates an issuer with valid data" do
+      payload_create_issuers = <<~BODY
+        {
+          "id": "aws-issuer-1",
+          "max_ttl": 3000,
+          "type": "aws",
+          "data": {
+            "access_key_id": "my-key-id",
+            "secret_access_key": "my-key-secret"
+          }
+        }
+      BODY
+
+      payload_update_issuer = <<~BODY
+        {
+          "id": "aws-issuer-1",
+          "max_ttl": 4000,
+          "type": "aws",
+          "data": {
+            "access_key_id": "changed-key",
+            "secret_access_key": "changed-secret"
+          }
+        }
+      BODY
+
+      it 'returns ok and does change the user' do
+        post("/issuers/rspec",
+             env: token_auth_header(role: admin_user).merge(
+               'RAW_POST_DATA' => payload_create_issuers,
+               'CONTENT_TYPE' => "application/json"
+             ))
+        put("/issuers/rspec/aws-issuer-1",
+            env: token_auth_header(role: admin_user).merge(
+              'RAW_POST_DATA' => payload_update_issuer,
+              'CONTENT_TYPE' => "application/json"
+            ))
+
+        assert_response :ok
+        get("/issuers/rspec/aws-issuer-1",
+            env: token_auth_header(role: admin_user))
+        assert_response :success
+
+        parsed_body = JSON.parse(response.body)
+        expect(parsed_body["id"]).to eq("aws-issuer-1")
+        expect(parsed_body["max_ttl"]).to eq(4000)
+        expect(parsed_body["type"]).to eq("aws")
+        expect(parsed_body["data"]["access_key_id"]).to eq("changed-key")
+        expect(parsed_body["data"]["secret_access_key"]).to eq("changed-secret")
+        expect(response.body).to include("\"created_at\"")
+        expect(response.body).to include("\"modified_at\"")
+      end
+    end
+
+    context "when a user updates an issuer with a different type" do
+      payload_create_issuers = <<~BODY
+        {
+          "id": "aws-issuer-1",
+          "max_ttl": 3000,
+          "type": "aws",
+          "data": {
+            "access_key_id": "my-key-id",
+            "secret_access_key": "my-key-secret"
+          }
+        }
+      BODY
+
+      payload_update_issuer = <<~BODY
+        {
+          "id": "aws-issuer-1",
+          "max_ttl": 4000,
+          "type": "not-aws",
+          "data": {
+            "access_key_id": "changed-key",
+            "secret_access_key": "changed-secret"
+          }
+        }
+      BODY
+
+      it 'returns ok and does change the user' do
+        post("/issuers/rspec",
+             env: token_auth_header(role: admin_user).merge(
+               'RAW_POST_DATA' => payload_create_issuers,
+               'CONTENT_TYPE' => "application/json"
+             ))
+        put("/issuers/rspec/aws-issuer-1",
+            env: token_auth_header(role: admin_user).merge(
+              'RAW_POST_DATA' => payload_update_issuer,
+              'CONTENT_TYPE' => "application/json"
+            ))
+
+        assert_response :bad_request
+
+        get("/issuers/rspec/aws-issuer-1",
+            env: token_auth_header(role: admin_user))
+        assert_response :success
+        parsed_body = JSON.parse(response.body)
+        expect(parsed_body["id"]).to eq("aws-issuer-1")
+        expect(parsed_body["max_ttl"]).to eq(3000)
+        expect(parsed_body["type"]).to eq("aws")
+        expect(parsed_body["data"]["access_key_id"]).to eq("my-key-id")
+        expect(parsed_body["data"]["secret_access_key"]).to eq("my-key-secret")
+        expect(response.body).to include("\"created_at\"")
+        expect(response.body).to include("\"modified_at\"")
+      end
+    end
+  end
 
   describe "#create" do
     context "when a user sends body with id only" do

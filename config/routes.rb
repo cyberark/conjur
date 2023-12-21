@@ -100,6 +100,7 @@ Rails.application.routes.draw do
       delete  "/issuers/:account/:identifier" => 'issuers#delete'
       get     "/issuers/:account/:identifier" => 'issuers#get'
       get     "/issuers/:account"             => 'issuers#list'
+      put     "/issuers/:account/:identifier" => 'issuers#update'
 
       put     "/policies/:account/:kind/*identifier" => 'policies#put'
       patch   "/policies/:account/:kind/*identifier" => 'policies#patch'
