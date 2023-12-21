@@ -1,15 +1,14 @@
 require 'spec_helper'
 
 describe Commands::Credentials::ChangePassword do
-  let(:credentials) { double(Credentials) }
-  let(:role) { double(Role, id: 'role', credentials: credentials) }
+  let(:role) { double(Role, id: 'role') }
   let(:password) { 'the_password' }
   let(:client_ip) { 'my-client-ip' }
 
   let(:err_message) { 'the error message' }
 
   let(:audit_log) { double(::Audit.logger)}
-  
+
   let(:audit_success) do
     ::Audit::Event::Password.new(
       user_id: role.id,
@@ -17,7 +16,7 @@ describe Commands::Credentials::ChangePassword do
       success: true
     )
   end
-  
+
   let(:audit_failure) do
     ::Audit::Event::Password.new(
       user_id: role.id,
@@ -27,17 +26,15 @@ describe Commands::Credentials::ChangePassword do
     )
   end
 
-  subject do 
+  subject do
     Commands::Credentials::ChangePassword.new(
       audit_log: audit_log
     )
   end
 
   it 'updates the password for the given User' do
-    # Expect it to update the credentials model on the provided
-    # role, with the given password
-    expect(credentials).to receive(:password=).with(password)
-    expect(credentials).to receive(:save)
+    # Expect it to update the password on the role
+    expect(role).to receive(:password=).with(password)
 
     # Expect it to log a successful audit message
     expect(audit_log).to receive(:log).with(audit_success)
@@ -46,11 +43,10 @@ describe Commands::Credentials::ChangePassword do
     subject.call(role: role,  password: password, client_ip: client_ip)
   end
 
-  it 'bubbles up exceptions' do 
+  it 'bubbles up exceptions' do
     # Assume the database update fails. This could be caused by an
     # invalid password, database issues, etc.
-    allow(credentials).to receive(:password=)
-    allow(credentials).to receive(:save).and_raise(err_message)
+    allow(role).to receive(:password=).and_raise(err_message)
 
     # Expect it to log a failed audit message
     expect(audit_log).to receive(:log).with(audit_failure)
