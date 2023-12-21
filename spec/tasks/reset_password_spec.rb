@@ -1,19 +1,37 @@
 # frozen_string_literal: true
 
-# Tag options: roles, passwords, db
 # Example usage: rspec spec/tasks/reset_password_spec.rb --tag roles
+# Tags: roles, passwords, dbfailpw, dbfailrot, dbpass
 
 require 'spec_helper'
 require 'stringio'
 require_relative '../../bin/conjur-cli/commands'
 
-Rails.application.load_tasks
-
 describe 'reset_password.rake' do
+
+  # This unit test suite is premised on the assumption that we trust
+  # the Conjur dependencies (because we provide our own unit tests and
+  # end-to-end tests for them).  We also want to minimize the need to
+  # keep real and double interfaces in sync.
+
+  # Nonetheless, some doubles are used here:
+  # - To capture text results from the rake command
+  #   - double StringIO with stdio and stderr
+  # - So that password entry can be automated
+  #   - mock method IOConsole.getpass
+  # - To mock methods and intentionally break them so that we can make
+  #   the reset transaction fail
+  #   - method Commands::Credentials::ChangePassword
+  #   - method Commands::Credentials::RotateApiKey
+
+  # This allows our broken methods
+  RSpec::Mocks.configuration.allow_message_expectations_on_nil = true
 
   subject { Rake::Task['role:reset-password'] }
 
-  # Stdout/Stderr are captured by doubles when running the rake file
+  # Stdout/Stderr are captured by doubles when running the rake file.
+  # Capture allows us to record output from the doubled/mocked resources,
+  # Mute lets us suppress responses (from policy loading) that we don't need in the log.
 
   @orig_out = nil
   @orig_err = nil
@@ -21,23 +39,47 @@ describe 'reset_password.rake' do
   let(:stub_out) { StringIO.new }
   let(:stub_err) { StringIO.new }
 
+  # Empty the given stream
+  def readall(io)
+    until io.eof?
+      data << io.read(2048)
+    end
+  end
+
+  def mute_stdio
+    @orig_err = $stderr
+    STDERR.reopen("/dev/null", "w")
+  end
+
+  def unmute_stdio
+    $stderr = @orig_err
+  end
+
   def capture_stdio
     @orig_out = $stdout
     @orig_err = $stderr
+
+    # Empty the streams so that leftover output from one example won't contaminate the next.
+    readall(stub_out)
+    readall(stub_err)
+
     $stdout = stub_out
     $stderr = stub_err
   end
 
-  def restore_stdio
+  def release_stdio
     $stderr = @orig_err
     $stdout = @orig_out
   end
 
   # Load Policy can be specific to each context
+  # NB suppress its stderr logging with mute_stdio.
 
   def load_base_policy(account, path)
     require 'root_loader'
+    mute_stdio
     RootLoader.load(account, policy_path(path))
+    unmute_stdio
   end
 
   def policy_path(path)
@@ -45,19 +87,20 @@ describe 'reset_password.rake' do
   end
 
   before(:example) do
+    # Enable rake to run the task again for subsequent tests, and
+    # force rake to pay attention to changed .rake sources
+    subject.reenable
     load_base_policy(account, base_policy_path)
     capture_stdio
   end
 
   after(:example) do
-    restore_stdio
-    # Allow rake to run the task again for subsequent tests
-    subject.reenable
+    release_stdio
   end
 
   # Account and policy file providing roles
 
-  test_account = 'rspec'
+  test_account = 'cucumber'
   policy_file = 'reset_password.yml'
 
   # Valid and nonexistent user roles
@@ -125,38 +168,67 @@ describe 'reset_password.rake' do
   # Method mocks:
   #   Commands::Credentials::ChangePassword
   #   Commands::Credentials::RotateApiKey
-  # We only need each of these to fail to deny the credential update.
-  # We'd like to be able to tell them apart in a failure report, so
-  # by returning incomplete new obj calls the report will identify their
-  # missing arguments.
 
-  let(:db_stub) { Commands::Credentials::ChangePassword }
-  let(:rot_stub) { Commands::Credentials::RotateApiKey }
+  # To induce failures in these operations RSpec lets us define method
+  # mocks that will raise exceptions of our choosing.  Though we might
+  # expect to receive those exceptions here if the reset-password rake
+  # allowed it, it doesn't and instead gracefully rescues them and
+  # reports our chosen text through its stderr message.
+  # That's adequate for us -- we can tailor our expect()s to look for it.
 
-  context 'with a database transaction', db: true do
+  context 'with a dual function transaction, first', dbfailpw: true do
     let(:account) { test_account }
     let(:base_policy_path) { policy_file }
 
+    let(:pw_stub) { Commands::Credentials::ChangePassword }
+
     it 'rejects if the password change fails' do
-      allow(db_stub).to receive(:new).and_return(db_stub.new)
       allow(con_stub).to receive(:getpass).and_return(VALIDP1, VALIDP1)
+      allow(pw_stub).to receive(:new).and_raise("pw_is_stub")
       expect { subject.invoke(valid_role_id) }.to raise_error(SystemExit)
-      expect(stub_err.string).to match(%r{.*error: failed})
+
+      # A single text match could be defined but this makes clear that other
+      # failures are possible, too.
+      expect(stub_err.string).to match(/pw_is_stub/)
+      expect(stub_err.string).to match(%r{error: failed.*password})
     end
+  end
+
+  context 'with a dual function transaction, second', dbfailrot: true do
+    let(:account) { test_account }
+    let(:base_policy_path) { policy_file }
+
+    let(:rot_stub) { Commands::Credentials::RotateApiKey }
 
     it 'rejects if the API Key rotation fails' do
-      allow(rot_stub).to receive(:new).and_return(rot_stub.new)
       allow(con_stub).to receive(:getpass).and_return(VALIDP2, VALIDP2)
+      allow(rot_stub).to receive(:new).and_raise("rot_is_stub")
       expect { subject.invoke(valid_role_id) }.to raise_error(SystemExit)
-      expect(stub_err.string).to match(%r{.*error: failed})
+
+      expect(stub_err.string).to match(/rot_is_stub/)
+      expect(stub_err.string).to match(%r{error: failed.*rotate})
     end
+  end
+
+  # The Expecting-Success (happy path) example could fail for any of
+  # multiple reasons.  RSpec will abort as soon as it encounters the
+  # SystemExit and we'll be denied reports of the actual causes.  By
+  # aggregating the expectations we tell RSpec to allow all failure
+  # causes to be reported.
+
+  context 'with a completed database transaction', dbpass: true do
+    let(:account) { test_account }
+    let(:base_policy_path) { policy_file }
 
     it 'is successful with a valid role, password, and transaction' do
       allow(con_stub).to receive(:getpass).and_return(VALIDP1, VALIDP1)
-      subject.invoke(valid_role_id)
-      confirmation = %r{.*Password changed.*New API key:}m
-      expect(stub_out.string).to match(confirmation)
-      expect(stub_err.string).to match("")
+
+      aggregate_failures "multiple ways that reset could fail" do
+        expect { subject.invoke(valid_role_id) }.not_to raise_error
+        expect(stub_err.string).not_to match(/^error/)
+        expect(stub_out.string).to match(%r{.*password changed.*API key}im)
+      end
+
     end
   end
 

@@ -18,13 +18,16 @@ namespace :role do
     require 'audit/event'
     require 'audit/attempted_action'
 
+    # For each failure, print an error explanation to stderr and a
+    # blank line to stdout so that a script using conjurctl always
+    # gets one line of output per role.
+    # If stdout is a TTY, skip printing the blank line so it's not
+    # confusing for humans.
+
     role = Role.first(role_id: args[:role_id])
 
+    # Verify that the role exists
     unless role
-      # If no such role exists, print an error to stderr and a blank line to
-      # stdout so that a script using conjurctl always gets one line of output
-      # per role. If stdout is a TTY, skip printing the blank line so it's not
-      # confusing for humans.
       $stderr.puts("error: role does not exist: #{args[:role_id]}")
       puts unless $stdout.isatty
       exit(1)
@@ -57,29 +60,24 @@ namespace :role do
       exit(1)
     end
 
-    # The credential update should happen as a single database transaction. The
-    # password change and API key rotation should either succeed or fail
-    # together.
+    # Verify that the credential update happens as a single database transaction.
+    # The password change and API key rotation operations should either succeed or fail
+    # together.  For failure identification unique errors are reported for each operation.
     begin
       Role.db.transaction do
-        # Set the new password
-        Commands::Credentials::ChangePassword.new.call(
-          role: role,
-          password: password,
-          client_ip: '127.0.0.1'
-        )
-
-        # Reset the role's API key
-        Commands::Credentials::RotateApiKey.new.call(
-          role_to_rotate: role,
-          authenticated_role: Struct.new(:id).new('local'),
-          client_ip: '127.0.0.1'
-        )
+        begin
+          # The ops indicate failure by exception
+          change_password_wrapper(role, password)
+          rotate_key_wrapper(role)
+        rescue => e
+          # Note the ops problem, then re-raise so that the transaction
+          # is rolled back and db.transaction will re-raise the exception
+          raise("failed in transaction: #{e.message}")
+        end
       end
-    rescue => err
-      $stderr.puts(
-        "error: failed to set password and rotate API key: #{err.message}"
-      )
+    rescue => e
+      emsg = "failed to complete both password change and key rotation: #{e.message}"
+      $stderr.puts("error: #{emsg}")
       puts unless $stdout.isatty
       exit(1)
     end
@@ -90,5 +88,31 @@ namespace :role do
       "Password changed and API key rotated for '#{args[:role_id]}'.\n\n" \
       "New API key: #{role.api_key}"
     )
+  end
+
+  # Set the new password
+  def change_password_wrapper(role, password)
+    begin
+      Commands::Credentials::ChangePassword.new.call(
+        role: role,
+        password: password,
+        client_ip: '127.0.0.1'
+      )
+    rescue => e
+      raise("failed to change password: #{e.message}")
+    end
+  end
+
+  # Reset the role's API key
+  def rotate_key_wrapper(role)
+    begin
+      Commands::Credentials::RotateApiKey.new.call(
+        role_to_rotate: role,
+        authenticated_role: Struct.new(:id).new('local'),
+        client_ip: '127.0.0.1'
+      )
+    rescue => e
+      raise("failed to rotate API key: #{e.message}")
+    end
   end
 end
