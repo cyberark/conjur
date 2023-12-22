@@ -36,6 +36,7 @@ These are defined in runConjurTests, and also include the one-offs
     authenticators_oidc
     authenticators_jwt
     policy
+    proxy
     api
     rotators
     authenticators_k8s
@@ -1154,6 +1155,11 @@ def conjurTests(infrapool) {
     "policy": [
       "Policy - ${env.STAGE_NAME}": {
         infrapool.agentSh 'ci/test policy'
+      }
+    ],
+    "proxy": [
+      "Proxy - ${env.STAGE_NAME}": {
+        infrapool.agentSh 'ci/test proxy'
       }
     ],
     "rotators": [

@@ -239,8 +239,8 @@ setup_keycloak() {
   source "oauth/keycloak/keycloak_functions.sh"
   popd
 
-  # Start keycloak docker-compose service
-  services+=(keycloak)
+  # Start keycloak docker-compose service and tinyproxy for OIDC proxy tests
+  services+=(keycloak tinyproxy)
   docker compose up -d --no-deps "${services[@]}"
 
   # Start conjur again, since it is recreating by docker compose because of

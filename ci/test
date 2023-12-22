@@ -66,6 +66,7 @@ SUBCOMMANDS
     authenticators_oidc    - Runs Cucumber OIDC Authenticator features
     authenticators_jwt     - Runs Cucumber JWT Authenticator features
     authenticators_status  - Runs Cucumber Authenticator status features
+    proxy                  - Runs Cucumber Proxy features
     policy                 - Runs Cucumber Policy features
     rotators               - Runs Cucumber Rotator features
     help                   - Show this message

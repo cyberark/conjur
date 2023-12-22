@@ -80,6 +80,8 @@ services:
       LDAP_BINDPW: ldapsecret
       WEB_CONCURRENCY: 0
       RAILS_MAX_THREADS: 10
+      HTTPS_PROXY: ${HTTPS_PROXY:-}
+      https_proxy: ${https_proxy:-}
     command: server
     volumes:
       - authn-local:/run/authn-local
@@ -94,6 +96,7 @@ services:
       - pg
       - ldap-server
       - keycloak
+      - tinyproxy
 
   conjur2:
     image: "conjur-test:${TAG}"
@@ -113,6 +116,8 @@ services:
       LDAP_BINDPW: ldapsecret
       WEB_CONCURRENCY: 0
       RAILS_MAX_THREADS: 10
+      HTTPS_PROXY: ${HTTPS_PROXY:-}
+      https_proxy: ${https_proxy:-}
     command: server
     volumes:
       # TODO: authenticators_oidc/test has a dep on this
@@ -127,6 +132,7 @@ services:
       - pg2
       - ldap-server
       - keycloak
+      - tinyproxy
 
   cucumber:
     image: conjur-test:$TAG
@@ -205,6 +211,11 @@ services:
       # TODO: authenticators_oidc/test has a dep on this
       - ./oauth/keycloak:/scripts
       - ./oauth/keycloak/standalone.xml:/opt/jboss/keycloak/standalone/configuration/standalone.xml
+
+  tinyproxy:
+    image: travix/tinyproxy
+    volumes:
+      - ./test_suites/proxy/config/tinyproxy.conf:/etc/tinyproxy.conf
 
   jwks:
     image: nginx
