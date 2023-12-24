@@ -8,7 +8,33 @@
 #
 # See also ./logs.rb
 module Errors
+  module Group
+    DuplicateMember = ::Util::TrackableErrorClass.new(
+      msg: "Resource '{0}' of kind '{1}' is already a member in group '{2}'",
+      code: "CONJ00180E"
+    )
+  end
+
   module Conjur
+    ParameterMissing = ::Util::TrackableErrorClass.new(
+      msg: "Missing required parameter: {0}",
+      code: "CONJ00190E"
+    )
+
+    ParameterValueInvalid = ::Util::TrackableErrorClass.new(
+      msg: "{0} parameter value is not valid",
+      code: "CONJ00191E"
+    )
+
+    ParameterTypeInvalid = ::Util::TrackableErrorClass.new(
+      msg: "The '{0}' parameter must be a {1}",
+      code: "CONJ00192E"
+    )
+
+    NumOfParametersInvalid = ::Util::TrackableErrorClass.new(
+      msg: "Invalid parameter received in data. Only {0} are allowed",
+      code: "CONJ00193E"
+    )
 
     RequiredResourceMissing = ::Util::TrackableErrorClass.new(
       msg: "Missing required resource: {0-resource-name}",

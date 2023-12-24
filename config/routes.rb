@@ -110,6 +110,9 @@ Rails.application.routes.draw do
       put     "/policies/:account/:kind/*identifier" => 'policies#put'
       patch   "/policies/:account/:kind/*identifier" => 'policies#patch'
       post    "/policies/:account/:kind/*identifier" => 'policies#post'
+
+      # Groups
+      post "/groups/*identifier/members" => 'groups#add_member'
     end
 
     # Host Factory

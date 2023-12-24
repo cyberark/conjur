@@ -46,7 +46,7 @@ class ApplicationController < ActionController::API
 
   rescue_from Exceptions::RecordNotFound, with: :record_not_found
   rescue_from Errors::Conjur::MissingSecretValue, with: :render_secret_not_found
-  rescue_from Errors::Conjur::DuplicateVariable, with: :render_duplicate_variable
+  rescue_from Errors::Conjur::DuplicateVariable, with: :render_bad_request_with_message
   rescue_from Exceptions::RecordExists, with: :record_exists
   rescue_from Exceptions::Forbidden, with: :forbidden
   rescue_from Exceptions::MethodNotAllowed, with: :method_not_allowed
@@ -64,12 +64,17 @@ class ApplicationController < ActionController::API
   rescue_from Exceptions::InvalidPolicyObject, with: :policy_invalid
   rescue_from ArgumentError, with: :argument_error
   rescue_from ActionController::ParameterMissing, with: :argument_error
+  rescue_from Errors::Conjur::ParameterMissing, with: :render_bad_request_with_message
+  rescue_from Errors::Conjur::ParameterValueInvalid, with: :render_bad_request_with_message
+  rescue_from Errors::Conjur::ParameterTypeInvalid, with: :render_bad_request_with_message
+  rescue_from Errors::Conjur::NumOfParametersInvalid, with: :render_bad_request_with_message
   rescue_from UnprocessableEntity, with: :unprocessable_entity
   rescue_from Errors::Conjur::BadSecretEncoding, with: :bad_secret_encoding
   rescue_from Errors::Authentication::RoleNotApplicableForKeyRotation, with: :method_not_allowed
   rescue_from Errors::Authorization::AccessToResourceIsForbiddenForRole, with: :forbidden
   rescue_from Errors::Conjur::RequestedResourceNotFound, with: :resource_not_found
   rescue_from Errors::Authorization::InsufficientResourcePrivileges, with: :forbidden
+  rescue_from Errors::Group::DuplicateMember, with: :render_duplicate_with_message
 
   around_action :run_with_transaction
 
@@ -263,7 +268,7 @@ class ApplicationController < ActionController::API
     }, status: :unprocessable_entity)
   end
 
-  def render_duplicate_variable e
+  def render_bad_request_with_message e
     log_error(e)
     render(json: {
       error: {
@@ -271,6 +276,16 @@ class ApplicationController < ActionController::API
         message: e.message
       }
     }, status: :bad_request)
+  end
+
+  def render_duplicate_with_message e
+    log_error(e)
+    render(json: {
+      error: {
+        code: :conflict,
+        message: e.message
+      }
+    }, status: :conflict)
   end
 
   def bad_secret_encoding e

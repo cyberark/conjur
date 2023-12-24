@@ -9,9 +9,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
-## [1.0.16-cloud] - 2023-12-31
+## [1.0.16-cloud] - 2023-01-07
 ### Added
 - Add 'short' param to list resources api
+- New Add member to group API
 
 ## [1.0.15-cloud] - 2023-12-17
 ### Added
