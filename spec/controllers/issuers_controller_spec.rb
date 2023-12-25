@@ -37,7 +37,6 @@ describe IssuersController, type: :request do
     context "when a user updates an issuer that does not exist" do
       payload_update_issuer = <<~BODY
         {
-          "id": "non-existing-issuer",
           "max_ttl": 200,
           "type": "aws",
           "data": {
@@ -76,7 +75,6 @@ describe IssuersController, type: :request do
 
       payload_update_issuer = <<~BODY
         {
-          "id": "aws-issuer-1",
           "max_ttl": 200,
           "type": "aws",
           "data": {
@@ -130,7 +128,6 @@ describe IssuersController, type: :request do
 
       payload_update_issuer = <<~BODY
         {
-          "id": "aws-issuer-1",
           "max_ttl": 2000,
           "type": "aws",
           "data": {
@@ -171,7 +168,6 @@ describe IssuersController, type: :request do
 
       payload_update_issuer = <<~BODY
         {
-          "id": "aws-issuer-1",
           "max_ttl": 4000,
           "type": "aws",
           "data": {
@@ -224,7 +220,6 @@ describe IssuersController, type: :request do
 
       payload_update_issuer = <<~BODY
         {
-          "id": "aws-issuer-1",
           "max_ttl": 4000,
           "type": "not-aws",
           "data": {

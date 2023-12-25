@@ -21,17 +21,17 @@ class IssuersController < RestController
   ISSUER_NOT_FOUND = "Issuer not found"
 
   def update
-    logger.debug(LogMessages::Endpoints::EndpointRequested.new("PUT issuers/#{params[:account]}/update"))
+    logger.debug(LogMessages::Endpoints::EndpointRequested.new("PUT issuers/#{params[:account]}/update/#{params[:identifier]}"))
 
     action = :update
     authorize(action, resource)
 
     issuer_type = IssuerTypeFactory.new.create_issuer_type(params[:type])
-    issuer_type.validate(body_params)
+    issuer_type.validate_update(body_params)
     
-    issuer = Issuer.find(issuer_id: params[:id])
-    raise Exceptions::RecordNotFound.new(params[:id], message: ISSUER_NOT_FOUND) if issuer.nil?
-    raise Exceptions::RecordNotFound.new(params[:id], message: ISSUER_NOT_FOUND) if issuer.issuer_type != params[:type]
+    issuer = Issuer.find(issuer_id: params[:identifier])
+    raise Exceptions::RecordNotFound.new(params[:identifier], message: ISSUER_NOT_FOUND) if issuer.nil?
+    raise Exceptions::RecordNotFound.new(params[:identifier], message: ISSUER_NOT_FOUND) if issuer.issuer_type != params[:type]
     
     if issuer.max_ttl > params[:max_ttl]
       raise ApplicationController::BadRequest, "The new max_ttl must be higher than the current max_ttl"
@@ -46,9 +46,9 @@ class IssuersController < RestController
     logger.info(LogMessages::Issuers::TelemetryIssuerLog.new("update", issuer.account, issuer.issuer_id, request.ip))
     render(json: issuer.as_json, status: :ok)
   rescue ApplicationController::BadRequest => e
-    logger.error("Input validation error for issuer [#{params[:id]}]: #{e.message}")
+    logger.error("Input validation error for issuer [#{params[:identifier]}]: #{e.message}")
     audit_failure(e, action)
-    issuer_audit_failure(params[:account], params[:id], "update", e.message)
+    issuer_audit_failure(params[:account], params[:identifier], "update", e.message)
     render(json: {
       error: {
         code: "bad_request",
