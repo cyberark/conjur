@@ -4,7 +4,6 @@ require_relative '../controllers/wrappers/policy_wrapper'
 require_relative '../controllers/wrappers/policy_audit'
 require_relative '../controllers/wrappers/templates_renderer'
 require_relative '../domain/issuers/issuer_types/issuer_type_factory'
-#
 class IssuersController < RestController
   include AccountValidator
   include AuthorizeResource
@@ -20,6 +19,42 @@ class IssuersController < RestController
   rescue_from Sequel::UniqueConstraintViolation, with: :concurrent_load
 
   ISSUER_NOT_FOUND = "Issuer not found"
+
+  def update
+    logger.debug(LogMessages::Endpoints::EndpointRequested.new("PATCH issuers/#{params[:account]}/update/#{params[:identifier]}"))
+
+    action = :update
+    authorize(action, resource)
+
+    issuer = Issuer.find(issuer_id: params[:identifier])
+    raise Exceptions::RecordNotFound.new(params[:identifier], message: ISSUER_NOT_FOUND) if issuer.nil?
+    
+    issuer_type = IssuerTypeFactory.new.create_issuer_type(issuer.issuer_type)
+    issuer_type.validate_update(body_params)
+
+    if issuer.max_ttl > params[:max_ttl]
+      raise ApplicationController::BadRequest, "The new max_ttl must be higher than the current max_ttl"
+    end
+    
+    issuer.update(data: params[:data].to_json,
+                  max_ttl: params[:max_ttl],
+                  modified_at: Sequel::CURRENT_TIMESTAMP)
+    issuer.save
+  
+    issuer_audit_success(issuer.account, issuer.issuer_id, "update")
+    logger.info(LogMessages::Issuers::TelemetryIssuerLog.new("update", issuer.account, issuer.issuer_id, request.ip))
+    render(json: issuer.as_json, status: :ok)
+  rescue ApplicationController::BadRequest => e
+    logger.error("Input validation error for issuer [#{params[:identifier]}]: #{e.message}")
+    audit_failure(e, action)
+    issuer_audit_failure(params[:account], params[:identifier], "update", e.message)
+    render(json: {
+      error: {
+        code: "bad_request",
+        message: e.message
+      }
+    }, status: :bad_request)
+  end
 
   def create
     logger.debug(LogMessages::Endpoints::EndpointRequested.new("POST issuers/#{params[:account]}"))
