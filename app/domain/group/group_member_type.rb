@@ -15,7 +15,7 @@ class GroupMemberType
     # Validate group exists
     group_exists_validation(group_id)
     # Validate resource is not already a member
-    resource_is_member(group_id, params[:kind], params[:id], params[:identifier])
+    verify_resource_is_not_member(group_id, params[:kind], params[:id], params[:identifier])
   end
 
   def get_group_name(identifier)
@@ -65,9 +65,9 @@ def group_exists_validation(group_id)
   end
 end
 
-def resource_is_member(group_id, member_kind, member_id, identifier)
+def verify_resource_is_not_member(group_id, member_kind, member_id, identifier)
   relative_member_id = member_id[1..-1]
-  resource_id = "rspec:#{member_kind}:#{relative_member_id}"
+  resource_id = "#{StaticAccount.account}:#{member_kind}:#{relative_member_id}"
   unless RoleMembership.where(role_id: group_id,member_id:resource_id).all.empty?
     raise Errors::Group::DuplicateMember.new(member_id, member_kind, identifier)
   end

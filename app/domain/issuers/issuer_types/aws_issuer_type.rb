@@ -9,6 +9,10 @@ class AwsIssuerType < IssuerBaseType
     super
     validate_data(params[:data])
   end
+  def validate_update(params)
+    super
+    validate_data(params[:data])
+  end
 end
 
 private
