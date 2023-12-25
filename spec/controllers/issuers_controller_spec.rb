@@ -153,7 +153,7 @@ describe IssuersController, type: :request do
             ))
 
         assert_response :bad_request 
-        expect(response.body).to eq("{\"error\":{\"code\":\"bad_request\",\"message\":\"max TTL cannot be decreased\"}}")
+        expect(response.body).to eq("{\"error\":{\"code\":\"bad_request\",\"message\":\"The new max_ttl must be higher than the current max_ttl\"}}")
       end
     end
     context "when a user updates an issuer with valid data" do

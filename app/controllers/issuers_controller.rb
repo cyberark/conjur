@@ -34,7 +34,7 @@ class IssuersController < RestController
     raise Exceptions::RecordNotFound.new(params[:id], message: ISSUER_NOT_FOUND) if issuer.issuer_type != params[:type]
     
     if issuer.max_ttl > params[:max_ttl]
-      raise ApplicationController::BadRequest, "max TTL cannot be decreased"
+      raise ApplicationController::BadRequest, "The new max_ttl must be higher than the current max_ttl"
     end
     
     issuer.update(data: params[:data].to_json,
