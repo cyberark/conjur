@@ -72,6 +72,7 @@ describe AuthenticateController, :type => :request do
         expect(token.claims['sub']).to eq(login)
         expect(token.signature).to be
         expect(token.claims).to have_key('iat')
+        expect(token.claims).to have_key('tid')
       end
     end
     
@@ -88,6 +89,15 @@ describe AuthenticateController, :type => :request do
 
       it "is fast", :performance do
         expect{ invoke }.to handle(30).requests_per_second
+      end
+
+      it "have tenant id in token" do
+        tenant_id = "1234"
+        allow_any_instance_of(Conjur::ConjurConfig).to receive(:tenant_id).and_return(tenant_id)
+        invoke
+        expect(response).to have_valid_token_for(login)
+        token = Slosilo::JWT.parse_json(response.body)
+        expect(token.claims['tid']).to eq(tenant_id)
       end
     end
   end

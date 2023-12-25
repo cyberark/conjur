@@ -9,6 +9,26 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
+## [1.0.16-cloud] - 2023-12-31
+### Added
+- Add 'short' param to list resources api
+
+## [1.0.15-cloud] - 2023-12-17
+### Added
+- Fix edge secrets replication bug
+- Tenant Id in the authentication token
+
+## [1.0.14-cloud] - 2023-11-19
+### Added
+- Support custom uuid to edge creation
+- Api for checking agent permissions to call edge apis
+
+### Changed
+- Removed unsupported apis
+
+### Fixed
+- Fix permissions visibility bug
+
 ## [1.0.13-cloud] - 2023-11-12
 
 ## [1.0.12-cloud] - 2023-11-05

@@ -196,10 +196,40 @@ pipeline {
 
         stage('Push images to internal registry') {
           steps {
-           script {
+            script {
               // Push images to the internal registry so that they can be used
               // by tests, even if the tests run on a different executor.
               INFRAPOOL_EXECUTORV2_AGENT_0.agentSh './publish-images.sh --internal'
+            }
+          }
+        }
+
+        stage('Promote images to Conjur Dev ECR') {
+          steps {
+            script {
+              def sha = tagWithSHA().trim()
+              INFRAPOOL_EXECUTORV2_AGENT_0.agentGet(from: 'VERSION', to: 'VERSION')
+              def versionFile = readFile('VERSION').trim()
+              def artifactName = "${versionFile}-${sha}"
+              def imageName = "${env.BRANCH_NAME}-${env.BUILD_NUMBER}"
+              def tagAs = ""
+
+              if(env.BRANCH_NAME == 'conjur-cloud') {
+                imageName = "" // will determine in shared library
+                tagAs = "latest"
+              }
+
+              def promoteImageJobName = "Conjur/Conjur-conjur-cloud-management-tools/main/Conjur-conjur-cloud-management-tools-main-promote-artifact"
+              def jobParameters = [
+                  string(name: 'Service_Name', value: 'conjur'),
+                  string(name: 'Promotion_Type', value: 'Conjur_Dev'),
+                  string(name: 'Version', value: artifactName),
+                  string(name: 'Promotion_Type_Validation', value: 'Conjur_Dev'),
+                  string(name: 'Tag_As', value: tagAs),
+                  string(name: 'conjurDevTagBranch', value: imageName),
+              ]
+              // Call promotion job
+              build(job: promoteImageJobName, parameters: jobParameters)
             }
           }
         }

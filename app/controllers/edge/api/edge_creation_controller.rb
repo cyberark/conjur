@@ -40,16 +40,18 @@ class EdgeCreationController < RestController
   #this endpoint loads a policy with the edge host values + adds the edge name to Edge table
   def create_edge
     logger.debug(LogMessages::Endpoints::EndpointRequested.new("create edge #{params[:edge_name]}"))
-    allowed_params = %i[account edge_name]
+    allowed_params = %i[account edge_name edge_id]
     url_params = params.permit(*allowed_params)
     validate_conjur_admin_group(url_params[:account])
     edge_name = url_params[:edge_name]
     validate_name(edge_name)
+    edge_uuid = url_params[:edge_id]
+    validate_uuid_format(edge_uuid)
     params[:identifier] = "edge"
 
     begin
       validate_max_edge_allowed(url_params[:account])
-      Edge.new_edge(name: edge_name)
+      Edge.new_edge(name: edge_name, id: edge_uuid)
       edge = Edge[name: edge_name]
       add_edge_host_policy(edge[:id])
 
@@ -89,6 +91,14 @@ class EdgeCreationController < RestController
     validate_params({"edge_name" => name}, ->(k,v){
       !v.nil? && !v.empty? &&
       v.match?(/^[a-zA-Z0-9_]+$/) && string_length_validator(0, 60).call(k, v)
+    })
+  end
+
+  def validate_uuid_format(uuid)
+    uuid_regex = /^[0-9a-z]{8}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{12}$/
+    validate_params({"edge_id" => uuid}, ->(k,v){
+      v.nil? || v.empty? ||
+        v.to_s.downcase.match?(uuid_regex)
     })
   end
 

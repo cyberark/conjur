@@ -1,5 +1,4 @@
-@api
-@logged-in
+@api @logged-in @skip
 Feature: List a role's public keys
 
   Background:

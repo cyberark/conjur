@@ -25,7 +25,8 @@ class TokenFactory < Dry::Struct
       sub: username,
       exp: Time.now + offset(
         ttl: host?(username) ? host_ttl : user_ttl
-      )
+      ),
+      tid: Rails.application.config.conjur_config.tenant_id
     )
   end
 

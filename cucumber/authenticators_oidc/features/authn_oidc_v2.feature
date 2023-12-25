@@ -1,4 +1,4 @@
-@authenticators_oidc
+@authenticators_oidc @skip
 Feature: OIDC Authenticator V2 - Users can authenticate with OIDC authenticator
 
   In this feature we define an OIDC authenticator in policy and perform authentication

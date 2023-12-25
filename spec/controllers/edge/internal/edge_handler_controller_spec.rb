@@ -57,6 +57,7 @@ describe EdgeHandlerController, :type => :request do
       expect(db_edgy.platform).to eq("podman")
       output = log_output.string
       expect(output).to include("EdgeTelemetry")
+      expect(output).not_to include("using edge proxy")
       %w[edgy 123 234 345 456 44da7894-4cc5-4bcd-b37c-316ad40ec8c6 2023-08-21].each {|arg| expect(output).to include(arg)}
     end
 
@@ -85,6 +86,26 @@ describe EdgeHandlerController, :type => :request do
       expect(response.code).to eq("204")
       edgy = Edge["1234"]
       expect(edgy.installation_date).to eq(Time.at(-1))
+    end
+
+    it "Report ongoing data endpoint with edge proxy works" do
+      edge_details = '{"edge_statistics": {"last_synch_time": 1692633684386, "cycle_requests": {
+                        "get_secret":123,"apikey_authenticate": 234, "jwt_authenticate":345, "redirect": 456}},
+                      "edge_version": "1.1.1", "edge_container_type": "podman", "edge_proxy": true}'
+      ENV["TENANT_ID"] = "44da7894-4cc5-4bcd-b37c-316ad40ec8c6"
+      post("#{report_edge}?data_type=ongoing", env: token_auth_header(role: @current_user, is_user: false)
+                                                      .merge({'RAW_POST_DATA': edge_details})
+                                                      .merge({'CONTENT_TYPE': 'application/json'}))
+
+      expect(response.code).to eq("204")
+      db_edgy = Edge.where(name: "edgy").first
+      expect(db_edgy.last_sync.to_i).to eq(1692633684386)
+      expect(db_edgy.version).to eq("1.1.1")
+      expect(db_edgy.platform).to eq("podman")
+      output = log_output.string
+      expect(output).to include("EdgeTelemetry")
+      expect(output).to include("using edge proxy")
+      %w[edgy 123 234 345 456 44da7894-4cc5-4bcd-b37c-316ad40ec8c6 2023-08-21].each {|arg| expect(output).to include(arg)}
     end
   end
 end

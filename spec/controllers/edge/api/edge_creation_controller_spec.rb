@@ -33,6 +33,20 @@ describe EdgeCreationController, :type => :request do
     end
   end
 
+  context "Edge id validation" do
+    subject{ EdgeCreationController.new }
+
+    it "Edge id are validated" do
+      expect { subject.send(:validate_uuid_format, "54dbe71c-e82a-455d-b90d-8bbe0a7b4963") }.to_not raise_error
+      expect { subject.send(:validate_uuid_format, nil) }.to_not raise_error
+      expect { subject.send(:validate_uuid_format, "") }.to_not raise_error
+      expect { subject.send(:validate_uuid_format, "54d@#71c-e82a-455db90d8bbe0a7b4963") }.to raise_error
+      expect { subject.send(:validate_uuid_format, "54dbe71ce82a-455db90d8bbe0a7b4963") }.to raise_error
+      expect { subject.send(:validate_uuid_format, "54dbe71c-e82a-455db90d8bbe0a7b4963") }.to raise_error
+
+    end
+  end
+
   context "Installation" do
     before do
       Role.create(role_id: "#{account}:group:edge/edge-hosts")

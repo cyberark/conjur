@@ -61,7 +61,7 @@ module LogMessages
   module Edge
     EdgeTelemetry = ::Util::TrackableLogMessageClass.new(
       msg:  "Requested from tenant: {0}." \
-            "Edge {1} was last synced at {2}. Requests served during last sync interval: " \
+            "Edge {1} was last synced at {2} {10}. Requests served during last sync interval: " \
             "get_secret={3}, auth_apikey={4}, auth_jwt={5}, redirect={6}." \
             "Edge_Info: version={7}, platform={8}, install_time={9}.",
       code: "CONJ00158"
@@ -165,7 +165,7 @@ module LogMessages
 
       RetrievedAnnotationValue = ::Util::TrackableLogMessageClass.new(
         msg: "Retrieved value of annotation '{0-annotation-name}'",
-        code: "CONJ00024I"
+        code: "CONJ00024D"
       )
 
       ValidatingResourceRestrictions = ::Util::TrackableLogMessageClass.new(
@@ -180,7 +180,7 @@ module LogMessages
 
       ExtractingRestrictionsFromResource = ::Util::TrackableLogMessageClass.new(
         msg: "Extracting resource restrictions for authenticator '{0-authn-name}' from host '{1-host-name}'",
-        code: "CONJ00032I"
+        code: "CONJ00032D"
       )
 
       ExtractedResourceRestrictions = ::Util::TrackableLogMessageClass.new(

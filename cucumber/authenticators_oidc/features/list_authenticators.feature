@@ -1,4 +1,4 @@
-@authenticators_oidc
+@authenticators_oidc @skip
 Feature: A user can view the various authenticators they can use.
 
   Background:

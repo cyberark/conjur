@@ -20,4 +20,19 @@ class EdgeConfigurationController < RestController
       raise e
     end
   end
+
+  def validate_permission
+    log_message = "Validating permissions to run edge api for user '#{current_user.id}'"
+    logger.debug(LogMessages::Endpoints::EndpointRequested.new(log_message))
+    allowed_params = %i[account]
+    options = params.permit(*allowed_params).to_h.symbolize_keys
+    begin
+      validate_conjur_admin_group(options[:account])
+      head(200)
+      logger.debug(LogMessages::Endpoints::EndpointFinishedSuccessfully.new(log_message))
+    rescue => e
+      logger.error(LogMessages::Conjur::GeneralError.new(e.message))
+      raise e
+    end
+  end
 end
