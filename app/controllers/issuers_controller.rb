@@ -21,7 +21,7 @@ class IssuersController < RestController
   ISSUER_NOT_FOUND = "Issuer not found"
 
   def update
-    logger.debug(LogMessages::Endpoints::EndpointRequested.new("PUT issuers/#{params[:account]}/update/#{params[:identifier]}"))
+    logger.debug(LogMessages::Endpoints::EndpointRequested.new("PATCH issuers/#{params[:account]}/update/#{params[:identifier]}"))
 
     action = :update
     authorize(action, resource)

@@ -46,11 +46,11 @@ describe IssuersController, type: :request do
       BODY
         
       it 'it returns not found' do
-        put("/issuers/rspec/non-existing-issuer",
-            env: token_auth_header(role: admin_user).merge(
-              'RAW_POST_DATA' => payload_update_issuer,
-              'CONTENT_TYPE' => "application/json"
-            ))
+        patch("/issuers/rspec/non-existing-issuer",
+              env: token_auth_header(role: admin_user).merge(
+                'RAW_POST_DATA' => payload_update_issuer,
+                'CONTENT_TYPE' => "application/json"
+              ))
         assert_response :not_found
         expected_respones_body = <<-TEXT.squish
           {"error":{"code":"not_found","message":"Issuer not found","target":null,"details":{"code":"not_found","target":"id","message":"non-existing-issuer"}}}
@@ -89,11 +89,11 @@ describe IssuersController, type: :request do
                'RAW_POST_DATA' => payload_create_issuers,
                'CONTENT_TYPE' => "application/json"
              ))
-        put("/issuers/rspec/aws-issuer-1",
-            env: token_auth_header(role: admin_user).merge(
-              'RAW_POST_DATA' => payload_update_issuer,
-              'CONTENT_TYPE' => "application/json"
-            ))
+        patch("/issuers/rspec/aws-issuer-1",
+              env: token_auth_header(role: admin_user).merge(
+                'RAW_POST_DATA' => payload_update_issuer,
+                'CONTENT_TYPE' => "application/json"
+              ))
 
         assert_response :bad_request
         get("/issuers/rspec/aws-issuer-1",
@@ -140,11 +140,11 @@ describe IssuersController, type: :request do
                'RAW_POST_DATA' => payload_create_issuers,
                'CONTENT_TYPE' => "application/json"
              ))
-        put("/issuers/rspec/aws-issuer-1",
-            env: token_auth_header(role: admin_user).merge(
-              'RAW_POST_DATA' => payload_update_issuer,
-              'CONTENT_TYPE' => "application/json"
-            ))
+        patch("/issuers/rspec/aws-issuer-1",
+              env: token_auth_header(role: admin_user).merge(
+                'RAW_POST_DATA' => payload_update_issuer,
+                'CONTENT_TYPE' => "application/json"
+              ))
 
         assert_response :bad_request 
         expect(response.body).to eq("{\"error\":{\"code\":\"bad_request\",\"message\":\"The new max_ttl must be higher than the current max_ttl\"}}")
@@ -179,11 +179,11 @@ describe IssuersController, type: :request do
                'RAW_POST_DATA' => payload_create_issuers,
                'CONTENT_TYPE' => "application/json"
              ))
-        put("/issuers/rspec/aws-issuer-1",
-            env: token_auth_header(role: admin_user).merge(
-              'RAW_POST_DATA' => payload_update_issuer,
-              'CONTENT_TYPE' => "application/json"
-            ))
+        patch("/issuers/rspec/aws-issuer-1",
+              env: token_auth_header(role: admin_user).merge(
+                'RAW_POST_DATA' => payload_update_issuer,
+                'CONTENT_TYPE' => "application/json"
+              ))
 
         assert_response :ok
         get("/issuers/rspec/aws-issuer-1",
@@ -392,7 +392,6 @@ describe IssuersController, type: :request do
              ))
         assert_response :bad_request
         expect(response.body).to eq("{\"error\":{\"code\":\"bad_request\",\"message\":\"issuer type is unsupported\"}}")
-
       end
     end
 
@@ -581,10 +580,10 @@ describe IssuersController, type: :request do
                'CONTENT_TYPE' => "application/json"
              ))
         post("/issuers/rspec",
-              env: token_auth_header(role: admin_user).merge(
-                'RAW_POST_DATA' => payload_create_other_issuer,
-                'CONTENT_TYPE' => "application/json"
-              ))
+             env: token_auth_header(role: admin_user).merge(
+               'RAW_POST_DATA' => payload_create_other_issuer,
+               'CONTENT_TYPE' => "application/json"
+             ))
         assert_response :created
         post(
           '/policies/rspec/policy/root',
@@ -670,7 +669,6 @@ describe IssuersController, type: :request do
         BODY
       end
       it 'the issuer is returned' do
-
         post("/issuers/rspec",
              env: token_auth_header(role: admin_user).merge(
                'RAW_POST_DATA' => payload_create_issuer,
