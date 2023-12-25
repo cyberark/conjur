@@ -2,12 +2,12 @@ class IssuerBaseType
   REQUIRED_PARAM_MISSING = "%s is a required parameter and must be specified".freeze
   WRONG_PARAM_TYPE       = "the '%s' parameter must be a %s".freeze
   INVALID_INPUT_PARAM    = "invalid parameter received in the request body. Only id, type, max_ttl and data are allowed".freeze
-  INVALID_INPUT_PARAM_UPDATE    = "invalid parameter received in the request body. Only yype, max_ttl and data are allowed".freeze
+  INVALID_INPUT_PARAM_UPDATE    = "invalid parameter received in the request body. Only max_ttl and data are allowed".freeze
 
   ID_FIELD_ALLOWED_CHARACTERS = /\A[a-zA-Z0-9+\-_]+\z/
   ID_FIELD_MAX_ALLOWED_LENGTH = 60
   NUM_OF_EXPECTED_PARAMS = 4
-  NUM_OF_EXPECTED_PARAMS_UPDATE = 3
+  NUM_OF_EXPECTED_PARAMS_UPDATE = 2
   
   def validate(params)
     validate_id(params[:id])
@@ -19,7 +19,6 @@ class IssuerBaseType
 
   def validate_update(params)
     validate_max_ttl(params[:max_ttl])
-    validate_type(params[:type])
     validate_not_nil_data(params[:data])
     validate_no_added_parameters_update(params)
   end

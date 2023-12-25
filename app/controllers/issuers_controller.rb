@@ -26,13 +26,12 @@ class IssuersController < RestController
     action = :update
     authorize(action, resource)
 
-    issuer_type = IssuerTypeFactory.new.create_issuer_type(params[:type])
-    issuer_type.validate_update(body_params)
-    
     issuer = Issuer.find(issuer_id: params[:identifier])
     raise Exceptions::RecordNotFound.new(params[:identifier], message: ISSUER_NOT_FOUND) if issuer.nil?
-    raise Exceptions::RecordNotFound.new(params[:identifier], message: ISSUER_NOT_FOUND) if issuer.issuer_type != params[:type]
     
+    issuer_type = IssuerTypeFactory.new.create_issuer_type(issuer.issuer_type)
+    issuer_type.validate_update(body_params)
+
     if issuer.max_ttl > params[:max_ttl]
       raise ApplicationController::BadRequest, "The new max_ttl must be higher than the current max_ttl"
     end

@@ -38,7 +38,6 @@ describe IssuersController, type: :request do
       payload_update_issuer = <<~BODY
         {
           "max_ttl": 200,
-          "type": "aws",
           "data": {
             "access_key_id": "a",
             "secret_access_key": "a"
@@ -76,7 +75,6 @@ describe IssuersController, type: :request do
       payload_update_issuer = <<~BODY
         {
           "max_ttl": 200,
-          "type": "aws",
           "data": {
             "access_key_id": "a",
             "secret_access_key": "a",
@@ -129,7 +127,6 @@ describe IssuersController, type: :request do
       payload_update_issuer = <<~BODY
         {
           "max_ttl": 2000,
-          "type": "aws",
           "data": {
             "access_key_id": "changed-key",
             "secret_access_key": "changed-secret"
@@ -169,7 +166,6 @@ describe IssuersController, type: :request do
       payload_update_issuer = <<~BODY
         {
           "max_ttl": 4000,
-          "type": "aws",
           "data": {
             "access_key_id": "changed-key",
             "secret_access_key": "changed-secret"
@@ -200,58 +196,6 @@ describe IssuersController, type: :request do
         expect(parsed_body["type"]).to eq("aws")
         expect(parsed_body["data"]["access_key_id"]).to eq("changed-key")
         expect(parsed_body["data"]["secret_access_key"]).to eq("changed-secret")
-        expect(response.body).to include("\"created_at\"")
-        expect(response.body).to include("\"modified_at\"")
-      end
-    end
-
-    context "when a user updates an issuer with a different type" do
-      payload_create_issuers = <<~BODY
-        {
-          "id": "aws-issuer-1",
-          "max_ttl": 3000,
-          "type": "aws",
-          "data": {
-            "access_key_id": "my-key-id",
-            "secret_access_key": "my-key-secret"
-          }
-        }
-      BODY
-
-      payload_update_issuer = <<~BODY
-        {
-          "max_ttl": 4000,
-          "type": "not-aws",
-          "data": {
-            "access_key_id": "changed-key",
-            "secret_access_key": "changed-secret"
-          }
-        }
-      BODY
-
-      it 'returns ok and does change the user' do
-        post("/issuers/rspec",
-             env: token_auth_header(role: admin_user).merge(
-               'RAW_POST_DATA' => payload_create_issuers,
-               'CONTENT_TYPE' => "application/json"
-             ))
-        put("/issuers/rspec/aws-issuer-1",
-            env: token_auth_header(role: admin_user).merge(
-              'RAW_POST_DATA' => payload_update_issuer,
-              'CONTENT_TYPE' => "application/json"
-            ))
-
-        assert_response :bad_request
-
-        get("/issuers/rspec/aws-issuer-1",
-            env: token_auth_header(role: admin_user))
-        assert_response :success
-        parsed_body = JSON.parse(response.body)
-        expect(parsed_body["id"]).to eq("aws-issuer-1")
-        expect(parsed_body["max_ttl"]).to eq(3000)
-        expect(parsed_body["type"]).to eq("aws")
-        expect(parsed_body["data"]["access_key_id"]).to eq("my-key-id")
-        expect(parsed_body["data"]["secret_access_key"]).to eq("my-key-secret")
         expect(response.body).to include("\"created_at\"")
         expect(response.body).to include("\"modified_at\"")
       end
