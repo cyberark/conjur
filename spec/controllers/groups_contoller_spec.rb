@@ -433,4 +433,37 @@ describe GroupsController, type: :request do
       end
     end
   end
+
+  describe "Remove member from group" do
+    context "with input issues" do
+      it 'When Group not exists' do
+       delete("/groups/data/delegation/consumers2/members/host/data/delegation/host1",
+               env: token_auth_header(role: alice_user)
+        )
+        # Correct response code
+        assert_response :not_found
+      end
+      it 'When kind not exists' do
+        delete("/groups/data/delegation/consumers/members/workload/data/delegation/host1",
+               env: token_auth_header(role: alice_user)
+        )
+        # Correct response code
+        assert_response :bad_request
+      end
+      it 'When no kind' do
+        delete("/groups/data/delegation/consumers/members/data/delegation/host1",
+               env: token_auth_header(role: alice_user)
+        )
+        # Correct response code
+        assert_response :bad_request
+      end
+      it 'When no resource' do
+        delete("/groups/data/delegation/consumers/members/host",
+               env: token_auth_header(role: alice_user)
+        )
+        # Correct response code
+        assert_response :bad_request
+      end
+    end
+  end
 end

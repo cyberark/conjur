@@ -114,7 +114,7 @@ Rails.application.routes.draw do
 
       # Groups
       post "/groups(/*branch)/:group_name/members" => 'groups#add_member'
-      delete "/groups(/*branch)/:group_name/members/:kind/*resource" => 'groups#remove_member'
+      delete "/groups(/*branch)/:group_name/members/:kind(/*id)" => 'groups#remove_member'
     end
 
     # Host Factory
