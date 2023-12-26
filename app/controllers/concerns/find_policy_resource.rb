@@ -1,9 +1,10 @@
+require './app/domain/util/static_account'
 # frozen_string_literal: true
 module FindPolicyResource
   extend ActiveSupport::Concern
 
   def resource_id(location)
-    [ params[:account], "policy", location ].join(":")
+    [ account, "policy", location ].join(":")
   end
 
   def find_or_create_root_policy
@@ -12,6 +13,7 @@ module FindPolicyResource
 
   def account
     @account ||= params[:account]
+    @account ||= StaticAccount.account
   end
 
 
