@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
+## [1.20.4] - 2024-01-11
+
+### Changed
+- Updated to use the golang version of conjur-cli (v.8) 
+  [Conjur-Enterprise/conjur#99](https://github.cyberng.com/Conjur-Enterprise/conjur/pull/99)
+
 ## [1.20.3] - 2023-12-06
 
 ### Fixed
