@@ -21,7 +21,7 @@ module FindEdgePolicyResource
   end
 
   def resource_visible?
-    return is_role_member_of_group(account, current_user.id, ':group:Conjur_Cloud_Admins')
+    is_role_member_of_group(current_user.id, "#{account}:group:Conjur_Cloud_Admins")
   end
 
   private
