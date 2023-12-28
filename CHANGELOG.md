@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - Add 'short' param to list resources api
 - New Add member to group API
+- Save first fetch time of pCloud secrets
 
 ## [1.0.15-cloud] - 2023-12-17
 ### Added

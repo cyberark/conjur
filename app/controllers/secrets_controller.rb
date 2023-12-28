@@ -5,6 +5,7 @@ require 'English'
 class SecretsController < RestController
   include FindResource
   include AuthorizeResource
+  include FollowFetchPcloudSecrets
 
   before_action :current_user
 
