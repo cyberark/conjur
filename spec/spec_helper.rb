@@ -193,3 +193,13 @@ def add_api_key_annotation(resource, role, api_key_annotation)
                         value: "true")
   end
 end
+
+def verify_audit_message(audit_message)
+  message_found = false
+  expect(log_object).to have_received(:log).at_least(:once) do |log_message|
+    if log_message.to_s == audit_message
+      message_found = true
+    end
+  end
+  expect(message_found).to eq(true)
+end

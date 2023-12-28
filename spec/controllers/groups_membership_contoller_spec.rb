@@ -3,16 +3,6 @@ require './app/domain/util/static_account'
 
 DatabaseCleaner.strategy = :truncation
 
-def verify_audit_message(audit_message)
-  message_found = false
-  expect(log_object).to have_received(:log).at_least(:once) do |log_message|
-    if log_message.to_s == audit_message
-      message_found = true
-    end
-  end
-  expect(message_found).to eq(true)
-end
-
 describe GroupsMembershipController, type: :request do
   let(:admin_user) { Role.find_or_create(role_id: 'rspec:user:admin') }
   let(:current_user_id) { 'rspec:user:admin' }
@@ -118,6 +108,40 @@ describe GroupsMembershipController, type: :request do
              )
         )
         assert_response :created
+      end
+    end
+    context "when resource id is sent without a leading /" do
+      let(:payload_add_members) do
+        <<~BODY
+        {
+            "kind": "host",
+            "id": "data/host2"
+        }
+        BODY
+      end
+      it 'Host was added to group' do
+        post("/groups/data/delegation/consumers/members",
+             env: token_auth_header(role: alice_user).merge(
+               {
+                 'RAW_POST_DATA' => payload_add_members,
+                 'CONTENT_TYPE' => "application/json"
+               }
+             )
+        )
+        assert_response :created
+        # correct response body
+        expect(response.body).to eq("{\"kind\":\"host\",\"id\":\"data/host2\"}")
+        # Trying adding the same host to the same group
+        post("/groups/data/delegation/consumers/members",
+             env: token_auth_header(role: alice_user).merge(
+               {
+                 'RAW_POST_DATA' => payload_add_members,
+                 'CONTENT_TYPE' => "application/json"
+               }
+             )
+        )
+        assert_response :conflict
+        expect(response.body.include? "Resource 'data/host2' of kind 'host' is already a member in group 'rspec:group:data/delegation/consumers'").to eq true
       end
     end
     context "when user with permissions add user to group" do

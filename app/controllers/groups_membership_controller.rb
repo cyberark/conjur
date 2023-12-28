@@ -17,7 +17,6 @@ class GroupsMembershipController < RestController
   NUM_OF_ADD_DATA_PARAMS = 7
   NUM_OF_REMOVE_DATA_PARAMS = 6
 
-  set_default_content_type_for_path(%r{^/groups}, 'application/json')
   def add_member
     log_message = "Add member #{params[:kind]}:#{params[:id]} to group #{params[:branch]}/#{params[:group_name]}"
     logger.debug(LogMessages::Endpoints::EndpointRequested.new(log_message))
@@ -107,8 +106,7 @@ class GroupsMembershipController < RestController
   end
 
   def verify_resource_is_not_member(group_id, member_kind, member_id)
-    relative_member_id = member_id[1..-1]
-    resource_id = GroupMemberType.get_resource_id(account, member_kind, relative_member_id)
+    resource_id = GroupMemberType.get_resource_id(account, member_kind, member_id)
     if is_role_member_of_group(resource_id, group_id)
       raise Errors::Group::DuplicateMember.new(member_id, member_kind, group_id)
     end
