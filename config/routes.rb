@@ -113,7 +113,8 @@ Rails.application.routes.draw do
       post    "/policies/:account/:kind/*identifier" => 'policies#post'
 
       # Groups
-      post "/groups/*identifier/members" => 'groups#add_member'
+      post "/groups(/*branch)/:group_name/members" => 'groups_membership#add_member'
+      delete "/groups(/*branch)/:group_name/members/:kind(/*id)" => 'groups_membership#remove_member'
     end
 
     # Host Factory

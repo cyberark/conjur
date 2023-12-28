@@ -3,7 +3,17 @@ require './app/domain/util/static_account'
 
 DatabaseCleaner.strategy = :truncation
 
-describe GroupsController, type: :request do
+def verify_audit_message(audit_message)
+  message_found = false
+  expect(log_object).to have_received(:log).at_least(:once) do |log_message|
+    if log_message.to_s == audit_message
+      message_found = true
+    end
+  end
+  expect(message_found).to eq(true)
+end
+
+describe GroupsMembershipController, type: :request do
   let(:admin_user) { Role.find_or_create(role_id: 'rspec:user:admin') }
   let(:current_user_id) { 'rspec:user:admin' }
   let(:current_user) { Role.find_or_create(role_id: current_user_id) }
@@ -86,13 +96,7 @@ describe GroupsController, type: :request do
         expect(RoleMembership.where(role_id: "rspec:group:data/delegation/consumers",member_id:"rspec:host:data/delegation/host1").all.empty?).to eq false
         # Correct audit is returned
         audit_message = "rspec:user:alice added membership of rspec:host:data/delegation/host1 in rspec:group:data/delegation/consumers"
-        message_found = false
-        expect(log_object).to have_received(:log).at_least(:once) do |log_message|
-          if log_message.to_s == audit_message
-              message_found = true
-          end
-        end
-        expect(message_found).to eq(true)
+        verify_audit_message(audit_message)
       end
     end
     context "when user with permissions add host to group" do
@@ -212,7 +216,7 @@ describe GroupsController, type: :request do
              )
         )
         assert_response :conflict
-        expect(response.body.include? "Resource '/data/host2' of kind 'host' is already a member in group 'data/delegation/consumers'").to eq true
+        expect(response.body.include? "Resource '/data/host2' of kind 'host' is already a member in group 'rspec:group:data/delegation/consumers'").to eq true
       end
     end
     context "User without update permissions on the group policy" do
@@ -393,8 +397,155 @@ describe GroupsController, type: :request do
              )
         )
         assert_response :bad_request
-        expect(response.body.include? "Invalid parameter received in data. Only kind, id are allowed").to eq true
+        expect(response.body.include? "Invalid parameter received in data. Only kind, id, branch, group_name are allowed").to eq true
       end
+    end
+  end
+
+  describe "Remove member from group" do
+    context "When host is member" do
+      let(:payload_add_members) do
+        <<~BODY
+        {
+            "kind": "host",
+            "id": "/data/delegation/host1"
+        }
+        BODY
+      end
+      it 'Host was removed from group' do
+        # Add member to group
+        post("/groups/data/delegation/consumers/members",
+             env: token_auth_header(role: alice_user).merge(
+               {
+                 'RAW_POST_DATA' => payload_add_members,
+                 'CONTENT_TYPE' => "application/json"
+               }
+             )
+        )
+        # Correct response code
+        assert_response :created
+        # Host is a member of group
+        expect(RoleMembership.where(role_id: "rspec:group:data/delegation/consumers",member_id:"rspec:host:data/delegation/host1").all.empty?).to eq false
+        # Remove member from group
+        delete("/groups/data/delegation/consumers/members/host/data/delegation/host1",
+             env: token_auth_header(role: alice_user)
+        )
+        # Correct response code
+        assert_response :no_content
+        # Host is not a member of group
+        expect(RoleMembership.where(role_id: "rspec:group:data/delegation/consumers",member_id:"rspec:host:data/delegation/host1").all.empty?).to eq true
+
+        audit_message = "rspec:user:alice removed membership of rspec:host:data/delegation/host1 in rspec:group:data/delegation/consumers"
+        verify_audit_message(audit_message)
+      end
+    end
+    context "When user is a member" do
+      let(:payload_add_members) do
+        <<~BODY
+        {
+            "kind": "user",
+            "id": "/alice"
+        }
+        BODY
+      end
+      it 'User was remove from group' do
+        post("/groups/data/delegation/consumers/members",
+             env: token_auth_header(role: alice_user).merge(
+               {
+                 'RAW_POST_DATA' => payload_add_members,
+                 'CONTENT_TYPE' => "application/json"
+               }
+             )
+        )
+        assert_response :created
+        # Remove member from group
+        delete("/groups/data/delegation/consumers/members/user/alice",
+               env: token_auth_header(role: alice_user)
+        )
+        # Correct response code
+        assert_response :no_content
+        expect(RoleMembership.where(role_id: "rspec:group:data/delegation/consumers",member_id:"rspec:user:alice").all.empty?).to eq true
+      end
+    end
+    context "When group is a member" do
+      let(:payload_add_members) do
+        <<~BODY
+        {
+            "kind": "group",
+            "id": "/data/testGroup"
+        }
+        BODY
+      end
+      it 'Group was removed from group' do
+        post("/groups/data/delegation/consumers/members",
+             env: token_auth_header(role: alice_user).merge(
+               {
+                 'RAW_POST_DATA' => payload_add_members,
+                 'CONTENT_TYPE' => "application/json"
+               }
+             )
+        )
+        assert_response :created
+        # Remove member from group
+        delete("/groups/data/delegation/consumers/members/group/data/testGroup",
+               env: token_auth_header(role: alice_user)
+        )
+        # Correct response code
+        assert_response :no_content
+        expect(RoleMembership.where(role_id: "rspec:group:data/delegation/consumers",member_id:"rspec:group:data/testGroup").all.empty?).to eq true
+      end
+    end
+  end
+
+  context "with input issues" do
+    it 'When Group not exists' do
+     delete("/groups/data/delegation/consumers2/members/host/data/delegation/host1",
+             env: token_auth_header(role: alice_user)
+      )
+      # Correct response code
+      assert_response :not_found
+    end
+    it 'When kind not exists' do
+      delete("/groups/data/delegation/consumers/members/workload/data/delegation/host1",
+             env: token_auth_header(role: alice_user)
+      )
+      # Correct response code
+      assert_response :bad_request
+    end
+    it 'When no kind' do
+      delete("/groups/data/delegation/consumers/members/data/delegation/host1",
+             env: token_auth_header(role: alice_user)
+      )
+      # Correct response code
+      assert_response :bad_request
+    end
+    it 'When no resource' do
+      delete("/groups/data/delegation/consumers/members/host",
+             env: token_auth_header(role: alice_user)
+      )
+      # Correct response code
+      assert_response :bad_request
+    end
+    it 'When Resource not exists' do
+      delete("/groups/data/delegation/consumers/members/host/data/delegation/hostNotExists",
+             env: token_auth_header(role: alice_user)
+      )
+      # Correct response code
+      assert_response :not_found
+    end
+    it 'When resource not a member in group' do
+      delete("/groups/data/delegation/consumers/members/host/data/host2",
+             env: token_auth_header(role: alice_user)
+      )
+      # Correct response code
+      assert_response :not_found
+    end
+    it 'When user doesnt have permissions' do
+      delete("/groups/data/delegation/consumers/members/host/data/delegation/host1",
+             env: token_auth_header(role: bob_user)
+      )
+      # Correct response code
+      assert_response :forbidden
     end
   end
 end
