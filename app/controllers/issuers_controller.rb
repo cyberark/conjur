@@ -33,7 +33,7 @@ class IssuersController < RestController
     issuer_type.validate_update(body_params)
 
     if issuer.max_ttl > params[:max_ttl]
-      raise ApplicationController::BadRequest, "The new max_ttl must be higher than the current max_ttl"
+      raise ApplicationController::BadRequest, "The new max_ttl must be equal or higher than the current max_ttl"
     end
     
     issuer.update(data: params[:data].to_json,
