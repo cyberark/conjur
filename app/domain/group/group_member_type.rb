@@ -14,6 +14,10 @@ class GroupMemberType
   end
 
   def self.get_resource_id(account, member_kind, member_id)
+    #We support the member path to start with / and without but for full id we need it without /
+    if member_id.start_with?("/")
+      member_id = member_id[1..-1]
+    end
     "#{account}:#{member_kind}:#{member_id}"
   end
 end
