@@ -169,6 +169,10 @@ def token_auth_header(role:, account: 'rspec', is_user: true)
   { 'HTTP_AUTHORIZATION' => "Token token=\"#{base64_token}\"" }
 end
 
+def v2_api_header
+  { 'Accept' => "#{request.headers["Accept"]};Api-Version=2" }
+end
+
 def create_host(host_id, owner, api_key_annotation=true)
   host_role = Role.create(role_id: host_id)
   host_role.tap do |role|

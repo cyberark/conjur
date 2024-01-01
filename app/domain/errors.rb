@@ -36,6 +36,11 @@ module Errors
       code: "CONJ00193E"
     )
 
+    APIHeaderMissing = ::Util::TrackableErrorClass.new(
+      msg: "The api belongs to v2 APIs but it missing the required value \"Api-Version=2\" in the Accept header",
+      code: "CONJ00194E"
+    )
+
     RequiredResourceMissing = ::Util::TrackableErrorClass.new(
       msg: "Missing required resource: {0-resource-name}",
       code: "CONJ00036E"

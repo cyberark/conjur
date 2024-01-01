@@ -3,13 +3,14 @@ require_relative '../controllers/wrappers/policy_wrapper'
 require_relative '../controllers/wrappers/policy_audit'
 require './app/domain/util/static_account'
 
-class GroupsMembershipController < RestController
+class GroupsMembershipController < V2RestController
   include AuthorizeResource
   include BodyParser
   include FindPolicyResource
   include PolicyAudit
   include PolicyWrapper
   include GroupMembershipValidator
+  include APIValidator
 
   before_action :current_user
   before_action :find_or_create_root_policy
