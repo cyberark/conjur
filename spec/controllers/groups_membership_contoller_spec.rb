@@ -71,7 +71,7 @@ describe GroupsMembershipController, type: :request do
       end
       it 'Host was added to group' do
         post("/groups/data/delegation/consumers/members",
-             env: token_auth_header(role: alice_user).merge(
+             env: token_auth_header(role: alice_user).merge(v2_api_header).merge(
                {
                  'RAW_POST_DATA' => payload_add_members,
                  'CONTENT_TYPE' => "application/json"
@@ -100,7 +100,7 @@ describe GroupsMembershipController, type: :request do
       end
       it 'Host was added to group' do
         post("/groups/data/delegation/consumers/members",
-             env: token_auth_header(role: alice_user).merge(
+             env: token_auth_header(role: alice_user).merge(v2_api_header).merge(
                {
                  'RAW_POST_DATA' => payload_add_members,
                  'CONTENT_TYPE' => "application/json"
@@ -121,7 +121,7 @@ describe GroupsMembershipController, type: :request do
       end
       it 'Host was added to group' do
         post("/groups/data/delegation/consumers/members",
-             env: token_auth_header(role: alice_user).merge(
+             env: token_auth_header(role: alice_user).merge(v2_api_header).merge(
                {
                  'RAW_POST_DATA' => payload_add_members,
                  'CONTENT_TYPE' => "application/json"
@@ -133,7 +133,7 @@ describe GroupsMembershipController, type: :request do
         expect(response.body).to eq("{\"kind\":\"host\",\"id\":\"data/host2\"}")
         # Trying adding the same host to the same group
         post("/groups/data/delegation/consumers/members",
-             env: token_auth_header(role: alice_user).merge(
+             env: token_auth_header(role: alice_user).merge(v2_api_header).merge(
                {
                  'RAW_POST_DATA' => payload_add_members,
                  'CONTENT_TYPE' => "application/json"
@@ -155,7 +155,7 @@ describe GroupsMembershipController, type: :request do
       end
       it 'User was added to group' do
         post("/groups/data/delegation/consumers/members",
-             env: token_auth_header(role: alice_user).merge(
+             env: token_auth_header(role: alice_user).merge(v2_api_header).merge(
                {
                  'RAW_POST_DATA' => payload_add_members,
                  'CONTENT_TYPE' => "application/json"
@@ -176,7 +176,7 @@ describe GroupsMembershipController, type: :request do
       end
       it 'Group was added to group' do
         post("/groups/data/delegation/consumers/members",
-             env: token_auth_header(role: alice_user).merge(
+             env: token_auth_header(role: alice_user).merge(v2_api_header).merge(
                {
                  'RAW_POST_DATA' => payload_add_members,
                  'CONTENT_TYPE' => "application/json"
@@ -200,7 +200,7 @@ describe GroupsMembershipController, type: :request do
       end
       it '404 error returned' do
         post("/groups/data/consumers/members",
-             env: token_auth_header(role: alice_user).merge(
+             env: token_auth_header(role: alice_user).merge(v2_api_header).merge(
                {
                  'RAW_POST_DATA' => payload_add_members,
                  'CONTENT_TYPE' => "application/json"
@@ -222,7 +222,7 @@ describe GroupsMembershipController, type: :request do
       it '409 error returned' do
         #Add the host to group
         post("/groups/data/delegation/consumers/members",
-             env: token_auth_header(role: alice_user).merge(
+             env: token_auth_header(role: alice_user).merge(v2_api_header).merge(
                {
                  'RAW_POST_DATA' => payload_add_members,
                  'CONTENT_TYPE' => "application/json"
@@ -232,7 +232,7 @@ describe GroupsMembershipController, type: :request do
         assert_response :created
         # Trying adding the same host to the same group
         post("/groups/data/delegation/consumers/members",
-             env: token_auth_header(role: alice_user).merge(
+             env: token_auth_header(role: alice_user).merge(v2_api_header).merge(
                {
                  'RAW_POST_DATA' => payload_add_members,
                  'CONTENT_TYPE' => "application/json"
@@ -254,7 +254,7 @@ describe GroupsMembershipController, type: :request do
       end
       it '403 error returned' do
         post("/groups/data/delegation/consumers/members",
-             env: token_auth_header(role: bob_user).merge(
+             env: token_auth_header(role: bob_user).merge(v2_api_header).merge(
                {
                  'RAW_POST_DATA' => payload_add_members,
                  'CONTENT_TYPE' => "application/json"
@@ -275,7 +275,7 @@ describe GroupsMembershipController, type: :request do
       end
       it '400 error returned' do
         post("/groups/Conjur_Cloud_Admins/members",
-             env: token_auth_header(role: alice_user).merge(
+             env: token_auth_header(role: alice_user).merge(v2_api_header).merge(
                {
                  'RAW_POST_DATA' => payload_add_members,
                  'CONTENT_TYPE' => "application/json"
@@ -284,7 +284,7 @@ describe GroupsMembershipController, type: :request do
         )
         assert_response :bad_request
         post("/groups/Conjur_Cloud_Users/members",
-             env: token_auth_header(role: alice_user).merge(
+             env: token_auth_header(role: alice_user).merge(v2_api_header).merge(
                {
                  'RAW_POST_DATA' => payload_add_members,
                  'CONTENT_TYPE' => "application/json"
@@ -304,7 +304,7 @@ describe GroupsMembershipController, type: :request do
       end
       it '400 error returned' do
         post("/groups/data/consumers/members",
-             env: token_auth_header(role: alice_user).merge(
+             env: token_auth_header(role: alice_user).merge(v2_api_header).merge(
                {
                  'RAW_POST_DATA' => payload_add_members,
                  'CONTENT_TYPE' => "application/json"
@@ -325,7 +325,7 @@ describe GroupsMembershipController, type: :request do
       end
       it '400 error returned' do
         post("/groups/data/delegation/consumers/members",
-             env: token_auth_header(role: alice_user).merge(
+             env: token_auth_header(role: alice_user).merge(v2_api_header).merge(
                {
                  'RAW_POST_DATA' => payload_add_members,
                  'CONTENT_TYPE' => "application/json"
@@ -346,7 +346,7 @@ describe GroupsMembershipController, type: :request do
       end
       it '400 error returned' do
         post("/groups/data/delegation/consumers/members",
-             env: token_auth_header(role: alice_user).merge(
+             env: token_auth_header(role: alice_user).merge(v2_api_header).merge(
                {
                  'RAW_POST_DATA' => payload_add_members,
                  'CONTENT_TYPE' => "application/json"
@@ -368,7 +368,7 @@ describe GroupsMembershipController, type: :request do
       end
       it '400 error returned' do
         post("/groups/data/delegation/consumers/members",
-             env: token_auth_header(role: alice_user).merge(
+             env: token_auth_header(role: alice_user).merge(v2_api_header).merge(
                {
                  'RAW_POST_DATA' => payload_add_members,
                  'CONTENT_TYPE' => "application/json"
@@ -390,7 +390,7 @@ describe GroupsMembershipController, type: :request do
       end
       it '400 error returned' do
         post("/groups/data/delegation/consumers/members",
-             env: token_auth_header(role: alice_user).merge(
+             env: token_auth_header(role: alice_user).merge(v2_api_header).merge(
                {
                  'RAW_POST_DATA' => payload_add_members,
                  'CONTENT_TYPE' => "application/json"
@@ -413,7 +413,7 @@ describe GroupsMembershipController, type: :request do
       end
       it '400 error returned' do
         post("/groups/data/delegation/consumers/members",
-             env: token_auth_header(role: alice_user).merge(
+             env: token_auth_header(role: alice_user).merge(v2_api_header).merge(
                {
                  'RAW_POST_DATA' => payload_add_members,
                  'CONTENT_TYPE' => "application/json"
@@ -439,7 +439,7 @@ describe GroupsMembershipController, type: :request do
       it 'Host was removed from group' do
         # Add member to group
         post("/groups/data/delegation/consumers/members",
-             env: token_auth_header(role: alice_user).merge(
+             env: token_auth_header(role: alice_user).merge(v2_api_header).merge(
                {
                  'RAW_POST_DATA' => payload_add_members,
                  'CONTENT_TYPE' => "application/json"
@@ -452,7 +452,7 @@ describe GroupsMembershipController, type: :request do
         expect(RoleMembership.where(role_id: "rspec:group:data/delegation/consumers",member_id:"rspec:host:data/delegation/host1").all.empty?).to eq false
         # Remove member from group
         delete("/groups/data/delegation/consumers/members/host/data/delegation/host1",
-             env: token_auth_header(role: alice_user)
+             env: token_auth_header(role: alice_user).merge(v2_api_header)
         )
         # Correct response code
         assert_response :no_content
@@ -474,7 +474,7 @@ describe GroupsMembershipController, type: :request do
       end
       it 'User was remove from group' do
         post("/groups/data/delegation/consumers/members",
-             env: token_auth_header(role: alice_user).merge(
+             env: token_auth_header(role: alice_user).merge(v2_api_header).merge(
                {
                  'RAW_POST_DATA' => payload_add_members,
                  'CONTENT_TYPE' => "application/json"
@@ -484,7 +484,7 @@ describe GroupsMembershipController, type: :request do
         assert_response :created
         # Remove member from group
         delete("/groups/data/delegation/consumers/members/user/alice",
-               env: token_auth_header(role: alice_user)
+               env: token_auth_header(role: alice_user).merge(v2_api_header)
         )
         # Correct response code
         assert_response :no_content
@@ -502,7 +502,7 @@ describe GroupsMembershipController, type: :request do
       end
       it 'Group was removed from group' do
         post("/groups/data/delegation/consumers/members",
-             env: token_auth_header(role: alice_user).merge(
+             env: token_auth_header(role: alice_user).merge(v2_api_header).merge(
                {
                  'RAW_POST_DATA' => payload_add_members,
                  'CONTENT_TYPE' => "application/json"
@@ -512,7 +512,7 @@ describe GroupsMembershipController, type: :request do
         assert_response :created
         # Remove member from group
         delete("/groups/data/delegation/consumers/members/group/data/testGroup",
-               env: token_auth_header(role: alice_user)
+               env: token_auth_header(role: alice_user).merge(v2_api_header)
         )
         # Correct response code
         assert_response :no_content
@@ -524,52 +524,60 @@ describe GroupsMembershipController, type: :request do
   context "with input issues" do
     it 'When Group not exists' do
      delete("/groups/data/delegation/consumers2/members/host/data/delegation/host1",
-             env: token_auth_header(role: alice_user)
+             env: token_auth_header(role: alice_user).merge(v2_api_header)
       )
       # Correct response code
       assert_response :not_found
     end
     it 'When kind not exists' do
       delete("/groups/data/delegation/consumers/members/workload/data/delegation/host1",
-             env: token_auth_header(role: alice_user)
+             env: token_auth_header(role: alice_user).merge(v2_api_header)
       )
       # Correct response code
       assert_response :bad_request
     end
     it 'When no kind' do
       delete("/groups/data/delegation/consumers/members/data/delegation/host1",
-             env: token_auth_header(role: alice_user)
+             env: token_auth_header(role: alice_user).merge(v2_api_header)
       )
       # Correct response code
       assert_response :bad_request
     end
     it 'When no resource' do
       delete("/groups/data/delegation/consumers/members/host",
-             env: token_auth_header(role: alice_user)
+             env: token_auth_header(role: alice_user).merge(v2_api_header)
       )
       # Correct response code
       assert_response :bad_request
     end
     it 'When Resource not exists' do
       delete("/groups/data/delegation/consumers/members/host/data/delegation/hostNotExists",
-             env: token_auth_header(role: alice_user)
+             env: token_auth_header(role: alice_user).merge(v2_api_header)
       )
       # Correct response code
       assert_response :not_found
     end
     it 'When resource not a member in group' do
       delete("/groups/data/delegation/consumers/members/host/data/host2",
-             env: token_auth_header(role: alice_user)
+             env: token_auth_header(role: alice_user).merge(v2_api_header)
       )
       # Correct response code
       assert_response :not_found
     end
     it 'When user doesnt have permissions' do
       delete("/groups/data/delegation/consumers/members/host/data/delegation/host1",
-             env: token_auth_header(role: bob_user)
+             env: token_auth_header(role: bob_user).merge(v2_api_header)
       )
       # Correct response code
       assert_response :forbidden
     end
+  end
+  it 'When no api version header' do
+    delete("/groups/data/delegation/consumers/members/host/data/delegation/host1",
+           env: token_auth_header(role: bob_user)
+    )
+    # Correct response code
+    assert_response :bad_request
+    expect(response.body.include? "CONJ00194E The api belongs to v2 APIs but it missing the required value").to eq true
   end
 end
