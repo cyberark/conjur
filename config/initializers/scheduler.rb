@@ -8,7 +8,7 @@ interval = Rails.application.config.conjur_config.slosilo_rotation_interval
 
 unless scheduler.down?
   # Schedule task one second after startup and every interval
-  scheduler.every "#{interval}h", first_in: 1.second.since do
+  scheduler.every "#{interval}h", first_in: 5.minutes.since do
     system("rake rotate:slosilo")
   end
 end
