@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 - Version header in v2 apis is not required
 - Fix edge slosilo replication
+- Add flag 'delete_vars' to delete variables of issuer
 
 ## [1.0.16-cloud] - 2023-01-07
 ### Added
