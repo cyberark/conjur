@@ -170,7 +170,7 @@ def token_auth_header(role:, account: 'rspec', is_user: true)
 end
 
 def v2_api_header
-  { 'Accept' => "#{request.headers["Accept"]};Api-Version=2" }
+  { 'Accept' => "application/x.secretsmgr.v2+json" }
 end
 
 def create_host(host_id, owner, api_key_annotation=true)

@@ -59,7 +59,7 @@ describe GroupsMembershipController, type: :request do
     assert_response :success
   end
 
-  describe "Add member from another branch to group" do
+  describe "Add member to group" do
     context "when add host to group from same branch" do
       let(:payload_add_members) do
         <<~BODY
@@ -177,6 +177,27 @@ describe GroupsMembershipController, type: :request do
       it 'Group was added to group' do
         post("/groups/data/delegation/consumers/members",
              env: token_auth_header(role: alice_user).merge(v2_api_header).merge(
+               {
+                 'RAW_POST_DATA' => payload_add_members,
+                 'CONTENT_TYPE' => "application/json"
+               }
+             )
+        )
+        assert_response :created
+      end
+    end
+    context "when no version header" do
+      let(:payload_add_members) do
+        <<~BODY
+        {
+            "kind": "host",
+            "id": "/data/host2"
+        }
+        BODY
+      end
+      it 'Host was added to group' do
+        post("/groups/data/delegation/consumers/members",
+             env: token_auth_header(role: alice_user).merge(
                {
                  'RAW_POST_DATA' => payload_add_members,
                  'CONTENT_TYPE' => "application/json"
@@ -571,13 +592,5 @@ describe GroupsMembershipController, type: :request do
       # Correct response code
       assert_response :forbidden
     end
-  end
-  it 'When no api version header' do
-    delete("/groups/data/delegation/consumers/members/host/data/delegation/host1",
-           env: token_auth_header(role: bob_user)
-    )
-    # Correct response code
-    assert_response :bad_request
-    expect(response.body.include? "CONJ00194E The api belongs to v2 APIs but it missing the required value").to eq true
   end
 end
