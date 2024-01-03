@@ -37,7 +37,7 @@ module Errors
     )
 
     APIHeaderMissing = ::Util::TrackableErrorClass.new(
-      msg: "The api belongs to v2 APIs but it missing the required value \"Api-Version=2\" in the Accept header",
+      msg: "The api belongs to v2 APIs but it missing the version \"application/x.secretsmgr.v2+json\" in the Accept header",
       code: "CONJ00194E"
     )
 
