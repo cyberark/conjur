@@ -11,8 +11,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [1.0.29-cloud] - 2024-06-07
 ### Changed
-- First part of the sync (conjur cloud with conjur enterprise), support for arm64 + cli version 8 + Add ARM64 packages build
 - Issuer API will not return secret_access_key anymore, instead they will return '*****'
+- First part of the sync with conjur enterprise V13.3 includes:  
+  - support for arm64 
+  - cli version 8 
+  - Update authn_k8s test server fixture file names
+  - [SECURITY] Upgrade rack to 2.2.8.1 and Upgrade puma to 6.4.2
 
 ## [1.0.28-cloud] - 2024-06-02
 ### Changed
