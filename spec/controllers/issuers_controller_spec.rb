@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
+require 'time'
+
 DatabaseCleaner.strategy = :truncation
 
 describe IssuersController, type: :request do
@@ -179,13 +181,19 @@ describe IssuersController, type: :request do
                'RAW_POST_DATA' => payload_create_issuers,
                'CONTENT_TYPE' => "application/json"
              ))
-        patch("/issuers/rspec/aws-issuer-1",
-              env: token_auth_header(role: admin_user).merge(
-                'RAW_POST_DATA' => payload_update_issuer,
-                'CONTENT_TYPE' => "application/json"
-              ))
+        freeze_time do
+          patch("/issuers/rspec/aws-issuer-1",
+                env: token_auth_header(role: admin_user).merge(
+                  'RAW_POST_DATA' => payload_update_issuer,
+                  'CONTENT_TYPE' => "application/json"
+                ))
 
-        assert_response :ok
+          assert_response :ok
+          parsed_body = JSON.parse(response.body)
+          time_from_body = Time.parse(parsed_body["modified_at"])
+          expect(time_from_body).to eq(Time.now)
+        end
+        
         get("/issuers/rspec/aws-issuer-1",
             env: token_auth_header(role: admin_user))
         assert_response :success
@@ -256,23 +264,27 @@ describe IssuersController, type: :request do
         BODY
       end
       it 'it returns created' do
-        post("/issuers/rspec",
-             env: token_auth_header(role: admin_user).merge(
-               'RAW_POST_DATA' => payload_create_issuers_complete_input,
-               'CONTENT_TYPE' => "application/json"
-             ))
-        assert_response :created
-        parsed_body = JSON.parse(response.body)
-        expect(parsed_body["id"]).to eq("aws-issuer-1")
-        expect(parsed_body["max_ttl"]).to eq(3000)
-        expect(parsed_body["type"]).to eq("aws")
-        expect(parsed_body["data"]["access_key_id"]).to eq("my-key-id")
-        expect(parsed_body["data"]["secret_access_key"]).to eq("my-key-secret")
-        expect(response.body).to include("\"created_at\"")
-        expect(response.body).to include("\"modified_at\"")
-        expect(Resource.find(resource_id: "rspec:policy:conjur/issuers/aws-issuer-1")).not_to eq(nil)
-        expect(Resource.find(resource_id: "rspec:policy:conjur/issuers/aws-issuer-1/delegation")).not_to eq(nil)
-        expect(Resource.find(resource_id: "rspec:group:conjur/issuers/aws-issuer-1/delegation/consumers")).not_to eq(nil)
+        freeze_time do
+          post("/issuers/rspec",
+               env: token_auth_header(role: admin_user).merge(
+                 'RAW_POST_DATA' => payload_create_issuers_complete_input,
+                 'CONTENT_TYPE' => "application/json"
+               ))
+          assert_response :created
+          parsed_body = JSON.parse(response.body)
+          expect(parsed_body["id"]).to eq("aws-issuer-1")
+          expect(parsed_body["max_ttl"]).to eq(3000)
+          expect(parsed_body["type"]).to eq("aws")
+          expect(parsed_body["data"]["access_key_id"]).to eq("my-key-id")
+          expect(parsed_body["data"]["secret_access_key"]).to eq("my-key-secret")
+          expect(response.body).to include("\"created_at\"")
+          expect(response.body).to include("\"modified_at\"")
+          time_from_body = Time.parse(parsed_body["modified_at"])
+          expect(time_from_body).to eq(Time.now)
+          expect(Resource.find(resource_id: "rspec:policy:conjur/issuers/aws-issuer-1")).not_to eq(nil)
+          expect(Resource.find(resource_id: "rspec:policy:conjur/issuers/aws-issuer-1/delegation")).not_to eq(nil)
+          expect(Resource.find(resource_id: "rspec:group:conjur/issuers/aws-issuer-1/delegation/consumers")).not_to eq(nil)
+        end
       end
     end
 
