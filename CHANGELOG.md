@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [1.0.17-cloud] - 2023-01-14
 ### Changed
 - Version header in v2 apis is not required
+- Fix edge slosilo replication
 
 ## [1.0.16-cloud] - 2023-01-07
 ### Added

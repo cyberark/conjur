@@ -30,7 +30,7 @@ class EdgeSlosiloKeysController < RestController
       return_json[:slosiloKeys] = key_object
 
       prev_key = Account.token_key(account, "host", "previous")
-      prev_key_obj = prev_key.nil? ? [] : [get_key_object(prev_key)]
+      prev_key_obj = prev_key.nil? ? key_object : [get_key_object(prev_key)]
       return_json[:previousSlosiloKeys] = prev_key_obj
 
       render(json: return_json)
