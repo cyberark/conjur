@@ -6,7 +6,7 @@ module GroupMembershipValidator
   def validate_conjur_admin_group(account)
     validate_account(account)
 
-    unless is_role_member_of_group(current_user.id, "#{account}:group:Conjur_Cloud_Admins")
+    unless is_group_ancestor_of_role(current_user.id, "#{account}:group:Conjur_Cloud_Admins")
       logger.error(
         Errors::Authorization::EndpointNotVisibleToRole.new(
           "Current user role is: #{current_user.id}. should be member of: \"group:Conjur_Cloud_Admins\""
@@ -25,12 +25,18 @@ module GroupMembershipValidator
     verify_group_allowed(group_name)
   end
 
-  def is_role_member_of_group(role_id, group_name)
-    role = Role[group_name]
-    unless role&.ancestor_of?(role = Role[role_id])
+  def is_group_ancestor_of_role(role_id, group_name)
+    group = Role[group_name]
+    unless group&.ancestor_of?(role = Role[role_id])
       return false
     end
     return true
+  end
+
+  def is_role_member_of_group(role_id, group_id, policy_id)
+    role_membership = ::RoleMembership[role_id: group_id, member_id: role_id,
+                              policy_id: GroupMemberType.get_resource_id(account, "policy", policy_id)]
+    !role_membership.nil?
   end
 
   private

@@ -31,7 +31,7 @@ class GroupsMembershipController < V2RestController
     member_id = permitted_params[:id]
 
     # validate all input is correct
-    validate_add_member_input(action, branch, group_name, member_id, member_kind)
+    validate_add_member_input(action, branch, group_name, member_id, member_kind, branch)
 
     # build policy input
     input = build_member_to_group_policy_input(group_name, member_kind, member_id)
@@ -62,7 +62,7 @@ class GroupsMembershipController < V2RestController
     member_id = permitted_params[:id]
 
     # validate all input is correct
-    validate_remove_member_input(action, branch, group_name, member_id, member_kind)
+    validate_remove_member_input(action, branch, group_name, member_id, member_kind, branch)
 
     # build policy input
     input = build_member_to_group_policy_input(group_name, member_kind, member_id)
@@ -79,7 +79,7 @@ class GroupsMembershipController < V2RestController
 
   private
 
-  def validate_remove_member_input(action, branch, group_name, member_id, member_kind)
+  def validate_remove_member_input(action, branch, group_name, member_id, member_kind, policy_id)
     validate_group_members_input(params, NUM_OF_REMOVE_DATA_PARAMS, group_name, member_kind)
     # Validate there is permissions for current user to run update on the branch
     authorize(action, resource(branch))
@@ -90,12 +90,12 @@ class GroupsMembershipController < V2RestController
     resource_id = GroupMemberType.get_resource_id(account, member_kind, member_id)
     resource_exists_validation(resource_id)
     # Validate resource is a member in group
-    unless is_role_member_of_group(resource_id, group_id)
-      raise Exceptions::RecordNotFound.new(resource_id)
+    unless is_role_member_of_group(resource_id, group_id, policy_id)
+      raise Errors::Group::ResourceNotMember.new(member_id, member_kind, group_name)
     end
   end
 
-  def validate_add_member_input(action, branch, group_name, member_id, member_kind)
+  def validate_add_member_input(action, branch, group_name, member_id, member_kind, policy_id)
     validate_group_members_input(params, NUM_OF_ADD_DATA_PARAMS, group_name, member_kind)
     # Validate there is permissions for current user to run update on the branch
     authorize(action, resource(branch))
@@ -103,12 +103,12 @@ class GroupsMembershipController < V2RestController
     group_id = GroupMemberType.get_group_id(account, branch, group_name)
     resource_exists_validation(group_id)
     # Validate resource is not already a member
-    verify_resource_is_not_member(group_id, member_kind, member_id)
+    verify_resource_is_not_member(group_id, member_kind, member_id, policy_id)
   end
 
-  def verify_resource_is_not_member(group_id, member_kind, member_id)
+  def verify_resource_is_not_member(group_id, member_kind, member_id, policy_id)
     resource_id = GroupMemberType.get_resource_id(account, member_kind, member_id)
-    if is_role_member_of_group(resource_id, group_id)
+    if is_role_member_of_group(resource_id, group_id, policy_id)
       raise Errors::Group::DuplicateMember.new(member_id, member_kind, group_id)
     end
   end
