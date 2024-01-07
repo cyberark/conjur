@@ -100,6 +100,8 @@ describe GroupsMembershipController, type: :request do
         assert_response :created
         # correct response body
         expect(response.body).to eq("{\"kind\":\"host\",\"id\":\"/data/delegation/host1\"}")
+        # correct header
+        expect(response.headers['Content-Type'].include?(v2_api_header["Accept"])).to eq true
         # Host is a member of group
         expect(RoleMembership.where(role_id: "rspec:group:data/delegation/consumers",member_id:"rspec:host:data/delegation/host1").all.empty?).to eq false
         # Correct audit is returned
@@ -508,6 +510,8 @@ describe GroupsMembershipController, type: :request do
         )
         # Correct response code
         assert_response :created
+        # correct header
+        expect(response.headers['Content-Type'].include?(v2_api_header["Accept"])).to eq true
         # Host is a member of group
         expect(RoleMembership.where(role_id: "rspec:group:data/delegation/consumers",member_id:"rspec:host:data/delegation/host1").all.empty?).to eq false
         # Remove member from group
