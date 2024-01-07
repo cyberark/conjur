@@ -47,7 +47,7 @@ Feature: Fetching slosilo keys from edge endpoint
   @acceptance
   Scenario: Fetching key when previous key is null with edge host return 200 OK with json result
     Given I login as the host associated with Edge "edge_slosilo"
-    And Previous slosilo key is null
+    And Previous host slosilo key is null
     When I GET "/edge/slosilo_keys/cucumber"
     Then the HTTP response status code is 200
     And the JSON at "slosiloKeys" should have 1 entries
