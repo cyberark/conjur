@@ -75,6 +75,7 @@ class ApplicationController < ActionController::API
   rescue_from Errors::Conjur::RequestedResourceNotFound, with: :resource_not_found
   rescue_from Errors::Authorization::InsufficientResourcePrivileges, with: :forbidden
   rescue_from Errors::Group::DuplicateMember, with: :render_duplicate_with_message
+  rescue_from Errors::Group::ResourceNotMember, with: :resource_not_found
   rescue_from Errors::Conjur::APIHeaderMissing, with: :render_bad_request_with_message
 
   around_action :run_with_transaction

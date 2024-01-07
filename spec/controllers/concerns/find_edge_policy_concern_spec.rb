@@ -18,7 +18,7 @@ describe FindEdgePolicyResource do
     allow(controller).to receive(:account).and_return('rspec')
     mock_user = double('User', id: 456)
     allow(controller).to receive(:current_user).and_return(mock_user)
-    allow(controller).to receive(:is_role_member_of_group).and_return(false)
+    allow(controller).to receive(:is_group_ancestor_of_role).and_return(false)
   end
 
   let(:resource_id) { 'test:kind:resource' }

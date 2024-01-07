@@ -19,22 +19,40 @@ describe GroupsMembershipController, type: :request do
     <<~POLICY
       - !user alice
       - !user bob
+      - !user rita
+
+      - !group admins
+      - !grant
+         role: !group admins
+         member:          
+           - !user rita
       
       - !policy
         id: data
+        owner: !group admins
         body:
         - !host host2
+        - !host host3
         - !user user1    
         - !group testGroup    
         - !policy
           id: delegation
           body:
           - !host host1
-          - !group consumers     
+          - !group consumers   
+        - !grant
+           role: !group delegation/consumers
+           member:          
+             - !host host3 
 
       - !permit
         resource: !policy data/delegation
         privilege: [ create, update ]
+        role: !user alice
+
+      - !permit
+        resource: !policy data
+        privilege: [ update, execute, read ]
         role: !user alice
 
       - !permit
@@ -82,6 +100,8 @@ describe GroupsMembershipController, type: :request do
         assert_response :created
         # correct response body
         expect(response.body).to eq("{\"kind\":\"host\",\"id\":\"/data/delegation/host1\"}")
+        # correct header
+        expect(response.headers['Content-Type'].include?(v2_api_header["Accept"])).to eq true
         # Host is a member of group
         expect(RoleMembership.where(role_id: "rspec:group:data/delegation/consumers",member_id:"rspec:host:data/delegation/host1").all.empty?).to eq false
         # Correct audit is returned
@@ -141,7 +161,7 @@ describe GroupsMembershipController, type: :request do
              )
         )
         assert_response :conflict
-        expect(response.body.include? "Resource 'data/host2' of kind 'host' is already a member in group 'rspec:group:data/delegation/consumers'").to eq true
+        expect(response.body.include? "The 'data/host2' resource (kind='host') is already a member of the 'rspec:group:data/delegation/consumers' group").to eq true
       end
     end
     context "when user with permissions add user to group" do
@@ -163,6 +183,27 @@ describe GroupsMembershipController, type: :request do
              )
         )
         assert_response :created
+      end
+      context "Adding user that is member of policy owner group" do
+        let(:payload_add_members) do
+          <<~BODY
+        {
+            "kind": "user",
+            "id": "/rita"
+        }
+        BODY
+        end
+        it 'User was added to group' do
+          post("/groups/data/delegation/consumers/members",
+               env: token_auth_header(role: alice_user).merge(v2_api_header).merge(
+                 {
+                   'RAW_POST_DATA' => payload_add_members,
+                   'CONTENT_TYPE' => "application/json"
+                 }
+               )
+          )
+          assert_response :created
+        end
       end
     end
     context "when user with permissions add group to group" do
@@ -261,7 +302,7 @@ describe GroupsMembershipController, type: :request do
              )
         )
         assert_response :conflict
-        expect(response.body.include? "Resource '/data/host2' of kind 'host' is already a member in group 'rspec:group:data/delegation/consumers'").to eq true
+        expect(response.body.include? "The '/data/host2' resource (kind='host') is already a member of the 'rspec:group:data/delegation/consumers' group").to eq true
       end
     end
     context "User without update permissions on the group policy" do
@@ -442,7 +483,7 @@ describe GroupsMembershipController, type: :request do
              )
         )
         assert_response :bad_request
-        expect(response.body.include? "Invalid parameter received in data. Only kind, id, branch, group_name are allowed").to eq true
+        expect(response.body.include? "The parameter received in the data is not valid. Allowed parameters: kind, id, branch, group_name").to eq true
       end
     end
   end
@@ -469,6 +510,8 @@ describe GroupsMembershipController, type: :request do
         )
         # Correct response code
         assert_response :created
+        # correct header
+        expect(response.headers['Content-Type'].include?(v2_api_header["Accept"])).to eq true
         # Host is a member of group
         expect(RoleMembership.where(role_id: "rspec:group:data/delegation/consumers",member_id:"rspec:host:data/delegation/host1").all.empty?).to eq false
         # Remove member from group
@@ -543,6 +586,13 @@ describe GroupsMembershipController, type: :request do
   end
 
   context "with input issues" do
+    it 'Host was added not in group direct policy' do
+      delete("/groups/data/delegation/consumers/members/host/data/host3",
+             env: token_auth_header(role: alice_user).merge(v2_api_header)
+      )
+      # Correct response code
+      assert_response :not_found
+    end
     it 'When Group not exists' do
      delete("/groups/data/delegation/consumers2/members/host/data/delegation/host1",
              env: token_auth_header(role: alice_user).merge(v2_api_header)

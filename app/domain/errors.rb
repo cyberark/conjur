@@ -10,8 +10,13 @@
 module Errors
   module Group
     DuplicateMember = ::Util::TrackableErrorClass.new(
-      msg: "Resource '{0}' of kind '{1}' is already a member in group '{2}'",
+      msg: "The '{0}' resource (kind='{1}') is already a member of the '{2}' group",
       code: "CONJ00180E"
+    )
+
+    ResourceNotMember = ::Util::TrackableErrorClass.new(
+      msg: "The '{0}' resource (kind='{1}') is not a member of the '{2}' group",
+      code: "CONJ00181E"
     )
   end
 
@@ -32,7 +37,7 @@ module Errors
     )
 
     NumOfParametersInvalid = ::Util::TrackableErrorClass.new(
-      msg: "Invalid parameter received in data. Only {0} are allowed",
+      msg: "The parameter received in the data is not valid. Allowed parameters: {0}",
       code: "CONJ00193E"
     )
 
