@@ -45,10 +45,24 @@ Feature: Fetching slosilo keys from edge endpoint
     And I log out
 
   @acceptance
-  Scenario: Fetching key with edge host return 200 OK with json result
+  Scenario: Fetching key when previous key is null with edge host return 200 OK with json result
     Given I login as the host associated with Edge "edge_slosilo"
+    And Previous host slosilo key is null
     When I GET "/edge/slosilo_keys/cucumber"
     Then the HTTP response status code is 200
+    And the JSON at "slosiloKeys" should have 1 entries
+    And the JSON should have "slosiloKeys/0/fingerprint"
+    And the JSON at "slosiloKeys/0/fingerprint" should be a string
+    And the JSON should have "slosiloKeys/0/privateKey"
+    And the JSON at "slosiloKeys/0/privateKey" should be a string
+    And the JSON at "previousSlosiloKeys" should be equal to the JSON at "slosiloKeys"
+
+  @acceptance
+  Scenario: Fetching key when after key rotation with edge host return 200 OK with json result
+    Given I login as the host associated with Edge "edge_slosilo"
+    And Previous host slosilo key is null
+    When Slosilo key is rotated
+    And I GET "/edge/slosilo_keys/cucumber"
     And the JSON at "slosiloKeys" should have 1 entries
     And the JSON should have "slosiloKeys/0/fingerprint"
     And the JSON at "slosiloKeys/0/fingerprint" should be a string
@@ -58,6 +72,7 @@ Feature: Fetching slosilo keys from edge endpoint
     And the JSON at "previousSlosiloKeys/0/fingerprint" should be a string
     And the JSON should have "previousSlosiloKeys/0/privateKey"
     And the JSON at "previousSlosiloKeys/0/privateKey" should be a string
+    Then the JSON at "previousSlosiloKeys" should not be equal to the JSON at "slosiloKeys"
 
   @negative @acceptance
   Scenario: Fetching hosts with non edge host return 403

@@ -118,12 +118,14 @@ class IssuersController < RestController
     issuer = get_issuer_from_db(params[:account], params[:identifier])
     if issuer
       # Deleting the issuer policy causes a cascade delete of the issuers object as well
-      # But we need to delete the issuer related variables so that we won't leave orphans
-      deleted_variables = issuer.delete_issuer_variables
       delete_issuer_policy({ "id" => params[:identifier] })
       issuer_audit_success(issuer.account, issuer.issuer_id, "remove")
       logger.info(LogMessages::Issuers::TelemetryIssuerLog.new("delete", issuer.account, issuer.issuer_id, request.ip))
-      issuer_variables_audit_delete(issuer.account, issuer.issuer_id, deleted_variables)
+      # Unless requested otherwise, we need to keep the issuer related variables
+      if params[:delete_vars] == "true"
+        deleted_variables = issuer.delete_issuer_variables
+        issuer_variables_audit_delete(issuer.account, issuer.issuer_id, deleted_variables)
+      end
       head :ok
     else
       raise Exceptions::RecordNotFound.new(params[:identifier], message: ISSUER_NOT_FOUND)

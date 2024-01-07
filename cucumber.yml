@@ -15,6 +15,7 @@ api: >
   -r cucumber/_authenticators_common/features/step_definitions/authn_common_steps.rb
   -r cucumber/policy/features/step_definitions/error_steps.rb
   -r cucumber/policy/features/support/policy_helpers.rb
+  -r cucumber/rotators/features/step_definitions/rotator_steps.rb
   -r cucumber/api
   cucumber/api
 

@@ -35,7 +35,7 @@ describe EdgeSlosiloKeysController, :type => :request do
       private_key = key.to_der.unpack("H*")[0]
       fingerprint = key.fingerprint
 
-      expected = {"slosiloKeys" => [{"privateKey"=> private_key,"fingerprint"=>fingerprint}], "previousSlosiloKeys" => []}
+      expected = {"slosiloKeys" => [{"privateKey"=> private_key,"fingerprint"=>fingerprint}], "previousSlosiloKeys" => [{"privateKey"=> private_key,"fingerprint"=>fingerprint}]}
       response_json = JSON.parse(response.body)
       expect(response_json).to eq(expected)
     end

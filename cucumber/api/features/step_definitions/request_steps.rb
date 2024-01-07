@@ -270,3 +270,11 @@ Then("the host factory JSON should be:") do |json|
   end
   expect(@result).to eq(JSON.parse(json))
 end
+
+Then(/^the JSON at "(.*?)" should (not )?be equal to the JSON at "(.*?)"$/) do |path1, not_flag, path2|
+  if not_flag.nil?
+    expect(@result[path1]).to eq(@result[path2])
+  else
+    expect(@result[path1]).to_not eq(@result[path2])
+  end
+end
