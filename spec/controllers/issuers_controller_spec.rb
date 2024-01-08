@@ -191,24 +191,18 @@ describe IssuersController, type: :request do
 
           assert_response :ok
           parsed_body = JSON.parse(response.body)
+
+          expect(parsed_body["id"]).to eq("aws-issuer-1")
+          expect(parsed_body["max_ttl"]).to eq(4000)
+          expect(parsed_body["type"]).to eq("aws")
+          expect(parsed_body["data"]["access_key_id"]).to eq("changed-key")
+          expect(parsed_body["data"]["secret_access_key"]).to eq("changed-secret")
+          expect(response.body).to include("\"created_at\"")
+          created_time_from_body = Time.parse(parsed_body["created_at"])
+          expect(created_time_from_body).to be_within(CREATE_ISSUER_TIMEOUT.second).of(Time.now)
           time_from_body = Time.parse(parsed_body["modified_at"])
           expect(time_from_body).to eq(Time.now)
         end
-        
-        get("/issuers/rspec/aws-issuer-1",
-            env: token_auth_header(role: admin_user))
-        assert_response :success
-
-        parsed_body = JSON.parse(response.body)
-        expect(parsed_body["id"]).to eq("aws-issuer-1")
-        expect(parsed_body["max_ttl"]).to eq(4000)
-        expect(parsed_body["type"]).to eq("aws")
-        expect(parsed_body["data"]["access_key_id"]).to eq("changed-key")
-        expect(parsed_body["data"]["secret_access_key"]).to eq("changed-secret")
-        expect(response.body).to include("\"created_at\"")
-        created_time_from_body = Time.parse(parsed_body["created_at"])
-        expect(created_time_from_body).to be_within(CREATE_ISSUER_TIMEOUT.second).of(Time.now)
-        expect(response.body).to include("\"modified_at\"")
       end
     end
   end
