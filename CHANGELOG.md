@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
+## [1.0.18-cloud] - 2023-01-21
+### Changed
+- Log Level of application errors changed to warn
+
 ## [1.0.17-cloud] - 2023-01-14
 ### Changed
 - Version header in v2 apis is not required
