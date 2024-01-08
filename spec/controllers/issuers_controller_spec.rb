@@ -4,6 +4,7 @@ require 'spec_helper'
 require 'time'
 
 DatabaseCleaner.strategy = :truncation
+CREATE_ISSUER_TIMEOUT = 10 # To test created_at
 
 describe IssuersController, type: :request do
   let(:url_resource) { "/resources/rspec" }
@@ -205,6 +206,8 @@ describe IssuersController, type: :request do
         expect(parsed_body["data"]["access_key_id"]).to eq("changed-key")
         expect(parsed_body["data"]["secret_access_key"]).to eq("changed-secret")
         expect(response.body).to include("\"created_at\"")
+        created_time_from_body = Time.parse(parsed_body["created_at"])
+        expect(created_time_from_body).to be_within(CREATE_ISSUER_TIMEOUT.second).of(Time.now)
         expect(response.body).to include("\"modified_at\"")
       end
     end
@@ -278,6 +281,8 @@ describe IssuersController, type: :request do
           expect(parsed_body["data"]["access_key_id"]).to eq("my-key-id")
           expect(parsed_body["data"]["secret_access_key"]).to eq("my-key-secret")
           expect(response.body).to include("\"created_at\"")
+          created_time_from_body = Time.parse(parsed_body["created_at"])
+          expect(created_time_from_body).to be_within(CREATE_ISSUER_TIMEOUT.second).of(Time.now)
           expect(response.body).to include("\"modified_at\"")
           time_from_body = Time.parse(parsed_body["modified_at"])
           expect(time_from_body).to eq(Time.now)
