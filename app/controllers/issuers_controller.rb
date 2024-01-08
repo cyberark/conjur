@@ -38,9 +38,9 @@ class IssuersController < RestController
     
     issuer.update(data: params[:data].to_json,
                   max_ttl: params[:max_ttl],
-                  modified_at: Sequel::CURRENT_TIMESTAMP)
+                  modified_at: Time.now) 
     issuer.save
-  
+
     issuer_audit_success(issuer.account, issuer.issuer_id, "update")
     logger.info(LogMessages::Issuers::TelemetryIssuerLog.new("update", issuer.account, issuer.issuer_id, request.ip))
     render(json: issuer.as_json, status: :ok)
@@ -72,7 +72,7 @@ class IssuersController < RestController
     issuer = Issuer.new(issuer_id: params[:id], account: params[:account],
                         issuer_type: params[:type],
                         max_ttl: params[:max_ttl], data: params[:data].to_json,
-                        modified_at: Sequel::CURRENT_TIMESTAMP,
+                        modified_at: Time.now, 
                         policy_id: "#{params[:account]}:policy:conjur/issuers/#{params[:id]}")
 
     raise ApplicationController::InternalServerError, "Found variables associated with the issuer id" if issuer.issuer_variables_exist?
