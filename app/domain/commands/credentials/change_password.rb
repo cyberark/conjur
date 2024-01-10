@@ -27,8 +27,7 @@ module Commands
       private
 
       def change_password
-        credentials.password = @password
-        credentials.save(raise_on_save_failure: true)
+        @role.password = @password
       end
 
       def credentials

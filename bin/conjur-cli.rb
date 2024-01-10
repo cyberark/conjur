@@ -197,6 +197,16 @@ end
 desc "Manage roles"
 command :role do |cgrp|
   cgrp.desc "Retrieve a role's API key"
+  cgrp.arg(:role_id)
+  cgrp.command :"reset-password" do |c|
+    c.action do |global_options,options,args|
+      Commands::Role::ResetPassword.new.call(
+        role_id: args[0]
+      )
+    end
+  end
+
+  cgrp.desc "Reset a role's password and rotate its API key"
   cgrp.arg(:role_id, :multiple)
   cgrp.command :"retrieve-key" do |c|
     c.action do |global_options,options,args|
