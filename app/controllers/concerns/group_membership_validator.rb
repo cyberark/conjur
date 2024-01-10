@@ -55,7 +55,7 @@ module GroupMembershipValidator
   def verify_group_allowed(group_name)
     allowed_id = %w[Conjur_Cloud_Admins Conjur_Cloud_Users]
     if allowed_id.include?(group_name)
-      raise Errors::Conjur::ParameterValueInvalid , "Group Name"
+      raise Errors::Conjur::ParameterValueInvalid.new("Group Name", "Action is not allowed for groups [Conjur_Cloud_Admins, Conjur_Cloud_Users]")
     end
   end
 
@@ -69,7 +69,7 @@ module GroupMembershipValidator
   def verify_kind(kind)
     allowed_kind = %w[host user group]
     unless allowed_kind.include?(kind)
-      raise Errors::Conjur::ParameterValueInvalid , "Member Kind"
+      raise Errors::Conjur::ParameterValueInvalid.new("Member Kind", "Allowed values are [host, user, group]")
     end
   end
 

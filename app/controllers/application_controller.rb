@@ -72,10 +72,10 @@ class ApplicationController < ActionController::API
   rescue_from Errors::Conjur::BadSecretEncoding, with: :bad_secret_encoding
   rescue_from Errors::Authentication::RoleNotApplicableForKeyRotation, with: :method_not_allowed
   rescue_from Errors::Authorization::AccessToResourceIsForbiddenForRole, with: :forbidden
-  rescue_from Errors::Conjur::RequestedResourceNotFound, with: :resource_not_found
+  rescue_from Errors::Conjur::RequestedResourceNotFound, with: :render_resource_not_found
   rescue_from Errors::Authorization::InsufficientResourcePrivileges, with: :forbidden
   rescue_from Errors::Group::DuplicateMember, with: :render_duplicate_with_message
-  rescue_from Errors::Group::ResourceNotMember, with: :resource_not_found
+  rescue_from Errors::Group::ResourceNotMember, with: :render_resource_not_found
   rescue_from Errors::Conjur::APIHeaderMissing, with: :render_bad_request_with_message
 
   around_action :run_with_transaction
@@ -93,13 +93,8 @@ class ApplicationController < ActionController::API
     Sequel::Model.db.transaction(&block)
   end
 
-  def resource_not_found e
-    log_error(e)
-    render_resource_not_not_found(e)
-  end
-
-  def render_resource_not_not_found e
-    log_error(e)
+  def render_resource_not_found e
+    logger.warn("#{e}")
     render(json: {
       error: {
         code: "not_found",
@@ -271,7 +266,7 @@ class ApplicationController < ActionController::API
   end
 
   def render_bad_request_with_message e
-    log_error(e)
+    logger.warn("#{e}")
     render(json: {
       error: {
         code: :bad_request,
@@ -281,7 +276,7 @@ class ApplicationController < ActionController::API
   end
 
   def render_duplicate_with_message e
-    log_error(e)
+    logger.warn("#{e}")
     render(json: {
       error: {
         code: :conflict,

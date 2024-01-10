@@ -395,7 +395,7 @@ describe GroupsMembershipController, type: :request do
              )
         )
         assert_response :bad_request
-        expect(response.body.include? "Member Kind parameter value is not valid").to eq true
+        expect(response.body.include? "The value in the 'Member Kind' parameter is not valid. Error: Allowed values are [host, user, group]").to eq true
       end
     end
     context "Missing member kind" do
@@ -438,7 +438,7 @@ describe GroupsMembershipController, type: :request do
              )
         )
         assert_response :bad_request
-        expect(response.body.include? "The 'kind' parameter must be a String").to eq true
+        expect(response.body.include? "The 'kind' parameter must be of 'type=String'").to eq true
       end
     end
     context "Member kind is empty" do
