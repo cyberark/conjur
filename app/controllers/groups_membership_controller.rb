@@ -64,14 +64,18 @@ class GroupsMembershipController < V2RestController
     # validate all input is correct
     validate_remove_member_input(action, branch, group_name, member_id, member_kind, branch)
 
-    # build policy input
-    input = build_member_to_group_policy_input(group_name, member_kind, member_id)
-    # upload policy
-    result = submit_policy(Loader::ModifyPolicy, PolicyTemplates::RemoveMemberFromGroup.new(), input, resource(branch), true)
+    membership = remove_member_from_db(branch, group_name, member_kind, member_id)
 
     logger.debug(LogMessages::Endpoints::EndpointFinishedSuccessfully.new(log_message))
     head(204)
-    audit_success(result[:policy])
+    Audit.logger.log(
+      Audit::Event::Policy.new(
+        operation: :remove,
+        subject: Audit::Subject::RoleMembership.new(membership.pk_hash),
+        user: current_user,
+        client_ip: request.ip
+      )
+    )
   rescue => e
     audit_failure(e, action)
     raise e
@@ -89,9 +93,17 @@ class GroupsMembershipController < V2RestController
     # validate resource exists
     resource_id = GroupMemberType.get_resource_id(account, member_kind, member_id)
     resource_exists_validation(resource_id)
-    # Validate resource is a member in group
-    unless is_role_member_of_group(resource_id, group_id, policy_id)
-      raise Errors::Group::ResourceNotMember.new(member_id, member_kind, group_name)
+  end
+
+  def remove_member_from_db(branch, group_name, member_kind, member_id)
+    group_id = GroupMemberType.get_group_id(account, branch, group_name)
+    resource_id = GroupMemberType.get_resource_id(account, member_kind, member_id)
+    role_membership = ::RoleMembership[role_id: group_id, member_id: resource_id]
+    if role_membership
+      role_membership.destroy
+      role_membership
+    else  #If the resource is not a member raise an error
+      raise Errors::Group::ResourceNotMember.new(member_id, member_kind, group_id)
     end
   end
 
