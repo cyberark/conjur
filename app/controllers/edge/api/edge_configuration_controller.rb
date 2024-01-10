@@ -35,4 +35,21 @@ class EdgeConfigurationController < RestController
       raise e
     end
   end
+
+  def get_role
+    log_message = "Validating role '#{current_user.id}'"
+    logger.debug(LogMessages::Endpoints::EndpointRequested.new(log_message))
+    allowed_params = %i[account]
+    options = params.permit(*allowed_params).to_h.symbolize_keys
+    begin
+      render json: {
+        is_Conjur_Cloud_Admins: is_group_ancestor_of_role(current_user.id, "#{options[:account]}:group:Conjur_Cloud_Admins"),
+        is_Conjur_Cloud_Users: is_group_ancestor_of_role(current_user.id, "#{options[:account]}:group:Conjur_Cloud_Users"),
+        is_edge_hosts: is_group_ancestor_of_role(current_user.id, "#{options[:account]}:group:edge/edge-hosts") }
+      logger.debug(LogMessages::Endpoints::EndpointFinishedSuccessfully.new(log_message))
+    rescue => e
+      logger.error(LogMessages::Conjur::GeneralError.new(e.message))
+      raise e
+    end
+  end
 end

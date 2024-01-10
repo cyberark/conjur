@@ -10,8 +10,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   (and update the corresponding date), or add a new version.
 
 ## [1.0.18-cloud] - 2023-01-21
-### Changed
-- Log Level of application errors changed to warn
+### Added
+- API checking role of token (used by agent handler)
 
 ## [1.0.17-cloud] - 2023-01-14
 ### Changed
