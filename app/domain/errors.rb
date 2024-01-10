@@ -27,12 +27,12 @@ module Errors
     )
 
     ParameterValueInvalid = ::Util::TrackableErrorClass.new(
-      msg: "{0} parameter value is not valid",
+      msg: "The value in the '{0}' parameter is not valid. Error: {1}",
       code: "CONJ00191E"
     )
 
     ParameterTypeInvalid = ::Util::TrackableErrorClass.new(
-      msg: "The '{0}' parameter must be a {1}",
+      msg: "The '{0}' parameter must be of 'type={1}'",
       code: "CONJ00192E"
     )
 
