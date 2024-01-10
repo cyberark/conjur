@@ -1,19 +1,9 @@
 # frozen_string_literal: true
-require_relative '../controllers/wrappers/policy_wrapper'
-require_relative '../controllers/wrappers/policy_audit'
-require './app/domain/util/static_account'
 
 class GroupsMembershipController < V2RestController
   include AuthorizeResource
   include BodyParser
-  include FindPolicyResource
-  include PolicyAudit
-  include PolicyWrapper
   include GroupMembershipValidator
-  include APIValidator
-
-  before_action :current_user
-  before_action :find_or_create_root_policy
 
   NUM_OF_ADD_DATA_PARAMS = 7
   NUM_OF_REMOVE_DATA_PARAMS = 6
@@ -23,29 +13,22 @@ class GroupsMembershipController < V2RestController
     logger.debug(LogMessages::Endpoints::EndpointRequested.new(log_message))
     action = :update
 
-    # Extract the group name and the branch from the identifier
-    permitted_params = params.permit(:branch, :group_name, :kind, :id).to_h.symbolize_keys
-    branch = GroupMemberType.get_branch(permitted_params)
-    group_name = permitted_params[:group_name]
-    member_kind = permitted_params[:kind]
-    member_id = permitted_params[:id]
+    group, member, member_id, member_kind = input_validation(action, NUM_OF_ADD_DATA_PARAMS)
 
-    # validate all input is correct
-    validate_add_member_input(action, branch, group_name, member_id, member_kind, branch)
-
-    # build policy input
-    input = build_member_to_group_policy_input(group_name, member_kind, member_id)
-    # upload policy
-    result = submit_policy(Loader::CreatePolicy, PolicyTemplates::AddMemberToGroup.new(), input, resource(branch))
+    # If membership is already granted, grant_to will return nil.
+    # In this case, throw error
+    unless (membership = group.grant_to(member))
+      raise Errors::Group::DuplicateMember.new(member_id, member_kind, group[:role_id])
+    end
 
     logger.debug(LogMessages::Endpoints::EndpointFinishedSuccessfully.new(log_message))
     render(json: {
       kind: member_kind,
       id: member_id
     }, status: :created)
-    audit_success(result[:policy])
+    audit_success(membership, :add)
   rescue => e
-    audit_failure(e, action)
+    audit_failure(e, :add)
     raise e
   end
 
@@ -54,88 +37,86 @@ class GroupsMembershipController < V2RestController
     logger.debug(LogMessages::Endpoints::EndpointRequested.new(log_message))
     action = :update
 
-    # Extract the group name and the branch from the identifier
-    permitted_params = params.permit(:branch, :group_name, :kind, :id).to_h.symbolize_keys
-    branch = GroupMemberType.get_branch(permitted_params)
-    group_name = permitted_params[:group_name]
-    member_kind = permitted_params[:kind]
-    member_id = permitted_params[:id]
+    group, member, member_id, member_kind = input_validation(action, NUM_OF_REMOVE_DATA_PARAMS)
 
-    # validate all input is correct
-    validate_remove_member_input(action, branch, group_name, member_id, member_kind, branch)
-
-    membership = remove_member_from_db(branch, group_name, member_kind, member_id)
+    membership = ::RoleMembership[role_id: group[:role_id], member_id: member[:role_id]]
+    if membership
+      membership.destroy
+    else  #If the resource is not a member raise an error
+      raise Errors::Group::ResourceNotMember.new(member_id, member_kind, group[:role_id])
+    end
 
     logger.debug(LogMessages::Endpoints::EndpointFinishedSuccessfully.new(log_message))
     head(204)
-    Audit.logger.log(
-      Audit::Event::Policy.new(
-        operation: :remove,
-        subject: Audit::Subject::RoleMembership.new(membership.pk_hash),
-        user: current_user,
-        client_ip: request.ip
-      )
-    )
+    audit_success(membership, :remove)
   rescue => e
-    audit_failure(e, action)
+    audit_failure(e, :remove)
     raise e
   end
 
   private
 
-  def validate_remove_member_input(action, branch, group_name, member_id, member_kind, policy_id)
-    validate_group_members_input(params, NUM_OF_REMOVE_DATA_PARAMS, group_name, member_kind)
+  def audit_success(membership, operation)
+    Audit.logger.log(
+      Audit::Event::Policy.new(
+        operation: operation,
+        subject: Audit::Subject::RoleMembership.new(membership.pk_hash),
+        user: current_user,
+        client_ip: request.ip
+      )
+    )
+  end
+
+  def audit_failure(err, operation)
+    Audit.logger.log(
+      Audit::Event::Policy.new(
+        operation: operation,
+        subject: {}, # Subject is empty because no role/resource has been impacted
+        user: current_user,
+        client_ip: request.ip,
+        error_message: err.message
+      )
+    )
+  end
+
+  def input_validation(action, num_of_params)
+    permitted_params = params.permit(:branch, :group_name, :kind, :id).to_h.symbolize_keys
+    branch = get_branch(permitted_params)
+    group_name = permitted_params[:group_name]
+    member_kind = permitted_params[:kind]
+    member_id = permitted_params[:id]
+
+    # validate all input is correct
+    validate_group_members_input(params, num_of_params, group_name, member_kind)
+
     # Validate there is permissions for current user to run update on the branch
-    authorize(action, resource(branch))
-    # Validate group exists
-    group_id = GroupMemberType.get_group_id(account, branch, group_name)
-    resource_exists_validation(group_id)
-    # validate resource exists
-    resource_id = GroupMemberType.get_resource_id(account, member_kind, member_id)
-    resource_exists_validation(resource_id)
+    authorize(action, resource("policy", branch))
+
+    group_id = resource_id("group","#{branch}/#{group_name}")
+    group = Role[group_id]
+    raise Exceptions::RecordNotFound, group_id unless group
+
+    member_full_id = get_member_full_id(member_kind, member_id)
+    member = Role[member_full_id]
+    raise Exceptions::RecordNotFound, member_full_id unless member
+
+    [group, member, member_id, member_kind]
   end
 
-  def remove_member_from_db(branch, group_name, member_kind, member_id)
-    group_id = GroupMemberType.get_group_id(account, branch, group_name)
-    resource_id = GroupMemberType.get_resource_id(account, member_kind, member_id)
-    role_membership = ::RoleMembership[role_id: group_id, member_id: resource_id]
-    if role_membership
-      role_membership.destroy
-      role_membership
-    else  #If the resource is not a member raise an error
-      raise Errors::Group::ResourceNotMember.new(member_id, member_kind, group_id)
+  private
+  def get_member_full_id(member_kind, member_id)
+    #We support the member path to start with / and without but for full id we need it without /
+    if member_id.start_with?("/")
+      member_id = member_id[1..-1]
     end
+    resource_id(member_kind, member_id)
   end
 
-  def validate_add_member_input(action, branch, group_name, member_id, member_kind, policy_id)
-    validate_group_members_input(params, NUM_OF_ADD_DATA_PARAMS, group_name, member_kind)
-    # Validate there is permissions for current user to run update on the branch
-    authorize(action, resource(branch))
-    # Validate group exists
-    group_id = GroupMemberType.get_group_id(account, branch, group_name)
-    resource_exists_validation(group_id)
-    # Validate resource is not already a member
-    verify_resource_is_not_member(group_id, member_kind, member_id, policy_id)
-  end
-
-  def verify_resource_is_not_member(group_id, member_kind, member_id, policy_id)
-    resource_id = GroupMemberType.get_resource_id(account, member_kind, member_id)
-    if is_role_member_of_group(resource_id, group_id, policy_id)
-      raise Errors::Group::DuplicateMember.new(member_id, member_kind, group_id)
+  def get_branch(params)
+    branch = params[:branch]
+    if branch.nil?
+      branch = "root"
     end
+    branch
   end
-
-  def build_member_to_group_policy_input(group_name, member_kind, member_id)
-    # The resource id should be absolute path so have to start with / but as its part of the api path it will be without the / at the beginning
-    unless member_id.start_with?("/")
-      member_id = "/#{member_id}"
-    end
-
-    {
-      "id" => group_name,
-      "kind" => member_kind,
-      "member_id" => member_id
-    }
-  end
-
 end
