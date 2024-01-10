@@ -583,16 +583,42 @@ describe GroupsMembershipController, type: :request do
         expect(RoleMembership.where(role_id: "rspec:group:data/delegation/consumers",member_id:"rspec:group:data/testGroup").all.empty?).to eq true
       end
     end
+    context "When member was loaded to group by policy" do
+      let(:add_member_policy) do
+        <<~POLICY
+
+        - !grant
+           role: !group delegation/consumers
+           member:          
+             - !host delegation/host1      
+        POLICY
+      end
+      it 'on root policy' do
+        delete("/groups/data/delegation/consumers/members/host/data/host3",
+               env: token_auth_header(role: alice_user).merge(v2_api_header)
+        )
+        # Correct response code
+        assert_response :success
+      end
+      it 'on not leaf policy policy' do
+        # Load the policy into Conjur
+        put(
+          '/policies/rspec/policy/data',
+          env: token_auth_header(role: admin_user).merge(
+            { 'RAW_POST_DATA' => add_member_policy }
+          )
+        )
+        assert_response :success
+        delete("/groups/data/delegation/consumers/members/host/data/delegation/host1",
+               env: token_auth_header(role: alice_user).merge(v2_api_header)
+        )
+        # Correct response code
+        assert_response :success
+      end
+    end
   end
 
   context "with input issues" do
-    it 'Host was added not in group direct policy' do
-      delete("/groups/data/delegation/consumers/members/host/data/host3",
-             env: token_auth_header(role: alice_user).merge(v2_api_header)
-      )
-      # Correct response code
-      assert_response :not_found
-    end
     it 'When Group not exists' do
      delete("/groups/data/delegation/consumers2/members/host/data/delegation/host1",
              env: token_auth_header(role: alice_user).merge(v2_api_header)
