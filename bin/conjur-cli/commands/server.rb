@@ -46,7 +46,9 @@ module Commands
       # processes
       fork_server_process
       #fork_authn_local_process
-      fork_rotation_process
+      # The fork_rotation_process process shouldn't be called in Conjur-Cloud.
+      # We might want to use the secret rotation process in the future when using Conjur without pcloud/CMP
+      #fork_rotation_process
 
       # Block until all child processes end
       wait_for_child_processes

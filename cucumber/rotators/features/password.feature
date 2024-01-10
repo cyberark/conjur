@@ -1,4 +1,4 @@
-@rotators
+@rotators @skip
 Feature: Postgres password rotation
 
   Background: Configure a postgres rotator
