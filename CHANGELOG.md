@@ -18,6 +18,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Conjur API now returns the correct role graph, no longer showing resources that 
   the user does not have read permissions on.
 
+### Changed
+- Build packages for ARM64 architecture.
+  [Conjur-Enterprise/conjur#109](https://github.cyberng.com/Conjur-Enterprise/conjur/pull/109)
+
 ## [1.20.2] - 2023-10-30
 
 ### Fixed

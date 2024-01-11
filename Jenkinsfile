@@ -65,7 +65,11 @@ if (params.MODE == "PROMOTE") {
     sh "docker tag registry.tld/cyberark/conjur:${sourceVersion} conjur:${sourceVersion}"
     sh "docker pull registry.tld/conjur-ubi:${sourceVersion}"
     sh "docker tag registry.tld/conjur-ubi:${sourceVersion} conjur-ubi:${sourceVersion}"
+    // Promote both images for AMD64 and ARM64
     sh "summon -f ./secrets.yml ./publish-images.sh --promote --redhat --base-version=${sourceVersion} --version=${targetVersion}"
+    sh "summon -f ./secrets.yml ./publish-images.sh --promote --base-version=${sourceVersion} --version=${targetVersion} --arch=arm64"
+    // Promote manifest that links above images
+    sh "summon -f ./secrets.yml ./publish-manifest.sh --promote --base-version=${sourceVersion} --version=${targetVersion}"
 
     // Trigger Conjurops build to push newly promoted releases of conjur to ConjurOps Staging
     build(
@@ -141,6 +145,8 @@ pipeline {
           INFRAPOOL_EXECUTORV2_AGENT_1 = INFRAPOOL_EXECUTORV2_AGENTS[1]
           INFRAPOOL_EXECUTORV2_AGENT_2 = INFRAPOOL_EXECUTORV2_AGENTS[2]
 
+          INFRAPOOL_EXECUTORV2ARM_AGENT_0 = getInfraPoolAgent.connected(type: "ExecutorV2ARM", quantity: 1, duration: 1)[0]
+
           INFRAPOOL_EXECUTORV2_RHELEE_AGENTS = getInfraPoolAgent.connected(type: "ExecutorV2RHELEE", quantity: 3, duration: 1)
           INFRAPOOL_EXECUTORV2_RHELEE_AGENT_0 = INFRAPOOL_EXECUTORV2_RHELEE_AGENTS[0]
           INFRAPOOL_EXECUTORV2_RHELEE_AGENT_1 = INFRAPOOL_EXECUTORV2_RHELEE_AGENTS[1]
@@ -177,6 +183,7 @@ pipeline {
       steps {
         script {
           updateVersion(INFRAPOOL_EXECUTORV2_AGENT_0, "CHANGELOG.md", "${BUILD_NUMBER}")
+          updateVersion(INFRAPOOL_EXECUTORV2ARM_AGENT_0, "CHANGELOG.md", "${BUILD_NUMBER}")
           INFRAPOOL_EXECUTORV2_AGENT_0.agentStash name: 'version_info', includes: 'VERSION'
         }
       }
@@ -233,19 +240,54 @@ pipeline {
 
       stages {
         stage('Build Docker Image') {
-          steps {
-            script {
-              INFRAPOOL_EXECUTORV2_AGENT_0.agentSh './build.sh --jenkins'
+          parallel {
+            stage('Build AMD64 image') {
+              steps {
+                script {
+                  INFRAPOOL_EXECUTORV2_AGENT_0.agentSh './build.sh --jenkins'
+                }
+              }
+            }
+
+            stage('Build ARM64 image') {
+              steps {
+                script {
+                  INFRAPOOL_EXECUTORV2ARM_AGENT_0.agentSh './build.sh --jenkins'
+                }
+              }
             }
           }
         }
 
         stage('Push images to internal registry') {
+          parallel {
+            stage('Push images AMD64 image') {
+              steps {
+                script {
+                  // Push images to the internal registry so that they can be used
+                  // by tests, even if the tests run on a different executor.
+                  INFRAPOOL_EXECUTORV2_AGENT_0.agentSh './publish-images.sh --internal'
+                }
+              }
+            }
+
+            stage('Push images ARM64 image') {
+              steps {
+                script {
+                  // Push images to the internal registry so that they can be used
+                  // by tests, even if the tests run on a different executor.
+                  INFRAPOOL_EXECUTORV2ARM_AGENT_0.agentSh './publish-images.sh --internal --arch=arm64'
+                }
+              }
+            }
+          }
+        }
+
+        stage('Push multi-arch manifest to internal registry') {
           steps {
             script {
-              // Push images to the internal registry so that they can be used
-              // by tests, even if the tests run on a different executor.
-              INFRAPOOL_EXECUTORV2_AGENT_0.agentSh './publish-images.sh --internal'
+              // Push multi-architecture manifest to the internal registry.
+              INFRAPOOL_EXECUTORV2_AGENT_0.agentSh './publish-manifest.sh --internal'
             }
           }
         }
@@ -255,24 +297,44 @@ pipeline {
             expression { params.RUN_ONLY == '' }
           }
           parallel {
-            stage("Scan Docker Image for fixable issues") {
+            stage("Scan Docker Image for fixable issues (AMD64)") {
               steps {
                 scanAndReport(INFRAPOOL_EXECUTORV2_AGENT_0, "conjur:${TAG_SHA}", "HIGH", false)
               }
             }
-            stage("Scan Docker image for total issues") {
+            stage("Scan Docker image for total issues (AMD64)") {
               steps {
                 scanAndReport(INFRAPOOL_EXECUTORV2_AGENT_0, "conjur:${TAG_SHA}", "NONE", true)
               }
             }
-            stage("Scan UBI-based Docker Image for fixable issues") {
+            stage("Scan UBI-based Docker Image for fixable issues (AMD64)") {
               steps {
                 scanAndReport(INFRAPOOL_EXECUTORV2_AGENT_0, "conjur-ubi:${TAG_SHA}", "HIGH", false)
               }
             }
-            stage("Scan UBI-based Docker image for total issues") {
+            stage("Scan UBI-based Docker image for total issues (AMD64)") {
               steps {
                 scanAndReport(INFRAPOOL_EXECUTORV2_AGENT_0, "conjur-ubi:${TAG_SHA}", "NONE", true)
+              }
+            }
+            stage("Scan Docker Image for fixable issues (ARM64)") {
+              steps {
+                scanAndReport(INFRAPOOL_EXECUTORV2ARM_AGENT_0, "conjur:${TAG_SHA}", "HIGH", false)
+              }
+            }
+            stage("Scan Docker image for total issues (ARM64)") {
+              steps {
+                scanAndReport(INFRAPOOL_EXECUTORV2ARM_AGENT_0, "conjur:${TAG_SHA}", "NONE", true)
+              }
+            }
+            stage("Scan UBI-based Docker Image for fixable issues (ARM64)") {
+              steps {
+                scanAndReport(INFRAPOOL_EXECUTORV2ARM_AGENT_0, "conjur-ubi:${TAG_SHA}", "HIGH", false)
+              }
+            }
+            stage("Scan UBI-based Docker image for total issues (ARM64)") {
+              steps {
+                scanAndReport(INFRAPOOL_EXECUTORV2ARM_AGENT_0, "conjur-ubi:${TAG_SHA}", "NONE", true)
               }
             }
           }
@@ -1023,10 +1085,21 @@ pipeline {
           release(INFRAPOOL_EXECUTORV2_AGENT_0) { billOfMaterialsDirectory, assetDirectory ->
             // Publish docker images
             INFRAPOOL_EXECUTORV2_AGENT_0.agentSh './publish-images.sh --edge --dockerhub'
+            INFRAPOOL_EXECUTORV2ARM_AGENT_0.agentSh './publish-images.sh --edge --arch=arm64'
+            INFRAPOOL_EXECUTORV2_AGENT_0.agentSh './publish-manifest.sh --edge'
 
-            // Create deb and rpm packages
+            // Create deb and rpm packages (ARM64)
+            INFRAPOOL_EXECUTORV2ARM_AGENT_0.agentSh 'echo "CONJUR_VERSION=5" >> debify.env'
+            INFRAPOOL_EXECUTORV2ARM_AGENT_0.agentSh './package.sh'
+            INFRAPOOL_EXECUTORV2ARM_AGENT_0.agentStash name: 'arm64-packages', includes: '*.deb,*.rpm', allowEmpty:true
+
+            // Create deb and rpm packages (AMD64)
             INFRAPOOL_EXECUTORV2_AGENT_0.agentSh 'echo "CONJUR_VERSION=5" >> debify.env'
             INFRAPOOL_EXECUTORV2_AGENT_0.agentSh './package.sh'
+
+            // Unstash packages built in ARM64 agent
+            INFRAPOOL_EXECUTORV2_AGENT_0.agentUnstash name: 'arm64-packages'
+            // Copy assets to the release
             INFRAPOOL_EXECUTORV2_AGENT_0.agentSh "cp *.rpm ${assetDirectory}/."
             INFRAPOOL_EXECUTORV2_AGENT_0.agentSh "cp *.deb ${assetDirectory}/."
 
