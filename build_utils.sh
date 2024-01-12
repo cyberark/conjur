@@ -46,4 +46,10 @@ function prepare_manifest() {
     --amend "${image}:${tag}-arm64"
 
   docker manifest push --insecure "${image}:${tag}"
+
+  # Because the bill of materials is created based on local docker images this is necessary in order to have
+  # identical records in BOM files as previously, before multi-arch changes
+  docker rmi "${image}:${tag}-amd64"
+  docker rmi "${image}:${tag}-arm64"
+  docker pull "${image}:${tag}"
 }
