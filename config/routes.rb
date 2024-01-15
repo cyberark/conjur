@@ -116,6 +116,10 @@ Rails.application.routes.draw do
       # Groups
       post "/groups(/*branch)/:group_name/members" => 'groups_membership#add_member'
       delete "/groups(/*branch)/:group_name/members/:kind(/*id)" => 'groups_membership#remove_member'
+
+      # Licenses
+      get "/licenses/conjur" => 'license#show'
+
     end
 
     # Host Factory
