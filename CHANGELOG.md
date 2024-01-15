@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [1.0.18-cloud] - 2023-01-21
 ### Added
 - API checking role of token (used by agent handler)
+- Remove secrets scheduled rotation process
 
 ## [1.0.17-cloud] - 2023-01-14
 ### Changed
