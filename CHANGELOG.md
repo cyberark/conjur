@@ -18,6 +18,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [1.20.3] - 2023-12-06
 
 ### Fixed
+- Allow support for different architecture using a portable method to get the
+  thread ID within the logging middleware and k8s authenticator.
+  [CNJR-3428](https://ca-il-jira.il.cyber-ark.com:8443/browse/CNJR-3428)
 - Improved error messaging when a foreign key constraint violation occurs during
   a policy replace.
   [Conjur-Enterprise/conjur#93](https://github.cyberng.com/Conjur-Enterprise/conjur/pull/93)
