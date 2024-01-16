@@ -31,7 +31,6 @@ class LicenseController < RestController
       scope = Resource.visible_to(Role[current_user.id])
       scope = scope.search(**options)
     rescue ArgumentError => e
-      logger.error(LogMessages::Conjur::GeneralError.new(e.message))
       raise ApplicationController::InternalServerError, e.message
     end
     scope.count('*'.lit)
