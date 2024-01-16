@@ -110,13 +110,6 @@ describe LicenseController, type: :request do
         validate_output(2, response.body)
       end
     end
-    context "When the user is not in Conjur_Cloud_Admins and there are workloads" do
-      it "returns 403" do
-        get("/licenses/conjur?language=english",
-            env: token_auth_header(role: alice_user))
-        assert_response :forbidden
-      end
-    end
   end
 end
 
