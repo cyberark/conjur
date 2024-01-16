@@ -10,6 +10,7 @@ class LicenseController < RestController
   CONTENT_TYPE = 'application/json'
 
   def show
+    StaticAccount.set_account("cucumber")
     allowed_params = %i[language]
     options = params.permit(*allowed_params).to_h.symbolize_keys
     logger.debug(LogMessages::Endpoints::EndpointRequested.new("GET /license/conjur#{options[:language]}"))
@@ -22,7 +23,7 @@ class LicenseController < RestController
       status = :ok
     else
       logger.error(LogMessages::Conjur::GeneralError.new("Language #{options[:language]} is not supported"))
-      raise Errors::Conjur::ParameterValueInvalid, "Language #{options[:language]} is not supported"
+      raise Errors::Conjur::ParameterValueInvalid.new("language", "#{options[:language]} is not supported")
     end
     logger.debug(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("GET /license/conjur#{options[:language]}"))
     render(json: json, status: status, content_type: CONTENT_TYPE)
