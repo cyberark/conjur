@@ -2,93 +2,116 @@
 
 require 'spec_helper'
 
-policy_with_no_hosts =
+policy_setup =
   <<~POLICY
+    - !user
+      id: bob
     - !group
       id: Conjur_Cloud_Admins
     - !grant
-      role: !group Conjur_Cloud_Admins
-      members: 
-        - !user /admin
-  POLICY
+       role: !group Conjur_Cloud_Admins
+       members:
+         - !user bob
 
-policy_with_hosts =
+    - !policy
+      id: data 
+      owner: !group Conjur_Cloud_Admins
+      body:
+      - !user
+        id: alice 
+      - !group
+        id: Conjur_Cloud_Users
+      - !grant
+        role: !group Conjur_Cloud_Users
+        members:
+          - !user alice
+  POLICY
+  
+policy_add_hosts =
   <<~POLICY
-    - !group
-      id: Conjur_Cloud_Admins
-    - !group
-      id: Conjur_Cloud_Non_Admins
-    - !grant
-      role: !group Conjur_Cloud_Admins
-      members: 
-        - !user /admin
     - !host
       owner: !group Conjur_Cloud_Admins
       id: my-host-1
     - !host
-      owner: !group Conjur_Cloud_Non_Admins
+      owner: !group data/Conjur_Cloud_Users
       id: my-host-2
   POLICY
-  
+
+policy_remove_hosts =
+  <<~POLICY
+    - !delete
+      record: !host my-host-1 
+    - !delete
+      record: !host data/my-host-2
+  POLICY
+
 describe LicenseController, type: :request do
-  before do
+  let(:admin_user) { Role.find_or_create(role_id: 'rspec:user:admin') }
+  let(:bob_user) { Role.find_or_create(role_id: 'rspec:user:bob') }
+  let(:alice_user) { Role.find_or_create(role_id:  'rspec:user:alice') }
+
+  before(:all) do
     init_slosilo_keys("rspec")
     StaticAccount.set_account("rspec")
   end
 
+  before(:each) do
+    post(
+      '/policies/rspec/policy/root',
+      env: token_auth_header(role: admin_user).merge(
+        'RAW_POST_DATA' => policy_setup
+      )
+    )
+    assert_response :success
+  end
   describe "GET /licenses/conjur" do
-    let(:admin_user) { Role.find_or_create(role_id: 'rspec:user:admin') }
-    let(:alice_user) { Role.find_or_create(role_id:  'rspec:user:alice') }
-
     context "when the user is not in Conjur_Cloud_Admins" do
       it "returns 403" do
         get("/licenses/conjur?language=english",
-            env: token_auth_header(role: admin_user))
+            env: token_auth_header(role: alice_user))
         assert_response :forbidden
       end
     end
 
     context "when the user is in Conjur_Cloud_Admins and there are no workloads" do 
       it "returns 200" do 
-        put(
-          '/policies/rspec/policy/root',
-          env: token_auth_header(role: admin_user).merge(
-            'RAW_POST_DATA' => policy_with_no_hosts
-          )
-        )
-        assert_response :success
         get("/licenses/conjur?language=english",
-            env: token_auth_header(role: admin_user))
+            env: token_auth_header(role: bob_user))
         assert_response :success
         validate_output(0, response.body)
       end
     end
 
     context "when the user is in Conjur_Cloud_Admins and there are workloads" do
-      it "returns 200" do 
-        put(
+      before do
+        patch(
           '/policies/rspec/policy/root',
           env: token_auth_header(role: admin_user).merge(
-            'RAW_POST_DATA' => policy_with_hosts
+            'RAW_POST_DATA' => policy_add_hosts
           )
         )
         assert_response :success
+      end
+
+      it "returns 200" do 
         get("/licenses/conjur?language=english",
-            env: token_auth_header(role: admin_user))
+            env: token_auth_header(role: bob_user))
         assert_response :success
         validate_output(2, response.body)
+        assert_response :success
+      end
+      after do
+        patch(
+          '/policies/rspec/policy/root',
+          env: token_auth_header(role: admin_user).merge(
+            'RAW_POST_DATA' => policy_remove_hosts 
+          )
+        )
+        assert_response :success
       end
     end
     context "When the user is not in Conjur_Cloud_Admins and there are workloads" do
       it "returns 403" do
-
-        put(
-          '/policies/rspec/policy/root',
-          env: token_auth_header(role: admin_user).merge(
-            'RAW_POST_DATA' => policy_with_hosts
-          )
-        )
-        assert_response :success
         get("/licenses/conjur?language=english",
             env: token_auth_header(role: alice_user))
         assert_response :forbidden

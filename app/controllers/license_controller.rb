@@ -21,7 +21,7 @@ class LicenseController < RestController
       json = construct_response(count) 
       status = :ok 
     end
-
+    logger.debug(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("GET /license/conjur#{options[:language]}"))
     render(json: json, status: status, content_type: CONTENT_TYPE)
   end
 
@@ -31,11 +31,8 @@ class LicenseController < RestController
       options = { account: StaticAccount.account,  kind: 'host', exclude: 'false' }
       scope = Resource.visible_to(Role[current_user.id])
       scope = scope.search(**options)
-    rescue ApplicationController::Forbidden
-      audit_list_failure(options, "The authenticated user lacks the necessary privilege")
-      raise
     rescue ArgumentError => e
-      audit_list_failure(options, e.message)
+      logger.error(LogMessages::Conjur::GeneralError.new(e.message))
       raise ApplicationController::UnprocessableEntity, e.message
     end
     scope.count('*'.lit)
@@ -43,13 +40,7 @@ class LicenseController < RestController
 
   def validate_user_is_in_admin_group
     account = StaticAccount.account 
-    begin
-      validate_conjur_admin_group(account)
-    rescue => e
-      audit_params[:error_message] = e.message
-      logger.error(LogMessages::Conjur::GeneralError.new(e.message))
-      raise e
-    end
+    validate_conjur_admin_group(account)
   end
 
   def construct_response(workloads_in_use)
