@@ -7,26 +7,21 @@ class LicenseController < RestController
 
   COMPONENT_NAME = 'Conjur Cloud'
   USER_TYPE = 'Workloads' # The user type is the type of license purchased by the user
-  CONTENT_TYPE = 'application/json'
 
   def show
-    StaticAccount.set_account("cucumber")
     allowed_params = %i[language]
     options = params.permit(*allowed_params).to_h.symbolize_keys
     logger.debug(LogMessages::Endpoints::EndpointRequested.new("GET /license/conjur#{options[:language]}"))
-    json = "" 
-    status = :bad_request
-    if options[:language] == 'english'
-      validate_user_is_in_admin_group
-      count = count_workloads_in_use
-      json = construct_response(count) 
-      status = :ok
-    else
-      logger.error(LogMessages::Conjur::GeneralError.new("Language #{options[:language]} is not supported"))
+
+    unless options[:language] == 'english'
       raise Errors::Conjur::ParameterValueInvalid.new("language", "#{options[:language]} is not supported")
     end
+
+    validate_user_is_in_admin_group
+    count = count_workloads_in_use
+    response = construct_response(count) 
     logger.debug(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("GET /license/conjur#{options[:language]}"))
-    render(json: json, status: status, content_type: CONTENT_TYPE)
+    render(json: response, status: :ok)
   end
 
   def count_workloads_in_use
