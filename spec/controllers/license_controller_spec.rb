@@ -12,6 +12,8 @@ policy_setup =
        role: !group Conjur_Cloud_Admins
        members:
          - !user bob
+    - !group
+       id: Conjur_Cloud_Users
 
     - !policy
       id: data 
@@ -19,12 +21,11 @@ policy_setup =
       body:
       - !user
         id: alice 
-      - !group
-        id: Conjur_Cloud_Users
-      - !grant
-        role: !group Conjur_Cloud_Users
-        members:
-          - !user alice
+
+    - !grant
+      role: !group Conjur_Cloud_Users
+      members:
+        - !user alice@data
   POLICY
   
 policy_add_hosts =
@@ -33,7 +34,7 @@ policy_add_hosts =
       owner: !group Conjur_Cloud_Admins
       id: my-host-1
     - !host
-      owner: !group data/Conjur_Cloud_Users
+      owner: !group Conjur_Cloud_Users
       id: my-host-2
   POLICY
 
@@ -65,7 +66,7 @@ describe LicenseController, type: :request do
     assert_response :success
   end
   describe "GET /licenses/conjur" do
-    context "when the user is not in Conjur_Cloud_Admins" do
+    context "When the user is not in Conjur_Cloud_Admins" do
       it "returns 403" do
         get("/licenses/conjur?language=english",
             env: token_auth_header(role: alice_user))
@@ -73,7 +74,7 @@ describe LicenseController, type: :request do
       end
     end
 
-    context "when the user is in Conjur_Cloud_Admins and there are no workloads" do 
+    context "When the user is in Conjur_Cloud_Admins and there are no workloads" do 
       it "returns 200" do 
         get("/licenses/conjur?language=english",
             env: token_auth_header(role: bob_user))
@@ -82,7 +83,22 @@ describe LicenseController, type: :request do
       end
     end
 
-    context "when the user is in Conjur_Cloud_Admins and there are workloads" do
+    context "When the user has invalid token" do
+      it "returns 401" do
+        get("/licenses/conjur?language=english")
+        assert_response :unauthorized
+      end
+    end
+
+    context "When the langauge is not supported" do
+      it "returns 400" do
+        get("/licenses/conjur?language=spanish",
+            env: token_auth_header(role: bob_user))
+        assert_response :bad_request
+      end
+    end
+
+    context "When the user is in Conjur_Cloud_Admins and there are workloads" do
       before do
         patch(
           '/policies/rspec/policy/root',

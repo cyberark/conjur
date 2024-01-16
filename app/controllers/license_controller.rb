@@ -19,7 +19,10 @@ class LicenseController < RestController
       validate_user_is_in_admin_group
       count = count_workloads_in_use
       json = construct_response(count) 
-      status = :ok 
+      status = :ok
+    else
+      logger.error(LogMessages::Conjur::GeneralError.new("Language #{options[:language]} is not supported"))
+      raise Errors::Conjur::ParameterValueInvalid, "Language #{options[:language]} is not supported"
     end
     logger.debug(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("GET /license/conjur#{options[:language]}"))
     render(json: json, status: status, content_type: CONTENT_TYPE)
@@ -33,7 +36,7 @@ class LicenseController < RestController
       scope = scope.search(**options)
     rescue ArgumentError => e
       logger.error(LogMessages::Conjur::GeneralError.new(e.message))
-      raise ApplicationController::UnprocessableEntity, e.message
+      raise ApplicationController::InternalServerError, e.message
     end
     scope.count('*'.lit)
   end
