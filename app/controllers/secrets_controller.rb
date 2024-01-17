@@ -9,19 +9,33 @@ class SecretsController < RestController
 
   before_action :current_user
 
+  # Wrap the request in a transaction.
+  def run_with_transaction(&block)
+    if params[:action].downcase.starts_with?('show')
+      yield
+    else
+      Sequel::Model.db.transaction(&block)
+    end
+  end
+
   def create
+    Rails.logger.error("create secret 1")
     authorize(:update)
-
     raise Exceptions::MethodNotAllowed, "adding a static secret to a dynamic secret variable is not allowed" if dynamic_secret?
-
     value = request.raw_post
-
     raise ArgumentError, "'value' may not be empty" if value.blank?
+    resource_id = params[:account] + ":" + params[:kind] + ":" + params[:identifier]
+    valueInRedis = $redis.get(ENV['TENANT_ID'] + "::/secrets/" + resource_id)
+    if (!(valueInRedis.nil?))
+      $redis.setex(ENV['TENANT_ID'] + "::/secrets/" + resource_id, 900, value)
+    end
+    Rails.logger.error("create secret 2 resource_id = #{resource_id}, value = #{value}")
 
-    Secret.create(resource_id: resource.id, value: value)
+    Secret.create(resource_id: resource_id, value: value)
     resource.enforce_secrets_version_limit
 
     head(:created)
+
   ensure
     update_info = error_info.merge(
       resource: resource,
@@ -33,24 +47,59 @@ class SecretsController < RestController
     Audit.logger.log(
       Audit::Event::Update.new(**update_info)
     )
+
   end
 
   def show
-    authorize(:execute)
+    Rails.logger.error("in show secret!!!")
     version = params[:version]
+    resource_id = params[:account] + ":" + params[:kind] + ":" + params[:identifier]
+    #
+    # resourceFromCache = $redis.get(ENV['TENANT_ID'] + "/secrets/" + "resource/" + resource_id)
+    # if (resourceFromCache.nil?)
+    #   resourceObj = self.resource
+    #   $redis.setex(ENV['TENANT_ID'] + "/secrets/" + "resource/" + resource_id, 900, resourceObj.as_json)
+    #   Rails.logger.error("Reading from RDS")
+    # else
+    #   Rails.logger.error("Reading from redis")
+    #   # resourceObj = Resource.create(resource_id: resourceFromCache["id"], owner_id: resourceFromCache["owner"])
+    #   resourceObj = Resource.new()
+    #   resourceObj.from_json!(resourceFromCache)
+    #   #Rails.logger.error("Reading from redis")
+    #    Rails.logger.error("redis resource id is: #{resourceObj.resource_id}")
+    # end
 
-    if dynamic_secret?
-      value = handle_dynamic_secret
-      mime_type = 'application/json'
-    else
-      unless (secret = resource.secret(version: version))
-        raise Exceptions::RecordNotFound.new(\
-          resource.id, message: "Requested version does not exist"
-        )
+    value = $redis.get(ENV['TENANT_ID'] + "::/secrets/" + resource_id)
+    if !(value.nil?)
+      Rails.logger.error("Reading from REDIS")
+      resourceObj = Resource.new
+      resourceObj.from_json!(value)
+      if (resourceObj.resource_id.nil?)
+        authorize(:execute)
+      else
+        authorize(:execute, resourceObj)
       end
-      value = secret.value
-      mime_type = \
-        resource.annotation('conjur/mime_type') || 'application/octet-stream'
+      mime_type = $redis.get(ENV['TENANT_ID'] + "::/secrets/" + resource_id + "/mime_type")
+
+    else
+      authorize(:execute)
+      Rails.logger.error("Reading from RDS")
+      if dynamic_secret?
+        value = handle_dynamic_secret
+        mime_type = 'application/json'
+      else
+        unless (secret = resource.secret(version: version))
+          raise Exceptions::RecordNotFound.new(\
+            resource_id, message: "Requested version does not exist"
+          )
+        end
+        value = secret.value
+        mime_type = \
+          resource.annotation('conjur/mime_type') || 'application/octet-stream'
+      end
+      puts "value is: #{resource.as_json}"
+      $redis.setex(ENV['TENANT_ID'] + "::/secrets/" + resource_id, 900, value)
+      $redis.setex(ENV['TENANT_ID'] + "::/secrets/" + resource_id + "/mime_type", 900, mime_type)
     end
 
     send_data(value, type: mime_type)

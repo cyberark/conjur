@@ -37,6 +37,10 @@ class Role < Sequel::Model
     end
   end
 
+  def from_json! string
+    self.role_id = JSON.load(string)["id"]
+  end
+
   class << self
     def that_can(permission, resource)
       Role.from(
@@ -180,6 +184,8 @@ class Role < Sequel::Model
   end
 
   def allowed_to?(privilege, resource)
+
+    Rails.logger.error("IN role.rb the resource is: #{resource.resource_id}")
     Role.from(
       Sequel.function(:is_role_allowed_to, id, privilege.to_s, resource.id)
     ).first[:is_role_allowed_to]

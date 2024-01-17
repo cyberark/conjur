@@ -46,6 +46,19 @@ class Resource < Sequel::Model
     end
   end
 
+  def from_json! string
+
+    Rails.logger.error("IN recource.rb the id of resource is: #{string} ")
+    if string.include? '"id"=>"'
+      self.resource_id = string.split('"id"=>"')[1].split('"')[0]
+    else
+      self.resource_id = nil
+    end
+
+
+    Rails.logger.error("IN recource.rb the id after setting resource is: #{ self.resource_id}")
+  end
+
   class << self
 
     def make_full_id id, account
@@ -177,11 +190,11 @@ class Resource < Sequel::Model
   def enforce_secrets_version_limit limit = secrets_version_limit
     # The Sequel-foo for this escapes me.
     Sequel::Model.db[<<-SQL, resource_id, limit, resource_id].delete
-    WITH 
-      "ordered_secrets" AS 
-        (SELECT * FROM "secrets" WHERE ("resource_id" = ?) ORDER BY "version" DESC LIMIT ?), 
-      "delete_secrets" AS 
-        (SELECT * FROM "secrets" LEFT JOIN "ordered_secrets" USING ("resource_id", "version") WHERE (("ordered_secrets"."resource_id" IS NULL) AND ("resource_id" = ?))) 
+    WITH
+      "ordered_secrets" AS
+        (SELECT * FROM "secrets" WHERE ("resource_id" = ?) ORDER BY "version" DESC LIMIT ?),
+      "delete_secrets" AS
+        (SELECT * FROM "secrets" LEFT JOIN "ordered_secrets" USING ("resource_id", "version") WHERE (("ordered_secrets"."resource_id" IS NULL) AND ("resource_id" = ?)))
     DELETE FROM "secrets"
     USING "delete_secrets"
     WHERE "secrets"."resource_id" = "delete_secrets"."resource_id" AND

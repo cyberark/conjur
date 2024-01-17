@@ -31,6 +31,11 @@ ENV PATH="${PATH}:${CONJUR_HOME}/bin"
 
 WORKDIR ${CONJUR_HOME}
 
+RUN apt-get update -y && \
+    apt-get -y dist-upgrade
+
+RUN apt-get update -y && apt-get install -y telnet
+
 # Ensure few required GID0-owned folders to run as a random UID (OpenShift requirement)
 RUN mkdir -p $TMP_DIR \
              $LOG_DIR \
