@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
+## [1.0.19-cloud] - 2023-01-28
+### Added
+- API getting the license info (number of used hosts) 
+
 ## [1.0.18-cloud] - 2023-01-21
 ### Added
 - API checking role of token (used by agent handler)
