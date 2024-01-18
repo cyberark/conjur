@@ -16,7 +16,7 @@ class AuthnK8sTestServer
     end
 
     def self.read_response_file(relative_path)
-        File.read(File.join(File.dirname(__FILE__), relative_path))
+        File.read(File.join(File.dirname(__FILE__), "fixtures", relative_path))
     end
 
     def self.log(...)
@@ -130,27 +130,27 @@ class AuthnK8sTestServer
         AuthnK8sTestServer.log("Handling request: #{req.request_method} path=#{req.fullpath}")
 
         if env['HTTP_AUTHORIZATION'] != "Bearer #{bearer_token}"
-            return [ 401, {"Content-Type" => "application/json"}, [AuthnK8sTestServer.read_response_file("unauthorized.json")] ]
+            return [ 401, {"Content-Type" => "application/json"}, [AuthnK8sTestServer.read_response_file("bad_unauthorized.json")] ]
         end
 
         return ws_call(env) if Faye::WebSocket.websocket?(env)
 
         if req.path == "#{subpath}/api/v1"
-            [ 200, {"Content-Type" => "application/json"}, [AuthnK8sTestServer.read_response_file("good:api.v1.json")] ]
+            [ 200, {"Content-Type" => "application/json"}, [AuthnK8sTestServer.read_response_file("good_api.v1.json")] ]
         elsif req.path == "#{subpath}/api"
-            [ 200, {"Content-Type" => "application/json"}, [AuthnK8sTestServer.read_response_file("good:api.json")] ]
+            [ 200, {"Content-Type" => "application/json"}, [AuthnK8sTestServer.read_response_file("good_api.json")] ]
         elsif req.path == "#{subpath}/apis"
-            [ 200, {"Content-Type" => "application/json"}, [AuthnK8sTestServer.read_response_file("good:apis.json")] ]
+            [ 200, {"Content-Type" => "application/json"}, [AuthnK8sTestServer.read_response_file("good_apis.json")] ]
         elsif req.path.start_with?("#{subpath}/apis/")
-            [ 200, {"Content-Type" => "application/json"}, [AuthnK8sTestServer.read_response_file("good:apis.all.json")] ]
+            [ 200, {"Content-Type" => "application/json"}, [AuthnK8sTestServer.read_response_file("good_apis.all.json")] ]
         elsif req.path == "#{subpath}/api/v1/namespaces/default/pods/bash-8449b79d7-c2fwd"
-            [ 200, {"Content-Type" => "application/json"}, [AuthnK8sTestServer.read_response_file("good:api.v1.getpod.json")] ]
+            [ 200, {"Content-Type" => "application/json"}, [AuthnK8sTestServer.read_response_file("good_api.v1.getpod.json")] ]
         elsif req.path.start_with?("#{subpath}/api/v1/namespaces/default/pods/")
-            [ 404, {"Content-Type" => "application/json"}, [AuthnK8sTestServer.read_response_file("bad:api.v1.getpod.json")] ]
+            [ 404, {"Content-Type" => "application/json"}, [AuthnK8sTestServer.read_response_file("bad_api.v1.getpod.json")] ]
         elsif req.fullpath == "#{subpath}/api/v1/namespaces/default"
-            [ 200, {"Content-Type" => "application/json"}, [AuthnK8sTestServer.read_response_file("good:api.v1.getnamespace.json")]]
+            [ 200, {"Content-Type" => "application/json"}, [AuthnK8sTestServer.read_response_file("good_api.v1.getnamespace.json")]]
         elsif req.path.start_with?("#{subpath}/api/v1/namespaces")
-            [ 404, {"Content-Type" => "application/json"}, [AuthnK8sTestServer.read_response_file("bad:api.v1.getnamespace.json")] ]
+            [ 404, {"Content-Type" => "application/json"}, [AuthnK8sTestServer.read_response_file("bad_api.v1.getnamespace.json")] ]
         # NOTE: Kubenertes clients make requests to a whole set of endpoints at initialization time. The only way we could find to make the clients
         # happy was to have this else branch return 200 with an empty JSON object. Ideally, this branch should return something like a 404.
         # TODO: Find a better way to satisfy Kubernetes client initialization in relation to the above note.
