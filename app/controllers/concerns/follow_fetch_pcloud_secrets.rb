@@ -28,13 +28,17 @@ module FollowFetchPcloudSecrets
     PCLOUD_ACCESS_SECRET = 'internal/telemetry/first_pcloud_fetch'
 
     def first_fetch_set?
-      return @@is_pcloud_fetched if defined?(@@is_pcloud_fetched) and !@@is_pcloud_fetched.nil?
-      @@is_pcloud_fetched = !Resource[resource_id: get_pcloud_fetch_secret_name]&.secret.nil?
+      if !defined?(@@is_pcloud_fetched) || @@is_pcloud_fetched.nil?
+        @@is_pcloud_fetched = !Resource[resource_id: get_pcloud_fetch_secret_name]&.secret.nil?
+      end
+      @@is_pcloud_fetched
     end
 
     def set_first_fetch
+      if Resource[resource_id: get_pcloud_fetch_secret_name] && Secret[resource_id: get_pcloud_fetch_secret_name].nil?
+        Secret.create(resource_id: get_pcloud_fetch_secret_name, value: Time.now.to_s)
+      end
       @@is_pcloud_fetched = true
-      Secret.create(resource_id: get_pcloud_fetch_secret_name, value: Time.now.to_s) if Resource[resource_id: get_pcloud_fetch_secret_name]
     end
 
     def get_account
