@@ -23,6 +23,9 @@ class ApplicationController < ActionController::API
   class BadRequest < RuntimeError
   end
 
+  class BadRequestWithBody < RuntimeError
+  end
+
   class InternalServerError < RuntimeError
   end
 
@@ -51,6 +54,7 @@ class ApplicationController < ActionController::API
   rescue_from Exceptions::Forbidden, with: :forbidden
   rescue_from Exceptions::MethodNotAllowed, with: :method_not_allowed
   rescue_from BadRequest, with: :bad_request
+  rescue_from BadRequestWithBody, with: :render_bad_request_with_message
   rescue_from Unauthorized, with: :unauthorized
   rescue_from InternalServerError, with: :internal_server_error
   rescue_from ServiceUnavailable, with: :service_unavailable
@@ -104,7 +108,6 @@ class ApplicationController < ActionController::API
   end
 
   def record_not_found e
-    log_error(e)
     render_record_not_found(e)
   end
 

@@ -33,7 +33,7 @@ class IssuersController < RestController
     issuer_type.validate_update(body_params)
 
     if issuer.max_ttl > params[:max_ttl]
-      raise ApplicationController::BadRequest, "The new max_ttl must be equal or higher than the current max_ttl"
+      raise ApplicationController::BadRequestWithBody, "The new max_ttl must be equal or higher than the current max_ttl"
     end
     
     issuer.update(data: params[:data].to_json,
@@ -44,16 +44,10 @@ class IssuersController < RestController
     issuer_audit_success(issuer.account, issuer.issuer_id, "update")
     logger.info(LogMessages::Issuers::TelemetryIssuerLog.new("update", issuer.account, issuer.issuer_id, request.ip))
     render(json: issuer.as_json, status: :ok)
-  rescue ApplicationController::BadRequest => e
-    logger.error("Input validation error for issuer [#{params[:identifier]}]: #{e.message}")
+  rescue => e
     audit_failure(e, action)
     issuer_audit_failure(params[:account], params[:identifier], "update", e.message)
-    render(json: {
-      error: {
-        code: "bad_request",
-        message: e.message
-      }
-    }, status: :bad_request)
+    raise e
   end
 
   def create
@@ -85,21 +79,15 @@ class IssuersController < RestController
 
     logger.debug(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("POST issuers/#{params[:account]}"))
   rescue Exceptions::RecordNotFound => e
-    logger.error(LogMessages::Issuers::IssuerEndpointForbidden.new("create"))
+    log_message = LogMessages::Issuers::IssuerEndpointForbidden.new("create")
+    audit_failure(e, action)
+    issuer_audit_failure(params[:account], params[:id], "add", log_message)
+    raise Exceptions::Forbidden, log_message
+  rescue ApplicationController::BadRequestWithBody => e
     audit_failure(e, action)
     issuer_audit_failure(params[:account], params[:id], "add", e.message)
-    raise Exceptions::Forbidden, "issuers"
-  rescue ApplicationController::BadRequest => e
-    logger.error("Input validation error for issuer [#{params[:id]}]: #{e.message}")
-    audit_failure(e, action)
-    render(json: {
-      error: {
-        code: "bad_request",
-        message: e.message
-      }
-    }, status: :bad_request)
+    raise e
   rescue Exceptions::RecordExists => e
-    logger.error("The issuer [#{params[:id]}] already exists")
     audit_failure(e, action)
     issuer_audit_failure(params[:account], params[:id], "add", e.message)
     raise e
@@ -133,7 +121,7 @@ class IssuersController < RestController
 
     logger.debug(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("DELETE issuers/#{params[:account]}/#{params[:identifier]}"))
   rescue Exceptions::RecordNotFound => e
-    logger.error(LogMessages::Issuers::IssuerPolicyNotFound.new(resource_id))
+    logger.warn(LogMessages::Issuers::IssuerPolicyNotFound.new(resource_id))
     audit_failure(e, action)
     issuer_audit_failure(params[:account], params[:identifier], "remove", e.message)
     raise Exceptions::RecordNotFound.new(params[:identifier], message: ISSUER_NOT_FOUND)
@@ -162,7 +150,7 @@ class IssuersController < RestController
     logger.debug(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("GET issuers/#{params[:account]}/#{params[:identifier]}"))
   rescue Exceptions::RecordNotFound => e
     issuer_audit_failure(params[:account], params[:identifier], "fetch", ISSUER_NOT_FOUND)
-    logger.error(LogMessages::Issuers::IssuerPolicyNotFound.new(resource_id))
+    logger.warn(LogMessages::Issuers::IssuerPolicyNotFound.new(resource_id))
     logger.info(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("GET issuers/#{params[:account]}/#{params[:identifier]}"))
     raise Exceptions::RecordNotFound.new(params[:identifier], message: ISSUER_NOT_FOUND)
   rescue => e
@@ -188,7 +176,7 @@ class IssuersController < RestController
 
     logger.debug(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("GET issuers/#{params[:account]}"))
   rescue Exceptions::RecordNotFound => e
-    logger.error(LogMessages::Issuers::IssuerEndpointForbidden.new("list"))
+    logger.warn(LogMessages::Issuers::IssuerEndpointForbidden.new("list"))
     issuer_audit_failure(params[:account], "*", "list", e.message)
     raise Exceptions::Forbidden, "issuers"
   rescue => e

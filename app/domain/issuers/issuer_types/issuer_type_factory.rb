@@ -5,7 +5,7 @@ class IssuerTypeFactory
     if !type.nil? && type.casecmp("aws").zero?
       AwsIssuerType.new
     else
-      raise ApplicationController::BadRequest, "issuer type is unsupported"
+      raise ApplicationController::BadRequestWithBody, "issuer type is unsupported"
     end
   end
 end

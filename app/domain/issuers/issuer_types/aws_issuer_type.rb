@@ -19,7 +19,7 @@ private
 
 def validate_data(data)
   unless data.is_a?(ActionController::Parameters)
-    raise ApplicationController::BadRequest, "'data' is not a valid JSON object; ensure that 'data' is properly formatted as a JSON object."
+    raise ApplicationController::BadRequestWithBody, "'data' is not a valid JSON object; ensure that 'data' is properly formatted as a JSON object."
   end
 
   data_fields = {
@@ -29,19 +29,19 @@ def validate_data(data)
 
   data_fields.each do |field_symbol, field_string|
     if data[field_symbol].nil?
-      raise ApplicationController::BadRequest, format(IssuerBaseType::REQUIRED_PARAM_MISSING, field_string)
+      raise ApplicationController::BadRequestWithBody, format(IssuerBaseType::REQUIRED_PARAM_MISSING, field_string)
     end
     
     unless data[field_symbol].is_a?(String)
-      raise ApplicationController::BadRequest, format(IssuerBaseType::WRONG_PARAM_TYPE, field_string, "string")
+      raise ApplicationController::BadRequestWithBody, format(IssuerBaseType::WRONG_PARAM_TYPE, field_string, "string")
     end
 
     if data[field_symbol].empty?
-      raise ApplicationController::BadRequest, format(IssuerBaseType::REQUIRED_PARAM_MISSING, field_string)
+      raise ApplicationController::BadRequestWithBody, format(IssuerBaseType::REQUIRED_PARAM_MISSING, field_string)
     end
   end
 
   if data.keys.count != AwsIssuerType::NUM_OF_EXPECTED_DATA_PARAMS
-    raise ApplicationController::BadRequest, AwsIssuerType::INVALID_INPUT_PARAM
+    raise ApplicationController::BadRequestWithBody, AwsIssuerType::INVALID_INPUT_PARAM
   end
 end
