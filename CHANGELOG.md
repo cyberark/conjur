@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [1.20.4] - 2024-01-11
 
+### Fixed
+- Response from k8s object lookup is now stripped of whitespaces to prevent errors in k8s authentication.
+  [CJNR-391](https://ca-il-jira.il.cyber-ark.com:8443/browse/CNJR-391)
+
 ### Changed
 - Added group access to the authn-local socket to provide access for the new user 'api' in the group 'conjur'
   [Conjur-Enterprise/conjur#144](https://github.cyberng.com/Conjur-Enterprise/conjur/pull/144)
