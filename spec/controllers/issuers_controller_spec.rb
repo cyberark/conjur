@@ -517,7 +517,7 @@ describe IssuersController, type: :request do
         assert_response :created
 
         delete("/issuers/rspec/my-new-aws-issuer", env: token_auth_header(role: admin_user))
-        assert_response :success
+        assert_response :no_content
         expect(Resource.find(resource_id: "rspec:policy:conjur/issuers/my-new-aws-issuer")).to eq(nil)
         expect(Resource.find(resource_id: "rspec:policy:conjur/issuers/my-new-aws-issuer/delegation")).to eq(nil)
         expect(Resource.find(resource_id: "rspec:group:conjur/issuers/my-new-aws-issuer/delegation/consumers")).to eq(nil)
@@ -615,7 +615,7 @@ describe IssuersController, type: :request do
       end
       it 'deletes both issuer and related ephemeral variables successfully if requested' do
         delete("/issuers/rspec/my-new-aws-issuer?delete_vars=true", env: token_auth_header(role: admin_user))
-        assert_response :success
+        assert_response :no_content
         # Issuer related resources are expected to be deleted, along with the ephemeral variables related to it
         expect(Resource.find(resource_id: "rspec:policy:conjur/issuers/my-new-aws-issuer")).to eq(nil)
         expect(Resource.find(resource_id: "rspec:policy:conjur/issuers/my-new-aws-issuer/delegation")).to eq(nil)
@@ -629,7 +629,7 @@ describe IssuersController, type: :request do
 
       it 'deletes issuer but keeps related ephemeral variables by default' do
         delete("/issuers/rspec/my-new-aws-issuer", env: token_auth_header(role: admin_user))
-        assert_response :success
+        assert_response :no_content
         # Issuer related resources are expected to be deleted, along with the ephemeral variables related to it
         expect(Resource.find(resource_id: "rspec:policy:conjur/issuers/my-new-aws-issuer")).to eq(nil)
         expect(Resource.find(resource_id: "rspec:policy:conjur/issuers/my-new-aws-issuer/delegation")).to eq(nil)
@@ -639,7 +639,7 @@ describe IssuersController, type: :request do
 
       it 'deletes issuer but keeps related ephemeral variables when flag is false' do
         delete("/issuers/rspec/my-new-aws-issuer?delete_vars=false", env: token_auth_header(role: admin_user))
-        assert_response :success
+        assert_response :no_content
         # Issuer related resources are expected to be deleted, along with the ephemeral variables related to it
         expect(Resource.find(resource_id: "rspec:policy:conjur/issuers/my-new-aws-issuer")).to eq(nil)
         expect(Resource.find(resource_id: "rspec:policy:conjur/issuers/my-new-aws-issuer/delegation")).to eq(nil)

@@ -204,7 +204,7 @@ Feature: Issuers audits tests
     And I save my place in the audit log file for remote
     When I clear the "Content-Type" header
     And I successfully DELETE "/issuers/cucumber/aws-issuer-1?delete_vars=true"
-    Then the HTTP response status code is 200
+    Then the HTTP response status code is 204
     And there is an audit record matching:
     """
       <86>1 * - conjur * issuer
