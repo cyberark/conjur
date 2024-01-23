@@ -1,3 +1,4 @@
+
 # frozen_string_literal: true
 
 require 'spec_helper'
@@ -5,6 +6,7 @@ require 'spec_helper'
 describe EdgeVisibilityController, :type => :request do
   let(:account) { "rspec" }
   let(:host_id) {"#{account}:host:edge/edge-1234/edge-host-1234"}
+  let(:host_id2) {"#{account}:host:edge/edge-2222/edge-host-2222"}
   let(:admin_user_id) {"#{account}:user:admin_user"}
 
   let(:log_output) { StringIO.new }
@@ -13,6 +15,7 @@ describe EdgeVisibilityController, :type => :request do
   before do
     init_slosilo_keys(account)
     @current_user = Role.find_or_create(role_id: host_id)
+    @current_user_2 = Role.find_or_create(role_id: host_id2)
     @admin_user = Role.find_or_create(role_id: admin_user_id)
   end
 
@@ -32,6 +35,7 @@ describe EdgeVisibilityController, :type => :request do
       EdgeHandlerController.logger = logger
       Role.create(role_id: "#{account}:group:Conjur_Cloud_Admins")
       RoleMembership.create(role_id: "#{account}:group:Conjur_Cloud_Admins", member_id: admin_user_id, admin_option: false, ownership:false)
+      RoleMembership.create(role_id: "#{account}:group:edge/edge-hosts", member_id: host_id2, admin_option: false, ownership:false)
     end
 
     it "List endpoint works" do
@@ -96,6 +100,39 @@ describe EdgeVisibilityController, :type => :request do
       expect(response.code).to eq("204")
       edgy = Edge["1234"]
       expect(edgy.installation_date).to eq(Time.at(-1))
+    end
+
+    it "Get Edge" do
+      # success sanity - Edge 1234 exists and is visible to the current user
+      get("/edge/name/#{account}/1234", env: token_auth_header(role: @current_user, is_user: true ))
+      expect(response.code).to eq("200")
+      resp = JSON.parse(response.body)
+      expect(resp.size).to eq(1)
+      expect(resp['name']).to eq('edgy')
+
+      #failure - unauthorized (invalid token)
+      get("/edge/name/#{account}/1234",)
+      expect(response.code).to eq("401")
+
+      # failure - forbidden (not an edge)
+      get("/edge/name/#{account}/1234", env: token_auth_header(role: @admin_user, is_user: true ))
+      expect(response.code).to eq("403")
+
+      # failure - forbidden (not the right id for this edge)
+      get("/edge/name/#{account}/1234", env: token_auth_header(role: @current_user_2, is_user: true ))
+      expect(response.code).to eq("403")
+
+      # failure - not found - Edge 2222 does not exist
+      get("/edge/name/#{account}/2222", env: token_auth_header(role: @current_user_2, is_user: true ))
+      expect(response.code).to eq("404")
+      # now add the missing Edge 2222 and test again
+      Edge.new_edge(name: "edge2", id: 2222)
+      get("/edge/name/#{account}/2222", env: token_auth_header(role: @current_user_2, is_user: true ))
+      expect(response.code).to eq("200")
+      resp = JSON.parse(response.body)
+      expect(resp.size).to eq(1)
+      expect(resp['name']).to eq('edge2')
+
     end
   end
 end
