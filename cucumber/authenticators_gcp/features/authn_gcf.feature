@@ -25,7 +25,6 @@ Feature: GCP Authenticator - GCF flow, hosts can authenticate with GCP authentic
     And I have host "test-app" without api key
     And I grant group "conjur/authn-gcp/apps" to host "test-app"
 
-  @smoke
   Scenario: Hosts can authenticate with GCP authenticator and fetch secret
     Given I have a "variable" resource called "test-variable"
     And I add the secret value "test-secret" to the resource "cucumber:variable:test-variable"

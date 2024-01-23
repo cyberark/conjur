@@ -18,7 +18,7 @@ Feature: JWT Authenticator - Fetch signing key
       | oidc_client_secret              | KEYCLOAK_CLIENT_SECRET  | 1234                                                            |
       | oidc_provider_external_uri      | EXTERNAL_PROVIDER_URI   | https://keycloak:8443/auth/realms/master                        |
 
-  @smoke @sanity
+  @sanity
   Scenario: ONYX-8702: provider-uri is configured with valid value
     Given I load a policy:
     """
@@ -730,7 +730,6 @@ Feature: JWT Authenticator - Fetch signing key
     """
 
   @sanity
-  @smoke
   Scenario: ONYX-15322: public-keys happy path
     Given I load a policy:
     """

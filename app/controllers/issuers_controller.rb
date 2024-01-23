@@ -126,7 +126,7 @@ class IssuersController < RestController
         deleted_variables = issuer.delete_issuer_variables
         issuer_variables_audit_delete(issuer.account, issuer.issuer_id, deleted_variables)
       end
-      head :ok
+      head :no_content
     else
       raise Exceptions::RecordNotFound.new(params[:identifier], message: ISSUER_NOT_FOUND)
     end
