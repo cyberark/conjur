@@ -20,7 +20,7 @@ describe "IssuerTypeFactory input validation" do
   context "when issuer type is not supported" do
     it "then the factory returns an error" do
       expect { IssuerTypeFactory.new.create_issuer_type("abc") }
-        .to raise_error(ApplicationController::BadRequest)
+        .to raise_error(ApplicationController::BadRequestWithBody)
     end
   end
 end
