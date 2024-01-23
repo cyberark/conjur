@@ -37,7 +37,8 @@ class Credentials < Sequel::Model
   end
 
   def restricted_to
-    self[:restricted_to].map { |cidr| Util::CIDR.new(cidr) }
+    # Ensure restricted_to is an array. This allows us to mock Roles without persisting them.
+    [*self[:restricted_to]].map { |cidr| Util::CIDR.new(cidr) }
   end
 
   def password= pwd

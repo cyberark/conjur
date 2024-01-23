@@ -3,16 +3,24 @@
 module Authentication
   module Util
     class NamespaceSelector
-      def self.select(authenticator_type:)
-        case authenticator_type
-        when 'authn-oidc'
-          # 'V2' is a bit of a hack to handle the fact that
-          # the original OIDC authenticator is really a
-          # glorified JWT authenticator.
-          'Authentication::AuthnOidc::V2'
-        else
-          raise "'#{authenticator_type}' is not a supported authenticator type"
-          # TODO: make this dynamic based on authenticator type.
+      class << self
+        def type_to_module(authenticator_type)
+          raise("Authenticator type is missing or nil") unless authenticator_type.present?
+
+          mapping[authenticator_type] || authenticator_type.underscore.camelize
+        end
+
+        def module_to_type(mod)
+          inverted_mapping = mapping.invert
+          inverted_mapping[mod] || mod.underscore.dasherize
+        end
+
+        private
+
+        def mapping
+          {
+            'authn' => 'AuthnApiKey'
+          }
         end
       end
     end

@@ -1,0 +1,43 @@
+@startuml
+:Authentication request from client;
+package Authentication::CommandHandlers::Authentication {
+  if (Authenticator enabled?) then (no)
+    #pink:error;
+    detach
+  endif
+  package DB::Repository::AuthenticatorRepository {
+    if (Webservice exists?) then (no)
+      #pink:error;
+      detach
+    endif
+    :Retrieve relevant variables;
+  }
+  package DB::Validation {
+    if (Variable values are valid?) then (no)
+      #pink:error;
+      detach
+    endif
+  }
+  :Populate Data Object:\nAuthentication::Authn<type>::V2::DataObjects::Authenticator;
+  package Authentication::Authn<type>::V2::Strategy {
+    if (Is identity token valid?) then (no)
+      #pink:error;
+      detach
+    endif
+    :Extract relevant identifier information into:\nAuthentication::RoleIdentifier;
+  }
+  if (Does Identy map to a Conjur Role?) then (no)
+    #pink:error;
+    detach
+  endif
+  if (Is Role allowed to use this authenticator?) then (no)
+    #pink:error;
+    detach
+  endif
+  if (Is Role allowed to authenticate\nfrom its origin?) then (no)
+    #pink:error;
+    detach
+  endif
+  #palegreen:Generate Conjur auth token;
+}
+@enduml

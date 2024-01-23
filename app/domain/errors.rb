@@ -333,6 +333,11 @@ module Errors
         msg: "Invalid certificate: {0-message}",
         code: "CONJ00135E"
       )
+
+      NonceVerificationFailed = ::Util::TrackableErrorClass.new(
+        msg: "Provided nonce does not match the returned nonce",
+        code: 'CONJ00153E'
+      )
     end
 
     module AuthnIam
