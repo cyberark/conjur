@@ -1,7 +1,6 @@
 @authenticators_azure
 Feature: Azure Authenticator - Status Check
 
-  @smoke
   Scenario: A properly configured Azure authenticator returns a successful response
     Given I load a policy:
     """

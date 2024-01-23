@@ -9,9 +9,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
-## [1.0.19-cloud] - 2023-01-28
+## [1.0.19-cloud] - 2023-02-04
 ### Added
-- API getting the license info (number of used hosts) 
+- API getting the license info (number of used hosts)
+
+### Changed
+- Update delete issuer return code
 
 ## [1.0.18-cloud] - 2023-01-21
 ### Added

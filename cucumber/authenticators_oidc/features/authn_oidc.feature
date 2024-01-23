@@ -54,7 +54,6 @@ Feature: OIDC Authenticator - Hosts can authenticate with OIDC authenticator
       | conjur/authn-oidc/keycloak/provider-uri           | oidc_provider_uri           |
       | conjur/authn-oidc/keycloak/ca-cert                | oidc_ca_cert                |
 
-  @smoke
   Scenario: A valid id token in header to get Conjur access token
     # We want to verify the returned access token is valid for retrieving a secret
     Given I have a "variable" resource called "test-variable"
@@ -70,7 +69,6 @@ Feature: OIDC Authenticator - Hosts can authenticate with OIDC authenticator
     cucumber:user:alice successfully authenticated with authenticator authn-oidc service cucumber:webservice:conjur/authn-oidc/keycloak
     """
 
-  @smoke
   Scenario: A valid id token in body to get Conjur access token
     # We want to verify the returned access token is valid for retrieving a secret
     Given I have a "variable" resource called "test-variable"
@@ -86,7 +84,6 @@ Feature: OIDC Authenticator - Hosts can authenticate with OIDC authenticator
     cucumber:user:alice successfully authenticated with authenticator authn-oidc service cucumber:webservice:conjur/authn-oidc/keycloak
     """
 
-  @smoke
   Scenario: A valid id token with email as id-token-user-property
     Given I extend the policy with:
     """
@@ -101,7 +98,6 @@ Feature: OIDC Authenticator - Hosts can authenticate with OIDC authenticator
     And I authenticate via OIDC with id token
     Then user "alice@conjur.net" has been authorized by Conjur
 
-  @smoke
   Scenario: Adding a group to keycloak/users group permits users to authenticate
     Given I extend the policy with:
     """
@@ -220,7 +216,6 @@ Feature: OIDC Authenticator - Hosts can authenticate with OIDC authenticator
     cucumber:user:USERNAME_MISSING failed to authenticate with authenticator authn-oidc service
     """
 
-  @smoke
   Scenario: provider-uri dynamic change
     And I fetch an ID Token for username "alice" and password "alice"
     And I authenticate via OIDC with id token

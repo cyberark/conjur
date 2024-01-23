@@ -91,7 +91,6 @@ Feature: GCP Authenticator - GCE flow, test hosts can authentication scenarios
     CONJ00050E Resource restrictions '["invalid-key"]' are not supported
     """
 
-  @smoke
   Scenario: Users can authenticate with GCP authenticator and fetch secret
     Given I have user "test-app"
     And I grant group "conjur/authn-gcp/apps" to user "test-app"
@@ -124,7 +123,6 @@ Feature: GCP Authenticator - GCE flow, test hosts can authentication scenarios
     cucumber:host:non-existing failed to authenticate with authenticator authn-gcp
     """
 
-  @smoke
   Scenario: Hosts defined outside of root can authenticate with GCP authenticator and fetch secret
     Given I have host "non-rooted/test-app" without api key
     And I set all valid GCE annotations to host "non-rooted/test-app"
