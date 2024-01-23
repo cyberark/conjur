@@ -162,7 +162,7 @@ services:
   tinyproxy:
     image: travix/tinyproxy
     volumes:
-      - ../ci/test_suites/authenticators_oidc/proxy/tinyproxy.conf:/etc/tinyproxy.conf
+      - ../ci/test_suites/proxy/config/tinyproxy.conf:/etc/tinyproxy.conf
 
   okta-ldap-agent:
     image: weareenvoy/okta-ldap-agent

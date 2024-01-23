@@ -118,7 +118,7 @@ run_cucumber_proxy_tests() {
     cucumber -ec "\
       bundle exec parallel_cucumber . -n ${PARALLEL_PROCESSES} \
        -o '--strict --profile \"${profile}\" --tags \"not @smoke\"'"
-  
+
   unset HTTPS_PROXY
 
   # Test case 3: https_proxy with a valid proxy succeeds

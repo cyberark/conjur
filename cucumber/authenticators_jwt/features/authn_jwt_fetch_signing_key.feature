@@ -17,6 +17,7 @@ Feature: JWT Authenticator - Fetch signing key
       | oidc_client_id                  | KEYCLOAK_CLIENT_ID      | conjurClient                                                    |
       | oidc_client_secret              | KEYCLOAK_CLIENT_SECRET  | 1234                                                            |
       | oidc_provider_external_uri      | EXTERNAL_PROVIDER_URI   | https://keycloak:8443/auth/realms/master                        |
+      | oidc_ca_certificate             | KEYCLOAK_CA_CERT        |                                                                 |
 
   @smoke @sanity
   Scenario: ONYX-8702: provider-uri is configured with valid value
@@ -27,14 +28,10 @@ Feature: JWT Authenticator - Fetch signing key
       body:
       - !webservice
 
-      - !variable
-        id: provider-uri
-
-      - !variable
-        id: token-app-property
-
-      - !variable
-        id: issuer
+      - !variable provider-uri
+      - !variable ca-cert
+      - !variable token-app-property
+      - !variable issuer
 
       - !group hosts
 
@@ -57,6 +54,7 @@ Feature: JWT Authenticator - Fetch signing key
       | conjur/authn-jwt/keycloak/provider-uri        | oidc_provider_external_uri      |
       | conjur/authn-jwt/keycloak/token-app-property  | jwt_token_application_property  |
       | conjur/authn-jwt/keycloak/issuer              | jwt_provider_issuer             |
+      | conjur/authn-jwt/keycloak/ca-cert             | oidc_ca_certificate             |
 
     And I fetch an ID Token for username "alice" and password "alice"
     And I save my place in the log file
@@ -420,7 +418,7 @@ Feature: JWT Authenticator - Fetch signing key
     And the HTTP response status code is 401
     And The following appears in the log after my savepoint:
     """
-    CONJ00011E Failed to discover Identity Provider (Provider URI: 'incorrect.com'). Reason: '#<AttrRequired::AttrMissing: 'host' required.>'
+    CONJ00011E Failed to discover Identity Provider (Provider URI: 'incorrect.com').
     """
     And I set the following conjur variables:
       | variable_id                            | context_variable           |
@@ -630,7 +628,7 @@ Feature: JWT Authenticator - Fetch signing key
     Then the HTTP response status code is 401
     And The following matches the log after my savepoint:
     """
-    CONJ00011E Failed to discover Identity Provider \(Provider URI: 'https:\/\/jwks'\). Reason: '#<OpenIDConnect::Discovery::DiscoveryFailed: SSL_connect returned=1 errno=0 peeraddr=\d+.\d+.\d+.\d+:443 state=error: certificate verify failed \(self-signed certificate\)>'
+    CONJ00011E Failed to discover Identity Provider \(Provider URI: 'https:\/\/jwks'\). Reason: 'SSL_connect returned=1 errno=0 peeraddr=(?:[0-9]{1,3}\.){3}[0-9]{1,3}:443 state=error: certificate verify failed \(self-signed certificate\)
     """
 
   @negative @acceptance

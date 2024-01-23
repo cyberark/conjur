@@ -175,11 +175,6 @@ module Errors
         msg: "Account '{0-account-name}' is not defined in Conjur",
         code: "CONJ00008E"
       )
-
-      MultipleRoleMatchesFound = ::Util::TrackableErrorClass.new(
-        msg: "'{0-role}' matched multiple roles",
-        code: "CONJ00009E"
-      )
     end
 
     module RequestBody
@@ -274,6 +269,11 @@ module Errors
       InvalidCertificate = ::Util::TrackableErrorClass.new(
         msg: "Invalid certificate: {0-message}",
         code: "CONJ00135E"
+      )
+
+      NonceVerificationFailed = ::Util::TrackableErrorClass.new(
+        msg: "Provided nonce does not match the returned nonce",
+        code: 'CONJ00153E'
       )
     end
 

@@ -28,29 +28,28 @@ module Authentication
         # term, we need to port the V1 functionality to V2. Once that
         # is done, the following check can be removed.
 
-        # Attempt to load the V2 version of the OIDC Authenticator
-        authenticator = DB::Repository::AuthenticatorRepository.new(
-          data_object: Authentication::AuthnOidc::V2::DataObjects::Authenticator
-        ).find(
+        DB::Repository::AuthenticatorRepository.new.find(
           type: authenticator_status_input.authenticator_name,
           account: authenticator_status_input.account,
           service_id: authenticator_status_input.service_id
-        )
-        # If successful, validate the new set of required variables
-        if authenticator.present?
-          Authentication::AuthnOidc::ValidateStatus.new(
-            required_variable_names: %w[provider-uri client-id client-secret claim-mapping],
-            optional_variable_names: %w[ca-cert]
-          ).(
-            account: authenticator_status_input.account,
-            service_id: authenticator_status_input.service_id
-          )
-        else
-          # Otherwise, perform the default check
-          Authentication::AuthnOidc::ValidateStatus.new.(
-            account: authenticator_status_input.account,
-            service_id: authenticator_status_input.service_id
-          )
+        ).bind do |authenticator_data|
+          # check if this authenticator appears to be a Code Redirect authenticator
+          if authenticator_data.key?(:client_id)
+            Authentication::AuthnOidc::ValidateStatus.new(
+              required_variable_names: %w[provider-uri client-id client-secret claim-mapping],
+              optional_variable_names: %w[ca-cert]
+            ).(
+              account: authenticator_status_input.account,
+              service_id: authenticator_status_input.service_id
+            )
+
+          # Otherwise, use the old style check
+          else
+            Authentication::AuthnOidc::ValidateStatus.new.(
+              account: authenticator_status_input.account,
+              service_id: authenticator_status_input.service_id
+            )
+          end
         end
       end
     end

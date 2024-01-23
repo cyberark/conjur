@@ -6,7 +6,7 @@ describe "routing for authentication", :type => :routing do
   it "routes POST /authn/the-account/kevin.gilpin@inscitiv.com/authenticate to authenticate#authenticate" do
     expect(post: '/authn/the-account/kevin.gilpin@inscitiv.com/authenticate').to route_to(
       controller: 'authenticate',
-      action: 'authenticate',
+      action: 'authenticate_via_post',
       account: 'the-account',
       authenticator: 'authn',
       id: 'kevin.gilpin@inscitiv.com'

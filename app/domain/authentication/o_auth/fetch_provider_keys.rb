@@ -29,18 +29,14 @@ module Authentication
       end
 
       def fetch_provider_keys
-        # We have to wrap the call to the JWKS URI separately to accomodate
+        # We have to wrap the call to the JWKS URI separately to accommodate
         # custom CA certs in authn-oidc
-        jwks = {
-          keys: Authentication::AuthnOidc::V2::Client.discover(
-            provider_uri: @provider_uri,
-            cert_string: @ca_cert,
-            jwks: true
-          )
+        jwks_keys = {
+          keys: @discovered_provider.jwks
         }
-        algs = @discovered_provider.id_token_signing_alg_values_supported
+        algs = @discovered_provider.supported_algorithms
         @logger.debug(LogMessages::Authentication::OAuth::FetchProviderKeysSuccess.new)
-        ProviderKeys.new(jwks, algs)
+        ProviderKeys.new(jwks_keys, algs)
       rescue => e
         raise Errors::Authentication::OAuth::FetchProviderKeysFailed.new(
           @provider_uri,
