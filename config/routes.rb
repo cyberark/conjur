@@ -91,6 +91,7 @@ Rails.application.routes.draw do
 
       get     "edge/edge-creds/:account/:edge_name" => 'edge_creation#generate_install_token'
       get     "/edge/:account"                      => 'edge_visibility#all_edges'
+      get     "/edge/name/:account/:identifier"     => 'edge_visibility#get_edge_name'
       get     "/edge/max-allowed/:account"          => 'edge_configuration#max_edges_allowed'
       get     "/agent/validate-permission/:account" => 'edge_configuration#validate_permission'
       get     "/agent/get-role/:account"            => 'edge_configuration#get_role'
