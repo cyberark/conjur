@@ -11,7 +11,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [1.0.19-cloud] - 2023-02-04
 ### Added
-- API getting the license info (number of used hosts)
+- API getting the license info (number of used hosts) 
+- API getting the edge name by id
 
 ### Changed
 - Update delete issuer return code

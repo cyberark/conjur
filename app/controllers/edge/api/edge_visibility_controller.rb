@@ -21,4 +21,31 @@ class EdgeVisibilityController < RestController
       raise e
     end
   end
+
+  def get_edge_name
+    logger.debug(LogMessages::Endpoints::EndpointRequested.new("GET edge/name/#{params[:account]}/#{params[:identifier]}"))
+    allowed_params = %i[account identifier]
+    options = params.permit(*allowed_params).to_h.symbolize_keys
+    verify_edge_host(options)
+    if params[:identifier] != Edge.hostname_to_id(current_user.role_id)
+      logger.error(
+        Errors::Authorization::EndpointNotVisibleToRole.new(
+          "Requested identifier #{params[:identifier]} is not allowed for user #{current_user.role_id}"
+        )
+      )
+      raise ApplicationController::Forbidden
+    end
+    begin
+      edge = Edge.where(id: params[:identifier]).first
+      if edge.nil?
+        render(json: {error: "Edge with id #{params[:identifier]} not found"}, status: 404)
+      else
+        render(json: {name: edge.name})
+      end
+      logger.debug(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("GET edge/name/#{params[:account]}/#{params[:identifier]}"))
+    rescue => e
+      logger.error(LogMessages::Conjur::GeneralError.new(e.message))
+      raise e
+    end
+  end
 end
