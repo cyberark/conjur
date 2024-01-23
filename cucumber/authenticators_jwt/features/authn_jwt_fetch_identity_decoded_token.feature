@@ -59,7 +59,6 @@ Feature: JWT Authenticator - Fetch identity from decoded token
     And I successfully set authn-jwt "jwks-uri" variable value to "http://jwks_py:8090/identity-from-decoded-token/RS256" in service "raw"
 
   @sanity
-  @smoke
   Scenario: ONYX-8820: A valid JWT token with identity in the token
     Given I successfully set authn-jwt "token-app-property" variable to value "host"
     And I permit host "myapp" to "execute" it
