@@ -79,15 +79,17 @@ class IssuersController < RestController
 
     logger.debug(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("POST issuers/#{params[:account]}"))
   rescue Exceptions::RecordNotFound => e
-    log_message = LogMessages::Issuers::IssuerEndpointForbidden.new("create")
+    logger.warn(LogMessages::Issuers::IssuerEndpointForbidden.new("create"))
     audit_failure(e, action)
-    issuer_audit_failure(params[:account], params[:id], "add", log_message)
-    raise Exceptions::Forbidden, log_message
+    issuer_audit_failure(params[:account], params[:id], "add", e.message)
+    raise Exceptions::Forbidden, "issuers"
   rescue ApplicationController::BadRequestWithBody => e
+    logger.warn("Input validation error for issuer [#{params[:id]}]: #{e.message}")
     audit_failure(e, action)
     issuer_audit_failure(params[:account], params[:id], "add", e.message)
     raise e
   rescue Exceptions::RecordExists => e
+    logger.warn("The issuer [#{params[:id]}] already exists")
     audit_failure(e, action)
     issuer_audit_failure(params[:account], params[:id], "add", e.message)
     raise e
