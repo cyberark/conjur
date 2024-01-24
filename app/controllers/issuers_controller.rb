@@ -172,6 +172,7 @@ class IssuersController < RestController
     issuers.each do |item|
       results.push(item.as_json_for_list)
     end
+    results = params[:sort] ? sort_by_key(results, params[:sort]) : results
     issuer_audit_success(params[:account], "*", "list")
     logger.info(LogMessages::Issuers::TelemetryIssuerLog.new("list", params[:account], "*", request.ip))
     render(json: { issuers: results }, status: :ok)
@@ -189,6 +190,16 @@ class IssuersController < RestController
 end
 
 private
+# Function to sort array of hashes by a specified key in asc order
+def sort_by_key(array, key)
+  if array.size >0
+    # check the key is a valid field
+    unless array[0].key?(key.to_sym)
+      raise ApplicationController::BadRequestWithBody, "the sort key #{key} is not a valid field of the issuer object"
+    end
+    array.sort_by { |hash| hash[key.to_sym] }
+  end
+end
 
 def create_issuer_policy(policy_fields)
   result_yaml = renderer(PolicyTemplates::CreateIssuer.new, policy_fields)

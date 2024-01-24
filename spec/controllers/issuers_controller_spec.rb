@@ -789,21 +789,37 @@ describe IssuersController, type: :request do
           }
         BODY
       end
-      it 'the issuers are returned' do
-        post("/issuers/rspec",
-             env: token_auth_header(role: admin_user).merge(
-               'RAW_POST_DATA' => payload_create_issuer_1,
-               'CONTENT_TYPE' => "application/json"
-             ))
-        assert_response :created
+      before do
         post("/issuers/rspec",
              env: token_auth_header(role: admin_user).merge(
                'RAW_POST_DATA' => payload_create_issuer_2,
                'CONTENT_TYPE' => "application/json"
              ))
         assert_response :created
-
+        post("/issuers/rspec",
+             env: token_auth_header(role: admin_user).merge(
+               'RAW_POST_DATA' => payload_create_issuer_1,
+               'CONTENT_TYPE' => "application/json"
+             ))
+        assert_response :created
+      end
+      it 'the issuers are returned as inserted' do
         get("/issuers/rspec",
+            env: token_auth_header(role: admin_user))
+        assert_response :success
+        parsed_body = JSON.parse(response.body)
+        expect(parsed_body["issuers"].length).to eq(2)
+
+        expect(parsed_body["issuers"][1]["id"]).to eq("issuer-1")
+        expect(parsed_body["issuers"][1]["max_ttl"]).to eq(200)
+        expect(parsed_body["issuers"][1]["type"]).to eq("aws")
+
+        expect(parsed_body["issuers"][0]["id"]).to eq("issuer-2")
+        expect(parsed_body["issuers"][0]["max_ttl"]).to eq(300)
+        expect(parsed_body["issuers"][0]["type"]).to eq("aws")
+      end
+      it 'the issuers are returned ordered asc' do
+        get("/issuers/rspec?sort=id",
             env: token_auth_header(role: admin_user))
         assert_response :success
         parsed_body = JSON.parse(response.body)
@@ -816,6 +832,11 @@ describe IssuersController, type: :request do
         expect(parsed_body["issuers"][1]["id"]).to eq("issuer-2")
         expect(parsed_body["issuers"][1]["max_ttl"]).to eq(300)
         expect(parsed_body["issuers"][1]["type"]).to eq("aws")
+      end
+      it 'the issuers are returned without ordered on not existent sort field' do
+        get("/issuers/rspec?sort=name",
+            env: token_auth_header(role: admin_user))
+        assert_response :bad_request
       end
     end
 
