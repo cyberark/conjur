@@ -27,7 +27,7 @@ describe "IssuerBaseType input validation" do
                                                 type: "aws",
                                                 data: {})
       expect { BaseTypeTest.new.validate(params) }
-        .to raise_error(ApplicationController::BadRequest)
+        .to raise_error(ApplicationController::BadRequestWithBody)
     end
   end
 
@@ -38,7 +38,7 @@ describe "IssuerBaseType input validation" do
                                                 type: "aws",
                                                 data: {})
       expect { BaseTypeTest.new.validate(params) }
-        .to raise_error(ApplicationController::BadRequest)
+        .to raise_error(ApplicationController::BadRequestWithBody)
     end
   end
 
@@ -49,7 +49,7 @@ describe "IssuerBaseType input validation" do
                                                 type: "aws",
                                                 data: {})
       expect { BaseTypeTest.new.validate(params) }
-        .to raise_error(ApplicationController::BadRequest)
+        .to raise_error(ApplicationController::BadRequestWithBody)
     end
   end
 
@@ -60,7 +60,7 @@ describe "IssuerBaseType input validation" do
                                                 type: "aws",
                                                 data: {})
       expect { BaseTypeTest.new.validate(params) }
-        .to raise_error(ApplicationController::BadRequest)
+        .to raise_error(ApplicationController::BadRequestWithBody)
     end
   end
 
@@ -71,7 +71,7 @@ describe "IssuerBaseType input validation" do
                                                 type: "aws",
                                                 data: {})
       expect { BaseTypeTest.new.validate(params) }
-        .to raise_error(ApplicationController::BadRequest)
+        .to raise_error(ApplicationController::BadRequestWithBody)
     end
   end
 
@@ -82,7 +82,7 @@ describe "IssuerBaseType input validation" do
                                                 type: "aws",
                                                 data: {})
       expect { BaseTypeTest.new.validate(params) }
-        .to raise_error(ApplicationController::BadRequest)
+        .to raise_error(ApplicationController::BadRequestWithBody)
     end
   end
 
@@ -93,7 +93,7 @@ describe "IssuerBaseType input validation" do
                                                 type: "aws",
                                                 data: {})
       expect { BaseTypeTest.new.validate(params) }
-        .to raise_error(ApplicationController::BadRequest)
+        .to raise_error(ApplicationController::BadRequestWithBody)
     end
   end
 
@@ -105,7 +105,7 @@ describe "IssuerBaseType input validation" do
                                                 invalid_param: "a",
                                                 data: {})
       expect { AwsIssuerType.new.validate(params) }
-        .to raise_error(ApplicationController::BadRequest)
+        .to raise_error(ApplicationController::BadRequestWithBody)
     end
   end
 end

@@ -25,7 +25,7 @@ describe "AwsIssuerType input validation" do
                                                   secret_access_key: "a" 
                                                 })
       expect { AwsIssuerType.new.validate(params) }
-        .to raise_error(ApplicationController::BadRequest)
+        .to raise_error(ApplicationController::BadRequestWithBody)
     end
   end
 
@@ -38,7 +38,7 @@ describe "AwsIssuerType input validation" do
                                                   access_key_id: "a" 
                                                 })
       expect { AwsIssuerType.new.validate(params) }
-        .to raise_error(ApplicationController::BadRequest)
+        .to raise_error(ApplicationController::BadRequestWithBody)
     end
   end
 
@@ -52,7 +52,7 @@ describe "AwsIssuerType input validation" do
                                                   secret_access_key: "a" 
                                                 })
       expect { AwsIssuerType.new.validate(params) }
-        .to raise_error(ApplicationController::BadRequest)
+        .to raise_error(ApplicationController::BadRequestWithBody)
     end
   end
 
@@ -66,7 +66,7 @@ describe "AwsIssuerType input validation" do
                                                   secret_access_key: "a" 
                                                 })
       expect { AwsIssuerType.new.validate(params) }
-        .to raise_error(ApplicationController::BadRequest)
+        .to raise_error(ApplicationController::BadRequestWithBody)
     end
   end
 
@@ -80,7 +80,7 @@ describe "AwsIssuerType input validation" do
                                                   secret_access_key: 1 
                                                 })
       expect { AwsIssuerType.new.validate(params) }
-        .to raise_error(ApplicationController::BadRequest)
+        .to raise_error(ApplicationController::BadRequestWithBody)
     end
   end
 
@@ -94,7 +94,7 @@ describe "AwsIssuerType input validation" do
                                                   secret_access_key: "" 
                                                 })
       expect { AwsIssuerType.new.validate(params) }
-        .to raise_error(ApplicationController::BadRequest)
+        .to raise_error(ApplicationController::BadRequestWithBody)
     end
   end
 
@@ -109,7 +109,7 @@ describe "AwsIssuerType input validation" do
                                                   invalid_param: "a"
                                                 })
       expect { AwsIssuerType.new.validate(params) }
-        .to raise_error(ApplicationController::BadRequest)
+        .to raise_error(ApplicationController::BadRequestWithBody)
     end
   end
 end

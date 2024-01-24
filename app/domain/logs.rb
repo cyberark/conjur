@@ -809,12 +809,12 @@ module LogMessages
 
     IssuerPolicyNotFound = ::Util::TrackableErrorClass.new(
       msg: "The policy of issuer {0} was not found",
-      code: "CONJ00158E"
+      code: "CONJ00158W"
     )
 
     IssuerEndpointForbidden = ::Util::TrackableErrorClass.new(
       msg: "Action {0} is not allowed on the issuers endpoint",
-      code: "CONJ00159E"
+      code: "CONJ00159W"
     )
 
     TelemetryIssuerLog = ::Util::TrackableLogMessageClass.new(
