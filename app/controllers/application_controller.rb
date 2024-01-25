@@ -348,7 +348,7 @@ class ApplicationController < ActionController::API
   end
 
   def render_secret_not_found e
-    log_error(e)
+    logger.warn(e.to_s)
     render(json: {
       error: {
         code: "not_found",
