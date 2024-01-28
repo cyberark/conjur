@@ -136,15 +136,30 @@ class IssuersController < RestController
 
   def get
     logger.debug(LogMessages::Endpoints::EndpointRequested.new("GET issuers/#{params[:account]}/#{params[:identifier]}"))
-    # If I can update the issuer policy, it means I am allowed to view it as well
-    action = :update
+    minimum_request = params.key?(:minimum)
+    if minimum_request
+      # If there is use permissions I can see the minimum info
+      action = :use
+    else
+      # If I can update the issuer policy, it means I am allowed to view it as well
+      action = :update
+    end
     authorize(action, resource)
 
     issuer = get_issuer_from_db(params[:account], params[:identifier])
     if issuer
-      issuer_audit_success(issuer.account, issuer.issuer_id, "fetch")
-      logger.info(LogMessages::Issuers::TelemetryIssuerLog.new("fetch", issuer.account, issuer.issuer_id, request.ip))
-      render(json: issuer.as_json, status: :ok)
+      if minimum_request
+        operation = "fetch minimum"
+        key_to_keep = "max_ttl"
+        stripped_issuer = { key_to_keep => issuer[key_to_keep.to_sym] }
+        result = stripped_issuer.as_json
+      else
+        operation = "fetch"
+        result = issuer.as_json
+      end
+      issuer_audit_success(issuer.account, issuer.issuer_id, operation)
+      logger.info(LogMessages::Issuers::TelemetryIssuerLog.new(operation, issuer.account, issuer.issuer_id, request.ip))
+      render(json: result, status: :ok)
     else
       raise Exceptions::RecordNotFound.new(params[:identifier], message: ISSUER_NOT_FOUND)
     end
