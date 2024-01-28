@@ -121,6 +121,9 @@ Rails.application.routes.draw do
       # Licenses
       get "/licenses/conjur" => 'license#show'
 
+      # V2 Secrets
+      post "/secrets" => 'v2_secrets#create'
+
     end
 
     # Host Factory
