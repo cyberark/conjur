@@ -26,6 +26,9 @@ describe IssuersController, type: :request do
       - !policy
         id: conjur/issuers
         body: []
+
+      - !user alice
+      - !user bob
     POLICY
   end
 
@@ -34,7 +37,8 @@ describe IssuersController, type: :request do
   let(:current_user_id) { 'rspec:user:admin' }
   let(:alice_user) { Role.find_or_create(role_id: alice_user_id) }
   let(:alice_user_id) { 'rspec:user:alice' }
-  
+  let(:bob_user) { Role.find_or_create(role_id: bob_user_id) }
+  let(:bob_user_id) { 'rspec:user:bob' }
 
   describe "#update" do
     context "when a user updates an issuer that does not exist" do
@@ -700,14 +704,31 @@ describe IssuersController, type: :request do
           }
         BODY
       end
-      it 'the issuer is returned' do
+      let(:issuer_membership) do
+        <<~POLICY
+          - !grant
+            role: !group consumers
+            member:          
+              - !user /alice
+        POLICY
+      end
+      let(:issuer_permissions) do
+        <<~POLICY
+          - !permit
+            resource: !policy issuer-1
+            privilege: [ update ]
+            role: !user /bob
+        POLICY
+      end
+      before do
         post("/issuers/rspec",
              env: token_auth_header(role: admin_user).merge(
                'RAW_POST_DATA' => payload_create_issuer,
                'CONTENT_TYPE' => "application/json"
              ))
         assert_response :created
-
+      end
+      it 'the issuer is returned' do
         get("/issuers/rspec/issuer-1",
             env: token_auth_header(role: admin_user))
         assert_response :success
@@ -719,6 +740,47 @@ describe IssuersController, type: :request do
         expect(parsed_body["data"]["secret_access_key"]).to eq("a")
         expect(response.body).to include("\"created_at\"")
         expect(response.body).to include("\"modified_at\"")
+      end
+      it 'the minimum issuer is returned' do
+        get("/issuers/rspec/issuer-1?minimum",
+            env: token_auth_header(role: admin_user))
+        assert_response :success
+        parsed_body = JSON.parse(response.body)
+        expect(parsed_body.length).to eq(1)
+        expect(parsed_body["max_ttl"]).to eq(200)
+      end
+      it 'get minimum with use permissions only' do
+        patch(
+          '/policies/rspec/policy/conjur/issuers/issuer-1/delegation',
+          env: token_auth_header(role: admin_user).merge(
+            { 'RAW_POST_DATA' => issuer_membership }
+          )
+        )
+        assert_response :success
+
+        get("/issuers/rspec/issuer-1?minimum",
+            env: token_auth_header(role: alice_user))
+        assert_response :success
+        parsed_body = JSON.parse(response.body)
+        expect(parsed_body.length).to eq(1)
+        expect(parsed_body["max_ttl"]).to eq(200)
+      end
+      it 'get minimum with update permissions fail' do
+        patch(
+          '/policies/rspec/policy/conjur/issuers',
+          env: token_auth_header(role: admin_user).merge(
+            { 'RAW_POST_DATA' => issuer_permissions }
+          )
+        )
+        assert_response :success
+
+        get("/issuers/rspec/issuer-1",
+            env: token_auth_header(role: bob_user))
+        assert_response :success
+
+        get("/issuers/rspec/issuer-1?minimum",
+            env: token_auth_header(role: bob_user))
+        assert_response :forbidden
       end
     end
 
