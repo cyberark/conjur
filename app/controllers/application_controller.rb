@@ -47,7 +47,7 @@ class ApplicationController < ActionController::API
   class UnprocessableEntity < RuntimeError
   end
 
-  rescue_from Exceptions::RecordNotFound, with: :record_not_found
+  rescue_from Exceptions::RecordNotFound, with: :render_record_not_found
   rescue_from Errors::Conjur::MissingSecretValue, with: :render_secret_not_found
   rescue_from Errors::Conjur::DuplicateVariable, with: :render_bad_request_with_message
   rescue_from Exceptions::RecordExists, with: :record_exists
@@ -105,10 +105,6 @@ class ApplicationController < ActionController::API
         message: e.message
       }
     }, status: :not_found)
-  end
-
-  def record_not_found e
-    render_record_not_found(e)
   end
 
   def no_matching_row e
@@ -287,7 +283,7 @@ class ApplicationController < ActionController::API
   end
 
   def bad_secret_encoding e
-    logger.warn(e.to_s)
+    log_error(e)
     render(json: {
       error: {
         code: :not_acceptable,
@@ -326,7 +322,7 @@ class ApplicationController < ActionController::API
   end
 
   def bad_gateway e
-    logger.warn(e.to_s)
+    log_error(e)
     head(:bad_gateway)
   end
 
