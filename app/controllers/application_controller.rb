@@ -47,7 +47,7 @@ class ApplicationController < ActionController::API
   class UnprocessableEntity < RuntimeError
   end
 
-  rescue_from Exceptions::RecordNotFound, with: :record_not_found
+  rescue_from Exceptions::RecordNotFound, with: :render_record_not_found
   rescue_from Errors::Conjur::MissingSecretValue, with: :render_secret_not_found
   rescue_from Errors::Conjur::DuplicateVariable, with: :render_bad_request_with_message
   rescue_from Exceptions::RecordExists, with: :record_exists
@@ -98,7 +98,7 @@ class ApplicationController < ActionController::API
   end
 
   def render_resource_not_found e
-    logger.warn("#{e}")
+    logger.warn(e.to_s)
     render(json: {
       error: {
         code: "not_found",
@@ -107,12 +107,8 @@ class ApplicationController < ActionController::API
     }, status: :not_found)
   end
 
-  def record_not_found e
-    render_record_not_found(e)
-  end
-
   def no_matching_row e
-    log_error(e)
+    logger.warn(e.to_s)
     target = e.dataset.model.table_name.to_s.underscore rescue nil
     render(json: {
       error: {
@@ -124,7 +120,7 @@ class ApplicationController < ActionController::API
   end
 
   def foreign_key_constraint_violation e
-    log_error(e)
+    logger.warn(e.to_s)
 
     # check if this is a violation of role_memberships_member_id_fkey
     # or role_memberships_role_id_fkey
@@ -185,8 +181,7 @@ class ApplicationController < ActionController::API
   end
 
   def policy_invalid e
-    log_error(e)
-
+    logger.warn(e.to_s)
     error = { code: "policy_invalid", message: e.message }
 
     if e.instance_of?(Conjur::PolicyParser::Invalid)
@@ -202,8 +197,7 @@ class ApplicationController < ActionController::API
   end
 
   def argument_error e
-    log_error(e)
-
+    logger.warn(e.to_s)
     render(json: {
       error: {
         code: error_code_of_exception_class(e.class),
@@ -213,7 +207,7 @@ class ApplicationController < ActionController::API
   end
 
   def record_exists e
-    log_error(e)
+    logger.warn(e.to_s)
     render(json: {
       error: {
         code: "conflict",
@@ -229,12 +223,12 @@ class ApplicationController < ActionController::API
   end
 
   def forbidden e
-    log_error(e)
+    logger.warn(e.to_s)
     head(:forbidden)
   end
 
   def method_not_allowed e
-    log_error(e)
+    logger.warn(e.to_s)
     render(json: {
       error: {
         code: :method_not_allowed,
@@ -254,12 +248,12 @@ class ApplicationController < ActionController::API
   end
 
   def bad_request e
-    log_error(e)
+    logger.warn(e.to_s)
     head(:bad_request)
   end
 
   def unprocessable_entity e
-    log_error(e)
+    logger.warn(e.to_s)
     render(json: {
       error: {
         code: :unprocessable_entity,
@@ -269,7 +263,7 @@ class ApplicationController < ActionController::API
   end
 
   def render_bad_request_with_message e
-    logger.warn("#{e}")
+    logger.warn(e.to_s)
     render(json: {
       error: {
         code: :bad_request,
@@ -279,7 +273,7 @@ class ApplicationController < ActionController::API
   end
 
   def render_duplicate_with_message e
-    logger.warn("#{e}")
+    logger.warn(e.to_s)
     render(json: {
       error: {
         code: :conflict,
@@ -299,7 +293,7 @@ class ApplicationController < ActionController::API
   end
 
   def unauthorized e
-    log_error(e)
+    logger.warn(e.to_s)
     if e.return_message_in_response
       render(json: {
         error: {
@@ -358,7 +352,7 @@ class ApplicationController < ActionController::API
   end
 
   def render_record_not_found e
-    log_error(e)
+    logger.warn(e.to_s)
     render(json: {
       error: {
         code: "not_found",
@@ -378,7 +372,7 @@ class ApplicationController < ActionController::API
   end
 
   def log_error e
-    logger.error("#{e}")
+    logger.error(e.to_s)
     log_backtrace(e) unless e.backtrace.nil?
   end
 end
