@@ -107,6 +107,7 @@ module Authentication
 
       def check_origin_permitted(role:, request_ip:)
         if role.valid_origin?(request_ip)
+          @logger.debug(LogMessages::Authentication::OriginValidated.new.to_s)
           @success.new(role)
         else
           @failure.new(
