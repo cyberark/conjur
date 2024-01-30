@@ -233,7 +233,7 @@ describe V2SecretsController, type: :request do
         assert_response :bad_request
         parsed_body = JSON.parse(response.body)
         expect(parsed_body["error"]["code"]).to eq("bad_request")
-        expect(parsed_body["error"]["message"]).to eq("name is a required parameter and must be specified")
+        expect(parsed_body["error"]["message"]).to eq("CONJ00190E Missing required parameter: name")
       end
     end
     context "when creating secret without name" do
@@ -258,7 +258,7 @@ describe V2SecretsController, type: :request do
         assert_response :bad_request
         parsed_body = JSON.parse(response.body)
         expect(parsed_body["error"]["code"]).to eq("bad_request")
-        expect(parsed_body["error"]["message"]).to eq("name is a required parameter and must be specified")
+        expect(parsed_body["error"]["message"]).to eq("CONJ00190E Missing required parameter: name")
       end
     end
     context "when creating secret with name not string" do
@@ -284,7 +284,7 @@ describe V2SecretsController, type: :request do
         assert_response :bad_request
         parsed_body = JSON.parse(response.body)
         expect(parsed_body["error"]["code"]).to eq("bad_request")
-        expect(parsed_body["error"]["message"]).to eq("the 'name' parameter must be a string")
+        expect(parsed_body["error"]["message"]).to eq("CONJ00192E The 'name' parameter must be of 'type=String'")
       end
     end
     context "when creating secret with not existent branch" do
@@ -310,6 +310,321 @@ describe V2SecretsController, type: :request do
         assert_response :not_found
         parsed_body = JSON.parse(response.body)
         expect(parsed_body["error"]["message"]).to eq("Policy 'data/no_secrets' not found in account 'rspec'")
+      end
+    end
+    context "when creating secret with empty branch" do
+      let(:payload_create_secret) do
+        <<~BODY
+          {
+              "branch": "",
+              "name": "secret1",
+              "type": "static"
+          }
+        BODY
+      end
+      it 'Secret creation failed on 400' do
+        post("/secrets",
+             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
+               {
+                 'RAW_POST_DATA' => payload_create_secret,
+                 'CONTENT_TYPE' => "application/json"
+               }
+             )
+        )
+        # Correct response code
+        assert_response :bad_request
+        parsed_body = JSON.parse(response.body)
+        expect(parsed_body["error"]["message"]).to eq("CONJ00190E Missing required parameter: branch")
+      end
+    end
+    context "when creating secret with no branch" do
+      let(:payload_create_secret) do
+        <<~BODY
+          {
+              "name": "secret1",
+              "type": "static"
+          }
+        BODY
+      end
+      it 'Secret creation failed on 400' do
+        post("/secrets",
+             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
+               {
+                 'RAW_POST_DATA' => payload_create_secret,
+                 'CONTENT_TYPE' => "application/json"
+               }
+             )
+        )
+        # Correct response code
+        assert_response :bad_request
+        parsed_body = JSON.parse(response.body)
+        expect(parsed_body["error"]["message"]).to eq("CONJ00190E Missing required parameter: branch")
+      end
+    end
+    context "when creating secret with branch not string" do
+      let(:payload_create_secret) do
+        <<~BODY
+          {
+              "branch": 5,
+              "name": "secret1",
+              "type": "static"
+          }
+        BODY
+      end
+      it 'Secret creation failed on 400' do
+        post("/secrets",
+             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
+               {
+                 'RAW_POST_DATA' => payload_create_secret,
+                 'CONTENT_TYPE' => "application/json"
+               }
+             )
+        )
+        # Correct response code
+        assert_response :bad_request
+        parsed_body = JSON.parse(response.body)
+        expect(parsed_body["error"]["message"]).to eq("CONJ00192E The 'branch' parameter must be of 'type=String'")
+      end
+    end
+    context "when creating secret with wrong type" do
+      let(:payload_create_secret) do
+        <<~BODY
+          {
+              "branch": "data/secrets",
+              "name": "secret1",
+              "type": "simple"
+          }
+        BODY
+      end
+      it 'Secret creation failed on 400' do
+        post("/secrets",
+             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
+               {
+                 'RAW_POST_DATA' => payload_create_secret,
+                 'CONTENT_TYPE' => "application/json"
+               }
+             )
+        )
+        # Correct response code
+        assert_response :bad_request
+        parsed_body = JSON.parse(response.body)
+        expect(parsed_body["error"]["message"]).to eq("Secret type is unsupported")
+      end
+    end
+    context "when creating secret with empty type" do
+      let(:payload_create_secret) do
+        <<~BODY
+          {
+              "branch": "data/secrets",
+              "name": "secret1",
+              "type": ""
+          }
+        BODY
+      end
+      it 'Secret creation failed on 400' do
+        post("/secrets",
+             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
+               {
+                 'RAW_POST_DATA' => payload_create_secret,
+                 'CONTENT_TYPE' => "application/json"
+               }
+             )
+        )
+        # Correct response code
+        assert_response :bad_request
+        parsed_body = JSON.parse(response.body)
+        expect(parsed_body["error"]["message"]).to eq("CONJ00190E Missing required parameter: type")
+      end
+    end
+    context "when creating secret with no type" do
+      let(:payload_create_secret) do
+        <<~BODY
+          {
+              "branch": "data/secrets",
+              "name": "secret1"
+          }
+        BODY
+      end
+      it 'Secret creation failed on 400' do
+        post("/secrets",
+             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
+               {
+                 'RAW_POST_DATA' => payload_create_secret,
+                 'CONTENT_TYPE' => "application/json"
+               }
+             )
+        )
+        # Correct response code
+        assert_response :bad_request
+        parsed_body = JSON.parse(response.body)
+        expect(parsed_body["error"]["message"]).to eq("CONJ00190E Missing required parameter: type")
+      end
+    end
+    context "when creating secret with type not string" do
+      let(:payload_create_secret) do
+        <<~BODY
+          {
+              "branch": "data/secrets",
+              "name": "secret1",
+              "type": 5
+          }
+        BODY
+      end
+      it 'Secret creation failed on 400' do
+        post("/secrets",
+             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
+               {
+                 'RAW_POST_DATA' => payload_create_secret,
+                 'CONTENT_TYPE' => "application/json"
+               }
+             )
+        )
+        # Correct response code
+        assert_response :bad_request
+        parsed_body = JSON.parse(response.body)
+        expect(parsed_body["error"]["message"]).to eq("CONJ00192E The 'type' parameter must be of 'type=String'")
+      end
+    end
+    context "when creating secret with empty mime_type" do
+      let(:payload_create_secret) do
+        <<~BODY
+          {
+              "branch": "data/secrets",
+              "name": "secret1",
+              "type": "static",
+              "mime_type": ""
+          }
+        BODY
+      end
+      it 'Secret creation failed on 400' do
+        post("/secrets",
+             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
+               {
+                 'RAW_POST_DATA' => payload_create_secret,
+                 'CONTENT_TYPE' => "application/json"
+               }
+             )
+        )
+        # Correct response code
+        assert_response :bad_request
+        parsed_body = JSON.parse(response.body)
+        expect(parsed_body["error"]["message"]).to eq("CONJ00190E Missing required parameter: mime_type")
+      end
+    end
+    context "when creating secret with mime_type not string" do
+      let(:payload_create_secret) do
+        <<~BODY
+          {
+              "branch": "data/secrets",
+              "name": "secret1",
+              "type": "static",
+              "mime_type": 5
+          }
+        BODY
+      end
+      it 'Secret creation failed on 400' do
+        post("/secrets",
+             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
+               {
+                 'RAW_POST_DATA' => payload_create_secret,
+                 'CONTENT_TYPE' => "application/json"
+               }
+             )
+        )
+        # Correct response code
+        assert_response :bad_request
+        parsed_body = JSON.parse(response.body)
+        expect(parsed_body["error"]["message"]).to eq("CONJ00192E The 'mime_type' parameter must be of 'type=String'")
+      end
+    end
+  end
+
+  describe "Create static secret with value" do
+    context "when creating secret with simple value" do
+      let(:payload_create_secret) do
+        <<~BODY
+          {
+              "branch": "/data/secrets",
+              "name": "secret1",
+              "type": "static",
+              "value": "password"
+          }
+        BODY
+      end
+      it 'Secret value can be fetched' do
+        post("/secrets",
+             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
+               {
+                 'RAW_POST_DATA' => payload_create_secret,
+                 'CONTENT_TYPE' => "application/json"
+               }
+             )
+        )
+        # Correct response code
+        assert_response :created
+        # correct response body
+        expect(response.body).to eq("{\"branch\":\"/data/secrets\",\"name\":\"secret1\",\"type\":\"static\"}")
+        # Verify secret value can be fetched
+        get('/secrets/rspec/variable/data/secrets/secret1',
+          env: token_auth_header(role: admin_user)
+        )
+        assert_response :success
+        expect(response.body).to eq("password")
+      end
+    end
+    context "when creating secret with empty value" do
+      let(:payload_create_secret) do
+        <<~BODY
+          {
+              "branch": "/data/secrets",
+              "name": "secret1",
+              "type": "static",
+              "value": ""
+          }
+        BODY
+      end
+      it 'Secret value is not stored' do
+        post("/secrets",
+             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
+               {
+                 'RAW_POST_DATA' => payload_create_secret,
+                 'CONTENT_TYPE' => "application/json"
+               }
+             )
+        )
+        # Correct response code
+        assert_response :created
+        # Verify secret value can be fetched
+        get('/secrets/rspec/variable/data/secrets/secret1',
+            env: token_auth_header(role: admin_user)
+        )
+        assert_response :not_found
+        secret = Secret["rspec:variable:data/secrets/secret1"]
+        expect(secret).to be_nil
+      end
+    end
+    context "when creating secret with binary value" do
+      let(:payload_create_secret) do
+        <<~BODY
+          {
+              "branch": "/data/secrets",
+              "name": "secret1",
+              "type": "static",
+              "value": "#{Random.new.bytes(16)}"
+          }
+        BODY
+      end
+      it 'the call will fail' do
+        post("/secrets",
+             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
+               {
+                 'RAW_POST_DATA' => payload_create_secret,
+                 'CONTENT_TYPE' => "application/json"
+               }
+             )
+        )
+        # Correct response code
+        assert_response :bad_request
       end
     end
   end

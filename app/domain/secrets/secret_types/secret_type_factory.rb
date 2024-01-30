@@ -5,7 +5,7 @@ class SecretTypeFactory
     elsif type.casecmp("ephemeral").zero?
       Secrets::SecretTypes::EphemeralSecretType.new
     else
-      raise ApplicationController::BadRequestWithBody, "secret type is unsupported"
+      raise ApplicationController::BadRequestWithBody, "Secret type is unsupported"
     end
   end
 end

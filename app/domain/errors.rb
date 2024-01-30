@@ -10,12 +10,12 @@
 module Errors
   module Group
     DuplicateMember = ::Util::TrackableErrorClass.new(
-      msg: "The '{0}' resource (kind='{1}') is already a member of the '{2}' group",
+      msg: "'{0}' (kind='{1}') is already a member of '{2}'",
       code: "CONJ00180W"
     )
 
     ResourceNotMember = ::Util::TrackableErrorClass.new(
-      msg: "The '{0}' resource (kind='{1}') is not a member of the '{2}' group",
+      msg: "'{0}' (kind='{1}') isn't a member of '{2}'",
       code: "CONJ00181W"
     )
   end

@@ -161,7 +161,7 @@ describe GroupsMembershipController, type: :request do
              )
         )
         assert_response :conflict
-        expect(response.body.include? "The 'data/host2' resource (kind='host') is already a member of the 'rspec:group:data/delegation/consumers' group").to eq true
+        expect(response.body.include? "'data/host2' (kind='host') is already a member of 'rspec:group:data/delegation/consumers'").to eq true
       end
     end
     context "when user with permissions add user to group" do
@@ -302,7 +302,7 @@ describe GroupsMembershipController, type: :request do
              )
         )
         assert_response :conflict
-        expect(response.body.include? "The '/data/host2' resource (kind='host') is already a member of the 'rspec:group:data/delegation/consumers' group").to eq true
+        expect(response.body.include? "'/data/host2' (kind='host') is already a member of 'rspec:group:data/delegation/consumers'").to eq true
       end
     end
     context "User without update permissions on the group policy" do
