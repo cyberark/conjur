@@ -850,17 +850,6 @@ pipeline {
       }
 
       post {
-        success {
-          script {
-            if (env.BRANCH_NAME == 'master') {
-              build(
-                job:'/Conjur-Enterprise/Conjur-Enterprise-secrets-provider-for-k8s/main/Conjur-Enterprise-secrets-provider-for-k8s-main-full/main',
-                wait: false
-              )
-            }
-          }
-        }
-
         always {
           script {
 
