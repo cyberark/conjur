@@ -1,4 +1,4 @@
-@rotators
+@rotators @smoke
 Feature: Rotate Slosilo key. When rotation occurs twice in a row,
   the user is logged out (token is not valid anymore) and should log in again.
   Scenario: Logged in as user, Slosilo is rotated twice

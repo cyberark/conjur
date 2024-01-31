@@ -1,4 +1,4 @@
-@api
+@api @smoke @sanity
 Feature: Manage the role entitlements through the API
 
   As an affordance for users to manage the entitlements for group membership,
@@ -37,7 +37,6 @@ Feature: Manage the role entitlements through the API
       roles: !user charlie
     """
 
-  @smoke
   Scenario: Add a group membership through the API
     Given I save my place in the audit log file for remote
     When I successfully POST "/roles/cucumber/group/dev%2Fdevelopers?members&member=cucumber:user:bob"
@@ -77,7 +76,6 @@ Feature: Manage the role entitlements through the API
       cucumber:user:admin added membership of cucumber:user:bob in cucumber:group:dev/developers
     """
 
-  @smoke
   Scenario: Revoke a group membership through the API
 
     Given I login as "alice"

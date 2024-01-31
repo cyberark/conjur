@@ -1,4 +1,4 @@
-@api
+@api @sanity @smoke
 Feature: Delete edge
 
   Background:

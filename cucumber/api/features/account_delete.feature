@@ -19,7 +19,6 @@ Feature: Delete an account
     id=new.account
     """
 
-  @smoke
   Scenario: DELETE /accounts/:id to delete an account.
 
     "update" privilege on "!:webservice:accounts" is required.

@@ -1,4 +1,4 @@
-@api
+@api @sanity @smoke
 Feature: Fetching host from edge endpoint
 
   Background:

@@ -1,4 +1,4 @@
-@api
+@api @smoke @sanity
 @logged-in
 Feature: List resources for another role
   Background:
@@ -43,7 +43,6 @@ Feature: List resources for another role
           resources: [!variable group-var]
     """
 
-  @smoke
   Scenario: The resource list can be retrieved for a different role, specified the query parameter role
     Given I save my place in the audit log file for remote
     When I successfully GET "/resources?role=cucumber:user:alice"
@@ -118,7 +117,6 @@ Feature: List resources for another role
       cucumber:user:admin successfully listed resources with parameters: {:role=>"cucumber:user:alice"}
     """
 
-  @smoke
   Scenario: The resource list can be retrieved for a different role, specified the query parameter acting_as
     When I successfully GET "/resources?acting_as=cucumber:user:alice"
     Then the JSON should be:
@@ -199,7 +197,6 @@ Feature: List resources for another role
       The authenticated user lacks the necessary privilege
     """
 
-  @smoke
   Scenario: The resource list can be retrieved for a different group role, specified the query parameter acting_as
     When I successfully GET "/resources?acting_as=cucumber:group:users"
     Then the JSON should be:

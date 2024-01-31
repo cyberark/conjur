@@ -1,4 +1,4 @@
-@api
+@api @sanity @smoke
 Feature: Fetching slosilo keys from edge endpoint
 
   Background:

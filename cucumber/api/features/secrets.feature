@@ -1,4 +1,4 @@
-@api
+@api @smoke @sanity
 Feature: Adding and fetching secrets
 
   Each resource in Conjur has an associated list of "secrets", each of which is
@@ -106,7 +106,6 @@ Feature: Adding and fetching secrets
     When I successfully GET "/secrets/cucumber/variable/probe"
     Then the binary result is preserved
 
-  @smoke
   Scenario: The last secret is the default one returned.
 
   Adding a new secret appends to a list of values on the resource. When

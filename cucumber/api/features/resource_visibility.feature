@@ -1,4 +1,4 @@
-@api
+@api @sanity @smoke
 @logged-in
 Feature: Rules which govern the visibility of resources to roles.
 
@@ -35,7 +35,6 @@ Feature: Rules which govern the visibility of resources to roles.
 
     Then the resource list should not include the newest resource
 
-  @smoke
   Scenario: Resources with permissions are visible
     Given I create a new resource called "probe"
     And I create a new user "alice"
@@ -46,7 +45,6 @@ Feature: Rules which govern the visibility of resources to roles.
 
     Then the resource list should include the newest resource
 
-  @smoke
   Scenario: Resources with transitive permissions are visible
 
     Note: A role has a "transitive permission" on a resource if it's a member of a role that has a permission.
@@ -64,7 +62,6 @@ Feature: Rules which govern the visibility of resources to roles.
 
     Then the resource list should include the newest resource
 
-  @smoke
   Scenario: Owned resources are visible even without explicit permissions
     Given I create a new user "alice"
     And I login as "alice"
@@ -73,7 +70,6 @@ Feature: Rules which govern the visibility of resources to roles.
     When I successfully GET "/resources/cucumber"
     Then the resource list should include the newest resource
 
-  @smoke
   Scenario: Transitively owned resources are visible even without explicit permissions
 
     Note: a resource is "transitively owned" if the user holds a role that is the owner.

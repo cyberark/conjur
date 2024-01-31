@@ -1,4 +1,4 @@
-@policy
+@policy @smoke @sanity
 Feature: Secrets can be managed through policies.
 
   Each resource in Conjur can have an associated list of secrets. Secrets on a resource
@@ -13,7 +13,6 @@ Feature: Secrets can be managed through policies.
 
   By convention, secrets are stored in Conjur using a resource called a `variable`. 
 
-  @smoke
   Scenario: The owner of a secret has full privileges to it.
 
     Because the owner of a resource has all privileges on the resource, the owner of a resource
@@ -38,7 +37,6 @@ Feature: Secrets can be managed through policies.
     And I can add a secret to variable resource "db-password"
     And I can retrieve the same secret value from "db-password"
 
-  @smoke
   Scenario: Privilege grants can be used to delegate secrets permissions.
 
     The `update` privilege conveys the right to update a secret.

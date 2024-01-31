@@ -1,4 +1,4 @@
-@api
+@api @sanity @smoke
 Feature: Fetching all edges from edge endpoint
 
   Background:

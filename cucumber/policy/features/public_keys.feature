@@ -1,4 +1,5 @@
 #@policy
+@skip
 Feature: Public keys can be associated with user records.
 
   #@smoke

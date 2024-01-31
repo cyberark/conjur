@@ -1,4 +1,4 @@
-@api
+@api @sanity @smoke
 Feature: Create edge process
 
   Background:

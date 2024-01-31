@@ -8,7 +8,6 @@ Feature: Exchange a role's password for its API key
     Given I create a new user "alice"
     And I have host "app"
 
-  @smoke
   Scenario: Password can be used to obtain API key
     Given I set the password for "alice" to "My-Password1"
     And I save my place in the audit log file for remote
@@ -25,7 +24,6 @@ Feature: Exchange a role's password for its API key
       cucumber:user:alice successfully logged in with authenticator authn service cucumber:webservice:conjur/authn
     """
 
-  @smoke
   Scenario: Password can be used by host to obtain API key
     Given I set the password for "host/app" to "My-Password1"
     And I save my place in the audit log file for remote

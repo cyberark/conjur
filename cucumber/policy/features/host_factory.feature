@@ -1,7 +1,5 @@
 @policy
 Feature: Host Factories can be managed through policies.
-
-  @smoke
   Scenario: Create a host factory on a layer.
 
     The layer is added to the "layers" field.

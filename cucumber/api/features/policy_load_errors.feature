@@ -1,4 +1,4 @@
-@api
+@api @smoke
 Feature: Policy loading error messages
 
   @negative @acceptance

@@ -1,4 +1,4 @@
-@api
+@api @smoke @sanity
 Feature: Updating policies
 
   The initial policy is loaded using the `conjurctl` command line tool,
@@ -36,7 +36,6 @@ Feature: Updating policies
       role: !user eve
     """
 
-  @smoke
   Scenario: A role with "update" privilege can update a policy.
     When I login as "bob"
     And I save my place in the audit log file for remote

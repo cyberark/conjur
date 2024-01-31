@@ -77,7 +77,6 @@ Feature: Conjur signs certificates using a configured CA
     When I send a CSR for "toast" to the "kitchen" CA with a ttl of "P6M" and CN of "toast"
     Then the HTTP response status code is 403
 
-  @smoke
   Scenario: I can sign a valid CSR with a configured Conjur CA
     Given I login as "cucumber:host:bacon"
     When I send a CSR for "bacon" to the "kitchen" CA with a ttl of "P6M" and CN of "bacon"

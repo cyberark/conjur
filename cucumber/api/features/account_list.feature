@@ -13,7 +13,6 @@ Feature: List accounts
     id=new-account
     """
 
-  @smoke
   Scenario: GET /accounts to list accounts.
 
     "read" privilege on "!:webservice:accounts" is required.

@@ -103,7 +103,6 @@ Feature: Rotate the API key of a role
     And I log out
 
   # Bob rotating his own API key
-  @smoke
   Scenario: Bob's password CAN be used to rotate own API key
     Given I set the password for "bob" to "My-Password1"
     And I save my place in the audit log file
@@ -115,7 +114,7 @@ Feature: Rotate the API key of a role
     cucumber:user:bob successfully rotated their API key
     """
 
-  @smoke
+  @smoke @sanity
   Scenario: Bob's API key CAN be used to rotate own API key
     Given I save my place in the audit log file
     When I can PUT "/authn/cucumber/api_key" with username "bob" and password ":cucumber:user:bob_api_key"
@@ -126,7 +125,7 @@ Feature: Rotate the API key of a role
     cucumber:user:bob successfully rotated their API key
     """
 
-  @negative @acceptance
+  @negative @acceptance @smoke @sanity
   Scenario: Bob's access token CANNOT be used to rotate own API key
     Given I login as "bob"
     And I save my place in the audit log file
@@ -137,7 +136,7 @@ Feature: Rotate the API key of a role
     Credential strength is insufficient
     """
 
-  @negative @acceptance
+  @negative @acceptance @smoke @sanity
   Scenario: Bob's access token CANNOT be used to rotate own API key using role parameter with self role value
     Given I login as "bob"
     And I save my place in the audit log file
@@ -148,9 +147,8 @@ Feature: Rotate the API key of a role
     Credential strength is insufficient
     """
 
-
   # A user without update permission rotating Bob's API key
-  @negative @acceptance
+  @negative @acceptance @smoke @sanity
   Scenario: User without permissions CANNOT rotate Bob's API key using their own API key
     Given I save my place in the audit log file
     When I PUT "/authn/cucumber/api_key?role=user:bob" with username "unprivileged_user" and password ":cucumber:user:unprivileged_user_api_key"
@@ -172,7 +170,7 @@ Feature: Rotate the API key of a role
     """
 
    # A user with update permission rotating layer API key
-  @negative @acceptance
+  @negative @acceptance @smoke @sanity
   Scenario: A User with update privilege CANNOT rotate an API key of a non actor Role resource (user/host)
     Given I login as "privileged_user"
     And I save my place in the audit log file
@@ -188,7 +186,7 @@ Feature: Rotate the API key of a role
     """
 
    # A user with update permission rotating policy API key
-  @negative @acceptance
+  @negative @acceptance @smoke @sanity
   Scenario: A User with update privilege CANNOT rotate an API key of a non actor Role resource (user/host)
     Given I login as "privileged_user"
     And I save my place in the audit log file
@@ -204,7 +202,7 @@ Feature: Rotate the API key of a role
     """
 
    # A user with update permission rotating group API key
-  @negative @acceptance
+  @negative @acceptance @smoke @sanity
   Scenario: A User with update privilege CANNOT rotate an API key of a non actor Role resource (user/host)
     Given I login as "privileged_user"
     And I save my place in the audit log file
@@ -220,7 +218,7 @@ Feature: Rotate the API key of a role
     """
 
   # A user with read permission rotating layer API key
-  @negative @acceptance
+  @negative @acceptance @smoke @sanity
   Scenario: A User with read ONLY privilege CANNOT rotate an API key of a non actor Role resource (user/host)
     Given I login as "read_only_privileged_user"
     And I save my place in the audit log file
@@ -232,7 +230,7 @@ Feature: Rotate the API key of a role
     """
 
   # A user with read permission rotating bob's API key
-  @negative @acceptance
+  @negative @acceptance @smoke @sanity
   Scenario: A User with read ONLY privilege CANNOT rotate an API key of a non actor Role resource (user/host)
     Given I login as "read_only_privileged_user"
     And I save my place in the audit log file
@@ -243,7 +241,7 @@ Feature: Rotate the API key of a role
     CONJ00124E Role 'cucumber:user:read_only_privileged_user' has insufficient privileges over the resource
     """
 
-  @negative @acceptance
+  @negative @acceptance @smoke @sanity
   Scenario: A User with tries to rotate an API key of a non existent Role resource
     Given I login as "privileged_user"
     And I save my place in the audit log file
@@ -255,7 +253,7 @@ Feature: Rotate the API key of a role
     """
 
   # A user with read permission rotating layer API key not visible to him
-  @negative @acceptance
+  @negative @acceptance @smoke @sanity
   Scenario: A User with NO privilege CANNOT rotate an API key of a non actor Role resource (user/host)
     Given I login as "not_privileged_user"
     And I save my place in the audit log file
@@ -271,7 +269,7 @@ Feature: Rotate the API key of a role
     """
 
   # A user with update permission rotating Bob's API key
-  @smoke
+  @smoke @sanity
   Scenario: A User with update privilege CAN rotate Bob's API key using an access token
     Given I login as "privileged_user"
     And I save my place in the audit log file
@@ -283,7 +281,7 @@ Feature: Rotate the API key of a role
     cucumber:user:privileged_user successfully rotated the api key for cucumber:user:bob
     """
 
-  @negative @acceptance
+  @negative @acceptance @smoke @sanity
   Scenario: A User with update privilege CANNOT rotate another user's API key using their own API key
     Given I save my place in the audit log file
     When I PUT "/authn/cucumber/api_key?role=user:bob" with username "privileged_user" and password ":cucumber:user:privileged_user_api_key"
@@ -293,7 +291,7 @@ Feature: Rotate the API key of a role
     Operation attempted against foreign user
     """
 
-  @negative @acceptance
+  @negative @acceptance @smoke @sanity
   Scenario: A User with update privilege CANNOT rotate another user's API key using their password
     Given I set the password for "privileged_user" to "Passw0rd-Privileged"
     And I save my place in the audit log file
@@ -305,7 +303,7 @@ Feature: Rotate the API key of a role
     """
 
   # A host rotating their own API key
-  @smoke
+  @smoke @sanity
   Scenario: A Host CAN rotate their own API key using their API key
     Given I save my place in the audit log file
     When I PUT "/authn/cucumber/api_key?role=host:privileged_host" with username "host/privileged_host" and password ":cucumber:host:privileged_host_api_key"
@@ -316,13 +314,13 @@ Feature: Rotate the API key of a role
     cucumber:host:privileged_host successfully rotated their API key
     """
 
-  @negative @acceptance
+  @negative @acceptance @smoke @sanity
   Scenario: A Host without api key CANNOT rotate their own API key
     Given I save my place in the audit log file
     When I PUT "/authn/cucumber/api_key?role=host:privileged_host_without_apikey" with username "host/privileged_host_without_apikey" and password ":cucumber:host:api_key"
     Then the HTTP response status code is 401
 
-  @negative @acceptance
+  @negative @acceptance @smoke @sanity
   Scenario: A Host CANNOT rotate their own API key using an access token
     Given I login as "host/privileged_host"
     And I save my place in the audit log file
@@ -333,7 +331,7 @@ Feature: Rotate the API key of a role
     Credential strength is insufficient
     """
 
-  @negative @acceptance
+  @negative @acceptance @smoke @sanity
   Scenario: A Host CANNOT rotate their own API key using an access token and a role parameter with self role value
     Given I login as "host/privileged_host"
     And I save my place in the audit log file
@@ -345,7 +343,7 @@ Feature: Rotate the API key of a role
     """
 
   # A host with update permission rotating Bob's API key
-  @smoke
+  @smoke @sanity
   Scenario: A Host with update privilege CAN rotate Bob's API key with an access token
     Given I login as "host/privileged_host"
     And I save my place in the audit log file
@@ -358,7 +356,7 @@ Feature: Rotate the API key of a role
     """
 
    # A host with update permission rotating host without api key
-  @negative @acceptance
+  @negative @acceptance @smoke @sanity
   Scenario: A Host with update privilege CANNOT rotate host API key that doesn't have api key
     Given I login as "host/privileged_host"
     And I save my place in the audit log file
@@ -369,7 +367,7 @@ Feature: Rotate the API key of a role
     CONJ00170E Role 'cucumber:host:privileged_host_without_apikey' does not have an API key
     """
 
-  @negative @acceptance
+  @negative @acceptance @smoke @sanity
   Scenario: A Host with update privilege CANNOT rotate Bob's API key with their own API key
     Given I save my place in the audit log file
     When I PUT "/authn/cucumber/api_key?role=user:bob" with username "host/privileged_host" and password ":cucumber:host:privileged_host_api_key"
@@ -380,19 +378,19 @@ Feature: Rotate the API key of a role
     """
 
   # A host without update permission rotating Bob's API key
-  @negative @acceptance
+  @negative @acceptance @smoke @sanity
   Scenario: A Host without update privilege CANNOT rotate Bob's API key with an access token
     Given I login as "host/unprivileged_host"
     When I PUT "/authn/cucumber/api_key?role=user:bob"
     Then the HTTP response status code is 404
 
-  @negative @acceptance
+  @negative @acceptance @smoke @sanity
   Scenario: A Host without update privilege CANNOT rotate a user's API key with their own API key
     When I PUT "/authn/cucumber/api_key?role=user:bob" with username "host/unprivileged_host" and password ":cucumber:host:unprivileged_host_api_key"
     Then the HTTP response status code is 401
 
   # Test rotation against nonexistent user
-  @negative @acceptance
+  @negative @acceptance @smoke @sanity
   Scenario: Bob CANNOT rotate a nonexistent user's API key using basic auth and an API key, RESULTS IN 401
     Given I save my place in the audit log file
     When I PUT "/authn/cucumber/api_key?role=user:does_not_exist" with username "bob" and password ":cucumber:user:bob_api_key"
@@ -402,7 +400,7 @@ Feature: Rotate the API key of a role
     CONJ00123E Resource 'user:does_not_exist' requested by role 'cucumber:user:bob' not found
     """
 
-  @negative @acceptance
+  @negative @acceptance @smoke @sanity
   Scenario: Bob CANNOT rotate a nonexistent user's API key using basic auth and a password, RESULTS IN 401
     Given I set the password for "bob" to "Passw0rd-Bob"
     And I save my place in the audit log file
@@ -413,7 +411,7 @@ Feature: Rotate the API key of a role
     CONJ00123E Resource 'user:does_not_exist' requested by role 'cucumber:user:bob' not found
     """
 
-  @negative @acceptance
+  @negative @acceptance @smoke @sanity
   Scenario: Bob CANNOT rotate a nonexistent user's API key using an access token, RESULTS IN 401
     Given I login as "bob"
     And I save my place in the audit log file
@@ -424,7 +422,7 @@ Feature: Rotate the API key of a role
     CONJ00123E Resource 'user:does_not_exist' requested by role 'cucumber:user:bob' not found
     """
 
-  @negative @acceptance
+  @negative @acceptance @smoke @sanity
   Scenario: Bob CANNOT rotate API key for user in nonexistent account, RESULTS IN 401
     Given I save my place in the audit log file
     When I PUT "/authn/cucumber/api_key?role=nonexistent_account:user:bob" with username "bob" and password ":cucumber:user:bob_api_key"

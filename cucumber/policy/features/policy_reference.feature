@@ -1,7 +1,6 @@
-@policies
+@policies @smoke @sanity
 Feature: Policies can refer to each other by relative path.
 
-  @smoke
   Scenario: Two sibling policies can refer to each other by relative path.
 
     A policy can grant its own roles and permissions to roles in other policies.

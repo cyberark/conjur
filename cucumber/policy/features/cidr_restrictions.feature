@@ -4,7 +4,6 @@ Feature: Users and Hosts can be CIDR restricted
 Users and Hosts can be restricted to only allow authentication
 from a particular network, defined by a CIDR in the policy
 
-  @smoke
   Scenario: Loading users and hosts with CIDR restrictions
 
     Given I load a policy:

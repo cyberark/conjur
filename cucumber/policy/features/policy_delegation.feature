@@ -1,4 +1,4 @@
-@policy
+@policy @sanity @smoke
 Feature: Policies can be organized into hierarchies with specific update permissions.
 
   @acceptance

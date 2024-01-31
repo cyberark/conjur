@@ -1,10 +1,9 @@
-@policy
+@policy @smoke
 Feature: Deleting objects and relationships.
 
   Objects and relationships can be explicitly deleted using the !delete,
   !revoke, and !deny statements.
 
-  @smoke
   Scenario: The !delete statement can be used to delete an object.
     Given I load a policy:
     """
@@ -111,7 +110,6 @@ Feature: Deleting objects and relationships.
     Then variable "test/db-password" exists
     And variable resource "test/db-password" does not have a secret value
 
-  @smoke
   Scenario: The !revoke statement can be used to revoke a role grant.
     Given I load a policy:
     """
@@ -132,7 +130,6 @@ Feature: Deleting objects and relationships.
     And I show the group "employees"
     Then group "developers" is not a role member
 
-  @smoke
   Scenario: The bulk !revoke statement can be used to revoke multiple roles and members.
     Given I load a policy:
     """
@@ -187,7 +184,6 @@ Feature: Deleting objects and relationships.
     And group "developers2" is a role member
     And group "developers3" is a role member
 
-  @smoke
   Scenario: The !deny statement can be used to revoke permissions.
     Given I load a policy:
     """
@@ -214,7 +210,6 @@ Feature: Deleting objects and relationships.
     And I list the roles permitted to read variable "db/password"
     Then the role list does not include host "host-01"
 
-  @smoke
   Scenario: The bulk !deny statement can be used to revoke a permission from roles and members.
     Given I load a policy:
     """
@@ -271,7 +266,6 @@ Feature: Deleting objects and relationships.
     And the role list includes host "host-02"
     And the role list includes host "host-03"
 
-    @smoke
     Scenario: Delete statements prevail on conflicting policy statements
       If a policy contains both adding and deleting statements (delete, deny, revoke),
       then we want to ensure that we fail safe and the delete statement is the final outcome.

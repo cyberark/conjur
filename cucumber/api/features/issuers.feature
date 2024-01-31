@@ -1,5 +1,6 @@
 @api
 @logged-in
+@smoke
 Feature: Issuers audits tests
 
   Background:
@@ -24,7 +25,6 @@ Feature: Issuers audits tests
     }
     """
 
-  @smoke
   Scenario: Successful audit when creating a issuer
 
     Given I am the super-user
@@ -53,7 +53,6 @@ Feature: Issuers audits tests
       cucumber:user:admin added cucumber:issuer:aws-new-issuer
     """
 
-  @smoke
   Scenario: Failure audit when creating an issuer
 
     Given I am a user named "alice"
@@ -82,7 +81,6 @@ Feature: Issuers audits tests
       cucumber:user:alice tried to add cucumber:issuer:aws-new-issuer: Policy 'conjur/issuers' not found in account 'cucumber'
     """
 
-  @smoke
   Scenario: Successful audit when getting an issuer
 
     Given I am the super-user
@@ -100,7 +98,6 @@ Feature: Issuers audits tests
       cucumber:user:admin fetched cucumber:issuer:aws-issuer-1
     """
 
-  @smoke
   Scenario: Failure audit when getting an issuer
 
     Given I am a user named "alice"
@@ -118,7 +115,6 @@ Feature: Issuers audits tests
       cucumber:user:alice tried to fetch cucumber:issuer:aws-issuer-1: Issuer not found
     """
 
-  @smoke
   Scenario: Successful audit when listing issuers
 
     Given I am the super-user
@@ -136,7 +132,6 @@ Feature: Issuers audits tests
       cucumber:user:admin listed issuers cucumber:issuer:*
     """
 
-  @smoke
   Scenario: Failure audit when listing issuers
 
     Given I am a user named "alice"
@@ -154,7 +149,6 @@ Feature: Issuers audits tests
       cucumber:user:alice tried to list issuers cucumber:issuer:*: Policy 'conjur/issuers' not found in account 'cucumber'
     """
 
-  @smoke
   Scenario: Failure audit when deleting a issuer
 
     Given I am a user named "alice"
@@ -171,7 +165,6 @@ Feature: Issuers audits tests
       cucumber:user:alice tried to remove cucumber:issuer:aws-issuer-1: Policy 'conjur/issuers' not found in account 'cucumber'
     """
 
-  @smoke
   Scenario: Successful audit when deleting a issuer
 
     Given I am the super-user
