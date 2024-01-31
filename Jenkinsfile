@@ -272,6 +272,7 @@ pipeline {
         }
 
         // Run outside parallel block to reduce main Jenkins executor load.
+        // Should no be run by default in conjur cloud
         stage('Nightly Only') {
           when {
             expression { params.NIGHTLY }
@@ -623,11 +624,9 @@ pipeline {
             stage('Azure Authenticator') {
               when {
                 expression {
-                  testShouldRun(params.RUN_ONLY, "azure_authenticator")
+                  testShouldRun(params.RUN_ONLY, "azure_authenticator", params.CUCUMBER_FILTER_TAGS)
                 }
               }
-
-
               environment {
                 // TODO: Move this into the authenticators_azure bash script.
                 INFRAPOOL_AZURE_AUTHN_INSTANCE_IP = INFRAPOOL_AZURE_EXECUTORV2_AGENT_0.agentSh(
@@ -640,7 +639,6 @@ pipeline {
                   returnStdout: true
                 ).trim()
               }
-
 
               steps {
                 script {
@@ -689,7 +687,7 @@ pipeline {
             stage('GCP Authenticator preparation - Allocate GCE Instance') {
               when {
                 expression {
-                  testShouldRun(params.RUN_ONLY, "gcp_authenticator")
+                  testShouldRun(params.RUN_ONLY, "gcp_authenticator", params.CUCUMBER_FILTER_TAGS)
                 }
               }
               steps {
@@ -754,7 +752,7 @@ pipeline {
             stage('GCP Authenticator preparation - Allocate Google Function') {
               when {
                 expression {
-                  testShouldRun(params.RUN_ONLY, "gcp_authenticator")
+                  testShouldRun(params.RUN_ONLY, "gcp_authenticator", params.CUCUMBER_FILTER_TAGS)
                 }
               }
               environment {
@@ -821,7 +819,7 @@ pipeline {
             stage('GCP Authenticator - Run Tests') {
               when {
                 expression {
-                  testShouldRun(params.RUN_ONLY, "gcp_authenticator")
+                  testShouldRun(params.RUN_ONLY, "gcp_authenticator", params.CUCUMBER_FILTER_TAGS)
                 }
               }
               steps {
@@ -872,7 +870,7 @@ pipeline {
             }
 
             // Only unstash azure if it ran.
-            if (testShouldRun(params.RUN_ONLY, "azure_authenticator")) {
+            if (testShouldRun(params.RUN_ONLY, "azure_authenticator", params.CUCUMBER_FILTER_TAGS)) {
               INFRAPOOL_EXECUTORV2_AGENT_0.agentUnstash 'testResultAzure'
             }
 
@@ -997,7 +995,11 @@ def archiveFiles(filePattern) {
   )
 }
 
-def testShouldRun(run_only_str, test) {
+def testShouldRun(run_only_str, test, suite) {
+  //If its sanity or smoke run we shouldn't run the tests
+  if (suite == '@smoke' || suite == '@sanity') {
+    return false
+  }
   return run_only_str == '' || run_only_str.split().contains(test)
 }
 
@@ -1168,12 +1170,11 @@ def collateTests(infrapool, jobs_per_agent=4) {
 }
 
 def defaultCucumberFilterTags(env) {
-  if(env.BRANCH_NAME == 'master' || env.BRANCH_NAME == 'conjur-cloud' || env.TAG_NAME?.trim()) {
-    // If this is a master or tag build, we want to run all of the tests. So
-    // we use an empty filter string.
-    return ''
+  if(env.BRANCH_NAME == 'conjur-cloud') {
+    // If this is a conjur-cloud master we want to run smoke tests
+    return '@smoke'
   }
 
-  // For all other branch builds, only run the @smoke tests by default
-  return '@smoke'
+  // For all other branch builds, only run the @sanity tests by default
+  return '@sanity'
 }
