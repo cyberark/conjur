@@ -1,4 +1,4 @@
-@api
+@api @smoke @sanity
 Feature: RBAC privileges control whether a role can update and/or fetch a secret.
 
   Background:

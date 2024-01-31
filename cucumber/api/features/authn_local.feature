@@ -1,7 +1,7 @@
 @api @skip
 Feature: Custom Authenticators can obtain access tokens for any role
 
-  @smoke
+  @sanity
   Scenario: Obtain an access token for a user
     When I request from authn-local:
     """
@@ -9,7 +9,7 @@ Feature: Custom Authenticators can obtain access tokens for any role
     """
     Then I obtain an access token for "alice" in account "cucumber"
 
-  @smoke
+  @sanity
   Scenario: Obtain an access token for a host
     When I request from authn-local:
     """

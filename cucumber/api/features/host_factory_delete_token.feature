@@ -1,5 +1,5 @@
 @api
-@logged-in
+@logged-in @smoke
 Feature: Delete (revoke) a host factory token.
 
 Background:

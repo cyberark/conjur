@@ -1,4 +1,4 @@
-@api
+@api @sanity @smoke
 Feature: Fetching edge configuration from edge endpoint
 
   Background:

@@ -58,7 +58,7 @@ Feature: JWT Authenticator - Fetch identity from decoded token
     And I initialize remote JWKS endpoint with file "identity-from-decoded-token" and alg "RS256"
     And I successfully set authn-jwt "jwks-uri" variable value to "http://jwks_py:8090/identity-from-decoded-token/RS256" in service "raw"
 
-  @sanity
+  @smoke
   Scenario: ONYX-8820: A valid JWT token with identity in the token
     Given I successfully set authn-jwt "token-app-property" variable to value "host"
     And I permit host "myapp" to "execute" it
@@ -79,7 +79,6 @@ Feature: JWT Authenticator - Fetch identity from decoded token
     cucumber:host:myapp successfully authenticated with authenticator authn-jwt service cucumber:webservice:conjur/authn-jwt/raw
     """
 
-  @sanity
   @negative @acceptance
   Scenario: ONYX-9522: User as Token identity is not supported, error
     And I successfully set authn-jwt "token-app-property" variable to value "host"
@@ -146,7 +145,7 @@ Feature: JWT Authenticator - Fetch identity from decoded token
     CONJ00037E Missing value for resource: cucumber:variable:conjur/authn-jwt/raw/token-app-property
     """
 
-  @sanity
+  @smoke
   @acceptance
   Scenario: ONYX-9524: Host with delimiter as Token identity, identity-path configured, 200 ok
     Given I have a "variable" resource called "test-variable"
@@ -178,7 +177,7 @@ Feature: JWT Authenticator - Fetch identity from decoded token
     cucumber:host:some_policy/sub_policy/host_test_from_token successfully authenticated with authenticator authn-jwt service cucumber:webservice:conjur/authn-jwt/raw
     """
 
-  @sanity
+  @smoke
   @acceptance
   Scenario: ONYX-9523: Host without delimiter as Token identity, identity-path configured, 200 ok
     Given I have a "variable" resource called "test-variable"
@@ -210,7 +209,7 @@ Feature: JWT Authenticator - Fetch identity from decoded token
     cucumber:host:some_policy/host_test_from_token successfully authenticated with authenticator authn-jwt service cucumber:webservice:conjur/authn-jwt/raw
     """
 
-  @sanity
+  @smoke
   @acceptance
   Scenario: ONYX-13707: Token-app-property from nested claim
     Given I successfully set authn-jwt "token-app-property" variable to value "account/project/id"

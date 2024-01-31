@@ -1,4 +1,4 @@
-@api
+@api @smoke @sanity
 Feature: List and filter members of a role
 
 The members of a role can be listed, searched, and paged.
@@ -29,7 +29,6 @@ The members of a role can be listed, searched, and paged.
       members: !user alice
     """
 
-  @smoke
   Scenario: List role members
     Given I save my place in the audit log file for remote
     When I successfully GET "/roles/cucumber/group/dev?members"
@@ -83,7 +82,6 @@ The members of a role can be listed, searched, and paged.
       cucumber:user:admin successfully listed members with parameters: {:account=>"cucumber", :kind=>"group", :role=>"cucumber:group:dev"}
     """
 
-  @smoke
   Scenario: Search role members
     Given I save my place in the audit log file for remote
     When I successfully GET "/roles/cucumber/group/dev?members&search=alice"
@@ -109,7 +107,6 @@ The members of a role can be listed, searched, and paged.
       cucumber:user:admin successfully listed members with parameters: {:account=>"cucumber", :kind=>"group", :search=>"alice", :role=>"cucumber:group:dev"}
     """
 
-
   @acceptance
   Scenario: Search for non-existant member
     Given I save my place in the audit log file for remote
@@ -128,8 +125,6 @@ The members of a role can be listed, searched, and paged.
       cucumber:user:admin successfully listed members with parameters: {:account=>"cucumber", :kind=>"group", :search=>"non_existent_user", :role=>"cucumber:group:dev"}
     """
 
-
-  @smoke
   Scenario: Page role members
     Given I save my place in the audit log file for remote
     When I successfully GET "/roles/cucumber/group/dev?members&limit=3"
@@ -200,7 +195,6 @@ The members of a role can be listed, searched, and paged.
       cucumber:user:admin successfully listed members with parameters: {:account=>"cucumber", :kind=>"group", :limit=>"3", :offset=>"3", :role=>"cucumber:group:dev"}
     """
 
-  @smoke
   Scenario: Counting role members
     Given I save my place in the audit log file for remote
     When I successfully GET "/roles/cucumber/group/dev?members&count=true"
@@ -238,7 +232,6 @@ The members of a role can be listed, searched, and paged.
       cucumber:user:admin successfully listed members with parameters: {:account=>"cucumber", :count=>"true", :kind=>"group", :limit=>"3", :role=>"cucumber:group:dev"}
     """
 
-  @smoke
   Scenario: Filter role members by kind
     Given I save my place in the audit log file for remote
     When I successfully GET "/roles/cucumber/group/employees?members&kind[]=group&kind[]=user"

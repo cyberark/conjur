@@ -1,4 +1,4 @@
-@api
+@api @smoke @sanity
 Feature: Updating policies
 
   Policy updates can be performed in any of three modes: PUT, PATCH, and POST.

@@ -1,4 +1,4 @@
-@api
+@api @smoke @sanity
 Feature: Batch retrieval of secrets
   Background:
     Given I am a user named "bob"
@@ -9,7 +9,6 @@ Feature: Batch retrieval of secrets
     And I create a new "variable" resource called "secret3"
     And I add the secret value "s3" to the resource "cucumber:variable:secret3"
 
-  @smoke
   Scenario: Returns a JSON hash mapping resource id to value
     Given I save my place in the audit log file for remote
     When I GET "/secrets?variable_ids=cucumber:variable:secret1,cucumber:variable:secret2"
@@ -89,7 +88,6 @@ Feature: Batch retrieval of secrets
   # This test explicitly tests an error case that was discovered in Conjur v4 where
   # resource IDs were matched with incorrect variable values in the JSON response.
   # It was fixed in: https://github.com/conjurinc/core/pull/46/files
-  @smoke
   Scenario: Returns a correct mapping of resource ids to secret values
     Given I add the secret value "v1" to the resource "cucumber:variable:secret1"
     And I add the secret value "v2" to the resource "cucumber:variable:secret2"
@@ -113,7 +111,6 @@ Feature: Batch retrieval of secrets
     { "cucumber:variable:secret1": "v3", "cucumber:variable:secret2": "v5", "cucumber:variable:secret3": "v6" }
     """
 
-  @smoke
   Scenario: Returns Base64 encoded secrets with Accept-Encoding header base64
     Given I create a binary secret value for resource "cucumber:variable:secret3"
     And I add the secret value "v2" to the resource "cucumber:variable:secret2"
@@ -122,7 +119,6 @@ Feature: Batch retrieval of secrets
     Then the binary data is preserved for "cucumber:variable:secret3"
     And the content encoding is "base64"
 
-  @smoke
   Scenario: Returns Base64 encoded secrets with alternate heading capitalization
     Given I create a binary secret value for resource "cucumber:variable:secret3"
     And I set the "Accept-Encoding" header to "Base64"
@@ -146,7 +142,7 @@ Feature: Batch retrieval of secrets
     When I GET "/secrets?variable_ids=cucumber:variable:secret3"
     Then the HTTP response status code is 406
 
-  @negative @smoke
+  @negative
   Scenario: Fails with 406 on retrieval of multiple secrets with improper header
     Given I create a binary secret value for resource "cucumber:variable:secret3"
     And I add the secret value "v2" to the resource "cucumber:variable:secret2"
@@ -163,7 +159,7 @@ Feature: Batch retrieval of secrets
     { "cucumber:variable:secret2": "v2" }
     """
 
-  @negative @smoke
+  @negative
     Scenario: Fails with 400 on get batch secrets for same secret
       When I GET "/secrets?variable_ids=cucumber:variable:secret1,cucumber:variable:secret2,cucumber:variable:secret1"
       Then the HTTP response status code is 400

@@ -1,5 +1,5 @@
 @api
-@logged-in
+@logged-in @smoke
 Feature: Create a host factory token.
 
   Background:

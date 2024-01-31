@@ -1,7 +1,7 @@
 @policy
 Feature: Users and groups can be added to groups
 
-  @smoke
+  @smoke @sanity
   Scenario: Create a group of groups
   
     In this example we are giving the `group:employees` role to groups
@@ -27,7 +27,6 @@ Feature: Users and groups can be added to groups
     Then group "developers" is a role member
     And group "operations" is a role member
 
-  @smoke
   Scenario: Add an administrator to a group
 
     In this example, a group `ci-admin` gets an admin grant on the group `ci`.

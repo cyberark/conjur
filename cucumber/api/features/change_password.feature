@@ -9,7 +9,6 @@ Feature: Change the password of a role
   Background:
     Given I create a new user "alice"
 
-  @smoke
   Scenario: With basic authentication, users can update their own password using the current password.
 
     Given I set the password for "alice" to "My-Password1"
@@ -26,7 +25,6 @@ Feature: Change the password of a role
       cucumber:user:alice successfully changed their password
     """
 
-  @smoke
   Scenario: With basic authentication, user admin update their own password using the current password.
 
     Given I set the password for "admin" to "My-Password1"
@@ -43,7 +41,6 @@ Feature: Change the password of a role
       cucumber:user:admin successfully changed their password
     """
 
-  @smoke
   Scenario: With basic authentication, users can update their own password using the current API key.
 
     When I successfully PUT "/authn/cucumber/password" with username "alice" and password ":cucumber:user:alice_api_key" and plain text body "New-Password1"

@@ -46,7 +46,6 @@ Feature: AWS Secret Access Key Rotation
     """
     And I ensure conjur has AWS test account credentials for policy "aws"
 
-  @smoke
   Scenario: Values are rotated according to the policy
     Given I moniter AWS variables in policy "aws" for 3 values in 50 seconds
     Then the last two sets of AWS credentials both work

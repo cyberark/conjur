@@ -1,4 +1,4 @@
-@api
+@api @smoke
 Feature: Retrieving an API key with conjurctl
 
   Background:

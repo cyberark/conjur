@@ -1,4 +1,4 @@
-@policy
+@policy @smoke @sanity
 Feature: Policies can be used to scope records by name and ownership.
 
   @acceptance

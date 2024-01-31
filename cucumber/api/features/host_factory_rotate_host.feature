@@ -1,4 +1,4 @@
-@api
+@api @smoke
 Feature: Rotate a host api key using the host factory.
 
   Background:

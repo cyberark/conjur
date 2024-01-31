@@ -1,4 +1,4 @@
-@api @skip
+@api @skip @smoke @sanity
 Feature: Creating host
   Background:
     Given I am the super-user
@@ -31,7 +31,6 @@ Feature: Creating host
       role: !user eve
     """
 
-  @smoke
   Scenario: An owner role can create host.
     Given I set the "Content-Type" header to "application/json"
     When I login as "alice"
@@ -96,7 +95,6 @@ Feature: Creating host
     }
     """
 
-  @smoke
   Scenario: A role with "create" privilege can create host.
     Given I set the "Content-Type" header to "application/json"
     When I login as "bob"

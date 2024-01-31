@@ -1,4 +1,4 @@
-@api
+@api @smoke
 Feature: Updating Policies with Annotations
 
   The following describes the use-case for the different policy load types:

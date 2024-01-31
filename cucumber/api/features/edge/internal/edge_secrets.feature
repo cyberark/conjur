@@ -1,4 +1,4 @@
-@api
+@api @sanity @smoke
 Feature: Fetching secrets from edge endpoint
 
   Background:

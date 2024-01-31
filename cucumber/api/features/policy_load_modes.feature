@@ -1,4 +1,4 @@
-@api
+@api @smoke @sanity
 Feature: Updating policies
 
   Policy updates can be performed in any of three modes: PUT, PATCH, and POST.
@@ -37,7 +37,6 @@ Feature: Updating policies
       kind: password
     """
 
-  @smoke
   Scenario: PUT replaces the policy completely.
     Given I save my place in the audit log file for remote
     When I successfully PUT "/policies/cucumber/policy/dev/db" with body:

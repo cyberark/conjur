@@ -457,7 +457,6 @@ Feature: JWT Authenticator - Check registered claim
     CONJ00035E Failed to decode token (3rdPartyError ='#<JWT::InvalidIssuerError: Invalid issuer. Expected ["invalid-issuer"], received valid-issuer>')>
     """
 
-  @sanity
   @acceptance
   Scenario Outline: Audience tests
     Given I extend the policy with:

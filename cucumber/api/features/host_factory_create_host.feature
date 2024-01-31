@@ -1,11 +1,10 @@
-@api
+@api @smoke
 Feature: Create a host using the host factory.
 
   Background:
     Given I create a host factory for layer "the-layer"
     And I create a host factory token
 
-  @smoke
   Scenario: The host factory token authenticates and authorizes a request
     to create a new host.
 

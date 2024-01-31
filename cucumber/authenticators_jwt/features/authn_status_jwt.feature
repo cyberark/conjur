@@ -664,7 +664,6 @@ Feature: JWT Authenticator - Status Check
     Then the HTTP response status code is 500
     And the authenticator status check fails with error "CONJ00087E Failed to fetch JWKS from 'unknow-host.com'"
 
-  @sanity
   @negative @acceptance
   Scenario: ONYX-9516: Identify-path is configured but empty, 500 Error
     Given I load a policy:

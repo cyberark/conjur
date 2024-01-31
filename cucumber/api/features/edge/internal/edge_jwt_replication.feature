@@ -1,4 +1,4 @@
-@api
+@api @sanity @smoke
 Feature: Replicate jwt authenticators from edge endpoint
 
   Background:

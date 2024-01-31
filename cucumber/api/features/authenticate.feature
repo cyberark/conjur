@@ -26,7 +26,7 @@ Feature: Exchange a role's API key for a signed authentication token
       cucumber:user:alice successfully authenticated with authenticator authn
     """
 
-  @smoke
+  @sanity @smoke
   Scenario: A host's API key can be used to authenticate
     Given I save my place in the audit log file for remote
     Then I can POST "/authn/cucumber/host%2Fapp/authenticate" with plain text body ":cucumber:host:app_api_key"
@@ -150,7 +150,7 @@ Feature: Exchange a role's API key for a signed authentication token
       cucumber:user:alice failed to authenticate with authenticator authn
     """
 
-  @negative @acceptance
+  @negative @acceptance @smoke
   Scenario: Attempting to use an invalid host API key to authenticate result in 401 error
     Given I save my place in the audit log file for remote
     When I POST "/authn/cucumber/host%2Fapp/authenticate" with plain text body "wrong-api-key"
@@ -165,7 +165,7 @@ Feature: Exchange a role's API key for a signed authentication token
       cucumber:host:app failed to authenticate with authenticator authn
     """
 
-  @negative @acceptance
+  @negative @acceptance @smoke
   Scenario: Attempting to use host API key to authenticate host without api key result in 401 error
     Given I save my place in the audit log file for remote
     When I POST "/authn/cucumber/host%2FappNoApiKey/authenticate" with plain text body ""
@@ -180,7 +180,7 @@ Feature: Exchange a role's API key for a signed authentication token
       cucumber:host:appNoApiKey failed to authenticate with authenticator authn
     """
 
-  @negative @acceptance
+  @negative @acceptance @smoke
   Scenario: Attempting to use an invalid API key to authenticate with Accept-Encoding base64 result in 401 error
     Given I save my place in the audit log file for remote
     When I authenticate Alice with Accept-Encoding header "base64" with plain text body "wrong-api-key"
@@ -216,7 +216,7 @@ Feature: Exchange a role's API key for a signed authentication token
     Then the HTTP response status code is 401
 
   @negative @acceptance
-  @logged-in-admin
+  @logged-in-admin @smoke
   Scenario: Roles cannot authenticate as any role other than themselves.
 
     A role cannot authenticate as another role, even a role that they can administer.
@@ -224,7 +224,7 @@ Feature: Exchange a role's API key for a signed authentication token
     When I POST "/authn/cucumber/alice/authenticate" with plain text body "wrong-api-key"
     Then the HTTP response status code is 401
 
-  @negative @acceptance
+  @negative @acceptance @sanity  @smoke
   Scenario: A non existing user cannot authenticate
     Given I save my place in the log file
     When I POST "/authn/cucumber/non-existing/authenticate"

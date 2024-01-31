@@ -1,4 +1,4 @@
-@api
+@api @smoke @sanity
 @logged-in
 Feature: List resources with various types of filtering
 
@@ -6,7 +6,6 @@ Feature: List resources with various types of filtering
     Given I am a user named "alice"
     And I create 3 new resources
 
-  @smoke
   Scenario: The resource list includes a new resource.
 
   The most basic resource listing route returns all resources in an account.
@@ -24,7 +23,6 @@ Feature: List resources with various types of filtering
       cucumber:user:alice successfully listed resources with parameters: {:account=>"cucumber"}
     """
 
-  @smoke
   Scenario: The resource list can be filtered by resource kind.
     Given I create a new "custom" resource
     And I save my place in the audit log file for remote
@@ -40,7 +38,6 @@ Feature: List resources with various types of filtering
       cucumber:user:alice successfully listed resources with parameters: {:account=>"cucumber", :kind=>"custom"}
     """
 
-  @acceptance
   Scenario: The resource list, when filtered by a different resource kind, does not include the newest resource.
     Given I create a new "custom" resource
     And I save my place in the audit log file for remote
@@ -56,7 +53,6 @@ Feature: List resources with various types of filtering
       cucumber:user:alice successfully listed resources with parameters: {:account=>"cucumber", :kind=>"uncreated-resource-kind"}
     """
 
-  @smoke
   Scenario: The resource list is searched and contains a resource with a matching resource id.
     Given I create a new resource called "target"
     And I save my place in the audit log file for remote
@@ -72,7 +68,6 @@ Feature: List resources with various types of filtering
       cucumber:user:alice successfully listed resources with parameters: {:account=>"cucumber", :kind=>"test-resource", :search=>"target"}
     """
 
-  @smoke
   Scenario: The resource list is searched and contains a resource with a matching annotation.
     Given I create a new resource
     And I add an annotation value of "target" to the resource
@@ -182,7 +177,6 @@ Feature: List resources with various types of filtering
     And there is an error
     And the error message includes "'offset' contains an invalid value. 'offset' must be an integer greater than or equal to 0."
 
-  @smoke
   Scenario: The resource list is retrieved starting from a specific offset and is limited
     Given I save my place in the audit log file for remote
     When I successfully GET "/resources/cucumber/test-resource?offset=1&limit=1"
@@ -210,7 +204,6 @@ Feature: List resources with various types of filtering
     And there is an error
     And the error message includes "'offset' contains an invalid value. 'offset' must be an integer greater than or equal to 0."
 
-  @smoke
   Scenario: The resource list is counted.
     Given I save my place in the audit log file for remote
     When I successfully GET "/resources/cucumber/test-resource?count=true"

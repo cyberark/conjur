@@ -1,5 +1,5 @@
 @api
-@logged-in
+@logged-in @smoke
 Feature: Display information about a host factory.
 
   Background:
