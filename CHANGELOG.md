@@ -12,7 +12,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [1.20.4] - 2024-01-11
 
 ### Changed
-- Updated to use the golang version of conjur-cli (v.8) 
+- Added group access to the authn-local socket to provide access for the new user 'api' in the group 'conjur'
+  [Conjur-Enterprise/conjur#144](https://github.cyberng.com/Conjur-Enterprise/conjur/pull/144)
+- Updated to use the golang version of conjur-cli (v.8)
   [Conjur-Enterprise/conjur#99](https://github.cyberng.com/Conjur-Enterprise/conjur/pull/99)
 
 ## [1.20.3] - 2023-12-06

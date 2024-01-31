@@ -31,6 +31,8 @@ AuthnLocal = Struct.new(:socket, :queue_length, :timeout) do
 
     server = UNIXServer.new(socket)
 
+    # Allow user and group permissions on this socket
+    File.chmod(0o770, socket)
     trap(0) do
       # remove the socket on exit
       # alternatively it can be removed on startup
