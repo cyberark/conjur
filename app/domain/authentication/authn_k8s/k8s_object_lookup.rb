@@ -39,7 +39,7 @@ module Authentication
           @webservice,
           SERVICEACCOUNT_TOKEN_PATH,
           VARIABLE_BEARER_TOKEN
-        )
+        )&.strip
       end
 
       def ca_cert
@@ -47,7 +47,7 @@ module Authentication
           @webservice,
           SERVICEACCOUNT_CA_PATH,
           VARIABLE_CA_CERT
-        )
+        )&.strip
 
         raise Errors::Authentication::AuthnK8s::MissingCertificate if cert.blank?
 
