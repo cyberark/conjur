@@ -34,7 +34,7 @@ Feature: JWT Authenticator - Input Validation
     And I initialize remote JWKS endpoint with file "authn-jwt-input-validation" and alg "RS256"
     And I successfully set authn-jwt "jwks-uri" variable value to "http://jwks_py:8090/authn-jwt-input-validation/RS256" in service "raw"
 
-  @sanity
+  @smoke
   @negative @acceptance
   Scenario: ONYX-8594: Empty Token Given, 401 Error
     Given I save my place in the log file

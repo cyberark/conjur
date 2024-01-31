@@ -24,7 +24,7 @@ Feature: JWT Authenticator - ca-cert variable tests
     Then the HTTP response status code is 500
     And the authenticator status check fails with error matching "CONJ00087E Failed to fetch JWKS from 'https:\/\/jwks\/ca-cert-ONYX-15311.json'. Reason: '#<OpenSSL::SSL::SSLError: SSL_connect returned=1 errno=0 peeraddr=\d+.\d+.\d+.\d+:443 state=error: certificate verify failed \(self-signed certificate\)>'"
 
-  @sanity
+  @smoke
   @acceptance
   Scenario: ONYX-15312: Self-signed jwks-uri with valid ca-cert variable value
     Given I initialize JWKS endpoint with file "ca-cert-ONYX-15312.json"
@@ -77,7 +77,7 @@ Feature: JWT Authenticator - ca-cert variable tests
     Then the HTTP response status code is 500
     And the authenticator status check fails with error matching "CONJ00087E Failed to fetch JWKS from 'https:\/\/chained.mycompany.local\/ca-cert-ONYX-15314.json'. Reason: '#<OpenSSL::SSL::SSLError: SSL_connect returned=1 errno=0 peeraddr=\d+.\d+.\d+.\d+:443 state=error: certificate verify failed \(self-signed certificate in certificate chain\)>'"
 
-  @sanity
+  @smoke
   @acceptance
   Scenario: ONYX-15315: Self-signed jwks-uri with valid ca-cert variable value
     Given I initialize JWKS endpoint with file "ca-cert-ONYX-15315.json"
@@ -103,7 +103,7 @@ Feature: JWT Authenticator - ca-cert variable tests
     And the HTTP response content type is "application/json"
     And the authenticator status check succeeds
 
-  @sanity
+  @smoke
   @negative @acceptance
   Scenario: ONYX-15318: Microsoft's jwks-uri with invalid ca-cert variable value
     Given I am the super-user

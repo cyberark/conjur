@@ -756,7 +756,7 @@ pipeline {
                 }
               }
               environment {
-                INFRAPOOL_GCP_FETCH_TOKEN_FUNCTION = "fetch_token_${UUID.randomUUID().toString()}"
+                INFRAPOOL_GCP_FETCH_TOKEN_FUNCTION = "fetch_token_${Math.abs(new Random().nextInt(100000))}"
                 INFRAPOOL_IDENTITY_TOKEN_FILE = 'identity-token'
                 INFRAPOOL_GCP_OWNER_SERVICE_KEY_FILE = "sa-key-file.json"
               }
@@ -1172,9 +1172,11 @@ def collateTests(infrapool, jobs_per_agent=4) {
 def defaultCucumberFilterTags(env) {
   if(env.BRANCH_NAME == 'conjur-cloud') {
     // If this is a conjur-cloud master we want to run smoke tests
+    echo 'Setting cucumber tests to smoke'
     return '@smoke'
   }
 
   // For all other branch builds, only run the @sanity tests by default
+  echo 'Setting cucumber tests to sanity'
   return '@sanity'
 }

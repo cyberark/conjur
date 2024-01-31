@@ -30,7 +30,6 @@ Feature: JWT Authenticator - Token Schema
     And I have a "variable" resource called "test-variable"
     And I successfully set authn-jwt "token-app-property" variable to value "host"
 
-  @sanity
   @acceptance
   Scenario: ONYX-10471 - Enforced Claims Without Claim Aliases. Single enforced claim - 200 OK
     Given I extend the policy with:
@@ -259,7 +258,6 @@ Feature: JWT Authenticator - Token Schema
      CONJ00037E Missing value for resource: cucumber:variable:conjur/authn-jwt/raw/enforced-claims
     """
 
-  @sanity
   @acceptance
   Scenario: ONYX-10891 - Complex Case - Adding Enforced Claim after host configuration
     Given I extend the policy with:
@@ -320,7 +318,6 @@ Feature: JWT Authenticator - Token Schema
     cucumber:host:myapp successfully authenticated with authenticator authn-jwt service cucumber:webservice:conjur/authn-jwt/raw
     """
 
-  @sanity
   @acceptance
   Scenario: ONYX-10472 Unrelated alias
     Given I extend the policy with:
@@ -354,7 +351,6 @@ Feature: JWT Authenticator - Token Schema
     cucumber:host:myapp successfully authenticated with authenticator authn-jwt service cucumber:webservice:conjur/authn-jwt/raw
     """
 
-  @sanity
   @acceptance
   Scenario: ONYX-10473 Claim aliases with subsequent annotation
     Given I extend the policy with:
@@ -427,7 +423,6 @@ Feature: JWT Authenticator - Token Schema
     CONJ00069E Role can't have registered or aliased claim
     """
 
-  @sanity
   @acceptance
   Scenario: ONYX-10705: Enforced Claims and Claim Aliases exist and host annotation are correct
     Given I extend the policy with:
@@ -557,7 +552,6 @@ Feature: JWT Authenticator - Token Schema
      CONJ00037E Missing value for resource: cucumber:variable:conjur/authn-jwt/raw/claim-aliases
     """
 
-  @sanity
   @acceptance
   Scenario: ONYX-11117: Enforced Claims and Aliases with special allowed characters. Annotations are correct. 200 OK
     Given I extend the policy with:
@@ -867,7 +861,6 @@ Feature: JWT Authenticator - Token Schema
     cucumber:host:myapp successfully authenticated with authenticator authn-jwt service cucumber:webservice:conjur/authn-jwt/raw
     """
 
-  @sanity
   @acceptance
   Scenario: ONYX-29842 - Claims With In-Line Namespaces. Single enforced claim - 200 OK
     Given I extend the policy with:
@@ -903,7 +896,6 @@ Feature: JWT Authenticator - Token Schema
     cucumber:host:myapp-01 successfully authenticated with authenticator authn-jwt service cucumber:webservice:conjur/authn-jwt/raw
     """
 
-  @sanity
   @acceptance
   Scenario: ONYX-13716 Claim Alias nested annotation - 200 OK
     Given I extend the policy with:
@@ -937,7 +929,6 @@ Feature: JWT Authenticator - Token Schema
     cucumber:host:myapp successfully authenticated with authenticator authn-jwt service cucumber:webservice:conjur/authn-jwt/raw
     """
 
-  @sanity
   @negative @acceptance
   Scenario: ONYX-13716 Claim Alias nested annotation - 401 Error Wrong Claim value
     Given I extend the policy with:
@@ -971,7 +962,6 @@ Feature: JWT Authenticator - Token Schema
     CONJ00049E Resource restriction 'claim' does not match with the corresponding value in the request
     """
 
-  @sanity
   @acceptance
   Scenario: ONYX-13717 Claim Alias and Enforced Claim nested annotation - 200 OK
     Given I extend the policy with:
@@ -1007,7 +997,6 @@ Feature: JWT Authenticator - Token Schema
     cucumber:host:myapp successfully authenticated with authenticator authn-jwt service cucumber:webservice:conjur/authn-jwt/raw
     """
 
-  @sanity
   @negative @acceptance
   Scenario: ONYX-13718 Claim Alias with invalid characters - 401 Error
     Given I extend the policy with:

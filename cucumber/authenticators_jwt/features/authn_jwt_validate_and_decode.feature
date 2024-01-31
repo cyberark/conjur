@@ -57,7 +57,7 @@ Feature: JWT Authenticator - Validate And Decode
     """
 
 
-  @sanity
+  @smoke
   @negative @acceptance
   Scenario: ONYX-8733: Signature error, sign on a valid token header and content with your own key
     Given I extend the policy with:

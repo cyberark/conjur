@@ -41,7 +41,7 @@ Feature: JWT Authenticator - JWKs Basic sanity
     And I successfully set authn-jwt "jwks-uri" variable value to "http://jwks_py:8090/authn-jwt-general/RS256" in service "raw"
     And I successfully set authn-jwt "token-app-property" variable to value "host"
 
-  @sanity
+  @sanity @smoke
   @negative @acceptance
   Scenario: ONYX-8598: Authenticator is not enabled
     Given I have a "variable" resource called "test-variable"

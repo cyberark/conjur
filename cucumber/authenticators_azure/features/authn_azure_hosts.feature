@@ -25,7 +25,6 @@ Feature: Azure Authenticator - Different Hosts can authenticate with Azure authe
     And I am the super-user
     And I successfully set Azure provider-uri variable with the correct values
 
-  @smoke
   Scenario: Host with user-assigned-identity annotation is authorized
     And I have host "user-assigned-identity-app" without api key
     And I set subscription-id annotation to host "user-assigned-identity-app"
@@ -36,7 +35,6 @@ Feature: Azure Authenticator - Different Hosts can authenticate with Azure authe
     When I authenticate via Azure with token as host "user-assigned-identity-app"
     Then host "user-assigned-identity-app" has been authorized by Conjur
 
-  @smoke
   Scenario: Host with system-assigned-identity annotation is authorized
     And I have host "system-assigned-identity-app" without api key
     And I set subscription-id annotation to host "system-assigned-identity-app"

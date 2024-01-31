@@ -18,7 +18,7 @@ Feature: JWT Authenticator - Fetch signing key
       | oidc_client_secret              | KEYCLOAK_CLIENT_SECRET  | 1234                                                            |
       | oidc_provider_external_uri      | EXTERNAL_PROVIDER_URI   | https://keycloak:8443/auth/realms/master                        |
 
-  @sanity
+  @smoke
   Scenario: ONYX-8702: provider-uri is configured with valid value
     Given I load a policy:
     """
@@ -364,7 +364,6 @@ Feature: JWT Authenticator - Fetch signing key
     And I authenticate via authn-jwt with the ID token
     Then host "alice" has been authorized by Conjur
 
-  @sanity
   @acceptance
   Scenario: ONYX-8709: provider-uri dynamically changed, 502 ERROR resolves to 200 OK
     Given I load a policy:
@@ -431,7 +430,6 @@ Feature: JWT Authenticator - Fetch signing key
     When I authenticate via authn-jwt with the ID token
     Then host "alice" has been authorized by Conjur
 
-  @sanity
   @acceptance
   Scenario: ONYX-8710: jwks-uri dynamically changed, 401 ERROR resolves 200 OK
     Given I initialize remote JWKS endpoint with file "authn-jwt-fetch-signing-key" and alg "RS256"
@@ -729,7 +727,7 @@ Feature: JWT Authenticator - Fetch signing key
     CONJ00035E Failed to decode token (3rdPartyError ='#<JWT::DecodeError: No key id (kid) found from token headers>')
     """
 
-  @sanity
+  @smoke
   Scenario: ONYX-15322: public-keys happy path
     Given I load a policy:
     """
