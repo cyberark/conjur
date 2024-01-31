@@ -47,6 +47,8 @@ These are defined in runConjurTests, and also include the one-offs
 */
 @Library("product-pipelines-shared-library") _
 
+def started_by_timer = currentBuild.getBuildCauses()[0]["shortDescription"].matches("Started by timer")
+
 // Break the total number of tests into a subset of tests.
 // This will give 3 nested lists of tests to run, which is
 // distributed over 3 jenkins agents.
@@ -65,7 +67,7 @@ pipeline {
   //     https://github.com/conjurinc/jenkins-pipeline-library/blob/master/vars/
   //     getDailyCronString.groovy
   triggers {
-    parameterizedCron(getDailyCronString("%NIGHTLY=true"))
+    cron(env.BRANCH_NAME == "conjur-cloud" ? "H H(01-02) * * *" : "")
   }
 
   parameters {
@@ -1171,6 +1173,10 @@ def collateTests(infrapool, jobs_per_agent=4) {
 
 def defaultCucumberFilterTags(env) {
   if(env.BRANCH_NAME == 'conjur-cloud') {
+    // During nightly we want to run all tests
+    if (started_by_timer) {
+        return ''
+    }
     // If this is a conjur-cloud master we want to run smoke tests
     echo 'Setting cucumber tests to smoke'
     return '@smoke'
