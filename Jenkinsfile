@@ -758,7 +758,7 @@ pipeline {
                 }
               }
               environment {
-                INFRAPOOL_GCP_FETCH_TOKEN_FUNCTION = "fetch_token_${BUILD_NUMBER}"
+                INFRAPOOL_GCP_FETCH_TOKEN_FUNCTION = "fetch_token_${UUID.randomUUID().toString()}"
                 INFRAPOOL_IDENTITY_TOKEN_FILE = 'identity-token'
                 INFRAPOOL_GCP_OWNER_SERVICE_KEY_FILE = "sa-key-file.json"
               }
