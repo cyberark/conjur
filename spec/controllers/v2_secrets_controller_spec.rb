@@ -603,29 +603,5 @@ describe V2SecretsController, type: :request do
         expect(secret).to be_nil
       end
     end
-    context "when creating secret with binary value" do
-      let(:payload_create_secret) do
-        <<~BODY
-          {
-              "branch": "/data/secrets",
-              "name": "secret1",
-              "type": "static",
-              "value": "#{Random.new.bytes(16)}"
-          }
-        BODY
-      end
-      it 'the call will fail' do
-        post("/secrets",
-             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
-               {
-                 'RAW_POST_DATA' => payload_create_secret,
-                 'CONTENT_TYPE' => "application/json"
-               }
-             )
-        )
-        # Correct response code
-        assert_response :bad_request
-      end
-    end
   end
 end

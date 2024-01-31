@@ -47,8 +47,6 @@ These are defined in runConjurTests, and also include the one-offs
 */
 @Library("product-pipelines-shared-library") _
 
-def started_by_timer = currentBuild.getBuildCauses()[0]["shortDescription"].matches("Started by timer")
-
 // Break the total number of tests into a subset of tests.
 // This will give 3 nested lists of tests to run, which is
 // distributed over 3 jenkins agents.
@@ -61,11 +59,6 @@ pipeline {
     timeout(time: 2, unit: 'HOURS')
   }
 
-  // "parameterizedCron" is defined by this native Jenkins plugin:
-  //     https://plugins.jenkins.io/parameterized-scheduler/
-  // "getDailyCronString" is defined by us (URL is wrapped):
-  //     https://github.com/conjurinc/jenkins-pipeline-library/blob/master/vars/
-  //     getDailyCronString.groovy
   triggers {
     cron(env.BRANCH_NAME == "conjur-cloud" ? "H H(01-02) * * *" : "")
   }
@@ -108,18 +101,14 @@ pipeline {
           INFRAPOOL_EXECUTORV2_AGENT_1 = INFRAPOOL_EXECUTORV2_AGENTS[1]
           INFRAPOOL_EXECUTORV2_AGENT_2 = INFRAPOOL_EXECUTORV2_AGENTS[2]
 
-
           INFRAPOOL_EXECUTORV2_RHELEE_AGENTS = getInfraPoolAgent.connected(type: "ExecutorV2RHELEE", quantity: 3, duration: 1)
           INFRAPOOL_EXECUTORV2_RHELEE_AGENT_0 = INFRAPOOL_EXECUTORV2_RHELEE_AGENTS[0]
           INFRAPOOL_EXECUTORV2_RHELEE_AGENT_1 = INFRAPOOL_EXECUTORV2_RHELEE_AGENTS[1]
           INFRAPOOL_EXECUTORV2_RHELEE_AGENT_2 = INFRAPOOL_EXECUTORV2_RHELEE_AGENTS[2]
 
-
           INFRAPOOL_AZURE_EXECUTORV2_AGENT_0 = getInfraPoolAgent.connected(type: "AzureExecutorV2", quantity: 1, duration: 1)[0]
 
-
           INFRAPOOL_GCP_EXECUTORV2_AGENT_0 = getInfraPoolAgent.connected(type: "GcpExecutorV2", quantity: 1, duration: 1)[0]
-
 
           // Break the total number of tests into a subset of tests.
           // This will give 3 nested lists of tests to run, which is
@@ -355,7 +344,7 @@ pipeline {
                   }
 
                   environment {
-                    CUCUMBER_FILTER_TAGS = "${params.CUCUMBER_FILTER_TAGS}"
+                    CUCUMBER_FILTER_TAGS = "${CucumberFilterTags()}"
                   }
 
                   steps {
@@ -398,7 +387,7 @@ pipeline {
                   }
 
                   environment {
-                    CUCUMBER_FILTER_TAGS = "${params.CUCUMBER_FILTER_TAGS}"
+                    CUCUMBER_FILTER_TAGS = "${CucumberFilterTags()}"
                   }
 
                   steps {
@@ -547,7 +536,6 @@ pipeline {
                 INFRAPOOL_CUCUMBER_FILTER_TAGS = "${params.CUCUMBER_FILTER_TAGS}"
               }
 
-
               steps {
                 script {
                   addNewImagesToAgent(INFRAPOOL_EXECUTORV2_AGENT_1)
@@ -626,7 +614,7 @@ pipeline {
             stage('Azure Authenticator') {
               when {
                 expression {
-                  testShouldRun(params.RUN_ONLY, "azure_authenticator", params.CUCUMBER_FILTER_TAGS)
+                  testShouldRun(params.RUN_ONLY, "azure_authenticator")
                 }
               }
               environment {
@@ -689,7 +677,7 @@ pipeline {
             stage('GCP Authenticator preparation - Allocate GCE Instance') {
               when {
                 expression {
-                  testShouldRun(params.RUN_ONLY, "gcp_authenticator", params.CUCUMBER_FILTER_TAGS)
+                  testShouldRun(params.RUN_ONLY, "gcp_authenticator")
                 }
               }
               steps {
@@ -754,7 +742,7 @@ pipeline {
             stage('GCP Authenticator preparation - Allocate Google Function') {
               when {
                 expression {
-                  testShouldRun(params.RUN_ONLY, "gcp_authenticator", params.CUCUMBER_FILTER_TAGS)
+                  testShouldRun(params.RUN_ONLY, "gcp_authenticator")
                 }
               }
               environment {
@@ -821,7 +809,7 @@ pipeline {
             stage('GCP Authenticator - Run Tests') {
               when {
                 expression {
-                  testShouldRun(params.RUN_ONLY, "gcp_authenticator", params.CUCUMBER_FILTER_TAGS)
+                  testShouldRun(params.RUN_ONLY, "gcp_authenticator")
                 }
               }
               steps {
@@ -872,7 +860,7 @@ pipeline {
             }
 
             // Only unstash azure if it ran.
-            if (testShouldRun(params.RUN_ONLY, "azure_authenticator", params.CUCUMBER_FILTER_TAGS)) {
+            if (testShouldRun(params.RUN_ONLY, "azure_authenticator")) {
               INFRAPOOL_EXECUTORV2_AGENT_0.agentUnstash 'testResultAzure'
             }
 
@@ -997,9 +985,9 @@ def archiveFiles(filePattern) {
   )
 }
 
-def testShouldRun(run_only_str, test, suite) {
+def testShouldRun(run_only_str, test) {
   //If its sanity or smoke run we shouldn't run the tests
-  if (suite == '@smoke' || suite == '@sanity') {
+  if (params.CUCUMBER_FILTER_TAGS == '@smoke' || params.CUCUMBER_FILTER_TAGS == '@sanity') {
     return false
   }
   return run_only_str == '' || run_only_str.split().contains(test)
@@ -1172,10 +1160,13 @@ def collateTests(infrapool, jobs_per_agent=4) {
 }
 
 def defaultCucumberFilterTags(env) {
+  echo "current build description: ${currentBuild.getBuildCauses()[0]["shortDescription"]}"
+
   if(env.BRANCH_NAME == 'conjur-cloud') {
-    // During nightly we want to run all tests
-    if (started_by_timer) {
-        return ''
+    // This is nightly build
+    if (currentBuild.getBuildCauses()[0]["shortDescription"].matches("Started by timer")) {
+          echo 'In nightly build run all tests'
+          return ''
     }
     // If this is a conjur-cloud master we want to run smoke tests
     echo 'Setting cucumber tests to smoke'
