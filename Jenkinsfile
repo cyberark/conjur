@@ -60,7 +60,7 @@ pipeline {
   }
 
   triggers {
-    cron(env.BRANCH_NAME == "PR-148" ? "*/2 * * * *" : "")
+    cron(env.BRANCH_NAME == "conjur-cloud" ? "H H(01-02) * * *" : "")
   }
 
   parameters {
