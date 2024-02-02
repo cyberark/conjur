@@ -65,7 +65,7 @@ pipeline {
 
   parameters {
     booleanParam(
-      name: 'NIGHTLY',
+      name: 'FIPS',
       defaultValue: false,
       description: 'Run tests on all agents and environment including: FIPS'
     )
@@ -264,9 +264,9 @@ pipeline {
 
         // Run outside parallel block to reduce main Jenkins executor load.
         // Should no be run by default in conjur cloud
-        stage('Nightly Only') {
+        stage('FIPS Only') {
           when {
-            expression { params.NIGHTLY }
+            expression { params.FIPS }
           }
 
           environment {

@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
+## [1.0.21-cloud] - 2023-02-18
+### Added
+- Annotation support for creating static secret
+
 ## [1.0.20-cloud] - 2023-02-11
 ### Added
 - API for creating secret
