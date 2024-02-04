@@ -13,33 +13,27 @@ class V2SecretsController < V2RestController
     # Basic input validation
     input_validation(params)
 
-    # Check permissions
-    action = :update
-    authorize(action, resource("policy", branch))
-
     # Create the secret type class
     secret_type_handler = SecretTypeFactory.new.create_secret_type(secret_type)
-    # Create the resources ids
-    resource_id = resource_id("variable","#{branch}/#{secret_name}")
+    # check policy exists
     policy_id = resource_id("policy",branch)
     policy = Role[policy_id]
     raise Exceptions::RecordNotFound, policy_id unless policy
+
+    # Check permissions
+    action = :update
+    authorize(action, policy)
 
     #Run input validation specific to secret type
     secret_type_handler.input_validation(params)
 
     # Create variable resource
-    variable_resource = secret_type_handler.create_variable(resource_id, policy)
-
-    # Set secret value
-    secret_type_handler.set_value(variable_resource, params[:value])
+    resource_id = resource_id("variable","#{branch}/#{secret_name}")
+    created_secret = secret_type_handler.create_secret(policy, resource_id, params, JSON.parse(request.body.read))
 
     logger.debug(LogMessages::Endpoints::EndpointFinishedSuccessfully.new(log_message))
-    render(json: {
-      branch: branch,
-      name: secret_name,
-      type: secret_type
-    }, status: :created)
+    render(json: created_secret, status: :created)
+    #audit_succsess
   rescue => e
     #audit_failure(e, :remove)
     raise e

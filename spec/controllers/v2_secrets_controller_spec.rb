@@ -40,8 +40,8 @@ describe V2SecretsController, type: :request do
     assert_response :success
   end
 
-  describe "Create static secret" do
-    context "when creating secret with only value" do
+  describe "Create static secret with only name" do
+    context "When creating secret" do
       let(:payload_create_secret) do
         <<~BODY
           {
@@ -604,4 +604,48 @@ describe V2SecretsController, type: :request do
       end
     end
   end
+
+  describe "Create static secret with annotations" do
+    context "When creating secret without annotations" do
+      let(:payload_create_secret) do
+        <<~BODY
+          {
+              "branch": "/data/secrets",
+              "name": "secret_annotations",
+              "type": "static",
+              "mime_type": "text/plain"
+          }
+        BODY
+      end
+      it 'Secret resource was created with default annotations' do
+        post("/secrets",
+             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
+               {
+                 'RAW_POST_DATA' => payload_create_secret,
+                 'CONTENT_TYPE' => "application/json"
+               }
+             )
+        )
+        # Correct response code
+        assert_response :created
+        # correct response body
+        expect(response.body).to eq("{\"branch\":\"/data/secrets\",\"name\":\"secret_annotations\",\"type\":\"static\",\"mime_type\":\"text/plain\",\"annotations\":\"[]\"}")
+        # Secret resource is created with annotations
+        annotations = Annotation.where(resource_id:"rspec:variable:data/secrets/secret_annotations").all
+        expect(annotations.size).to eq 2
+        expect(annotations[0][:resource_id]).to eq "rspec:variable:data/secrets/secret_annotations"
+        expect(annotations[0][:policy_id]).to eq "rspec:policy:data/secrets"
+        expect(annotations[0][:name]).to eq "conjur/kind"
+        expect(annotations[0][:value]).to eq "static"
+        expect(annotations[1][:resource_id]).to eq "rspec:variable:data/secrets/secret_annotations"
+        expect(annotations[1][:policy_id]).to eq "rspec:policy:data/secrets"
+        expect(annotations[1][:name]).to eq "conjur/mime_type"
+        expect(annotations[1][:value]).to eq "text/plain"
+      end
+    end
+  end
 end
+
+# Test policy don;t exist
+# Test response with value that the value doesn;t exist
+# Test type and mime_type in response
