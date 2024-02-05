@@ -13,13 +13,19 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - API for creating secret
 
+### Changed
+- Changing Info logs to Debug
+
 ## [1.0.19-cloud] - 2023-02-04
 ### Added
 - API getting the license info (number of used hosts) 
 - API getting the edge name by id
+- Add sort parameter to list issuers
 
 ### Changed
 - Update delete issuer return code
+- Changing application error to debug logs
+- Removing log in case of resource/variable not found
 
 ## [1.0.18-cloud] - 2023-01-21
 ### Added

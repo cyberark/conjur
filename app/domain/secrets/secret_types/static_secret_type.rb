@@ -16,6 +16,14 @@ module Secrets
           variable_resource.enforce_secrets_version_limit
         end
       end
+
+      def convert_fields_to_annotations(params)
+        annotations = super(params)
+        # add mime type annotation
+        annotations["conjur/mime_type"] ||= params[:mime_type] if params[:mime_type]
+
+        annotations
+      end
     end
   end
 end
