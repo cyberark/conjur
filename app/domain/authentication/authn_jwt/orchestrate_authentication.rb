@@ -28,7 +28,7 @@ module Authentication
       end
 
       def authenticate_jwt
-        @logger.info(LogMessages::Authentication::AuthnJwt::JwtAuthenticatorEntryPoint.new(@authenticator_input.authenticator_name))
+        @logger.debug(LogMessages::Authentication::AuthnJwt::JwtAuthenticatorEntryPoint.new(@authenticator_input.authenticator_name))
 
         @jwt_authenticator.call(
           vendor_configuration: vendor_configuration,
