@@ -68,7 +68,7 @@ class EdgeAuthenticatorsController < RestController
   def verify_header(request)
     accepts_base64 = String(request.headers['Accept-Encoding']).casecmp?('base64')
     unless accepts_base64
-      raise InternalServerError , "the header request must contain base64 accept-encoding"
+      raise ApplicationController::InternalServerError , "the header request must contain base64 accept-encoding"
     end
   end
 
