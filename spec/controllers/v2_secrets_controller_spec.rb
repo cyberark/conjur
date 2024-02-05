@@ -68,7 +68,7 @@ describe V2SecretsController, type: :request do
         # Correct response code
         assert_response :created
         # correct response body
-        expect(response.body).to eq("{\"branch\":\"/data/secrets\",\"name\":\"secret1\",\"type\":\"static\"}")
+        expect(response.body).to eq("{\"branch\":\"/data/secrets\",\"name\":\"secret1\",\"type\":\"static\",\"annotations\":\"[]\"}")
         # correct header
         expect(response.headers['Content-Type'].include?(v2_api_header["Accept"])).to eq true
         # Secret resource is created
@@ -337,6 +337,31 @@ describe V2SecretsController, type: :request do
         expect(parsed_body["error"]["message"]).to eq("CONJ00190E Missing required parameter: branch")
       end
     end
+    context "when creating secret with branch not existent" do
+      let(:payload_create_secret) do
+        <<~BODY
+          {
+              "branch": "data/no_secrets",
+              "name": "secret1",
+              "type": "static"
+          }
+        BODY
+      end
+      it 'Secret creation failed on 404' do
+        post("/secrets",
+             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
+               {
+                 'RAW_POST_DATA' => payload_create_secret,
+                 'CONTENT_TYPE' => "application/json"
+               }
+             )
+        )
+        # Correct response code
+        assert_response :not_found
+        parsed_body = JSON.parse(response.body)
+        expect(parsed_body["error"]["message"]).to eq("Policy 'data/no_secrets' not found in account 'rspec'")
+      end
+    end
     context "when creating secret with no branch" do
       let(:payload_create_secret) do
         <<~BODY
@@ -563,7 +588,7 @@ describe V2SecretsController, type: :request do
         # Correct response code
         assert_response :created
         # correct response body
-        expect(response.body).to eq("{\"branch\":\"/data/secrets\",\"name\":\"secret1\",\"type\":\"static\"}")
+        expect(response.body).to eq("{\"branch\":\"/data/secrets\",\"name\":\"secret1\",\"type\":\"static\",\"annotations\":\"[]\"}")
         # Verify secret value can be fetched
         get('/secrets/rspec/variable/data/secrets/secret1',
           env: token_auth_header(role: admin_user)
@@ -643,9 +668,55 @@ describe V2SecretsController, type: :request do
         expect(annotations[1][:value]).to eq "text/plain"
       end
     end
+    context "When creating secret with annotations" do
+      let(:payload_create_secret) do
+        <<~BODY
+          {
+              "branch": "/data/secrets",
+              "name": "secret_annotations",
+              "type": "static",
+               "annotations": [
+                {
+                  "name": "description",
+                  "value": "desc"
+                },
+                {
+                  "name": "test_ann",
+                  "value": "test"
+                }             
+              ]       
+          }
+        BODY
+      end
+      it 'Secret resource was created with default annotations and custom annotations' do
+        post("/secrets",
+             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
+               {
+                 'RAW_POST_DATA' => payload_create_secret,
+                 'CONTENT_TYPE' => "application/json"
+               }
+             )
+        )
+        # Correct response code
+        assert_response :created
+        # correct response body
+        expect(response.body).to eq("{\"branch\":\"/data/secrets\",\"name\":\"secret_annotations\",\"type\":\"static\",\"annotations\":[{\"name\":\"description\",\"value\":\"desc\"},{\"name\":\"test_ann\",\"value\":\"test\"}]}")
+        # Secret resource is created with annotations
+        annotations = Annotation.where(resource_id:"rspec:variable:data/secrets/secret_annotations").all
+        expect(annotations.size).to eq 3
+        expect(annotations[0][:resource_id]).to eq "rspec:variable:data/secrets/secret_annotations"
+        expect(annotations[0][:policy_id]).to eq "rspec:policy:data/secrets"
+        expect(annotations[0][:name]).to eq "conjur/kind"
+        expect(annotations[0][:value]).to eq "static"
+        expect(annotations[1][:resource_id]).to eq "rspec:variable:data/secrets/secret_annotations"
+        expect(annotations[1][:policy_id]).to eq "rspec:policy:data/secrets"
+        expect(annotations[1][:name]).to eq "description"
+        expect(annotations[1][:value]).to eq "desc"
+        expect(annotations[2][:resource_id]).to eq "rspec:variable:data/secrets/secret_annotations"
+        expect(annotations[2][:policy_id]).to eq "rspec:policy:data/secrets"
+        expect(annotations[2][:name]).to eq "test_ann"
+        expect(annotations[2][:value]).to eq "test"
+      end
+    end
   end
 end
-
-# Test policy don;t exist
-# Test response with value that the value doesn;t exist
-# Test type and mime_type in response

@@ -3,7 +3,7 @@ module Secrets
     class SecretBaseType
       def create_secret(policy, resource_id, params, response)
         # Create variable resource
-        variable_resource = ::Resource.create(resource_id: resource_id, owner_id: policy[:role_id], policy_id: policy[:role_id])
+        variable_resource = ::Resource.create(resource_id: resource_id, owner_id: policy[:resource_id], policy_id: policy[:resource_id])
 
         # Add annotations
         if params[:annotations].nil?
@@ -32,8 +32,7 @@ module Secrets
         annotations = convert_fields_to_annotations(params)
         # add secret annotations
         unless (params[:annotations]).nil?
-          json_array = JSON.parse(params[:annotations])
-          json_array.each do |obj|
+          params[:annotations].each do |obj|
             annotations[obj["name"]] = obj["value"]
           end
         end

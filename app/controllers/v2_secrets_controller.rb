@@ -17,7 +17,7 @@ class V2SecretsController < V2RestController
     secret_type_handler = SecretTypeFactory.new.create_secret_type(secret_type)
     # check policy exists
     policy_id = resource_id("policy",branch)
-    policy = Role[policy_id]
+    policy = Resource[policy_id]
     raise Exceptions::RecordNotFound, policy_id unless policy
 
     # Check permissions
