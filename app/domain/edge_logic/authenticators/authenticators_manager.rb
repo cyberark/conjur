@@ -67,7 +67,7 @@ module AuthenticatorsManager
         results << authenticatorToReturn
       end
     rescue => e
-        raise InternalServerError, e.message
+        raise ApplicationController::InternalServerError, e.message
     end
     # the authenticators are sorted by resource_id DESC
     results
@@ -111,7 +111,7 @@ module AuthenticatorsManager
           }
         end
       rescue => e
-        raise InternalServerError, e.message
+        raise ApplicationController::InternalServerError, e.message
       end
       result
     end
