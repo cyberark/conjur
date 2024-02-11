@@ -1,6 +1,9 @@
 module Secrets
   module SecretTypes
     class SecretBaseType
+      include PermissionsHandler
+      include AnnotationsHandler
+
       def create_secret(policy, resource_id, params, response)
         # Create variable resource
         variable_resource = ::Resource.create(resource_id: resource_id, owner_id: policy[:resource_id], policy_id: policy[:resource_id])
@@ -10,7 +13,14 @@ module Secrets
           response["annotations"] = "[]"
         end
         annotations = add_annotations(params)
-        AnnotationsHandler.create_annotations(variable_resource, policy, annotations)
+        create_annotations(variable_resource, policy, annotations)
+
+        # Add permissions
+        if params[:permissions].nil?
+          response["permissions"] = "[]"
+        else
+          validate_permissions(params[:permissions])
+        end
 
         # Set secret value
         set_value(variable_resource, params[:value])

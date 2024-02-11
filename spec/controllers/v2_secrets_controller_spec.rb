@@ -68,7 +68,7 @@ describe V2SecretsController, type: :request do
         # Correct response code
         assert_response :created
         # correct response body
-        expect(response.body).to eq("{\"branch\":\"/data/secrets\",\"name\":\"secret1\",\"type\":\"static\",\"annotations\":\"[]\"}")
+        expect(response.body).to eq("{\"branch\":\"/data/secrets\",\"name\":\"secret1\",\"type\":\"static\",\"annotations\":\"[]\",\"permissions\":\"[]\"}")
         # correct header
         expect(response.headers['Content-Type'].include?(v2_api_header["Accept"])).to eq true
         # Secret resource is created
@@ -588,7 +588,7 @@ describe V2SecretsController, type: :request do
         # Correct response code
         assert_response :created
         # correct response body
-        expect(response.body).to eq("{\"branch\":\"/data/secrets\",\"name\":\"secret1\",\"type\":\"static\",\"annotations\":\"[]\"}")
+        expect(response.body).to eq("{\"branch\":\"/data/secrets\",\"name\":\"secret1\",\"type\":\"static\",\"annotations\":\"[]\",\"permissions\":\"[]\"}")
         # Verify secret value can be fetched
         get('/secrets/rspec/variable/data/secrets/secret1',
           env: token_auth_header(role: admin_user)
@@ -654,7 +654,7 @@ describe V2SecretsController, type: :request do
         # Correct response code
         assert_response :created
         # correct response body
-        expect(response.body).to eq("{\"branch\":\"/data/secrets\",\"name\":\"secret_annotations\",\"type\":\"static\",\"mime_type\":\"text/plain\",\"annotations\":\"[]\"}")
+        expect(response.body).to eq("{\"branch\":\"/data/secrets\",\"name\":\"secret_annotations\",\"type\":\"static\",\"mime_type\":\"text/plain\",\"annotations\":\"[]\",\"permissions\":\"[]\"}")
         # Secret resource is created with annotations
         annotations = Annotation.where(resource_id:"rspec:variable:data/secrets/secret_annotations").all
         expect(annotations.size).to eq 2
@@ -700,7 +700,7 @@ describe V2SecretsController, type: :request do
         # Correct response code
         assert_response :created
         # correct response body
-        expect(response.body).to eq("{\"branch\":\"/data/secrets\",\"name\":\"secret_annotations\",\"type\":\"static\",\"annotations\":[{\"name\":\"description\",\"value\":\"desc\"},{\"name\":\"test_ann\",\"value\":\"test\"}]}")
+        expect(response.body).to eq("{\"branch\":\"/data/secrets\",\"name\":\"secret_annotations\",\"type\":\"static\",\"annotations\":[{\"name\":\"description\",\"value\":\"desc\"},{\"name\":\"test_ann\",\"value\":\"test\"}],\"permissions\":\"[]\"}")
         # Secret resource is created with annotations
         annotations = Annotation.where(resource_id:"rspec:variable:data/secrets/secret_annotations").all
         expect(annotations.size).to eq 3
@@ -716,6 +716,248 @@ describe V2SecretsController, type: :request do
         expect(annotations[2][:policy_id]).to eq "rspec:policy:data/secrets"
         expect(annotations[2][:name]).to eq "test_ann"
         expect(annotations[2][:value]).to eq "test"
+      end
+    end
+  end
+
+  describe "Create static secret with permissions with input errors" do
+    context "When creating secret with not valid privilege" do
+      let(:payload_create_secret) do
+        <<~BODY
+          {
+              "branch": "/data/secrets",
+              "name": "secret_annotations",
+              "type": "static",
+               "permissions": [
+                {
+                  "subject": {
+                    "kind": "user",
+                    "id": "alice"
+                  },
+                  "privileges": [ "read", "write"]
+                }          
+              ]       
+          }
+        BODY
+      end
+      it 'Failed on input validation' do
+        post("/secrets",
+             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
+               {
+                 'RAW_POST_DATA' => payload_create_secret,
+                 'CONTENT_TYPE' => "application/json"
+               }
+             )
+        )
+        # Correct response code
+        assert_response :bad_request
+        # correct response body
+        parsed_body = JSON.parse(response.body)
+        expect(parsed_body["error"]["code"]).to eq("bad_request")
+        expect(parsed_body["error"]["message"]).to eq("CONJ00191E The value in the 'Resource rspec:user:alice privileges' parameter is not valid. Error: Allowed values are [read execute update]")
+      end
+    end
+    context "When creating secret with not valid subject kind" do
+      let(:payload_create_secret) do
+        <<~BODY
+          {
+              "branch": "/data/secrets",
+              "name": "secret_annotations",
+              "type": "static",
+               "permissions": [
+                {
+                  "subject": {
+                    "kind": "users",
+                    "id": "alice"
+                  },
+                  "privileges": [ "read"]
+                }          
+              ]       
+          }
+        BODY
+      end
+      it 'Failed on input validation' do
+        post("/secrets",
+             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
+               {
+                 'RAW_POST_DATA' => payload_create_secret,
+                 'CONTENT_TYPE' => "application/json"
+               }
+             )
+        )
+        # Correct response code
+        assert_response :bad_request
+        # correct response body
+        parsed_body = JSON.parse(response.body)
+        expect(parsed_body["error"]["message"]).to eq("CONJ00191E The value in the 'Resource alice kind' parameter is not valid. Error: Allowed values are [user host group]")
+      end
+    end
+    context "When creating secret with not valid subject id" do
+      let(:payload_create_secret) do
+        <<~BODY
+          {
+              "branch": "/data/secrets",
+              "name": "secret_annotations",
+              "type": "static",
+               "permissions": [
+                {
+                  "subject": {
+                    "kind": "user",
+                    "id": "luba"
+                  },
+                  "privileges": [ "read"]
+                }          
+              ]       
+          }
+        BODY
+      end
+      it 'Failed on input validation' do
+        post("/secrets",
+             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
+               {
+                 'RAW_POST_DATA' => payload_create_secret,
+                 'CONTENT_TYPE' => "application/json"
+               }
+             )
+        )
+        # Correct response code
+        assert_response :not_found
+        # correct response body
+        parsed_body = JSON.parse(response.body)
+        expect(parsed_body["error"]["message"]).to eq("User 'luba' not found in account 'rspec'")
+      end
+    end
+    context "When creating secret with no subject" do
+      let(:payload_create_secret) do
+        <<~BODY
+          {
+              "branch": "/data/secrets",
+              "name": "secret_annotations",
+              "type": "static",
+               "permissions": [
+                {
+                  "privileges": [ "read"]
+                }          
+              ]       
+          }
+        BODY
+      end
+      it 'Failed on input validation' do
+        post("/secrets",
+             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
+               {
+                 'RAW_POST_DATA' => payload_create_secret,
+                 'CONTENT_TYPE' => "application/json"
+               }
+             )
+        )
+        # Correct response code
+        assert_response :bad_request
+        # correct response body
+        parsed_body = JSON.parse(response.body)
+        expect(parsed_body["error"]["message"]).to eq("CONJ00190E Missing required parameter: Privilege Subject")
+      end
+    end
+    context "When creating secret with no subject id" do
+      let(:payload_create_secret) do
+        <<~BODY
+          {
+              "branch": "/data/secrets",
+              "name": "secret_annotations",
+              "type": "static",
+               "permissions": [
+                {
+                  "subject": {
+                    "kind": "user"
+                  },
+                  "privileges": [ "read"]
+                }          
+              ]       
+          }
+        BODY
+      end
+      it 'Failed on input validation' do
+        post("/secrets",
+             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
+               {
+                 'RAW_POST_DATA' => payload_create_secret,
+                 'CONTENT_TYPE' => "application/json"
+               }
+             )
+        )
+        # Correct response code
+        assert_response :bad_request
+        # correct response body
+        parsed_body = JSON.parse(response.body)
+        expect(parsed_body["error"]["message"]).to eq("CONJ00190E Missing required parameter: id")
+      end
+    end
+    context "When creating secret with no subject kind" do
+      let(:payload_create_secret) do
+        <<~BODY
+          {
+              "branch": "/data/secrets",
+              "name": "secret_annotations",
+              "type": "static",
+               "permissions": [
+                {
+                  "subject": {
+                    "id": "alice"
+                  },
+                  "privileges": [ "read"]
+                }          
+              ]       
+          }
+        BODY
+      end
+      it 'Failed on input validation' do
+        post("/secrets",
+             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
+               {
+                 'RAW_POST_DATA' => payload_create_secret,
+                 'CONTENT_TYPE' => "application/json"
+               }
+             )
+        )
+        # Correct response code
+        assert_response :bad_request
+        # correct response body
+        parsed_body = JSON.parse(response.body)
+        expect(parsed_body["error"]["message"]).to eq("CONJ00190E Missing required parameter: kind")
+      end
+      end
+    context "When creating secret with no privileges" do
+      let(:payload_create_secret) do
+        <<~BODY
+          {
+              "branch": "/data/secrets",
+              "name": "secret_annotations",
+              "type": "static",
+               "permissions": [
+                {
+                  "subject": {
+                    "kind": "user",
+                    "id": "alice"
+                  }
+                }          
+              ]       
+          }
+        BODY
+      end
+      it 'Failed on input validation' do
+        post("/secrets",
+             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
+               {
+                 'RAW_POST_DATA' => payload_create_secret,
+                 'CONTENT_TYPE' => "application/json"
+               }
+             )
+        )
+        # Correct response code
+        assert_response :bad_request
+        # correct response body
+        parsed_body = JSON.parse(response.body)
+        expect(parsed_body["error"]["message"]).to eq("CONJ00190E Missing required parameter: Privileges")
       end
     end
   end
