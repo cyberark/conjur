@@ -18,7 +18,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Changing Error logs to Warning 
 - API for creating static secret with annotations
 
-## [1.0.20-cloud] - 2023-02-11
+## [1.0.20-cloud] - 2024-02-11
 ### Added
 - API for creating secret
 - The Kubernetes authenticator now supports the
