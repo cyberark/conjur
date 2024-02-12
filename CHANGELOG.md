@@ -53,6 +53,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   helpful error messages when appropriate.
   [CNJR-3059](https://ca-il-jira.il.cyber-ark.com:8443/browse/CNJR-3059)
 
+## [1.0.21-cloud] - 2024-02-18
+### Changed
+- Changing Error logs to Warning 
+
+## [1.0.20-cloud] - 2024-02-11
+### Added
+- API for creating secret
+
+### Changed
+- Changing Info logs to Debug
+
 ## [1.0.19-cloud] - 2024-02-04
 ### Added
 - API getting the license info (number of used hosts) 
