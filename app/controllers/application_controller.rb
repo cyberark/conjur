@@ -47,6 +47,7 @@ class ApplicationController < ActionController::API
   rescue_from Errors::Conjur::MissingSecretValue, with: :render_secret_not_found
   rescue_from Exceptions::RecordExists, with: :record_exists
   rescue_from Exceptions::Forbidden, with: :forbidden
+  rescue_from PG::InsufficientPrivilege, with: :not_allowed
   rescue_from BadRequest, with: :bad_request
   rescue_from Unauthorized, with: :unauthorized
   rescue_from InternalServerError, with: :internal_server_error
@@ -300,6 +301,23 @@ class ApplicationController < ActionController::API
         message: e.message
       }
     }, status: :not_implemented)
+  end
+
+  def not_allowed e
+    logger.debug("#{e}\n#{e.backtrace.join("\n")}")
+
+    error_message = if request.get?
+      "Read operations are not allowed"
+    else
+      "Write operations are not allowed"
+    end
+
+    render(json: {
+      error: {
+        code: 405,
+        message: error_message
+      }
+    }, status: 405)
   end
 
   # Gets the value of the :account parameter.

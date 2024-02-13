@@ -18,6 +18,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 - Added group access to the authn-local socket to provide access for the new user 'api' in the group 'conjur'
   [Conjur-Enterprise/conjur#144](https://github.cyberng.com/Conjur-Enterprise/conjur/pull/144)
+- Handles PG::InsufficientPrivilege error, returning a 405 instead of a 500
+  [Conjur-Enterprise/conjur#155](https://github.cyberng.com/Conjur-Enterprise/conjur/pull/155)
 - Updated to use the golang version of conjur-cli (v.8)
   [Conjur-Enterprise/conjur#99](https://github.cyberng.com/Conjur-Enterprise/conjur/pull/99)
 
