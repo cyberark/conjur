@@ -270,7 +270,7 @@ pipeline {
           }
 
           environment {
-             INFRAPOOL_CUCUMBER_FILTER_TAGS = "${params.CUCUMBER_FILTER_TAGS}"
+            INFRAPOOL_CUCUMBER_FILTER_TAGS = "${params.CUCUMBER_FILTER_TAGS}"
           }
 
           stages {
@@ -489,7 +489,7 @@ pipeline {
               }
 
               environment {
-                CUCUMBER_FILTER_TAGS = "${CucumberFilterTags()}"
+                INFRAPOOL_CUCUMBER_FILTER_TAGS = "${params.CUCUMBER_FILTER_TAGS}"
               }
 
               steps {
@@ -533,7 +533,7 @@ pipeline {
               }
 
               environment {
-                CUCUMBER_FILTER_TAGS = "${CucumberFilterTags()}"
+                INFRAPOOL_CUCUMBER_FILTER_TAGS = "${params.CUCUMBER_FILTER_TAGS}"
               }
 
               steps {
@@ -577,7 +577,7 @@ pipeline {
               }
 
               environment {
-              CUCUMBER_FILTER_TAGS = "${CucumberFilterTags()}"
+                INFRAPOOL_CUCUMBER_FILTER_TAGS = "${params.CUCUMBER_FILTER_TAGS}"
               }
 
 
