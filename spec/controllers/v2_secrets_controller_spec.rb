@@ -22,6 +22,13 @@ describe V2SecretsController, type: :request do
         id: data
         body:
         - !policy secrets
+        - !host host1
+        - !group group1
+
+        - !grant
+           role: !group group1
+           member:          
+             - !host host1 
     POLICY
   end
 
@@ -704,18 +711,18 @@ describe V2SecretsController, type: :request do
         # Secret resource is created with annotations
         annotations = Annotation.where(resource_id:"rspec:variable:data/secrets/secret_annotations").all
         expect(annotations.size).to eq 3
-        expect(annotations[0][:resource_id]).to eq "rspec:variable:data/secrets/secret_annotations"
-        expect(annotations[0][:policy_id]).to eq "rspec:policy:data/secrets"
-        expect(annotations[0][:name]).to eq "conjur/kind"
-        expect(annotations[0][:value]).to eq "static"
-        expect(annotations[1][:resource_id]).to eq "rspec:variable:data/secrets/secret_annotations"
-        expect(annotations[1][:policy_id]).to eq "rspec:policy:data/secrets"
-        expect(annotations[1][:name]).to eq "description"
-        expect(annotations[1][:value]).to eq "desc"
         expect(annotations[2][:resource_id]).to eq "rspec:variable:data/secrets/secret_annotations"
         expect(annotations[2][:policy_id]).to eq "rspec:policy:data/secrets"
-        expect(annotations[2][:name]).to eq "test_ann"
-        expect(annotations[2][:value]).to eq "test"
+        expect(annotations[2][:name]).to eq "conjur/kind"
+        expect(annotations[2][:value]).to eq "static"
+        expect(annotations[0][:resource_id]).to eq "rspec:variable:data/secrets/secret_annotations"
+        expect(annotations[0][:policy_id]).to eq "rspec:policy:data/secrets"
+        expect(annotations[0][:name]).to eq "description"
+        expect(annotations[0][:value]).to eq "desc"
+        expect(annotations[1][:resource_id]).to eq "rspec:variable:data/secrets/secret_annotations"
+        expect(annotations[1][:policy_id]).to eq "rspec:policy:data/secrets"
+        expect(annotations[1][:name]).to eq "test_ann"
+        expect(annotations[1][:value]).to eq "test"
       end
     end
   end
@@ -961,4 +968,220 @@ describe V2SecretsController, type: :request do
       end
     end
   end
+
+  describe "Create static secret with permissions" do
+    context "When giving permissions for a user" do
+      let(:payload_create_secret) do
+        <<~BODY
+          {
+              "branch": "/data/secrets",
+              "name": "secret_user_permissions",
+              "type": "static",
+               "permissions": [
+                {
+                  "subject": {
+                    "kind": "user",
+                    "id": "alice"
+                  },
+                  "privileges": [ "read", "update"]
+                }          
+              ]       
+          }
+        BODY
+      end
+      it 'User Alice can update secret value and see the secret resource' do
+        post("/secrets",
+             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
+               {
+                 'RAW_POST_DATA' => payload_create_secret,
+                 'CONTENT_TYPE' => "application/json"
+               }
+             )
+        )
+        # Correct response code
+        assert_response :created
+        # correct response body
+        expect(response.body).to eq("{\"branch\":\"/data/secrets\",\"name\":\"secret_user_permissions\",\"type\":\"static\",\"permissions\":[{\"subject\":{\"kind\":\"user\",\"id\":\"alice\"},\"privileges\":[\"read\",\"update\"]}],\"annotations\":\"[]\"}")
+        # Secret resource is created with permissions
+        permissions = Permission.where(resource_id:"rspec:variable:data/secrets/secret_user_permissions").all
+        expect(permissions.size).to eq 2
+        expect(permissions[0][:resource_id]).to eq "rspec:variable:data/secrets/secret_user_permissions"
+        expect(permissions[0][:policy_id]).to eq "rspec:policy:data/secrets"
+        expect(permissions[0][:role_id]).to eq "rspec:user:alice"
+        expect(permissions[0][:privilege]).to eq "read"
+        expect(permissions[1][:resource_id]).to eq "rspec:variable:data/secrets/secret_user_permissions"
+        expect(permissions[1][:policy_id]).to eq "rspec:policy:data/secrets"
+        expect(permissions[1][:role_id]).to eq "rspec:user:alice"
+        expect(permissions[1][:privilege]).to eq "update"
+        # Alice can set secret value (update permission)
+        post("/secrets/rspec/variable/data/secrets/secret_user_permissions",
+             env: token_auth_header(role: alice_user).merge(
+               {
+                 'RAW_POST_DATA' => "password",
+                 'CONTENT_TYPE' => "text/plain"
+               }
+             )
+        )
+        assert_response :created
+        # Alice can get variable (read permission)
+        get("/resources/rspec/variable/data/secrets/secret_user_permissions",
+             env: token_auth_header(role: alice_user)
+        )
+        assert_response :ok
+      end
+    end
+    context "When giving permissions for a workload" do
+      let(:payload_create_secret) do
+        <<~BODY
+          {
+              "branch": "/data/secrets",
+              "name": "secret_workload_permissions",
+              "type": "static",
+              "value": "password",
+               "permissions": [
+                {
+                  "subject": {
+                    "kind": "host",
+                    "id": "/data/host1"
+                  },
+                  "privileges": [ "execute", "read"]
+                }          
+              ]       
+          }
+        BODY
+      end
+      it 'Workload can see the secret resource and the secret value' do
+        post("/secrets",
+             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
+               {
+                 'RAW_POST_DATA' => payload_create_secret,
+                 'CONTENT_TYPE' => "application/json"
+               }
+             )
+        )
+        # Correct response code
+        assert_response :created
+        # correct response body
+        expect(response.body).to eq("{\"branch\":\"/data/secrets\",\"name\":\"secret_workload_permissions\",\"type\":\"static\",\"permissions\":[{\"subject\":{\"kind\":\"host\",\"id\":\"/data/host1\"},\"privileges\":[\"execute\",\"read\"]}],\"annotations\":\"[]\"}")
+        # Host can get variable (read permission)
+        get("/resources/rspec/variable/data/secrets/secret_workload_permissions",
+            env: token_auth_header(role: Role["rspec:host:data/host1"], is_user: false)
+        )
+        assert_response :ok
+        #Host can get secret value (execute permissions)
+        get("/secrets/rspec/variable/data/secrets/secret_workload_permissions",
+             env: token_auth_header(role: Role["rspec:host:data/host1"], is_user: false)
+        )
+        assert_response :ok
+      end
+    end
+    context "When giving permissions for a group" do
+      let(:payload_create_secret) do
+        <<~BODY
+          {
+              "branch": "/data/secrets",
+              "name": "secret_group_permissions",
+              "type": "static",
+               "permissions": [
+                {
+                  "subject": {
+                    "kind": "group",
+                    "id": "/data/group1"
+                  },
+                  "privileges": [ "execute", "update"]
+                }          
+              ]       
+          }
+        BODY
+      end
+      it 'Workload in a group can update the secret value and then see it' do
+        post("/secrets",
+             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
+               {
+                 'RAW_POST_DATA' => payload_create_secret,
+                 'CONTENT_TYPE' => "application/json"
+               }
+             )
+        )
+        # Correct response code
+        assert_response :created
+        # correct response body
+        expect(response.body).to eq("{\"branch\":\"/data/secrets\",\"name\":\"secret_group_permissions\",\"type\":\"static\",\"permissions\":[{\"subject\":{\"kind\":\"group\",\"id\":\"/data/group1\"},\"privileges\":[\"execute\",\"update\"]}],\"annotations\":\"[]\"}")
+        # Host can set secret value (update permission)
+        post("/secrets/rspec/variable/data/secrets/secret_group_permissions",
+             env: token_auth_header(role: Role["rspec:host:data/host1"], is_user: false).merge(
+               {
+                 'RAW_POST_DATA' => "password",
+                 'CONTENT_TYPE' => "text/plain"
+               }
+             )
+        )
+        assert_response :created
+        #Host can get secret value (execute pemissions)
+        get("/secrets/rspec/variable/data/secrets/secret_group_permissions",
+            env: token_auth_header(role: Role["rspec:host:data/host1"], is_user: false)
+        )
+        assert_response :ok
+        expect(response.body).to eq("password")
+      end
+    end
+    context "When giving permissions for a group and user" do
+      let(:payload_create_secret) do
+        <<~BODY
+          {
+              "branch": "/data/secrets",
+              "name": "secret_permissions",
+              "type": "static",
+               "permissions": [
+                {
+                  "subject": {
+                    "kind": "group",
+                    "id": "/data/group1"
+                  },
+                  "privileges": [ "execute"]
+                },
+                {
+                  "subject": {
+                    "kind": "user",
+                    "id": "alice"
+                  },
+                  "privileges": [ "update"]
+                }           
+              ]       
+          }
+        BODY
+      end
+      it 'Workload in a group can update the secret value and then see it' do
+        post("/secrets",
+             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
+               {
+                 'RAW_POST_DATA' => payload_create_secret,
+                 'CONTENT_TYPE' => "application/json"
+               }
+             )
+        )
+        # Correct response code
+        assert_response :created
+        # correct response body
+        expect(response.body).to eq("{\"branch\":\"/data/secrets\",\"name\":\"secret_permissions\",\"type\":\"static\",\"permissions\":[{\"subject\":{\"kind\":\"group\",\"id\":\"/data/group1\"},\"privileges\":[\"execute\"]},{\"subject\":{\"kind\":\"user\",\"id\":\"alice\"},\"privileges\":[\"update\"]}],\"annotations\":\"[]\"}")
+        # User can set secret value (update permission)
+        post("/secrets/rspec/variable/data/secrets/secret_permissions",
+             env: token_auth_header(role: alice_user).merge(
+               {
+                 'RAW_POST_DATA' => "password",
+                 'CONTENT_TYPE' => "text/plain"
+               }
+             )
+        )
+        assert_response :created
+        #Host can get secret value (execute pemissions)
+        get("/secrets/rspec/variable/data/secrets/secret_permissions",
+            env: token_auth_header(role: Role["rspec:host:data/host1"], is_user: false)
+        )
+        assert_response :ok
+        expect(response.body).to eq("password")
+      end
+    end
+  end
+
 end
