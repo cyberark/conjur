@@ -83,7 +83,7 @@ module DB
             :resource_id,
             "#{account}:webservice:conjur/#{type}/%"
           )
-        ).all.select do |webservice|
+        ).order(:resource_id).all.select do |webservice|
           # Querying for the authenticator webservice above includes the webservices
           # for the authenticator status. The filter below removes webservices that
           # don't match the authenticator policy.

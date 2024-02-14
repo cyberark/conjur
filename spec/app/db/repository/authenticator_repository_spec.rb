@@ -45,8 +45,8 @@ RSpec.describe(DB::Repository::AuthenticatorRepository) do
 
           expect(response.success?).to be(true)
           expect(response.result).to eq([
-            { account: 'rspec', service_id: 'foo' },
-            { account: 'rspec', service_id: 'bar' }
+            { account: 'rspec', service_id: 'bar' },
+            { account: 'rspec', service_id: 'foo' }
           ])
         end
       end
@@ -71,8 +71,8 @@ RSpec.describe(DB::Repository::AuthenticatorRepository) do
 
             expect(response.success?).to be(true)
             expect(response.result).to eq([
-              empty_hash.merge(service_id: 'foo'),
-              empty_hash.merge(service_id: 'bar')
+              empty_hash.merge(service_id: 'bar'),
+              empty_hash.merge(service_id: 'foo')
             ])
           end
         end
@@ -95,8 +95,8 @@ RSpec.describe(DB::Repository::AuthenticatorRepository) do
 
             expect(response.success?).to be(true)
             expect(response.result).to eq([
-              expected_values.merge(service_id: 'foo'),
-              expected_values.merge(service_id: 'bar')
+              expected_values.merge(service_id: 'bar'),
+              expected_values.merge(service_id: 'foo')
             ])
           end
         end
