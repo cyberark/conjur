@@ -270,7 +270,7 @@ pipeline {
           }
 
           environment {
-             CUCUMBER_FILTER_TAGS = "${CucumberFilterTags()}"
+             INFRAPOOL_CUCUMBER_FILTER_TAGS = "${params.CUCUMBER_FILTER_TAGS}"
           }
 
           stages {
@@ -577,7 +577,7 @@ pipeline {
               }
 
               environment {
-                 CUCUMBER_FILTER_TAGS = "${CucumberFilterTags()}"
+              CUCUMBER_FILTER_TAGS = "${CucumberFilterTags()}"
               }
 
 
