@@ -9,18 +9,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
-## [1.0.22-cloud] - 2023-02-25
+## [1.0.23-cloud] - 2024-02-11
 ### Added
-- API for creating static secret with permissions
-
-## [1.0.21-cloud] - 2023-02-18
-### Changed
-- Changing Error logs to Warning 
-- API for creating static secret with annotations
-
-## [1.0.20-cloud] - 2024-02-11
-### Added
-- API for creating secret
 - The Kubernetes authenticator now supports the
   [status](https://docs.conjur.org/Latest/en/Content/Developer/Conjur_API_authenticator_status.htm)
   API for verifying authenticator configuration.
@@ -38,9 +28,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   permission to perform API discovery.
   [Conjur-Enterprise#90](https://github.cyberng.com/Conjur-Enterprise/conjur/pull/90)
 
-### Changed
-- Changing Info logs to Debug
-
 ### Fixed
 - Improved error messaging when a foreign key constraint violation occurs during
   a policy replace.
@@ -53,9 +40,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   helpful error messages when appropriate.
   [CNJR-3059](https://ca-il-jira.il.cyber-ark.com:8443/browse/CNJR-3059)
 
+## [1.0.22-cloud] - 2024-02-25
+### Added
+- API for creating static secret with permissions
+
 ## [1.0.21-cloud] - 2024-02-18
 ### Changed
 - Changing Error logs to Warning 
+- API for creating static secret with annotations
 
 ## [1.0.20-cloud] - 2024-02-11
 ### Added
