@@ -36,6 +36,10 @@ module Secrets
         raise Exceptions::RecordExists.new("secret", secret_id)
       end
 
+      def get_create_permissions(policy, params)
+        {policy => :update}
+      end
+
       def set_value(variable_resource, value)
         #No implementation
       end

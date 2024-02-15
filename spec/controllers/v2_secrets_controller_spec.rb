@@ -17,10 +17,15 @@ describe V2SecretsController, type: :request do
       - !user alice
       - !user bob
       - !user rita      
+
+      - !policy
+        id: conjur/issuers
+        body: []
       
       - !policy
         id: data
         body:
+        - !policy ephemerals
         - !policy secrets
         - !host host1
         - !group group1
@@ -1232,6 +1237,454 @@ describe V2SecretsController, type: :request do
         )
         assert_response :ok
         expect(response.body).to eq("password")
+      end
+    end
+  end
+
+  describe "Create ephemeral secret input validations" do
+    context "when creating secret with no ephemeral value" do
+      let(:payload_create_secret) do
+        <<~BODY
+          {
+              "branch": "data/ephemerals",
+              "name": "ephemeral_secret",
+              "type": "ephemeral"
+          }
+        BODY
+      end
+      it 'Secret creation failed on 400' do
+        post("/secrets",
+             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
+               {
+                 'RAW_POST_DATA' => payload_create_secret,
+                 'CONTENT_TYPE' => "application/json"
+               }
+             )
+        )
+        # Correct response code
+        assert_response :bad_request
+        parsed_body = JSON.parse(response.body)
+        expect(parsed_body["error"]["code"]).to eq("bad_request")
+        expect(parsed_body["error"]["message"]).to eq("CONJ00190E Missing required parameter: ephemeral")
+      end
+    end
+    context "when creating secret with no issuer field" do
+      let(:payload_create_secret) do
+        <<~BODY
+          {
+              "branch": "data/ephemerals",
+              "name": "ephemeral_secret",
+              "type": "ephemeral",
+              "ephemeral": {
+                "ttl": 1200,
+                "type": "aws"
+              } 
+          }
+        BODY
+      end
+      it 'Secret creation failed on 400' do
+        post("/secrets",
+             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
+               {
+                 'RAW_POST_DATA' => payload_create_secret,
+                 'CONTENT_TYPE' => "application/json"
+               }
+             )
+        )
+        # Correct response code
+        assert_response :bad_request
+        parsed_body = JSON.parse(response.body)
+        expect(parsed_body["error"]["code"]).to eq("bad_request")
+        expect(parsed_body["error"]["message"]).to eq("CONJ00190E Missing required parameter: issuer")
+      end
+    end
+    context "when creating secret with no issuer field empty" do
+      let(:payload_create_secret) do
+        <<~BODY
+          {
+              "branch": "data/ephemerals",
+              "name": "ephemeral_secret",
+              "type": "ephemeral",
+              "ephemeral": {
+                "issuer": "",
+                "ttl": 1200,
+                "type": "aws"
+              } 
+          }
+        BODY
+      end
+      it 'Secret creation failed on 400' do
+        post("/secrets",
+             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
+               {
+                 'RAW_POST_DATA' => payload_create_secret,
+                 'CONTENT_TYPE' => "application/json"
+               }
+             )
+        )
+        # Correct response code
+        assert_response :bad_request
+        parsed_body = JSON.parse(response.body)
+        expect(parsed_body["error"]["code"]).to eq("bad_request")
+        expect(parsed_body["error"]["message"]).to eq("CONJ00190E Missing required parameter: issuer")
+      end
+    end
+    context "when creating secret with no issuer field wrong type" do
+      let(:payload_create_secret) do
+        <<~BODY
+          {
+              "branch": "data/ephemerals",
+              "name": "ephemeral_secret",
+              "type": "ephemeral",
+              "ephemeral": {
+                "issuer": 4,
+                "ttl": 1200,
+                "type": "aws"
+              } 
+          }
+        BODY
+      end
+      it 'Secret creation failed on 400' do
+        post("/secrets",
+             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
+               {
+                 'RAW_POST_DATA' => payload_create_secret,
+                 'CONTENT_TYPE' => "application/json"
+               }
+             )
+        )
+        # Correct response code
+        assert_response :bad_request
+        parsed_body = JSON.parse(response.body)
+        expect(parsed_body["error"]["code"]).to eq("bad_request")
+        expect(parsed_body["error"]["message"]).to eq("CONJ00192E The 'issuer' parameter must be of 'type=String'")
+      end
+    end
+    context "when creating secret with no ttl field" do
+      let(:payload_create_secret) do
+        <<~BODY
+          {
+              "branch": "data/ephemerals",
+              "name": "ephemeral_secret",
+              "type": "ephemeral",
+              "ephemeral": {
+                "issuer": "issuer1",
+                "type": "aws"
+              } 
+          }
+        BODY
+      end
+      it 'Secret creation failed on 400' do
+        post("/secrets",
+             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
+               {
+                 'RAW_POST_DATA' => payload_create_secret,
+                 'CONTENT_TYPE' => "application/json"
+               }
+             )
+        )
+        # Correct response code
+        assert_response :bad_request
+        parsed_body = JSON.parse(response.body)
+        expect(parsed_body["error"]["code"]).to eq("bad_request")
+        expect(parsed_body["error"]["message"]).to eq("CONJ00190E Missing required parameter: ttl")
+      end
+    end
+    context "when creating secret with ttl wrong field type" do
+      let(:payload_create_secret) do
+        <<~BODY
+          {
+              "branch": "data/ephemerals",
+              "name": "ephemeral_secret",
+              "type": "ephemeral",
+              "ephemeral": {
+                "issuer": "issuer1",
+                "ttl": "1200",
+                "type": "aws"
+              } 
+          }
+        BODY
+      end
+      it 'Secret creation failed on 400' do
+        post("/secrets",
+             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
+               {
+                 'RAW_POST_DATA' => payload_create_secret,
+                 'CONTENT_TYPE' => "application/json"
+               }
+             )
+        )
+        # Correct response code
+        assert_response :bad_request
+        parsed_body = JSON.parse(response.body)
+        expect(parsed_body["error"]["code"]).to eq("bad_request")
+        expect(parsed_body["error"]["message"]).to eq("CONJ00192E The 'ttl' parameter must be of 'type=Numeric'")
+      end
+    end
+    context "when creating secret with no type field" do
+      let(:payload_create_secret) do
+        <<~BODY
+          {
+              "branch": "data/ephemerals",
+              "name": "ephemeral_secret",
+              "type": "ephemeral",
+              "ephemeral": {
+                "issuer": "issuer1",
+                "ttl": 1200
+              } 
+          }
+        BODY
+      end
+      it 'Secret creation failed on 400' do
+        post("/secrets",
+             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
+               {
+                 'RAW_POST_DATA' => payload_create_secret,
+                 'CONTENT_TYPE' => "application/json"
+               }
+             )
+        )
+        # Correct response code
+        assert_response :bad_request
+        parsed_body = JSON.parse(response.body)
+        expect(parsed_body["error"]["code"]).to eq("bad_request")
+        expect(parsed_body["error"]["message"]).to eq("CONJ00190E Missing required parameter: type")
+      end
+    end
+    context "when creating secret with empty type field" do
+      let(:payload_create_secret) do
+        <<~BODY
+          {
+              "branch": "data/ephemerals",
+              "name": "ephemeral_secret",
+              "type": "ephemeral",
+              "ephemeral": {
+                "issuer": "issuer1",
+                "ttl": 1200,
+                "type": ""
+              } 
+          }
+        BODY
+      end
+      it 'Secret creation failed on 400' do
+        post("/secrets",
+             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
+               {
+                 'RAW_POST_DATA' => payload_create_secret,
+                 'CONTENT_TYPE' => "application/json"
+               }
+             )
+        )
+        # Correct response code
+        assert_response :bad_request
+        parsed_body = JSON.parse(response.body)
+        expect(parsed_body["error"]["code"]).to eq("bad_request")
+        expect(parsed_body["error"]["message"]).to eq("CONJ00190E Missing required parameter: type")
+      end
+    end
+    context "when creating secret with invalid type field" do
+      let(:payload_create_secret) do
+        <<~BODY
+          {
+              "branch": "data/ephemerals",
+              "name": "ephemeral_secret",
+              "type": "ephemeral",
+              "ephemeral": {
+                "issuer": "issuer1",
+                "ttl": 1200,
+                "type": "gcp"
+              } 
+          }
+        BODY
+      end
+      it 'Secret creation failed on 400' do
+        post("/secrets",
+             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
+               {
+                 'RAW_POST_DATA' => payload_create_secret,
+                 'CONTENT_TYPE' => "application/json"
+               }
+             )
+        )
+        # Correct response code
+        assert_response :bad_request
+        parsed_body = JSON.parse(response.body)
+        expect(parsed_body["error"]["code"]).to eq("bad_request")
+        expect(parsed_body["error"]["message"]).to eq("CONJ00191E The value in the 'Ephemeral type' parameter is not valid. Error: Allowed values are [aws]")
+      end
+    end
+    context "when creating secret with wrong type for type field" do
+      let(:payload_create_secret) do
+        <<~BODY
+          {
+              "branch": "data/ephemerals",
+              "name": "ephemeral_secret",
+              "type": "ephemeral",
+              "ephemeral": {
+                "issuer": "issuer1",
+                "ttl": 1200,
+                "type": 5
+              } 
+          }
+        BODY
+      end
+      it 'Secret creation failed on 400' do
+        post("/secrets",
+             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
+               {
+                 'RAW_POST_DATA' => payload_create_secret,
+                 'CONTENT_TYPE' => "application/json"
+               }
+             )
+        )
+        # Correct response code
+        assert_response :bad_request
+        parsed_body = JSON.parse(response.body)
+        expect(parsed_body["error"]["code"]).to eq("bad_request")
+        expect(parsed_body["error"]["message"]).to eq("CONJ00192E The 'type' parameter must be of 'type=String'")
+      end
+    end
+    context "when creating ephemeral secret with value" do
+      let(:payload_create_secret) do
+        <<~BODY
+          {
+              "branch": "/data/ephemerals",
+              "name": "ephemeral_secret",
+              "type": "ephemeral",
+              "value": "password",
+              "ephemeral": {
+                "issuer": "issuer1",
+                "ttl": 1200,
+                "type": "aws"
+              } 
+          }
+        BODY
+      end
+      it 'Secret creation failed on 400' do
+        post("/secrets",
+             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
+               {
+                 'RAW_POST_DATA' => payload_create_secret,
+                 'CONTENT_TYPE' => "application/json"
+               }
+             )
+        )
+        # Correct response code
+        assert_response :bad_request
+        parsed_body = JSON.parse(response.body)
+        expect(parsed_body["error"]["code"]).to eq("bad_request")
+        expect(parsed_body["error"]["message"]).to eq("Adding value to an ephemeral secret is not allowed")
+      end
+    end
+    context "when creating ephemeral secret not under correct branch" do
+      let(:payload_create_secret) do
+        <<~BODY
+          {
+              "branch": "/data/secrets",
+              "name": "ephemeral_secret",
+              "type": "ephemeral",
+              "ephemeral": {
+                "issuer": "issuer1",
+                "ttl": 1200,
+                "type": "aws"
+              } 
+          }
+        BODY
+      end
+      it 'Secret creation failed on 400' do
+        post("/secrets",
+             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
+               {
+                 'RAW_POST_DATA' => payload_create_secret,
+                 'CONTENT_TYPE' => "application/json"
+               }
+             )
+        )
+        # Correct response code
+        assert_response :bad_request
+        parsed_body = JSON.parse(response.body)
+        expect(parsed_body["error"]["message"]).to eq("Ephemeral secret can be created only under data/ephemerals/")
+      end
+    end
+    context "when creating ephemeral secret with no existent issuer" do
+      let(:payload_create_secret) do
+        <<~BODY
+          {
+              "branch": "/data/ephemerals",
+              "name": "ephemeral_secret",
+              "type": "ephemeral",
+              "ephemeral": {
+                "issuer": "issuer1",
+                "ttl": 1200,
+                "type": "aws"
+              } 
+          }
+        BODY
+      end
+      it 'Secret creation failed on 404' do
+        post("/secrets",
+             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
+               {
+                 'RAW_POST_DATA' => payload_create_secret,
+                 'CONTENT_TYPE' => "application/json"
+               }
+             )
+        )
+        # Correct response code
+        assert_response :not_found
+        parsed_body = JSON.parse(response.body)
+        expect(parsed_body["error"]["message"]).to eq("Issuer 'issuer1' not found in account 'rspec'")
+      end
+    end
+    context "when creating ephemeral secret with ttl bigger then issuer ttl" do
+      let(:payload_create_secret) do
+        <<~BODY
+          {
+              "branch": "/data/ephemerals",
+              "name": "ephemeral_secret",
+              "type": "ephemeral",
+              "ephemeral": {
+                "issuer": "aws-issuer-1",
+                "ttl": 1200,
+                "type": "aws"
+              } 
+          }
+        BODY
+      end
+      let(:payload_create_issuers) do
+          <<~BODY
+          {
+            "id": "aws-issuer-1",
+            "max_ttl": 1000,
+            "type": "aws",
+            "data": {
+              "access_key_id": "my-key-id",
+              "secret_access_key": "my-key-secret"
+            }
+          }
+        BODY
+      end
+      it 'Secret creation failed on 400' do
+        #Create issuer
+        post("/issuers/rspec",
+             env: token_auth_header(role: admin_user).merge(
+               'RAW_POST_DATA' => payload_create_issuers,
+               'CONTENT_TYPE' => "application/json"
+             ))
+        assert_response :created
+
+        post("/secrets",
+             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
+               {
+                 'RAW_POST_DATA' => payload_create_secret,
+                 'CONTENT_TYPE' => "application/json"
+               }
+             )
+        )
+        # Correct response code
+        assert_response :bad_request
+        parsed_body = JSON.parse(response.body)
+        expect(parsed_body["error"]["message"]).to eq("Ephemeral secret ttl can't be bigger then the issuer ttl 1000")
       end
     end
   end

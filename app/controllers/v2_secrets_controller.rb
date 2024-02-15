@@ -20,12 +20,14 @@ class V2SecretsController < V2RestController
     policy = Resource[policy_id]
     raise Exceptions::RecordNotFound, policy_id unless policy
 
-    # Check permissions
-    action = :update
-    authorize(action, policy)
-
     #Run input validation specific to secret type
     secret_type_handler.input_validation(params)
+
+    # Check permissions
+    create_permissions = secret_type_handler.get_create_permissions(policy, params)
+    create_permissions.each do |action_policy, action|
+      authorize(action, action_policy)
+    end
 
     # Create variable resource
     resource_id = resource_id("variable","#{branch}/#{secret_name}")
