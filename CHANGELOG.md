@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
-## [1.0.23-cloud] - 2024-02-03
+## [1.0.23-cloud] - 2024-03-03
 ### Added
 - The Kubernetes authenticator now supports the
   [status](https://docs.conjur.org/Latest/en/Content/Developer/Conjur_API_authenticator_status.htm)
