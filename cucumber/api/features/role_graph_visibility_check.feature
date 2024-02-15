@@ -29,7 +29,6 @@ Feature: The role graph for a given role render appropriately, showing only
         resources: !group test-admins
     """
 
-  @smoke
   Scenario: Retrieving as admin returns the entire graph
     Given I login as "admin"
     When I successfully GET "roles/cucumber/policy/test-policy?graph"
@@ -55,7 +54,6 @@ Feature: The role graph for a given role render appropriately, showing only
       ]
       """
 
-  @smoke
   Scenario: Retrieving graph shows only the edges policy owner has read permissions for
     Given I login as "testuser"
     When I successfully GET "/roles/cucumber/policy/test-policy?graph"
