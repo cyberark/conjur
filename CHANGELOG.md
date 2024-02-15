@@ -9,9 +9,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
+## [1.0.22-cloud] - 2023-02-25
+### Added
+- API for creating static secret with permissions
+
 ## [1.0.21-cloud] - 2023-02-18
 ### Changed
 - Changing Error logs to Warning 
+- API for creating static secret with annotations
 
 ## [1.0.20-cloud] - 2023-02-11
 ### Added
