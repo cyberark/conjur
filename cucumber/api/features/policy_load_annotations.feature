@@ -3,7 +3,7 @@ Feature: Updating Policies with Annotations
 
   The following describes the use-case for the different policy load types:
   - PUT requests replace an existing policy, or loads a nonexistent one.
-    Requires update privilege on the target policy.
+    Requires update privilege on the target policy and all child resources.
   - POST requests add data to an existing policy.
     Requires create privilege on the target policy.
   - PATCH requests modify an existing policy.
@@ -19,12 +19,18 @@ Feature: Updating Policies with Annotations
   - create / update existing / PUT   :   EXPECTED FAIL - 403 on policy load
   - create / update existing / POST  :   EXPECTED FAIL - 20x on policy load, annot not updated
   - create / update existing / PATCH :   EXPECTED FAIL - 403 on policy load
-  - update / add new         / PUT   :   EXPECTED SUCCESS
+  - update / add new         / PUT   :   EXPECTED FAIL - 403 on policy load
   - update / add new         / POST  :   EXPECTED FAIL - 403 on policy load
   - update / add new         / PATCH :   EXPECTED SUCCESS
-  - update / update existing / PUT   :   EXPECTED SUCCESS
+  - update / update existing / PUT   :   EXPECTED FAIL - 403 on policy load
   - update / update existing / POST  :   EXPECTED FAIL - 403 on policy load
   - update / update existing / PATCH :   EXPECTED SUCCESS
+
+  In order to update annotations with a PUT-based policy load, a user must have
+  update privilege on the target policy and all child resources. These two cases
+  cover that expectation:
+  - update / add new         / PUT   :   EXPECTED SUCCESS
+  - update / update existing / PUT   :   EXPECTED SUCCESS
 
   All these outcomes align with our expectations, but one may not align with
   user expectations: ( create / update existing / POST ). A user may expect that
@@ -52,6 +58,7 @@ Feature: Updating Policies with Annotations
     """
     - !user alice
     - !user bob
+    - !user carol
 
     - !permit
       resource: !policy hosts
@@ -82,6 +89,21 @@ Feature: Updating Policies with Annotations
       resource: !host hosts/to-annotate
       privilege: [ read ]
       role: !user alice
+
+    - !permit
+      resource: !policy hosts
+      privilege: [ read, update ]
+      role: !user carol
+
+    - !permit
+      resource: !host hosts/annotated
+      privilege: [ read, update ]
+      role: !user carol
+
+    - !permit
+      resource: !host hosts/to-annotate
+      privilege: [ read, update ]
+      role: !user carol
     """
 
   @negative
@@ -136,6 +158,16 @@ Feature: Updating Policies with Annotations
           "policy": "cucumber:policy:root",
           "privilege": "read",
           "role": "cucumber:user:alice"
+        },
+        {
+          "policy": "cucumber:policy:root",
+          "privilege": "read",
+          "role": "cucumber:user:carol"
+        },
+        {
+          "policy": "cucumber:policy:root",
+          "privilege": "update",
+          "role": "cucumber:user:carol"
         }
       ],
       "policy": "cucumber:policy:hosts",
@@ -215,6 +247,16 @@ Feature: Updating Policies with Annotations
           "policy": "cucumber:policy:root",
           "privilege": "read",
           "role": "cucumber:user:alice"
+        },
+        {
+          "policy": "cucumber:policy:root",
+          "privilege": "read",
+          "role": "cucumber:user:carol"
+        },
+        {
+          "policy": "cucumber:policy:root",
+          "privilege": "update",
+          "role": "cucumber:user:carol"
         }
       ],
       "policy": "cucumber:policy:hosts",
@@ -242,47 +284,22 @@ Feature: Updating Policies with Annotations
     CONJ00006E 'cucumber:user:alice' does not have 'update' privilege on cucumber:policy:hosts
     """
 
-  @smoke
+  @negative
   @acceptance
-  Scenario: User with update privilege can add new annotations with PUT
+  Scenario: User without update privilege on all child resources can NOT add new annotations with PUT
     When I login as "bob"
-    Then I successfully PUT "/policies/cucumber/policy/hosts" with body:
+    And I save my place in the log file
+    Then I PUT "/policies/cucumber/policy/hosts" with body:
     """
     - !host
       id: to-annotate
       annotations:
         description: Success
     """
-    And I successfully GET "/resources/cucumber/host/hosts%2Fto-annotate"
-    Then the JSON should be:
+    Then the HTTP response status code is 403
+    And The following appears in the log after my savepoint:
     """
-    {
-      "annotations": [
-        {
-          "name": "description",
-          "policy": "cucumber:policy:hosts",
-          "value": "Success"
-        }
-      ],
-      "id": "cucumber:host:hosts/to-annotate",
-      "owner": "cucumber:policy:hosts",
-      "permissions": [
-        {
-          "policy": "cucumber:policy:root",
-          "privilege": "read",
-          "role": "cucumber:user:bob"
-        },
-        {
-          "policy": "cucumber:policy:root",
-          "privilege": "read",
-          "role": "cucumber:user:alice"
-        }
-      ],
-      "policy": "cucumber:policy:hosts",
-      "restricted_to": [
-
-      ]
-    }
+    CONJ00136E 'cucumber:user:bob' does not have 'update' privilege on some children of cucumber:policy:hosts
     """
 
   @negative
@@ -337,6 +354,16 @@ Feature: Updating Policies with Annotations
           "policy": "cucumber:policy:root",
           "privilege": "read",
           "role": "cucumber:user:alice"
+        },
+        {
+          "policy": "cucumber:policy:root",
+          "privilege": "read",
+          "role": "cucumber:user:carol"
+        },
+        {
+          "policy": "cucumber:policy:root",
+          "privilege": "update",
+          "role": "cucumber:user:carol"
         }
       ],
       "policy": "cucumber:policy:hosts",
@@ -346,47 +373,22 @@ Feature: Updating Policies with Annotations
     }
     """
 
-  @smoke
+  @negative
   @acceptance
-  Scenario: User with update privilege can update existing annotations with PUT
+  Scenario: User without update privilege on all child resources can NOT update existing annotations with PUT
     When I login as "bob"
-    Then I successfully PUT "/policies/cucumber/policy/hosts" with body:
+    And I save my place in the log file
+    Then I PUT "/policies/cucumber/policy/hosts" with body:
     """
     - !host
       id: annotated
       annotations:
         description: Success
     """
-    And I successfully GET "/resources/cucumber/host/hosts%2Fannotated"
-    Then the JSON should be:
+    Then the HTTP response status code is 403
+    And The following appears in the log after my savepoint:
     """
-    {
-      "annotations": [
-        {
-          "name": "description",
-          "policy": "cucumber:policy:hosts",
-          "value": "Success"
-        }
-      ],
-      "id": "cucumber:host:hosts/annotated",
-      "owner": "cucumber:policy:hosts",
-      "permissions": [
-        {
-          "policy": "cucumber:policy:root",
-          "privilege": "read",
-          "role": "cucumber:user:bob"
-        },
-        {
-          "policy": "cucumber:policy:root",
-          "privilege": "read",
-          "role": "cucumber:user:alice"
-        }
-      ],
-      "policy": "cucumber:policy:hosts",
-      "restricted_to": [
-
-      ]
-    }
+    CONJ00136E 'cucumber:user:bob' does not have 'update' privilege on some children of cucumber:policy:hosts
     """
 
   @negative
@@ -441,6 +443,122 @@ Feature: Updating Policies with Annotations
           "policy": "cucumber:policy:root",
           "privilege": "read",
           "role": "cucumber:user:alice"
+        },
+        {
+          "policy": "cucumber:policy:root",
+          "privilege": "read",
+          "role": "cucumber:user:carol"
+        },
+        {
+          "policy": "cucumber:policy:root",
+          "privilege": "update",
+          "role": "cucumber:user:carol"
+        }
+      ],
+      "policy": "cucumber:policy:hosts",
+      "restricted_to": [
+
+      ]
+    }
+    """
+
+  @smoke
+  @acceptance
+  Scenario: User with update privilege on all child resources can update existing annotations with PUT
+    When I login as "carol"
+    Then I successfully PUT "/policies/cucumber/policy/hosts" with body:
+    """
+    - !host
+      id: annotated
+      annotations:
+        description: Success
+    """
+    And I successfully GET "/resources/cucumber/host/hosts%2Fannotated"
+    Then the JSON should be:
+    """
+    {
+      "annotations": [
+        {
+          "name": "description",
+          "policy": "cucumber:policy:hosts",
+          "value": "Success"
+        }
+      ],
+      "id": "cucumber:host:hosts/annotated",
+      "owner": "cucumber:policy:hosts",
+      "permissions": [
+        {
+          "policy": "cucumber:policy:root",
+          "privilege": "read",
+          "role": "cucumber:user:bob"
+        },
+        {
+          "policy": "cucumber:policy:root",
+          "privilege": "read",
+          "role": "cucumber:user:alice"
+        },
+        {
+          "policy": "cucumber:policy:root",
+          "privilege": "read",
+          "role": "cucumber:user:carol"
+        },
+        {
+          "policy": "cucumber:policy:root",
+          "privilege": "update",
+          "role": "cucumber:user:carol"
+        }
+      ],
+      "policy": "cucumber:policy:hosts",
+      "restricted_to": [
+
+      ]
+    }
+    """
+
+  @smoke
+  @acceptance
+  Scenario: User with update privilege on all child resources can add new annotations with PUT
+    When I login as "carol"
+    Then I successfully PUT "/policies/cucumber/policy/hosts" with body:
+    """
+    - !host
+      id: to-annotate
+      annotations:
+        description: Success
+    """
+    And I successfully GET "/resources/cucumber/host/hosts%2Fto-annotate"
+    Then the JSON should be:
+    """
+    {
+      "annotations": [
+        {
+          "name": "description",
+          "policy": "cucumber:policy:hosts",
+          "value": "Success"
+        }
+      ],
+      "id": "cucumber:host:hosts/to-annotate",
+      "owner": "cucumber:policy:hosts",
+      "permissions": [
+        {
+          "policy": "cucumber:policy:root",
+          "privilege": "read",
+          "role": "cucumber:user:bob"
+        },
+        {
+          "policy": "cucumber:policy:root",
+          "privilege": "read",
+          "role": "cucumber:user:alice"
+        },
+        {
+          "policy": "cucumber:policy:root",
+          "privilege": "read",
+          "role": "cucumber:user:carol"
+        },
+        {
+          "policy": "cucumber:policy:root",
+          "privilege": "update",
+          "role": "cucumber:user:carol"
         }
       ],
       "policy": "cucumber:policy:hosts",

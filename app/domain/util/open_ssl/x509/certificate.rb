@@ -30,8 +30,8 @@ module Util
           cert.not_before = now
           cert.not_after = now + good_for.to_i
           cert.public_key = public_key
-          cert.serial = SecureRandom.random_number(2**160) # 20 bytes
-          cert.version = 2
+          cert.serial = serial
+          cert.version = version
 
           ef = OpenSSL::X509::ExtensionFactory.new
           ef.subject_certificate = cert
@@ -46,7 +46,21 @@ module Util
 
         # Create basic cert with defaults quickly
         #
-        def self.from_subject(subject:, key: nil, issuer: nil, alt_name: nil)
+        def self.from_subject(
+          subject:,
+          key: nil,
+          issuer: nil,
+          alt_name: nil,
+          good_for: 10.years,
+          extensions: [
+            # The format is [name, value, critical?], critical is optional and
+            # defaults to false
+            ['basicConstraints', 'CA:TRUE', true],
+            ['keyUsage', 'keyCertSign', true],
+            ['subjectKeyIdentifier', 'hash'],
+            ['authorityKeyIdentifier', 'keyid:always,issuer:always']
+          ]
+        )
           key    ||= OpenSSL::PKey::RSA.new(2048)
           issuer ||= subject
 
@@ -54,12 +68,8 @@ module Util
             subject: subject,
             issuer: issuer,
             public_key: key.public_key,
-            good_for: 10.years,
-            extensions: [
-              ['basicConstraints', 'CA:TRUE', true],
-              %w[subjectKeyIdentifier hash],
-              ['authorityKeyIdentifier', 'keyid:always,issuer:always']
-            ] + alt_name_ext(alt_name)
+            good_for: good_for,
+            extensions: Array(extensions) + alt_name_ext(alt_name)
           )
           cert.sign(key, OpenSSL::Digest.new('SHA256'))
           cert

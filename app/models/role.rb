@@ -185,6 +185,14 @@ class Role < Sequel::Model
     ).first[:is_role_allowed_to]
   end
 
+  # Checks if a user has update permissions on a given policy and all of its
+  # descendants.
+  def policy_permissions?(policy, permission)
+    Role.from(
+      Sequel.function(:policy_permissions, id, permission, policy.id)
+    ).first[:policy_permissions]
+  end
+
   def all_roles
     Role.from(Sequel.function(:all_roles, id))
   end
@@ -195,11 +203,22 @@ class Role < Sequel::Model
     ).first[:is_role_ancestor_of]
   end
 
-  def graph
-    Role.from(Sequel.function(:role_graph, id))
+  # Returns an array of [parent, child] pairs used to construct the role graph
+  # for the given user. Only roles that are visible (readable) to the user are
+  # contained within this response.
+  def graph(user_id)
+    Role.from(Sequel.as(Sequel.function(:role_graph, id), :t1))
+      .join(Sequel.as(
+              Sequel.function(:visible_resources, user_id),
+              :t2
+            ),
+            (Sequel[{ resource_id: :parent }] ))
+      .select(:parent, :child)
+      .distinct(:parent, :child)
       .order(:parent, :child)
       .all
       .map(&:values)
+
   end
 
   private

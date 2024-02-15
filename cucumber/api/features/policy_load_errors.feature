@@ -113,3 +113,39 @@ Feature: Policy loading error messages
       [action@43868 result="failure" operation="create"]
       Failed to load policy: policy_text is not present
     """
+
+  @negative @acceptance
+  @logged-in-admin
+  Scenario: test
+    Given I save my place in the audit log file for remote
+    Then I POST "/policies/cucumber/policy/root" with body:
+    """
+    - !user read_update
+
+    - !policy
+      id: test_policy
+      owner: !user admin
+      body:
+      - !variable test
+
+    - !permit
+      role: !user read_update
+      privileges: [read, update]
+      resource: !policy test_policy
+    """
+    Then the HTTP response status code is 201
+    Then I login as "read_update"
+    Then I PUT "/policies/cucumber/policy/test_policy" with body:
+    """
+    - !variable alt
+    """
+    Then the HTTP response status code is 403
+    And there is an audit record matching:
+    """
+      <85>1 * conjur * policy
+      [auth@43868 user="cucumber:user:read_update"]
+      [subject@43868]
+      [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
+      [action@43868 result="failure" operation="update"]
+      Failed to load policy: Forbidden
+    """

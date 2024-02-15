@@ -8,9 +8,6 @@
 # Create a value to determine if the runtime container
 # for Jenkins can run Compose v2 syntax
 COMPOSE="docker compose"
-if grep -m 1 'Red Hat' /etc/os-release; then
-  COMPOSE="docker-compose"
-fi
 export COMPOSE
 
 main() {

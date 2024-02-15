@@ -129,12 +129,14 @@ function fetch_gce_tokens() {
   local gce_service_account_id="$(echo "$DECODED_GCP_TOKEN_PAYLOAD" | jq -r '.sub')"
   local gce_service_account_email="$(echo "$DECODED_GCP_TOKEN_PAYLOAD" | jq -r '.email')"
 
-  local gce_env_args="-e GCE_INSTANCE_NAME=$gce_instance_name \
-                      -e GCE_SERVICE_ACCOUNT_ID=$gce_service_account_id \
-                      -e GCE_SERVICE_ACCOUNT_EMAIL=$gce_service_account_email \
-                      -e GCE_PROJECT_ID=$gce_project_id"
+  gce_env_args=(
+    -e "GCE_INSTANCE_NAME=$gce_instance_name"
+    -e "GCE_SERVICE_ACCOUNT_ID=$gce_service_account_id"
+    -e "GCE_SERVICE_ACCOUNT_EMAIL=$gce_service_account_email"
+    -e "GCE_PROJECT_ID=$gce_project_id"
+  )
 
-  env_args="$env_args $gce_env_args"
+  env_args+=("${gce_env_args[@]}")
 }
 
 _set_gcp_token_payload() {
@@ -172,10 +174,12 @@ function fetch_gcf_tokens() {
   local gcf_service_account_id="$(echo "$decoded_gcf_token_payload" | jq -r '.sub')"
   local gcf_service_account_email="$(echo "$decoded_gcf_token_payload" | jq -r '.email')"
 
-  local gce_env_args="-e GCF_SERVICE_ACCOUNT_ID=$gcf_service_account_id \
-                      -e GCF_SERVICE_ACCOUNT_EMAIL=$gcf_service_account_email"
+  gce_env_args=(
+    -e "GCF_SERVICE_ACCOUNT_ID=$gcf_service_account_id"
+    -e "GCF_SERVICE_ACCOUNT_EMAIL=$gcf_service_account_email"
+    )
 
-  env_args="$env_args $gce_env_args"
+  env_args+=("${gce_env_args[@]}")
 
   echo "Finished obtaining and writing tokens to file"
 }
@@ -195,14 +199,24 @@ function enable_oidc() {
 function add_keycloak_env_vars_to_env_args() {
   echo "Extracting keycloak variables & setting as env variables"
 
-  local keycloak_env_args=''
-  keycloak_env_args="$(set -o pipefail; docker compose exec -T keycloak printenv | grep KEYCLOAK | sed 's/.*/-e &/') \
-                     -e PROVIDER_URI=https://keycloak:8443/auth/realms/master \
-                     -e PROVIDER_INTERNAL_URI=http://keycloak:8080/auth/realms/master/protocol/openid-connect \
-                     -e PROVIDER_ISSUER=http://keycloak:8080/auth/realms/master \
-                     -e ID_TOKEN_USER_PROPERTY=preferred_username"
+  keycloak_env_args=(
+    -e "PROVIDER_URI=https://keycloak:8443/auth/realms/master"
+    -e "PROVIDER_INTERNAL_URI=http://keycloak:8080/auth/realms/master/protocol/openid-connect"
+    -e "PROVIDER_ISSUER=http://keycloak:8080/auth/realms/master"
+    -e "ID_TOKEN_USER_PROPERTY=preferred_username"
+    -e "KEYCLOAK_CA_CERT=$(docker compose exec conjur cat /etc/ssl/certs/keycloak.pem)"
+  )
 
-  env_args="$env_args $keycloak_env_args"
+  # Merge env vars from the keycloak container
+  output="$(set -o pipefail; docker compose exec -T keycloak printenv | grep KEYCLOAK)"
+  IFS=$'\n'
+  while IFS= read -r line; do
+    keycloak_container_args+=(-e "$line")
+  done <<< "$output"
+
+  keycloak_env_args+=("${keycloak_container_args[@]}")
+
+  env_args+=("${keycloak_env_args[@]}")
 }
 
 function enable_jwt() {
@@ -215,17 +229,19 @@ function enable_azure() {
 
   echo "Setting Azure details as env variables"
 
-  local azure_env_args="-e AZURE_TENANT_ID=$AZURE_TENANT_ID \
-                        -e INFRAPOOL_AZURE_AUTHN_INSTANCE_IP=$INFRAPOOL_AZURE_AUTHN_INSTANCE_IP \
-                        -e AZURE_AUTHN_INSTANCE_USERNAME=$AZURE_AUTHN_INSTANCE_USERNAME \
-                        -e AZURE_AUTHN_INSTANCE_PASSWORD=$AZURE_AUTHN_INSTANCE_PASSWORD \
-                        -e AZURE_SUBSCRIPTION_ID=$AZURE_SUBSCRIPTION_ID \
-                        -e AZURE_RESOURCE_GROUP=$AZURE_RESOURCE_GROUP \
-                        -e USER_ASSIGNED_IDENTITY=$USER_ASSIGNED_IDENTITY \
-                        -e USER_ASSIGNED_IDENTITY_CLIENT_ID=$USER_ASSIGNED_IDENTITY_CLIENT_ID \
-                        -e INFRAPOOL_SYSTEM_ASSIGNED_IDENTITY=$INFRAPOOL_SYSTEM_ASSIGNED_IDENTITY"
+  azure_env_args=(
+    -e "AZURE_TENANT_ID=$AZURE_TENANT_ID"
+    -e "INFRAPOOL_AZURE_AUTHN_INSTANCE_IP=$INFRAPOOL_AZURE_AUTHN_INSTANCE_IP"
+    -e "AZURE_AUTHN_INSTANCE_USERNAME=$AZURE_AUTHN_INSTANCE_USERNAME"
+    -e "AZURE_AUTHN_INSTANCE_PASSWORD=$AZURE_AUTHN_INSTANCE_PASSWORD"
+    -e "AZURE_SUBSCRIPTION_ID=$AZURE_SUBSCRIPTION_ID"
+    -e "AZURE_RESOURCE_GROUP=$AZURE_RESOURCE_GROUP"
+    -e "USER_ASSIGNED_IDENTITY=$USER_ASSIGNED_IDENTITY"
+    -e "USER_ASSIGNED_IDENTITY_CLIENT_ID=$USER_ASSIGNED_IDENTITY_CLIENT_ID"
+    -e "INFRAPOOL_SYSTEM_ASSIGNED_IDENTITY=$INFRAPOOL_SYSTEM_ASSIGNED_IDENTITY"
+  )
 
-  env_args="$env_args $azure_env_args"
+  env_args+=("${azure_env_args[@]}")
 }
 
 unset COMPOSE_PROJECT_NAME
@@ -235,7 +251,7 @@ while true ; do
     -h | --help ) print_help ; shift ;;
     exec )
       api_key=$(docker compose exec -T conjur conjurctl role retrieve-key cucumber:user:admin | tr -d '\r')
-      env_args="-e CONJUR_AUTHN_API_KEY=$api_key"
+      env_args=(-e "CONJUR_AUTHN_API_KEY=$api_key")
 
       case "$2" in
         -h | --help ) print_exec_help ; shift ;;
@@ -246,7 +262,7 @@ while true ; do
         * ) if [ -z "$2" ]; then shift ; else echo "$2 is not a valid option"; exit 1; fi;;
       esac
 
-      docker exec "$env_args" -it --detach-keys 'ctrl-\' "$(docker compose ps -q conjur)" bash
+      docker exec "${env_args[@]}" -it --detach-keys 'ctrl-\' "$(docker compose ps -q conjur)" bash
      shift ;;
     policy )
       case "$2" in

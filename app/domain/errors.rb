@@ -213,6 +213,11 @@ module Errors
         code: "CONJ00006E"
       )
 
+      RoleNotAuthorizedOnPolicyDescendants = ::Util::TrackableErrorClass.new(
+        msg: "'{0-role-name}' does not have '{1-privilege}' privilege on some children of {2-policy-name}",
+        code: "CONJ00136E"
+      )
+
       RoleNotFound = ::Util::TrackableErrorClass.new(
         msg: "'{0-role-name}' not found",
         code: "CONJ00007E"
@@ -470,6 +475,26 @@ module Errors
       NoMatchingClient = ::Util::TrackableErrorClass.new(
         msg: "Unable to establish Kubernetes client to execute method: \#{0}",
         code: "CONJ00132E"
+      )
+
+      InvalidServiceAccountToken = ::Util::TrackableErrorClass.new(
+        msg: "Invalid service account token: {0}",
+        code: "CONJ00153E"
+      )
+
+      InvalidApiCert = ::Util::TrackableErrorClass.new(
+        msg: "Invalid Kubernetes API CA certificate: {0}",
+        code: "CONJ00154E"
+      )
+
+      InvalidSigningCert = ::Util::TrackableErrorClass.new(
+        msg: "Invalid signing certificate: {0}",
+        code: "CONJ00155E"
+      )
+
+      InvalidSigningKey = ::Util::TrackableErrorClass.new(
+        msg: "Invalid signing key: {0}",
+        code: "CONJ00156E"
       )
     end
 
