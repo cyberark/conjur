@@ -1689,4 +1689,138 @@ describe V2SecretsController, type: :request do
     end
   end
 
+  describe "Create ephemeral permissions validations" do
+    let(:payload_create_secret) do
+      <<~BODY
+        {
+            "branch": "/data/ephemerals",
+            "name": "ephemeral_secret",
+            "type": "ephemeral",
+            "ephemeral": {
+              "issuer": "aws-issuer-1",
+              "ttl": 1200,
+              "type": "aws"
+            } 
+        }
+      BODY
+    end
+    let(:payload_create_issuers) do
+      <<~BODY
+        {
+          "id": "aws-issuer-1",
+          "max_ttl": 2000,
+          "type": "aws",
+          "data": {
+            "access_key_id": "my-key-id",
+            "secret_access_key": "my-key-secret"
+          }
+        }
+      BODY
+    end
+    before do
+      #Create issuer
+      post("/issuers/rspec",
+           env: token_auth_header(role: admin_user).merge(
+             'RAW_POST_DATA' => payload_create_issuers,
+             'CONTENT_TYPE' => "application/json"
+           ))
+      assert_response :created
+    end
+    context "when creating ephemeral secret with no use permissions on issuer policy" do
+      let(:permit_policy) do
+        <<~POLICY
+          - !permit
+            resource: !policy data/ephemerals
+            privilege: [ update ]
+            role: !user /alice
+        POLICY
+      end
+      it 'Secret creation failed on 403' do
+        patch(
+          '/policies/rspec/policy/root',
+          env: token_auth_header(role: admin_user).merge(
+            { 'RAW_POST_DATA' => permit_policy }
+          )
+        )
+        assert_response :success
+
+        post("/secrets",
+             env: token_auth_header(role: alice_user).merge(v2_api_header).merge(
+               {
+                 'RAW_POST_DATA' => payload_create_secret,
+                 'CONTENT_TYPE' => "application/json"
+               }
+             )
+        )
+        # Correct response code
+        assert_response :forbidden
+      end
+    end
+    context "when creating ephemeral secret with no update permissions on secret policy" do
+      let(:permit_policy) do
+        <<~POLICY
+          - !permit
+            resource: !policy conjur/issuers/aws-issuer-1
+            privilege: [ use ]
+            role: !user /alice
+        POLICY
+      end
+      it 'Secret creation failed on 403' do
+        patch(
+          '/policies/rspec/policy/root',
+          env: token_auth_header(role: admin_user).merge(
+            { 'RAW_POST_DATA' => permit_policy }
+          )
+        )
+        assert_response :success
+
+        post("/secrets",
+             env: token_auth_header(role: alice_user).merge(v2_api_header).merge(
+               {
+                 'RAW_POST_DATA' => payload_create_secret,
+                 'CONTENT_TYPE' => "application/json"
+               }
+             )
+        )
+        # Correct response code
+        assert_response :forbidden
+      end
+    end
+    context "when creating ephemeral secret with all permissions" do
+      let(:permit_policy) do
+        <<~POLICY
+          - !permit
+            resource: !policy conjur/issuers/aws-issuer-1
+            privilege: [ use ]
+            role: !user /alice
+
+          - !permit
+            resource: !policy data/ephemerals
+            privilege: [ update ]
+            role: !user /alice
+        POLICY
+      end
+      it 'Secret creation succeeds' do
+        patch(
+          '/policies/rspec/policy/root',
+          env: token_auth_header(role: admin_user).merge(
+            { 'RAW_POST_DATA' => permit_policy }
+          )
+        )
+        assert_response :success
+
+        post("/secrets",
+             env: token_auth_header(role: alice_user).merge(v2_api_header).merge(
+               {
+                 'RAW_POST_DATA' => payload_create_secret,
+                 'CONTENT_TYPE' => "application/json"
+               }
+             )
+        )
+        # Correct response code
+        assert_response :success
+      end
+    end
+  end
+
 end

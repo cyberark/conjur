@@ -34,7 +34,7 @@ module Secrets
        raise ApplicationController::BadRequestWithBody, "Ephemeral secret ttl can't be bigger then the issuer ttl #{issuer[:max_ttl]}" if ephemeral[:ttl] > issuer[:max_ttl]
       end
 
-      def get_create_permissions(params)
+      def get_create_permissions(policy, params)
         permissions = super(policy, params)
 
         #For Ephemeral Secret - has 'use' permissions to issuer policy
