@@ -3,8 +3,8 @@
 module ParamsValidator
   extend ActiveSupport::Concern
 
-  #ID_FIELD_MAX_ALLOWED_LENGTH = 60
-  ID_FIELD_ALLOWED_CHARACTERS = /\A[a-zA-Z0-9+\-_!@#$%^*()\[\]]+\z/
+  ID_FIELD_MAX_ALLOWED_LENGTH = 60
+  ID_FIELD_ALLOWED_CHARACTERS = /\A[a-zA-Z0-9_]+\z/
 
   # Validates given params based on validator.
   # params may include body json which can be recursive, hence need to traverse recursively
@@ -55,12 +55,12 @@ module ParamsValidator
 
   def validate_name(name)
     unless name.match?(ID_FIELD_ALLOWED_CHARACTERS)
-      raise ApplicationController::BadRequestWithBody, "Invalid 'name' parameter. The character '/' is not allowed."
+      raise ApplicationController::BadRequestWithBody, "Invalid 'name' parameter. Only the following characters are supported: A-Z, a-z, 0-9 and _"
     end
 
-    #if name.length > ID_FIELD_MAX_ALLOWED_LENGTH
-    #  raise ApplicationController::BadRequestWithBody, "'name' parameter length exceeded. Limit the length to #{ID_FIELD_MAX_ALLOWED_LENGTH} characters"
-    #end
+    if name.length > ID_FIELD_MAX_ALLOWED_LENGTH
+      raise ApplicationController::BadRequestWithBody, "'name' parameter length exceeded. Limit the length to #{ID_FIELD_MAX_ALLOWED_LENGTH} characters"
+    end
   end
 
 end
