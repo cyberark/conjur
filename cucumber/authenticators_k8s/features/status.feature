@@ -1,7 +1,6 @@
 @authenticators_k8s
 Feature: Kubernetes Authenticator - Status Check
 
-  @smoke
   Scenario: A properly configured Kubernetes authenticator returns a successful response
     # The policy for the status endpoint is loaded when this test environment
     # is initially configured in k8s.

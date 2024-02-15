@@ -43,7 +43,6 @@ Feature: OIDC Authenticator V2 - Users can authenticate with Identity using OIDC
       | conjur/authn-oidc/identity/claim-mapping  |                     | email               |
       | conjur/authn-oidc/identity/redirect-uri   | oidc_redirect_url   |                     |
 
-  @smoke
   Scenario: Authenticating with Conjur using Identity
     Given I retrieve OIDC configuration from the provider endpoint for "identity"
     And I authenticate and fetch a code from Identity
