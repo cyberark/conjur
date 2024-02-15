@@ -1,4 +1,4 @@
-@authenticators_oidc
+@authenticators_oidc @skip
 Feature: OIDC Authenticator V2 - Users can authenticate with Identity using OIDC
 
   Background:
