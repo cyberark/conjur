@@ -190,33 +190,7 @@ describe V2SecretsController, type: :request do
     end
   end
 
-  describe "Create static secret with input errors" do
-    context "when creating secret with unsupported symbols in its name" do
-      let(:payload_create_secret) do
-        <<~BODY
-          {
-              "branch": "/data/secrets",
-              "name": "secret/not_valid ",
-              "type": "static"
-          }
-        BODY
-      end
-      it 'Secret creation failed on 400' do
-        post("/secrets",
-             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
-               {
-                 'RAW_POST_DATA' => payload_create_secret,
-                 'CONTENT_TYPE' => "application/json"
-               }
-             )
-        )
-        # Correct response code
-        assert_response :bad_request
-        parsed_body = JSON.parse(response.body)
-        expect(parsed_body["error"]["code"]).to eq("bad_request")
-        expect(parsed_body["error"]["message"]).to eq("Invalid 'name' parameter. The character '/' is not allowed.")
-      end
-    end
+  describe "Create secret with name validations" do
     context "when creating secret with empty name" do
       let(:payload_create_secret) do
         <<~BODY
@@ -294,6 +268,84 @@ describe V2SecretsController, type: :request do
         expect(parsed_body["error"]["message"]).to eq("CONJ00192E The 'name' parameter must be of 'type=String'")
       end
     end
+    context "when creating secret with unsupported symbols in its name" do
+      let(:payload_create_secret) do
+        <<~BODY
+          {
+              "branch": "/data/secrets",
+              "name": "se#cret/not_valid ",
+              "type": "static"
+          }
+        BODY
+      end
+      it 'Secret creation failed on 400' do
+        post("/secrets",
+             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
+               {
+                 'RAW_POST_DATA' => payload_create_secret,
+                 'CONTENT_TYPE' => "application/json"
+               }
+             )
+        )
+        # Correct response code
+        assert_response :bad_request
+        parsed_body = JSON.parse(response.body)
+        expect(parsed_body["error"]["code"]).to eq("bad_request")
+        expect(parsed_body["error"]["message"]).to eq("Invalid 'name' parameter. Only the following characters are supported: A-Z, a-z, 0-9 and _")
+      end
+    end
+    context "when creating secret with too long name" do
+      let(:payload_create_secret) do
+        <<~BODY
+          {
+              "branch": "/data/secrets",
+              "name": "secretstoolongggggggggggggggggggggggggggggggggggggggggggggggg",
+              "type": "static"
+          }
+        BODY
+      end
+      it 'Secret creation failed on 400' do
+        post("/secrets",
+             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
+               {
+                 'RAW_POST_DATA' => payload_create_secret,
+                 'CONTENT_TYPE' => "application/json"
+               }
+             )
+        )
+        # Correct response code
+        assert_response :bad_request
+        parsed_body = JSON.parse(response.body)
+        expect(parsed_body["error"]["code"]).to eq("bad_request")
+        expect(parsed_body["error"]["message"]).to eq("'name' parameter length exceeded. Limit the length to 60 characters")
+      end
+    end
+    context "when creating secret with all supported symbols in its name" do
+      let(:payload_create_secret) do
+        <<~BODY
+          {
+              "branch": "/data/secrets",
+              "name": "seCret0_5Name",
+              "type": "static"
+          }
+        BODY
+      end
+      it 'Secret creation succeeds' do
+        post("/secrets",
+             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
+               {
+                 'RAW_POST_DATA' => payload_create_secret,
+                 'CONTENT_TYPE' => "application/json"
+               }
+             )
+        )
+        # Correct response code
+        assert_response :success
+      end
+    end
+  end
+
+  describe "Create static secret with input errors" do
     context "when creating secret with not existent branch" do
       let(:payload_create_secret) do
         <<~BODY
