@@ -1823,4 +1823,43 @@ describe V2SecretsController, type: :request do
     end
   end
 
+  describe "Ephemeral type secret validation" do
+    let(:payload_create_issuers) do
+      <<~BODY
+        {
+          "id": "aws-issuer-1",
+          "max_ttl": 2000,
+          "type": "aws",
+          "data": {
+            "access_key_id": "my-key-id",
+            "secret_access_key": "my-key-secret"
+          }
+        }
+      BODY
+    end
+    let(:permit_policy) do
+      <<~POLICY
+          - !permit
+            resource: !policy conjur/issuers/aws-issuer-1
+            privilege: [ use ]
+            role: !user /alice
+
+          - !permit
+            resource: !policy data/ephemerals
+            privilege: [ update ]
+            role: !user /alice
+        POLICY
+    end
+    before do
+      #Create issuer
+      post("/issuers/rspec",
+           env: token_auth_header(role: admin_user).merge(
+             'RAW_POST_DATA' => payload_create_issuers,
+             'CONTENT_TYPE' => "application/json"
+           ))
+      assert_response :created
+    end
+
+  end
+
 end

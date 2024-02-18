@@ -1,6 +1,13 @@
 module Secrets
   module SecretTypes
     class EphemeralSecretType  < SecretBaseType
+      EPHEMERAL_ISSUER = "ephemeral/issuer"
+      EPHEMERAL_TTL = "ephemeral/ttl"
+
+      def initialize_ephemeral_type(type, type_params)
+        @secret_type = EphemeralSecretTypeFactory.new.create_ephemeral_secret_type(type, type_params)
+      end
+
       def input_validation(params)
         # check ephemeral sub object exists
         raise Errors::Conjur::ParameterMissing, "ephemeral" unless params[:ephemeral]
@@ -25,13 +32,17 @@ module Secrets
         validate_data(ephemeral, data_fields)
         validate_ephemeral_type(ephemeral[:type])
 
-       # check if issuer exists
-       issuer_id = ephemeral[:issuer]
-       issuer = Issuer.where(issuer_id: issuer_id).first
-       raise Exceptions::RecordNotFound, "#{account}:issuer:#{issuer_id}" unless issuer
+        # check if issuer exists
+        issuer_id = ephemeral[:issuer]
+        issuer = Issuer.where(issuer_id: issuer_id).first
+        raise Exceptions::RecordNotFound, "#{account}:issuer:#{issuer_id}" unless issuer
 
-       # check secret ttl is less then the issuer ttl
-       raise ApplicationController::BadRequestWithBody, "Ephemeral secret ttl can't be bigger then the issuer ttl #{issuer[:max_ttl]}" if ephemeral[:ttl] > issuer[:max_ttl]
+        # check secret ttl is less then the issuer ttl
+        raise ApplicationController::BadRequestWithBody, "Ephemeral secret ttl can't be bigger then the issuer ttl #{issuer[:max_ttl]}" if ephemeral[:ttl] > issuer[:max_ttl]
+
+        # validate input validation according to the specific ephemeral type
+        initialize_ephemeral_type(ephemeral[:type], ephemeral[:type_params])
+        @secret_type.input_validation(ephemeral[:type_params])
       end
 
       def get_create_permissions(policy, params)
@@ -44,6 +55,14 @@ module Secrets
         issuer_permissions = {issuer_policy => :use}
 
         permissions.merge! issuer_permissions
+      end
+
+      def convert_fields_to_annotations(params)
+        annotations = super(params)
+        # add ephemeral type annotations
+        annotations["conjur/mime_type"] ||= params[:mime_type] if params[:mime_type]
+
+        annotations
       end
 
       private
