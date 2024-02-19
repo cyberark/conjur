@@ -9,23 +9,39 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
-## [1.0.22-cloud] - 2023-02-25
+## [1.0.23-cloud] - 2024-03-03
+### Added
+- API for creating ephemeral secret
+
+## [1.0.22-cloud] - 2024-02-25
 ### Added
 - API for creating static secret with permissions
 
-## [1.0.21-cloud] - 2023-02-18
+### Fixed
+- Improved error messaging when a foreign key constraint violation occurs during
+  a policy replace.
+  [Conjur-Enterprise/conjur#93](https://github.cyberng.com/Conjur-Enterprise/conjur/pull/93)
+- Conjur API now returns the correct role graph, no longer showing resources that 
+  the user does not have read permissions on.
+- conjurctl role retrieve-key will now work when debug logging is turned on.
+  [CNJR-2954](https://ca-il-jira.il.cyber-ark.com:8443/browse/CNJR-2759)
+- conjur-policy-parser now handles explicitly declared YAML document/s, providing
+  helpful error messages when appropriate.
+  [CNJR-3059](https://ca-il-jira.il.cyber-ark.com:8443/browse/CNJR-3059)
+
+## [1.0.21-cloud] - 2024-02-18
 ### Changed
 - Changing Error logs to Warning 
 - API for creating static secret with annotations
 
-## [1.0.20-cloud] - 2023-02-11
+## [1.0.20-cloud] - 2024-02-11
 ### Added
 - API for creating secret
 
 ### Changed
 - Changing Info logs to Debug
 
-## [1.0.19-cloud] - 2023-02-04
+## [1.0.19-cloud] - 2024-02-04
 ### Added
 - API getting the license info (number of used hosts) 
 - API getting the edge name by id
@@ -36,18 +52,18 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Changing application error to debug logs
 - Removing log in case of resource/variable not found
 
-## [1.0.18-cloud] - 2023-01-21
+## [1.0.18-cloud] - 2024-01-21
 ### Added
 - API checking role of token (used by agent handler)
 - Remove secrets scheduled rotation process
 
-## [1.0.17-cloud] - 2023-01-14
+## [1.0.17-cloud] - 2024-01-14
 ### Changed
 - Version header in v2 apis is not required
 - Fix edge slosilo replication
 - Add flag 'delete_vars' to delete variables of issuer
 
-## [1.0.16-cloud] - 2023-01-07
+## [1.0.16-cloud] - 2024-01-07
 ### Added
 - Connect to Database using AWS IAM role
 - Add 'short' param to list resources api

@@ -4,6 +4,18 @@ module Authentication
   module AuthnK8s
 
     AUTHENTICATOR_NAME = 'authn-k8s'
+    REQUIRED_VARIABLE_NAMES = %w[
+      ca/cert
+      ca/key
+    ].freeze
+
+    # These are optional because they may be provided as environment variables
+    # instead of as Conjur variables.
+    OPTIONAL_VARIABLE_NAMES = %w[
+      kubernetes/ca-cert
+      kubernetes/api-url
+      kubernetes/service-account-token
+    ].freeze
 
     module Restrictions
 

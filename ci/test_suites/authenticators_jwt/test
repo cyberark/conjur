@@ -15,6 +15,7 @@ function main() {
   wait_for_keycloak_server
   create_keycloak_users
   fetch_keycloak_certificate
+  add_keycloak_certificate_to_truststore
 
   echo "Configure jwks provider"
   $COMPOSE exec -T jwks "${JWKS_CREATE_CERTIFICATE_SCRIPT_PATH}"
