@@ -59,9 +59,12 @@ module Secrets
 
       def convert_fields_to_annotations(params)
         annotations = super(params)
-        # add ephemeral type annotations
-        annotations["conjur/mime_type"] ||= params[:mime_type] if params[:mime_type]
+        # add ephemeral annotations
+        annotations[EPHEMERAL_ISSUER] = params[:ephemeral][:issuer]
+        annotations[EPHEMERAL_TTL] = params[:ephemeral][:ttl]
 
+        # add annotations of specific ephemeral type
+        annotations.merge! @secret_type.convert_fields_to_annotations(params[:ephemeral][:type_params])
         annotations
       end
 

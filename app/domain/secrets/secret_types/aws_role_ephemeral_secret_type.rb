@@ -17,6 +17,14 @@ module Secrets
         validate_required_data(method_params, data_fields.keys)
         validate_data(method_params, data_fields)
       end
+
+      def convert_fields_to_annotations(params)
+        annotations = super(params)
+        # add ephemeral type annotations
+        annotations[EPHEMERAL_ROLE_ARN] = params[:method_params][:role_arn]
+
+        annotations
+      end
     end
   end
 end

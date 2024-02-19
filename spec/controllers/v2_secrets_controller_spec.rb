@@ -1699,8 +1699,16 @@ describe V2SecretsController, type: :request do
             "ephemeral": {
               "issuer": "aws-issuer-1",
               "ttl": 1200,
-              "type": "aws"
-            } 
+              "type": "aws",
+              "type_params": {
+                "method": "assume-role",
+                "region": "us-east-1",
+                "inline_policy": "{}",
+                "method_params": {
+                  "role_arn": "role"
+                }
+              }     
+            }            
         }
       BODY
     end
@@ -1823,7 +1831,7 @@ describe V2SecretsController, type: :request do
     end
   end
 
-  describe "Ephemeral type secret validation" do
+  describe "Ephemeral secret creation" do
     let(:payload_create_issuers) do
       <<~BODY
         {
@@ -1858,8 +1866,82 @@ describe V2SecretsController, type: :request do
              'CONTENT_TYPE' => "application/json"
            ))
       assert_response :created
-    end
 
+      patch(
+        '/policies/rspec/policy/root',
+        env: token_auth_header(role: admin_user).merge(
+          { 'RAW_POST_DATA' => permit_policy }
+        )
+      )
+      assert_response :success
+    end
+    context "when creating assume role ephemeral secret" do
+      let(:payload_create_ephemeral_secret) do
+        <<~BODY
+        {
+            "branch": "/data/ephemerals",
+            "name": "ephemeral_secret",
+            "type": "ephemeral",
+            "annotations": [
+              {
+                "name": "description",
+                "value": "desc"
+              }
+            ],
+            "permissions": [
+              {
+                "subject": {
+                  "kind": "user",
+                  "id": "alice"
+                },
+                "privileges": [ "read" ]
+              }  
+            ], 
+            "ephemeral": {
+              "issuer": "aws-issuer-1",
+              "ttl": 1200,
+              "type": "aws",
+              "type_params": {
+                "method": "assume-role",
+                "region": "us-east-1",
+                "inline_policy": "{}",
+                "method_params": {
+                  "role_arn": "role"
+                }
+              }     
+            } 
+        }
+      BODY
+      end
+      it 'Secret resource was created' do
+        post("/secrets",
+             env: token_auth_header(role: alice_user).merge(v2_api_header).merge(
+               {
+                 'RAW_POST_DATA' => payload_create_ephemeral_secret,
+                 'CONTENT_TYPE' => "application/json"
+               }
+             )
+        )
+        # Correct response code
+        assert_response :created
+        # correct response body
+        expect(response.body).to eq("{\"branch\":\"/data/ephemerals\",\"name\":\"ephemeral_secret\",\"type\":\"ephemeral\",\"annotations\":[{\"name\":\"description\",\"value\":\"desc\"}],\"permissions\":[{\"subject\":{\"kind\":\"user\",\"id\":\"alice\"},\"privileges\":[\"read\"]}],\"ephemeral\":{\"issuer\":\"aws-issuer-1\",\"ttl\":1200,\"type\":\"aws\",\"type_params\":{\"method\":\"assume-role\",\"region\":\"us-east-1\",\"inline_policy\":\"{}\",\"method_params\":{\"role_arn\":\"role\"}}}}")
+        # Secret resource is created
+        resource = Resource["rspec:variable:data/ephemerals/ephemeral_secret"]
+        expect(resource).to_not be_nil
+        # user with permissions can see the secret
+        get("/resources/rspec?kind=variable&search=data/ephemerals/ephemeral_secret",
+            env: token_auth_header(role: alice_user)
+        )
+        assert_response :success
+        # Check the variable resource is with all the information (as the object also contains created at we want to check without it so partial json)
+        parsed_body = JSON.parse(response.body)
+        expect(parsed_body[0].to_s.include?('"id"=>"rspec:variable:data/ephemerals/ephemeral_secret", "owner"=>"rspec:policy:data/ephemerals", "policy"=>"rspec:policy:data/ephemerals", "permissions"=>[{"privilege"=>"read", "role"=>"rspec:user:alice", "policy"=>"rspec:policy:data/ephemerals"}], "annotations"=>[{"name"=>"description", "value"=>"desc", "policy"=>"rspec:policy:data/ephemerals"}, {"name"=>"conjur/kind", "value"=>"ephemeral", "policy"=>"rspec:policy:data/ephemerals"}, {"name"=>"ephemeral/issuer", "value"=>"aws-issuer-1", "policy"=>"rspec:policy:data/ephemerals"}, {"name"=>"ephemeral/ttl", "value"=>"1200", "policy"=>"rspec:policy:data/ephemerals"}, {"name"=>"ephemeral/method", "value"=>"assume-role", "policy"=>"rspec:policy:data/ephemerals"}, {"name"=>"ephemeral/region", "value"=>"us-east-1", "policy"=>"rspec:policy:data/ephemerals"}, {"name"=>"ephemeral/inline-policy", "value"=>"{}", "policy"=>"rspec:policy:data/ephemerals"}, {"name"=>"ephemeral/role-arn", "value"=>"role", "policy"=>"rspec:policy:data/ephemerals"}], "secrets"=>[]}')).to eq(true)
+        # Correct audit is returned
+        #audit_message = "rspec:user:alice added membership of rspec:host:data/delegation/host1 in rspec:group:data/delegation/consumers"
+        #verify_audit_message(audit_message)
+      end
+    end
   end
 
 end

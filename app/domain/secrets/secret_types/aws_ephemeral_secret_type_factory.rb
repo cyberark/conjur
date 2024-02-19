@@ -5,7 +5,7 @@ module Secrets
         if !type_params.nil? && !type_params[:method].nil? && type_params[:method].casecmp("federation-token").zero?
           Secrets::SecretTypes::AWSEFederationTokenEphemeralSecretType.new
         elsif !type_params.nil? && !type_params[:method].nil? && type_params[:method].casecmp("assume-role").zero?
-          Secrets::SecretTypes::AWSEFederationTokenEphemeralSecretType.new
+          Secrets::SecretTypes::AWSRoleEphemeralSecretType.new
         else
           raise ApplicationController::BadRequestWithBody, "Ephemeral Secret aws method is unsupported"
         end
