@@ -95,6 +95,116 @@ Given(/^I retrieve OIDC configuration from the provider endpoint for "([^"]*)"/)
   @scenario_context.add(:redirect_uri, provider['redirect_uri'])
 end
 
+Given(/^I authenticate and fetch a code from Identity/) do
+  # A request to /Security/StartAuthentication begins the login process,
+  # and returns a list of authentication mechanisms to engage with.
+
+  token = ""
+  host = URI(@scenario_context.get(:redirect_uri)).host
+  resp = start_auth_request(host, @scenario_context.get(:oidc_username))
+  resp_h = JSON.parse(resp.body)
+
+  if resp_h["Result"]["PodFqdn"]
+    resp = start_auth_request(resp_h["Result"]["PodFqdn"], @scenario_context.get(:oidc_username))
+    resp_h = JSON.parse(resp.body)
+  end
+
+  raise "Failed to retrieve OIDC code status: #{resp.code}" unless resp_h["success"]
+
+  session_id = resp_h["Result"]["SessionId"]
+  challenges = resp_h["Result"]["Challenges"]
+
+  # Usually, we would iterate through MFA challenges sequentially.
+  # For our purposes, though, we want to make sure to use the Password
+  # and Mobile Authenticator mechanisms.
+
+  password_mechanism = challenges[0]["Mechanisms"].detect { |m| m["PromptSelectMech"] == "Password" }
+
+  # Advance Password-based authentication handshake.
+
+  password_body = JSON.generate({
+    "Action": "Answer",
+    "Answer": @scenario_context.get(:oidc_password),
+    "MechanismId": password_mechanism["MechanismId"],
+    "SessionId": session_id
+  })
+  resp = advance_auth_request(host, password_body)
+  resp_h = JSON.parse(resp.body)
+  raise "Failed to advance authentication: #{resp_h['Message']}" unless resp_h["success"]
+
+
+  # If only one challenge, then the response should contain the bearer token.
+  if challenges.length == 1
+    cookies = resp.get_fields('Set-Cookie')
+    token_cookie = cookies.detect { |c| c.start_with?(".ASPXAUTH") }
+    token = token_cookie.split('; ')[0].split('=')[1]
+    if token == ""
+      raise "Failed to advance authentication: please reattempt"
+    end
+  else
+    # Engaging with a Mobile Auth and polling for out-of-band authentication
+    # success is included temporarily, and is required for users that are required
+    # to perform MFA. Before merging, and service account should be made available
+    # for running this test in CI, and the account should not be bound by MFA.
+    mobile_auth_mechanism = challenges[1]["Mechanisms"].detect { |m| m["PromptSelectMech"] == "Mobile Authenticator" }
+    mobile_auth_body = JSON.generate({
+      "Action": "StartOOB",
+      "MechanismId": mobile_auth_mechanism["MechanismId"],
+      "SessionId": session_id
+    })
+    resp = advance_auth_request(host, mobile_auth_body)
+    resp_h = JSON.parse(resp.body)
+    raise "Failed to advance authentication: #{resp_h['Message']}" unless resp_h["success"]
+
+    puts "Dev env users: select #{resp_h['Result']['GeneratedAuthValue']} in your Identity notification"
+
+    # For 30 seconds, Poll for out-of-band authentication success.
+
+    poll_body = JSON.generate({
+      "Action": "Poll",
+      "MechanismId": mobile_auth_mechanism["MechanismId"],
+      "SessionId": session_id
+    })
+
+    current = Time.current
+    while Time.current < current + 30
+      resp = advance_auth_request(host, poll_body)
+      resp_h = JSON.parse(resp.body)
+
+      next unless resp_h["Result"]["Summary"] == "LoginSuccess"
+
+      cookies = resp.get_fields('Set-Cookie')
+      token_cookie = cookies.detect { |c| c.start_with?(".ASPXAUTH") }
+      token = token_cookie.split('; ')[0].split('=')[1]
+    end
+    if token == ""
+      raise "Failed to advance authentication: please reattempt"
+    end
+  end
+  
+  # Make request to /Authorization endpoint with bearer token.
+  target = URI("#{@scenario_context.get(:redirect_uri)}&state=test-state")
+  resp = nil
+  until target.to_s.include?("localhost:3000/authn-oidc/identity/cucumber")
+    http = Net::HTTP.new(target.host, 443)
+    http.use_ssl = true
+    req = Net::HTTP::Get.new(target.request_uri)
+    req['Accept'] = '*/*'
+    req['Authorization'] = "Bearer #{token}"
+    resp = http.request(req)
+
+    target = URI(resp['location'].to_s)
+  end
+
+  if resp.is_a?(Net::HTTPRedirection)
+    parse_oidc_code(resp['location']).each do |key, value|
+      @scenario_context.set(key, value)
+    end
+  else
+    raise "Failed to retrieve OIDC code status: #{resp.code}"
+  end
+end
+
 Given(/^I authenticate and fetch a code from Okta/) do
   uri = URI("https://#{URI(@scenario_context.get(:redirect_uri)).host}/api/v1/authn")
   body = JSON.generate({ username: @scenario_context.get(:oidc_username), password: @scenario_context.get(:oidc_password) })
@@ -176,7 +286,7 @@ When(/^I authenticate via OIDC V2 with code and service-id "([^"]*)"$/) do |serv
   )
 end
 
-Then(/^the okta user has been authorized by conjur/) do
+Then(/^the OIDC user has been authorized by conjur/) do
   username = @scenario_context.get(:oidc_username)
   expect(retrieved_access_token.username).to eq(username)
 end

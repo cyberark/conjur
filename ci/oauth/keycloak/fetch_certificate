@@ -1,7 +1,6 @@
 #!/bin/sh
 
-# This script retrieves a certificate from the keycloak OIDC provider
-# and puts it to a trusted operating system store.
+# This script retrieves a certificate from the keycloak OIDC provider.
 # It is needed to communicate with the provider via SSL for validating ID tokens
 
 openssl s_client \
@@ -12,7 +11,3 @@ openssl s_client \
   openssl x509 \
     -outform PEM \
     >/etc/ssl/certs/keycloak.pem
-
-hash=$(openssl x509 -hash -in /etc/ssl/certs/keycloak.pem --noout)
-
-ln -s /etc/ssl/certs/keycloak.pem "/etc/ssl/certs/${hash}.0" || true

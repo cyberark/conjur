@@ -1684,7 +1684,7 @@ describe V2SecretsController, type: :request do
         # Correct response code
         assert_response :bad_request
         parsed_body = JSON.parse(response.body)
-        expect(parsed_body["error"]["message"]).to eq("Ephemeral secret ttl can't be bigger then the issuer ttl 1000")
+        expect(parsed_body["error"]["message"]).to eq("Ephemeral secret ttl can't be bigger than the issuer ttl 1000")
       end
     end
   end

@@ -219,7 +219,9 @@ describe AuthenticateController, :type => :request do
           account: account,
           service_id: service_id,
           api_url: api_url,
-          ca_cert: "---",
+          ca_cert: Util::OpenSsl::X509::Certificate.from_subject(
+            subject: 'CN=Test CA'
+          ).to_pem,
           service_account_token: "bearer token"
         )
         # Artificially enable the authenticator. Unfortunately there's no nicer way to do this since configuration used is that which is evaluated at load time!
@@ -235,7 +237,9 @@ describe AuthenticateController, :type => :request do
           account: account,
           service_id: service_id,
           api_url: "#{api_url}/",
-          ca_cert: "---",
+          ca_cert: Util::OpenSsl::X509::Certificate.from_subject(
+            subject: 'CN=Test CA'
+          ).to_pem,
           service_account_token: "bearer token"
         )
 
@@ -387,7 +391,9 @@ describe AuthenticateController, :type => :request do
           account: account,
           service_id: service_id,
           api_url: "http://localhost:1111",
-          ca_cert: "---",
+          ca_cert: Util::OpenSsl::X509::Certificate.from_subject(
+            subject: 'CN=Test CA'
+          ).to_pem,
           service_account_token: "bearer token"
         )
 

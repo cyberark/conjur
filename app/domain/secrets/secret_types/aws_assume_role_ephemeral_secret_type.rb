@@ -1,6 +1,6 @@
 module Secrets
   module SecretTypes
-    class AWSRoleEphemeralSecretType < AWSEphemeralSecretType
+    class AWSAssumeRoleEphemeralSecretType < AWSEphemeralSecretType
       EPHEMERAL_ROLE_ARN = "ephemeral/role-arn"
 
       def input_validation(type_params)

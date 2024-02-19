@@ -38,7 +38,7 @@ module Secrets
         raise Exceptions::RecordNotFound, "#{account}:issuer:#{issuer_id}" unless issuer
 
         # check secret ttl is less then the issuer ttl
-        raise ApplicationController::BadRequestWithBody, "Ephemeral secret ttl can't be bigger then the issuer ttl #{issuer[:max_ttl]}" if ephemeral[:ttl] > issuer[:max_ttl]
+        raise ApplicationController::BadRequestWithBody, "Ephemeral secret ttl can't be bigger than the issuer ttl #{issuer[:max_ttl]}" if ephemeral[:ttl] > issuer[:max_ttl]
 
         # validate input validation according to the specific ephemeral type
         initialize_ephemeral_type(ephemeral[:type], ephemeral[:type_params])

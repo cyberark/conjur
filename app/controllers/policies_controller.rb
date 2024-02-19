@@ -44,6 +44,8 @@ class PoliciesController < RestController
 
   def load_policy(action, loader_class, delete_permitted)
     authorize(action)
+    loader_class.authorize(current_user, self.resource)
+
     policy = save_submitted_policy(delete_permitted: delete_permitted)
     loaded_policy = loader_class.from_policy(policy)
     created_roles = perform(loaded_policy)

@@ -197,6 +197,22 @@ module AuthnK8sWorld
     # sign CSR with the signing key
     csr.sign(signing_key, OpenSSL::Digest.new('SHA256'))
   end
+
+  def admin_api_key
+    # This file is written when the environment is provisioned in
+    # test_gke_entrypoint.sh
+    @admin_api_key ||= File.read('/run/conjur_api_key').strip
+  end
+
+  def admin_access_token
+    RestClient::Resource.new(
+      "#{Conjur.configuration.appliance_url}/authn/cucumber/admin/authenticate",
+      ssl_ca_file: './nginx.crt',
+      headers: {
+        "Accept-Encoding" => "base64"
+      }
+    ).post(admin_api_key)
+  end
 end
 
 World(Rack::Test::Methods, AuthnK8sWorld)

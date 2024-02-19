@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# K8sObjectLookup is used to lookup Kubernetes object metadata using 
+# K8sObjectLookup is used to lookup Kubernetes object metadata using
 # Kubernetes API. This is essentially a facade over the API
 #
 module Authentication
@@ -28,7 +28,10 @@ module Authentication
 
         return unless ENV.key?('SSL_CERT_DIRECTORY')
 
-        load_additional_certs(ENV['SSL_CERT_DIRECTORY'])
+        ::Conjur::CertUtils.load_certificates(
+          @cert_store,
+          File.join(ENV['SSL_CERT_DIRECTORY'], 'ca')
+        )
       end
 
       def bearer_token
@@ -201,7 +204,6 @@ module Authentication
           KubeClientFactory.client(
             api: 'apis/apps.openshift.io', version: 'v1', host_url: api_url,
             options: options
-
           )
         ]
       end
@@ -213,16 +215,6 @@ module Authentication
           yield
         rescue KubeException
           raise unless $!.error_code == 404
-        end
-      end
-
-      def load_additional_certs(ssl_cert_directory)
-        # allows us to add additional CA certs for things like SNI certs
-        if Dir.exist?("#{ssl_cert_directory}/ca")
-          Dir["#{ssl_cert_directory}/ca/*"].each do |file_name|
-            ::Conjur::CertUtils.add_chained_cert(@cert_store, File.read(file_name)) if
-              File.exist?(file_name)
-          end
         end
       end
     end
