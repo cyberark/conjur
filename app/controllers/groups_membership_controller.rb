@@ -90,9 +90,9 @@ class GroupsMembershipController < V2RestController
     validate_group_members_input(params, num_of_params, group_name, member_kind)
 
     # Validate there is permissions for current user to run update on the branch
-    authorize(action, resource("policy", branch))
+    authorize(action, get_resource("policy", branch))
 
-    group_id = resource_id("group","#{branch}/#{group_name}")
+    group_id = full_resource_id("group", "#{branch}/#{group_name}")
     group = Role[group_id]
     raise Exceptions::RecordNotFound, group_id unless group
 
@@ -109,7 +109,7 @@ class GroupsMembershipController < V2RestController
     if member_id.start_with?("/")
       member_id = member_id[1..-1]
     end
-    resource_id(member_kind, member_id)
+    full_resource_id(member_kind, member_id)
   end
 
   def get_branch(params)

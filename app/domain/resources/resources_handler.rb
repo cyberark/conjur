@@ -5,7 +5,7 @@ module ResourcesHandler
     @account ||= StaticAccount.account
   end
 
-  def resource_id(type, full_id)
+  def full_resource_id(type, full_id)
     #We support the path to start with / and without but for full id we need it without /
     if full_id.start_with?("/")
       full_id = full_id[1..-1]
@@ -13,22 +13,11 @@ module ResourcesHandler
     [ account, type, full_id ].join(":")
   end
 
-  def resource(type, full_id)
-    raise Exceptions::RecordNotFound, resource_id(type, full_id) unless resource_visible?(type, full_id)
+  def get_resource(type, resource_id)
+    full_resource_id = full_resource_id(type, resource_id)
+    resource = Resource[full_resource_id]
+    raise Exceptions::RecordNotFound, full_resource_id unless resource
 
-    resource!(type, full_id)
-  end
-
-  def resource_exists?(type, full_id)
-    Resource[resource_id(type, full_id)] ? true : false
-  end
-
-  private
-  def resource_visible?(type, full_id)
-    @resource_visible = resource!(type, full_id) && @resource.visible_to?(current_user)
-  end
-
-  def resource!(type, full_id)
-    @resource = Resource[resource_id(type, full_id)]
+    resource
   end
 end

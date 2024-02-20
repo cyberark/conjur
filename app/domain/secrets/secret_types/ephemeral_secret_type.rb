@@ -40,20 +40,19 @@ module Secrets
         raise Exceptions::RecordNotFound, "#{account}:issuer:#{issuer_id}" unless issuer
 
         # check secret ttl is less then the issuer ttl
-        raise ApplicationController::BadRequestWithBody, "Ephemeral secret ttl can't be bigger then the issuer ttl #{issuer[:max_ttl]}" if ephemeral[:ttl] > issuer[:max_ttl]
+        raise ApplicationController::BadRequestWithBody, "Ephemeral secret ttl can't be bigger than the issuer ttl #{issuer[:max_ttl]}" if ephemeral[:ttl] > issuer[:max_ttl]
 
         # validate input validation according to the specific ephemeral type
         initialize_ephemeral_type(ephemeral[:type], ephemeral[:type_params])
         @secret_type.input_validation(ephemeral[:type_params])
       end
 
-      def get_create_permissions(policy, params)
-        permissions = super(policy, params)
+      def get_create_permissions(params)
+        permissions = super(params)
 
         #For Ephemeral Secret - has 'use' permissions to issuer policy
         issuer = params[:ephemeral][:issuer]
-        issuer_policy_id = resource_id("policy","conjur/issuers/#{issuer}")
-        issuer_policy = Resource[issuer_policy_id]
+        issuer_policy = get_resource("policy", "conjur/issuers/#{issuer}")
         issuer_permissions = {issuer_policy => :use}
 
         permissions.merge! issuer_permissions

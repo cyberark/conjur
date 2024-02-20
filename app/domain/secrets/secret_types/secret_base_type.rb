@@ -3,17 +3,19 @@ module Secrets
     class SecretBaseType
       include PermissionsHandler
       include AnnotationsHandler
+      include ResourcesHandler
 
-      def create_secret(policy, secret_id, params, response)
+      def create_secret(secret_id, params, response)
+        policy_id = full_resource_id("policy", params[:branch])
         # Create variable resource
-        variable_resource = ::Resource.create(resource_id: secret_id, owner_id: policy[:resource_id], policy_id: policy[:resource_id])
+        variable_resource = ::Resource.create(resource_id: secret_id, owner_id: policy_id, policy_id: policy_id)
 
         # Add annotations
         if params[:annotations].nil?
           response["annotations"] = "[]"
         end
         annotations = add_annotations(params)
-        create_annotations(variable_resource, policy, annotations)
+        create_annotations(variable_resource, policy_id, annotations)
 
         # Add permissions
         if params[:permissions].nil?
@@ -21,7 +23,7 @@ module Secrets
         else
           allowed_privilege = %w[read execute update]
           resources_privileges = validate_permissions(params[:permissions], allowed_privilege)
-          add_permissions(resources_privileges, secret_id, policy)
+          add_permissions(resources_privileges, secret_id, policy_id)
         end
 
         # Set secret value
@@ -46,9 +48,15 @@ module Secrets
 
         # Validate the name of the secret is correct
         validate_name(params[:name])
+
+        # check policy exists
+        policy_id = full_resource_id("policy", params[:branch])
+        policy = Resource[policy_id]
+        raise Exceptions::RecordNotFound, policy_id unless policy
       end
 
-      def get_create_permissions(policy, params)
+      def get_create_permissions(params)
+        policy = get_resource("policy", params[:branch])
         {policy => :update}
       end
 

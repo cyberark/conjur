@@ -2,7 +2,6 @@ module Secrets
   module SecretTypes
     class StaticSecretType  < SecretBaseType
       include ParamsValidator
-
       def input_validation(params)
         super(params)
 

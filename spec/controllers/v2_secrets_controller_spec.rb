@@ -195,161 +195,6 @@ describe V2SecretsController, type: :request do
     end
   end
 
-  describe "Create secret with name validations" do
-    context "when creating secret with empty name" do
-      let(:payload_create_secret) do
-        <<~BODY
-          {
-              "branch": "/data/secrets",
-              "name": "",
-              "type": "static"
-          }
-        BODY
-      end
-      it 'Secret creation failed on 400' do
-        post("/secrets",
-             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
-               {
-                 'RAW_POST_DATA' => payload_create_secret,
-                 'CONTENT_TYPE' => "application/json"
-               }
-             )
-        )
-        # Correct response code
-        assert_response :bad_request
-        parsed_body = JSON.parse(response.body)
-        expect(parsed_body["error"]["code"]).to eq("bad_request")
-        expect(parsed_body["error"]["message"]).to eq("CONJ00190E Missing required parameter: name")
-      end
-    end
-    context "when creating secret without name" do
-      let(:payload_create_secret) do
-        <<~BODY
-          {
-              "branch": "/data/secrets",
-              "type": "static"
-          }
-        BODY
-      end
-      it 'Secret creation failed on 400' do
-        post("/secrets",
-             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
-               {
-                 'RAW_POST_DATA' => payload_create_secret,
-                 'CONTENT_TYPE' => "application/json"
-               }
-             )
-        )
-        # Correct response code
-        assert_response :bad_request
-        parsed_body = JSON.parse(response.body)
-        expect(parsed_body["error"]["code"]).to eq("bad_request")
-        expect(parsed_body["error"]["message"]).to eq("CONJ00190E Missing required parameter: name")
-      end
-    end
-    context "when creating secret with name not string" do
-      let(:payload_create_secret) do
-        <<~BODY
-          {
-              "branch": "/data/secrets",
-              "name": 5,
-              "type": "static"
-          }
-        BODY
-      end
-      it 'Secret creation failed on 400' do
-        post("/secrets",
-             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
-               {
-                 'RAW_POST_DATA' => payload_create_secret,
-                 'CONTENT_TYPE' => "application/json"
-               }
-             )
-        )
-        # Correct response code
-        assert_response :bad_request
-        parsed_body = JSON.parse(response.body)
-        expect(parsed_body["error"]["code"]).to eq("bad_request")
-        expect(parsed_body["error"]["message"]).to eq("CONJ00192E The 'name' parameter must be of 'type=String'")
-      end
-    end
-    context "when creating secret with unsupported symbols in its name" do
-      let(:payload_create_secret) do
-        <<~BODY
-          {
-              "branch": "/data/secrets",
-              "name": "se#cret/not_valid ",
-              "type": "static"
-          }
-        BODY
-      end
-      it 'Secret creation failed on 400' do
-        post("/secrets",
-             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
-               {
-                 'RAW_POST_DATA' => payload_create_secret,
-                 'CONTENT_TYPE' => "application/json"
-               }
-             )
-        )
-        # Correct response code
-        assert_response :bad_request
-        parsed_body = JSON.parse(response.body)
-        expect(parsed_body["error"]["code"]).to eq("bad_request")
-        expect(parsed_body["error"]["message"]).to eq("Invalid 'name' parameter. Only the following characters are supported: A-Z, a-z, 0-9 and _")
-      end
-    end
-    context "when creating secret with too long name" do
-      let(:payload_create_secret) do
-        <<~BODY
-          {
-              "branch": "/data/secrets",
-              "name": "secretstoolongggggggggggggggggggggggggggggggggggggggggggggggg",
-              "type": "static"
-          }
-        BODY
-      end
-      it 'Secret creation failed on 400' do
-        post("/secrets",
-             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
-               {
-                 'RAW_POST_DATA' => payload_create_secret,
-                 'CONTENT_TYPE' => "application/json"
-               }
-             )
-        )
-        # Correct response code
-        assert_response :bad_request
-        parsed_body = JSON.parse(response.body)
-        expect(parsed_body["error"]["code"]).to eq("bad_request")
-        expect(parsed_body["error"]["message"]).to eq("'name' parameter length exceeded. Limit the length to 60 characters")
-      end
-    end
-    context "when creating secret with all supported symbols in its name" do
-      let(:payload_create_secret) do
-        <<~BODY
-          {
-              "branch": "/data/secrets",
-              "name": "seCret0_5Name",
-              "type": "static"
-          }
-        BODY
-      end
-      it 'Secret creation succeeds' do
-        post("/secrets",
-             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
-               {
-                 'RAW_POST_DATA' => payload_create_secret,
-                 'CONTENT_TYPE' => "application/json"
-               }
-             )
-        )
-        # Correct response code
-        assert_response :success
-      end
-    end
-  end
-
   describe "Create static secret with input errors" do
     context "when creating secret with not existent branch" do
       let(:payload_create_secret) do
@@ -374,204 +219,6 @@ describe V2SecretsController, type: :request do
         assert_response :not_found
         parsed_body = JSON.parse(response.body)
         expect(parsed_body["error"]["message"]).to eq("Policy 'data/no_secrets' not found in account 'rspec'")
-      end
-    end
-    context "when creating secret with empty branch" do
-      let(:payload_create_secret) do
-        <<~BODY
-          {
-              "branch": "",
-              "name": "secret1",
-              "type": "static"
-          }
-        BODY
-      end
-      it 'Secret creation failed on 400' do
-        post("/secrets",
-             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
-               {
-                 'RAW_POST_DATA' => payload_create_secret,
-                 'CONTENT_TYPE' => "application/json"
-               }
-             )
-        )
-        # Correct response code
-        assert_response :bad_request
-        parsed_body = JSON.parse(response.body)
-        expect(parsed_body["error"]["message"]).to eq("CONJ00190E Missing required parameter: branch")
-      end
-    end
-    context "when creating secret with branch not existent" do
-      let(:payload_create_secret) do
-        <<~BODY
-          {
-              "branch": "data/no_secrets",
-              "name": "secret1",
-              "type": "static"
-          }
-        BODY
-      end
-      it 'Secret creation failed on 404' do
-        post("/secrets",
-             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
-               {
-                 'RAW_POST_DATA' => payload_create_secret,
-                 'CONTENT_TYPE' => "application/json"
-               }
-             )
-        )
-        # Correct response code
-        assert_response :not_found
-        parsed_body = JSON.parse(response.body)
-        expect(parsed_body["error"]["message"]).to eq("Policy 'data/no_secrets' not found in account 'rspec'")
-      end
-    end
-    context "when creating secret with no branch" do
-      let(:payload_create_secret) do
-        <<~BODY
-          {
-              "name": "secret1",
-              "type": "static"
-          }
-        BODY
-      end
-      it 'Secret creation failed on 400' do
-        post("/secrets",
-             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
-               {
-                 'RAW_POST_DATA' => payload_create_secret,
-                 'CONTENT_TYPE' => "application/json"
-               }
-             )
-        )
-        # Correct response code
-        assert_response :bad_request
-        parsed_body = JSON.parse(response.body)
-        expect(parsed_body["error"]["message"]).to eq("CONJ00190E Missing required parameter: branch")
-      end
-    end
-    context "when creating secret with branch not string" do
-      let(:payload_create_secret) do
-        <<~BODY
-          {
-              "branch": 5,
-              "name": "secret1",
-              "type": "static"
-          }
-        BODY
-      end
-      it 'Secret creation failed on 400' do
-        post("/secrets",
-             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
-               {
-                 'RAW_POST_DATA' => payload_create_secret,
-                 'CONTENT_TYPE' => "application/json"
-               }
-             )
-        )
-        # Correct response code
-        assert_response :bad_request
-        parsed_body = JSON.parse(response.body)
-        expect(parsed_body["error"]["message"]).to eq("CONJ00192E The 'branch' parameter must be of 'type=String'")
-      end
-    end
-    context "when creating secret with wrong type" do
-      let(:payload_create_secret) do
-        <<~BODY
-          {
-              "branch": "data/secrets",
-              "name": "secret1",
-              "type": "simple"
-          }
-        BODY
-      end
-      it 'Secret creation failed on 400' do
-        post("/secrets",
-             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
-               {
-                 'RAW_POST_DATA' => payload_create_secret,
-                 'CONTENT_TYPE' => "application/json"
-               }
-             )
-        )
-        # Correct response code
-        assert_response :bad_request
-        parsed_body = JSON.parse(response.body)
-        expect(parsed_body["error"]["message"]).to eq("Secret type is unsupported")
-      end
-    end
-    context "when creating secret with empty type" do
-      let(:payload_create_secret) do
-        <<~BODY
-          {
-              "branch": "data/secrets",
-              "name": "secret1",
-              "type": ""
-          }
-        BODY
-      end
-      it 'Secret creation failed on 400' do
-        post("/secrets",
-             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
-               {
-                 'RAW_POST_DATA' => payload_create_secret,
-                 'CONTENT_TYPE' => "application/json"
-               }
-             )
-        )
-        # Correct response code
-        assert_response :bad_request
-        parsed_body = JSON.parse(response.body)
-        expect(parsed_body["error"]["message"]).to eq("CONJ00190E Missing required parameter: type")
-      end
-    end
-    context "when creating secret with no type" do
-      let(:payload_create_secret) do
-        <<~BODY
-          {
-              "branch": "data/secrets",
-              "name": "secret1"
-          }
-        BODY
-      end
-      it 'Secret creation failed on 400' do
-        post("/secrets",
-             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
-               {
-                 'RAW_POST_DATA' => payload_create_secret,
-                 'CONTENT_TYPE' => "application/json"
-               }
-             )
-        )
-        # Correct response code
-        assert_response :bad_request
-        parsed_body = JSON.parse(response.body)
-        expect(parsed_body["error"]["message"]).to eq("CONJ00190E Missing required parameter: type")
-      end
-    end
-    context "when creating secret with type not string" do
-      let(:payload_create_secret) do
-        <<~BODY
-          {
-              "branch": "data/secrets",
-              "name": "secret1",
-              "type": 5
-          }
-        BODY
-      end
-      it 'Secret creation failed on 400' do
-        post("/secrets",
-             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
-               {
-                 'RAW_POST_DATA' => payload_create_secret,
-                 'CONTENT_TYPE' => "application/json"
-               }
-             )
-        )
-        # Correct response code
-        assert_response :bad_request
-        parsed_body = JSON.parse(response.body)
-        expect(parsed_body["error"]["message"]).to eq("CONJ00192E The 'type' parameter must be of 'type=String'")
       end
     end
   end
@@ -733,77 +380,6 @@ describe V2SecretsController, type: :request do
   end
 
   describe "Create static secret with permissions with input errors" do
-    context "When creating secret with not valid privilege" do
-      let(:payload_create_secret) do
-        <<~BODY
-          {
-              "branch": "/data/secrets",
-              "name": "secret_annotations",
-              "type": "static",
-               "permissions": [
-                {
-                  "subject": {
-                    "kind": "user",
-                    "id": "alice"
-                  },
-                  "privileges": [ "read", "write"]
-                }          
-              ]       
-          }
-        BODY
-      end
-      it 'Failed on input validation' do
-        post("/secrets",
-             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
-               {
-                 'RAW_POST_DATA' => payload_create_secret,
-                 'CONTENT_TYPE' => "application/json"
-               }
-             )
-        )
-        # Correct response code
-        assert_response :bad_request
-        # correct response body
-        parsed_body = JSON.parse(response.body)
-        expect(parsed_body["error"]["code"]).to eq("bad_request")
-        expect(parsed_body["error"]["message"]).to eq("CONJ00191E The value in the 'Resource rspec:user:alice privileges' parameter is not valid. Error: Allowed values are [read execute update]")
-      end
-    end
-    context "When creating secret with not valid subject kind" do
-      let(:payload_create_secret) do
-        <<~BODY
-          {
-              "branch": "/data/secrets",
-              "name": "secret_annotations",
-              "type": "static",
-               "permissions": [
-                {
-                  "subject": {
-                    "kind": "users",
-                    "id": "alice"
-                  },
-                  "privileges": [ "read"]
-                }          
-              ]       
-          }
-        BODY
-      end
-      it 'Failed on input validation' do
-        post("/secrets",
-             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
-               {
-                 'RAW_POST_DATA' => payload_create_secret,
-                 'CONTENT_TYPE' => "application/json"
-               }
-             )
-        )
-        # Correct response code
-        assert_response :bad_request
-        # correct response body
-        parsed_body = JSON.parse(response.body)
-        expect(parsed_body["error"]["message"]).to eq("CONJ00191E The value in the 'Resource alice kind' parameter is not valid. Error: Allowed values are [user host group]")
-      end
-    end
     context "When creating secret with not valid subject id" do
       let(:payload_create_secret) do
         <<~BODY
@@ -837,139 +413,6 @@ describe V2SecretsController, type: :request do
         # correct response body
         parsed_body = JSON.parse(response.body)
         expect(parsed_body["error"]["message"]).to eq("User 'luba' not found in account 'rspec'")
-      end
-    end
-    context "When creating secret with no subject" do
-      let(:payload_create_secret) do
-        <<~BODY
-          {
-              "branch": "/data/secrets",
-              "name": "secret_annotations",
-              "type": "static",
-               "permissions": [
-                {
-                  "privileges": [ "read"]
-                }          
-              ]       
-          }
-        BODY
-      end
-      it 'Failed on input validation' do
-        post("/secrets",
-             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
-               {
-                 'RAW_POST_DATA' => payload_create_secret,
-                 'CONTENT_TYPE' => "application/json"
-               }
-             )
-        )
-        # Correct response code
-        assert_response :bad_request
-        # correct response body
-        parsed_body = JSON.parse(response.body)
-        expect(parsed_body["error"]["message"]).to eq("CONJ00190E Missing required parameter: Privilege Subject")
-      end
-    end
-    context "When creating secret with no subject id" do
-      let(:payload_create_secret) do
-        <<~BODY
-          {
-              "branch": "/data/secrets",
-              "name": "secret_annotations",
-              "type": "static",
-               "permissions": [
-                {
-                  "subject": {
-                    "kind": "user"
-                  },
-                  "privileges": [ "read"]
-                }          
-              ]       
-          }
-        BODY
-      end
-      it 'Failed on input validation' do
-        post("/secrets",
-             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
-               {
-                 'RAW_POST_DATA' => payload_create_secret,
-                 'CONTENT_TYPE' => "application/json"
-               }
-             )
-        )
-        # Correct response code
-        assert_response :bad_request
-        # correct response body
-        parsed_body = JSON.parse(response.body)
-        expect(parsed_body["error"]["message"]).to eq("CONJ00190E Missing required parameter: id")
-      end
-    end
-    context "When creating secret with no subject kind" do
-      let(:payload_create_secret) do
-        <<~BODY
-          {
-              "branch": "/data/secrets",
-              "name": "secret_annotations",
-              "type": "static",
-               "permissions": [
-                {
-                  "subject": {
-                    "id": "alice"
-                  },
-                  "privileges": [ "read"]
-                }          
-              ]       
-          }
-        BODY
-      end
-      it 'Failed on input validation' do
-        post("/secrets",
-             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
-               {
-                 'RAW_POST_DATA' => payload_create_secret,
-                 'CONTENT_TYPE' => "application/json"
-               }
-             )
-        )
-        # Correct response code
-        assert_response :bad_request
-        # correct response body
-        parsed_body = JSON.parse(response.body)
-        expect(parsed_body["error"]["message"]).to eq("CONJ00190E Missing required parameter: kind")
-      end
-      end
-    context "When creating secret with no privileges" do
-      let(:payload_create_secret) do
-        <<~BODY
-          {
-              "branch": "/data/secrets",
-              "name": "secret_annotations",
-              "type": "static",
-               "permissions": [
-                {
-                  "subject": {
-                    "kind": "user",
-                    "id": "alice"
-                  }
-                }          
-              ]       
-          }
-        BODY
-      end
-      it 'Failed on input validation' do
-        post("/secrets",
-             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
-               {
-                 'RAW_POST_DATA' => payload_create_secret,
-                 'CONTENT_TYPE' => "application/json"
-               }
-             )
-        )
-        # Correct response code
-        assert_response :bad_request
-        # correct response body
-        parsed_body = JSON.parse(response.body)
-        expect(parsed_body["error"]["message"]).to eq("CONJ00190E Missing required parameter: Privileges")
       end
     end
   end
@@ -1190,370 +633,6 @@ describe V2SecretsController, type: :request do
   end
 
   describe "Create ephemeral secret input validations" do
-    context "when creating secret with no ephemeral value" do
-      let(:payload_create_secret) do
-        <<~BODY
-          {
-              "branch": "data/ephemerals",
-              "name": "ephemeral_secret",
-              "type": "ephemeral"
-          }
-        BODY
-      end
-      it 'Secret creation failed on 400' do
-        post("/secrets",
-             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
-               {
-                 'RAW_POST_DATA' => payload_create_secret,
-                 'CONTENT_TYPE' => "application/json"
-               }
-             )
-        )
-        # Correct response code
-        assert_response :bad_request
-        parsed_body = JSON.parse(response.body)
-        expect(parsed_body["error"]["code"]).to eq("bad_request")
-        expect(parsed_body["error"]["message"]).to eq("CONJ00190E Missing required parameter: ephemeral")
-      end
-    end
-    context "when creating secret with no issuer field" do
-      let(:payload_create_secret) do
-        <<~BODY
-          {
-              "branch": "data/ephemerals",
-              "name": "ephemeral_secret",
-              "type": "ephemeral",
-              "ephemeral": {
-                "ttl": 1200,
-                "type": "aws"
-              } 
-          }
-        BODY
-      end
-      it 'Secret creation failed on 400' do
-        post("/secrets",
-             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
-               {
-                 'RAW_POST_DATA' => payload_create_secret,
-                 'CONTENT_TYPE' => "application/json"
-               }
-             )
-        )
-        # Correct response code
-        assert_response :bad_request
-        parsed_body = JSON.parse(response.body)
-        expect(parsed_body["error"]["code"]).to eq("bad_request")
-        expect(parsed_body["error"]["message"]).to eq("CONJ00190E Missing required parameter: issuer")
-      end
-    end
-    context "when creating secret with no issuer field empty" do
-      let(:payload_create_secret) do
-        <<~BODY
-          {
-              "branch": "data/ephemerals",
-              "name": "ephemeral_secret",
-              "type": "ephemeral",
-              "ephemeral": {
-                "issuer": "",
-                "ttl": 1200,
-                "type": "aws"
-              } 
-          }
-        BODY
-      end
-      it 'Secret creation failed on 400' do
-        post("/secrets",
-             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
-               {
-                 'RAW_POST_DATA' => payload_create_secret,
-                 'CONTENT_TYPE' => "application/json"
-               }
-             )
-        )
-        # Correct response code
-        assert_response :bad_request
-        parsed_body = JSON.parse(response.body)
-        expect(parsed_body["error"]["code"]).to eq("bad_request")
-        expect(parsed_body["error"]["message"]).to eq("CONJ00190E Missing required parameter: issuer")
-      end
-    end
-    context "when creating secret with no issuer field wrong type" do
-      let(:payload_create_secret) do
-        <<~BODY
-          {
-              "branch": "data/ephemerals",
-              "name": "ephemeral_secret",
-              "type": "ephemeral",
-              "ephemeral": {
-                "issuer": 4,
-                "ttl": 1200,
-                "type": "aws"
-              } 
-          }
-        BODY
-      end
-      it 'Secret creation failed on 400' do
-        post("/secrets",
-             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
-               {
-                 'RAW_POST_DATA' => payload_create_secret,
-                 'CONTENT_TYPE' => "application/json"
-               }
-             )
-        )
-        # Correct response code
-        assert_response :bad_request
-        parsed_body = JSON.parse(response.body)
-        expect(parsed_body["error"]["code"]).to eq("bad_request")
-        expect(parsed_body["error"]["message"]).to eq("CONJ00192E The 'issuer' parameter must be of 'type=String'")
-      end
-    end
-    context "when creating secret with no ttl field" do
-      let(:payload_create_secret) do
-        <<~BODY
-          {
-              "branch": "data/ephemerals",
-              "name": "ephemeral_secret",
-              "type": "ephemeral",
-              "ephemeral": {
-                "issuer": "issuer1",
-                "type": "aws"
-              } 
-          }
-        BODY
-      end
-      it 'Secret creation failed on 400' do
-        post("/secrets",
-             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
-               {
-                 'RAW_POST_DATA' => payload_create_secret,
-                 'CONTENT_TYPE' => "application/json"
-               }
-             )
-        )
-        # Correct response code
-        assert_response :bad_request
-        parsed_body = JSON.parse(response.body)
-        expect(parsed_body["error"]["code"]).to eq("bad_request")
-        expect(parsed_body["error"]["message"]).to eq("CONJ00190E Missing required parameter: ttl")
-      end
-    end
-    context "when creating secret with ttl wrong field type" do
-      let(:payload_create_secret) do
-        <<~BODY
-          {
-              "branch": "data/ephemerals",
-              "name": "ephemeral_secret",
-              "type": "ephemeral",
-              "ephemeral": {
-                "issuer": "issuer1",
-                "ttl": "1200",
-                "type": "aws"
-              } 
-          }
-        BODY
-      end
-      it 'Secret creation failed on 400' do
-        post("/secrets",
-             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
-               {
-                 'RAW_POST_DATA' => payload_create_secret,
-                 'CONTENT_TYPE' => "application/json"
-               }
-             )
-        )
-        # Correct response code
-        assert_response :bad_request
-        parsed_body = JSON.parse(response.body)
-        expect(parsed_body["error"]["code"]).to eq("bad_request")
-        expect(parsed_body["error"]["message"]).to eq("CONJ00192E The 'ttl' parameter must be of 'type=Numeric'")
-      end
-    end
-    context "when creating secret with no type field" do
-      let(:payload_create_secret) do
-        <<~BODY
-          {
-              "branch": "data/ephemerals",
-              "name": "ephemeral_secret",
-              "type": "ephemeral",
-              "ephemeral": {
-                "issuer": "issuer1",
-                "ttl": 1200
-              } 
-          }
-        BODY
-      end
-      it 'Secret creation failed on 400' do
-        post("/secrets",
-             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
-               {
-                 'RAW_POST_DATA' => payload_create_secret,
-                 'CONTENT_TYPE' => "application/json"
-               }
-             )
-        )
-        # Correct response code
-        assert_response :bad_request
-        parsed_body = JSON.parse(response.body)
-        expect(parsed_body["error"]["code"]).to eq("bad_request")
-        expect(parsed_body["error"]["message"]).to eq("CONJ00190E Missing required parameter: type")
-      end
-    end
-    context "when creating secret with empty type field" do
-      let(:payload_create_secret) do
-        <<~BODY
-          {
-              "branch": "data/ephemerals",
-              "name": "ephemeral_secret",
-              "type": "ephemeral",
-              "ephemeral": {
-                "issuer": "issuer1",
-                "ttl": 1200,
-                "type": ""
-              } 
-          }
-        BODY
-      end
-      it 'Secret creation failed on 400' do
-        post("/secrets",
-             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
-               {
-                 'RAW_POST_DATA' => payload_create_secret,
-                 'CONTENT_TYPE' => "application/json"
-               }
-             )
-        )
-        # Correct response code
-        assert_response :bad_request
-        parsed_body = JSON.parse(response.body)
-        expect(parsed_body["error"]["code"]).to eq("bad_request")
-        expect(parsed_body["error"]["message"]).to eq("CONJ00190E Missing required parameter: type")
-      end
-    end
-    context "when creating secret with invalid type field" do
-      let(:payload_create_secret) do
-        <<~BODY
-          {
-              "branch": "data/ephemerals",
-              "name": "ephemeral_secret",
-              "type": "ephemeral",
-              "ephemeral": {
-                "issuer": "issuer1",
-                "ttl": 1200,
-                "type": "gcp"
-              } 
-          }
-        BODY
-      end
-      it 'Secret creation failed on 400' do
-        post("/secrets",
-             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
-               {
-                 'RAW_POST_DATA' => payload_create_secret,
-                 'CONTENT_TYPE' => "application/json"
-               }
-             )
-        )
-        # Correct response code
-        assert_response :bad_request
-        parsed_body = JSON.parse(response.body)
-        expect(parsed_body["error"]["code"]).to eq("bad_request")
-        expect(parsed_body["error"]["message"]).to eq("CONJ00191E The value in the 'Ephemeral type' parameter is not valid. Error: Allowed values are [aws]")
-      end
-    end
-    context "when creating secret with wrong type for type field" do
-      let(:payload_create_secret) do
-        <<~BODY
-          {
-              "branch": "data/ephemerals",
-              "name": "ephemeral_secret",
-              "type": "ephemeral",
-              "ephemeral": {
-                "issuer": "issuer1",
-                "ttl": 1200,
-                "type": 5
-              } 
-          }
-        BODY
-      end
-      it 'Secret creation failed on 400' do
-        post("/secrets",
-             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
-               {
-                 'RAW_POST_DATA' => payload_create_secret,
-                 'CONTENT_TYPE' => "application/json"
-               }
-             )
-        )
-        # Correct response code
-        assert_response :bad_request
-        parsed_body = JSON.parse(response.body)
-        expect(parsed_body["error"]["code"]).to eq("bad_request")
-        expect(parsed_body["error"]["message"]).to eq("CONJ00192E The 'type' parameter must be of 'type=String'")
-      end
-    end
-    context "when creating ephemeral secret with value" do
-      let(:payload_create_secret) do
-        <<~BODY
-          {
-              "branch": "/data/ephemerals",
-              "name": "ephemeral_secret",
-              "type": "ephemeral",
-              "value": "password",
-              "ephemeral": {
-                "issuer": "issuer1",
-                "ttl": 1200,
-                "type": "aws"
-              } 
-          }
-        BODY
-      end
-      it 'Secret creation failed on 400' do
-        post("/secrets",
-             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
-               {
-                 'RAW_POST_DATA' => payload_create_secret,
-                 'CONTENT_TYPE' => "application/json"
-               }
-             )
-        )
-        # Correct response code
-        assert_response :bad_request
-        parsed_body = JSON.parse(response.body)
-        expect(parsed_body["error"]["code"]).to eq("bad_request")
-        expect(parsed_body["error"]["message"]).to eq("Adding value to an ephemeral secret is not allowed")
-      end
-    end
-    context "when creating ephemeral secret not under correct branch" do
-      let(:payload_create_secret) do
-        <<~BODY
-          {
-              "branch": "/data/secrets",
-              "name": "ephemeral_secret",
-              "type": "ephemeral",
-              "ephemeral": {
-                "issuer": "issuer1",
-                "ttl": 1200,
-                "type": "aws"
-              } 
-          }
-        BODY
-      end
-      it 'Secret creation failed on 400' do
-        post("/secrets",
-             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
-               {
-                 'RAW_POST_DATA' => payload_create_secret,
-                 'CONTENT_TYPE' => "application/json"
-               }
-             )
-        )
-        # Correct response code
-        assert_response :bad_request
-        parsed_body = JSON.parse(response.body)
-        expect(parsed_body["error"]["message"]).to eq("Ephemeral secret can be created only under data/ephemerals/")
-      end
-    end
     context "when creating ephemeral secret with no existent issuer" do
       let(:payload_create_secret) do
         <<~BODY
@@ -1632,7 +711,7 @@ describe V2SecretsController, type: :request do
         # Correct response code
         assert_response :bad_request
         parsed_body = JSON.parse(response.body)
-        expect(parsed_body["error"]["message"]).to eq("Ephemeral secret ttl can't be bigger then the issuer ttl 1000")
+        expect(parsed_body["error"]["message"]).to eq("Ephemeral secret ttl can't be bigger than the issuer ttl 1000")
       end
     end
   end
@@ -1885,6 +964,70 @@ describe V2SecretsController, type: :request do
         # Check the variable resource is with all the information (as the object also contains created at we want to check without it so partial json)
         parsed_body = JSON.parse(response.body)
         expect(parsed_body[0].to_s.include?('"id"=>"rspec:variable:data/ephemerals/ephemeral_secret", "owner"=>"rspec:policy:data/ephemerals", "policy"=>"rspec:policy:data/ephemerals", "permissions"=>[{"privilege"=>"read", "role"=>"rspec:user:alice", "policy"=>"rspec:policy:data/ephemerals"}], "annotations"=>[{"name"=>"description", "value"=>"desc", "policy"=>"rspec:policy:data/ephemerals"}, {"name"=>"conjur/kind", "value"=>"ephemeral", "policy"=>"rspec:policy:data/ephemerals"}, {"name"=>"ephemeral/issuer", "value"=>"aws-issuer-1", "policy"=>"rspec:policy:data/ephemerals"}, {"name"=>"ephemeral/ttl", "value"=>"1200", "policy"=>"rspec:policy:data/ephemerals"}, {"name"=>"ephemeral/method", "value"=>"assume-role", "policy"=>"rspec:policy:data/ephemerals"}, {"name"=>"ephemeral/region", "value"=>"us-east-1", "policy"=>"rspec:policy:data/ephemerals"}, {"name"=>"ephemeral/inline-policy", "value"=>"{}", "policy"=>"rspec:policy:data/ephemerals"}, {"name"=>"ephemeral/role-arn", "value"=>"role", "policy"=>"rspec:policy:data/ephemerals"}], "secrets"=>[]}')).to eq(true)
+        # Correct audit is returned
+        #audit_message = "rspec:user:alice added membership of rspec:host:data/delegation/host1 in rspec:group:data/delegation/consumers"
+        #verify_audit_message(audit_message)
+      end
+    end
+    context "when creating federation token ephemeral secret" do
+      let(:payload_create_ephemeral_secret) do
+        <<~BODY
+        {
+            "branch": "/data/ephemerals",
+            "name": "ephemeral_secret",
+            "type": "ephemeral",
+            "annotations": [
+              {
+                "name": "description",
+                "value": "desc"
+              }
+            ],
+            "permissions": [
+              {
+                "subject": {
+                  "kind": "user",
+                  "id": "alice"
+                },
+                "privileges": [ "read" ]
+              }  
+            ], 
+            "ephemeral": {
+              "issuer": "aws-issuer-1",
+              "ttl": 1200,
+              "type": "aws",
+              "type_params": {
+                "method": "federation-token",
+                "region": "us-east-1",
+                "inline_policy": "{}"
+              }     
+            } 
+        }
+      BODY
+      end
+      it 'Secret resource was created' do
+        post("/secrets",
+             env: token_auth_header(role: alice_user).merge(v2_api_header).merge(
+               {
+                 'RAW_POST_DATA' => payload_create_ephemeral_secret,
+                 'CONTENT_TYPE' => "application/json"
+               }
+             )
+        )
+        # Correct response code
+        assert_response :created
+        # correct response body
+        expect(response.body).to eq("{\"branch\":\"/data/ephemerals\",\"name\":\"ephemeral_secret\",\"type\":\"ephemeral\",\"annotations\":[{\"name\":\"description\",\"value\":\"desc\"}],\"permissions\":[{\"subject\":{\"kind\":\"user\",\"id\":\"alice\"},\"privileges\":[\"read\"]}],\"ephemeral\":{\"issuer\":\"aws-issuer-1\",\"ttl\":1200,\"type\":\"aws\",\"type_params\":{\"method\":\"federation-token\",\"region\":\"us-east-1\",\"inline_policy\":\"{}\"}}}")
+        # Secret resource is created
+        resource = Resource["rspec:variable:data/ephemerals/ephemeral_secret"]
+        expect(resource).to_not be_nil
+        # user with permissions can see the secret
+        get("/resources/rspec?kind=variable&search=data/ephemerals/ephemeral_secret",
+            env: token_auth_header(role: alice_user)
+        )
+        assert_response :success
+        # Check the variable resource is with all the information (as the object also contains created at we want to check without it so partial json)
+        parsed_body = JSON.parse(response.body)
+        expect(parsed_body[0].to_s.include?('"id"=>"rspec:variable:data/ephemerals/ephemeral_secret", "owner"=>"rspec:policy:data/ephemerals", "policy"=>"rspec:policy:data/ephemerals", "permissions"=>[{"privilege"=>"read", "role"=>"rspec:user:alice", "policy"=>"rspec:policy:data/ephemerals"}], "annotations"=>[{"name"=>"description", "value"=>"desc", "policy"=>"rspec:policy:data/ephemerals"}, {"name"=>"conjur/kind", "value"=>"ephemeral", "policy"=>"rspec:policy:data/ephemerals"}, {"name"=>"ephemeral/issuer", "value"=>"aws-issuer-1", "policy"=>"rspec:policy:data/ephemerals"}, {"name"=>"ephemeral/ttl", "value"=>"1200", "policy"=>"rspec:policy:data/ephemerals"}, {"name"=>"ephemeral/method", "value"=>"federation-token", "policy"=>"rspec:policy:data/ephemerals"}, {"name"=>"ephemeral/region", "value"=>"us-east-1", "policy"=>"rspec:policy:data/ephemerals"}, {"name"=>"ephemeral/inline-policy", "value"=>"{}", "policy"=>"rspec:policy:data/ephemerals"}], "secrets"=>[]}')).to eq(true)
         # Correct audit is returned
         #audit_message = "rspec:user:alice added membership of rspec:host:data/delegation/host1 in rspec:group:data/delegation/consumers"
         #verify_audit_message(audit_message)

@@ -15,6 +15,22 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [1.0.22-cloud] - 2024-02-25
 ### Added
+- The Kubernetes authenticator now supports the
+  [status](https://docs.conjur.org/Latest/en/Content/Developer/Conjur_API_authenticator_status.htm)
+  API for verifying authenticator configuration.
+  [Conjur-Enterprise/conjur#48](https://github.cyberng.com/Conjur-Enterprise/conjur/pull/48)
+- The Kubernetes authenticator status now verifies that the Kubernetes API
+  CA certificate has not expired.
+  [Conjur-Enterprise/conjur#78](https://github.cyberng.com/Conjur-Enterprise/conjur/pull/78)
+- The Kubernetes authenticator status now verifies that the Conjur issuing
+  certificate and key are valid and match one another.
+  [Conjur-Enterprise/conjur#79](https://github.cyberng.com/Conjur-Enterprise/conjur/pull/79)
+- The Kubernetes authenticator status now verifies that the access token is able
+  to authenticate with the Kubernetes API.
+  [Conjur-Enterprise#88](https://github.cyberng.com/Conjur-Enterprise/conjur/pull/88)
+- The Kubernetes authenticator status now verifies that the access token has
+  permission to perform API discovery.
+  [Conjur-Enterprise#90](https://github.cyberng.com/Conjur-Enterprise/conjur/pull/90)
 - API for creating static secret with permissions
 
 ### Fixed

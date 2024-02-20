@@ -18,7 +18,7 @@ describe "Secret type creation" do
   end
   context "when creating secret with not existent type" do
     it "creation fails" do
-      expect { secret_type_factory.create_secret_type("gcp")
+      expect { secret_type_factory.create_secret_type("simple")
       }.to raise_error(ApplicationController::BadRequestWithBody)
     end
   end
