@@ -23,6 +23,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Updated to use the golang version of conjur-cli (v.8)
   [Conjur-Enterprise/conjur#99](https://github.cyberng.com/Conjur-Enterprise/conjur/pull/99)
 
+### Security
+- Update puma to 6.4.2 to address CVE-2024-21647.
+  [Conjur-Enterprise/conjur#168](https://github.cyberng.com/Conjur-Enterprise/conjur/pull/168)
+
 ## [1.20.3] - 2023-12-06
 
 ### Fixed
