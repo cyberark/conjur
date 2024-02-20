@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
+## [1.0.23-cloud] - 2024-03-03
+### Added
+- API for creating ephemeral secret
+
 ## [1.0.22-cloud] - 2024-02-25
 ### Added
 - The Kubernetes authenticator now supports the
@@ -1340,9 +1344,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - The first tagged version.
 
-[Unreleased]: https://github.com/cyberark/conjur/compare/v1.20.2...HEAD
-[1.20.2]: https://github.com/cyberark/conjur/compare/v1.20.1...v1.20.2
-[1.20.1]: https://github.com/cyberark/conjur/compare/v1.20.0...v1.20.1
+[Unreleased]: https://github.com/cyberark/conjur/compare/v1.20.0...HEAD
 [1.20.0]: https://github.com/cyberark/conjur/compare/v1.19.5...v1.20.0
 [1.19.5]: https://github.com/cyberark/conjur/compare/v1.19.3...v1.19.5
 [1.19.3]: https://github.com/cyberark/conjur/compare/v1.19.2...v1.19.3

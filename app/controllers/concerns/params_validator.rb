@@ -46,7 +46,7 @@ module ParamsValidator
         end
 
         # The field value is not empty
-        if data[field_symbol].empty?
+        if data[field_symbol].is_a?(String) and data[field_symbol].empty?
           raise Errors::Conjur::ParameterMissing.new(field_symbol.to_s)
         end
       end
