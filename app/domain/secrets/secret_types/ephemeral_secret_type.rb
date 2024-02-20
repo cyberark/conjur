@@ -9,6 +9,8 @@ module Secrets
       end
 
       def input_validation(params)
+        super(params)
+
         # check ephemeral sub object exists
         raise Errors::Conjur::ParameterMissing, "ephemeral" unless params[:ephemeral]
         # check if value field exist

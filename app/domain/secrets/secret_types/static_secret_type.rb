@@ -4,6 +4,8 @@ module Secrets
       include ParamsValidator
 
       def input_validation(params)
+        super(params)
+
         data_fields = {
           mime_type: String
         }

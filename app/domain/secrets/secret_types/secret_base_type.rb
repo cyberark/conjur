@@ -36,6 +36,18 @@ module Secrets
         raise Exceptions::RecordExists.new("secret", secret_id)
       end
 
+      def input_validation(params)
+        data_fields = {
+          name: String,
+          branch: String
+        }
+        validate_required_data(params, data_fields.keys)
+        validate_data(params, data_fields)
+
+        # Validate the name of the secret is correct
+        validate_name(params[:name])
+      end
+
       def get_create_permissions(policy, params)
         {policy => :update}
       end

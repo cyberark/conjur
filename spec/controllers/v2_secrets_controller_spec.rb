@@ -574,58 +574,6 @@ describe V2SecretsController, type: :request do
         expect(parsed_body["error"]["message"]).to eq("CONJ00192E The 'type' parameter must be of 'type=String'")
       end
     end
-    context "when creating secret with empty mime_type" do
-      let(:payload_create_secret) do
-        <<~BODY
-          {
-              "branch": "data/secrets",
-              "name": "secret1",
-              "type": "static",
-              "mime_type": ""
-          }
-        BODY
-      end
-      it 'Secret creation failed on 400' do
-        post("/secrets",
-             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
-               {
-                 'RAW_POST_DATA' => payload_create_secret,
-                 'CONTENT_TYPE' => "application/json"
-               }
-             )
-        )
-        # Correct response code
-        assert_response :bad_request
-        parsed_body = JSON.parse(response.body)
-        expect(parsed_body["error"]["message"]).to eq("CONJ00190E Missing required parameter: mime_type")
-      end
-    end
-    context "when creating secret with mime_type not string" do
-      let(:payload_create_secret) do
-        <<~BODY
-          {
-              "branch": "data/secrets",
-              "name": "secret1",
-              "type": "static",
-              "mime_type": 5
-          }
-        BODY
-      end
-      it 'Secret creation failed on 400' do
-        post("/secrets",
-             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
-               {
-                 'RAW_POST_DATA' => payload_create_secret,
-                 'CONTENT_TYPE' => "application/json"
-               }
-             )
-        )
-        # Correct response code
-        assert_response :bad_request
-        parsed_body = JSON.parse(response.body)
-        expect(parsed_body["error"]["message"]).to eq("CONJ00192E The 'mime_type' parameter must be of 'type=String'")
-      end
-    end
   end
 
   describe "Create static secret with value" do

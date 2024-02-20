@@ -10,9 +10,6 @@ class V2SecretsController < V2RestController
     log_message = "Create Secret #{secret_type}:#{branch}/#{secret_name}"
     logger.debug(LogMessages::Endpoints::EndpointRequested.new(log_message))
 
-    # Basic input validation
-    input_validation(params)
-
     # Create the secret type class
     secret_type_handler = SecretTypeFactory.new.create_secret_type(secret_type)
     # check policy exists
@@ -39,20 +36,5 @@ class V2SecretsController < V2RestController
   rescue => e
     #audit_failure(e, :remove)
     raise e
-  end
-
-  private
-
-  def input_validation(params)
-    data_fields = {
-      name: String,
-      branch: String,
-      type: String
-    }
-    validate_required_data(params, data_fields.keys)
-    validate_data(params, data_fields)
-
-    # Validate the name of the secret is correct
-    validate_name(params[:name])
   end
 end
