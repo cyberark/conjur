@@ -2,14 +2,14 @@ module PermissionsHandler
   include ParamsValidator
   include ResourcesHandler
 
-  def add_permissions(resources_privileges, secret_id, policy)
+  def add_permissions(resources_privileges, secret_id, policy_id)
     resources_privileges.each do |resource_id, privileges|
       privileges.each do |p|
         ::Permission.create(
           resource_id: secret_id,
           privilege: p,
           role_id: resource_id,
-          policy_id: policy[:resource_id]
+          policy_id: policy_id
         )
       end
     end
@@ -31,7 +31,7 @@ module PermissionsHandler
       # Validate subject kind value
       validate_subject_kind(subject[:kind],subject[:id])
       # Validate subject resource exists
-      resource_id = resource_id(subject[:kind],subject[:id])
+      resource_id = full_resource_id(subject[:kind], subject[:id])
       raise Exceptions::RecordNotFound, resource_id unless Resource[resource_id]
       # Validate privileges
       raise Errors::Conjur::ParameterMissing, "Privileges" unless permission[:privileges]

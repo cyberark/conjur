@@ -9,6 +9,8 @@ module Secrets
       end
 
       def input_validation(params)
+        super(params)
+
         # check ephemeral sub object exists
         raise Errors::Conjur::ParameterMissing, "ephemeral" unless params[:ephemeral]
         # check if value field exist
@@ -45,13 +47,12 @@ module Secrets
         @secret_type.input_validation(ephemeral[:type_params])
       end
 
-      def get_create_permissions(policy, params)
-        permissions = super(policy, params)
+      def get_create_permissions(params)
+        permissions = super(params)
 
         #For Ephemeral Secret - has 'use' permissions to issuer policy
         issuer = params[:ephemeral][:issuer]
-        issuer_policy_id = resource_id("policy","conjur/issuers/#{issuer}")
-        issuer_policy = Resource[issuer_policy_id]
+        issuer_policy = get_resource("policy", "conjur/issuers/#{issuer}")
         issuer_permissions = {issuer_policy => :use}
 
         permissions.merge! issuer_permissions
