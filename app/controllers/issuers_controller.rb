@@ -113,8 +113,13 @@ class IssuersController < RestController
       logger.info(LogMessages::Issuers::TelemetryIssuerLog.new("delete", issuer.account, issuer.issuer_id, request.ip))
       # Unless requested otherwise, we need to keep the issuer related variables
       if params[:delete_vars] == "true"
-        deleted_variables = issuer.delete_issuer_variables
-        issuer_variables_audit_delete(issuer.account, issuer.issuer_id, deleted_variables)
+        begin
+          deleted_variables = issuer.delete_issuer_variables
+          issuer_variables_audit_delete(issuer.account, issuer.issuer_id, deleted_variables)
+        rescue => e
+          error_message = "Failed deleting Issuer #{params[:identifier]} variables. #{e.message}"
+          raise ApplicationController::InternalServerError, error_message
+        end
       end
       head :no_content
     else
