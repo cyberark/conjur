@@ -46,6 +46,9 @@ These are defined in runConjurTests, and also include the one-offs
     gcp_authenticator
 */
 @Library("product-pipelines-shared-library") _
+@Library("conjur-shared-library") _2
+
+def isStartedByTimer = currentBuild.getBuildCauses()[0]["shortDescription"].matches("Started by timer")
 
 // Break the total number of tests into a subset of tests.
 // This will give 3 nested lists of tests to run, which is
@@ -948,6 +951,18 @@ pipeline {
   post {
     always {
       releaseInfraPoolAgent(".infrapool/release_agents")
+      script {
+        if (isStartedByTimer) {
+          notifyBuildStatus("conjur_cloud")
+        }  
+      }
+    }
+    failure {
+      script {
+        if (env.BRANCH_NAME == "conjur-cloud" && !isStartedByTimer) {
+          notifyBuildStatus("conjur_cloud")
+        }
+      }
     }
   }
 }
@@ -1170,7 +1185,7 @@ def defaultCucumberFilterTags(env) {
 
   if(env.BRANCH_NAME == 'conjur-cloud') {
     // This is nightly build
-    if (currentBuild.getBuildCauses()[0]["shortDescription"].matches("Started by timer")) {
+    if (isStartedByTimer) {
           echo 'In nightly build run all tests'
           return ''
     }
