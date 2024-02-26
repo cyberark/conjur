@@ -158,7 +158,7 @@ describe Conjur::ConjurConfig do
 
     context "with multiple values" do
       before do
-        ENV['CONJUR_TRUSTED_PROXIES'] = "5.6.7.8,9.10.11.12"
+        ENV['CONJUR_TRUSTED_PROXIES'] = "5.6.7.8,9.10.11.12,::1"
 
         # Anyway Config caches prefixed env vars at the class level so we must
         # clear the cache to have it pick up the new var with a reload.
@@ -174,7 +174,7 @@ describe Conjur::ConjurConfig do
 
       it "overrides the config file value" do
         expect(subject.trusted_proxies).
-          to eq(["5.6.7.8", "9.10.11.12"])
+          to eq(["5.6.7.8", "9.10.11.12", "::1"])
       end
     end
   end
