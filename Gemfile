@@ -93,7 +93,7 @@ group :development, :test do
   gem 'cucumber', '~> 7.1'
   gem 'database_cleaner', '~> 1.8'
   gem 'debase', '~> 0.2.5.beta2'
-  gem 'debase-ruby_core_source', '~> 3.2.1'
+  gem 'debase-ruby_core_source', '3.2.1'
   gem 'json_spec', '~> 1.1'
   gem 'faye-websocket'
   gem 'net-ssh'
