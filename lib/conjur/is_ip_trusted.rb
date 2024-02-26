@@ -33,9 +33,9 @@ module Conjur
     def trusted_proxies
       return @cached_trusted_proxies if @cached_trusted_proxies and @cache_expiration >= Time.now
 
-      # The trusted proxy IPs are `127.0.0.1` plus those defined in the
+      # The trusted proxy IPs are `127.0.0.1` and `::1` plus those defined in the
       # `TRUSTED_PROXIES` environment variable.
-      proxy_ips = [IPAddr.new('127.0.0.1')] + configured_trusted_proxies + detected_trusted_proxies
+     proxy_ips = [IPAddr.new('127.0.0.1'), IPAddr.new('::1')] + configured_trusted_proxies + detected_trusted_proxies
 
       # If not disabled, cache the IP address list
       unless @disable_cache
