@@ -57,22 +57,34 @@ module Secrets
 
       def get_create_permissions(params)
         policy = get_resource("policy", params[:branch])
-        {policy => :update}
+        { policy => :update }
+      end
+
+      def get_read_permissions(variable)
+        { variable => :read }
       end
 
       def set_value(variable_resource, value)
-        #No implementation
+        # No implementation
       end
 
       def convert_fields_to_annotations(params)
-        {"conjur/kind" => params[:type]}
+        { "conjur/kind" => params[:type] }
+      end
+
+      def as_json(branch, name)
+        {
+          name: name,
+          branch: branch
+        }
       end
 
       private
+
       def add_annotations(params)
         annotations = convert_annotations_object(params)
         # create annotations from secret fields
-        annotations.merge! convert_fields_to_annotations(params)
+        annotations.merge!(convert_fields_to_annotations(params))
 
         annotations
       end

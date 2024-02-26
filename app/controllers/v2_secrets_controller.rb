@@ -13,7 +13,7 @@ class V2SecretsController < V2RestController
     # Create the secret type class
     secret_type_handler = SecretTypeFactory.new.create_secret_type(secret_type)
 
-    #Run input validation specific to secret type
+    # Run input validation specific to secret type
     secret_type_handler.input_validation(params)
 
     # Check permissions
@@ -28,9 +28,10 @@ class V2SecretsController < V2RestController
 
     logger.debug(LogMessages::Endpoints::EndpointFinishedSuccessfully.new(log_message))
     render(json: created_secret, status: :created)
-    #audit_succsess
+    # audit_succsessccsess
   rescue => e
-    #audit_failure(e, :remove)
+    # audit_failure(e, :remove)failure(e, :remove)
     raise e
   end
 end
+

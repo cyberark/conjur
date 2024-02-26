@@ -1,5 +1,18 @@
 # frozen_string_literal: true
 
+class HeaderConstraint
+  def initialize(header, value)
+    @header = header
+    @value = value
+  end
+
+  def matches?(request)
+    raise ::Exceptions::BadRequest.new("Require header #{@header} with value #{@value}") unless request.headers[@header] == @value
+
+    true
+  end
+end
+
 class QueryParameterActionRecognizer
   def initialize(action)
     @action = action
@@ -76,6 +89,11 @@ Rails.application.routes.draw do
       # Secrets
       # NOTE: the order of these routes matters: we need the expire
       #       route to come first.
+      # V2 Secrets
+      require_v2_header = HeaderConstraint.new('Accept', 'application/x.secretsmgr.v2+json')
+      post "/secrets" => 'v2_secrets#create', :constraints => require_v2_header
+      get "/secrets/static/(/*branch)/:name" => 'static_secrets#show', :constraints => require_v2_header
+
       post    "/secrets/:account/:kind/*identifier" => "secrets#expire",
         :constraints => QueryParameterActionRecognizer.new("expirations")
       get     "/secrets/:account/:kind/*identifier" => 'secrets#show'
@@ -120,9 +138,6 @@ Rails.application.routes.draw do
 
       # Licenses
       get "/licenses/conjur" => 'license#show'
-
-      # V2 Secrets
-      post "/secrets" => 'v2_secrets#create'
 
     end
 

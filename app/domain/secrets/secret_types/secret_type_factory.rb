@@ -1,4 +1,5 @@
 class SecretTypeFactory
+
   def create_secret_type(type)
     if !type.nil? && type.eql?("static")
       Secrets::SecretTypes::StaticSecretType.new
@@ -9,3 +10,4 @@ class SecretTypeFactory
     end
   end
 end
+
