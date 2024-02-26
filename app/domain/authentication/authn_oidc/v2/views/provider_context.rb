@@ -43,7 +43,7 @@ module Authentication
                   redirect_uri: redirect_uri
                 }
               end
-            end
+            end if authenticators.is_a?(Array)
             providers
           end
 

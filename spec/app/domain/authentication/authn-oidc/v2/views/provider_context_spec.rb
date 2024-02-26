@@ -99,9 +99,10 @@ RSpec.describe(Authentication::AuthnOidc::V2::Views::ProviderContext) do
       end
     end
 
-    context 'when provider context is  given no authenticators ' do
+    context 'when provider context is given no authenticators ' do
       it 'returns an empty array' do
-        expect(provider_context.call(authenticators: []))
+        # The empty response from AuthenticatorRepository is a FailureResponse
+        expect(provider_context.call(authenticators: FailureResponse.new("failure")))
           .to eq([])
       end
     end
