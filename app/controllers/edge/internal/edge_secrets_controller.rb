@@ -17,13 +17,19 @@ class EdgeSecretsController < RestController
     allowed_params = %i[account limit offset]
     options = params.permit(*allowed_params)
                     .slice(*allowed_params).to_h.symbolize_keys
-
+    sum_items = 0
     begin
       verify_edge_host(options)
+      # selective replication currently disabled, this code will be removed after edge will get permissions for all variables
+      selective_enabled = ENV['SELECTIVE_REPLICATION_ENABLED'] || "false"
 
-      scope = Resource.where(:resource_id.like(options[:account] + ":variable:data/%"))
       if params[:count] == 'true'
-        sumItems = scope.count('*'.lit)
+        if selective_enabled == "true"
+          sum_items = do_count_selective(options)
+        else
+          sum_items = do_count(options)
+        end
+
       else
         limit, offset = self.get_offset_limit(options)
         validate_scope(limit, offset)
@@ -36,9 +42,9 @@ class EdgeSecretsController < RestController
 
     begin
       if params[:count] == 'true'
-        generate_count_response(sumItems)
+        generate_count_response(sum_items)
       else
-        generate_secrets_result(limit, offset, options)
+        generate_secrets_result(limit, offset, options,selective_enabled)
       end
     rescue => e
       raise ApplicationController::InternalServerError, e.message
@@ -52,13 +58,12 @@ class EdgeSecretsController < RestController
     [limit, offset]
   end
 
-  def generate_secrets_result(limit, offset, options)
+  def generate_secrets_result(limit, offset, options,selective_enabled)
     accepts_base64 = String(request.headers['Accept-Encoding']).casecmp?('base64')
     if accepts_base64
       response.set_header("Content-Encoding", "base64")
     end
-
-    results, failed = replicate_secrets(limit, offset, options, accepts_base64)
+    results, failed = replicate_secrets(limit, offset, options, accepts_base64,selective_enabled)
 
     render(json: { "secrets": results, "failed": failed })
     logger.debug(LogMessages::Endpoints::EndpointFinishedSuccessfullyWithLimitAndOffset.new(
@@ -84,4 +89,18 @@ class EdgeSecretsController < RestController
       "all_secrets:count replication for edge '#{Edge.get_name_by_hostname(current_user.role_id)}'"))
   end
 
+  def do_count_selective(options)
+    sum_items = 0
+    count_query = "SELECT count(*) from allowed_secrets_per_role('" + current_user.id + "','" + options[:account] +":variable:data/%', '10000000', '0')"
+    Sequel::Model.db.fetch(count_query) do |row|
+      sum_items = row[:count]
+      break
+    end
+    sum_items
+  end
+
+  def do_count(options)
+    scope = Resource.where(:resource_id.like(options[:account] + ":variable:data/%"))
+    scope.count('*'.lit)
+  end
 end

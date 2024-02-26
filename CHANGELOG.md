@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [1.0.23-cloud] - 2024-03-03
 ### Added
 - API for creating ephemeral secret
+- Selective replication for edge secrets
 
 ## [1.0.22-cloud] - 2024-02-25
 ### Added
