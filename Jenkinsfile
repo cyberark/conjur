@@ -48,7 +48,7 @@ These are defined in runConjurTests, and also include the one-offs
 @Library("product-pipelines-shared-library") _
 @Library("conjur-shared-library") _2
 
-def isStartedByTimer = currentBuild.getBuildCauses()[0]["shortDescription"].matches("Started by timer")
+isStartedByTimer = currentBuild.getBuildCauses()[0]["shortDescription"].matches("Started by timer")
 
 // Break the total number of tests into a subset of tests.
 // This will give 3 nested lists of tests to run, which is
