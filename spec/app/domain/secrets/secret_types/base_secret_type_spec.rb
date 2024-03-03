@@ -51,6 +51,13 @@ describe "Base secret input validation" do
       }.to_not raise_error
     end
   end
+  context "when creating secret with only numbers in its name" do
+    it "input validation fails" do
+      params = ActionController::Parameters.new(name: "12345", branch: "data")
+      expect { secret.input_validation(params)
+      }.to_not raise_error
+    end
+  end
   context "when creating secret with empty branch" do
     it "input validation fails" do
       params = ActionController::Parameters.new(name: "secret1", branch: "")

@@ -104,10 +104,6 @@ module Errors
       msg: "The request contains duplicated variable ids: {0}.",
       code: "CONJ00160E"
     )
-    AnnotationNotFound = ::Util::TrackableErrorClass.new(
-      msg: "Annotation '{0-annotation}' doesn't exist in secret '{1-secret}'",
-      code: "CONJ00193W"
-    )
   end
 
   module Authorization

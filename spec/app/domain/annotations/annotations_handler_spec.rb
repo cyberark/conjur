@@ -19,7 +19,7 @@ describe "Annotation Handler's value_by_name" do
       expect(annotation_value).to eq(value)
     end
     it 'should raise an exception when the annotation does not exist' do
-      expect{annotation_value_by_name(secret, :no_such_annotation)}.to raise_error(Errors::Conjur::AnnotationNotFound)
+      expect(annotation_value_by_name(secret, :no_such_annotation)).to be_nil
     end
   end
 end

@@ -91,7 +91,8 @@ Rails.application.routes.draw do
       #       route to come first.
       # V2 Secrets
       require_v2_header = HeaderConstraint.new('Accept', 'application/x.secretsmgr.v2+json')
-      post "/secrets" => 'v2_secrets#create', :constraints => require_v2_header
+      post "/secrets/static" => 'static_secrets#create', :constraints => require_v2_header
+      post "/secrets/dynamic" => 'dynamic_secrets#create', :constraints => require_v2_header
       get "/secrets/static/(/*branch)/:name" => 'static_secrets#show', :constraints => require_v2_header
 
       post    "/secrets/:account/:kind/*identifier" => "secrets#expire",

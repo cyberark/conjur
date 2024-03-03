@@ -208,3 +208,12 @@ def verify_audit_message(audit_message)
   end
   expect(message_found).to eq(true)
 end
+
+def get_field_value(hash_list, field_to_get, field_to_check, condition_value)
+  hash_list.each do |entry|
+    if entry[field_to_check] == condition_value
+      return entry[field_to_get]
+    end
+  end
+  nil  # Return nil if no match is found
+end
