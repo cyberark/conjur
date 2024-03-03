@@ -46,9 +46,10 @@ These are defined in runConjurTests, and also include the one-offs
     gcp_authenticator
 */
 @Library("product-pipelines-shared-library") _
-@Library("conjur-shared-library") _2
+@Library("conjur-shared-library@ONYX-52143") _2
 
 isStartedByTimer = currentBuild.getBuildCauses()[0]["shortDescription"].matches("Started by timer")
+conjurDevRepositoryName = conjurCloudUtils.generateRepositoryDetails("dev", "conjur", "dev").get("repoName")
 
 // Break the total number of tests into a subset of tests.
 // This will give 3 nested lists of tests to run, which is
@@ -201,29 +202,36 @@ pipeline {
         stage('Promote images to Conjur Dev ECR') {
           steps {
             script {
-              def sha = tagWithSHA().trim()
-              INFRAPOOL_EXECUTORV2_AGENT_0.agentGet(from: 'VERSION', to: 'VERSION')
-              def versionFile = readFile('VERSION').trim()
-              def artifactName = "${versionFile}-${sha}"
+              // def sha = tagWithSHA().trim()
+              // INFRAPOOL_EXECUTORV2_AGENT_0.agentGet(from: 'VERSION', to: 'VERSION')
+              // def versionFile = readFile('VERSION').trim()
+              // def artifactName = "${versionFile}-${sha}"
               def imageName = "${env.BRANCH_NAME}-${env.BUILD_NUMBER}"
-              def tagAs = ""
+              // def tagAs = ""
+              
+              stash(name: 'stash_artifact', includes: '**')
+                docker_kaniko.build_and_push("dev", conjurDevRepositoryName, imageName, true, "", true)
+                if (env.BRANCH_NAME == 'conjur-cloud') {
+                  docker_kaniko.tagged_image("dev", conjurDevRepositoryName, imageName, "latest")
+                }
 
-              if(env.BRANCH_NAME == 'conjur-cloud') {
-                imageName = "" // will determine in shared library
-                tagAs = "latest"
-              }
 
-              def promoteImageJobName = "Conjur/Conjur-conjur-cloud-management-tools/main/Conjur-conjur-cloud-management-tools-main-promote-artifact"
-              def jobParameters = [
-                  string(name: 'Service_Name', value: 'conjur'),
-                  string(name: 'Promotion_Type', value: 'Conjur_Dev'),
-                  string(name: 'Version', value: artifactName),
-                  string(name: 'Promotion_Type_Validation', value: 'Conjur_Dev'),
-                  string(name: 'Tag_As', value: tagAs),
-                  string(name: 'conjurDevTagBranch', value: imageName),
-              ]
-              // Call promotion job
-              build(job: promoteImageJobName, parameters: jobParameters)
+              // if(env.BRANCH_NAME == 'conjur-cloud') {
+              //   imageName = "" // will determine in shared library
+              //   tagAs = "latest"
+              // }
+
+              // def promoteImageJobName = "Conjur/Conjur-conjur-cloud-management-tools/main/Conjur-conjur-cloud-management-tools-main-promote-artifact"
+              // def jobParameters = [
+              //     string(name: 'Service_Name', value: 'conjur'),
+              //     string(name: 'Promotion_Type', value: 'Conjur_Dev'),
+              //     string(name: 'Version', value: artifactName),
+              //     string(name: 'Promotion_Type_Validation', value: 'Conjur_Dev'),
+              //     string(name: 'Tag_As', value: tagAs),
+              //     string(name: 'conjurDevTagBranch', value: imageName),
+              // ]
+              // // Call promotion job
+              // build(job: promoteImageJobName, parameters: jobParameters)
             }
           }
         }
