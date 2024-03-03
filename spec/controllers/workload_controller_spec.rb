@@ -95,6 +95,25 @@ describe WorkloadController, type: :request do
       end
     end
 
+    context "when user send body with id from digits only" do
+      let(:payload_create_hosts) do
+        <<~BODY
+          { "id": "333" }
+        BODY
+      end
+      it 'returns created' do
+        post("/hosts/rspec/dev",
+             env: token_auth_header(role: alice_user).merge(
+               {
+                 'RAW_POST_DATA' => payload_create_hosts,
+                 'CONTENT_TYPE' => "application/json"
+               }
+             )
+        )
+        assert_response :created
+      end
+    end
+
     context "when user send body with annotations, safes" do
       let(:payload_create_hosts_annotations) do
         <<~BODY
