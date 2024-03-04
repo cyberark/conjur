@@ -6,7 +6,7 @@ module PolicyTemplates
     def template
       <<~TEMPLATE
         - !host
-          id: <%= id %>
+          id: "<%= id %>"
           <% unless annotations.nil? ||  annotations.empty? %>
           annotations:
           <%- annotations.each do |key, value| -%>

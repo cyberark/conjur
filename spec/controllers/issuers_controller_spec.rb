@@ -254,7 +254,7 @@ describe IssuersController, type: :request do
       let(:payload_create_issuers_complete_input) do
         <<~BODY
           {
-            "id": "aws-issuer-1",
+            "id": "AWS-issuer-1",
             "max_ttl": 3000,
             "type": "aws",
             "data": {
@@ -273,7 +273,7 @@ describe IssuersController, type: :request do
                ))
           assert_response :created
           parsed_body = JSON.parse(response.body)
-          expect(parsed_body["id"]).to eq("aws-issuer-1")
+          expect(parsed_body["id"]).to eq("AWS-issuer-1")
           expect(parsed_body["max_ttl"]).to eq(3000)
           expect(parsed_body["type"]).to eq("aws")
           expect(parsed_body["data"]["access_key_id"]).to eq("my-key-id")
@@ -284,9 +284,9 @@ describe IssuersController, type: :request do
           expect(response.body).to include("\"modified_at\"")
           time_from_body = Time.parse(parsed_body["modified_at"])
           expect(time_from_body).to eq(Time.now)
-          expect(Resource.find(resource_id: "rspec:policy:conjur/issuers/aws-issuer-1")).not_to eq(nil)
-          expect(Resource.find(resource_id: "rspec:policy:conjur/issuers/aws-issuer-1/delegation")).not_to eq(nil)
-          expect(Resource.find(resource_id: "rspec:group:conjur/issuers/aws-issuer-1/delegation/consumers")).not_to eq(nil)
+          expect(Resource.find(resource_id: "rspec:policy:conjur/issuers/AWS-issuer-1")).not_to eq(nil)
+          expect(Resource.find(resource_id: "rspec:policy:conjur/issuers/AWS-issuer-1/delegation")).not_to eq(nil)
+          expect(Resource.find(resource_id: "rspec:group:conjur/issuers/AWS-issuer-1/delegation/consumers")).not_to eq(nil)
         end
       end
     end
@@ -318,6 +318,33 @@ describe IssuersController, type: :request do
         expect(Resource.find(resource_id: "rspec:policy:conjur/issuers/aws-issuer-!@#$%^*()[]")).to eq(nil)
         expect(Resource.find(resource_id: "rspec:policy:conjur/issuers/aws-issuer-!@#$%^*()[]/delegation")).to eq(nil)
         expect(Resource.find(resource_id: "rspec:group:conjur/issuers/aws-issuer-!@#$%^*()[]/delegation/consumers")).to eq(nil)
+      end
+    end
+
+    context "when user creates an issuer with digits only in its name" do
+      let(:payload_create_issuers_digits_input) do
+        <<~BODY
+          {
+            "id": "555",
+            "max_ttl": 3000,
+            "type": "aws",
+            "data": {
+              "access_key_id": "my-key-id",
+              "secret_access_key": "my-key-secret"
+            }
+          }
+        BODY
+      end
+      it 'it returns created' do
+        post("/issuers/rspec",
+             env: token_auth_header(role: admin_user).merge(
+               'RAW_POST_DATA' => payload_create_issuers_digits_input,
+               'CONTENT_TYPE' => "application/json"
+             ))
+        assert_response :created
+        expect(Resource.find(resource_id: "rspec:policy:conjur/issuers/555")).to_not eq(nil)
+        expect(Resource.find(resource_id: "rspec:policy:conjur/issuers/555/delegation")).to_not eq(nil)
+        expect(Resource.find(resource_id: "rspec:group:conjur/issuers/555/delegation/consumers")).to_not eq(nil)
       end
     end
 
