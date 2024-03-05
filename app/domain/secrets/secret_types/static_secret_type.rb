@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Secrets
   module SecretTypes
     class StaticSecretType  < SecretBaseType
@@ -67,12 +69,16 @@ module Secrets
 
       def as_json(branch, name, variable)
         json_result = super(branch, name)
-
         mime_type = get_mime_type(variable)
+
         if mime_type
-          json_result = json_result.merge(
-            mime_type: get_mime_type(variable),
-            )
+          json_result = json_result.merge(mime_type: get_mime_type(variable))
+        end
+
+        annotations = annotations_as_json(variable)
+
+        unless annotations.empty?
+          json_result = json_result.merge(annotations: annotations)
         end
 
         json_result
@@ -88,18 +94,20 @@ module Secrets
       end
 
       private
+
       def set_value(secret, value)
         unless value.nil? || value.empty?
           Secret.create(resource_id: secret.id, value: value)
           secret.enforce_secrets_version_limit
         end
       end
+
       def convert_fields_to_annotations(params)
         mime_type_annotation = nil
         if params[:mime_type]
           mime_type_annotation = {}
-          mime_type_annotation.store('name', 'conjur/mime_type')
-          mime_type_annotation.store('value' , params[:mime_type])
+          mime_type_annotation.store('name', MIME_TYPE_ANNOTATION)
+          mime_type_annotation.store('value', params[:mime_type])
         end
 
         annotations = []
@@ -115,4 +123,3 @@ module Secrets
     end
   end
 end
-
