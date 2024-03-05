@@ -73,9 +73,14 @@ module Secrets
 
       def as_json(branch, name)
         {
-          name: name,
-          branch: branch
+          branch: branch,
+          name: name
         }
+      end
+
+      def annotations_as_json(variable)
+        filter_list = ["conjur/kind", "conjur/mime_type"]
+        filter_out_secret_annotations(variable, filter_list)
       end
 
       private
