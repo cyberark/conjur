@@ -6,7 +6,7 @@ module PolicyTemplates
     def template
       <<~TEMPLATE
         - !policy
-          id: <%= id %>
+          id: "<%= id %>"
           body:
           - !permit
             role: !group delegation/consumers
