@@ -81,7 +81,6 @@ class ApplicationController < ActionController::API
   rescue_from Errors::Group::DuplicateMember, with: :render_duplicate_with_message
   rescue_from Errors::Group::ResourceNotMember, with: :render_resource_not_found
   rescue_from Errors::Conjur::APIHeaderMissing, with: :render_bad_request_with_message
-  rescue_from Errors::Conjur::AnnotationNotFound, with: :render_resource_not_found
 
   around_action :run_with_transaction
 

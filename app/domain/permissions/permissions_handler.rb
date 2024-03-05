@@ -2,7 +2,9 @@ module PermissionsHandler
   include ParamsValidator
   include ResourcesHandler
 
-  def add_permissions(resources_privileges, secret_id, policy_id)
+  def add_permissions(secret_id, policy_id, permissions, allowed_privilege)
+    resources_privileges = validate_permissions(permissions, allowed_privilege)
+
     resources_privileges.each do |resource_id, privileges|
       privileges.each do |p|
         ::Permission.create(
@@ -15,6 +17,7 @@ module PermissionsHandler
     end
   end
 
+  private
   # Validates the permissions section of the request is valid and returns a map between the resource id and its privileges
   def validate_permissions(permissions, allowed_privilege)
     resources_privileges = {}
