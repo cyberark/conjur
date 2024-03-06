@@ -283,3 +283,69 @@ A policy can be reloaded using the --replace flag
     Then there's an error
     And the error code is "not_found"
     And the error message is "Layer 'ops' not found in account 'cucumber'"
+
+  @acceptance
+  Scenario: Update the policy with a policy that contains not yet existing element
+
+    Given I load a policy:
+    """
+    - !policy
+      id: testpolicy
+      body:
+        - !policy
+          id: testsubpolicy
+          owner: !host testhost
+        - !host
+          id: testhost
+    """
+    And I update the policy with:
+    """
+    - !policy
+      id: testpolicy
+      body:
+        - !host
+          id: testhost
+        - !group
+          id: testgroup
+        - !grant
+          role: !group testgroup
+          member: !host testhost
+        - !policy
+          id: testsubpolicy
+          owner: !group testgroup
+    """
+    When I list group resources
+    Then the resource list includes group "testpolicy/testgroup"
+
+  @acceptance
+  Scenario: Replace the policy with a policy that contains not yet existing element
+
+    Given I load a policy:
+    """
+    - !policy
+      id: testpolicy
+      body:
+        - !policy
+          id: testsubpolicy
+          owner: !host testhost
+        - !host
+          id: testhost
+    """
+    And I replace the "root" policy with:
+    """
+    - !policy
+      id: testpolicy
+      body:
+        - !host
+          id: testhost
+        - !group
+          id: testgroup
+        - !grant
+          role: !group testgroup
+          member: !host testhost
+        - !policy
+          id: testsubpolicy
+          owner: !group testgroup
+    """
+    When I list group resources
+    Then the resource list includes group "testpolicy/testgroup"

@@ -18,9 +18,11 @@ module Loader
       
       @loader.delete_shadowed_and_duplicate_rows
 
-      @loader.update_changed
+      @loader.upsert_policy_records
 
-      @loader.store_policy_in_db
+      @loader.clean_db
+
+      @loader.store_auxiliary_data
 
       @loader.release_db_connection
     end
