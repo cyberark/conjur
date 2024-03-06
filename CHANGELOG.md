@@ -9,13 +9,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
-## [1.0.23-cloud] - 2024-03-10
+## [1.0.23-cloud] - 2024-03-17
 ### Added
 - API for creating ephemeral secret
 - Selective replication for secrets
 
 ### Fixed
 - Fixed internal server error for issuer consisting of digits only
+
+### Changed
+- Reverse default for delete issuer's variables to true unless specified using keep_secrets param
 
 ## [1.0.22-cloud] - 2024-02-25
 ### Added
