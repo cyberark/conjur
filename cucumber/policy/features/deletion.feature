@@ -309,3 +309,39 @@ Feature: Deleting objects and relationships.
         record: !variable to_be_deleted
       """
       Then variable "to_be_deleted" does not exist
+
+  @acceptance
+  Scenario: Deleting nested policy deletes all data
+    Given I load a policy:
+    """
+    - !policy
+      id: data
+      body: []
+    """
+    And I replace the "data" policy with:
+    """
+    - !policy
+      id: outer
+      body: []
+    """
+    And I replace the "data/outer" policy with:
+    """
+    - !variable outer_secret
+    - !policy
+      id: inner
+      body: []
+    """
+    And I replace the "data/outer/inner" policy with:
+    """
+    - !variable inner_secret
+    """
+    And I replace the "data" policy with:
+    """
+    - !variable replacement
+    """
+    Then policy "data" exists
+    And policy "data/outer" does not exist
+    And policy "data/outer/inner" does not exist
+    And variable "data/replacement" exists
+    And variable "data/outer/outer_secret" does not exist
+    And variable "data/outer/inner/inner_secret" does not exist
