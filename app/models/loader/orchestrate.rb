@@ -138,6 +138,121 @@ module Loader
       store_restricted_to
     end
 
+    def stash_new_roles
+      pk_columns = Array(Sequel::Model(:roles).primary_key)
+      pk_columns_with_policy_id = pk_columns + [ :policy_id ]
+      join_columns = pk_columns_with_policy_id.map do |c|
+        "public_roles.#{c} = new_roles.#{c}"
+      end.join(" AND ")
+
+      # getting newly added roles
+      new_roles_sql = <<-SQL
+          SELECT * 
+          FROM #{schema_name}.roles new_roles
+          WHERE NOT EXISTS (
+            SELECT 1
+            FROM #{primary_schema}.roles public_roles
+            WHERE ( #{join_columns} ) 
+          );
+      SQL
+
+      new_roles_dataset = db.fetch(new_roles_sql)
+      @new_roles = new_roles_dataset.map{ |ds| Role.new(ds) }
+    end
+
+    def upsert_policy_records
+      if @feature_flags.enabled?(:policy_load_extensions)
+        @extensions.call(
+          :before_insert,
+          policy_version: @policy_version,
+          schema_name: schema_name
+        )
+        @extensions.call(
+          :before_update,
+          policy_version: @policy_version,
+          schema_name: schema_name
+        )
+      end
+
+      # We need to get newly created roles and save them in the class field before further changes.
+      # This is the last place we can do it.
+      stash_new_roles
+
+      in_primary_schema do
+        TABLES.each do |table|
+          # Preparation for moving newly added entries from temporary
+          # schema to the public schema
+          pk_columns = Array(Sequel::Model(table).primary_key)
+          pk_columns_with_policy_id = pk_columns + [ :policy_id ]
+
+          join_columns = pk_columns_with_policy_id.map do |c|
+            "#{table}.#{c} = new_#{table}.#{c}"
+          end.join(" AND ")
+          insert_columns = (TABLE_EQUIVALENCE_COLUMNS[table] + [ :policy_id ]).join(", ")
+
+          # Preparing columns to be used during update.
+          # Value for policy_id will not be changed during update
+          # but for readability (one generic flow) and consistency with the rest of the code
+          # we are using list of columns with policy_id
+          update_columns = TABLE_EQUIVALENCE_COLUMNS[table] - pk_columns + [:policy_id]
+          update_statements = update_columns.map do |c|
+            "#{c} = new_#{table}.#{c}"
+          end.join(", ")
+
+          db.execute(<<-UPSERT)
+            WITH inserted AS (
+              INSERT INTO #{table} (#{insert_columns})
+              SELECT #{insert_columns}
+              FROM #{schema_name}.#{table} new_#{table}
+              ON CONFLICT (#{pk_columns.join(', ')}) DO NOTHING
+              RETURNING #{pk_columns.join(', ')}
+            )
+            UPDATE #{table}
+            SET #{update_statements}
+            FROM #{schema_name}.#{table} new_#{table}
+            WHERE NOT EXISTS (
+              SELECT 1
+              FROM inserted i
+              WHERE #{pk_columns.map do |c|
+                "i.#{c} = #{table}.#{c}"
+              end.join(' AND ')}
+            ) AND #{join_columns}
+          UPSERT
+        end
+      end
+
+      # We want to use the if statement here to wrap the feature flag check
+      # rubocop:disable Style/GuardClause
+      if @feature_flags.enabled?(:policy_load_extensions)
+        @extensions.call(
+          :after_insert,
+          policy_version: @policy_version,
+          schema_name: schema_name
+        )
+        @extensions.call(
+          :after_update,
+          policy_version: @policy_version,
+          schema_name: schema_name
+        )
+      end
+
+      # rubocop:enable Style/GuardClause
+    end
+
+    def clean_db
+      drop_schema
+
+      perform_deletion
+    end
+
+    def store_auxiliary_data
+      store_passwords
+
+      store_public_keys
+
+      store_restricted_to
+    end
+
     def table_data schema = ""
       self.class.table_data(policy_version.policy.account, schema)
     end
