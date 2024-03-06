@@ -6,7 +6,7 @@ describe "Static secret create input validation" do
   end
   before do
     StaticAccount.set_account("rspec")
-    allow(Resource).to receive(:[]).with("rspec:policy:data/dynamic").and_return("policy")
+    allow(Resource).to receive(:[]).with("rspec:policy:data/ephemerals").and_return("policy")
     allow(Resource).to receive(:[]).with("rspec:policy:data/secrets").and_return("policy")
     $primary_schema = "public"
   end
@@ -24,9 +24,9 @@ describe "Static secret create input validation" do
       }.to raise_error(Errors::Conjur::ParameterTypeInvalid)
     end
   end
-  context "when creating secret under dynamic branch" do
+  context "when creating secret under ephemerals branch" do
     it "input validation fails" do
-      params = ActionController::Parameters.new(branch: "data/dynamic", name:"secret1")
+      params = ActionController::Parameters.new(branch: "data/ephemerals", name:"secret1")
       expect { static_secret.create_input_validation(params)
       }.to raise_error(ApplicationController::BadRequestWithBody)
     end
@@ -112,7 +112,7 @@ describe "Annotations conversion" do
   end
   context "when creating secret with mime_type and no annotations" do
     it "mime type annotation is added" do
-      params = ActionController::Parameters.new(branch: "data/dynamic", mime_type: "text/plain")
+      params = ActionController::Parameters.new(branch: "data/ephemerals", mime_type: "text/plain")
       annotations =  static_secret.send(:merge_annotations, params)
       expect(annotations.length).to eq(1)
       expect(get_field_value(annotations, "value", "name", 'conjur/mime_type')).to eq("text/plain")
@@ -120,7 +120,7 @@ describe "Annotations conversion" do
   end
   context "when creating secret with no mime_type and no annotations" do
     it "mime type annotation is not added" do
-      params = ActionController::Parameters.new(branch: "data/dynamic")
+      params = ActionController::Parameters.new(branch: "data/ephemerals")
       annotations =  static_secret.send(:merge_annotations, params)
       expect(annotations.length).to eq(0)
     end
