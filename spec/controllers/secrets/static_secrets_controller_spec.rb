@@ -30,10 +30,17 @@ describe StaticSecretsController, type: :request do
           mime_type: text/plain 
 
         - !variable
-          id: mySecretWithAnnotations
-          mime_type: text/plain 
+          id: secret_with_annotations_no_mime_type
           annotations:
-            annotation: value
+            first: "first"
+            second: "second"
+
+        - !variable
+          id: secret_with_annotations
+          mime_type: text/plain
+          annotations:
+            first: "first"
+            second: "second"
 
         - !grant
            role: !group group1
@@ -48,7 +55,12 @@ describe StaticSecretsController, type: :request do
       - !permit
         role: !user alice
         privileges: [ read ]
-        resource: !variable data/mySecretWithAnnotations
+        resource: !variable data/secret_with_annotations_no_mime_type
+
+      - !permit
+        role: !user alice
+        privileges: [ read ]
+        resource: !variable data/secret_with_annotations
     POLICY
   end
 
@@ -646,6 +658,69 @@ describe StaticSecretsController, type: :request do
           )
         )
         assert_response :forbidden
+      end
+    end
+    context 'when the user has read permission and the secret has annotations' do
+      it 'returns 200' do
+        get(
+          '/secrets/static/data/secret_with_annotations',
+          env: token_auth_header(role: alice_user).merge(v2_api_header).merge(
+            'CONTENT_TYPE' => "application/json"
+          )
+        )
+        assert_response :success
+        response_body = JSON.parse(response.body)
+        expect(response_body['name']).to eq("secret_with_annotations")
+        expect(response_body['branch']).to eq("data")
+        expect(response_body['mime_type']).to eq("text/plain")
+        expect(response_body['annotations']).to eq([{ "name"=>"first", "value"=>"first" }, { "name"=>"second", "value"=>"second" }])
+      end
+    end
+    context 'when the secret does not have mime_type but have annotations' do
+      it 'returns 200' do
+        get(
+          '/secrets/static/data/secret_with_annotations_no_mime_type',
+          env: token_auth_header(role: alice_user).merge(v2_api_header).merge(
+            'CONTENT_TYPE' => "application/json"
+          )
+        )
+        assert_response :success
+        response_body = JSON.parse(response.body)
+        expect(response_body['name']).to eq("secret_with_annotations_no_mime_type")
+        expect(response_body['branch']).to eq("data")
+        expect(response_body).to_not include("mime_type")
+        expect(response_body['annotations']).to eq([{ "name"=>"first", "value"=>"first" }, { "name"=>"second", "value"=>"second" }])
+      end
+    end
+    context 'when the user creates and gets static secrets using v2 apis' do
+      let(:payload_create_secret) do
+        <<~BODY
+          {
+              "branch": "/data/secrets",
+              "name": "secret1"
+          }
+        BODY
+      end
+      it 'returns 200' do
+        post("/secrets/static",
+             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
+               {
+                 'RAW_POST_DATA' => payload_create_secret,
+                 'CONTENT_TYPE' => "application/json"
+               }
+             )
+        )
+        # Correct response code
+        assert_response :created
+
+        get(
+          '/secrets/static/data/secrets/secret1',
+          env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
+            'CONTENT_TYPE' => "application/json"
+          )
+        )
+        assert_response :success
+        validate_response('secret1', 'data/secrets', nil)
       end
     end
   end

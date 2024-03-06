@@ -80,7 +80,7 @@ module Secrets
 
       def annotations_as_json(variable)
         filter_list = ["conjur/kind", "conjur/mime_type"]
-        filter_out_secret_annotations(variable, filter_list)
+        get_annotations(variable, filter_list)
       end
 
       private

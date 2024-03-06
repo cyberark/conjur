@@ -24,7 +24,7 @@ describe "Annotation Handler's value_by_name" do
   end
 end
 
-describe "Annotation Handler's filter_out_secret_annotations" do
+describe "Annotation Handler's get_annotations" do
   let(:annotation) do
     double('annotation', name: 'annotation_name', value: 'annotation_value')
   end
@@ -34,12 +34,17 @@ describe "Annotation Handler's filter_out_secret_annotations" do
     end
 
     it 'should return the empty array when annotation exists' do
-      filtered_annotations = filter_out_secret_annotations(secret, ['annotation_name'])
+      filtered_annotations = get_annotations(secret, ['annotation_name'])
       expect(filtered_annotations).to eq([])
     end
     it 'should return the array when the annotation does not exist' do
       expected_result = [{ name: 'annotation_name', value: 'annotation_value' }]
-      filtered_annotations = filter_out_secret_annotations(secret, ['wrong_annotation_name'])
+      filtered_annotations = get_annotations(secret, ['wrong_annotation_name'])
+      expect(filtered_annotations).to eq(expected_result)
+    end
+    it 'should return the array when the filter is empty' do
+      expected_result = [{ name: 'annotation_name', value: 'annotation_value' }]
+      filtered_annotations = get_annotations(secret, [])
       expect(filtered_annotations).to eq(expected_result)
     end
   end
@@ -48,7 +53,7 @@ describe "Annotation Handler's filter_out_secret_annotations" do
       double('no_annotation_secret_name', annotations: [], 'id' => 'no_annotion_secret_id')
     end
     it 'should return an empty array' do
-      filtered_annotations = filter_out_secret_annotations(secret_without_annotation, ['annotation_name'])
+      filtered_annotations = get_annotations(secret_without_annotation, ['annotation_name'])
       expect(filtered_annotations).to eq([])
     end
   end
