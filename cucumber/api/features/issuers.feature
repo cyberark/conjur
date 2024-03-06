@@ -154,7 +154,7 @@ Feature: Issuers audits tests
     Given I am a user named "alice"
     And I save my place in the audit log file for remote
     When I clear the "Content-Type" header
-    And I DELETE "/issuers/cucumber/aws-issuer-1?delete_vars=true"
+    And I DELETE "/issuers/cucumber/aws-issuer-1"
     Then the HTTP response status code is 404
     And there is an audit record matching:
     """
@@ -196,7 +196,7 @@ Feature: Issuers audits tests
     """
     And I save my place in the audit log file for remote
     When I clear the "Content-Type" header
-    And I successfully DELETE "/issuers/cucumber/aws-issuer-1?delete_vars=true"
+    And I successfully DELETE "/issuers/cucumber/aws-issuer-1"
     Then the HTTP response status code is 204
     And there is an audit record matching:
     """
