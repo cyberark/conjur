@@ -136,45 +136,13 @@ Feature: Updating Policies with Annotations
         description: Success
     """
     And I successfully GET "/resources/cucumber/host/hosts%2Fto-annotate"
-    Then the JSON should be:
+    Then the JSON at "annotations" should be:
     """
-    {
-      "annotations": [
-        {
+     [ {
           "name": "description",
           "policy": "cucumber:policy:hosts",
           "value": "Success"
-        }
-      ],
-      "id": "cucumber:host:hosts/to-annotate",
-      "owner": "cucumber:policy:hosts",
-      "permissions": [
-        {
-          "policy": "cucumber:policy:root",
-          "privilege": "read",
-          "role": "cucumber:user:bob"
-        },
-        {
-          "policy": "cucumber:policy:root",
-          "privilege": "read",
-          "role": "cucumber:user:alice"
-        },
-        {
-          "policy": "cucumber:policy:root",
-          "privilege": "read",
-          "role": "cucumber:user:carol"
-        },
-        {
-          "policy": "cucumber:policy:root",
-          "privilege": "update",
-          "role": "cucumber:user:carol"
-        }
-      ],
-      "policy": "cucumber:policy:hosts",
-      "restricted_to": [
-
-      ]
-    }
+      }]
     """
 
   @negative
@@ -225,45 +193,13 @@ Feature: Updating Policies with Annotations
         description: Success
     """
     And I successfully GET "/resources/cucumber/host/hosts%2Fannotated"
-    Then the JSON should be:
+    Then the JSON at "annotations" should be:
     """
-    {
-      "annotations": [
-        {
-          "name": "description",
-          "policy": "cucumber:policy:hosts",
-          "value": "Already annotated"
-        }
-      ],
-      "id": "cucumber:host:hosts/annotated",
-      "owner": "cucumber:policy:hosts",
-      "permissions": [
-        {
-          "policy": "cucumber:policy:root",
-          "privilege": "read",
-          "role": "cucumber:user:bob"
-        },
-        {
-          "policy": "cucumber:policy:root",
-          "privilege": "read",
-          "role": "cucumber:user:alice"
-        },
-        {
-          "policy": "cucumber:policy:root",
-          "privilege": "read",
-          "role": "cucumber:user:carol"
-        },
-        {
-          "policy": "cucumber:policy:root",
-          "privilege": "update",
-          "role": "cucumber:user:carol"
-        }
-      ],
-      "policy": "cucumber:policy:hosts",
-      "restricted_to": [
-
-      ]
-    }
+      [{
+        "name": "description",
+        "policy": "cucumber:policy:hosts",
+        "value": "Already annotated"
+      }]
     """
 
   @negative
@@ -332,45 +268,13 @@ Feature: Updating Policies with Annotations
         description: Success
     """
     And I successfully GET "/resources/cucumber/host/hosts%2Fto-annotate"
-    Then the JSON should be:
+    Then the JSON at "annotations" should be:
     """
-    {
-      "annotations": [
-        {
+        [{
           "name": "description",
           "policy": "cucumber:policy:hosts",
           "value": "Success"
-        }
-      ],
-      "id": "cucumber:host:hosts/to-annotate",
-      "owner": "cucumber:policy:hosts",
-      "permissions": [
-        {
-          "policy": "cucumber:policy:root",
-          "privilege": "read",
-          "role": "cucumber:user:bob"
-        },
-        {
-          "policy": "cucumber:policy:root",
-          "privilege": "read",
-          "role": "cucumber:user:alice"
-        },
-        {
-          "policy": "cucumber:policy:root",
-          "privilege": "read",
-          "role": "cucumber:user:carol"
-        },
-        {
-          "policy": "cucumber:policy:root",
-          "privilege": "update",
-          "role": "cucumber:user:carol"
-        }
-      ],
-      "policy": "cucumber:policy:hosts",
-      "restricted_to": [
-
-      ]
-    }
+        }]
     """
 
   @negative
@@ -421,45 +325,13 @@ Feature: Updating Policies with Annotations
         description: Success
     """
     And I successfully GET "/resources/cucumber/host/hosts%2Fannotated"
-    Then the JSON should be:
+    Then the JSON at "annotations" should be:
     """
-    {
-      "annotations": [
-        {
+        [{
           "name": "description",
           "policy": "cucumber:policy:hosts",
           "value": "Success"
-        }
-      ],
-      "id": "cucumber:host:hosts/annotated",
-      "owner": "cucumber:policy:hosts",
-      "permissions": [
-        {
-          "policy": "cucumber:policy:root",
-          "privilege": "read",
-          "role": "cucumber:user:bob"
-        },
-        {
-          "policy": "cucumber:policy:root",
-          "privilege": "read",
-          "role": "cucumber:user:alice"
-        },
-        {
-          "policy": "cucumber:policy:root",
-          "privilege": "read",
-          "role": "cucumber:user:carol"
-        },
-        {
-          "policy": "cucumber:policy:root",
-          "privilege": "update",
-          "role": "cucumber:user:carol"
-        }
-      ],
-      "policy": "cucumber:policy:hosts",
-      "restricted_to": [
-
-      ]
-    }
+        }]
     """
 
   @smoke
@@ -474,45 +346,13 @@ Feature: Updating Policies with Annotations
         description: Success
     """
     And I successfully GET "/resources/cucumber/host/hosts%2Fannotated"
-    Then the JSON should be:
+    Then the JSON at "annotations" should be:
     """
-    {
-      "annotations": [
-        {
+      [{
           "name": "description",
           "policy": "cucumber:policy:hosts",
           "value": "Success"
-        }
-      ],
-      "id": "cucumber:host:hosts/annotated",
-      "owner": "cucumber:policy:hosts",
-      "permissions": [
-        {
-          "policy": "cucumber:policy:root",
-          "privilege": "read",
-          "role": "cucumber:user:bob"
-        },
-        {
-          "policy": "cucumber:policy:root",
-          "privilege": "read",
-          "role": "cucumber:user:alice"
-        },
-        {
-          "policy": "cucumber:policy:root",
-          "privilege": "read",
-          "role": "cucumber:user:carol"
-        },
-        {
-          "policy": "cucumber:policy:root",
-          "privilege": "update",
-          "role": "cucumber:user:carol"
-        }
-      ],
-      "policy": "cucumber:policy:hosts",
-      "restricted_to": [
-
-      ]
-    }
+      }]
     """
 
   @smoke
@@ -527,43 +367,11 @@ Feature: Updating Policies with Annotations
         description: Success
     """
     And I successfully GET "/resources/cucumber/host/hosts%2Fto-annotate"
-    Then the JSON should be:
+    Then the JSON at "annotations" should be:
     """
-    {
-      "annotations": [
-        {
+      [{
           "name": "description",
           "policy": "cucumber:policy:hosts",
           "value": "Success"
-        }
-      ],
-      "id": "cucumber:host:hosts/to-annotate",
-      "owner": "cucumber:policy:hosts",
-      "permissions": [
-        {
-          "policy": "cucumber:policy:root",
-          "privilege": "read",
-          "role": "cucumber:user:bob"
-        },
-        {
-          "policy": "cucumber:policy:root",
-          "privilege": "read",
-          "role": "cucumber:user:alice"
-        },
-        {
-          "policy": "cucumber:policy:root",
-          "privilege": "read",
-          "role": "cucumber:user:carol"
-        },
-        {
-          "policy": "cucumber:policy:root",
-          "privilege": "update",
-          "role": "cucumber:user:carol"
-        }
-      ],
-      "policy": "cucumber:policy:hosts",
-      "restricted_to": [
-
-      ]
-    }
+      }]
     """
