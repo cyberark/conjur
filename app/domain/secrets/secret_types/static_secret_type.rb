@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 module Secrets
   module SecretTypes
     class StaticSecretType  < SecretBaseType
@@ -69,19 +67,12 @@ module Secrets
 
       def as_json(branch, name, variable)
         json_result = super(branch, name)
-        mime_type = get_mime_type(variable)
 
+        mime_type = get_mime_type(variable)
         if mime_type
           json_result = json_result.merge(mime_type: get_mime_type(variable))
         end
-
-        annotations = annotations_as_json(variable)
-
-        unless annotations.empty?
-          json_result = json_result.merge(annotations: annotations)
-        end
-
-        json_result
+        json_result.merge(annotations: annotations_as_json(variable))
       end
 
       def get_update_permissions(params, secret)
@@ -94,6 +85,7 @@ module Secrets
       end
 
       private
+
 
       def set_value(secret, value)
         unless value.nil? || value.empty?
