@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - API for creating ephemeral secret
 - Selective replication for secrets
+- API for replacing static secret
 
 ### Fixed
 - Fixed internal server error for issuer consisting of digits only

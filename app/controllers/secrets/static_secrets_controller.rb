@@ -13,7 +13,7 @@ class StaticSecretsController < V2RestController
     static_secret = Secrets::SecretTypes::StaticSecretType.new
 
     #Run input validation specific to secret type
-    static_secret.input_validation(params)
+    static_secret.create_input_validation(params)
 
     # Check permissions
     create_permissions = static_secret.get_create_permissions(params)
@@ -41,14 +41,42 @@ class StaticSecretsController < V2RestController
     logger.debug(LogMessages::Endpoints::EndpointRequested.new(get_secret_log_message))
 
     secret_type_handler = Secrets::SecretTypes::StaticSecretType.new
-    secret_type_handler.input_validation(request.params)
+    variable = secret_type_handler.get_input_validation(request.params)
 
-    variable = get_resource("variable", "#{branch}/#{secret_name}")
     check_read_permissions(secret_type_handler, variable)
 
     response = secret_type_handler.as_json(branch, secret_name, variable)
     logger.debug(LogMessages::Endpoints::EndpointFinishedSuccessfully.new(get_secret_log_message))
     render(json: response.to_json, status: :ok)
+  end
+
+  def replace
+    branch = params[:branch]
+    secret_name = params[:name]
+
+    log_message = "Replace Static Secret #{branch}/#{secret_name}"
+    logger.debug(LogMessages::Endpoints::EndpointRequested.new(log_message))
+
+    static_secret = Secrets::SecretTypes::StaticSecretType.new
+
+    #Run input validation specific to secret type
+    secret = static_secret.update_input_validation(params, body_params)
+
+    # Check permissions
+    create_permissions = static_secret.get_update_permissions(params, secret)
+    create_permissions.each do |action_policy, action|
+      authorize(action, action_policy)
+    end
+
+    # Update secret
+    updated_secret = static_secret.replace_secret(branch, secret_name, secret, params)
+
+    logger.debug(LogMessages::Endpoints::EndpointFinishedSuccessfully.new(log_message))
+    render(json: updated_secret, status: :ok)
+    #audit_succsess
+  rescue => e
+    #audit_failure(e, :remove)
+    raise e
   end
 
   private

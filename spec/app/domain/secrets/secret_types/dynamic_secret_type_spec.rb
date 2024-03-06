@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe "Dynamic secret input validation" do
+describe "Dynamic secret create input validation" do
   let(:dynamic_secret) do
     Secrets::SecretTypes::DynamicSecretType.new
   end
@@ -12,14 +12,14 @@ describe "Dynamic secret input validation" do
   context "when creating dynamic secret with no name" do
     it "input validation fails" do
       params = ActionController::Parameters.new(branch: "data/dynamic", issuer: "issuer1", ttl: 120,)
-      expect { dynamic_secret.input_validation(params)
+      expect { dynamic_secret.create_input_validation(params)
       }.to raise_error(Errors::Conjur::ParameterMissing)
     end
   end
   context "when creating dynamic secret with value" do
     it "input validation fails" do
       params = ActionController::Parameters.new(name: "secret1", branch: "data/dynamic", issuer: "issuer1", ttl: 120, value: "secret")
-      expect { dynamic_secret.input_validation(params)
+      expect { dynamic_secret.create_input_validation(params)
       }.to raise_error(ApplicationController::BadRequestWithBody)
     end
   end
@@ -31,42 +31,42 @@ describe "Dynamic secret input validation" do
     end
     it "input validation fails" do
       params = ActionController::Parameters.new(name: "secret1", branch: "data/secrets", type: "ephemeral", issuer: "issuer1", ttl: 120)
-      expect { dynamic_secret.input_validation(params)
+      expect { dynamic_secret.create_input_validation(params)
       }.to raise_error(ApplicationController::BadRequestWithBody)
     end
   end
   context "when creating dynamic secret with no issuer" do
     it "input validation fails" do
       params = ActionController::Parameters.new(name: "secret1", branch: "data/dynamic", ttl: 120)
-      expect { dynamic_secret.input_validation(params)
+      expect { dynamic_secret.create_input_validation(params)
       }.to raise_error(Errors::Conjur::ParameterMissing)
     end
   end
   context "when creating dynamic secret with empty issuer" do
     it "input validation fails" do
       params = ActionController::Parameters.new(name: "secret1", branch: "data/dynamic", ttl: 120, issuer: "")
-      expect { dynamic_secret.input_validation(params)
+      expect { dynamic_secret.create_input_validation(params)
       }.to raise_error(Errors::Conjur::ParameterMissing)
     end
   end
   context "when creating ephemeral secret with issuer wrong type" do
     it "input validation fails" do
       params = ActionController::Parameters.new(name: "secret1", branch: "data/dynamic", ttl: 120, issuer: 5)
-      expect { dynamic_secret.input_validation(params)
+      expect { dynamic_secret.create_input_validation(params)
       }.to raise_error(Errors::Conjur::ParameterTypeInvalid)
     end
   end
   context "when creating ephemeral secret with no ttl" do
     it "input validation fails" do
       params = ActionController::Parameters.new(name: "secret1", branch: "data/dynamic", issuer: "issuer1")
-      expect { dynamic_secret.input_validation(params)
+      expect { dynamic_secret.create_input_validation(params)
       }.to raise_error(Errors::Conjur::ParameterMissing)
     end
   end
   context "when creating ephemeral secret with ttl wrong type" do
     it "input validation fails" do
       params = ActionController::Parameters.new(name: "secret1", branch: "data/dynamic", ttl: "", issuer: "issuer1")
-      expect { dynamic_secret.input_validation(params)
+      expect { dynamic_secret.create_input_validation(params)
       }.to raise_error(Errors::Conjur::ParameterTypeInvalid)
     end
   end
@@ -86,7 +86,7 @@ describe "Dynamic secret input validation" do
       end
       it "input validation fails" do
         params = ActionController::Parameters.new(name: "secret1", branch: "data/dynamic", ttl: 120, issuer: "issuer2")
-        expect { dynamic_secret.input_validation(params)
+        expect { dynamic_secret.create_input_validation(params)
         }.to raise_error(Exceptions::RecordNotFound)
       end
     end
@@ -99,14 +99,14 @@ describe "Dynamic secret input validation" do
       context "with wrong ttl" do
         it "input validation fails" do
           params = ActionController::Parameters.new(name: "secret1", branch: "data/dynamic", ttl: 120, issuer: "issuer2")
-          expect { dynamic_secret.input_validation(params)
+          expect { dynamic_secret.create_input_validation(params)
           }.to raise_error(ApplicationController::BadRequestWithBody)
         end
       end
       context "aws ephemeral secret with all correct input" do
         it "input validation succeeds" do
           params = ActionController::Parameters.new(name: "secret1", branch: "data/dynamic", ttl: 20, issuer: "issuer2")
-          expect { dynamic_secret.input_validation(params)
+          expect { dynamic_secret.create_input_validation(params)
           }.to_not raise_error
         end
       end

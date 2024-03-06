@@ -5,7 +5,7 @@ module Secrets
       DYNAMIC_TTL = "dynamic/ttl"
       DYNAMIC_METHOD = "dynamic/method"
 
-      def input_validation(params)
+      def create_input_validation(params)
         super(params)
 
         # check if value field exist

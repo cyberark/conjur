@@ -22,7 +22,7 @@ describe "AWS Assume Role Dynamic secret input validation" do
     it "then the input validation fails" do
       method_params = ActionController::Parameters.new(region: "", role_arn: "role")
       params = ActionController::Parameters.new(name: "secret1", branch: "data/dynamic", ttl: 120, issuer: "issuer1", method_params: method_params)
-      expect { dynamic_secret.input_validation(params)
+      expect { dynamic_secret.create_input_validation(params)
       }.to raise_error(Errors::Conjur::ParameterMissing)
     end
   end
@@ -30,7 +30,7 @@ describe "AWS Assume Role Dynamic secret input validation" do
     it "then the input validation fails" do
       method_params = ActionController::Parameters.new(region: 5, role_arn: "role")
       params = ActionController::Parameters.new(name: "secret1", branch: "data/dynamic", ttl: 120, issuer: "issuer1", method_params: method_params)
-      expect { dynamic_secret.input_validation(params)
+      expect { dynamic_secret.create_input_validation(params)
       }.to raise_error(Errors::Conjur::ParameterTypeInvalid)
     end
   end
@@ -38,7 +38,7 @@ describe "AWS Assume Role Dynamic secret input validation" do
     it "then the input validation fails" do
       method_params = ActionController::Parameters.new(inline_policy: "", role_arn: "role")
       params = ActionController::Parameters.new(name: "secret1", branch: "data/dynamic", ttl: 120, issuer: "issuer1", method_params: method_params)
-      expect { dynamic_secret.input_validation(params)
+      expect { dynamic_secret.create_input_validation(params)
       }.to raise_error(Errors::Conjur::ParameterMissing)
     end
   end
@@ -46,14 +46,14 @@ describe "AWS Assume Role Dynamic secret input validation" do
     it "then the input validation fails" do
       method_params = ActionController::Parameters.new(inline_policy: 5, role_arn: "role")
       params = ActionController::Parameters.new(name: "secret1", branch: "data/dynamic", ttl: 120, issuer: "issuer1", method_params: method_params)
-      expect { dynamic_secret.input_validation(params)
+      expect { dynamic_secret.create_input_validation(params)
       }.to raise_error(Errors::Conjur::ParameterTypeInvalid)
     end
   end
   context "when creating aws assume role dynamic secret with no method params" do
     it "then the input validation fails" do
       params = ActionController::Parameters.new(name: "secret1", branch: "data/dynamic", ttl: 120, issuer: "issuer1")
-      expect { dynamic_secret.input_validation(params)
+      expect { dynamic_secret.create_input_validation(params)
       }.to raise_error(Errors::Conjur::ParameterMissing)
     end
   end
@@ -61,7 +61,7 @@ describe "AWS Assume Role Dynamic secret input validation" do
     it "then the input validation fails" do
       method_params = ActionController::Parameters.new(region: "us-east-1", role_arn: "")
       params = ActionController::Parameters.new(name: "secret1", branch: "data/dynamic", ttl: 120, issuer: "issuer1", method_params: method_params)
-      expect { dynamic_secret.input_validation(params)
+      expect { dynamic_secret.create_input_validation(params)
       }.to raise_error(Errors::Conjur::ParameterMissing)
     end
   end
@@ -69,7 +69,7 @@ describe "AWS Assume Role Dynamic secret input validation" do
     it "then the input validation fails" do
       method_params = ActionController::Parameters.new(region: "us-east-1", role_arn: 5)
       params = ActionController::Parameters.new(name: "secret1", branch: "data/dynamic", ttl: 120, issuer: "issuer1", method_params: method_params)
-      expect { dynamic_secret.input_validation(params)
+      expect { dynamic_secret.create_input_validation(params)
       }.to raise_error(Errors::Conjur::ParameterTypeInvalid)
     end
   end
@@ -77,7 +77,7 @@ describe "AWS Assume Role Dynamic secret input validation" do
     it "then the input validation fails" do
       method_params = ActionController::Parameters.new(region: "us-east-1")
       params = ActionController::Parameters.new(name: "secret1", branch: "data/dynamic", ttl: 120, issuer: "issuer1", method_params: method_params)
-      expect { dynamic_secret.input_validation(params)
+      expect { dynamic_secret.create_input_validation(params)
       }.to raise_error(Errors::Conjur::ParameterMissing)
     end
   end
@@ -85,7 +85,7 @@ describe "AWS Assume Role Dynamic secret input validation" do
     it "then the input validation passes" do
       method_params = ActionController::Parameters.new(role_arn: "role")
       params = ActionController::Parameters.new(name: "secret1", branch: "data/dynamic", ttl: 220, issuer: "issuer1", method_params: method_params)
-      expect { dynamic_secret.input_validation(params)
+      expect { dynamic_secret.create_input_validation(params)
       }.to raise_error(ApplicationController::BadRequestWithBody)
     end
   end
@@ -93,7 +93,7 @@ describe "AWS Assume Role Dynamic secret input validation" do
     it "then the input validation passes" do
       method_params = ActionController::Parameters.new(role_arn: "role")
       params = ActionController::Parameters.new(name: "secret1", branch: "data/dynamic", ttl: 120, issuer: "issuer1", method_params: method_params)
-      expect { dynamic_secret.input_validation(params)
+      expect { dynamic_secret.create_input_validation(params)
       }.to_not raise_error
     end
   end

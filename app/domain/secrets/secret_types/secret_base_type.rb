@@ -5,21 +5,24 @@ module Secrets
       include AnnotationsHandler
       include ResourcesHandler
 
-      def input_validation(params)
+      def create_input_validation(params)
         data_fields = {
           name: String,
           branch: String
         }
         validate_required_data(params, data_fields.keys)
+
+        data_fields = {
+          name: String,
+          branch: String
+        }
         validate_data(params, data_fields)
+
+        # check policy exists
+        get_resource("policy", params[:branch])
 
         # Validate the name of the secret is correct
         validate_name(params[:name])
-
-        # check policy exists
-        policy_id = full_resource_id("policy", params[:branch])
-        policy = Resource[policy_id]
-        raise Exceptions::RecordNotFound, policy_id unless policy
       end
 
       def get_create_permissions(params)
@@ -31,6 +34,11 @@ module Secrets
         { variable => :read }
       end
 
+      def get_update_permissions(params, secret)
+        policy = get_resource("policy", params[:branch])
+        { policy => :update }
+      end
+
       def create_secret(branch, secret_name, params)
         policy_id = full_resource_id("policy", branch)
         secret = create_resource(branch, secret_name, policy_id)
@@ -40,12 +48,27 @@ module Secrets
         create_annotations(secret, policy_id, annotations)
 
         # Add permissions
-        if params[:permissions]
-          allowed_privilege = %w[read execute update]
-          add_permissions(secret.id, policy_id, params[:permissions], allowed_privilege)
-        end
+        resources_privileges = collect_all_permissions(params)
+        add_permissions(resources_privileges, secret.id, policy_id)
 
         secret
+      end
+
+      def replace_secret(branch, secret, params)
+        # update annotations
+        annotations = merge_annotations(params)
+        # Remove all resource annotations
+        delete_resource_annotations(secret)
+        # Add all current annotations
+        policy_id = full_resource_id("policy", branch)
+        create_annotations(secret, policy_id, annotations)
+
+        # update permissions
+        resources_privileges = collect_all_permissions(params)
+        # Remove all resource permissions
+        delete_resource_permissions(secret)
+        # Add all current permissions
+        add_permissions(resources_privileges, secret.id, policy_id)
       end
 
       def as_json(branch, name)
@@ -77,6 +100,15 @@ module Secrets
 
       def convert_fields_to_annotations(params)
         []
+      end
+
+      def collect_all_permissions(params)
+        permissions = []
+        if params[:permissions]
+          permissions = params[:permissions]
+        end
+        allowed_privilege = %w[read execute update]
+        validate_permissions(permissions, allowed_privilege)
       end
     end
   end

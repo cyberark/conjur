@@ -7,8 +7,7 @@ class HeaderConstraint
   end
 
   def matches?(request)
-    raise ::Exceptions::BadRequest.new("Require header #{@header} with value #{@value}") unless request.headers[@header] == @value
-
+    raise ApplicationController::BadRequestWithBody.new("Require header #{@header} with value #{@value}") unless request.headers[@header] == @value
     true
   end
 end
@@ -94,6 +93,7 @@ Rails.application.routes.draw do
       post "/secrets/static" => 'static_secrets#create', :constraints => require_v2_header
       post "/secrets/dynamic" => 'dynamic_secrets#create', :constraints => require_v2_header
       get "/secrets/static/(/*branch)/:name" => 'static_secrets#show', :constraints => require_v2_header
+      put "/secrets/static/(/*branch)/:name" => 'static_secrets#replace', :constraints => require_v2_header
 
       post    "/secrets/:account/:kind/*identifier" => "secrets#expire",
         :constraints => QueryParameterActionRecognizer.new("expirations")
