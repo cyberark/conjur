@@ -25,7 +25,7 @@ describe DynamicSecretsController, type: :request do
       - !policy
         id: data
         body:
-        - !policy dynamic
+        - !policy ephemerals
         - !policy secrets
         - !host host1
         - !group group1
@@ -57,7 +57,7 @@ describe DynamicSecretsController, type: :request do
       let(:payload_create_secret) do
         <<~BODY
           {
-              "branch": "/data/dynamic",
+              "branch": "/data/ephemerals",
               "name": "ephemeral_secret",
               "issuer": "issuer1",
               "ttl": 1200,
@@ -84,7 +84,7 @@ describe DynamicSecretsController, type: :request do
       let(:payload_create_secret) do
         <<~BODY
           {
-              "branch": "/data/dynamic",
+              "branch": "/data/ephemerals",
               "name": "ephemeral_secret",
               "issuer": "aws-issuer-1",
               "ttl": 1200,
@@ -125,14 +125,14 @@ describe DynamicSecretsController, type: :request do
         # Correct response code
         assert_response :bad_request
         parsed_body = JSON.parse(response.body)
-        expect(parsed_body["error"]["message"]).to eq("Dynamic secret ttl can't be bigger than the issuer ttl 1000")
+        expect(parsed_body["error"]["message"]).to eq("Ephemeral secret ttl can't be bigger than the issuer ttl 1000")
       end
     end
     context "when creating ephemeral secret with no method" do
       let(:payload_create_secret) do
         <<~BODY
           {
-              "branch": "/data/dynamic",
+              "branch": "/data/ephemerals",
               "name": "ephemeral_secret",
               "issuer": "issuer1",
               "ttl": 1200
@@ -160,7 +160,7 @@ describe DynamicSecretsController, type: :request do
     let(:payload_create_secret) do
       <<~BODY
         {
-            "branch": "/data/dynamic",
+            "branch": "/data/ephemerals",
             "name": "ephemeral_secret",
             "issuer": "aws-issuer-1",
             "ttl": 1200,
@@ -194,7 +194,7 @@ describe DynamicSecretsController, type: :request do
       let(:permit_policy) do
         <<~POLICY
           - !permit
-            resource: !policy data/dynamic
+            resource: !policy data/ephemerals
             privilege: [ update ]
             role: !user /alice
         POLICY
@@ -259,7 +259,7 @@ describe DynamicSecretsController, type: :request do
             role: !user /alice
 
           - !permit
-            resource: !policy data/dynamic
+            resource: !policy data/ephemerals
             privilege: [ update ]
             role: !user /alice
         POLICY
@@ -309,7 +309,7 @@ describe DynamicSecretsController, type: :request do
             role: !user /alice
 
           - !permit
-            resource: !policy data/dynamic
+            resource: !policy data/ephemerals
             privilege: [ update ]
             role: !user /alice
         POLICY
@@ -335,7 +335,7 @@ describe DynamicSecretsController, type: :request do
       let(:payload_create_ephemeral_secret) do
         <<~BODY
         {
-            "branch": "/data/dynamic",
+            "branch": "/data/ephemerals",
             "name": "ephemeral_secret",
             "type": "ephemeral",
             "annotations": [
@@ -376,19 +376,19 @@ describe DynamicSecretsController, type: :request do
         # Correct response code
         assert_response :created
         # correct response body
-        expect(response.body).to eq('{"branch":"/data/dynamic","name":"ephemeral_secret"}')
+        expect(response.body).to eq('{"branch":"/data/ephemerals","name":"ephemeral_secret"}')
         #expect(response.body).to eq("{\"branch\":\"/data/ephemerals\",\"name\":\"ephemeral_secret\",\"type\":\"ephemeral\",\"annotations\":[{\"name\":\"description\",\"value\":\"desc\"}],\"permissions\":[{\"subject\":{\"kind\":\"user\",\"id\":\"alice\"},\"privileges\":[\"read\"]}],\"ephemeral\":{\"issuer\":\"aws-issuer-1\",\"ttl\":1200,\"type\":\"aws\",\"type_params\":{\"method\":\"assume-role\",\"region\":\"us-east-1\",\"inline_policy\":\"{}\",\"method_params\":{\"role_arn\":\"role\"}}}}")
         # Secret resource is created
-        resource = Resource["rspec:variable:data/dynamic/ephemeral_secret"]
+        resource = Resource["rspec:variable:data/ephemerals/ephemeral_secret"]
         expect(resource).to_not be_nil
         # user with permissions can see the secret
-        get("/resources/rspec?kind=variable&search=data/dynamic/ephemeral_secret",
+        get("/resources/rspec?kind=variable&search=data/ephemerals/ephemeral_secret",
             env: token_auth_header(role: alice_user)
         )
         assert_response :success
         # Check the variable resource is with all the information (as the object also contains created at we want to check without it so partial json)
         parsed_body = JSON.parse(response.body)
-        #expect(parsed_body[0].to_s.include?('"id"=>"rspec:variable:data/dynamic/ephemeral_secret", "owner"=>"rspec:policy:data/dynamic", "policy"=>"rspec:policy:data/dynamic", "permissions"=>[{"privilege"=>"read", "role"=>"rspec:user:alice", "policy"=>"rspec:policy:data/dynamic"}], "annotations"=>[{"name"=>"dynamic/issuer", "value"=>"aws-issuer-1", "policy"=>"rspec:policy:data/dynamic"}, {"name"=>"dynamic/ttl", "value"=>"1200", "policy"=>"rspec:policy:data/dynamic"}, {"name"=>"dynamic/method", "value"=>"assume-role", "policy"=>"rspec:policy:data/dynamic"}, {"name"=>"dynamic/role-arn", "value"=>"role", "policy"=>"rspec:policy:data/dynamic"}, {"name"=>"dynamic/region", "value"=>"us-east-1", "policy"=>"rspec:policy:data/dynamic"}, {"name"=>"dynamic/inline-policy", "value"=>"{}", "policy"=>"rspec:policy:data/dynamic"}, {"name"=>"description", "value"=>"desc", "policy"=>"rspec:policy:data/dynamic"}], "secrets"=>[]}')).to eq(true)
+        expect(parsed_body[0].to_s.include?('"id"=>"rspec:variable:data/ephemerals/ephemeral_secret", "owner"=>"rspec:policy:data/ephemerals", "policy"=>"rspec:policy:data/ephemerals", "permissions"=>[{"privilege"=>"read", "role"=>"rspec:user:alice", "policy"=>"rspec:policy:data/ephemerals"}], "annotations"=>[{"name"=>"ephemeral/issuer", "value"=>"aws-issuer-1", "policy"=>"rspec:policy:data/ephemerals"}, {"name"=>"ephemeral/ttl", "value"=>"1200", "policy"=>"rspec:policy:data/ephemerals"}, {"name"=>"ephemeral/method", "value"=>"assume-role", "policy"=>"rspec:policy:data/ephemerals"}, {"name"=>"ephemeral/role-arn", "value"=>"role", "policy"=>"rspec:policy:data/ephemerals"}, {"name"=>"ephemeral/region", "value"=>"us-east-1", "policy"=>"rspec:policy:data/ephemerals"}, {"name"=>"ephemeral/inline-policy", "value"=>"{}", "policy"=>"rspec:policy:data/ephemerals"}, {"name"=>"description", "value"=>"desc", "policy"=>"rspec:policy:data/ephemerals"}], "secrets"=>[]}')).to eq(true)
         # Correct audit is returned
         #audit_message = "rspec:user:alice added membership of rspec:host:data/delegation/host1 in rspec:group:data/delegation/consumers"
         #verify_audit_message(audit_message)
@@ -398,7 +398,7 @@ describe DynamicSecretsController, type: :request do
       let(:payload_create_ephemeral_secret) do
         <<~BODY
         {
-            "branch": "/data/dynamic",
+            "branch": "/data/ephemerals",
             "name": "ephemeral_secret",
             "annotations": [
               {
@@ -437,18 +437,18 @@ describe DynamicSecretsController, type: :request do
         # Correct response code
         assert_response :created
         # correct response body
-        #expect(response.body).to eq("{\"branch\":\"/data/dynamic\",\"name\":\"ephemeral_secret\",\"type\":\"ephemeral\",\"annotations\":[{\"name\":\"description\",\"value\":\"desc\"}],\"permissions\":[{\"subject\":{\"kind\":\"user\",\"id\":\"alice\"},\"privileges\":[\"read\"]}],\"ephemeral\":{\"issuer\":\"aws-issuer-1\",\"ttl\":1200,\"type\":\"aws\",\"type_params\":{\"method\":\"federation-token\",\"region\":\"us-east-1\",\"inline_policy\":\"{}\"}}}")
+        #expect(response.body).to eq("{\"branch\":\"/data/ephemerals\",\"name\":\"ephemeral_secret\",\"type\":\"ephemeral\",\"annotations\":[{\"name\":\"description\",\"value\":\"desc\"}],\"permissions\":[{\"subject\":{\"kind\":\"user\",\"id\":\"alice\"},\"privileges\":[\"read\"]}],\"ephemeral\":{\"issuer\":\"aws-issuer-1\",\"ttl\":1200,\"type\":\"aws\",\"type_params\":{\"method\":\"federation-token\",\"region\":\"us-east-1\",\"inline_policy\":\"{}\"}}}")
         # Secret resource is created
-        resource = Resource["rspec:variable:data/dynamic/ephemeral_secret"]
+        resource = Resource["rspec:variable:data/ephemerals/ephemeral_secret"]
         expect(resource).to_not be_nil
         # user with permissions can see the secret
-        get("/resources/rspec?kind=variable&search=data/dynamic/ephemeral_secret",
+        get("/resources/rspec?kind=variable&search=data/ephemerals/ephemeral_secret",
             env: token_auth_header(role: alice_user)
         )
         assert_response :success
         # Check the variable resource is with all the information (as the object also contains created at we want to check without it so partial json)
         parsed_body = JSON.parse(response.body)
-        # expect(parsed_body[0].to_s.include?('"id"=>"rspec:variable:data/dynamic/ephemeral_secret", "owner"=>"rspec:policy:data/dynamic", "policy"=>"rspec:policy:data/dynamic", "permissions"=>[{"privilege"=>"read", "role"=>"rspec:user:alice", "policy"=>"rspec:policy:data/dynamic"}], "annotations"=>[{"name"=>"dynamic/issuer", "value"=>"aws-issuer-1", "policy"=>"rspec:policy:data/dynamic"}, {"name"=>"dynamic/ttl", "value"=>"1200", "policy"=>"rspec:policy:data/dynamic"}, {"name"=>"dynamic/method", "value"=>"federation-token", "policy"=>"rspec:policy:data/dynamic"}, {"name"=>"dynamic/region", "value"=>"us-east-1", "policy"=>"rspec:policy:data/dynamic"}, {"name"=>"dynamic/inline-policy", "value"=>"{}", "policy"=>"rspec:policy:data/dynamic"}, {"name"=>"description", "value"=>"desc", "policy"=>"rspec:policy:data/dynamic"}], "secrets"=>[]}')).to eq(true)
+             expect(parsed_body[0].to_s.include?('"id"=>"rspec:variable:data/ephemerals/ephemeral_secret", "owner"=>"rspec:policy:data/ephemerals", "policy"=>"rspec:policy:data/ephemerals", "permissions"=>[{"privilege"=>"read", "role"=>"rspec:user:alice", "policy"=>"rspec:policy:data/ephemerals"}], "annotations"=>[{"name"=>"ephemeral/issuer", "value"=>"aws-issuer-1", "policy"=>"rspec:policy:data/ephemerals"}, {"name"=>"ephemeral/ttl", "value"=>"1200", "policy"=>"rspec:policy:data/ephemerals"}, {"name"=>"ephemeral/method", "value"=>"federation-token", "policy"=>"rspec:policy:data/ephemerals"}, {"name"=>"ephemeral/region", "value"=>"us-east-1", "policy"=>"rspec:policy:data/ephemerals"}, {"name"=>"ephemeral/inline-policy", "value"=>"{}", "policy"=>"rspec:policy:data/ephemerals"}, {"name"=>"description", "value"=>"desc", "policy"=>"rspec:policy:data/ephemerals"}], "secrets"=>[]}')).to eq(true)
         # Correct audit is returned
         #audit_message = "rspec:user:alice added membership of rspec:host:data/delegation/host1 in rspec:group:data/delegation/consumers"
         #verify_audit_message(audit_message)
