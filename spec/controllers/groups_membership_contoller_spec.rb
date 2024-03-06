@@ -236,7 +236,7 @@ describe GroupsMembershipController, type: :request do
         }
         BODY
       end
-      it 'Host was added to group' do
+      it 'API call failed' do
         post("/groups/data/delegation/consumers/members",
              env: token_auth_header(role: alice_user).merge(
                {
@@ -245,7 +245,9 @@ describe GroupsMembershipController, type: :request do
                }
              )
         )
-        assert_response :created
+        assert_response :bad_request
+        parsed_body = JSON.parse(response.body)
+        expect(parsed_body["error"]["message"]).to eq("CONJ00194W The api belongs to v2 APIs but it missing the version \"application/x.secretsmgr.v2+json\" in the Accept header")
       end
     end
   end

@@ -78,11 +78,6 @@ module Secrets
         }
       end
 
-      def annotations_as_json(variable)
-        filter_list = ["conjur/kind", "conjur/mime_type"]
-        get_annotations(variable, filter_list)
-      end
-
       private
 
       def create_resource(branch, secret_name, policy_id)

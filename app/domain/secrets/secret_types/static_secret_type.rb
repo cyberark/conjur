@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Secrets
   module SecretTypes
     class StaticSecretType  < SecretBaseType
@@ -66,13 +68,18 @@ module Secrets
       end
 
       def as_json(branch, name, variable)
+        # Create json result from branch and name
         json_result = super(branch, name)
 
+        # add the mime type field to the result
         mime_type = get_mime_type(variable)
         if mime_type
           json_result = json_result.merge(mime_type: get_mime_type(variable))
         end
-        json_result.merge(annotations: annotations_as_json(variable))
+
+        # add annotations to json result
+        filter_list = ["conjur/mime_type"]
+        json_result.merge(annotations: get_annotations(variable, filter_list))
       end
 
       def get_update_permissions(params, secret)

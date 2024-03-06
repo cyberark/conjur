@@ -7,7 +7,7 @@ class HeaderConstraint
   end
 
   def matches?(request)
-    raise ApplicationController::BadRequestWithBody.new("Require header #{@header} with value #{@value}") unless request.headers[@header] == @value
+    raise ApplicationController::BadRequestWithBody.new("Require header '#{@header}' with value '#{@value}'") unless request.headers[@header] == @value
     true
   end
 end
@@ -89,11 +89,10 @@ Rails.application.routes.draw do
       # NOTE: the order of these routes matters: we need the expire
       #       route to come first.
       # V2 Secrets
-      require_v2_header = HeaderConstraint.new('Accept', 'application/x.secretsmgr.v2+json')
-      post "/secrets/static" => 'static_secrets#create', :constraints => require_v2_header
-      post "/secrets/dynamic" => 'dynamic_secrets#create', :constraints => require_v2_header
-      get "/secrets/static/(/*branch)/:name" => 'static_secrets#show', :constraints => require_v2_header
-      put "/secrets/static/(/*branch)/:name" => 'static_secrets#replace', :constraints => require_v2_header
+      post "/secrets/static" => 'static_secrets#create'
+      post "/secrets/dynamic" => 'dynamic_secrets#create'
+      get "/secrets/static/(/*branch)/:name" => 'static_secrets#show'
+      put "/secrets/static/(/*branch)/:name" => 'static_secrets#replace'
 
       post    "/secrets/:account/:kind/*identifier" => "secrets#expire",
         :constraints => QueryParameterActionRecognizer.new("expirations")
