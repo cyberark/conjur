@@ -2,26 +2,21 @@
 
 require './app/domain/responses'
 
+# This controller is responsible for managing Policy Factory templates
 class PolicyFactoriesController < RestController
   include AuthorizeResource
+  include PolicyFactory
 
   before_action :current_user
 
-  def create
-    response = DB::Repository::PolicyFactoryRepository.new.find(
+  def index
+    response = DB::Repository::PolicyFactoryRepository.new.find_all(
       role: current_user,
-      **relevant_params(%i[account kind version id])
-    ).bind do |factory|
-      Factories::CreateFromPolicyFactory.new.call(
-        account: params[:account],
-        factory_template: factory,
-        request_body: request.body.read,
-        authorization: request.headers["Authorization"]
-      )
-    end
-
+      account: params[:account]
+    )
     render_response(response) do
-      render(json: response.result)
+      presenter = Presenter::PolicyFactories::Index.new(factories: response.result)
+      render(json: presenter.present)
     end
   end
 
@@ -36,34 +31,5 @@ class PolicyFactoriesController < RestController
       presenter = Presenter::PolicyFactories::Show.new(factory: response.result)
       render(json: presenter.present)
     end
-  end
-
-  def index
-    response = DB::Repository::PolicyFactoryRepository.new.find_all(
-      role: current_user,
-      account: params[:account]
-    )
-    render_response(response) do
-      presenter = Presenter::PolicyFactories::Index.new(factories: response.result)
-      render(json: presenter.present)
-    end
-  end
-
-  private
-
-  def render_response(response, &block)
-    if response.success?
-      block.call
-    else
-      presenter = Presenter::PolicyFactories::Error.new(response: response)
-      render(
-        json: presenter.present,
-        status: response.status
-      )
-    end
-  end
-
-  def relevant_params(allowed_params)
-    params.permit(*allowed_params).slice(*allowed_params).to_h.symbolize_keys
   end
 end

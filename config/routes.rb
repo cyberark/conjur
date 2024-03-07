@@ -56,9 +56,10 @@ Rails.application.routes.draw do
       end
 
       # Factories
-      post "/factories/:account/:kind/(:version)/:id" => "policy_factories#create"
-      get "/factories/:account/:kind/(:version)/:id" => "policy_factories#show"
-      get "/factories/:account" => "policy_factories#index"
+      match   "/factory-resources/:account/:kind/(:version)/:id" => "policy_factory_resources#create", via: [:post, :patch]
+      # Endpoints related to viewing factories
+      get     "/factories/:account/:kind/(:version)/:id" => "policy_factories#show"
+      get     "/factories/:account" => "policy_factories#index"
 
       get     "/roles/:account/:kind/*identifier" => "roles#graph", :constraints => QueryParameterActionRecognizer.new("graph")
       get     "/roles/:account/:kind/*identifier" => "roles#all_memberships", :constraints => QueryParameterActionRecognizer.new("all")
