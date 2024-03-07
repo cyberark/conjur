@@ -58,4 +58,27 @@ class PolicyFactoryResourcesController < RestController
       render(json: response.result, status: :created)
     end
   end
+
+  def enable
+    toggle_factory_circuit_breaker('enable')
+  end
+
+  def disable
+    toggle_factory_circuit_breaker('disable')
+  end
+
+  private
+
+  def toggle_factory_circuit_breaker(action)
+    response = Factories::ResourceCircuitBreaker.new.call(
+      account: params[:account],
+      policy_identifier: params[:policy_identifier],
+      action: action,
+      role: current_user,
+      request_ip: request.remote_ip
+    )
+    render_response(response) do
+      render(json: response.result)
+    end
+  end
 end

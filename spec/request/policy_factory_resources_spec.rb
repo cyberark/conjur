@@ -685,7 +685,7 @@ describe PolicyFactoryResourcesController, type: :request do
           end
           context 'when the resource is currently enabled' do
             context 'when we attempt to disable it' do
-              it 'removes access' do
+              before(:each) do
                 database_params = {
                   id: 'test-database',
                   branch: 'root',
@@ -706,13 +706,32 @@ describe PolicyFactoryResourcesController, type: :request do
                     Role['rspec:group:test-database/circuit-breaker'].memberships.any? { |member| member.member_id == 'rspec:group:test-database/consumers' }
                   ).to eq(true)
                 end
-
-                post('/factory-resources/rspec/test-database/disable', env: request_env)
-                # verify disabled
-                expect(response.status).to eq(200)
-                expect(
-                  Role['rspec:group:test-database/circuit-breaker'].memberships.any? { |member| member.member_id == 'rspec:group:test-database/consumers' }
-                ).to eq(false)
+              end
+              context 'when the role has update permission on the policy' do
+                it 'removes access' do
+                  post('/factory-resources/rspec/test-database/disable', env: request_env)
+                  # verify disabled
+                  expect(response.status).to eq(200)
+                  expect(
+                    Role['rspec:group:test-database/circuit-breaker'].memberships.any? { |member| member.member_id == 'rspec:group:test-database/consumers' }
+                  ).to eq(false)
+                end
+              end
+              context 'when the role does not have update permission on the policy' do
+                before(:each) do
+                  Role.find_or_create(role_id: 'rspec:user:alice')
+                end
+                after(:each) do
+                  Role['rspec:user:alice'].delete
+                end
+                it 'responds with an error' do
+                  post('/factory-resources/rspec/test-database/disable', env: request_env(role: 'alice'))
+                  # verify circuit breaker is not disabled
+                  expect(response.status).to eq(403)
+                  expect(
+                    Role['rspec:group:test-database/circuit-breaker'].memberships.any? { |member| member.member_id == 'rspec:group:test-database/consumers' }
+                  ).to eq(true)
+                end
               end
             end
           end
