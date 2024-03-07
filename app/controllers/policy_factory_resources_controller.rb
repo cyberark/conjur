@@ -10,6 +10,18 @@ class PolicyFactoryResourcesController < RestController
 
   before_action :current_user
 
+  # Return a single resource created from a factory
+  def show
+    response = Factories::RetrievePolicyFactoryResource.new.call(
+      account: params[:account],
+      policy_identifier: params[:policy_identifier],
+      current_user: current_user
+    )
+    render_response(response) do
+      render(json: response.result)
+    end
+  end
+
   # Create a resource(s) from a factory
   def create
     available_params = relevant_params(%i[account kind version id])
