@@ -39,7 +39,8 @@ module Conjur
       authn_api_key_default: true,
       authenticators: [],
       extensions: [],
-      telemetry_enabled: false
+      telemetry_enabled: false,
+      policy_factories_path: 'conjur/factories'
     )
 
     def initialize(

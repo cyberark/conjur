@@ -27,10 +27,12 @@ module DB
 
     class PolicyFactoryRepository
       def initialize(
+        policy_factories_path: Rails.application.config.conjur_config.policy_factories_path,
         data_object: DataObjects::PolicyFactory,
         resource: ::Resource,
         logger: Rails.logger
       )
+        @policy_factories_path = policy_factories_path
         @resource = resource
         @data_object = data_object
         @logger = logger
@@ -73,12 +75,12 @@ module DB
 
       def find(kind:, id:, account:, role: nil, version: nil)
         factory = if version.present?
-          @resource["#{account}:variable:conjur/factories/#{kind}/#{version}/#{id}"]
+          @resource["#{account}:variable:#{@policy_factories_path}/#{kind}/#{version}/#{id}"]
         else
           @resource.where(
             Sequel.like(
               :resource_id,
-              "#{account}:variable:conjur/factories/#{kind}/%"
+              "#{account}:variable:#{@policy_factories_path}/#{kind}/%"
             )
           ).all
             .select { |item| item.resource_id.split('/').last == id }
