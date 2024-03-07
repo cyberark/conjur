@@ -10,6 +10,17 @@ class PolicyFactoryResourcesController < RestController
 
   before_action :current_user
 
+  # Returns resources created from factories that the current user has access to
+  def index
+    response = Factories::BatchRetrievePolicyFactoryResources.new.call(
+      account: params[:account],
+      current_user: current_user
+    )
+    render_response(response) do
+      render(json: response.result)
+    end
+  end
+
   # Return a single resource created from a factory
   def show
     response = Factories::RetrievePolicyFactoryResource.new.call(

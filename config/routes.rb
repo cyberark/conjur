@@ -57,6 +57,7 @@ Rails.application.routes.draw do
 
       # Factories
       # Endpoints for managing Policy Factory created resources
+      get     "/factory-resources/:account" => "policy_factory_resources#index"
       get     "/factory-resources/:account/:policy_identifier" => "policy_factory_resources#show"
       match   "/factory-resources/:account/:kind/(:version)/:id" => "policy_factory_resources#create", via: [:post, :patch]
       # Endpoints related to viewing factories
