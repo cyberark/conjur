@@ -16,6 +16,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   [CJNR-391](https://ca-il-jira.il.cyber-ark.com:8443/browse/CNJR-391)
 - Policy update/patch allow to create and use resources
   CNJR-2382
+- Use the same timestamp for access token 'issued at' and 'expiration' claims.
+  CNJR-4371
 
 ### Changed
 - Added group access to the authn-local socket to provide access for the new user 'api' in the group 'conjur'
@@ -38,7 +40,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Improved error messaging when a foreign key constraint violation occurs during
   a policy replace.
   [Conjur-Enterprise/conjur#93](https://github.cyberng.com/Conjur-Enterprise/conjur/pull/93)
-- Conjur API now returns the correct role graph, no longer showing resources that 
+- Conjur API now returns the correct role graph, no longer showing resources that
   the user does not have read permissions on.
 
 ### Changed
