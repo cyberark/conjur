@@ -20,9 +20,16 @@ class TokenFactory < Dry::Struct
                    username:,
                    host_ttl: Rails.application.config.conjur_config.host_authorization_token_ttl,
                    user_ttl: Rails.application.config.conjur_config.user_authorization_token_ttl)
+    # Issue a JWT will auto-populate iat (issued at). However, this is done by
+    # calling Time.now again, which can lead to discrepancies between the
+    # expected and actual JWT lifespan. To avoid this, we capture the current
+    # time once, and use it to provide both the iat and exp values for the
+    # token.
+    iat = Time.now
     signing_key(account).issue_jwt(
+      iat: iat,
       sub: username,
-      exp: Time.now + offset(
+      exp: iat + offset(
         ttl: username.starts_with?('host/') ? host_ttl : user_ttl
       )
     )
