@@ -1,0 +1,30 @@
+@startuml component-architecture
+
+title Component Overview
+
+!include <C4/C4_Component>
+
+Component(factory_controller, "PolicyFactoryController", "Rails", "View loaded Policy Factories")
+Component(factory_resources_controller, "PolicyFactoryResourcesController", "Rails", "Creates/Updates Factory-created resources")
+
+Component(factory_repository, "DB::Repository::PolicyFactoryRepository", "Ruby", "Retrieves Factories from Conjur Variables")
+Component(secrets_repository, "DB::Repository::SecretsRepository", "Ruby", "Retrieves Secrets from Conjur Variables")
+
+Component(renderer, "Factories::Renderer", "Ruby", "Renders Policy Factory templates")
+Component(policy_handler, "CommandHandler::Policy", "Ruby", "Handles Policy creation")
+
+Component(create, "CreateFromPolicyFactory", "Ruby", "Generates Conjur resource using a Policy Factory")
+Component(view, "RetrieveFromPolicyFactory", "Ruby", "Retrives Conjur resource created by a Policy Factory")
+Component(circuit_breaker, "CircuitBreaker", "Ruby", "Enables/disables variable/authentication permissions")
+
+Rel(factory_resources_controller, view, "Retrieves resources using")
+Rel(view, secrets_repository, "Retrieves secrets using")
+Rel(view, factory_repository, "Retrieves factories using")
+Rel(factory_controller, factory_repository, "Loads factories from")
+Rel(factory_resources_controller, create, "Creates resources using")
+Rel(circuit_breaker, policy_handler, "Applies Policy using")
+
+Rel(factory_resources_controller, circuit_breaker, "Enables/disables permissions using")
+Rel(create, renderer, "Renders Policy templates using")
+Rel(renderer, policy_handler, "Applies Policy using")
+@enduml
