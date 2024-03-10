@@ -8,6 +8,27 @@ module Secrets
       def create_input_validation(params)
         super(params)
 
+        input_validation(params)
+      end
+
+      def update_input_validation(params, body_params)
+        secret = super(params, body_params)
+        input_validation(body_params)
+        secret
+      end
+
+      private
+
+      def convert_fields_to_annotations(params)
+        annotations = super(params)
+        method_params = params[:method_params]
+        add_annotation(annotations, DYNAMIC_ROLE_ARN, method_params[:role_arn])
+        add_annotation(annotations, DYNAMIC_REGION, method_params[:region])
+        add_annotation(annotations, DYNAMIC_POLICY, method_params[:inline_policy])
+        annotations
+      end
+
+      def input_validation(params)
         method_params = params[:method_params]
         if method_params.nil?
           raise Errors::Conjur::ParameterMissing.new("method_params")
@@ -22,15 +43,6 @@ module Secrets
           inline_policy: String
         }
         validate_data(method_params, data_fields)
-      end
-
-      def convert_fields_to_annotations(params)
-        annotations = super(params)
-        method_params = params[:method_params]
-        add_annotation(annotations, DYNAMIC_ROLE_ARN, method_params[:role_arn])
-        add_annotation(annotations, DYNAMIC_REGION, method_params[:region])
-        add_annotation(annotations, DYNAMIC_POLICY, method_params[:inline_policy])
-        annotations
       end
     end
   end

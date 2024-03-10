@@ -17,21 +17,15 @@ module Secrets
         end
         raise ApplicationController::BadRequestWithBody, "Dynamic secret can be created only under #{Issuer::DYNAMIC_VARIABLE_PREFIX}" unless branch.start_with?(Issuer::DYNAMIC_VARIABLE_PREFIX.chop)
 
-        # check all fields are filled and with correct type
-        data_fields = {
-          issuer: String,
-          ttl: Numeric
-        }
-        validate_required_data(params, data_fields.keys)
-        validate_data(params, data_fields)
+        dynamic_input_validation(params)
+      end
 
-        # check if issuer exists
-        issuer_id = params[:issuer]
-        issuer = Issuer.where(issuer_id: issuer_id).first
-        raise Exceptions::RecordNotFound, "#{account}:issuer:#{issuer_id}" unless issuer
+      def update_input_validation(params, body_params)
+        secret = super(params, body_params)
 
-        # check secret ttl is less then the issuer ttl
-        raise ApplicationController::BadRequestWithBody, "Dynamic secret ttl can't be bigger than the issuer ttl #{issuer[:max_ttl]}" if params[:ttl] > issuer[:max_ttl]
+        dynamic_input_validation(body_params)
+
+        secret
       end
 
       def get_create_permissions(params)
@@ -45,12 +39,29 @@ module Secrets
         permissions.merge! issuer_permissions
       end
 
+      def get_update_permissions(params, secret)
+        permissions = super(params, secret)
+
+        #For Ephemeral Secret - has 'use' permissions to issuer policy
+        issuer = params[:issuer]
+        issuer_policy = get_resource("policy", "conjur/issuers/#{issuer}")
+        issuer_permissions = {issuer_policy => :use}
+
+        permissions.merge! issuer_permissions
+      end
+
       def create_secret(branch, secret_name, params)
         secret = super(branch, secret_name, params)
 
         as_json(branch, secret_name)
       rescue Sequel::UniqueConstraintViolation => e
         raise Exceptions::RecordExists.new("secret", secret_id)
+      end
+
+      def replace_secret(branch, secret_name, secret, params)
+        super(branch, secret, params)
+
+        as_json(branch, secret_name)
       end
 
       private
@@ -69,6 +80,27 @@ module Secrets
           annotation.store('value', annotation_value)
           annotations.push(annotation)
         end
+      end
+
+      def dynamic_input_validation(params)
+        # check if value field exist
+        raise ApplicationController::BadRequestWithBody, "Adding value to a dynamic secret is not allowed" if params[:value]
+
+        # check all fields are filled and with correct type
+        data_fields = {
+          issuer: String,
+          ttl: Numeric
+        }
+        validate_required_data(params, data_fields.keys)
+        validate_data(params, data_fields)
+
+        # check if issuer exists
+        issuer_id = params[:issuer]
+        issuer = Issuer.where(issuer_id: issuer_id).first
+        raise Exceptions::RecordNotFound, "#{account}:issuer:#{issuer_id}" unless issuer
+
+        # check secret ttl is less then the issuer ttl
+        raise ApplicationController::BadRequestWithBody, "Dynamic secret ttl can't be bigger than the issuer ttl #{issuer[:max_ttl]}" if params[:ttl] > issuer[:max_ttl]
       end
     end
   end

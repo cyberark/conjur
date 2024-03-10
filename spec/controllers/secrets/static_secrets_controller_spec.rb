@@ -137,6 +137,29 @@ describe StaticSecretsController, type: :request do
         expect(parsed_body["error"]["message"]).to eq("Policy 'data/no_secrets' not found in account 'rspec'")
       end
     end
+    context "when creating secret without v2 header" do
+      let(:payload_create_secret) do
+        <<~BODY
+          {
+              "branch": "/data/no_secrets",
+              "name": "secret1"
+          }
+        BODY
+      end
+      it 'Secret creation failed on 400' do
+        post("/secrets/static",
+             env: token_auth_header(role: admin_user).merge(
+               {
+                 'RAW_POST_DATA' => payload_create_secret,
+                 'CONTENT_TYPE' => "application/json"
+               }
+             ))
+        # Correct response code
+        assert_response :bad_request
+        parsed_body = JSON.parse(response.body)
+        expect(parsed_body["error"]["message"]).to eq("CONJ00194W The api belongs to v2 APIs but it missing the version \"application/x.secretsmgr.v2+json\" in the Accept header")
+      end
+    end
   end
 
   describe "Create static secret with permissions with input errors" do

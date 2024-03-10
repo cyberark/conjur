@@ -44,7 +44,7 @@ module Secrets
         if branch.start_with?("/")
           branch = branch[1..-1]
         end
-        raise ApplicationController::BadRequestWithBody, "Static secret cannot be created under #{Issuer::EPHEMERAL_VARIABLE_PREFIX}" if branch.start_with?(Issuer::EPHEMERAL_VARIABLE_PREFIX.chop)
+        raise ApplicationController::BadRequestWithBody, "Static secret cannot be created under #{Issuer::DYNAMIC_VARIABLE_PREFIX}" if branch.start_with?(Issuer::DYNAMIC_VARIABLE_PREFIX.chop)
       end
 
       def create_secret(branch, secret_name, params)
@@ -68,19 +68,20 @@ module Secrets
       end
 
       def as_json(branch, name, variable)
+        # Create json result from branch and name
         json_result = super(branch, name)
 
+        # add the mime type field to the result
         mime_type = get_mime_type(variable)
         if mime_type
           json_result = json_result.merge(mime_type: get_mime_type(variable))
         end
 
-        annotations_as_json(json_result, variable)
-      end
-
-      def annotations_as_json(json_result, variable)
+        # add annotations to json result
         filter_list = ["conjur/mime_type"]
-        json_result.merge(annotations: get_annotations(variable, filter_list))
+        json_result = json_result.merge(annotations: get_annotations(variable, filter_list))
+
+        json_result.to_json
       end
 
       def get_update_permissions(params, secret)

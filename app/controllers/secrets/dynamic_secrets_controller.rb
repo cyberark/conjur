@@ -31,4 +31,33 @@ class DynamicSecretsController < V2RestController
     #audit_failure(e, :remove)
     raise e
   end
+
+  def replace
+    branch = params[:branch]
+    secret_name = params[:name]
+
+    log_message = "Replace Dynamic Secret #{branch}/#{secret_name}"
+    logger.debug(LogMessages::Endpoints::EndpointRequested.new(log_message))
+
+    dynamic_secret = Secrets::SecretTypes::DynamicSecretTypeFactory.new.create_dynamic_secret_type(params[:method])
+
+    #Run input validation specific to secret type
+    secret = dynamic_secret.update_input_validation(params, body_params)
+
+    # Check permissions
+    create_permissions = dynamic_secret.get_update_permissions(params, secret)
+    create_permissions.each do |action_policy, action|
+      authorize(action, action_policy)
+    end
+
+    # Update secret
+    updated_secret = dynamic_secret.replace_secret(branch, secret_name, secret, params)
+
+    logger.debug(LogMessages::Endpoints::EndpointFinishedSuccessfully.new(log_message))
+    render(json: updated_secret, status: :ok)
+    #audit_succsess
+  rescue => e
+    #audit_failure(e, :remove)
+    raise e
+  end
 end

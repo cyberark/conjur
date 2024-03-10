@@ -90,11 +90,11 @@ Rails.application.routes.draw do
       # NOTE: the order of these routes matters: we need the expire
       #       route to come first.
       # V2 Secrets
-      require_v2_header = HeaderConstraint.new('Accept', 'application/x.secretsmgr.v2+json')
-      post "/secrets/static" => 'static_secrets#create', :constraints => require_v2_header
-      post "/secrets/dynamic" => 'dynamic_secrets#create', :constraints => require_v2_header
-      get "/secrets/static/(/*branch)/:name" => 'static_secrets#show', :constraints => require_v2_header
-      put "/secrets/static/(/*branch)/:name" => 'static_secrets#replace', :constraints => require_v2_header
+      post "/secrets/static" => 'static_secrets#create'
+      get "/secrets/static/(/*branch)/:name" => 'static_secrets#show'
+      put "/secrets/static/(/*branch)/:name" => 'static_secrets#replace'
+      post "/secrets/dynamic" => 'dynamic_secrets#create'
+      put "/secrets/dynamic/(/*branch)/:name" => 'dynamic_secrets#replace'
 
       post    "/secrets/:account/:kind/*identifier" => "secrets#expire",
         :constraints => QueryParameterActionRecognizer.new("expirations")
@@ -122,7 +122,7 @@ Rails.application.routes.draw do
       # Feature flag
       get     "/features"                       => "feature_flag#feature_flag"
 
-      # Ephemeral secrets
+      # Dynamic secrets
       post    "/issuers/:account"             => 'issuers#create'
       delete  "/issuers/:account/:identifier" => 'issuers#delete'
       get     "/issuers/:account/:identifier" => 'issuers#get'
