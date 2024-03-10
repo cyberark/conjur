@@ -46,10 +46,9 @@ These are defined in runConjurTests, and also include the one-offs
     gcp_authenticator
 */
 @Library("product-pipelines-shared-library") _
-@Library("conjur-shared-library@ONYX-52143") _2
+@Library("conjur-shared-library") _2
 
 isStartedByTimer = currentBuild.getBuildCauses()[0]["shortDescription"].matches("Started by timer")
-conjurDevRepositoryName = conjurCloudUtils.generateRepositoryDetails("dev", "conjur", "dev").get("repoName")
 
 // Break the total number of tests into a subset of tests.
 // This will give 3 nested lists of tests to run, which is
@@ -184,7 +183,9 @@ pipeline {
         stage('Build Docker Image') {
           steps {
             script {
-              INFRAPOOL_EXECUTORV2_AGENT_0.agentSh './build.sh --jenkins'
+              // stash
+              stash(name: 'conjur_artifact', includes: '**')
+                INFRAPOOL_EXECUTORV2_AGENT_0.agentSh './build.sh --jenkins'
             }
           }
         }
@@ -198,23 +199,39 @@ pipeline {
             }
           }
         }
-
+        stage('Push Conjur image to Conjur Cloud Dev ECR') {
+          // options { lock(resource: "everest-golang-static-slave-ecr-login-lock") }
+          agent {
+            node {
+              label 'everest-golang-static-slave'
+              customWorkspace "/home/jenkins/workspace/${env.JOB_NAME}/${env.BUILD_NUMBER}/"
+            }
+          }
+          steps {
+            script {
+              withCredentials([
+              conjurSecretCredential(credentialsId: "RnD-Global-Conjur-Ent-Conjur_dev-conjur-ci-user-conjur_awsaccesskeyid", variable: 'AWS_ACCESS_KEY_ID'),
+              conjurSecretCredential(credentialsId: "RnD-Global-Conjur-Ent-Conjur_dev-conjur-ci-user-conjur_password", variable: 'AWS_SECRET_ACCESS_KEY')]) {
+                // unstash
+                unstash 'conjur_artifact'
+                // Push images to the internal registry so that they can be used
+                // by tests, even if the tests run on a different executor.
+                  sh './publish-images.sh --ecr'
+                // INFRAPOOL_EXECUTORV2_AGENT_0.agentSh './publish-images.sh --ecr'
+              }
+            }
+          }
+        }
         stage('Promote images to Conjur Dev ECR') {
           steps {
             script {
+              echo "Promoting images to Conjur Dev ECR"
               // def sha = tagWithSHA().trim()
               // INFRAPOOL_EXECUTORV2_AGENT_0.agentGet(from: 'VERSION', to: 'VERSION')
               // def versionFile = readFile('VERSION').trim()
               // def artifactName = "${versionFile}-${sha}"
-              def imageName = "${env.BRANCH_NAME}-${env.BUILD_NUMBER}"
+              // def imageName = "${env.BRANCH_NAME}-${env.BUILD_NUMBER}"
               // def tagAs = ""
-              
-              stash(name: 'stash_artifact', includes: '**')
-                docker_kaniko.build_and_push("dev", conjurDevRepositoryName, imageName, true, "", true)
-                if (env.BRANCH_NAME == 'conjur-cloud') {
-                  docker_kaniko.tagged_image("dev", conjurDevRepositoryName, imageName, "latest")
-                }
-
 
               // if(env.BRANCH_NAME == 'conjur-cloud') {
               //   imageName = "" // will determine in shared library
@@ -854,6 +871,19 @@ pipeline {
                 }
               }
             }
+            // stage('Push Conjur image to Conjur Cloud Dev ECR') {
+            //   steps {
+            //     script {
+            //       withCredentials([
+            //       conjurSecretCredential(credentialsId: "RnD-Global-Conjur-Ent-Conjur_dev-conjur-ci-user-conjur_awsaccesskeyid", variable: 'AWS_ACCESS_KEY_ID'),
+            //       conjurSecretCredential(credentialsId: "RnD-Global-Conjur-Ent-Conjur_dev-conjur-ci-user-conjur_password", variable: 'AWS_SECRET_ACCESS_KEY')]) {
+            //         // Push images to the internal registry so that they can be used
+            //         // by tests, even if the tests run on a different executor.
+            //         INFRAPOOL_EXECUTORV2_AGENT_0.agentSh './publish-images.sh --ecr'
+            //       }
+            //     }
+            //   }
+            // }
           }
         }
       }
