@@ -15,7 +15,7 @@ Feature: Creating host
       - !policy
         id: db
       - !policy
-        id: ephemeral
+        id: dynamic
         body:
         - !policy
           id: hosts
@@ -367,7 +367,7 @@ Feature: Creating host
     Then the HTTP response status code is 401
 
   @negative @acceptance
-  Scenario: API fails on creating host under ephemeral branch
+  Scenario: API fails on creating host under dynamic branch
     Given I set the "Content-Type" header to "application/json"
     When I login as "alice"
     And I save my place in the audit log file for remote
@@ -375,7 +375,7 @@ Feature: Creating host
     """
     {
       "host_id": "host_ephemeral",
-      "policy_tree": "data/ephemeral/hosts"
+      "policy_tree": "data/dynamic/hosts"
     }
     """
     Then the HTTP response status code is 422
@@ -386,5 +386,5 @@ Feature: Creating host
       [subject@43868]
       [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
       [action@43868 result="failure" operation="create"]
-      Failed to load policy: Value provided for policy data/ephemeral/hosts is invalid
+      Failed to load policy: Value provided for policy data/dynamic/hosts is invalid
     """

@@ -1,9 +1,9 @@
 module Secrets
   module SecretTypes
     class AWSAssumeRoleDynamicSecretType < DynamicSecretType
-      EPHEMERAL_ROLE_ARN = "ephemeral/role-arn"
-      EPHEMERAL_REGION = "ephemeral/region"
-      EPHEMERAL_POLICY = "ephemeral/inline-policy"
+      DYNAMIC_ROLE_ARN = "dynamic/role-arn"
+      DYNAMIC_REGION = "dynamic/region"
+      DYNAMIC_POLICY = "dynamic/inline-policy"
 
       def input_validation(params)
         super(params)
@@ -27,9 +27,9 @@ module Secrets
       def convert_fields_to_annotations(params)
         annotations = super(params)
         method_params = params[:method_params]
-        add_annotation(annotations, EPHEMERAL_ROLE_ARN, method_params[:role_arn])
-        add_annotation(annotations, EPHEMERAL_REGION, method_params[:region])
-        add_annotation(annotations, EPHEMERAL_POLICY, method_params[:inline_policy])
+        add_annotation(annotations, DYNAMIC_ROLE_ARN, method_params[:role_arn])
+        add_annotation(annotations, DYNAMIC_REGION, method_params[:region])
+        add_annotation(annotations, DYNAMIC_POLICY, method_params[:inline_policy])
         annotations
       end
     end

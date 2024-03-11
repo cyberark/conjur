@@ -1,9 +1,9 @@
 module Secrets
   module SecretTypes
     class DynamicSecretType  < SecretBaseType
-      EPHEMERAL_ISSUER = "ephemeral/issuer"
-      EPHEMERAL_TTL = "ephemeral/ttl"
-      EPHEMERAL_METHOD = "ephemeral/method"
+      DYNAMIC_ISSUER = "dynamic/issuer"
+      DYNAMIC_TTL = "dynamic/ttl"
+      DYNAMIC_METHOD = "dynamic/method"
 
       def input_validation(params)
         super(params)
@@ -15,7 +15,7 @@ module Secrets
         if branch.start_with?("/")
           branch = branch[1..-1]
         end
-        raise ApplicationController::BadRequestWithBody, "Ephemeral secret can be created only under #{Issuer::EPHEMERAL_VARIABLE_PREFIX}" unless branch.start_with?(Issuer::EPHEMERAL_VARIABLE_PREFIX.chop)
+        raise ApplicationController::BadRequestWithBody, "Dynamic secret can be created only under #{Issuer::DYNAMIC_VARIABLE_PREFIX}" unless branch.start_with?(Issuer::DYNAMIC_VARIABLE_PREFIX.chop)
 
         # check all fields are filled and with correct type
         data_fields = {
@@ -31,13 +31,13 @@ module Secrets
         raise Exceptions::RecordNotFound, "#{account}:issuer:#{issuer_id}" unless issuer
 
         # check secret ttl is less then the issuer ttl
-        raise ApplicationController::BadRequestWithBody, "Ephemeral secret ttl can't be bigger than the issuer ttl #{issuer[:max_ttl]}" if params[:ttl] > issuer[:max_ttl]
+        raise ApplicationController::BadRequestWithBody, "Dynamic secret ttl can't be bigger than the issuer ttl #{issuer[:max_ttl]}" if params[:ttl] > issuer[:max_ttl]
       end
 
       def get_create_permissions(params)
         permissions = super(params)
 
-        #For Ephemeral Secret - has 'use' permissions to issuer policy
+        #For Dynamic Secret - has 'use' permissions to issuer policy
         issuer = params[:issuer]
         issuer_policy = get_resource("policy", "conjur/issuers/#{issuer}")
         issuer_permissions = {issuer_policy => :use}
@@ -56,9 +56,9 @@ module Secrets
       private
       def convert_fields_to_annotations(params)
         annotations = super(params)
-        add_annotation(annotations,EPHEMERAL_ISSUER,params[:issuer])
-        add_annotation(annotations,EPHEMERAL_TTL,params[:ttl])
-        add_annotation(annotations,EPHEMERAL_METHOD,params[:method])
+        add_annotation(annotations, DYNAMIC_ISSUER, params[:issuer])
+        add_annotation(annotations, DYNAMIC_TTL, params[:ttl])
+        add_annotation(annotations, DYNAMIC_METHOD, params[:method])
         annotations
       end
 

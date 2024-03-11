@@ -63,16 +63,16 @@ class PoliciesController < RestController
   def audit_success(policy)
     policy.policy_log.lazy.map(&:to_audit_event).each do |event|
       Audit.logger.log(event)
-      log_ephemeral_variable(event)
+      log_dynamic_variable(event)
     end
   end
 
-  def log_ephemeral_variable(audit_event)
+  def log_dynamic_variable(audit_event)
     if not audit_event.subject.is_a?(Audit::Subject::Resource)
       return
     end
-    if audit_event.subject.to_h[:resource].include?("variable:data/ephemerals")
-      logger.info(LogMessages::Ephemeral::EphemeralVariableTelemetry.new(audit_event.operation, audit_event.subject.to_h[:resource], request.ip))
+    if audit_event.subject.to_h[:resource].include?("variable:data/dynamic")
+      logger.info(LogMessages::Dynamic::DynamicVariableTelemetry.new(audit_event.operation, audit_event.subject.to_h[:resource], request.ip))
     end
   end
 

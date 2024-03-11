@@ -171,12 +171,12 @@ Feature: Issuers audits tests
     And I successfully POST "/policies/cucumber/policy/root" with body:
     """
     - !policy
-      id: data/ephemerals
+      id: data/dynamic
       body:
       - !variable
         id: my-ephemeral-secret
         annotations:
-          ephemeral/issuer: aws-issuer-1
+          dynamic/issuer: aws-issuer-1
 
     - !policy
       id: data
@@ -184,7 +184,7 @@ Feature: Issuers audits tests
       - !variable
         id: my-non-ephemeral-secret
     """
-    And I successfully POST "/policies/cucumber/policy/data/ephemerals" with body:
+    And I successfully POST "/policies/cucumber/policy/data/dynamic" with body:
     """
     - !policy
       id: inner-policy
@@ -192,7 +192,7 @@ Feature: Issuers audits tests
       - !variable
         id: my-other-ephemeral-secret
         annotations:
-          ephemeral/issuer: aws-issuer-1
+          dynamic/issuer: aws-issuer-1
     """
     And I save my place in the audit log file for remote
     When I clear the "Content-Type" header
@@ -211,17 +211,17 @@ Feature: Issuers audits tests
     """
       <86>1 * - conjur * variable
       [auth@43868 user="cucumber:user:admin"]
-      [subject@43868 account="cucumber" issuer="aws-issuer-1" resource_id="cucumber:variable:data/ephemerals/my-ephemeral-secret"]
+      [subject@43868 account="cucumber" issuer="aws-issuer-1" resource_id="cucumber:variable:data/dynamic/my-ephemeral-secret"]
       [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
       [action@43868 result="success" operation="remove"]
-      cucumber:variable:data/ephemerals/my-ephemeral-secret removed as a result of the removal of cucumber:issuer:aws-issuer-1
+      cucumber:variable:data/dynamic/my-ephemeral-secret removed as a result of the removal of cucumber:issuer:aws-issuer-1
     """
     And there is an audit record matching:
     """
       <86>1 * - conjur * variable
       [auth@43868 user="cucumber:user:admin"]
-      [subject@43868 account="cucumber" issuer="aws-issuer-1" resource_id="cucumber:variable:data/ephemerals/inner-policy/my-other-ephemeral-secret"]
+      [subject@43868 account="cucumber" issuer="aws-issuer-1" resource_id="cucumber:variable:data/dynamic/inner-policy/my-other-ephemeral-secret"]
       [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
       [action@43868 result="success" operation="remove"]
-      cucumber:variable:data/ephemerals/inner-policy/my-other-ephemeral-secret removed as a result of the removal of cucumber:issuer:aws-issuer-1
+      cucumber:variable:data/dynamic/inner-policy/my-other-ephemeral-secret removed as a result of the removal of cucumber:issuer:aws-issuer-1
     """

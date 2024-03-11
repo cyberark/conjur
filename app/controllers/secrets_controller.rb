@@ -12,7 +12,7 @@ class SecretsController < RestController
   def create
     authorize(:update)
 
-    raise Exceptions::MethodNotAllowed, "adding a static secret to an ephemeral secret variable is not allowed" if ephemeral_secret?
+    raise Exceptions::MethodNotAllowed, "adding a static secret to a dynamic secret variable is not allowed" if dynamic_secret?
 
     value = request.raw_post
 
@@ -39,8 +39,8 @@ class SecretsController < RestController
     authorize(:execute)
     version = params[:version]
 
-    if ephemeral_secret?
-      value = handle_ephemeral_secret
+    if dynamic_secret?
+      value = handle_dynamic_secret
       mime_type = 'application/json'
     else
       unless (secret = resource.secret(version: version))
@@ -174,11 +174,11 @@ class SecretsController < RestController
     @variable_ids
   end
 
-  def ephemeral_secret?
-    resource.kind == "variable" && resource.identifier.start_with?(Issuer::EPHEMERAL_VARIABLE_PREFIX)
+  def dynamic_secret?
+    resource.kind == "variable" && resource.identifier.start_with?(Issuer::DYNAMIC_VARIABLE_PREFIX)
   end
 
-  def handle_ephemeral_secret
+  def handle_dynamic_secret
     account = params[:account]
     resource_annotations = resource.annotations
     variable_data = {}
@@ -186,8 +186,8 @@ class SecretsController < RestController
 
     # Filter the issuer related annotations and remove the prefix
     resource_annotations.each do |annotation|
-      next unless annotation.name.start_with?(Issuer::EPHEMERAL_ANNOTATION_PREFIX)
-      issuer_param = annotation.name.to_s[Issuer::EPHEMERAL_ANNOTATION_PREFIX.length..-1]
+      next unless annotation.name.start_with?(Issuer::DYNAMIC_ANNOTATION_PREFIX)
+      issuer_param = annotation.name.to_s[Issuer::DYNAMIC_ANNOTATION_PREFIX.length..-1]
       variable_data[issuer_param] = annotation.value
     end
 
@@ -196,14 +196,14 @@ class SecretsController < RestController
     # There shouldn't be a state where a variable belongs to an issuer that doesn't exit, but we check it to be safe
     raise ApplicationController::InternalServerError, "Issuer assigned to #{account}:#{params[:kind]}:#{params[:identifier]} was not found" unless issuer
 
-    logger.info(LogMessages::Secrets::EphemeralSecretRequest.new(request_id, variable_data["issuer"], issuer.issuer_type, variable_data["method"]))
+    logger.info(LogMessages::Secrets::DynamicSecretRequest.new(request_id, variable_data["issuer"], issuer.issuer_type, variable_data["method"]))
 
     issuer_data = {
       max_ttl: issuer.max_ttl,
       data: JSON.parse(issuer.data)
     }
 
-    ConjurEphemeralEngineClient.new(logger: logger, request_id: request_id)
-                               .get_ephemeral_secret(issuer.issuer_type, variable_data["method"], @current_user.role_id, issuer_data, variable_data)
+    ConjurDynamicEngineClient.new(logger: logger, request_id: request_id)
+                               .get_dynamic_secret(issuer.issuer_type, variable_data["method"], @current_user.role_id, issuer_data, variable_data)
   end
 end

@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-class MockConjurEngineClient < ConjurEphemeralEngineClient
+class MockConjurEngineClient < ConjurDynamicEngineClient
   def initialize(logger:, request_id:, http_client: nil)
     super(logger: logger, request_id: request_id, http_client: http_client)
   end
@@ -64,7 +64,7 @@ describe "Conjur ephemeral engine client validation" do
   end
 
   context "when all input is valid" do
-    it "then an ephemeral secret is returned" do
+    it "then a dynamic secret is returned" do
       issuer_type = "aws"
       issuer_method = "iam_federation"
       role_id = "conjur:host:data/my-host"
@@ -83,12 +83,12 @@ describe "Conjur ephemeral engine client validation" do
 
       expect do
         MockConjurEngineClient.new(logger: logger, request_id: "abc", http_client: mock_ephemeral_secrets_service(nil))
-                              .get_ephemeral_secret(issuer_type, issuer_method, role_id, issuer_data, variable_data)
+                              .get_dynamic_secret(issuer_type, issuer_method, role_id, issuer_data, variable_data)
       end
         .to_not raise_error
 
       result = MockConjurEngineClient.new(logger: logger, request_id: "abc", http_client: mock_ephemeral_secrets_service(nil))
-                                     .get_ephemeral_secret(issuer_type, issuer_method, role_id, issuer_data, variable_data)
+                                     .get_dynamic_secret(issuer_type, issuer_method, role_id, issuer_data, variable_data)
 
       expect(result).to eq(mock_secret_result.to_json)
     end
@@ -113,16 +113,16 @@ describe "Conjur ephemeral engine client validation" do
 
       expect do
         MockConjurEngineClient.new(logger: logger, request_id: "abc", http_client: mock_ephemeral_secrets_service("400"))
-                              .get_ephemeral_secret(issuer_type, issuer_method, role_id, issuer_data, variable_data)
+                              .get_dynamic_secret(issuer_type, issuer_method, role_id, issuer_data, variable_data)
       end.to raise_error(ApplicationController::UnprocessableEntity) do |error|
-        expect(error.message).to eq("Failed to create the ephemeral secret. Code: Error code, Message: Error message, description: Error description")
+        expect(error.message).to eq("Failed to create the dynamic secret. Code: Error code, Message: Error message, description: Error description")
       end
 
       expect do
         MockConjurEngineClient.new(logger: logger, request_id: "abc", http_client: mock_ephemeral_secrets_service("500"))
-                              .get_ephemeral_secret(issuer_type, issuer_method, role_id, issuer_data, variable_data)
+                              .get_dynamic_secret(issuer_type, issuer_method, role_id, issuer_data, variable_data)
       end.to raise_error(ApplicationController::UnprocessableEntity) do |error|
-        expect(error.message).to eq("Failed to create the ephemeral secret. Code: Error code, Message: Error message, description: Error description")
+        expect(error.message).to eq("Failed to create the dynamic secret. Code: Error code, Message: Error message, description: Error description")
       end
     end
   end

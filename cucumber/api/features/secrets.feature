@@ -199,11 +199,11 @@ Feature: Adding and fetching secrets
     Then the HTTP response status code is 404
 
   @negative @acceptance
-  Scenario: Fail when updating an ephemeral secret value with permissions
+  Scenario: Fail when updating a dynamic secret value with permissions
 
-    Given I create a new "variable" resource called "data/ephemerals/ephemeral"
+    Given I create a new "variable" resource called "data/dynamic/ephemeral"
     And I save my place in the audit log file for remote
-    When I POST "/secrets/cucumber/variable/data/ephemerals/ephemeral" with body:
+    When I POST "/secrets/cucumber/variable/data/dynamic/ephemeral" with body:
     """
     v-1
     """
@@ -212,17 +212,17 @@ Feature: Adding and fetching secrets
     """
       <84>1 * * conjur * update
       [auth@43868 user="cucumber:user:eve"]
-      [subject@43868 resource="cucumber:variable:data/ephemerals/ephemeral"]
+      [subject@43868 resource="cucumber:variable:data/dynamic/ephemeral"]
       [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
       [action@43868 result="failure" operation="update"]
-      cucumber:user:eve tried to update cucumber:variable:data/ephemerals/ephemeral: adding a static secret to an ephemeral secret variable is not allowed
+      cucumber:user:eve tried to update cucumber:variable:data/dynamic/ephemeral: adding a static secret to a dynamic secret variable is not allowed
     """
 
   @negative @acceptance
-  Scenario: Fail on permissions first when trying to update an ephemeral secret value without permissions
+  Scenario: Fail on permissions first when trying to update a dynamic secret value without permissions
 
     Given I create a new "variable" resource called "ephemeral"
-    And I set annotation "ephemeral/issuer" to "my-issuer"
+    And I set annotation "dynamic/issuer" to "my-issuer"
     When I am a user named "alice"
     And I POST "/secrets/cucumber/variable/ephemeral" with body:
     """
@@ -233,8 +233,8 @@ Feature: Adding and fetching secrets
     And the error message is "Variable 'ephemeral' not found in account 'cucumber'"
 
   @negative @acceptance
-  Scenario: Fail to retrieve an ephemeral secret
+  Scenario: Fail to retrieve a dynamic secret
 
-    Given I create a new "variable" resource called "data/ephemerals/ephemeral"
-    When I GET "/secrets/cucumber/variable/data/ephemerals/ephemeral"
+    Given I create a new "variable" resource called "data/dynamic/ephemeral"
+    When I GET "/secrets/cucumber/variable/data/dynamic/ephemeral"
     Then the HTTP response status code is 500

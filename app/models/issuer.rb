@@ -7,8 +7,8 @@ require_relative '../controllers/wrappers/templates_renderer'
 
 class Issuer < Sequel::Model
 
-  EPHEMERAL_ANNOTATION_PREFIX = "ephemeral/"
-  EPHEMERAL_VARIABLE_PREFIX = "data/ephemerals/"
+  DYNAMIC_ANNOTATION_PREFIX = "dynamic/"
+  DYNAMIC_VARIABLE_PREFIX = "data/dynamic/"
 
   attr_encrypted :data, aad: :issuer_id
 
@@ -51,7 +51,7 @@ class Issuer < Sequel::Model
 
   def related_variables_query
     Annotation.where(Sequel.lit("resource_id LIKE ? AND value = ? AND name = ?",
-                                "#{self.account}:variable:#{EPHEMERAL_VARIABLE_PREFIX}%",
-                                self.issuer_id, "#{EPHEMERAL_ANNOTATION_PREFIX}issuer"))
+                                "#{self.account}:variable:#{DYNAMIC_VARIABLE_PREFIX}%",
+                                self.issuer_id, "#{DYNAMIC_ANNOTATION_PREFIX}issuer"))
   end
 end
