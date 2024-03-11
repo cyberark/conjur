@@ -6,9 +6,9 @@ module Monitoring
       def setup(registry, pubsub)
         @registry = registry
         @pubsub = pubsub
-        @metric_name = :conjur_http_server_requests_total
+        @metric_name = :conjur_requests_total
         @docstring = 'The total number of HTTP requests handled by Conjur.'
-        @labels = %i[code operation]
+        @labels = %i[operation tenant_id]
         @sub_event_name = 'conjur.request'
 
         # Create/register the metric
@@ -16,10 +16,13 @@ module Monitoring
       end
 
       def update(payload)
+        if ((payload[:operation] == 'unknown') || (payload[:operation] == 'getMetrics'))
+          return
+        end
         metric = registry.get(metric_name)
         update_labels = {
-          code: payload[:code],
-          operation: payload[:operation]
+          operation: payload[:operation],
+          tenant_id: ENV['TENANT_ID']
         }
         metric.increment(labels: update_labels)
       end

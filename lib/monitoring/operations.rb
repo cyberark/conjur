@@ -192,7 +192,7 @@ module Monitoring
       },
       {
         method: "GET",
-        pattern: %r{^(/secrets)(/[^/]+){3}$},
+        pattern: %r{^(/secrets)(/[^/]+){2}(/.*)$},
         operation: "getSecret"
       },
       {

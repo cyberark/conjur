@@ -11,4 +11,5 @@ unless scheduler.down?
   scheduler.every "#{interval}h", first_in: 5.minutes.since do
     system("rake rotate:slosilo")
   end
+
 end

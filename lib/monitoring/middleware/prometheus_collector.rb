@@ -22,16 +22,26 @@ module Monitoring
 
       protected
 
+      def filter_out?(path_info)
+        return path_info.start_with?("/secrets/conjur/variable/replicator") ||
+          path_info.start_with?("/secrets/conjur/variable/conjur") ||
+          path_info.start_with?("/authn-jwt/internal-")
+      end
+
       # Trace HTTP requests
       def trace(env)
         response = nil
+        path_info = env['PATH_INFO']
         operation = find_operation(env['REQUEST_METHOD'], env['PATH_INFO'])
         duration = Benchmark.realtime { response = yield }
-        record(env, response.first.to_s, duration, operation)
+
+        unless filter_out?(path_info)
+          record(env, response.first.to_s, duration, operation)
+        end
         response
       rescue => e
         @pubsub.publish(
-          "conjur.request_exception", 
+          "conjur.request_exception",
           operation: operation,
           exception: e.class.name,
           message: e
@@ -41,7 +51,7 @@ module Monitoring
 
       def record(_env, code, duration, operation)
         @pubsub.publish(
-          "conjur.request", 
+          "conjur.request",
           code: code,
           operation: operation,
           duration: duration

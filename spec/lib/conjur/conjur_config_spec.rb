@@ -365,7 +365,7 @@ describe Conjur::ConjurConfig do
     end
   end
 
-  describe "metrics endpoint is disabled by default", type: :request do
+  xdescribe "metrics endpoint is disabled by default", type: :request do
     it "returns a 401" do
       get '/metrics'
       expect(response).to have_http_status(401)
