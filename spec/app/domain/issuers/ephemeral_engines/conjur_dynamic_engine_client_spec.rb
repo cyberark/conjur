@@ -257,10 +257,10 @@ describe "Conjur ephemeral engine client validation" do
 
   context "when the hostname is parsed for the tenant ID" do
     it "then the tenant ID is successfully found" do
-      ENV["TENANT_ID"] = "my_tenant_id"
+      ENV["TENANT_ID"] = "mytenant"
       result = MockConjurEngineClient.new(logger: logger, request_id: "abc", http_client: mock_ephemeral_secrets_service(error: nil)).tenant_id
 
-      expect(result).to eq("my_tenant_id")
+      expect(result).to eq("mytenant")
     end
   end
 

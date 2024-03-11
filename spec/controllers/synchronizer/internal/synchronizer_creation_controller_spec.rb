@@ -30,7 +30,7 @@ describe SynchronizerCreationController, :type => :request do
     allow(Audit).to receive(:logger).and_return(log_object)
 
     init_slosilo_keys("rspec")
-    ENV['TENANT_ID'] ||= 'mytenant'
+    
     put(
       '/policies/rspec/policy/root',
       env: token_auth_header(role: super_user).merge(
@@ -125,4 +125,3 @@ describe SynchronizerCreationController, :type => :request do
 
   end
 end
-

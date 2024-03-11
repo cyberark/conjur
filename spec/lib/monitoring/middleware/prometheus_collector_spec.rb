@@ -68,12 +68,13 @@ describe Monitoring::Middleware::PrometheusCollector do
   it 'stores a known operation ID in the metrics store' do
     #expect(Benchmark).to receive(:realtime).and_yield.and_return(0.2)
 
-    env['PATH_INFO'] = "/whoami"
-    ENV['TENANT_ID'] = "mytenant"
+    env['PATH_INFO'] = "/secrets/conjur/variable/db/password"
+
+    expect(Rails.cache).to receive(:read).with("getSecret/counter").and_return(0)
 
     status, _headers, _response = subject.call(env)
 
-    labels = { operation: 'whoAmI', tenant_id: 'mytenant' }
+    labels = { operation: 'getSecret', tenant_id: ENV['TENANT_ID'] }
     expect(request_counter_metric.get(labels: labels)).to eql(1.0)
 
   end

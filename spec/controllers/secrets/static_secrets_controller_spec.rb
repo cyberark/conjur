@@ -16,8 +16,8 @@ describe StaticSecretsController, type: :request do
     <<~POLICY
       - !user alice
       - !user bob
-      - !user rita      
-      
+      - !user rita
+
       - !policy
         id: data
         body:
@@ -27,12 +27,12 @@ describe StaticSecretsController, type: :request do
 
         - !variable
           id: mySecret
-          mime_type: text/plain 
+          mime_type: text/plain
 
         - !grant
            role: !group group1
-           member:          
-             - !host host1 
+           member:
+             - !host host1
 
       - !permit
         role: !user alice
@@ -177,8 +177,8 @@ describe StaticSecretsController, type: :request do
                     "id": "luba"
                   },
                   "privileges": [ "read"]
-                }          
-              ]       
+                }
+              ]
           }
         BODY
       end
@@ -211,7 +211,7 @@ describe StaticSecretsController, type: :request do
       end
       let(:variable_policy) do
         <<~POLICY
-          - !variable secret2          
+          - !variable secret2
         POLICY
       end
       it 'Secret resource was created' do
@@ -390,8 +390,8 @@ describe StaticSecretsController, type: :request do
                 {
                   "name": "test_ann",
                   "value": "test"
-                }             
-              ]       
+                }
+              ]
           }
         BODY
       end
@@ -438,8 +438,8 @@ describe StaticSecretsController, type: :request do
                     "id": "alice"
                   },
                   "privileges": [ "read", "update"]
-                }          
-              ]       
+                }
+              ]
           }
         BODY
       end
@@ -494,8 +494,8 @@ describe StaticSecretsController, type: :request do
                     "id": "/data/host1"
                   },
                   "privileges": [ "execute", "read"]
-                }          
-              ]       
+                }
+              ]
           }
         BODY
       end
@@ -534,8 +534,8 @@ describe StaticSecretsController, type: :request do
                     "id": "/data/group1"
                   },
                   "privileges": [ "execute", "update"]
-                }          
-              ]       
+                }
+              ]
           }
         BODY
       end
@@ -586,8 +586,8 @@ describe StaticSecretsController, type: :request do
                     "id": "alice"
                   },
                   "privileges": [ "update"]
-                }           
-              ]       
+                }
+              ]
           }
         BODY
       end
@@ -742,8 +742,8 @@ describe StaticSecretsController, type: :request do
                     "id": "/data/group1"
                   },
                   "privileges": [ "execute", "update"]
-                }            
-              ]       
+                }
+              ]
           }
         BODY
       end
@@ -830,6 +830,7 @@ describe StaticSecretsController, type: :request do
     end
     context 'when the branch doesnt exist' do
       it 'returns 404' do
+        expect(Rails.cache).to receive(:read).with("getSecret/counter").and_return(0)
         get(
           '/secrets/static/doesNotExist/mySecret',
           env: token_auth_header(role: alice_user).merge(v2_api_header).merge(
@@ -885,7 +886,7 @@ describe StaticSecretsController, type: :request do
                   "id": "alice"
                 },
                 "privileges": [ "read" ]
-              }  
+              }
             ]
         }
       BODY
@@ -927,7 +928,7 @@ describe StaticSecretsController, type: :request do
                     "id": "alice"
                   },
                   "privileges": [ "read" ]
-                }  
+                }
               ]
           }
         BODY
@@ -1002,7 +1003,7 @@ describe StaticSecretsController, type: :request do
                     "id": "alice"
                   },
                   "privileges": [ "read" ]
-                }  
+                }
               ]
           }
         BODY
@@ -1043,7 +1044,7 @@ describe StaticSecretsController, type: :request do
                     "id": "alice"
                   },
                   "privileges": [ "read" ]
-                }  
+                }
               ]
           }
         BODY
@@ -1084,7 +1085,7 @@ describe StaticSecretsController, type: :request do
                     "id": "alice"
                   },
                   "privileges": [ "read" ]
-                }  
+                }
               ]
           }
         BODY
@@ -1128,7 +1129,7 @@ describe StaticSecretsController, type: :request do
                   "id": "bob"
                 },
                 "privileges": [ "read" ]
-              }  
+              }
             ]
         }
       BODY
@@ -1149,7 +1150,7 @@ describe StaticSecretsController, type: :request do
                   "id": "bob"
                 },
                 "privileges": [ "read" ]
-              }  
+              }
             ]
         }
       BODY
@@ -1261,7 +1262,7 @@ describe StaticSecretsController, type: :request do
                   "id": "alice"
                 },
                 "privileges": [ "update" ]
-              }  
+              }
             ]
         }
       BODY
@@ -1308,7 +1309,7 @@ describe StaticSecretsController, type: :request do
                     "id": "alice"
                   },
                   "privileges": [ "read" ]
-                }  
+                }
               ]
           }
         BODY
@@ -1352,7 +1353,7 @@ describe StaticSecretsController, type: :request do
                     "id": "alice"
                   },
                   "privileges": [ "read" ]
-                }  
+                }
               ]
           }
         BODY
@@ -1400,7 +1401,7 @@ describe StaticSecretsController, type: :request do
                     "id": "alice"
                   },
                   "privileges": [ "read" ]
-                } 
+                }
               ]
           }
         BODY
@@ -1443,7 +1444,7 @@ describe StaticSecretsController, type: :request do
                     "id": "alice"
                   },
                   "privileges": [ "read" ]
-                }  
+                }
               ]
           }
         BODY
@@ -1507,7 +1508,7 @@ describe StaticSecretsController, type: :request do
                     "id": "data/host1"
                   },
                   "privileges": [ "execute" ]
-                } 
+                }
               ]
           }
         BODY
@@ -1624,7 +1625,7 @@ describe StaticSecretsController, type: :request do
                     "id": "data/host2"
                   },
                   "privileges": [ "execute" ]
-                } 
+                }
               ]
           }
         BODY
@@ -1773,7 +1774,7 @@ describe StaticSecretsController, type: :request do
                     "id": "alice"
                   },
                   "privileges": [ "update" ]
-                }  
+                }
               ]
           }
         BODY
@@ -1873,7 +1874,7 @@ describe StaticSecretsController, type: :request do
                   "id": "alice"
                 },
                 "privileges": [ "update", "read", "execute" ]
-              }  
+              }
             ]
         }
       BODY
@@ -1900,22 +1901,22 @@ describe StaticSecretsController, type: :request do
                   "id": "alice"
                 },
                 "privileges": [ "update", "read", "execute" ]
-              }  
+              }
             ]
         }
         BODY
     end
     let(:create_secret_policy) do
       <<~POLICY
-          - !variable 
+          - !variable
             id: secret1
             annotations:
-              description: desc              
+              description: desc
 
           - !permit
             resource: !variable secret1
             privilege: [ read ]
-            role: !user /alice    
+            role: !user /alice
         POLICY
     end
     before do
