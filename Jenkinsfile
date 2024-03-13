@@ -183,9 +183,7 @@ pipeline {
         stage('Build Docker Image') {
           steps {
             script {
-              // stash
-              stash(name: 'conjur_artifact', includes: '**')
-                INFRAPOOL_EXECUTORV2_AGENT_0.agentSh './build.sh --jenkins'
+              INFRAPOOL_EXECUTORV2_AGENT_0.agentSh './build.sh --jenkins'
             }
           }
         }
@@ -196,59 +194,6 @@ pipeline {
               // Push images to the internal registry so that they can be used
               // by tests, even if the tests run on a different executor.
               INFRAPOOL_EXECUTORV2_AGENT_0.agentSh './publish-images.sh --internal'
-            }
-          }
-        }
-        stage('Push Conjur image to Conjur Cloud Dev ECR') {
-          // options { lock(resource: "everest-golang-static-slave-ecr-login-lock") }
-          agent {
-            node {
-              label 'everest-golang-static-slave'
-              customWorkspace "/home/jenkins/workspace/${env.JOB_NAME}/${env.BUILD_NUMBER}/"
-            }
-          }
-          steps {
-            script {
-              withCredentials([
-              conjurSecretCredential(credentialsId: "RnD-Global-Conjur-Ent-Conjur_dev-conjur-ci-user-conjur_awsaccesskeyid", variable: 'AWS_ACCESS_KEY_ID'),
-              conjurSecretCredential(credentialsId: "RnD-Global-Conjur-Ent-Conjur_dev-conjur-ci-user-conjur_password", variable: 'AWS_SECRET_ACCESS_KEY')]) {
-                // unstash
-                unstash 'conjur_artifact'
-                // Push images to the internal registry so that they can be used
-                // by tests, even if the tests run on a different executor.
-                  sh './publish-images.sh --ecr'
-                // INFRAPOOL_EXECUTORV2_AGENT_0.agentSh './publish-images.sh --ecr'
-              }
-            }
-          }
-        }
-        stage('Promote images to Conjur Dev ECR') {
-          steps {
-            script {
-              echo "Promoting images to Conjur Dev ECR"
-              // def sha = tagWithSHA().trim()
-              // INFRAPOOL_EXECUTORV2_AGENT_0.agentGet(from: 'VERSION', to: 'VERSION')
-              // def versionFile = readFile('VERSION').trim()
-              // def artifactName = "${versionFile}-${sha}"
-              // def imageName = "${env.BRANCH_NAME}-${env.BUILD_NUMBER}"
-              // def tagAs = ""
-
-              // if(env.BRANCH_NAME == 'conjur-cloud') {
-              //   imageName = "" // will determine in shared library
-              //   tagAs = "latest"
-              // }
-
-              // def promoteImageJobName = "Conjur/Conjur-conjur-cloud-management-tools/main/Conjur-conjur-cloud-management-tools-main-promote-artifact"
-              // def jobParameters = [
-              //     string(name: 'Service_Name', value: 'conjur'),
-              //     string(name: 'Promotion_Type', value: 'Conjur_Dev'),
-              //     string(name: 'Version', value: artifactName),
-              //     string(name: 'Promotion_Type_Validation', value: 'Conjur_Dev'),
-              //     string(name: 'Tag_As', value: tagAs),
-              //     string(name: 'conjurDevTagBranch', value: imageName),
-              // ]
-              // // Call promotion job
-              // build(job: promoteImageJobName, parameters: jobParameters)
             }
           }
         }
@@ -871,19 +816,22 @@ pipeline {
                 }
               }
             }
-            // stage('Push Conjur image to Conjur Cloud Dev ECR') {
-            //   steps {
-            //     script {
-            //       withCredentials([
-            //       conjurSecretCredential(credentialsId: "RnD-Global-Conjur-Ent-Conjur_dev-conjur-ci-user-conjur_awsaccesskeyid", variable: 'AWS_ACCESS_KEY_ID'),
-            //       conjurSecretCredential(credentialsId: "RnD-Global-Conjur-Ent-Conjur_dev-conjur-ci-user-conjur_password", variable: 'AWS_SECRET_ACCESS_KEY')]) {
-            //         // Push images to the internal registry so that they can be used
-            //         // by tests, even if the tests run on a different executor.
-            //         INFRAPOOL_EXECUTORV2_AGENT_0.agentSh './publish-images.sh --ecr'
-            //       }
-            //     }
-            //   }
-            // }
+          }
+        }
+
+        stage('Promote image to Conjur Dev ECR') {
+          steps {
+            script {
+              withCredentials([
+              conjurSecretCredential(credentialsId: "RnD-Global-Conjur-Ent-Conjur_dev-conjur-ci-user-conjur_awsaccesskeyid", variable: 'AWS_ACCESS_KEY_ID'),
+              conjurSecretCredential(credentialsId: "RnD-Global-Conjur-Ent-Conjur_dev-conjur-ci-user-conjur_password", variable: 'AWS_SECRET_ACCESS_KEY')]) {
+                INFRAPOOL_EXECUTORV2_AGENT_0.agentGet(from: 'VERSION', to: 'VERSION')
+                def conjurVersion = readFile('VERSION').trim().split("-")[0]
+                env.INFRAPOOL_AWS_ACCESS_KEY_ID = env.AWS_ACCESS_KEY_ID
+                env.INFRAPOOL_AWS_SECRET_ACCESS_KEY = env.AWS_SECRET_ACCESS_KEY
+                INFRAPOOL_EXECUTORV2_AGENT_0.agentSh "./publish-images.sh --ecr --version=${conjurVersion}"
+              }
+            }
           }
         }
       }

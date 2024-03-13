@@ -74,20 +74,39 @@ fi
 
 # If --ecr option is provided, push the image to Amazon ECR
 if [[ "${PUBLISH_ECR}" = true ]]; then
-  echo "Pushing ${LOCAL_TAG} ${LOCAL_IMAGE} tagged image to Amazon ECR..."
-  
-  # Authenticate Docker with Amazon ECR
+  echo "Pushing ${LOCAL_IMAGE} tagged image to Amazon ECR..."
+
+  # Set the temporary credentials as environment variables for the duration of the script
+  export AWS_ACCESS_KEY_ID=$INFRAPOOL_AWS_ACCESS_KEY_ID
+  export AWS_SECRET_ACCESS_KEY=$INFRAPOOL_AWS_SECRET_ACCESS_KEY
+  TAG_LATEST=false
+
   aws sts get-caller-identity
-  # docker info
-  # docker system info
-  buildah images
-  
-  aws ecr get-login-password --region us-east-1 | buildah login --username AWS --password-stdin 238637036211.dkr.ecr.us-east-1.amazonaws.com
-  
+
+  # Authenticate Docker with Amazon ECR
+  aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 238637036211.dkr.ecr.us-east-1.amazonaws.com
+
+  # Set tags based on branch name
+  if [[ "${BRANCH_NAME}" == 'conjur-cloud' ]]; then
+    TAG="${VERSION}"
+    TAG_LATEST=true
+  else
+    TAG="${VERSION}.${BRANCH_NAME}-${BUILD_NUMBER}"
+  fi
+
   # Tag and push the built image to Amazon ECR
-  buildah tag "${LOCAL_IMAGE}" "238637036211.dkr.ecr.us-east-1.amazonaws.com/mgmt-conjur-dev-repository-conjur:ldtest-${LOCAL_TAG}"
-  # docker info
-  # docker system info
-  buildah images
-  buildah push "238637036211.dkr.ecr.us-east-1.amazonaws.com/mgmt-conjur-dev-repository-conjur:ldtest-${LOCAL_TAG}"
+  docker tag "${LOCAL_IMAGE}" "238637036211.dkr.ecr.us-east-1.amazonaws.com/mgmt-conjur-dev-repository-conjur:${TAG}"
+  docker push "238637036211.dkr.ecr.us-east-1.amazonaws.com/mgmt-conjur-dev-repository-conjur:${TAG}"
+  docker images
+
+  if [[ "${TAG_LATEST}" = true ]]; then
+    MANIFEST=$(aws ecr batch-get-image --region "us-east-1" --repository-name mgmt-conjur-dev-repository-conjur --image-ids imageTag="${TAG}" --output text --query 'images[].imageManifest')
+    echo "Manifest: ${MANIFEST}"
+    aws ecr put-image --region "us-east-1" --repository-name mgmt-conjur-dev-repository-conjur --image-tag "latest" --image-manifest "${MANIFEST}"
+    aws ecr describe-images --region "us-east-1" --repository-name mgmt-conjur-dev-repository-conjur --image-ids imageTag="latest"
+  fi
+
+  # Clean up by unsetting the temporary credentials
+  unset AWS_ACCESS_KEY_ID
+  unset AWS_SECRET_ACCESS_KEY
 fi
