@@ -2,4 +2,4 @@
   id: data
   body:
     - !policy
-      id: ephemerals
+      id: dynamic

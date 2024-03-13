@@ -281,12 +281,12 @@ module Loader
       def_delegators :@policy_object, :kind, :mime_type
 
       def verify;
-        if self.id.start_with?(Issuer::EPHEMERAL_VARIABLE_PREFIX)
-          if self.annotations[Issuer::EPHEMERAL_ANNOTATION_PREFIX + "issuer"].nil?
-            message = "The ephemeral variable '#{self.id}' has no issuer annotation"
+        if self.id.start_with?(Issuer::DYNAMIC_VARIABLE_PREFIX)
+          if self.annotations[Issuer::DYNAMIC_ANNOTATION_PREFIX + "issuer"].nil?
+            message = "The dynamic variable '#{self.id}' has no issuer annotation"
             raise Exceptions::InvalidPolicyObject.new(self.id, message: message)
           else
-            issuer_id = self.annotations[Issuer::EPHEMERAL_ANNOTATION_PREFIX + "issuer"]
+            issuer_id = self.annotations[Issuer::DYNAMIC_ANNOTATION_PREFIX + "issuer"]
 
             issuer = Issuer.where(account: @policy_object.account, issuer_id: issuer_id).first
             if (issuer.nil?)
@@ -298,8 +298,8 @@ module Loader
             auth_resource(:use, resource_id,issuer_id,@policy_object.account)
           end
         else
-          if !(self.annotations.nil?) && !(self.annotations[Issuer::EPHEMERAL_ANNOTATION_PREFIX + "issuer"].nil?)
-            message = "The ephemeral variable '#{self.id}' is not in the correct path"
+          if !(self.annotations.nil?) && !(self.annotations[Issuer::DYNAMIC_ANNOTATION_PREFIX + "issuer"].nil?)
+            message = "The dynamic variable '#{self.id}' is not in the correct path"
             raise Exceptions::InvalidPolicyObject.new(self.id, message: message)
           end
         end

@@ -36,7 +36,7 @@ ENABLE_OIDC_IDENTITY=false
 ENABLE_OIDC_KEYCLOAK=false
 ENABLE_OIDC_OKTA=false
 ENABLE_ROTATORS=false
-ENABLE_EPHEMERAL_SECRET=false
+ENABLE_DYNAMIC_SECRET=false
 IDENTITY_USER=""
 COMPOSE="docker compose"
 
@@ -78,7 +78,7 @@ main() {
   init_jwt
   init_oidc
   init_rotators
-  init_ephemeral_secrets
+  init_dynamic_secrets
   init_metrics
 
   # Updates CONJUR_AUTHENTICATORS and restarts required services.
@@ -115,7 +115,7 @@ Usage: start [options]
                     authn-oidc/keycloak2 uses AuthnOIDC V2 (based on the Authz
                     Code with PKCE flow).
     --oidc-okta     Adds to authn-oidc okta static env configuration
-    --ephemeral     Starts with ephemeral secrets Conjur cloud policies included
+    --dynamic     Starts with dynamic secrets Conjur cloud policies included
     --rotators      Starts a cucumber and test postgres container.
                     Drops you into the cucumber container.
                     You then manually start 'conjurctl server' in another tab.
@@ -139,7 +139,7 @@ parse_options() {
       --oidc-identity ) ENABLE_AUTHN_OIDC=true ; ENABLE_OIDC_IDENTITY=true; shift ;;
       --oidc-keycloak ) ENABLE_AUTHN_OIDC=true ; ENABLE_OIDC_KEYCLOAK=true ; shift ;;
       --oidc-okta ) ENABLE_AUTHN_OIDC=true ; ENABLE_OIDC_OKTA=true ; shift ;;
-      --ephemeral ) ENABLE_EPHEMERAL_SECRET=true ; shift ;;
+      --dynamic ) ENABLE_DYNAMIC_SECRET=true ; shift ;;
       --rotators ) ENABLE_ROTATORS=true ; shift ;;
        * )
          if [ -z "$1" ]; then
@@ -441,14 +441,14 @@ init_azure() {
 }
 
 
-init_ephemeral_secrets() {
-    if [[ $ENABLE_EPHEMERAL_SECRET != true ]]; then
+init_dynamic_secrets() {
+    if [[ $ENABLE_DYNAMIC_SECRET != true ]]; then
       return
     fi
   client_load_policy \
-    "/src/conjur-server/dev/files/ephemeral-secrets/issuers.yaml"
+    "/src/conjur-server/dev/files/dynamic-secrets/issuers.yaml"
   client_load_policy \
-      "/src/conjur-server/dev/files/ephemeral-secrets/ephemerals.yaml"
+      "/src/conjur-server/dev/files/dynamic-secrets/dynamic.yaml"
 }
 
 init_gcp() {

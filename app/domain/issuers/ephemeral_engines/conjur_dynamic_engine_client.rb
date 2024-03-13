@@ -4,12 +4,12 @@ require 'net/http'
 require 'uri'
 require 'json'
 
-require_relative('ephemeral_engine_client')
+require_relative('dynamic_engine_client')
 
-class ConjurEphemeralEngineClient
-  include EphemeralEngineClient
+class ConjurDynamicEngineClient
+  include DynamicEngineClient
 
-  @@secrets_service_address = ENV['EPHEMERAL_SECRETS_SERVICE_ADDRESS'] || "ephemeral-secrets"
+  @@secrets_service_address = ENV['EPHEMERAL_SECRETS_SERVICE_ADDRESS'] || "dynamic-secrets"
   @@secrets_service_port = ENV['EPHEMERAL_SECRETS_SERVICE_PORT'] || "8080"
 
   def initialize(logger:, request_id:, http_client: nil)
@@ -23,7 +23,7 @@ class ConjurEphemeralEngineClient
     @request_id = request_id
   end
 
-  def get_ephemeral_secret(type, method, role_id, issuer_data, variable_data)
+  def get_dynamic_secret(type, method, role_id, issuer_data, variable_data)
     request_body = {
       type: type,
       method: method,
@@ -42,22 +42,22 @@ class ConjurEphemeralEngineClient
     secret_request.add_field('X-Tenant-ID', tenant_id)
 
     # Send the request and get the response
-    @logger.debug(LogMessages::Secrets::EphemeralSecretRequestBody.new(@request_id, secret_request.body))
+    @logger.debug(LogMessages::Secrets::DynamicSecretRequestBody.new(@request_id, secret_request.body))
     begin
       response = @client.request(secret_request)
     rescue => e
-      @logger.error(LogMessages::Secrets::EphemeralSecretRemoteRequestFailure.new(@request_id, e.message))
+      @logger.error(LogMessages::Secrets::DynamicSecretRemoteRequestFailure.new(@request_id, e.message))
       raise ApplicationController::InternalServerError, e.message
     end
-    @logger.debug(LogMessages::Secrets::EphemeralSecretRemoteResponse.new(@request_id, response.code))
+    @logger.debug(LogMessages::Secrets::DynamicSecretRemoteResponse.new(@request_id, response.code))
 
     case response.code.to_i
     when 200..299
       return response.body
     else
       response_body = JSON.parse(response.body)
-      @logger.error(LogMessages::Secrets::EphemeralSecretRemoteResponseFailure.new(@request_id, response_body['code'], response_body['message'], response_body['description']))
-      raise ApplicationController::UnprocessableEntity, "Failed to create the ephemeral secret. Code: #{response_body['code']}, Message: #{response_body['message']}, description: #{response_body['description']}"
+      @logger.error(LogMessages::Secrets::DynamicSecretRemoteResponseFailure.new(@request_id, response_body['code'], response_body['message'], response_body['description']))
+      raise ApplicationController::UnprocessableEntity, "Failed to create the dynamic secret. Code: #{response_body['code']}, Message: #{response_body['message']}, description: #{response_body['description']}"
     end
   end
 

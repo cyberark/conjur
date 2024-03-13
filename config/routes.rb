@@ -121,7 +121,7 @@ Rails.application.routes.draw do
       # Feature flag
       get     "/features"                       => "feature_flag#feature_flag"
 
-      # Ephemeral secrets
+      # Dynamic secrets
       post    "/issuers/:account"             => 'issuers#create'
       delete  "/issuers/:account/:identifier" => 'issuers#delete'
       get     "/issuers/:account/:identifier" => 'issuers#get'

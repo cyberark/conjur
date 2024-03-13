@@ -14,12 +14,12 @@ module Secrets
         }
         validate_data(params, data_fields)
 
-        # Can't create the secret under ephemerals branch
+        # Can't create the secret under dynamic branch
         branch = params[:branch]
         if branch.start_with?("/")
           branch = branch[1..-1]
         end
-        raise ApplicationController::BadRequestWithBody, "Static secret cannot be created under #{Issuer::EPHEMERAL_VARIABLE_PREFIX}" if branch.start_with?(Issuer::EPHEMERAL_VARIABLE_PREFIX.chop)
+        raise ApplicationController::BadRequestWithBody, "Static secret cannot be created under #{Issuer::DYNAMIC_VARIABLE_PREFIX}" if branch.start_with?(Issuer::DYNAMIC_VARIABLE_PREFIX.chop)
       end
 
       def create_secret(branch, secret_name, params)

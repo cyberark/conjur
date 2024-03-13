@@ -365,12 +365,12 @@ describe IssuersController, type: :request do
       let(:payload_create_ephemeral_variables) do
         <<~POLICY
           - !policy
-            id: data/ephemerals
+            id: data/dynamic
             body:
             - !variable
               id: related-ephemeral-variable
               annotations:
-                ephemeral/issuer: my-new-aws-issuer
+                dynamic/issuer: my-new-aws-issuer
         POLICY
       end
       it 'it returns conflict' do
@@ -391,7 +391,7 @@ describe IssuersController, type: :request do
           )
         )
         assert_response :success
-        expect(Resource.find(resource_id: "rspec:variable:data/ephemerals/related-ephemeral-variable")).to_not eq(nil)
+        expect(Resource.find(resource_id: "rspec:variable:data/dynamic/related-ephemeral-variable")).to_not eq(nil)
         post("/issuers/rspec",
              env: token_auth_header(role: admin_user).merge(
                'RAW_POST_DATA' => payload_create_issuer_input,
@@ -592,16 +592,16 @@ describe IssuersController, type: :request do
       let(:payload_create_ephemeral_variables) do
         <<~POLICY
           - !policy
-            id: data/ephemerals
+            id: data/dynamic
             body:
             - !variable
               id: related-ephemeral-variable
               annotations:
-                ephemeral/issuer: my-new-aws-issuer
+                dynamic/issuer: my-new-aws-issuer
             - !variable
               id: unrelated-ephemeral-variable
               annotations:
-                ephemeral/issuer: my-other-issuer
+                dynamic/issuer: my-other-issuer
         POLICY
       end
       let(:payload_create_non_ephemeral_variable) do
@@ -612,7 +612,7 @@ describe IssuersController, type: :request do
             - !variable
               id: non-ephemeral-variable
               annotations:
-                ephemeral/issuer: my-new-aws-issuer
+                dynamic/issuer: my-new-aws-issuer
         POLICY
       end
       before do
@@ -634,8 +634,8 @@ describe IssuersController, type: :request do
           )
         )
         assert_response :success
-        expect(Resource.find(resource_id: "rspec:variable:data/ephemerals/related-ephemeral-variable")).to_not eq(nil)
-        expect(Resource.find(resource_id: "rspec:variable:data/ephemerals/unrelated-ephemeral-variable")).to_not eq(nil)
+        expect(Resource.find(resource_id: "rspec:variable:data/dynamic/related-ephemeral-variable")).to_not eq(nil)
+        expect(Resource.find(resource_id: "rspec:variable:data/dynamic/unrelated-ephemeral-variable")).to_not eq(nil)
         post(
           '/policies/rspec/policy/root',
           env: token_auth_header(role: admin_user).merge(
@@ -651,10 +651,10 @@ describe IssuersController, type: :request do
         expect(Resource.find(resource_id: "rspec:policy:conjur/issuers/my-new-aws-issuer")).to eq(nil)
         expect(Resource.find(resource_id: "rspec:policy:conjur/issuers/my-new-aws-issuer/delegation")).to eq(nil)
         expect(Resource.find(resource_id: "rspec:group:conjur/issuers/my-new-aws-issuer/delegation/consumers")).to eq(nil)
-        expect(Resource.find(resource_id: "rspec:variable:data/ephemerals/related-ephemeral-variable")).to eq(nil)
+        expect(Resource.find(resource_id: "rspec:variable:data/dynamic/related-ephemeral-variable")).to eq(nil)
 
         # Non related ephemeral variables and non ephemeral variables are not deleted
-        expect(Resource.find(resource_id: "rspec:variable:data/ephemerals/unrelated-ephemeral-variable")).to_not eq(nil)
+        expect(Resource.find(resource_id: "rspec:variable:data/dynamic/unrelated-ephemeral-variable")).to_not eq(nil)
         expect(Resource.find(resource_id: "rspec:variable:data/non-ephemeral-variable")).to eq(nil)
       end
 
@@ -665,7 +665,7 @@ describe IssuersController, type: :request do
         expect(Resource.find(resource_id: "rspec:policy:conjur/issuers/my-new-aws-issuer")).to eq(nil)
         expect(Resource.find(resource_id: "rspec:policy:conjur/issuers/my-new-aws-issuer/delegation")).to eq(nil)
         expect(Resource.find(resource_id: "rspec:group:conjur/issuers/my-new-aws-issuer/delegation/consumers")).to eq(nil)
-        expect(Resource.find(resource_id: "rspec:variable:data/ephemerals/related-ephemeral-variable")).to eq(nil)
+        expect(Resource.find(resource_id: "rspec:variable:data/dynamic/related-ephemeral-variable")).to eq(nil)
       end
 
       it 'deletes issuer but keeps related ephemeral variables when flag is true' do
@@ -675,7 +675,7 @@ describe IssuersController, type: :request do
         expect(Resource.find(resource_id: "rspec:policy:conjur/issuers/my-new-aws-issuer")).to eq(nil)
         expect(Resource.find(resource_id: "rspec:policy:conjur/issuers/my-new-aws-issuer/delegation")).to eq(nil)
         expect(Resource.find(resource_id: "rspec:group:conjur/issuers/my-new-aws-issuer/delegation/consumers")).to eq(nil)
-        expect(Resource.find(resource_id: "rspec:variable:data/ephemerals/related-ephemeral-variable")).to_not eq(nil)
+        expect(Resource.find(resource_id: "rspec:variable:data/dynamic/related-ephemeral-variable")).to_not eq(nil)
       end
 
       context "when a user deletes a non existing issuer without permissions" do

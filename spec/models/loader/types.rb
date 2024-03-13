@@ -92,7 +92,7 @@ describe Loader::Types::Variable do
     variable.id = resource_id
     variable.account = "conjur"
     if issuer_id != ''
-      variable.annotations =  { "ephemeral/issuer" => issuer_id }
+      variable.annotations =  { "dynamic/issuer" => issuer_id }
     end
     Loader::Types.wrap(variable, self)
   end
@@ -103,7 +103,7 @@ describe Loader::Types::Variable do
         $primary_schema = "public"
       end
 
-      context 'when creating regular variable without ephemerals/issuer annotation' do
+      context 'when creating regular variable without dynamic/issuer annotation' do
         let(:resource_id) { 'data/myvar1' }
         let(:issuer_id) { '' }
         it { expect { variable.verify }.to_not raise_error }
@@ -116,13 +116,13 @@ describe Loader::Types::Variable do
       end
 
       context 'when creating ephemeral variable without ephemerals/issuer annotation' do
-        let(:resource_id) { 'data/ephemerals/myvar1' }
+        let(:resource_id) { 'data/dynamic/myvar1' }
         let(:issuer_id) { '' }
         it { expect { variable.verify }.to raise_error }
       end
 
       context 'when creating ephemeral variable with ephemerals/issuer annotation' do
-        let(:resource_id) { 'data/ephemerals/myvar2' }
+        let(:resource_id) { 'data/dynamic/myvar2' }
         let(:issuer_id) { 'aws1' }
         it { expect { variable.verify }.to raise_error(Exceptions::RecordNotFound,"Issuer 'aws1' not found in account 'conjur'" ) }
       end
@@ -146,7 +146,7 @@ describe Loader::Types::Variable do
       end
 
       context 'when creating ephemeral variable with ephemerals/issuer annotation' do
-        let(:resource_id) { 'data/ephemerals/myvar2' }
+        let(:resource_id) { 'data/dynamic/myvar2' }
         let(:issuer_id) { 'aws1' }
         let(:issuer_object) { nil }
 
@@ -158,7 +158,7 @@ describe Loader::Types::Variable do
       end
 
       context 'when creating ephemeral variable with ephemerals/issuer annotation' do
-        let(:resource_id) { 'data/ephemerals/myvar2' }
+        let(:resource_id) { 'data/dynamic/myvar2' }
         let(:issuer_id) { 'aws1' }
         let(:issuer_object) { 'issuer' }
         it "raise not InvalidPolicyObject" do
@@ -186,7 +186,7 @@ describe Loader::Types::Variable do
       end
 
       context 'when creating ephemeral variable with ephemerals/issuer aws1' do
-        let(:resource_id) { 'data/ephemerals/myvar2' }
+        let(:resource_id) { 'data/dynamic/myvar2' }
         let(:issuer_id) { 'aws1' }
         let(:issuer_object) { 'issuer'  }
         it "raise not found record error" do
@@ -196,7 +196,7 @@ describe Loader::Types::Variable do
       end
 
       context 'when creating ephemeral variable with ephemerals/issuer aws1 and with permissions' do
-        let(:resource_id) { 'data/ephemerals/myvar2' }
+        let(:resource_id) { 'data/dynamic/myvar2' }
         let(:issuer_id) { 'aws1' }
         let(:issuer_object) { 'issuer' }
         it "should not raise error" do

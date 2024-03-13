@@ -68,9 +68,9 @@ module LogMessages
     )
   end
 
-  module Ephemeral
-    EphemeralVariableTelemetry = ::Util::TrackableLogMessageClass.new(
-      msg: "{0} ephemeral variable '{1}' for {2} at #{Time.now}",
+  module Dynamic
+    DynamicVariableTelemetry = ::Util::TrackableLogMessageClass.new(
+      msg: "{0} dynamic variable '{1}' for {2} at #{Time.now}",
       code: "CONJ00168I"
     )
   end
@@ -826,33 +826,33 @@ module LogMessages
 
   module Secrets
 
-    EphemeralSecretRequest = ::Util::TrackableLogMessageClass.new(
-      msg: "Received an ephemeral secret request. Request ID [{3}], Issuer ID [{0}], issuer type [{1}], ephemeral method [{2}]",
+    DynamicSecretRequest = ::Util::TrackableLogMessageClass.new(
+      msg: "Received a dynamic secret request. Request ID [{3}], Issuer ID [{0}], issuer type [{1}], dynamic method [{2}]",
       code: "CONJ00160I"
     )
 
-    EphemeralSecretRemoteRequest = ::Util::TrackableLogMessageClass.new(
-      msg: "Calling the ephemeral secrets service. Request ID [{0}]",
+    DynamicSecretRemoteRequest = ::Util::TrackableLogMessageClass.new(
+      msg: "Calling the dynamic secrets service. Request ID [{0}]",
       code: "CONJ00161I"
     )
 
-    EphemeralSecretRemoteResponse = ::Util::TrackableLogMessageClass.new(
-      msg: "Received the response from the ephemeral secrets service. Request ID [{0}], HTTP code [{1}]",
+    DynamicSecretRemoteResponse = ::Util::TrackableLogMessageClass.new(
+      msg: "Received the response from the dynamic secrets service. Request ID [{0}], HTTP code [{1}]",
       code: "CONJ00161D"
     )
 
-    EphemeralSecretRemoteRequestFailure = ::Util::TrackableLogMessageClass.new(
-      msg: "Failed to send the request to the ephemeral secrets service. Request ID [{0}], error: {1}",
+    DynamicSecretRemoteRequestFailure = ::Util::TrackableLogMessageClass.new(
+      msg: "Failed to send the request to the dynamic secrets service. Request ID [{0}], error: {1}",
       code: "CONJ00162E"
     )
 
-    EphemeralSecretRemoteResponseFailure = ::Util::TrackableLogMessageClass.new(
-      msg: "Failed to create the ephemeral secret. Request ID [{0}], code: {1}, message: {2}, description: {3}",
+    DynamicSecretRemoteResponseFailure = ::Util::TrackableLogMessageClass.new(
+      msg: "Failed to create the dynamic secret. Request ID [{0}], code: {1}, message: {2}, description: {3}",
       code: "CONJ00163E"
     )
 
-    EphemeralSecretRequestBody = ::Util::TrackableLogMessageClass.new(
-      msg: "Ephemeral secret request ID [{0}], body: {1}",
+    DynamicSecretRequestBody = ::Util::TrackableLogMessageClass.new(
+      msg: "Dynamic secret request ID [{0}], body: {1}",
       code: "CONJ00166D"
     )
 

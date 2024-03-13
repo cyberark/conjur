@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
+## [1.0.24-cloud] - 2024-03-24
+### Changed
+- Replace ephemerals to dynamic for dynamic secrets
+
 ## [1.0.23-cloud] - 2024-03-17
 ### Added
 - API for creating ephemeral secret
