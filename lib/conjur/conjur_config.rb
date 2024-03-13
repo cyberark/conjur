@@ -45,7 +45,8 @@ module Conjur
       tenant_id: @tenant_id,
       tenant_name: @tenant_name,
       tenant_env: @tenant_env,
-      tenant_region: @tenant_region
+      tenant_region: @tenant_region,
+      policy_factories_path: 'conjur/factories'
     )
 
     def initialize(
