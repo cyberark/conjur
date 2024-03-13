@@ -15,6 +15,16 @@ Sequel.migration do
       # find the primary key of the table
       primary_key_columns = schema(table).select{|_x, s| s[:primary_key]}.map(&:first).map(&:to_s).pg_array
       execute <<-SQL
+        CREATE OR REPLACE FUNCTION current_policy_version_no_policy_text()
+        RETURNS SETOF policy_versions
+        SET search_path FROM CURRENT
+        LANGUAGE sql STABLE AS $$
+          SELECT resource_id, role_id, "version", created_at, NULL as policy_text, policy_sha256, finished_at, client_ip 
+          FROM policy_versions WHERE finished_at IS NULL
+        $$;
+      SQL
+
+      execute <<-SQL
         CREATE OR REPLACE FUNCTION policy_log_#{table}() RETURNS TRIGGER AS $$
           DECLARE
             subject #{table};
@@ -37,7 +47,7 @@ Sequel.migration do
               RETURN subject;
             END IF;
 
-            current = current_policy_version();
+            current = current_policy_version_no_policy_text();
             IF current.resource_id = subject.policy_id OR subject.policy_id LIKE current.resource_id || '/%' THEN
               INSERT INTO policy_log(
                 policy_id, version,
