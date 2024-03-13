@@ -11,12 +11,13 @@ RSpec.describe(Presenter::PolicyFactories::Index) do
             name: 'foo1',
             classification: 'foo',
             version: 'v1',
-            description: 'This is foo'
+            schema: { 'description' => 'This is foo' }
           ),
           DB::Repository::DataObjects::PolicyFactory.new(
             name: 'bar1',
             classification: 'foo',
-            version: 'v1'
+            version: 'v1',
+            schema: {}
           )
         ]
       )
