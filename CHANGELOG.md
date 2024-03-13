@@ -17,6 +17,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   - Improved troubleshooting with defined system errors.
   - Support for policies that require PATCH (remove, delete, and revoke).
 
+### Security
+- Upgraded Rack to 2.2.8.1, to resolve CVE-2024-25126 (CONJSE-1843)
+
 ## [1.20.4] - 2024-01-11
 
 ### Fixed
