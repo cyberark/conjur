@@ -4,7 +4,7 @@ module APIValidator extend ActiveSupport::Concern
     version_match = accept_header.match(/application\/x\.secretsmgr\.v(\d+)\+json/)
     version = version_match[1] if version_match
     unless version=="2"
-      logger.debug(Errors::Conjur::APIHeaderMissing.new.message)
+      raise Errors::Conjur::APIHeaderMissing
     end
   end
 end

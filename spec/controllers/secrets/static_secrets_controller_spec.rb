@@ -95,8 +95,7 @@ describe StaticSecretsController, type: :request do
                  'RAW_POST_DATA' => payload_create_secret,
                  'CONTENT_TYPE' => "application/json"
                }
-             )
-        )
+             ))
         # Correct response code
         assert_response :created
       end
@@ -107,8 +106,7 @@ describe StaticSecretsController, type: :request do
                  'RAW_POST_DATA' => payload_create_secret,
                  'CONTENT_TYPE' => "application/json"
                }
-             )
-        )
+             ))
         # Correct response code
         assert_response :forbidden
       end
@@ -132,12 +130,34 @@ describe StaticSecretsController, type: :request do
                  'RAW_POST_DATA' => payload_create_secret,
                  'CONTENT_TYPE' => "application/json"
                }
-             )
-        )
+             ))
         # Correct response code
         assert_response :not_found
         parsed_body = JSON.parse(response.body)
         expect(parsed_body["error"]["message"]).to eq("Policy 'data/no_secrets' not found in account 'rspec'")
+      end
+    end
+    context "when creating secret without v2 header" do
+      let(:payload_create_secret) do
+        <<~BODY
+          {
+              "branch": "/data/no_secrets",
+              "name": "secret1"
+          }
+        BODY
+      end
+      it 'Secret creation failed on 400' do
+        post("/secrets/static",
+             env: token_auth_header(role: admin_user).merge(
+               {
+                 'RAW_POST_DATA' => payload_create_secret,
+                 'CONTENT_TYPE' => "application/json"
+               }
+             ))
+        # Correct response code
+        assert_response :bad_request
+        parsed_body = JSON.parse(response.body)
+        expect(parsed_body["error"]["message"]).to eq("CONJ00194W The api belongs to v2 APIs but it missing the version \"application/x.secretsmgr.v2+json\" in the Accept header")
       end
     end
   end
@@ -168,8 +188,7 @@ describe StaticSecretsController, type: :request do
                  'RAW_POST_DATA' => payload_create_secret,
                  'CONTENT_TYPE' => "application/json"
                }
-             )
-        )
+             ))
         # Correct response code
         assert_response :not_found
         # correct response body
@@ -201,14 +220,13 @@ describe StaticSecretsController, type: :request do
                  'RAW_POST_DATA' => payload_create_secret,
                  'CONTENT_TYPE' => "application/json"
                }
-             )
-        )
+             ))
         # Correct response code
         assert_response :created
         # correct response body
-        expect(response.body).to eq('{"name":"secret1","branch":"/data/secrets"}')
+        expect(response.body).to eq("{\"branch\":\"/data/secrets\",\"name\":\"secret1\",\"annotations\":[]}")
         #TODO
-        #expect(response.body).to eq("{\"branch\":\"/data/secrets\",\"name\":\"secret1\",\"annotations\":\"[]\",\"permissions\":\"[]\"}")
+        # expect(response.body).to eq("{\"branch\":\"/data/secrets\",\"name\":\"secret1\",\"annotations\":\"[]\",\"permissions\":\"[]\"}")
         # correct header
         expect(response.headers['Content-Type'].include?(v2_api_header["Accept"])).to eq true
         # Secret resource is created
@@ -246,8 +264,7 @@ describe StaticSecretsController, type: :request do
                  'RAW_POST_DATA' => payload_create_secret,
                  'CONTENT_TYPE' => "application/json"
                }
-             )
-        )
+             ))
         # Correct response code
         assert_response :created
 
@@ -258,8 +275,7 @@ describe StaticSecretsController, type: :request do
                  'RAW_POST_DATA' => payload_create_secret,
                  'CONTENT_TYPE' => "application/json"
                }
-             )
-        )
+             ))
         # Correct response code
         assert_response :conflict
       end
@@ -281,8 +297,7 @@ describe StaticSecretsController, type: :request do
                  'RAW_POST_DATA' => payload_create_secret,
                  'CONTENT_TYPE' => "application/json"
                }
-             )
-        )
+             ))
         # Correct response code
         assert_response :created
         # correct response body
@@ -313,14 +328,11 @@ describe StaticSecretsController, type: :request do
                  'RAW_POST_DATA' => payload_create_secret,
                  'CONTENT_TYPE' => "application/json"
                }
-             )
-        )
+             ))
         # Correct response code
         assert_response :created
         # correct response body
-        expect(response.body).to eq('{"name":"secret1","branch":"/data/secrets"}')
-        #TODO
-        #expect(response.body).to eq("{\"branch\":\"/data/secrets\",\"name\":\"secret1\",\"annotations\":\"[]\",\"permissions\":\"[]\"}")
+        expect(response.body).to eq("{\"branch\":\"/data/secrets\",\"name\":\"secret1\",\"annotations\":[]}")
         # Verify secret value can be fetched
         get('/secrets/rspec/variable/data/secrets/secret1',
             env: token_auth_header(role: admin_user)
@@ -347,8 +359,7 @@ describe StaticSecretsController, type: :request do
                  'RAW_POST_DATA' => payload_create_secret,
                  'CONTENT_TYPE' => "application/json"
                }
-             )
-        )
+             ))
         # Correct response code
         assert_response :created
         # correct response body
@@ -389,8 +400,7 @@ describe StaticSecretsController, type: :request do
                  'RAW_POST_DATA' => payload_create_secret,
                  'CONTENT_TYPE' => "application/json"
                }
-             )
-        )
+             ))
         # Correct response code
         assert_response :created
         # correct response body
@@ -437,8 +447,7 @@ describe StaticSecretsController, type: :request do
                  'RAW_POST_DATA' => payload_create_secret,
                  'CONTENT_TYPE' => "application/json"
                }
-             )
-        )
+             ))
         # Correct response code
         assert_response :created
         # Secret resource is created with permissions
@@ -459,8 +468,7 @@ describe StaticSecretsController, type: :request do
                  'RAW_POST_DATA' => "password",
                  'CONTENT_TYPE' => "text/plain"
                }
-             )
-        )
+             ))
         assert_response :created
         # Alice can get variable (read permission)
         get("/resources/rspec/variable/data/secrets/secret_user_permissions",
@@ -495,8 +503,7 @@ describe StaticSecretsController, type: :request do
                  'RAW_POST_DATA' => payload_create_secret,
                  'CONTENT_TYPE' => "application/json"
                }
-             )
-        )
+             ))
         # Correct response code
         assert_response :created
         # Host can get variable (read permission)
@@ -536,8 +543,7 @@ describe StaticSecretsController, type: :request do
                  'RAW_POST_DATA' => payload_create_secret,
                  'CONTENT_TYPE' => "application/json"
                }
-             )
-        )
+             ))
         # Correct response code
         assert_response :created
         # Host can set secret value (update permission)
@@ -547,10 +553,9 @@ describe StaticSecretsController, type: :request do
                  'RAW_POST_DATA' => "password",
                  'CONTENT_TYPE' => "text/plain"
                }
-             )
-        )
+             ))
         assert_response :created
-        #Host can get secret value (execute pemissions)
+        # Host can get secret value (execute pemissions)
         get("/secrets/rspec/variable/data/secrets/secret_group_permissions",
             env: token_auth_header(role: Role["rspec:host:data/host1"], is_user: false)
         )
@@ -590,8 +595,7 @@ describe StaticSecretsController, type: :request do
                  'RAW_POST_DATA' => payload_create_secret,
                  'CONTENT_TYPE' => "application/json"
                }
-             )
-        )
+             ))
         # Correct response code
         assert_response :created
         # User can set secret value (update permission)
@@ -601,10 +605,9 @@ describe StaticSecretsController, type: :request do
                  'RAW_POST_DATA' => "password",
                  'CONTENT_TYPE' => "text/plain"
                }
-             )
-        )
+             ))
         assert_response :created
-        #Host can get secret value (execute pemissions)
+        # Host can get secret value (execute pemissions)
         get("/secrets/rspec/variable/data/secrets/secret_permissions",
             env: token_auth_header(role: Role["rspec:host:data/host1"], is_user: false)
         )
@@ -614,8 +617,8 @@ describe StaticSecretsController, type: :request do
     end
   end
 
-  describe 'Get existing variable' do
-    context 'when the user has read permission' do
+  describe 'Get existing static secret' do
+    context 'with only mime type' do
       it 'returns 200' do
         get(
           '/secrets/static/data/mySecret',
@@ -624,7 +627,83 @@ describe StaticSecretsController, type: :request do
           )
         )
         assert_response :success
-        validate_response('mySecret', 'data', 'text/plain')
+        validate_response('mySecret', 'data', 'text/plain', [])
+      end
+    end
+    context 'with mime type and annotations' do
+      let(:case_policy) do
+        <<~POLICY
+          - !policy
+            id: data/secrets
+            body:
+            - !variable
+              id: secret_with_annotations
+              mime_type: text/plain
+              annotations:
+                first: "first"
+                second: "second"
+
+          - !permit
+            role: !user alice
+            privileges: [ read ]
+            resource: !variable data/secrets/secret_with_annotations
+        POLICY
+      end
+      before do
+        patch(
+          '/policies/rspec/policy/root',
+          env: token_auth_header(role: admin_user).merge(
+            'RAW_POST_DATA' => case_policy
+          )
+        )
+        assert_response :success
+      end
+      it 'returns 200' do
+        get(
+          '/secrets/static/data/secrets/secret_with_annotations',
+          env: token_auth_header(role: alice_user).merge(v2_api_header).merge(
+            'CONTENT_TYPE' => "application/json"
+          )
+        )
+        assert_response :success
+        validate_response('secret_with_annotations', 'data/secrets', 'text/plain', [{ "name"=>"first", "value"=>"first" }, { "name"=>"second", "value"=>"second" }])
+      end
+    end
+    context 'with only annotations' do
+      let(:case_policy) do
+        <<~POLICY
+          - !policy
+            id: data/secrets
+            body:
+            - !variable
+              id: secret_with_annotations_no_mime_type
+              annotations:
+                first: "first"
+                second: "second"
+
+          - !permit
+            role: !user alice
+            privileges: [ read ]
+            resource: !variable data/secrets/secret_with_annotations_no_mime_type
+        POLICY
+      end
+      before do
+        patch(
+          '/policies/rspec/policy/root',
+          env: token_auth_header(role: admin_user).merge(
+            'RAW_POST_DATA' => case_policy
+          )
+        )
+        assert_response :success
+      end
+
+      it 'returns 200' do
+        get('/secrets/static/data/secrets/secret_with_annotations_no_mime_type',
+            env: token_auth_header(role: alice_user).merge(v2_api_header).merge(
+              'CONTENT_TYPE' => "application/json"
+            ))
+        assert_response :success
+        validate_response('secret_with_annotations_no_mime_type', 'data/secrets', nil, [{ "name"=>"first", "value"=>"first" }, { "name"=>"second", "value"=>"second" }])
       end
     end
     context 'when the user does not have read permission' do
@@ -640,8 +719,8 @@ describe StaticSecretsController, type: :request do
     end
   end
 
-  describe 'Get non existing variable' do
-    context 'when the user has read permission' do
+  describe 'Static Secret Get - Input validation' do
+    context 'when the secret doesnt exist' do
       it 'returns 404' do
         get(
           '/secrets/static/data/doesNotExist',
@@ -652,24 +731,21 @@ describe StaticSecretsController, type: :request do
         assert_response :not_found
       end
     end
-    context 'when the user does not have read permission' do
+    context 'when the branch doesnt exist' do
       it 'returns 404' do
         get(
-          '/secrets/static/data/doesNotExist',
-          env: token_auth_header(role: bob_user).merge(v2_api_header).merge(
+          '/secrets/static/doesNotExist/mySecret',
+          env: token_auth_header(role: alice_user).merge(v2_api_header).merge(
             'CONTENT_TYPE' => "application/json"
           )
         )
         assert_response :not_found
       end
     end
-  end
-
-  describe 'Get variable with invalid branch' do
-    context 'when the user has read permission' do
+    context 'when no branch in request' do
       it 'returns 404' do
         get(
-          '/secrets/static/doesNotExist/mySecret',
+          '/secrets/static/mySecret',
           env: token_auth_header(role: alice_user).merge(v2_api_header).merge(
             'CONTENT_TYPE' => "application/json"
           )
@@ -1270,7 +1346,7 @@ describe StaticSecretsController, type: :request do
         # Correct response code
         assert_response :ok
         #Check update response
-        validate_response("secret_to_update", "data/secrets", "json")
+        validate_response('secret_to_update', 'data/secrets', "json", [{ "name"=>"description", "value"=>"desc" }])
         # Check annotations were updated
         annotations = Annotation.where(resource_id:"rspec:variable:data/secrets/secret_to_update").all
         expect(annotations.size).to eq 2
@@ -1591,8 +1667,6 @@ describe StaticSecretsController, type: :request do
         )
         # Correct response code
         assert_response :ok
-        #Check update response
-        validate_response("secret_to_update", "data/secrets", "json")
         # Check secret value without version
         get('/secrets/rspec/variable/data/secrets/secret_to_update',
             env: token_auth_header(role: admin_user)
@@ -1738,12 +1812,13 @@ describe StaticSecretsController, type: :request do
     end
   end
 
-  def validate_response(name, branch, mime_type)
+  def validate_response(name, branch, mime_type, annotations)
     response_body = JSON.parse(response.body)
     expect(response_body['name']).to eq(name)
     expect(response_body['branch']).to eq(branch)
     if mime_type
       expect(response_body['mime_type']).to eq(mime_type)
     end
+    expect(response_body['annotations']).to eq(annotations)
   end
 end
