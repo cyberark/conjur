@@ -6,8 +6,7 @@ Policy Factories are a mechanism for creating custom bits of Conjur Policy and c
 
 The easiest way to load Policy Factories into Conjur is via:
 
-- Internal [Cyberark Policy Factory CLI](https://github.cyberng.com/jvanderhoof/policy-factory-cli)
-- External [Mirror](https://github.com/jvanderhoof/policy_factory)
+- [Cyberark Policy Factory CLI](https://github.com/jvanderhoof/policy_factory)
 
 The CLI provides a set of Factories as well as a DSL for writing your own Factories.
 

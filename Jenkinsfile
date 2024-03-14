@@ -141,6 +141,14 @@ pipeline {
   }
 
   stages {
+    stage('Scan for internal URLs') {
+      steps {
+        script {
+          detectInternalUrls()
+        }
+      }
+    }
+
     // Pre-allocate agents to fail fast if there's an issue with the pool
     // and to pre-configure the git environment before changes occur.
     stage('Get InfraPool Agents') {
