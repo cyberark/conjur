@@ -23,22 +23,22 @@ module Errors
   module Conjur
     ParameterMissing = ::Util::TrackableErrorClass.new(
       msg: "Missing required parameter: {0}",
-      code: "CONJ00190E"
+      code: "CONJ00190W"
     )
 
     ParameterValueInvalid = ::Util::TrackableErrorClass.new(
       msg: "The value in the '{0}' parameter is not valid. Error: {1}",
-      code: "CONJ00191E"
+      code: "CONJ00191W"
     )
 
     ParameterTypeInvalid = ::Util::TrackableErrorClass.new(
       msg: "The '{0}' parameter must be of 'type={1}'",
-      code: "CONJ00192E"
+      code: "CONJ00192W"
     )
 
     NumOfParametersInvalid = ::Util::TrackableErrorClass.new(
       msg: "The parameter received in the data is not valid. Allowed parameters: {0}",
-      code: "CONJ00193E"
+      code: "CONJ00193W"
     )
 
     APIHeaderMissing = ::Util::TrackableErrorClass.new(

@@ -5,7 +5,7 @@ module Secrets
       DYNAMIC_REGION = "dynamic/region"
       DYNAMIC_POLICY = "dynamic/inline-policy"
 
-      def input_validation(params)
+      def create_input_validation(params)
         super(params)
 
         method_params = params[:method_params]

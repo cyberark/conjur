@@ -6,7 +6,30 @@ module Secrets
 
       MIME_TYPE_ANNOTATION = "conjur/mime_type"
 
-      def input_validation(params)
+      def update_input_validation(params, body_params )
+        #check branch and secret name are not part of body
+        raise ApplicationController::UnprocessableEntity, "Branch is not allowed in the request body" if body_params[:branch]
+        raise ApplicationController::UnprocessableEntity, "Secret name is not allowed in the request body" if body_params[:name]
+
+        # check secret exists
+        secret = get_resource("variable", "#{params[:branch]}/#{params[:name]}")
+
+        data_fields = {
+          mime_type: String
+        }
+        validate_data(body_params, data_fields)
+
+        secret
+      end
+
+      def get_input_validation(params)
+        # check secret exists
+        branch = params[:branch]
+        secret_name = params[:name]
+        get_resource("variable", "#{branch}/#{secret_name}")
+      end
+
+      def create_input_validation(params)
         super(params)
 
         data_fields = {
@@ -33,11 +56,13 @@ module Secrets
         raise Exceptions::RecordExists.new("secret", secret_id)
       end
 
-      def set_value(secret, value)
-        unless value.nil? || value.empty?
-          Secret.create(resource_id: secret.id, value: value)
-          secret.enforce_secrets_version_limit
-        end
+      def replace_secret(branch, secret_name, secret, params)
+        super(branch, secret, params)
+
+        # Set secret value
+        set_value(secret, params[:value])
+
+        as_json(branch, secret_name, secret)
       end
 
       def as_json(branch, name, variable)
@@ -53,7 +78,22 @@ module Secrets
         json_result
       end
 
+      def get_update_permissions(params, secret)
+        permissions = super(params, secret)
+
+        # Update permissions on the secret
+        secret_permissions = {secret => :update}
+
+        permissions.merge! secret_permissions
+      end
+
       private
+      def set_value(secret, value)
+        unless value.nil? || value.empty?
+          Secret.create(resource_id: secret.id, value: value)
+          secret.enforce_secrets_version_limit
+        end
+      end
       def convert_fields_to_annotations(params)
         mime_type_annotation = nil
         if params[:mime_type]

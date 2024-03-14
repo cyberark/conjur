@@ -13,7 +13,7 @@ class DynamicSecretsController < V2RestController
     dynamic_secret = Secrets::SecretTypes::DynamicSecretTypeFactory.new.create_dynamic_secret_type(params[:method])
 
     #Run input validation specific to secret type
-    dynamic_secret.input_validation(params)
+    dynamic_secret.create_input_validation(params)
 
     # Check permissions
     create_permissions = dynamic_secret.get_create_permissions(params)

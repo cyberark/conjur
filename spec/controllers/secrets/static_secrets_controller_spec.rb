@@ -207,6 +207,7 @@ describe StaticSecretsController, type: :request do
         assert_response :created
         # correct response body
         expect(response.body).to eq('{"name":"secret1","branch":"/data/secrets"}')
+        #TODO
         #expect(response.body).to eq("{\"branch\":\"/data/secrets\",\"name\":\"secret1\",\"annotations\":\"[]\",\"permissions\":\"[]\"}")
         # correct header
         expect(response.headers['Content-Type'].include?(v2_api_header["Accept"])).to eq true
@@ -285,6 +286,7 @@ describe StaticSecretsController, type: :request do
         # Correct response code
         assert_response :created
         # correct response body
+        # TODO
         #        expect(response.body).to eq("{\"branch\":\"/data/secrets\",\"name\":\"secret1\",\"type\":\"static\",\"annotations\":\"[]\",\"permissions\":\"[]\"}")
         # Verify secret value can be fetched
         get('/secrets/rspec/variable/data/secrets/secret1',
@@ -315,6 +317,10 @@ describe StaticSecretsController, type: :request do
         )
         # Correct response code
         assert_response :created
+        # correct response body
+        expect(response.body).to eq('{"name":"secret1","branch":"/data/secrets"}')
+        #TODO
+        #expect(response.body).to eq("{\"branch\":\"/data/secrets\",\"name\":\"secret1\",\"annotations\":\"[]\",\"permissions\":\"[]\"}")
         # Verify secret value can be fetched
         get('/secrets/rspec/variable/data/secrets/secret1',
             env: token_auth_header(role: admin_user)
@@ -346,6 +352,7 @@ describe StaticSecretsController, type: :request do
         # Correct response code
         assert_response :created
         # correct response body
+        # TODO
         #expect(response.body).to eq("{\"branch\":\"/data/secrets\",\"name\":\"secret_annotations\",\"type\":\"static\",\"mime_type\":\"text/plain\",\"annotations\":\"[]\",\"permissions\":\"[]\"}")
         # Secret resource is created with annotations
         annotations = Annotation.where(resource_id:"rspec:variable:data/secrets/secret_annotations").all
@@ -387,6 +394,7 @@ describe StaticSecretsController, type: :request do
         # Correct response code
         assert_response :created
         # correct response body
+        # TODO
         #expect(response.body).to eq("{\"branch\":\"/data/secrets\",\"name\":\"secret_annotations\",\"type\":\"static\",\"annotations\":[{\"name\":\"description\",\"value\":\"desc\"},{\"name\":\"test_ann\",\"value\":\"test\"}],\"permissions\":\"[]\"}")
         # Secret resource is created with annotations
         annotations = Annotation.where(resource_id:"rspec:variable:data/secrets/secret_annotations").all
@@ -433,8 +441,6 @@ describe StaticSecretsController, type: :request do
         )
         # Correct response code
         assert_response :created
-        # correct response body
-        #expect(response.body).to eq("{\"branch\":\"/data/secrets\",\"name\":\"secret_user_permissions\",\"type\":\"static\",\"permissions\":[{\"subject\":{\"kind\":\"user\",\"id\":\"alice\"},\"privileges\":[\"read\",\"update\"]}],\"annotations\":\"[]\"}")
         # Secret resource is created with permissions
         permissions = Permission.where(resource_id:"rspec:variable:data/secrets/secret_user_permissions").all
         expect(permissions.size).to eq 2
@@ -493,8 +499,6 @@ describe StaticSecretsController, type: :request do
         )
         # Correct response code
         assert_response :created
-        # correct response body
-        #expect(response.body).to eq("{\"branch\":\"/data/secrets\",\"name\":\"secret_workload_permissions\",\"type\":\"static\",\"permissions\":[{\"subject\":{\"kind\":\"host\",\"id\":\"/data/host1\"},\"privileges\":[\"execute\",\"read\"]}],\"annotations\":\"[]\"}")
         # Host can get variable (read permission)
         get("/resources/rspec/variable/data/secrets/secret_workload_permissions",
             env: token_auth_header(role: Role["rspec:host:data/host1"], is_user: false)
@@ -536,8 +540,6 @@ describe StaticSecretsController, type: :request do
         )
         # Correct response code
         assert_response :created
-        # correct response body
-        #expect(response.body).to eq("{\"branch\":\"/data/secrets\",\"name\":\"secret_group_permissions\",\"type\":\"static\",\"permissions\":[{\"subject\":{\"kind\":\"group\",\"id\":\"/data/group1\"},\"privileges\":[\"execute\",\"update\"]}],\"annotations\":\"[]\"}")
         # Host can set secret value (update permission)
         post("/secrets/rspec/variable/data/secrets/secret_group_permissions",
              env: token_auth_header(role: Role["rspec:host:data/host1"], is_user: false).merge(
@@ -592,8 +594,6 @@ describe StaticSecretsController, type: :request do
         )
         # Correct response code
         assert_response :created
-        # correct response body
-        #expect(response.body).to eq("{\"branch\":\"/data/secrets\",\"name\":\"secret_permissions\",\"type\":\"static\",\"permissions\":[{\"subject\":{\"kind\":\"group\",\"id\":\"/data/group1\"},\"privileges\":[\"execute\"]},{\"subject\":{\"kind\":\"user\",\"id\":\"alice\"},\"privileges\":[\"update\"]}],\"annotations\":\"[]\"}")
         # User can set secret value (update permission)
         post("/secrets/rspec/variable/data/secrets/secret_permissions",
              env: token_auth_header(role: alice_user).merge(
@@ -638,37 +638,6 @@ describe StaticSecretsController, type: :request do
         assert_response :forbidden
       end
     end
-    context 'when the user creates and gets static secrets using v2 apis' do
-      let(:payload_create_secret) do
-        <<~BODY
-          {
-              "branch": "/data/secrets",
-              "name": "secret1"
-          }
-        BODY
-      end
-      it 'returns 200' do
-        post("/secrets/static",
-             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
-               {
-                 'RAW_POST_DATA' => payload_create_secret,
-                 'CONTENT_TYPE' => "application/json"
-               }
-             )
-        )
-        # Correct response code
-        assert_response :created
-
-        get(
-          '/secrets/static/data/secrets/secret1',
-          env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
-            'CONTENT_TYPE' => "application/json"
-          )
-        )
-        assert_response :success
-        validate_response('secret1', 'data/secrets', nil)
-      end
-    end
   end
 
   describe 'Get non existing variable' do
@@ -706,6 +675,1065 @@ describe StaticSecretsController, type: :request do
           )
         )
         assert_response :not_found
+      end
+    end
+  end
+
+  describe "Static Secret Replace - Input validation" do
+    let(:permit_policy) do
+      <<~POLICY
+        - !permit
+          resource: !policy data/secrets
+          privilege: [ update ]
+          role: !user /alice
+      POLICY
+    end
+    let(:payload_create_secret) do
+      <<~BODY
+        {
+            "branch": "/data/secrets",
+            "name": "secret_to_update",
+            "annotations": [
+              {
+                "name": "description",
+                "value": "desc"
+              }
+            ],
+            "permissions": [
+              {
+                "subject": {
+                  "kind": "user",
+                  "id": "alice"
+                },
+                "privileges": [ "read" ]
+              }  
+            ]
+        }
+      BODY
+    end
+    before do
+      patch(
+        '/policies/rspec/policy/root',
+        env: token_auth_header(role: admin_user).merge(
+          { 'RAW_POST_DATA' => permit_policy }
+        )
+      )
+      assert_response :success
+
+      post("/secrets/static",
+           env: token_auth_header(role: alice_user).merge(v2_api_header).merge(
+             {
+               'RAW_POST_DATA' => payload_create_secret,
+               'CONTENT_TYPE' => "application/json"
+             }
+           )
+      )
+      # Correct response code
+      assert_response :created
+    end
+    context "Trying to Replace secret with url input validations" do
+      let(:payload_update_secret) do
+        <<~BODY
+          {
+              "annotations": [
+                {
+                  "name": "description",
+                  "value": "desc2"
+                }
+              ],
+              "permissions": [
+                {
+                  "subject": {
+                    "kind": "user",
+                    "id": "alice"
+                  },
+                  "privileges": [ "read" ]
+                }  
+              ]
+          }
+        BODY
+      end
+      it 'Secret not exist' do
+        put("/secrets/static/data/secrets/secret_not_exists",
+            env: token_auth_header(role: alice_user).merge(v2_api_header).merge(
+              {
+                'RAW_POST_DATA' => payload_update_secret,
+                'CONTENT_TYPE' => "application/json"
+              }
+            )
+        )
+        # Correct response code
+        assert_response :not_found
+        parsed_body = JSON.parse(response.body)
+        expect(parsed_body["error"]["message"]).to eq("Variable 'data/secrets/secret_not_exists' not found in account 'rspec'")
+      end
+      it 'Branch not exist' do
+        put("/secrets/static/data/no_secrets/secret_to_update",
+            env: token_auth_header(role: alice_user).merge(v2_api_header).merge(
+              {
+                'RAW_POST_DATA' => payload_update_secret,
+                'CONTENT_TYPE' => "application/json"
+              }
+            )
+        )
+        # Correct response code
+        assert_response :not_found
+        parsed_body = JSON.parse(response.body)
+        expect(parsed_body["error"]["message"]).to eq("Variable 'data/no_secrets/secret_to_update' not found in account 'rspec'")
+      end
+      it 'Empty Branch' do
+        put("/secrets/static//secret_to_update",
+            env: token_auth_header(role: alice_user).merge(v2_api_header).merge(
+              {
+                'RAW_POST_DATA' => payload_update_secret,
+                'CONTENT_TYPE' => "application/json"
+              }
+            )
+        )
+        # Correct response code
+        assert_response :not_found
+        parsed_body = JSON.parse(response.body)
+        expect(parsed_body["error"]["message"]).to eq("Variable 'secret_to_update' not found in account 'rspec'")
+      end
+    end
+    context "Trying to Replace secret with branch in body" do
+      let(:payload_update_secret) do
+        <<~BODY
+          {
+              "branch": "data/secrets2",
+              "annotations": [
+                {
+                  "name": "description",
+                  "value": "desc2"
+                }
+              ],
+              "permissions": [
+                {
+                  "subject": {
+                    "kind": "user",
+                    "id": "alice"
+                  },
+                  "privileges": [ "read" ]
+                }  
+              ]
+          }
+        BODY
+      end
+      it 'Fails on unprocessable entity' do
+        put("/secrets/static/data/secrets/secret_to_update",
+            env: token_auth_header(role: alice_user).merge(v2_api_header).merge(
+              {
+                'RAW_POST_DATA' => payload_update_secret,
+                'CONTENT_TYPE' => "application/json"
+              }
+            )
+        )
+        # Correct response code
+        assert_response :unprocessable_entity
+        parsed_body = JSON.parse(response.body)
+        expect(parsed_body["error"]["message"]).to eq("Branch is not allowed in the request body")
+      end
+    end
+    context "Trying to Replace secret with secret name in body" do
+      let(:payload_update_secret) do
+        <<~BODY
+          {
+              "name": "secrets2",
+              "annotations": [
+                {
+                  "name": "description",
+                  "value": "desc2"
+                }
+              ],
+              "permissions": [
+                {
+                  "subject": {
+                    "kind": "user",
+                    "id": "alice"
+                  },
+                  "privileges": [ "read" ]
+                }  
+              ]
+          }
+        BODY
+      end
+      it 'Fails on unprocessable entity' do
+        put("/secrets/static/data/secrets/secret_to_update",
+            env: token_auth_header(role: alice_user).merge(v2_api_header).merge(
+              {
+                'RAW_POST_DATA' => payload_update_secret,
+                'CONTENT_TYPE' => "application/json"
+              }
+            )
+        )
+        # Correct response code
+        assert_response :unprocessable_entity
+        parsed_body = JSON.parse(response.body)
+        expect(parsed_body["error"]["message"]).to eq("Secret name is not allowed in the request body")
+      end
+    end
+    context "Trying to Replace secret with empty mime type" do
+      let(:payload_update_secret) do
+        <<~BODY
+          {
+              "mime_type": "",
+              "annotations": [
+                {
+                  "name": "description",
+                  "value": "desc2"
+                }
+              ],
+              "permissions": [
+                {
+                  "subject": {
+                    "kind": "user",
+                    "id": "alice"
+                  },
+                  "privileges": [ "read" ]
+                }  
+              ]
+          }
+        BODY
+      end
+      it 'static secret input validation fails' do
+        put("/secrets/static/data/secrets/secret_to_update",
+            env: token_auth_header(role: alice_user).merge(v2_api_header).merge(
+              {
+                'RAW_POST_DATA' => payload_update_secret,
+                'CONTENT_TYPE' => "application/json"
+              }
+            )
+        )
+        # Correct response code
+        assert_response :bad_request
+        parsed_body = JSON.parse(response.body)
+        expect(parsed_body["error"]["message"]).to eq("CONJ00190W Missing required parameter: mime_type")
+      end
+    end
+  end
+
+  describe "Static Secret Replace - Permissions" do
+    let(:payload_create_static_secret) do
+      <<~BODY
+        {
+            "branch": "/data/secrets",
+            "name": "secret_to_update",
+            "annotations": [
+              {
+                "name": "description",
+                "value": "desc"
+              }
+            ],
+            "permissions": [
+              {
+                "subject": {
+                  "kind": "user",
+                  "id": "bob"
+                },
+                "privileges": [ "read" ]
+              }  
+            ]
+        }
+      BODY
+    end
+    let(:payload_update_static_secret) do
+      <<~BODY
+        {
+           "annotations": [
+              {
+                "name": "description",
+                "value": "desc"
+              }
+            ],
+            "permissions": [
+              {
+                "subject": {
+                  "kind": "user",
+                  "id": "bob"
+                },
+                "privileges": [ "read" ]
+              }  
+            ]
+        }
+      BODY
+    end
+    before do
+      post("/secrets/static",
+           env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
+             {
+               'RAW_POST_DATA' => payload_create_static_secret,
+               'CONTENT_TYPE' => "application/json"
+             }
+           )
+      )
+      # Correct response code
+      assert_response :created
+    end
+    context "Trying to update secret without update permissions on the policy" do
+      let(:permit_policy) do
+        <<~POLICY
+          - !permit
+            resource: !variable data/secrets/secret_to_update
+            privilege: [ update ]
+            role: !user /alice
+        POLICY
+      end
+      it 'permissions check fails' do
+        patch(
+          '/policies/rspec/policy/root',
+          env: token_auth_header(role: admin_user).merge(
+            { 'RAW_POST_DATA' => permit_policy }
+          )
+        )
+        assert_response :success
+
+        put("/secrets/static/data/secrets/secret_to_update",
+            env: token_auth_header(role: alice_user).merge(v2_api_header).merge(
+              {
+                'RAW_POST_DATA' => payload_update_static_secret,
+                'CONTENT_TYPE' => "application/json"
+              }
+            )
+        )
+        # Correct response code
+        assert_response :forbidden
+      end
+    end
+    context "Trying to update static secret without update permissions on the variable" do
+      let(:permit_policy) do
+        <<~POLICY
+          - !permit
+            resource: !policy data/secrets
+            privilege: [ update ]
+            role: !user /alice
+        POLICY
+      end
+      it 'permissions check fails' do
+        patch(
+          '/policies/rspec/policy/root',
+          env: token_auth_header(role: admin_user).merge(
+            { 'RAW_POST_DATA' => permit_policy }
+          )
+        )
+        assert_response :success
+
+        put("/secrets/static/data/secrets/secret_to_update",
+            env: token_auth_header(role: alice_user).merge(v2_api_header).merge(
+              {
+                'RAW_POST_DATA' => payload_update_static_secret,
+                'CONTENT_TYPE' => "application/json"
+              }
+            )
+        )
+        # Correct response code
+        assert_response :forbidden
+      end
+    end
+  end
+
+  describe "Static Secret Replace" do
+    let(:permit_policy) do
+      <<~POLICY
+        - !permit
+          resource: !policy data/secrets
+          privilege: [ update ]
+          role: !user /alice
+      POLICY
+    end
+    let(:payload_create_secret) do
+      <<~BODY
+        {
+            "branch": "/data/secrets",
+            "name": "secret_to_update",
+            "mime_type": "plain",
+            "value": "password",
+            "annotations": [
+              {
+                "name": "description",
+                "value": "desc"
+              },
+              {
+                "name": "annotation_to_delete",
+                "value": "delete"
+              }
+            ],
+            "permissions": [
+              {
+                "subject": {
+                  "kind": "user",
+                  "id": "alice"
+                },
+                "privileges": [ "update" ]
+              }  
+            ]
+        }
+      BODY
+    end
+    before do
+      patch(
+        '/policies/rspec/policy/root',
+        env: token_auth_header(role: admin_user).merge(
+          { 'RAW_POST_DATA' => permit_policy }
+        )
+      )
+      assert_response :success
+
+      post("/secrets/static",
+           env: token_auth_header(role: alice_user).merge(v2_api_header).merge(
+             {
+               'RAW_POST_DATA' => payload_create_secret,
+               'CONTENT_TYPE' => "application/json"
+             }
+           )
+      )
+      # Correct response code
+      assert_response :created
+    end
+    context "Update secret annotations" do
+      let(:payload_update_secret) do
+        <<~BODY
+          {
+              "mime_type": "plain",
+              "annotations": [
+                {
+                  "name": "description",
+                  "value": "desc2"
+                },
+                {
+                  "name": "annotation_to_add",
+                  "value": "add"
+                }
+              ],
+              "permissions": [
+                {
+                  "subject": {
+                    "kind": "user",
+                    "id": "alice"
+                  },
+                  "privileges": [ "read" ]
+                }  
+              ]
+          }
+        BODY
+      end
+      it 'annotations are updated' do
+        # check annotations before update
+        annotations = Annotation.where(resource_id:"rspec:variable:data/secrets/secret_to_update").all
+        expect(annotations.size).to eq 3
+        expect(annotations.find { |hash| hash[:name] == 'description' }[:value]).to eq "desc"
+        expect(annotations.find { |hash| hash[:name] == 'annotation_to_delete' }[:value]).to eq "delete"
+        expect(annotations.find { |hash| hash[:name] == 'conjur/mime_type' }[:value]).to eq "plain"
+        # Call update secret
+        put("/secrets/static/data/secrets/secret_to_update",
+            env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
+              {
+                'RAW_POST_DATA' => payload_update_secret,
+                'CONTENT_TYPE' => "application/json"
+              }
+            )
+        )
+        # Correct response code
+        assert_response :ok
+        # Check annotations were updated
+        annotations = Annotation.where(resource_id:"rspec:variable:data/secrets/secret_to_update").all
+        expect(annotations.size).to eq 3
+        expect(annotations.find { |hash| hash[:name] == 'description' }[:value]).to eq "desc2"
+        expect(annotations.find { |hash| hash[:name] == 'conjur/mime_type' }[:value]).to eq "plain"
+        expect(annotations.find { |hash| hash[:name] == 'annotation_to_add' }[:value]).to eq "add"
+        expect(annotations.find { |hash| hash[:name] == "annotation_to_delete" }).to eq nil
+      end
+    end
+    context "Remove secret annotations" do
+      let(:payload_update_secret) do
+        <<~BODY
+          {
+              "mime_type": "plain",
+              "permissions": [
+                {
+                  "subject": {
+                    "kind": "user",
+                    "id": "alice"
+                  },
+                  "privileges": [ "read" ]
+                }  
+              ]
+          }
+        BODY
+      end
+      it 'annotations are updated' do
+        # check annotations before update
+        annotations = Annotation.where(resource_id:"rspec:variable:data/secrets/secret_to_update").all
+        expect(annotations.size).to eq 3
+        expect(annotations.find { |hash| hash[:name] == 'description' }[:value]).to eq "desc"
+        expect(annotations.find { |hash| hash[:name] == 'annotation_to_delete' }[:value]).to eq "delete"
+        expect(annotations.find { |hash| hash[:name] == 'conjur/mime_type' }[:value]).to eq "plain"
+        # Call update secret
+        put("/secrets/static/data/secrets/secret_to_update",
+            env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
+              {
+                'RAW_POST_DATA' => payload_update_secret,
+                'CONTENT_TYPE' => "application/json"
+              }
+            )
+        )
+        # Correct response code
+        assert_response :ok
+        # Check annotations were updated
+        annotations = Annotation.where(resource_id:"rspec:variable:data/secrets/secret_to_update").all
+        expect(annotations.size).to eq 1
+        expect(annotations.find { |hash| hash[:name] == 'conjur/mime_type' }[:value]).to eq "plain"
+        expect(annotations.find { |hash| hash[:name] == 'description' }).to eq nil
+        expect(annotations.find { |hash| hash[:name] == "annotation_to_delete" }).to eq nil
+      end
+    end
+    context "Update secret annotations with wrong object" do
+      let(:payload_update_secret) do
+        <<~BODY
+          {
+              "mime_type": "plain",
+              "annotations": [
+                {
+                  "name": "description"
+                }
+              ],
+              "permissions": [
+                {
+                  "subject": {
+                    "kind": "user",
+                    "id": "alice"
+                  },
+                  "privileges": [ "read" ]
+                } 
+              ]
+          }
+        BODY
+      end
+      it 'annotations were not updated' do
+        # Call update secret
+        put("/secrets/static/data/secrets/secret_to_update",
+            env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
+              {
+                'RAW_POST_DATA' => payload_update_secret,
+                'CONTENT_TYPE' => "application/json"
+              }
+            )
+        )
+        # Correct response code
+        assert_response :ok
+        # correct response body
+        parsed_body = JSON.parse(response.body)
+        #expect(parsed_body["error"]["message"]).to eq("Host 'data/host2' not found in account 'rspec'")
+        # Check annotations were not updated
+        annotations = Annotation.where(resource_id:"rspec:variable:data/secrets/secret_to_update").all
+        expect(annotations.size).to eq 2
+      end
+    end
+    context "Update secret mime-type annotation" do
+      let(:payload_update_secret) do
+        <<~BODY
+          {
+              "mime_type": "json",
+              "annotations": [
+                {
+                  "name": "description",
+                  "value": "desc"
+                }
+              ],
+              "permissions": [
+                {
+                  "subject": {
+                    "kind": "user",
+                    "id": "alice"
+                  },
+                  "privileges": [ "read" ]
+                }  
+              ]
+          }
+        BODY
+      end
+      it 'annotations are updated' do
+        # check annotations before update
+        annotations = Annotation.where(resource_id:"rspec:variable:data/secrets/secret_to_update").all
+        expect(annotations.size).to eq 3
+        expect(annotations.find { |hash| hash[:name] == 'description' }[:value]).to eq "desc"
+        expect(annotations.find { |hash| hash[:name] == 'annotation_to_delete' }[:value]).to eq "delete"
+        expect(annotations.find { |hash| hash[:name] == 'conjur/mime_type' }[:value]).to eq "plain"
+        # Call update secret
+        put("/secrets/static/data/secrets/secret_to_update",
+            env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
+              {
+                'RAW_POST_DATA' => payload_update_secret,
+                'CONTENT_TYPE' => "application/json"
+              }
+            )
+        )
+        # Correct response code
+        assert_response :ok
+        #Check update response
+        validate_response("secret_to_update", "data/secrets", "json")
+        # Check annotations were updated
+        annotations = Annotation.where(resource_id:"rspec:variable:data/secrets/secret_to_update").all
+        expect(annotations.size).to eq 2
+        expect(annotations.find { |hash| hash[:name] == 'description' }[:value]).to eq "desc"
+        expect(annotations.find { |hash| hash[:name] == 'conjur/mime_type' }[:value]).to eq "json"
+        expect(annotations.find { |hash| hash[:name] == "annotation_to_delete" }).to eq nil
+      end
+    end
+    context "Update secret permissions" do
+      let(:payload_update_secret) do
+        <<~BODY
+          {
+              "mime_type": "plain",
+              "annotations": [
+                {
+                  "name": "description",
+                  "value": "desc"
+                },
+                {
+                  "name": "annotation_to_delete",
+                  "value": "delete"
+                }
+              ],
+              "permissions": [
+                {
+                  "subject": {
+                    "kind": "user",
+                    "id": "alice"
+                  },
+                  "privileges": [ "read" ]
+                } ,
+                {
+                  "subject": {
+                    "kind": "host",
+                    "id": "data/host1"
+                  },
+                  "privileges": [ "execute" ]
+                } 
+              ]
+          }
+        BODY
+      end
+      it 'permissions are updated' do
+        # check permissions before update
+        permissions = Permission.where(resource_id:"rspec:variable:data/secrets/secret_to_update").all
+        expect(permissions.size).to eq 1
+        expect(permissions[0][:role_id]).to eq "rspec:user:alice"
+        expect(permissions[0][:privilege]).to eq "update"
+        # Call update secret
+        put("/secrets/static/data/secrets/secret_to_update",
+            env: token_auth_header(role: alice_user).merge(v2_api_header).merge(
+              {
+                'RAW_POST_DATA' => payload_update_secret,
+                'CONTENT_TYPE' => "application/json"
+              }
+            )
+        )
+        # Correct response code
+        assert_response :ok
+        # Check permissions were updated
+        permissions = Permission.where(resource_id:"rspec:variable:data/secrets/secret_to_update").all
+        expect(permissions.size).to eq 2
+        expect(permissions[0][:role_id]).to eq "rspec:user:alice"
+        expect(permissions[0][:privilege]).to eq "read"
+        expect(permissions[1][:role_id]).to eq "rspec:host:data/host1"
+        expect(permissions[1][:privilege]).to eq "execute"
+        # Call update secret after permissions were changed
+        put("/secrets/static/data/secrets/secret_to_update",
+            env: token_auth_header(role: alice_user).merge(v2_api_header).merge(
+              {
+                'RAW_POST_DATA' => payload_update_secret,
+                'CONTENT_TYPE' => "application/json"
+              }
+            )
+        )
+        # Correct response code
+        assert_response :forbidden
+      end
+    end
+    context "Remove secret permissions" do
+      let(:payload_update_secret) do
+        <<~BODY
+          {
+              "mime_type": "plain",
+              "annotations": [
+                {
+                  "name": "description",
+                  "value": "desc"
+                },
+                {
+                  "name": "annotation_to_delete",
+                  "value": "delete"
+                }
+              ]
+          }
+        BODY
+      end
+      it 'permissions are updated' do
+        # Call update secret
+        put("/secrets/static/data/secrets/secret_to_update",
+            env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
+              {
+                'RAW_POST_DATA' => payload_update_secret,
+                'CONTENT_TYPE' => "application/json"
+              }
+            )
+        )
+        # Correct response code
+        assert_response :ok
+        # Check permissions were updated
+        permissions = Permission.where(resource_id:"rspec:variable:data/secrets/secret_to_update").all
+        expect(permissions.size).to eq 0
+        # Call update secret after permissions were changed
+        put("/secrets/static/data/secrets/secret_to_update",
+            env: token_auth_header(role: alice_user).merge(v2_api_header).merge(
+              {
+                'RAW_POST_DATA' => payload_update_secret,
+                'CONTENT_TYPE' => "application/json"
+              }
+            )
+        )
+        # Correct response code
+        assert_response :forbidden
+      end
+    end
+    context "Update secret permissions with not existing host" do
+      let(:payload_update_secret) do
+        <<~BODY
+          {
+              "mime_type": "plain",
+              "annotations": [
+                {
+                  "name": "description",
+                  "value": "desc"
+                },
+                {
+                  "name": "annotation_to_delete",
+                  "value": "delete"
+                }
+              ],
+              "permissions": [
+                {
+                  "subject": {
+                    "kind": "user",
+                    "id": "alice"
+                  },
+                  "privileges": [ "read" ]
+                } ,
+                {
+                  "subject": {
+                    "kind": "host",
+                    "id": "data/host2"
+                  },
+                  "privileges": [ "execute" ]
+                } 
+              ]
+          }
+        BODY
+      end
+      it 'permissions were not updated' do
+        # Call update secret
+        put("/secrets/static/data/secrets/secret_to_update",
+            env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
+              {
+                'RAW_POST_DATA' => payload_update_secret,
+                'CONTENT_TYPE' => "application/json"
+              }
+            )
+        )
+        # Correct response code
+        assert_response :not_found
+        # correct response body
+        parsed_body = JSON.parse(response.body)
+        expect(parsed_body["error"]["message"]).to eq("Host 'data/host2' not found in account 'rspec'")
+        # Check permissions were not updated
+        permissions = Permission.where(resource_id:"rspec:variable:data/secrets/secret_to_update").all
+        expect(permissions.size).to eq 1
+        # Call update secret after permissions were not changed (if no permissions will fail on forbidden before permissions validation)
+        put("/secrets/static/data/secrets/secret_to_update",
+            env: token_auth_header(role: alice_user).merge(v2_api_header).merge(
+              {
+                'RAW_POST_DATA' => payload_update_secret,
+                'CONTENT_TYPE' => "application/json"
+              }
+            )
+        )
+        # Correct response code
+        assert_response :not_found
+      end
+    end
+    context "Update secret permissions with not existing user" do
+      let(:payload_update_secret) do
+        <<~BODY
+          {
+              "mime_type": "plain",
+              "annotations": [
+                {
+                  "name": "description",
+                  "value": "desc"
+                },
+                {
+                  "name": "annotation_to_delete",
+                  "value": "delete"
+                }
+              ],
+              "permissions": [
+                {
+                  "subject": {
+                    "kind": "user",
+                    "id": "luba"
+                  },
+                  "privileges": [ "read" ]
+                }
+              ]
+          }
+        BODY
+      end
+      it 'permissions were not updated' do
+        # Call update secret
+        put("/secrets/static/data/secrets/secret_to_update",
+            env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
+              {
+                'RAW_POST_DATA' => payload_update_secret,
+                'CONTENT_TYPE' => "application/json"
+              }
+            )
+        )
+        # Correct response code
+        assert_response :not_found
+        # correct response body
+        parsed_body = JSON.parse(response.body)
+        expect(parsed_body["error"]["message"]).to eq("User 'luba' not found in account 'rspec'")
+        # Check permissions were not updated
+        permissions = Permission.where(resource_id:"rspec:variable:data/secrets/secret_to_update").all
+        expect(permissions.size).to eq 1
+      end
+    end
+    context "Update secret permissions with not existing group" do
+      let(:payload_update_secret) do
+        <<~BODY
+          {
+              "mime_type": "plain",
+              "annotations": [
+                {
+                  "name": "description",
+                  "value": "desc"
+                },
+                {
+                  "name": "annotation_to_delete",
+                  "value": "delete"
+                }
+              ],
+              "permissions": [
+                {
+                  "subject": {
+                    "kind": "group",
+                    "id": "luba_group"
+                  },
+                  "privileges": [ "read" ]
+                }
+              ]
+          }
+        BODY
+      end
+      it 'permissions were not updated' do
+        # Call update secret
+        put("/secrets/static/data/secrets/secret_to_update",
+            env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
+              {
+                'RAW_POST_DATA' => payload_update_secret,
+                'CONTENT_TYPE' => "application/json"
+              }
+            )
+        )
+        # Correct response code
+        assert_response :not_found
+        # correct response body
+        parsed_body = JSON.parse(response.body)
+        expect(parsed_body["error"]["message"]).to eq("Group 'luba_group' not found in account 'rspec'")
+        # Check permissions were not updated
+        permissions = Permission.where(resource_id:"rspec:variable:data/secrets/secret_to_update").all
+        expect(permissions.size).to eq 1
+      end
+    end
+    context "Update secret value and mime type" do
+      let(:payload_update_secret) do
+        <<~BODY
+          {
+              "mime_type": "json",
+              "value": "password2",
+              "annotations": [
+                {
+                  "name": "description",
+                  "value": "desc"
+                }
+              ],
+              "permissions": [
+                {
+                  "subject": {
+                    "kind": "user",
+                    "id": "alice"
+                  },
+                  "privileges": [ "update" ]
+                }  
+              ]
+          }
+        BODY
+      end
+      it 'secret value is updated and have versions' do
+        # Call update secret
+        put("/secrets/static/data/secrets/secret_to_update",
+            env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
+              {
+                'RAW_POST_DATA' => payload_update_secret,
+                'CONTENT_TYPE' => "application/json"
+              }
+            )
+        )
+        # Correct response code
+        assert_response :ok
+        #Check update response
+        validate_response("secret_to_update", "data/secrets", "json")
+        # Check secret value without version
+        get('/secrets/rspec/variable/data/secrets/secret_to_update',
+            env: token_auth_header(role: admin_user)
+        )
+        assert_response :success
+        expect(response.body).to eq("password2")
+        # Check secret value with version 1
+        get('/secrets/rspec/variable/data/secrets/secret_to_update?version=1',
+            env: token_auth_header(role: admin_user)
+        )
+        assert_response :success
+        expect(response.body).to eq("password")
+        # Check secret value with version 2
+        get('/secrets/rspec/variable/data/secrets/secret_to_update?version=2',
+            env: token_auth_header(role: admin_user)
+        )
+        assert_response :success
+        expect(response.body).to eq("password2")
+      end
+    end
+  end
+
+  describe "Static Secret CRUD" do
+    let(:permit_policy) do
+      <<~POLICY
+        - !permit
+          resource: !policy data/secrets
+          privilege: [ update ]
+          role: !user /alice
+      POLICY
+    end
+    let(:payload_create_secret) do
+      <<~BODY
+        {
+            "branch": "/data/secrets",
+            "name": "secret_to_update",
+            "mime_type": "plain",
+            "value": "password",
+            "annotations": [
+              {
+                "name": "description",
+                "value": "desc"
+              },
+              {
+                "name": "annotation_to_delete",
+                "value": "delete"
+              }
+            ],
+            "permissions": [
+              {
+                "subject": {
+                  "kind": "user",
+                  "id": "alice"
+                },
+                "privileges": [ "update", "read", "execute" ]
+              }  
+            ]
+        }
+      BODY
+    end
+    let(:payload_update_secret) do
+      <<~BODY
+          {
+            "mime_type": "plain",
+            "value": "password2",
+            "annotations": [
+              {
+                "name": "description",
+                "value": "desc"
+              },
+              {
+                "name": "annotation_to_delete",
+                "value": "delete"
+              }
+            ],
+            "permissions": [
+              {
+                "subject": {
+                  "kind": "user",
+                  "id": "alice"
+                },
+                "privileges": [ "update", "read", "execute" ]
+              }  
+            ]
+        }
+        BODY
+    end
+    before do
+      patch(
+        '/policies/rspec/policy/root',
+        env: token_auth_header(role: admin_user).merge(
+          { 'RAW_POST_DATA' => permit_policy }
+        )
+      )
+      assert_response :success
+    end
+    context "Running all CRUD Actions" do
+      it 'All actions succeed' do
+        post("/secrets/static",
+             env: token_auth_header(role: alice_user).merge(v2_api_header).merge(
+               {
+                 'RAW_POST_DATA' => payload_create_secret,
+                 'CONTENT_TYPE' => "application/json"
+               }
+             )
+        )
+        # Correct response code
+        assert_response :created
+        # Correct response body
+        # Check secret value
+        get('/secrets/rspec/variable/data/secrets/secret_to_update',
+            env: token_auth_header(role: admin_user)
+        )
+        assert_response :success
+        expect(response.body).to eq("password")
+        # get secret
+        get("/secrets/static/data/secrets/secret_to_update",
+             env: token_auth_header(role: alice_user).merge(v2_api_header)
+        )
+        # Correct response code
+        assert_response :ok
+        # Correct response body
+        # update secret
+        put("/secrets/static/data/secrets/secret_to_update",
+             env: token_auth_header(role: alice_user).merge(v2_api_header).merge(
+               {
+                 'RAW_POST_DATA' => payload_update_secret,
+                 'CONTENT_TYPE' => "application/json"
+               }
+             )
+        )
+        # Correct response code
+        assert_response :ok
+        # Correct response body
+        # get secret with value
+        get("/secrets/static/data/secrets/secret_to_update?Projection=true",
+            env: token_auth_header(role: alice_user).merge(v2_api_header)
+        )
+        # Correct response code
+        assert_response :ok
+        # Correct response body
       end
     end
   end
