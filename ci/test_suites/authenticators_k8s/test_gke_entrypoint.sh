@@ -231,7 +231,11 @@ function copyConjurPolicies() {
   cli_pod=$(retrieve_pod conjur-cli)
   kubectl wait --for=condition=Ready "pod/$cli_pod" --timeout=5m
 
-  kubectl cp ./dev/policies "$cli_pod:/policies"
+  # Avoid using kubectl cp because it requires the `tar` command to be
+  # installed on the source and destination pods. Instead, use `kubectl exec`
+  # to write the policy file to the destination pod.
+  kubectl exec "$cli_pod" -- mkdir /policies
+  kubectl exec -i "$cli_pod" -- sh -c "cat - > /policies/policy.${TEMPLATE_TAG}yml" < ./dev/policies/policy.${TEMPLATE_TAG}yml
 }
 
 function loadConjurPolicies() {

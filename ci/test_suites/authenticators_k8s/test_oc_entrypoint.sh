@@ -162,8 +162,11 @@ function createSSLCertConfigMap() {
 function copyConjurPolicies() {
   cli_pod=$(retrieve_pod conjur-cli)
 
+  # Avoid using oc rsync because it requires the `tar` or `rsync` commands to
+  # be installed on the source and destination pods. Instead, use
+  # `oc exec` to write the policy file to the destination pod.
   oc exec $cli_pod -- mkdir /policies
-  oc rsync ./dev/policies $cli_pod:/
+  oc exec -i $cli_pod -- sh -c "cat - > /policies/policy.${TEMPLATE_TAG}yml" < ./dev/policies/policy.${TEMPLATE_TAG}yml
 }
 
 function loadConjurPolicies() {
