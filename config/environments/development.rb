@@ -17,6 +17,9 @@ Rails.application.configure do
   # Accept multiple hosts for parallel tests
   config.hosts << /conjur[0-9]*/
 
+  # Redis configuration
+  config.cache_store = :redis_cache_store, { url: ENV['REDIS_URL'], namespace: ENV['TENANT_ID'] }
+
   # eager_load needed to make authentication work without the hacky
   # loading code...
   #

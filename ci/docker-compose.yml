@@ -28,6 +28,11 @@ services:
       #   PostgreSQL documentation about "trust"
       POSTGRES_HOST_AUTH_METHOD: trust
 
+  redis:
+    image: redis:7.2
+    ports:
+      - "6379:6379"
+
   audit:
     image: postgres:15
     environment:
@@ -72,6 +77,8 @@ services:
       RAILS_ENV: development
       REQUIRE_SIMPLECOV: "true"
       CONJUR_LOG_LEVEL: debug
+      TENANT_ID: mytenant
+      REDIS_URL: redis://redis:6379
       CONJUR_AUTHENTICATORS: authn-ldap/test,authn-ldap/secure,authn-oidc/keycloak,authn-oidc,authn-k8s/test,authn-azure/prod,authn-gcp,authn-jwt/raw,authn-jwt/keycloak,authn-oidc/keycloak2,authn-oidc/okta-2
       LDAP_URI: ldap://ldap-server:389
       LDAP_BASE: dc=conjur,dc=net
@@ -94,6 +101,7 @@ services:
       - pg
       - ldap-server
       - keycloak
+      - redis
 
   conjur2:
     image: "conjur-test:${TAG}"
@@ -105,6 +113,8 @@ services:
       RAILS_ENV: development
       REQUIRE_SIMPLECOV: "true"
       CONJUR_LOG_LEVEL: debug
+      TENANT_ID: mytenant
+      REDIS_URL: redis://redis:6379
       CONJUR_AUTHENTICATORS: authn-ldap/test,authn-ldap/secure,authn-oidc/keycloak,authn-oidc,authn-k8s/test,authn-azure/prod,authn-gcp,authn-jwt/raw,authn-jwt/keycloak,authn-oidc/keycloak2,authn-oidc/okta-2
       LDAP_URI: ldap://ldap-server:389
       LDAP_BASE: dc=conjur,dc=net
@@ -127,6 +137,7 @@ services:
       - pg2
       - ldap-server
       - keycloak
+      - redis
 
   cucumber:
     image: conjur-test:$TAG
@@ -136,6 +147,8 @@ services:
       CONJUR_ACCOUNT: cucumber
       AUDIT_DATABASE_URL:
       RAILS_ENV: test
+      TENANT_ID: mytenant
+      REDIS_URL: redis://redis:6379
       CONJUR_LOG_LEVEL: debug
       CONJUR_DATA_KEY:
       REPORT_ROOT:
@@ -160,6 +173,7 @@ services:
       - testdb
       - testdb2
       - keycloak
+      - redis
 
   ldap-server:
     image: osixia/openldap
