@@ -198,36 +198,6 @@ pipeline {
           }
         }
 
-        stage('Promote images to Conjur Dev ECR') {
-          steps {
-            script {
-              def sha = tagWithSHA().trim()
-              INFRAPOOL_EXECUTORV2_AGENT_0.agentGet(from: 'VERSION', to: 'VERSION')
-              def versionFile = readFile('VERSION').trim()
-              def artifactName = "${versionFile}-${sha}"
-              def imageName = "${env.BRANCH_NAME}-${env.BUILD_NUMBER}"
-              def tagAs = ""
-
-              if(env.BRANCH_NAME == 'conjur-cloud') {
-                imageName = "" // will determine in shared library
-                tagAs = "latest"
-              }
-
-              def promoteImageJobName = "Conjur/Conjur-conjur-cloud-management-tools/main/Conjur-conjur-cloud-management-tools-main-promote-artifact"
-              def jobParameters = [
-                  string(name: 'Service_Name', value: 'conjur'),
-                  string(name: 'Promotion_Type', value: 'Conjur_Dev'),
-                  string(name: 'Version', value: artifactName),
-                  string(name: 'Promotion_Type_Validation', value: 'Conjur_Dev'),
-                  string(name: 'Tag_As', value: tagAs),
-                  string(name: 'conjurDevTagBranch', value: imageName),
-              ]
-              // Call promotion job
-              build(job: promoteImageJobName, parameters: jobParameters)
-            }
-          }
-        }
-
         stage('Scan Docker Image') {
           when {
             expression { params.RUN_ONLY == '' }
@@ -844,6 +814,22 @@ pipeline {
                   }
                   INFRAPOOL_EXECUTORV2_AGENT_0.agentSh 'ci/test authenticators_gcp'
                 }
+              }
+            }
+          }
+        }
+
+        stage('Promote image to Conjur Dev ECR') {
+          steps {
+            script {
+              withCredentials([
+              conjurSecretCredential(credentialsId: "RnD-Global-Conjur-Ent-Conjur_dev-conjur-ci-user-conjur_awsaccesskeyid", variable: 'AWS_ACCESS_KEY_ID'),
+              conjurSecretCredential(credentialsId: "RnD-Global-Conjur-Ent-Conjur_dev-conjur-ci-user-conjur_password", variable: 'AWS_SECRET_ACCESS_KEY')]) {
+                INFRAPOOL_EXECUTORV2_AGENT_0.agentGet(from: 'VERSION', to: 'VERSION')
+                def conjurVersion = readFile('VERSION').trim().split("-")[0]
+                env.INFRAPOOL_AWS_ACCESS_KEY_ID = env.AWS_ACCESS_KEY_ID
+                env.INFRAPOOL_AWS_SECRET_ACCESS_KEY = env.AWS_SECRET_ACCESS_KEY
+                INFRAPOOL_EXECUTORV2_AGENT_0.agentSh "./publish-images.sh --ecr --version=${conjurVersion}"
               }
             }
           }
