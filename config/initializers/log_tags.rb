@@ -1,6 +1,6 @@
 Rails.application.configure do
   def gettid
-    Thread.current.native_thread_id
+    syscall(186) # NOTE: Linux-specific, not portable
   end
 
   config.log_tags = [

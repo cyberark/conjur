@@ -47,6 +47,7 @@ required_envvars[azure]="AZURE_TENANT_ID AZURE_SUBSCRIPTION_ID AZURE_RESOURCE_GR
 main() {
   unset COMPOSE_PROJECT_NAME
   parse_options "$@"
+
   check_env_vars
 
   if ! docker info >/dev/null 2>&1; then
@@ -65,8 +66,6 @@ main() {
   docker compose exec conjur bundle
   docker compose exec conjur conjurctl db migrate
   docker compose exec conjur conjurctl account create cucumber || true
-
-  docker-compose exec conjur redis-server --daemonize yes
 
   migrate_audit_db
 

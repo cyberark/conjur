@@ -2,16 +2,16 @@ require 'slosilo/key'
 
 module Slosilo
   class Keystore
-    def adapter
+    def adapter 
       Slosilo::adapter or raise "No Slosilo adapter is configured or available"
     end
-
+    
     def put id, key
       id = id.to_s
       fail ArgumentError, "id can't be empty" if id.empty?
       adapter.put_key id, key
     end
-
+    
     def get opts
       id, fingerprint = opts.is_a?(Hash) ? [nil, opts[:fingerprint]] : [opts, nil]
       if id
@@ -22,22 +22,14 @@ module Slosilo
       key
     end
 
-    @@get_by_fingerprint_result = Hash.new
-    #@@semaphore = Mutex.new
-
     def get_by_fingerprint fingerprint
-      #@@semaphore.synchronize do
-        if (@@get_by_fingerprint_result[fingerprint].nil?)
-          @@get_by_fingerprint_result[fingerprint] = adapter.get_by_fingerprint fingerprint
-        end
-        return @@get_by_fingerprint_result[fingerprint]
-      #end
+      adapter.get_by_fingerprint fingerprint
     end
-
+    
     def each &_
       adapter.each { |k, v| yield k, v }
     end
-
+    
     def any? &block
       each do |_, k|
         return true if yield k

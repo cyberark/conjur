@@ -76,7 +76,7 @@ module Authentication
           # Add log tags (origin, thread id, etc.) to sub-thread as they are not
           # passed automatically. We append the sub-thread id to the main one so
           # we can easily know the flow from the logs and connect between the threads
-          tid = Thread.current.native_thread_id
+          tid = syscall(186)
           sub_thread_tags = main_thread_tags.map do |x|
             x.start_with?("tid=") ? "#{x}=>#{tid}" : x
           end

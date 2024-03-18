@@ -1,5 +1,4 @@
 # frozen_string_literal: true
-require 'json'
 
 module CurrentUser
   extend ActiveSupport::Concern
@@ -23,15 +22,6 @@ module CurrentUser
   private
 
   def find_current_user
-
-    userFromCache = $redis.get(ENV['TENANT_ID'] + "::/user/" + token_user.roleid)
-    if (userFromCache.nil?)
-      current = Role[token_user.roleid]
-      $redis.setex(ENV['TENANT_ID'] + "::/user/" + token_user.roleid, 900, current.to_json)
-    else
-      current = Role.new()
-      current.from_json!(userFromCache)
-    end
-    current || raise(ApplicationController::Forbidden)
+    Role[token_user.roleid] || raise(ApplicationController::Forbidden)
   end
 end
