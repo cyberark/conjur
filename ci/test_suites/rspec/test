@@ -6,7 +6,7 @@ set -e
 # shellcheck disable=SC1091
 source "./shared.sh"
 
-$COMPOSE up --no-deps -d pg
+$COMPOSE up --no-deps -d pg redis
 
 _wait_for_pg pg
 

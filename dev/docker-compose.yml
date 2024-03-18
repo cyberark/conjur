@@ -30,6 +30,11 @@ services:
     environment:
       POSTGRES_PASSWORD: postgres_secret
 
+  redis:
+    image: redis:7.2
+    ports:
+      - "6379:6379"
+
   conjur:
     build:
       context: ../
@@ -44,6 +49,8 @@ services:
       CONJUR_DATA_KEY:
       RAILS_ENV:
       CONJUR_LOG_LEVEL: debug
+      TENANT_ID: mytenant
+      REDIS_URL: redis://redis:6379
       AUDIT_DATABASE_URL:
       # TODO: Where should we be running rspec tests from, ideally?
       # See https://github.com/DatabaseCleaner/database_cleaner#safeguards
@@ -77,6 +84,7 @@ services:
     - ../ci/oauth/keycloak:/oauth/keycloak/scripts
     - jwks-volume:/var/jwks
     links:
+    - redis:redis
     - pg:pg
     - ldap-server
     - keycloak

@@ -29,6 +29,9 @@ Rails.application.configure do
   #
   config.eager_load = true
 
+  # Redis configuration
+  config.cache_store = :redis_cache_store, { url: ENV['REDIS_URL'], namespace: ENV['TENANT_ID'] }
+
   # Configure static file server for tests with Cache-Control for performance.
   config.public_file_server.enabled = false
   config.static_cache_control = 'public, max-age=3600'
