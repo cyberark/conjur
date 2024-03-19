@@ -33,7 +33,7 @@ class StaticSecretsController < V2RestController
   end
 
   def show
-    # Return a static secret name and value
+    # As the branch is part of the path we loose the / prefix
     branch = request.params[:branch]
     secret_name = request.params[:name]
 
@@ -51,6 +51,7 @@ class StaticSecretsController < V2RestController
   end
 
   def replace
+    # As the branch is part of the path we loose the / prefix
     branch = params[:branch]
     secret_name = params[:name]
 
@@ -80,6 +81,7 @@ class StaticSecretsController < V2RestController
   end
 
   private
+
   def check_read_permissions(secret_type_handler, variable)
     read_permission = secret_type_handler.get_read_permissions(variable)
     read_permission.each do |resource, action|

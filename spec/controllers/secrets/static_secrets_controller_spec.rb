@@ -224,7 +224,7 @@ describe StaticSecretsController, type: :request do
         # Correct response code
         assert_response :created
         # correct response body
-        expect(response.body).to eq("{\"branch\":\"/data/secrets\",\"name\":\"secret1\",\"annotations\":[]}")
+        expect(response.body).to eq("{\"branch\":\"/data/secrets\",\"name\":\"secret1\",\"annotations\":[],\"permissions\":[]}")
         #TODO
         # expect(response.body).to eq("{\"branch\":\"/data/secrets\",\"name\":\"secret1\",\"annotations\":\"[]\",\"permissions\":\"[]\"}")
         # correct header
@@ -332,7 +332,7 @@ describe StaticSecretsController, type: :request do
         # Correct response code
         assert_response :created
         # correct response body
-        expect(response.body).to eq("{\"branch\":\"/data/secrets\",\"name\":\"secret1\",\"annotations\":[]}")
+        expect(response.body).to eq("{\"branch\":\"/data/secrets\",\"name\":\"secret1\",\"annotations\":[],\"permissions\":[]}")
         # Verify secret value can be fetched
         get('/secrets/rspec/variable/data/secrets/secret1',
             env: token_auth_header(role: admin_user)
@@ -619,7 +619,7 @@ describe StaticSecretsController, type: :request do
 
   describe 'Get existing static secret' do
     context 'with only mime type' do
-      it 'returns 200' do
+      it 'returns correct json body' do
         get(
           '/secrets/static/data/mySecret',
           env: token_auth_header(role: alice_user).merge(v2_api_header).merge(
@@ -627,7 +627,7 @@ describe StaticSecretsController, type: :request do
           )
         )
         assert_response :success
-        validate_response('mySecret', 'data', 'text/plain', [])
+        expect(response.body).to eq("{\"branch\":\"/data\",\"name\":\"mySecret\",\"mime_type\":\"text/plain\",\"annotations\":[],\"permissions\":[{\"subject\":{\"id\":\"alice\",\"kind\":\"user\"},\"privileges\":[\"read\"]}]}")
       end
     end
     context 'with mime type and annotations' do
@@ -658,7 +658,7 @@ describe StaticSecretsController, type: :request do
         )
         assert_response :success
       end
-      it 'returns 200' do
+      it 'returns json body with all the fields' do
         get(
           '/secrets/static/data/secrets/secret_with_annotations',
           env: token_auth_header(role: alice_user).merge(v2_api_header).merge(
@@ -666,10 +666,10 @@ describe StaticSecretsController, type: :request do
           )
         )
         assert_response :success
-        validate_response('secret_with_annotations', 'data/secrets', 'text/plain', [{ "name"=>"first", "value"=>"first" }, { "name"=>"second", "value"=>"second" }])
+        expect(response.body).to eq("{\"branch\":\"/data/secrets\",\"name\":\"secret_with_annotations\",\"mime_type\":\"text/plain\",\"annotations\":[{\"name\":\"first\",\"value\":\"first\"},{\"name\":\"second\",\"value\":\"second\"}],\"permissions\":[{\"subject\":{\"id\":\"alice\",\"kind\":\"user\"},\"privileges\":[\"read\"]}]}")
       end
     end
-    context 'with only annotations' do
+    context 'with annotations and permissions' do
       let(:case_policy) do
         <<~POLICY
           - !policy
@@ -697,13 +697,94 @@ describe StaticSecretsController, type: :request do
         assert_response :success
       end
 
-      it 'returns 200' do
+      it 'returns json body with annotations and permissions' do
         get('/secrets/static/data/secrets/secret_with_annotations_no_mime_type',
             env: token_auth_header(role: alice_user).merge(v2_api_header).merge(
               'CONTENT_TYPE' => "application/json"
             ))
         assert_response :success
-        validate_response('secret_with_annotations_no_mime_type', 'data/secrets', nil, [{ "name"=>"first", "value"=>"first" }, { "name"=>"second", "value"=>"second" }])
+        expect(response.body).to eq("{\"branch\":\"/data/secrets\",\"name\":\"secret_with_annotations_no_mime_type\",\"annotations\":[{\"name\":\"first\",\"value\":\"first\"},{\"name\":\"second\",\"value\":\"second\"}],\"permissions\":[{\"subject\":{\"id\":\"alice\",\"kind\":\"user\"},\"privileges\":[\"read\"]}]}")
+      end
+    end
+    context 'with only permissions' do
+      let(:payload_create_secret) do
+        <<~BODY
+          {
+              "branch": "/data/secrets",
+              "name": "secret_user_permissions",
+               "permissions": [
+                {
+                  "subject": {
+                    "kind": "user",
+                    "id": "alice"
+                  },
+                  "privileges": [ "read", "update"]
+                },
+                {
+                  "subject": {
+                    "kind": "host",
+                    "id": "/data/host1"
+                  },
+                  "privileges": [ "execute"]
+                },
+                {
+                  "subject": {
+                    "kind": "group",
+                    "id": "/data/group1"
+                  },
+                  "privileges": [ "execute", "update"]
+                }            
+              ]       
+          }
+        BODY
+      end
+      before do
+        post("/secrets/static",
+             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
+               {
+                 'RAW_POST_DATA' => payload_create_secret,
+                 'CONTENT_TYPE' => "application/json"
+               }
+             ))
+        # Correct response code
+        assert_response :created
+      end
+      it 'returns json body with permissions' do
+        get('/secrets/static/data/secrets/secret_user_permissions',
+            env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
+              'CONTENT_TYPE' => "application/json"
+            ))
+        assert_response :success
+        expect(response.body).to eq("{\"branch\":\"/data/secrets\",\"name\":\"secret_user_permissions\",\"annotations\":[],\"permissions\":[{\"subject\":{\"id\":\"data/group1\",\"kind\":\"group\"},\"privileges\":[\"execute\",\"update\"]},{\"subject\":{\"id\":\"data/host1\",\"kind\":\"host\"},\"privileges\":[\"execute\"]},{\"subject\":{\"id\":\"alice\",\"kind\":\"user\"},\"privileges\":[\"read\",\"update\"]}]}")
+      end
+    end
+    context 'without any additional field' do
+      let(:payload_create_secret) do
+        <<~BODY
+          {
+             "branch": "/data/secrets",
+             "name": "secret_user_permissions"
+          }
+        BODY
+      end
+      before do
+        post("/secrets/static",
+             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
+               {
+                 'RAW_POST_DATA' => payload_create_secret,
+                 'CONTENT_TYPE' => "application/json"
+               }
+             ))
+        # Correct response code
+        assert_response :created
+      end
+      it 'returns json body with only name and branch' do
+        get('/secrets/static/data/secrets/secret_user_permissions',
+            env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
+              'CONTENT_TYPE' => "application/json"
+            ))
+        assert_response :success
+        expect(response.body).to eq("{\"branch\":\"/data/secrets\",\"name\":\"secret_user_permissions\",\"annotations\":[],\"permissions\":[]}")
       end
     end
     context 'when the user does not have read permission' do
@@ -1346,7 +1427,9 @@ describe StaticSecretsController, type: :request do
         # Correct response code
         assert_response :ok
         #Check update response
-        validate_response('secret_to_update', 'data/secrets', "json", [{ "name"=>"description", "value"=>"desc" }])
+        validate_response('secret_to_update', '/data/secrets', "json",
+                          [{ "name"=>"description", "value"=>"desc" }],
+                          [{"privileges"=>["read"], "subject"=>{"id"=>"alice", "kind"=>"user"}}])
         # Check annotations were updated
         annotations = Annotation.where(resource_id:"rspec:variable:data/secrets/secret_to_update").all
         expect(annotations.size).to eq 2
@@ -1765,6 +1848,7 @@ describe StaticSecretsController, type: :request do
     end
     context "Running all CRUD Actions" do
       it 'All actions succeed' do
+        # Create secret
         post("/secrets/static",
              env: token_auth_header(role: alice_user).merge(v2_api_header).merge(
                {
@@ -1773,9 +1857,8 @@ describe StaticSecretsController, type: :request do
                }
              )
         )
-        # Correct response code
         assert_response :created
-        # Correct response body
+        expect(response.body).to eq("{\"branch\":\"/data/secrets\",\"name\":\"secret_to_update\",\"mime_type\":\"plain\",\"annotations\":[{\"name\":\"description\",\"value\":\"desc\"},{\"name\":\"annotation_to_delete\",\"value\":\"delete\"}],\"permissions\":[{\"subject\":{\"id\":\"alice\",\"kind\":\"user\"},\"privileges\":[\"update\",\"read\",\"execute\"]}]}")
         # Check secret value
         get('/secrets/rspec/variable/data/secrets/secret_to_update',
             env: token_auth_header(role: admin_user)
@@ -1786,9 +1869,8 @@ describe StaticSecretsController, type: :request do
         get("/secrets/static/data/secrets/secret_to_update",
              env: token_auth_header(role: alice_user).merge(v2_api_header)
         )
-        # Correct response code
         assert_response :ok
-        # Correct response body
+        expect(response.body).to eq("{\"branch\":\"/data/secrets\",\"name\":\"secret_to_update\",\"mime_type\":\"plain\",\"annotations\":[{\"name\":\"description\",\"value\":\"desc\"},{\"name\":\"annotation_to_delete\",\"value\":\"delete\"}],\"permissions\":[{\"subject\":{\"id\":\"alice\",\"kind\":\"user\"},\"privileges\":[\"update\",\"read\",\"execute\"]}]}")
         # update secret
         put("/secrets/static/data/secrets/secret_to_update",
              env: token_auth_header(role: alice_user).merge(v2_api_header).merge(
@@ -1798,21 +1880,20 @@ describe StaticSecretsController, type: :request do
                }
              )
         )
-        # Correct response code
         assert_response :ok
-        # Correct response body
+        expect(response.body).to eq("{\"branch\":\"/data/secrets\",\"name\":\"secret_to_update\",\"mime_type\":\"plain\",\"annotations\":[{\"name\":\"description\",\"value\":\"desc\"},{\"name\":\"annotation_to_delete\",\"value\":\"delete\"}],\"permissions\":[{\"subject\":{\"id\":\"alice\",\"kind\":\"user\"},\"privileges\":[\"update\",\"read\",\"execute\"]}]}")
         # get secret with value
         get("/secrets/static/data/secrets/secret_to_update?Projection=true",
             env: token_auth_header(role: alice_user).merge(v2_api_header)
         )
         # Correct response code
         assert_response :ok
-        # Correct response body
+        # TODO - Correct response body
       end
     end
   end
 
-  def validate_response(name, branch, mime_type, annotations)
+  def validate_response(name, branch, mime_type, annotations, permissions)
     response_body = JSON.parse(response.body)
     expect(response_body['name']).to eq(name)
     expect(response_body['branch']).to eq(branch)
@@ -1820,5 +1901,6 @@ describe StaticSecretsController, type: :request do
       expect(response_body['mime_type']).to eq(mime_type)
     end
     expect(response_body['annotations']).to eq(annotations)
+    expect(response_body['permissions']).to eq(permissions)
   end
 end
