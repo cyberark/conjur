@@ -91,3 +91,40 @@ describe "Base secret create input validation" do
     end
   end
 end
+
+describe "Base secret update input validation" do
+  let(:static_secret) do
+    Secrets::SecretTypes::StaticSecretType.new
+  end
+  before do
+    StaticAccount.set_account("rspec")
+    allow(Resource).to receive(:[]).with("rspec:policy:data/secrets").and_return("policy")
+    allow(Resource).to receive(:[]).with("rspec:variable:data/secrets/secret1").and_return("secret")
+    allow(Resource).to receive(:[]).with("rspec:variable:data/secrets/secret2").and_return(nil)
+    $primary_schema = "public"
+  end
+  context "when update secret with branch in body" do
+    it "input validation fails" do
+      body_params = ActionController::Parameters.new(mime_type:"text", branch: "data/secrets")
+      params = ActionController::Parameters.new(branch: "data/secrets", name:"secret1")
+      expect { static_secret.update_input_validation(params, body_params)
+      }.to raise_error(ApplicationController::UnprocessableEntity)
+    end
+  end
+  context "when update secret with name in body" do
+    it "input validation fails" do
+      body_params = ActionController::Parameters.new(mime_type:"text", name:"secret1")
+      params = ActionController::Parameters.new(branch: "data/secrets", name:"secret1")
+      expect { static_secret.update_input_validation(params, body_params)
+      }.to raise_error(ApplicationController::UnprocessableEntity)
+    end
+  end
+  context "when update not existent secret" do
+    it "input validation fails" do
+      body_params = ActionController::Parameters.new(mime_type:"text")
+      params = ActionController::Parameters.new(branch: "data/secrets", name:"secret2")
+      expect { static_secret.update_input_validation(params, body_params)
+      }.to raise_error(Exceptions::RecordNotFound)
+    end
+  end
+end

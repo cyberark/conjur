@@ -7,6 +7,17 @@ module Secrets
       def create_input_validation(params)
         super(params)
 
+        input_validation(params)
+      end
+
+      def update_input_validation(params, body_params)
+        secret = super(params, body_params)
+        input_validation(body_params)
+        secret
+      end
+
+      private
+      def input_validation(params)
         method_params = params[:method_params]
         if method_params
           data_fields = {

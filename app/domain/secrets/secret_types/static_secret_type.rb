@@ -79,7 +79,9 @@ module Secrets
 
         # add annotations to json result
         filter_list = ["conjur/mime_type"]
-        json_result.merge(annotations: get_annotations(variable, filter_list))
+        json_result = json_result.merge(annotations: get_annotations(variable, filter_list))
+
+        json_result.to_json
       end
 
       def get_update_permissions(params, secret)

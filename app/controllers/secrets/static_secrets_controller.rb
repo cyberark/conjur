@@ -47,7 +47,7 @@ class StaticSecretsController < V2RestController
 
     response = secret_type_handler.as_json(branch, secret_name, variable)
     logger.debug(LogMessages::Endpoints::EndpointFinishedSuccessfully.new(get_secret_log_message))
-    render(json: response.to_json, status: :ok)
+    render(json: response, status: :ok)
   end
 
   def replace
