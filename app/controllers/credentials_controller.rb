@@ -107,11 +107,18 @@ class CredentialsController < ApplicationController
 
   # Don't permit token auth when manipulating 'self' record.
   def restrict_token_auth
-    if authentication.self?
-      raise Unauthorized, "Credential strength is insufficient" unless authentication.basic_user?
-    else
+    return true if authentication.basic_user? || authentication.self? == false
+
+    Rails.logger.info("Credential strength is insufficient")
+
+    raise Unauthorized.new(
+      "Credential strength is insufficient",
+      # True, in this context, initializes the error with
+      # return_message_in_response as true. This is used in the
+      # application controller to determine if a JSON object is returned
+      # with the response, or just the error code.
       true
-    end
+    )
   end
 
   # The authenticated user represents a user in this account.

@@ -65,11 +65,30 @@ describe CredentialsController, :type => :request do
       end
     end
   end
-  
+
   context "#update_password" do
     let(:new_password) { "New-Password1" }
     let(:insufficient_msg) do
       ::Errors::Conjur::InsufficientPasswordComplexity.new.to_s
+    end
+
+    context "with token auth" do
+      include_context "create user"
+      include_context "authenticate Token"
+      let(:pw_payload) { { 'RAW_POST_DATA' => new_password } }
+      let(:errors) {
+        {
+          error: {
+            code: "unauthorized",
+            message: "Credential strength is insufficient"
+          }
+        }
+      }
+      it "is unauthorized" do
+        put(update_password_url, env: request_env)
+        expect(response.code).to eq("401")
+        expect(response.body).to eq(errors.to_json)
+      end
     end
 
     context "without auth" do
