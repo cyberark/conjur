@@ -19,6 +19,26 @@ module PermissionsHandler
     Permission.where(resource_id: resource.id).delete
   end
 
+  def get_permissions(resource)
+    permissions = Permission.where(resource_id: resource.id).group(:role_id)
+                    .select(:role_id, Sequel.function(:array_agg, :privilege).as(:privileges))
+    permissions = permissions.map do |permission|
+      role_parts = permission[:role_id].split(':')
+      {
+        subject: {
+          id: role_parts[2],
+          kind: role_parts[1]
+        },
+        privileges: permission[:privileges].to_a
+      }
+    end
+    # Return empty list if no annotations after filter
+    unless permissions
+      permissions = []
+    end
+    permissions
+  end
+
   # Validates the permissions section of the request is valid and returns a map between the resource id and its privileges
   def validate_permissions(permissions, allowed_privilege)
     resources_privileges = {}

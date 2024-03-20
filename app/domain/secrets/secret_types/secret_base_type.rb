@@ -81,6 +81,10 @@ module Secrets
       end
 
       def as_json(branch, name)
+        # We want always return the full path syntax in response
+        unless branch.start_with?("/")
+          branch = "/#{branch}"
+        end
         {
           branch: branch,
           name: name
