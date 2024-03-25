@@ -193,7 +193,7 @@ services:
       - ./ldap-certs:/container/service/slapd/assets/certs:ro
 
   keycloak:
-    image: jboss/keycloak:4.3.0.Final
+    image: registry.tld/jboss/keycloak:4.3.0.Final
     ulimits:
       nofile:
         soft: 6114
