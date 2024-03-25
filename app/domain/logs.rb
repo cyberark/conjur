@@ -75,6 +75,23 @@ module LogMessages
     )
   end
 
+  module Redis
+    RedisAccessStart = ::Util::TrackableLogMessageClass.new(
+      msg: "Starting {0} in Redis",
+      code: "CONJ00501D"
+    )
+
+    RedisAccessEnd = ::Util::TrackableLogMessageClass.new(
+      msg: "Finished {0} in Redis. Response: {1}",
+      code: "CONJ00502D"
+    )
+
+    RedisAccessFailure = ::Util::TrackableLogMessageClass.new(
+      msg: "Error while {0} in Redis. Message: {1}",
+      code: "CONJ00503E"
+    )
+  end
+
   module Authentication
 
     LoginError = ::Util::TrackableErrorClass.new(
