@@ -376,8 +376,7 @@ describe DynamicSecretsController, type: :request do
         # Correct response code
         assert_response :created
         # correct response body
-        expect(response.body).to eq('{"branch":"/data/dynamic","name":"ephemeral_secret"}')
-        #expect(response.body).to eq("{\"branch\":\"/data/ephemerals\",\"name\":\"ephemeral_secret\",\"type\":\"ephemeral\",\"annotations\":[{\"name\":\"description\",\"value\":\"desc\"}],\"permissions\":[{\"subject\":{\"kind\":\"user\",\"id\":\"alice\"},\"privileges\":[\"read\"]}],\"ephemeral\":{\"issuer\":\"aws-issuer-1\",\"ttl\":1200,\"type\":\"aws\",\"type_params\":{\"method\":\"assume-role\",\"region\":\"us-east-1\",\"inline_policy\":\"{}\",\"method_params\":{\"role_arn\":\"role\"}}}}")
+        expect(response.body).to eq("{\"branch\":\"/data/dynamic\",\"name\":\"ephemeral_secret\",\"issuer\":\"aws-issuer-1\",\"ttl\":1200,\"method\":\"assume-role\",\"method_params\":{\"role_arn\":\"role\",\"region\":\"us-east-1\",\"inline_policy\":\"{}\"},\"annotations\":[{\"name\":\"description\",\"value\":\"desc\"}],\"permissions\":[{\"subject\":{\"id\":\"alice\",\"kind\":\"user\"},\"privileges\":[\"read\"]}]}")
         # Secret resource is created
         resource = Resource["rspec:variable:data/dynamic/ephemeral_secret"]
         expect(resource).to_not be_nil
@@ -893,7 +892,7 @@ describe DynamicSecretsController, type: :request do
         end
         it 'annotations are updated' do
           # Call update secret
-          put("/secrets/static/data/dynamic/secret_to_update",
+          put("/secrets/dynamic/data/dynamic/secret_to_update",
               env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
                 {
                   'RAW_POST_DATA' => payload_update_secret,
@@ -1335,5 +1334,829 @@ describe DynamicSecretsController, type: :request do
     #describe "Dynamic Secret CRUD" do
   end
 
+  describe 'Get existing dynamic secret' do
+    let(:payload_create_issuers) do
+      <<~BODY
+        {
+          "id": "aws-issuer-1",
+          "max_ttl": 1000,
+          "type": "aws",
+          "data": {
+            "access_key_id": "my-key-id",
+            "secret_access_key": "my-key-secret"
+          }
+        }
+      BODY
+    end
+    let(:payload_create_federation_secret) do
+      <<~BODY
+          {
+              "branch": "/data/dynamic",
+              "name": "federation_token_secret",
+              "issuer": "aws-issuer-1",
+              "ttl": 120,
+              "method": "federation-token",
+              "annotations": [
+              {
+                "name": "description",
+                "value": "desc"
+              },
+              {
+                "name": "annotation_to_delete",
+                "value": "delete"
+              }
+              ],
+              "permissions": [
+                {
+                  "subject": {
+                    "kind": "user",
+                    "id": "alice"
+                  },
+                  "privileges": [ "read" ]
+                }  
+              ]
+           }
+        BODY
+    end
+    let(:payload_create_role_secret) do
+      <<~BODY
+          {
+              "branch": "/data/dynamic",
+              "name": "assume_role_secret",
+              "issuer": "aws-issuer-1",
+              "ttl": 120,
+              "method": "assume-role",
+              "method_params": {
+                "role_arn": "role"
+              },
+              "annotations": [
+                {
+                  "name": "description",
+                  "value": "desc"
+                }
+              ],
+              "permissions": [
+                {
+                  "subject": {
+                    "kind": "user",
+                    "id": "alice"
+                  },
+                  "privileges": [ "read" ]
+                }  
+              ]
+           }
+        BODY
+    end
+    before do
+      #Create issuer
+      post("/issuers/rspec",
+           env: token_auth_header(role: admin_user).merge(
+             'RAW_POST_DATA' => payload_create_issuers,
+             'CONTENT_TYPE' => "application/json"
+           ))
+      assert_response :created
 
+      # Create secret
+      post("/secrets/dynamic",
+           env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
+             {
+               'RAW_POST_DATA' => payload_create_federation_secret,
+               'CONTENT_TYPE' => "application/json"
+             }
+           )
+      )
+      # Correct response code
+      assert_response :created
+      post("/secrets/dynamic",
+           env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
+             {
+               'RAW_POST_DATA' => payload_create_role_secret,
+               'CONTENT_TYPE' => "application/json"
+             }
+           )
+      )
+      # Correct response code
+      assert_response :created
+    end
+    # Full flow with using both policy and apis
+    context 'User with read permissions calls for get federation token secret' do
+      it 'returns correct json body' do
+        get('/secrets/dynamic/data/dynamic/federation_token_secret',
+          env: token_auth_header(role: alice_user).merge(v2_api_header).merge(
+            'CONTENT_TYPE' => "application/json"
+          )
+        )
+        assert_response :success
+        expect(response.body).to eq("{\"branch\":\"/data/dynamic\",\"name\":\"federation_token_secret\",\"issuer\":\"aws-issuer-1\",\"ttl\":120,\"method\":\"federation-token\",\"annotations\":[{\"name\":\"description\",\"value\":\"desc\"},{\"name\":\"annotation_to_delete\",\"value\":\"delete\"}],\"permissions\":[{\"subject\":{\"id\":\"alice\",\"kind\":\"user\"},\"privileges\":[\"read\"]}]}")
+      end
+    end
+    context 'User with read permissions calls for get assume role secret' do
+      it 'returns correct json body' do
+        get('/secrets/dynamic/data/dynamic/assume_role_secret',
+            env: token_auth_header(role: alice_user).merge(v2_api_header).merge(
+              'CONTENT_TYPE' => "application/json"
+            )
+        )
+        assert_response :success
+        expect(response.body).to eq("{\"branch\":\"/data/dynamic\",\"name\":\"assume_role_secret\",\"issuer\":\"aws-issuer-1\",\"ttl\":120,\"method\":\"assume-role\",\"method_params\":{\"role_arn\":\"role\"},\"annotations\":[{\"name\":\"description\",\"value\":\"desc\"}],\"permissions\":[{\"subject\":{\"id\":\"alice\",\"kind\":\"user\"},\"privileges\":[\"read\"]}]}")
+      end
+    end
+    context 'User with no read permissions calls for get assume role secret' do
+      it 'returns 403' do
+        get('/secrets/dynamic/data/dynamic/assume_role_secret',
+            env: token_auth_header(role: bob_user).merge(v2_api_header).merge(
+              'CONTENT_TYPE' => "application/json"
+            )
+        )
+        assert_response :forbidden
+      end
+    end
+    context 'Get not existent secret' do
+      it 'returns 404' do
+        get('/secrets/dynamic/data/dynamic/secret_not_found',
+            env: token_auth_header(role: bob_user).merge(v2_api_header).merge(
+              'CONTENT_TYPE' => "application/json"
+            )
+        )
+        assert_response :not_found
+      end
+    end
+    context 'Get from not existent branch' do
+      it 'returns 404' do
+        get('/secrets/dynamic/data/dynamics/assume_role_secret',
+            env: token_auth_header(role: bob_user).merge(v2_api_header).merge(
+              'CONTENT_TYPE' => "application/json"
+            )
+        )
+        assert_response :not_found
+      end
+    end
+    context 'Get with empty branch' do
+      it 'returns 404' do
+        get('/secrets/dynamic//assume_role_secret',
+            env: token_auth_header(role: bob_user).merge(v2_api_header).merge(
+              'CONTENT_TYPE' => "application/json"
+            )
+        )
+        assert_response :not_found
+      end
+    end
+    context 'Get with no branch' do
+      it 'returns 404' do
+        get('/secrets/dynamic/assume_role_secret',
+            env: token_auth_header(role: bob_user).merge(v2_api_header).merge(
+              'CONTENT_TYPE' => "application/json"
+            )
+        )
+        assert_response :not_found
+      end
+    end
+  end
+
+  describe 'Call dynamic secret apis for static secret' do
+    let(:permit_policy) do
+      <<~POLICY
+        - !permit
+          resource: !policy data/secrets
+          privilege: [ update ]
+          role: !user /alice
+      POLICY
+    end
+    let(:payload_update_secret) do
+      <<~BODY
+          {
+            "mime_type": "plain",
+            "value": "password2",
+            "annotations": [
+              {
+                "name": "description",
+                "value": "desc"
+              },
+              {
+                "name": "annotation_to_delete",
+                "value": "delete"
+              }
+            ],
+            "permissions": [
+              {
+                "subject": {
+                  "kind": "user",
+                  "id": "alice"
+                },
+                "privileges": [ "update", "read", "execute" ]
+              }  
+            ]
+        }
+        BODY
+    end
+    let(:payload_create_issuers) do
+      <<~BODY
+        {
+          "id": "aws-issuer-1",
+          "max_ttl": 1000,
+          "type": "aws",
+          "data": {
+            "access_key_id": "my-key-id",
+            "secret_access_key": "my-key-secret"
+          }
+        }
+      BODY
+    end
+    before do
+      patch(
+        '/policies/rspec/policy/root',
+        env: token_auth_header(role: admin_user).merge(
+          { 'RAW_POST_DATA' => permit_policy }
+        )
+      )
+      assert_response :success
+      #Create issuer
+      post("/issuers/rspec",
+           env: token_auth_header(role: admin_user).merge(
+             'RAW_POST_DATA' => payload_create_issuers,
+             'CONTENT_TYPE' => "application/json"
+           ))
+      assert_response :created
+    end
+    context 'create static secret under dynamic branch with static api' do
+      let(:payload_create_secret) do
+        <<~BODY
+        {
+            "branch": "/data/dynamic",
+            "name": "secret_to_update",
+            "mime_type": "plain",
+            "value": "password",
+            "annotations": [
+              {
+                "name": "description",
+                "value": "desc"
+              },
+              {
+                "name": "annotation_to_delete",
+                "value": "delete"
+              }
+            ],
+            "permissions": [
+              {
+                "subject": {
+                  "kind": "user",
+                  "id": "alice"
+                },
+                "privileges": [ "update", "read", "execute" ]
+              }  
+            ]
+        }
+      BODY
+      end
+      it 'Request fails on input validation' do
+        post("/secrets/static",
+             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
+               {
+                 'RAW_POST_DATA' => payload_create_secret,
+                 'CONTENT_TYPE' => "application/json"
+               }
+             )
+        )
+        assert_response :bad_request
+        parsed_body = JSON.parse(response.body)
+        expect(parsed_body["error"]["message"]).to eq("Static secret cannot be created under data/dynamic/")
+      end
+    end
+    context 'create static secret under dynamic branch with dynamic api' do
+      let(:payload_create_secret) do
+        <<~BODY
+        {
+            "branch": "/data/dynamic",
+            "name": "secret_to_update",
+            "mime_type": "plain",
+            "value": "password",
+            "annotations": [
+              {
+                "name": "description",
+                "value": "desc"
+              },
+              {
+                "name": "annotation_to_delete",
+                "value": "delete"
+              }
+            ],
+            "permissions": [
+              {
+                "subject": {
+                  "kind": "user",
+                  "id": "alice"
+                },
+                "privileges": [ "update", "read", "execute" ]
+              }  
+            ]
+        }
+      BODY
+      end
+      it 'Request fails on input validation' do
+        post("/secrets/dynamic",
+             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
+               {
+                 'RAW_POST_DATA' => payload_create_secret,
+                 'CONTENT_TYPE' => "application/json"
+               }
+             )
+        )
+        assert_response :bad_request
+        parsed_body = JSON.parse(response.body)
+        expect(parsed_body["error"]["message"]).to eq("Dynamic Secret method is unsupported")
+      end
+    end
+    context 'create dynamic secret under dynamic branch with static api' do
+      let(:payload_create_federation_secret) do
+        <<~BODY
+          {
+              "branch": "/data/dynamic",
+              "name": "federation_token_secret",
+              "issuer": "aws-issuer-1",
+              "ttl": 120,
+              "method": "federation-token",
+              "annotations": [
+              {
+                "name": "description",
+                "value": "desc"
+              },
+              {
+                "name": "annotation_to_delete",
+                "value": "delete"
+              }
+              ],
+              "permissions": [
+                {
+                  "subject": {
+                    "kind": "user",
+                    "id": "alice"
+                  },
+                  "privileges": [ "read" ]
+                }  
+              ]
+           }
+        BODY
+      end
+      it 'Request fails on input validation' do
+        post("/secrets/static",
+             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
+               {
+                 'RAW_POST_DATA' => payload_create_federation_secret,
+                 'CONTENT_TYPE' => "application/json"
+               }
+             )
+        )
+        assert_response :bad_request
+        parsed_body = JSON.parse(response.body)
+        expect(parsed_body["error"]["message"]).to eq("Static secret cannot be created under data/dynamic/")
+      end
+    end
+    context 'create dynamic secret under regular branch with static api' do
+      let(:payload_create_federation_secret) do
+        <<~BODY
+          {
+              "branch": "/data/secrets",
+              "name": "federation_token_secret",
+              "issuer": "aws-issuer-1",
+              "ttl": 120,
+              "method": "federation-token",
+              "annotations": [
+              {
+                "name": "description",
+                "value": "desc"
+              },
+              {
+                "name": "annotation_to_delete",
+                "value": "delete"
+              }
+              ],
+              "permissions": [
+                {
+                  "subject": {
+                    "kind": "user",
+                    "id": "alice"
+                  },
+                  "privileges": [ "read" ]
+                }  
+              ]
+           }
+        BODY
+      end
+      it 'Request fails on input validation' do
+        post("/secrets/static",
+             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
+               {
+                 'RAW_POST_DATA' => payload_create_federation_secret,
+                 'CONTENT_TYPE' => "application/json"
+               }
+             )
+        )
+        assert_response :bad_request
+        parsed_body = JSON.parse(response.body)
+        expect(parsed_body["error"]["message"]).to eq("Static secret can't contain issuer field")
+      end
+    end
+    context 'update static secret under regular branch with dynamic api' do
+      let(:payload_create_secret) do
+        <<~BODY
+        {
+            "branch": "/data/secrets",
+            "name": "secret_to_update",
+            "mime_type": "plain",
+            "value": "password",
+            "annotations": [
+              {
+                "name": "description",
+                "value": "desc"
+              },
+              {
+                "name": "annotation_to_delete",
+                "value": "delete"
+              }
+            ],
+            "permissions": [
+              {
+                "subject": {
+                  "kind": "user",
+                  "id": "alice"
+                },
+                "privileges": [ "update", "read", "execute" ]
+              }  
+            ]
+        }
+      BODY
+      end
+      it 'Request fails on input validation' do
+        post("/secrets/static/",
+            env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
+              {
+                'RAW_POST_DATA' => payload_create_secret,
+                'CONTENT_TYPE' => "application/json"
+              }
+            )
+        )
+        assert_response :success
+        put("/secrets/dynamic/data/secrets/secret_to_update",
+             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
+               {
+                 'RAW_POST_DATA' => payload_update_secret,
+                 'CONTENT_TYPE' => "application/json"
+               }
+             )
+        )
+        assert_response :bad_request
+        parsed_body = JSON.parse(response.body)
+        expect(parsed_body["error"]["message"]).to eq("Dynamic Secret method is unsupported")
+      end
+    end
+    context 'update dynamic secret under dynamic branch with static api' do
+      let(:payload_create_federation_secret) do
+        <<~BODY
+          {
+              "branch": "/data/dynamic",
+              "name": "federation_token_secret",
+              "issuer": "aws-issuer-1",
+              "ttl": 120,
+              "method": "federation-token",
+              "annotations": [
+              {
+                "name": "description",
+                "value": "desc"
+              },
+              {
+                "name": "annotation_to_delete",
+                "value": "delete"
+              }
+              ],
+              "permissions": [
+                {
+                  "subject": {
+                    "kind": "user",
+                    "id": "alice"
+                  },
+                  "privileges": [ "read" ]
+                }  
+              ]
+           }
+        BODY
+      end
+      it 'Request fails on input validation' do
+        post("/secrets/dynamic/",
+             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
+               {
+                 'RAW_POST_DATA' => payload_create_federation_secret,
+                 'CONTENT_TYPE' => "application/json"
+               }
+             )
+        )
+        assert_response :success
+        put("/secrets/static/data/dynamic/federation_token_secret",
+            env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
+              {
+                'RAW_POST_DATA' => payload_update_secret,
+                'CONTENT_TYPE' => "application/json"
+              }
+            )
+        )
+        assert_response :bad_request
+        parsed_body = JSON.parse(response.body)
+        expect(parsed_body["error"]["message"]).to eq("Static secret cannot be updated under data/dynamic/")
+      end
+    end
+    context 'get static secret under regular branch with dynamic api' do
+      let(:payload_create_secret) do
+        <<~BODY
+        {
+            "branch": "/data/secrets",
+            "name": "secret_to_update",
+            "mime_type": "plain",
+            "value": "password",
+            "annotations": [
+              {
+                "name": "description",
+                "value": "desc"
+              },
+              {
+                "name": "annotation_to_delete",
+                "value": "delete"
+              }
+            ],
+            "permissions": [
+              {
+                "subject": {
+                  "kind": "user",
+                  "id": "alice"
+                },
+                "privileges": [ "update", "read", "execute" ]
+              }  
+            ]
+        }
+      BODY
+      end
+      it 'Request fails on input validation' do
+        post("/secrets/static/",
+             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
+               {
+                 'RAW_POST_DATA' => payload_create_secret,
+                 'CONTENT_TYPE' => "application/json"
+               }
+             )
+        )
+        assert_response :success
+        get("/secrets/dynamic/data/secrets/secret_to_update",
+            env: token_auth_header(role: admin_user).merge(v2_api_header)
+        )
+        assert_response :bad_request
+        parsed_body = JSON.parse(response.body)
+        expect(parsed_body["error"]["message"]).to eq("Dynamic Secret method is unsupported")
+      end
+    end
+    context 'get dynamic secret under dynamic branch with static api' do
+      let(:payload_create_federation_secret) do
+        <<~BODY
+          {
+              "branch": "/data/dynamic",
+              "name": "federation_token_secret",
+              "issuer": "aws-issuer-1",
+              "ttl": 120,
+              "method": "federation-token",
+              "annotations": [
+              {
+                "name": "description",
+                "value": "desc"
+              },
+              {
+                "name": "annotation_to_delete",
+                "value": "delete"
+              }
+              ],
+              "permissions": [
+                {
+                  "subject": {
+                    "kind": "user",
+                    "id": "alice"
+                  },
+                  "privileges": [ "read" ]
+                }  
+              ]
+           }
+        BODY
+      end
+      it 'Request fails on input validation' do
+        post("/secrets/dynamic/",
+             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
+               {
+                 'RAW_POST_DATA' => payload_create_federation_secret,
+                 'CONTENT_TYPE' => "application/json"
+               }
+             )
+        )
+        assert_response :success
+        get("/secrets/static/data/dynamic/federation_token_secret",
+            env: token_auth_header(role: admin_user).merge(v2_api_header)
+        )
+        assert_response :bad_request
+        parsed_body = JSON.parse(response.body)
+        expect(parsed_body["error"]["message"]).to eq("Static secret cannot be fetched under data/dynamic/")
+      end
+    end
+  end
+
+  describe "Dynamic Secret CRUD" do
+    let(:permit_policy) do
+      <<~POLICY
+          - !permit
+            resource: !policy conjur/issuers/aws-issuer-1
+            privilege: [ use ]
+            role: !user /alice
+
+          - !permit
+            resource: !policy data/dynamic
+            privilege: [ update ]
+            role: !user /alice          
+        POLICY
+    end
+    let(:payload_create_issuers) do
+      <<~BODY
+        {
+          "id": "aws-issuer-1",
+          "max_ttl": 1000,
+          "type": "aws",
+          "data": {
+            "access_key_id": "my-key-id",
+            "secret_access_key": "my-key-secret"
+          }
+        }
+      BODY
+    end
+    let(:payload_create_federation_secret) do
+      <<~BODY
+          {
+              "branch": "/data/dynamic",
+              "name": "federation_token_secret",
+              "issuer": "aws-issuer-1",
+              "ttl": 120,
+              "method": "federation-token",
+              "annotations": [
+              {
+                "name": "description",
+                "value": "desc"
+              },
+              {
+                "name": "annotation_to_delete",
+                "value": "delete"
+              }
+              ],
+              "permissions": [
+                {
+                  "subject": {
+                    "kind": "user",
+                    "id": "alice"
+                  },
+                  "privileges": [ "read" ]
+                }  
+              ]
+           }
+        BODY
+    end
+    let(:payload_update_federation_secret_policy) do
+      <<~POLICY
+          - !variable 
+            id: federation_token_secret
+            annotations:
+              description: desc
+              dynamic/issuer: aws-issuer-1  
+              dynamic/ttl: 110
+              dynamic/method: federation-token
+              dynamic/region: us-east-1    
+
+          - !permit
+            resource: !variable federation_token_secret
+            privilege: [ read ]
+            role: !user /alice    
+        POLICY
+    end
+    let(:payload_update_role_secret) do
+      <<~BODY
+          {             
+              "issuer": "aws-issuer-1",
+              "ttl": 110,
+              "method": "assume-role",
+              "method_params": {
+                "role_arn": "role"
+              },
+              "permissions": [
+                {
+                  "subject": {
+                    "kind": "user",
+                    "id": "alice"
+                  },
+                  "privileges": [ "read" ]
+                }  
+              ]
+           }
+        BODY
+    end
+    let(:payload_create_role_secret_policy) do
+      <<~POLICY
+          - !variable 
+            id: assume_role_secret
+            annotations:
+              description: desc
+              dynamic/issuer: aws-issuer-1  
+              dynamic/ttl: 110
+              dynamic/method: assume-role
+              dynamic/role-arn: role
+              dynamic/region: us-east-1    
+
+          - !permit
+            resource: !variable assume_role_secret
+            privilege: [ read ]
+            role: !user /alice    
+        POLICY
+    end
+    before do
+      #Create issuer
+      post("/issuers/rspec",
+           env: token_auth_header(role: admin_user).merge(
+             'RAW_POST_DATA' => payload_create_issuers,
+             'CONTENT_TYPE' => "application/json"
+           ))
+      assert_response :created
+
+      patch(
+        '/policies/rspec/policy/root',
+        env: token_auth_header(role: admin_user).merge(
+          { 'RAW_POST_DATA' => permit_policy }
+        )
+      )
+      assert_response :success
+    end
+    context "Running all CRUD Actions" do
+      it 'All actions succeed' do
+        # Create federation token secret using api
+        post("/secrets/dynamic",
+             env: token_auth_header(role: alice_user).merge(v2_api_header).merge(
+               {
+                 'RAW_POST_DATA' => payload_create_federation_secret,
+                 'CONTENT_TYPE' => "application/json"
+               }
+             )
+        )
+        assert_response :created
+        expect(response.body).to eq("{\"branch\":\"/data/dynamic\",\"name\":\"federation_token_secret\",\"issuer\":\"aws-issuer-1\",\"ttl\":120,\"method\":\"federation-token\",\"annotations\":[{\"name\":\"description\",\"value\":\"desc\"},{\"name\":\"annotation_to_delete\",\"value\":\"delete\"}],\"permissions\":[{\"subject\":{\"id\":\"alice\",\"kind\":\"user\"},\"privileges\":[\"read\"]}]}")
+        # get federation token secret
+        get("/secrets/dynamic/data/dynamic/federation_token_secret",
+            env: token_auth_header(role: alice_user).merge(v2_api_header)
+        )
+        assert_response :ok
+        expect(response.body).to eq("{\"branch\":\"/data/dynamic\",\"name\":\"federation_token_secret\",\"issuer\":\"aws-issuer-1\",\"ttl\":120,\"method\":\"federation-token\",\"annotations\":[{\"name\":\"description\",\"value\":\"desc\"},{\"name\":\"annotation_to_delete\",\"value\":\"delete\"}],\"permissions\":[{\"subject\":{\"id\":\"alice\",\"kind\":\"user\"},\"privileges\":[\"read\"]}]}")
+        # create assume role secret using policy
+        patch(
+          '/policies/rspec/policy/data/dynamic',
+          env: token_auth_header(role: alice_user).merge(
+            { 'RAW_POST_DATA' => payload_create_role_secret_policy }
+          )
+        )
+        assert_response :success
+        # get assume role secret
+        get("/secrets/dynamic/data/dynamic/assume_role_secret",
+            env: token_auth_header(role: alice_user).merge(v2_api_header)
+        )
+        assert_response :ok
+        expect(response.body).to eq( "{\"branch\":\"/data/dynamic\",\"name\":\"assume_role_secret\",\"issuer\":\"aws-issuer-1\",\"ttl\":110,\"method\":\"assume-role\",\"method_params\":{\"role_arn\":\"role\",\"region\":\"us-east-1\"},\"annotations\":[{\"name\":\"description\",\"value\":\"desc\"}],\"permissions\":[{\"subject\":{\"id\":\"alice\",\"kind\":\"user\"},\"privileges\":[\"read\"]}]}")
+        # update assume role secret
+        put("/secrets/dynamic/data/dynamic/assume_role_secret",
+            env: token_auth_header(role: alice_user).merge(v2_api_header).merge(
+              {
+                'RAW_POST_DATA' => payload_update_role_secret,
+                'CONTENT_TYPE' => "application/json"
+              }
+            )
+        )
+        assert_response :ok
+        expect(response.body).to eq("{\"branch\":\"/data/dynamic\",\"name\":\"assume_role_secret\",\"issuer\":\"aws-issuer-1\",\"ttl\":110,\"method\":\"assume-role\",\"method_params\":{\"role_arn\":\"role\"},\"annotations\":[],\"permissions\":[{\"subject\":{\"id\":\"alice\",\"kind\":\"user\"},\"privileges\":[\"read\"]}]}")
+        # get secret
+        get("/secrets/dynamic/data/dynamic/assume_role_secret",
+            env: token_auth_header(role: alice_user).merge(v2_api_header)
+        )
+        assert_response :ok
+        expect(response.body).to eq("{\"branch\":\"/data/dynamic\",\"name\":\"assume_role_secret\",\"issuer\":\"aws-issuer-1\",\"ttl\":110,\"method\":\"assume-role\",\"method_params\":{\"role_arn\":\"role\"},\"annotations\":[],\"permissions\":[{\"subject\":{\"id\":\"alice\",\"kind\":\"user\"},\"privileges\":[\"read\"]}]}")
+        # update federation token secret using policy
+        patch(
+          '/policies/rspec/policy/data/dynamic',
+          env: token_auth_header(role: alice_user).merge(
+            { 'RAW_POST_DATA' => payload_update_federation_secret_policy }
+          )
+        )
+        assert_response :success
+        # get federation token secret
+        get("/secrets/dynamic/data/dynamic/federation_token_secret",
+            env: token_auth_header(role: alice_user).merge(v2_api_header)
+        )
+        assert_response :ok
+        expect(response.body).to eq("{\"branch\":\"/data/dynamic\",\"name\":\"federation_token_secret\",\"issuer\":\"aws-issuer-1\",\"ttl\":110,\"method\":\"federation-token\",\"method_params\":{\"region\":\"us-east-1\"},\"annotations\":[{\"name\":\"description\",\"value\":\"desc\"},{\"name\":\"annotation_to_delete\",\"value\":\"delete\"}],\"permissions\":[{\"subject\":{\"id\":\"alice\",\"kind\":\"user\"},\"privileges\":[\"read\"]}]}")
+      end
+    end
+  end
 end

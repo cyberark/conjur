@@ -5,6 +5,15 @@ module Secrets
       DYNAMIC_REGION = "dynamic/region"
       DYNAMIC_POLICY = "dynamic/inline-policy"
 
+      def add_method_params(annotations, json_result)
+        method_params = {
+        }
+        method_params = add_dynamic_annotation(annotations, DYNAMIC_ROLE_ARN, "role_arn", method_params)
+        method_params = add_dynamic_annotation(annotations, DYNAMIC_REGION, "region", method_params, false)
+        method_params = add_dynamic_annotation(annotations, DYNAMIC_POLICY, "inline_policy", method_params, false)
+        json_result.merge(method_params: method_params)
+      end
+
       def create_input_validation(params)
         super(params)
 

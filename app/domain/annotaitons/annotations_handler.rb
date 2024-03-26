@@ -12,13 +12,17 @@ module AnnotationsHandler
     # Get the annotations from the resource and filter out the annotations that are not needed
     # Return the filtered annotations as an array of hashes read for JSON
     annotations = resource.annotations
-    filtered_annotations = annotations.reject { |annotation| filtered_out_annotations.include?(annotation.name) }
-    filtered_annotations = filtered_annotations.map { |annotation| { name: annotation.name, value: annotation.value } }
-    # Return empty list if no annotations after filter
-    unless filtered_annotations
-      filtered_annotations = []
+    if filtered_out_annotations.empty?
+      annotations
+    else filtered_out_annotations.empty?
+      filtered_annotations = annotations.reject { |annotation| filtered_out_annotations.include?(annotation.name) }
+      filtered_annotations = filtered_annotations.map { |annotation| { name: annotation.name, value: annotation.value } }
+      # Return empty list if no annotations after filter
+      unless filtered_annotations
+        filtered_annotations = []
+      end
+      filtered_annotations
     end
-    filtered_annotations
   end
 
   def annotation_value_by_name(resource, name)

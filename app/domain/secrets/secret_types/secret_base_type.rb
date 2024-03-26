@@ -34,6 +34,13 @@ module Secrets
         get_resource("variable", "#{params[:branch]}/#{params[:name]}")
       end
 
+      def get_input_validation(params)
+        # check secret exists
+        branch = params[:branch]
+        secret_name = params[:name]
+        get_resource("variable", "#{branch}/#{secret_name}")
+      end
+
       def get_create_permissions(params)
         policy = get_resource("policy", params[:branch])
         { policy => :update }

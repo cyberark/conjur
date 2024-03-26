@@ -1837,6 +1837,19 @@ describe StaticSecretsController, type: :request do
         }
         BODY
     end
+    let(:create_secret_policy) do
+      <<~POLICY
+          - !variable 
+            id: secret1
+            annotations:
+              description: desc              
+
+          - !permit
+            resource: !variable secret1
+            privilege: [ read ]
+            role: !user /alice    
+        POLICY
+    end
     before do
       patch(
         '/policies/rspec/policy/root',
@@ -1882,13 +1895,28 @@ describe StaticSecretsController, type: :request do
         )
         assert_response :ok
         expect(response.body).to eq("{\"branch\":\"/data/secrets\",\"name\":\"secret_to_update\",\"mime_type\":\"plain\",\"annotations\":[{\"name\":\"description\",\"value\":\"desc\"},{\"name\":\"annotation_to_delete\",\"value\":\"delete\"}],\"permissions\":[{\"subject\":{\"id\":\"alice\",\"kind\":\"user\"},\"privileges\":[\"update\",\"read\",\"execute\"]}]}")
-        # get secret with value
-        get("/secrets/static/data/secrets/secret_to_update?Projection=true",
+        # get secret
+        get("/secrets/static/data/secrets/secret_to_update",
             env: token_auth_header(role: alice_user).merge(v2_api_header)
         )
         # Correct response code
         assert_response :ok
-        # TODO - Correct response body
+        expect(response.body).to eq("{\"branch\":\"/data/secrets\",\"name\":\"secret_to_update\",\"mime_type\":\"plain\",\"annotations\":[{\"name\":\"description\",\"value\":\"desc\"},{\"name\":\"annotation_to_delete\",\"value\":\"delete\"}],\"permissions\":[{\"subject\":{\"id\":\"alice\",\"kind\":\"user\"},\"privileges\":[\"update\",\"read\",\"execute\"]}]}")
+        # Create secret using policy
+        patch(
+          '/policies/rspec/policy/data/secrets',
+          env: token_auth_header(role: alice_user).merge(
+            { 'RAW_POST_DATA' => create_secret_policy }
+          )
+        )
+        assert_response :success
+        # get secret
+        get("/secrets/static/data/secrets/secret1",
+            env: token_auth_header(role: alice_user).merge(v2_api_header)
+        )
+        # Correct response code
+        assert_response :ok
+        expect(response.body).to eq("{\"branch\":\"/data/secrets\",\"name\":\"secret1\",\"annotations\":[{\"name\":\"description\",\"value\":\"desc\"}],\"permissions\":[{\"subject\":{\"id\":\"alice\",\"kind\":\"user\"},\"privileges\":[\"read\"]}]}")
       end
     end
   end

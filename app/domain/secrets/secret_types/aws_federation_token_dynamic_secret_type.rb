@@ -16,6 +16,17 @@ module Secrets
         secret
       end
 
+      def add_method_params(annotations, json_result)
+        method_params = {
+        }
+        method_params = add_dynamic_annotation(annotations, DYNAMIC_REGION, "region", method_params, false)
+        method_params = add_dynamic_annotation(annotations, DYNAMIC_POLICY, "inline_policy", method_params, false)
+        unless method_params.empty?
+          json_result = json_result.merge(method_params: method_params)
+        end
+        json_result
+      end
+
       private
       def input_validation(params)
         method_params = params[:method_params]
