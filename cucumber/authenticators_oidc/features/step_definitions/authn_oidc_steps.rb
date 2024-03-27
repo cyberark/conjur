@@ -8,7 +8,8 @@ Given(/I fetch an ID Token for username "([^"]*)" and password "([^"]*)"/) do |u
   }
   options = {
     user: @scenario_context.get(:oidc_client_id),
-    password: @scenario_context.get(:oidc_client_secret)
+    password: @scenario_context.get(:oidc_client_secret),
+    verify_ssl: OpenSSL::SSL::VERIFY_NONE
   }
 
   execute(:post, path, payload, options)

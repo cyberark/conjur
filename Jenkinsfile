@@ -1249,6 +1249,11 @@ def conjurTests(infrapool) {
         infrapool.agentSh 'ci/test proxy'
       }
     ],
+    "ipv6": [
+      "IPv6 - ${env.STAGE_NAME}": {
+        infrapool.agentSh 'ci/test ipv6'
+      }
+    ],
     "rotators": [
       "Rotators - ${env.STAGE_NAME}": {
         infrapool.agentSh 'ci/test rotators'

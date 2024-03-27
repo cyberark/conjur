@@ -1,0 +1,124 @@
+#!/usr/bin/env bash
+
+# This file has an implicit dependency on the environment variables defined in
+# "ci/docker-compose.yml" keycloak_ipv6 section.
+
+# Fetch the IPV6 address of the host network for IPV6 tests
+export HOST_IPV6="$(ip addr show | awk '/inet6 .* scope global dynamic noprefixroute/ { print $2 }' | cut -d '/' -f 1)"
+if [[ -z "$HOST_IPV6" ]]; then
+  echo "No IPV6 address found for the host network. Using default loopback address..."
+  export HOST_IPV6="::1"
+fi
+
+# This is executed by the main "ci/test" script after cd-ing into "ci".
+# shellcheck disable=SC1091
+source "./shared.sh"
+source "./oauth/keycloak/keycloak_functions.sh"
+
+
+function _hydrate_all_env_args() {
+  local -n arr=$1
+  local keycloak_items
+
+  readarray -t keycloak_items < <(
+    set -o pipefail
+    # Note: This prints all lines that look like:
+    # KEYCLOAK_XXX=someval
+    $COMPOSE exec -T "${KEYCLOAK_SERVICE_NAME}" printenv | awk '/KEYCLOAK/'
+  )
+
+  # shellcheck disable=SC2034
+  arr=(
+    "${keycloak_items[@]}"
+    "KEYCLOAK_CA_CERT=$($COMPOSE exec conjur_ipv6 cat /etc/ssl/certs/keycloak.pem)"
+    "PROVIDER_URI=https://keycloak_ipv6:8443/auth/realms/master"
+    "PROVIDER_INTERNAL_URI=https://keycloak_ipv6:8443/auth/realms/master/protocol/openid-connect"
+    "PROVIDER_ISSUER=https://keycloak_ipv6:8443/auth/realms/master"
+    "ID_TOKEN_USER_PROPERTY=preferred_username"
+  )
+}
+
+run_cucumber_ipv6_tests() {
+  local profile=ipv6
+
+  # Stage 1: Make sure conjur is up, create cuke account
+  # -----------------------------------------------------------
+
+  $COMPOSE exec -T conjur_ipv6 bash -c "conjurctl wait --retries 180"
+
+  echo "Create cucumber account..."
+
+  $COMPOSE exec -T conjur_ipv6 conjurctl account create cucumber
+
+  # Stage 2: Prepare cucumber environment args
+  # -----------------------------------------------------------
+
+  local env_vars
+  local env_var_flags
+  local run_flags
+
+  # Hydrate the env args.
+  env_vars=()
+  _hydrate_all_env_args env_vars
+
+  # Add the -e flags before each of the var=val items.
+  env_var_flags=()
+  for item in "${env_vars[@]}"; do
+    env_var_flags+=(-e "$item")
+  done
+
+  # Add the cucumber env vars that we always want to send.
+  # Note: These are args for docker compose run, and as such the right hand
+  # sides of the = do NOT require escaped quotes.  docker compose takes the
+  # entire arg, splits on the =, and uses the rhs as the value,
+  env_var_flags+=(
+    -e "INFRAPOOL_CUCUMBER_FILTER_TAGS=$INFRAPOOL_CUCUMBER_FILTER_TAGS"
+    -e "CONJUR_AUTHN_API_KEY=$(_get_api_key conjur_ipv6)"
+    -e "AUTHN_LOCAL_SOCKET=/run/authn-local/.socket"
+  )
+
+  # If there's no tty (e.g. we're running as a Jenkins job), pass -T to
+  # docker compose.
+  run_flags=(--no-deps --rm)
+  if ! tty -s; then
+    run_flags+=(-T)
+  fi
+
+  # THE INFRAPOOL_CUCUMBER_FILTER_TAGS environment variable is not natively
+  # implemented in cucumber-ruby, so we pass it as a CLI argument
+  # if the variable is set.
+  local cucumber_tags_arg
+  if [[ -n "$INFRAPOOL_CUCUMBER_FILTER_TAGS" ]]; then
+    cucumber_tags_arg="--tags \"$INFRAPOOL_CUCUMBER_FILTER_TAGS\""
+  fi
+
+  # Stage 3: Run Cucumber test cases
+  # -----------------------------------------------------------
+
+  echo "ENV_ARG_FN: ${env_arg_fn}" >&2
+  echo "RUN_FLAGS: ${run_flags[*]}" >&2
+  echo "ENV_VAR_FLAGS: ${env_var_flags[*]}" >&2
+  echo "CUCUMBER TAGS: ${cucumber_tags_arg}" >&2
+  echo "CUCUMBER PROFILE: ${profile}" >&2
+
+  $COMPOSE run "${run_flags[@]}" "${env_var_flags[@]}" \
+    cucumber_ipv6 -ec "\
+      bundle exec parallel_cucumber . -n 1 \
+       -o '--strict --profile \"${profile}\" ${cucumber_tags_arg}'"
+  
+}
+
+function main() {
+  $COMPOSE up -d conjur_ipv6 pg_ipv6 keycloak_ipv6
+
+  wait_for_keycloak_server
+  create_keycloak_users
+  fetch_keycloak_certificate
+  add_keycloak_certificate_to_truststore
+
+  _wait_for_pg pg_ipv6
+
+  run_cucumber_ipv6_tests
+}
+
+main
