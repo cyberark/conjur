@@ -206,4 +206,5 @@ ipv6: >
   -r cucumber/policy/features/step_definitions/secrets_steps.rb
   -r cucumber/_authenticators_common
   -r cucumber/authenticators_oidc
+  -r cucumber/authenticators_jwt
   cucumber/ipv6

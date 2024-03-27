@@ -125,5 +125,3 @@ function add_keycloak_certificate_to_truststore() {
     $COMPOSE exec -T conjur_ipv6 /oauth/keycloak/scripts/link_certificate
   fi
 }
-
-
