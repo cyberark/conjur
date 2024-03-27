@@ -145,36 +145,43 @@ describe "Dynamic secret as json" do
       allow(Permission).to receive(:select).and_return([]) # Return empty array
     end
     context "and without any annotations" do
-      it "dynamic required fields return empty" do
+      it "failed on finding secret type" do
         allow(secret).to receive(:annotations).and_return([])
+        expect { federation_token_dynamic_secret.as_json(branch, secret_name, secret)
+        }.to raise_error(ApplicationController::BadRequestWithBody)
+      end
+    end
+    context "and with only method annotation" do
+      it "dynamic required fields return empty" do
+        allow(secret).to receive(:annotations).and_return([Annotation.new(name: 'dynamic/method', value: 'federation-token')])
         json_result = federation_token_dynamic_secret.as_json(branch, secret_name, secret)
         expect(json_result).to eq("{\"branch\":\"/data/dynamic/secrets\",\"name\":\"dynamic_secret\",\"issuer\":\"\",\"ttl\":\"\",\"method\":\"federation-token\",\"annotations\":[],\"permissions\":[]}")
       end
     end
     context "and custom annotations" do
       it "dynamic required fields return empty" do
-        allow(secret).to receive(:annotations).and_return([{:name=>"description", :value=>"desc"}, {:name=>"annotation_to_delete", :value=>"delete"}])
+        allow(secret).to receive(:annotations).and_return([Annotation.new(name: 'dynamic/method', value: 'federation-token'), Annotation.new(name: 'description', value: 'desc'), Annotation.new(name: 'annotation_to_delete', value: 'delete')])
         json_result = federation_token_dynamic_secret.as_json(branch, secret_name, secret)
         expect(json_result).to eq("{\"branch\":\"/data/dynamic/secrets\",\"name\":\"dynamic_secret\",\"issuer\":\"\",\"ttl\":\"\",\"method\":\"federation-token\",\"annotations\":[{\"name\":\"description\",\"value\":\"desc\"},{\"name\":\"annotation_to_delete\",\"value\":\"delete\"}],\"permissions\":[]}")
       end
     end
     context "required fields and custom annotations" do
       it "dynamic required fields return as defined with custom annotations" do
-        allow(secret).to receive(:annotations).and_return([{:name=>"description", :value=>"desc"}, {:name=>"dynamic/issuer", :value=>"issuer1"}, {:name=>"dynamic/ttl", :value=>120}])
+        allow(secret).to receive(:annotations).and_return([Annotation.new(name: 'dynamic/method', value: 'federation-token'), Annotation.new(name: 'description', value: 'desc'), Annotation.new(name: 'dynamic/issuer', value: 'issuer1'), Annotation.new(name: 'dynamic/ttl', value: '120')])
         json_result = federation_token_dynamic_secret.as_json(branch, secret_name, secret)
         expect(json_result).to eq("{\"branch\":\"/data/dynamic/secrets\",\"name\":\"dynamic_secret\",\"issuer\":\"issuer1\",\"ttl\":120,\"method\":\"federation-token\",\"annotations\":[{\"name\":\"description\",\"value\":\"desc\"}],\"permissions\":[]}")
       end
     end
     context "part method params" do
       it "all fields returned as expected" do
-        allow(secret).to receive(:annotations).and_return([{:name=>"dynamic/region", :value=>"us-east-1"}, {:name=>"dynamic/issuer", :value=>"issuer1"}, {:name=>"dynamic/ttl", :value=>120}])
+        allow(secret).to receive(:annotations).and_return([Annotation.new(name: 'dynamic/method', value: 'federation-token'), Annotation.new(name: 'dynamic/region', value: 'us-east-1'), Annotation.new(name: 'dynamic/issuer', value: 'issuer1'), Annotation.new(name: 'dynamic/ttl', value: '120')])
         json_result = federation_token_dynamic_secret.as_json(branch, secret_name, secret)
         expect(json_result).to eq("{\"branch\":\"/data/dynamic/secrets\",\"name\":\"dynamic_secret\",\"issuer\":\"issuer1\",\"ttl\":120,\"method\":\"federation-token\",\"method_params\":{\"region\":\"us-east-1\"},\"annotations\":[],\"permissions\":[]}")
       end
     end
     context "all method params" do
       it "all fields returned as expected" do
-        allow(secret).to receive(:annotations).and_return([{:name=>"dynamic/region", :value=>"us-east-1"},{:name=>"dynamic/issuer", :value=>"issuer1"}, {:name=>"dynamic/ttl", :value=>120}, {:name=>"dynamic/inline-policy", :value=>"policy"}])
+        allow(secret).to receive(:annotations).and_return([Annotation.new(name: 'dynamic/method', value: 'federation-token'), Annotation.new(name: 'dynamic/region', value: 'us-east-1'), Annotation.new(name: 'dynamic/issuer', value: 'issuer1'), Annotation.new(name: 'dynamic/ttl', value: '120'), Annotation.new(name: 'dynamic/inline-policy', value: 'policy')])
         json_result = federation_token_dynamic_secret.as_json(branch, secret_name, secret)
         expect(json_result).to eq("{\"branch\":\"/data/dynamic/secrets\",\"name\":\"dynamic_secret\",\"issuer\":\"issuer1\",\"ttl\":120,\"method\":\"federation-token\",\"method_params\":{\"region\":\"us-east-1\",\"inline_policy\":\"policy\"},\"annotations\":[],\"permissions\":[]}")
       end
@@ -185,36 +192,43 @@ describe "Dynamic secret as json" do
       allow(Permission).to receive(:select).and_return([]) # Return empty array
     end
     context "and without any annotations" do
-      it "dynamic required fields return empty" do
+      it "failed on finding secret type" do
         allow(secret).to receive(:annotations).and_return([])
+        expect { assume_role_dynamic_secret.as_json(branch, secret_name, secret)
+        }.to raise_error(ApplicationController::BadRequestWithBody)
+      end
+    end
+    context "and without only method annotation" do
+      it "dynamic required fields return empty" do
+        allow(secret).to receive(:annotations).and_return([Annotation.new(name: 'dynamic/method', value: 'assume-role')])
         json_result = assume_role_dynamic_secret.as_json(branch, secret_name, secret)
         expect(json_result).to eq("{\"branch\":\"/data/dynamic/secrets\",\"name\":\"dynamic_secret\",\"issuer\":\"\",\"ttl\":\"\",\"method\":\"assume-role\",\"method_params\":{\"role_arn\":\"\"},\"annotations\":[],\"permissions\":[]}")
       end
     end
     context "and custom annotations" do
       it "dynamic required fields return empty" do
-        allow(secret).to receive(:annotations).and_return([{:name=>"description", :value=>"desc"}, {:name=>"annotation_to_delete", :value=>"delete"}])
+        allow(secret).to receive(:annotations).and_return([Annotation.new(name: 'dynamic/method', value: 'assume-role'), Annotation.new(name: 'description', value: 'desc'), Annotation.new(name: 'annotation_to_delete', value: 'delete')])
         json_result = assume_role_dynamic_secret.as_json(branch, secret_name, secret)
         expect(json_result).to eq("{\"branch\":\"/data/dynamic/secrets\",\"name\":\"dynamic_secret\",\"issuer\":\"\",\"ttl\":\"\",\"method\":\"assume-role\",\"method_params\":{\"role_arn\":\"\"},\"annotations\":[{\"name\":\"description\",\"value\":\"desc\"},{\"name\":\"annotation_to_delete\",\"value\":\"delete\"}],\"permissions\":[]}")
       end
     end
     context "required fields and custom annotations" do
       it "dynamic required fields return as defined with custom annotations" do
-        allow(secret).to receive(:annotations).and_return([{:name=>"description", :value=>"desc"}, {:name=>"dynamic/issuer", :value=>"issuer1"}, {:name=>"dynamic/ttl", :value=>120}, {:name=>"dynamic/role-arn", :value=>"role"}])
+        allow(secret).to receive(:annotations).and_return([Annotation.new(name: 'dynamic/method', value: 'assume-role'), Annotation.new(name: 'description', value: 'desc'), Annotation.new(name: 'dynamic/issuer', value: 'issuer1'), Annotation.new(name: 'dynamic/ttl', value: '120'),  Annotation.new(name: 'dynamic/role-arn', value: 'role')])
         json_result = assume_role_dynamic_secret.as_json(branch, secret_name, secret)
         expect(json_result).to eq("{\"branch\":\"/data/dynamic/secrets\",\"name\":\"dynamic_secret\",\"issuer\":\"issuer1\",\"ttl\":120,\"method\":\"assume-role\",\"method_params\":{\"role_arn\":\"role\"},\"annotations\":[{\"name\":\"description\",\"value\":\"desc\"}],\"permissions\":[]}")
       end
     end
     context "part method params" do
       it "all fields returned as expected" do
-        allow(secret).to receive(:annotations).and_return([{:name=>"dynamic/region", :value=>"us-east-1"}, {:name=>"dynamic/issuer", :value=>"issuer1"}, {:name=>"dynamic/ttl", :value=>120}, {:name=>"dynamic/role-arn", :value=>"role"}])
+        allow(secret).to receive(:annotations).and_return([Annotation.new(name: 'dynamic/method', value: 'assume-role'), Annotation.new(name: 'dynamic/region', value: 'us-east-1'), Annotation.new(name: 'dynamic/issuer', value: 'issuer1'), Annotation.new(name: 'dynamic/ttl', value: '120'), Annotation.new(name: 'dynamic/role-arn', value: 'role')])
         json_result = assume_role_dynamic_secret.as_json(branch, secret_name, secret)
         expect(json_result).to eq("{\"branch\":\"/data/dynamic/secrets\",\"name\":\"dynamic_secret\",\"issuer\":\"issuer1\",\"ttl\":120,\"method\":\"assume-role\",\"method_params\":{\"role_arn\":\"role\",\"region\":\"us-east-1\"},\"annotations\":[],\"permissions\":[]}")
       end
     end
     context "all method params" do
       it "all fields returned as expected" do
-        allow(secret).to receive(:annotations).and_return([{:name=>"dynamic/region", :value=>"us-east-1"},{:name=>"dynamic/issuer", :value=>"issuer1"}, {:name=>"dynamic/ttl", :value=>120}, {:name=>"dynamic/inline-policy", :value=>"policy"}, {:name=>"dynamic/role-arn", :value=>"role"}])
+        allow(secret).to receive(:annotations).and_return([Annotation.new(name: 'dynamic/method', value: 'assume-role'), Annotation.new(name: 'dynamic/region', value: 'us-east-1'), Annotation.new(name: 'dynamic/issuer', value: 'issuer1'), Annotation.new(name: 'dynamic/ttl', value: '120'), Annotation.new(name: 'dynamic/inline-policy', value: 'policy'), Annotation.new(name: 'dynamic/role-arn', value: 'role')])
         json_result = assume_role_dynamic_secret.as_json(branch, secret_name, secret)
         expect(json_result).to eq("{\"branch\":\"/data/dynamic/secrets\",\"name\":\"dynamic_secret\",\"issuer\":\"issuer1\",\"ttl\":120,\"method\":\"assume-role\",\"method_params\":{\"role_arn\":\"role\",\"region\":\"us-east-1\",\"inline_policy\":\"policy\"},\"annotations\":[],\"permissions\":[]}")
       end
@@ -223,7 +237,7 @@ describe "Dynamic secret as json" do
   context "dynamic secret with permissions and annotations" do
     it "all fields are returned with annotations and permissions" do
       allow(Permission).to receive(:select).and_return([{:role_id=>"conjur:user:alice", :privileges=>["update", "read"]}]) # Return empty array
-      allow(secret).to receive(:annotations).and_return([{:name=>"description", :value=>"desc"}, {:name=>"dynamic/issuer", :value=>"issuer1"}, {:name=>"dynamic/ttl", :value=>120}])
+      allow(secret).to receive(:annotations).and_return([Annotation.new(name: 'dynamic/method', value: 'federation-token'), Annotation.new(name: 'description', value: 'desc'), Annotation.new(name: 'dynamic/issuer', value: 'issuer1'), Annotation.new(name: 'dynamic/ttl', value: '120')])
       json_result = federation_token_dynamic_secret.as_json(branch, secret_name, secret)
       expect(json_result).to eq("{\"branch\":\"/data/dynamic/secrets\",\"name\":\"dynamic_secret\",\"issuer\":\"issuer1\",\"ttl\":120,\"method\":\"federation-token\",\"annotations\":[{\"name\":\"description\",\"value\":\"desc\"}],\"permissions\":[{\"subject\":{\"id\":\"alice\",\"kind\":\"user\"},\"privileges\":[\"update\",\"read\"]}]}")
     end

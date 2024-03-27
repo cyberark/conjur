@@ -42,10 +42,9 @@ describe "Annotation Handler's get_annotations" do
       filtered_annotations = get_annotations(secret, ['wrong_annotation_name'])
       expect(filtered_annotations).to eq(expected_result)
     end
-    it 'should return the array when the filter is empty' do
-      expected_result = [{ name: 'annotation_name', value: 'annotation_value' }]
+    it 'should return the secret annotations as is when the filter is empty' do
       filtered_annotations = get_annotations(secret, [])
-      expect(filtered_annotations).to eq(expected_result)
+      expect(filtered_annotations).to eq(secret.annotations)
     end
   end
   context 'when trying to filter secret without annotations' do
