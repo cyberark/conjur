@@ -76,7 +76,7 @@ class EdgeCreationController < RestController
 
   def add_edge_host_policy(host_id)
     input = input_post_yaml(host_id)
-    submit_policy(Loader::CreatePolicy, PolicyTemplates::CreateEdge.new(), input,resource)
+    submit_policy(Loader::CreatePolicy, PolicyTemplates::CreateEdge.new(), input, resource)
   end
 
   def created_audit(edge_name = "not-found")

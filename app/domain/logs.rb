@@ -29,10 +29,16 @@ module LogMessages
       code: "CONJ00156I"
     )
 
+    AlreadyExists = ::Util::TrackableLogMessageClass.new(
+      msg: "The instance {0} already exists , {1}",
+      code: "CONJ00164E"
+    )
+
     GeneralError = ::Util::TrackableErrorClass.new(
       msg: "Unexpected error occurred: {0}",
       code: "CONJ00163E"
     )
+
   end
 
   module Endpoints
@@ -72,6 +78,23 @@ module LogMessages
     DynamicVariableTelemetry = ::Util::TrackableLogMessageClass.new(
       msg: "{0} dynamic variable '{1}' for {2} at #{Time.now}",
       code: "CONJ00168I"
+    )
+  end
+
+  module Redis
+    RedisAccessStart = ::Util::TrackableLogMessageClass.new(
+      msg: "Starting {0} in Redis",
+      code: "CONJ00501D"
+    )
+
+    RedisAccessEnd = ::Util::TrackableLogMessageClass.new(
+      msg: "Finished {0} in Redis. Response: {1}",
+      code: "CONJ00502D"
+    )
+
+    RedisAccessFailure = ::Util::TrackableLogMessageClass.new(
+      msg: "Error while {0} in Redis. Message: {1}",
+      code: "CONJ00503E"
     )
   end
 

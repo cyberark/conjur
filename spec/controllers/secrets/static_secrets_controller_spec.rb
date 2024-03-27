@@ -54,6 +54,7 @@ describe StaticSecretsController, type: :request do
       )
     )
     assert_response :success
+    Rails.cache.clear
   end
 
   describe "Permissions Validations for Create static secret" do

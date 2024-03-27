@@ -110,6 +110,9 @@ Rails.application.routes.draw do
       post    "/secrets/:account/:kind/*identifier" => 'secrets#create'
       get     "/secrets"                            => 'secrets#batch'
 
+      #Synchronizer - V2
+      post "/synchronizer"              => 'synchronizer_creation#create_synchronizer'
+
       # Edge
       post    "/edge/:account"                      => 'edge_creation#create_edge'
       delete  "/edge/:account/:identifier"          => 'edge_deletion#delete_edge'
@@ -141,6 +144,9 @@ Rails.application.routes.draw do
 
       # Licenses
       get "/licenses/conjur" => 'license#show'
+
+      # Info - V2
+      get "/info" => 'info_tenant#get'
 
     end
 

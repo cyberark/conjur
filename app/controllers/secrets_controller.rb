@@ -1,13 +1,24 @@
 # frozen_string_literal: true
 
 require 'English'
+require_relative '../domain/secrets/cache/redis_handler'
 
 class SecretsController < RestController
   include FindResource
   include AuthorizeResource
   include FollowFetchPcloudSecrets
+  include Secrets::RedisHandler
 
   before_action :current_user
+
+  # Avoid transaction for read-only endpoints
+  def run_with_transaction(&block)
+    if params[:action].downcase.starts_with?('show') || params[:action].downcase.starts_with?('batch')
+      yield
+    else
+      Sequel::Model.db.transaction(&block)
+    end
+  end
 
   def create
     authorize(:update)
@@ -20,6 +31,7 @@ class SecretsController < RestController
 
     Secret.create(resource_id: resource.id, value: value)
     resource.enforce_secrets_version_limit
+    update_redis_secret(params[:identifier], value)
 
     head(:created)
   ensure
@@ -35,6 +47,8 @@ class SecretsController < RestController
     )
   end
 
+  DEFAULT_MIME_TYPE = 'application/octet-stream'
+
   def show
     authorize(:execute)
     version = params[:version]
@@ -43,14 +57,18 @@ class SecretsController < RestController
       value = handle_dynamic_secret
       mime_type = 'application/json'
     else
-      unless (secret = resource.secret(version: version))
-        raise Exceptions::RecordNotFound.new(\
-          resource.id, message: "Requested version does not exist"
-        )
+      value, mime_type = get_redis_secret(params[:identifier], version)
+      if value.nil?
+          unless (secret = resource.secret(version: version))
+            raise Exceptions::RecordNotFound.new(\
+              resource_id, message: "Requested version does not exist"
+            )
+          end
+          value = secret.value
+          mime_type = resource.annotation('conjur/mime_type') || DEFAULT_MIME_TYPE
+
+          create_redis_secret(params[:identifier], value, mime_type)
       end
-      value = secret.value
-      mime_type = \
-        resource.annotation('conjur/mime_type') || 'application/octet-stream'
     end
 
     send_data(value, type: mime_type)
