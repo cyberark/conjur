@@ -29,10 +29,16 @@ module LogMessages
       code: "CONJ00156I"
     )
 
+    AlreadyExists = ::Util::TrackableLogMessageClass.new(
+      msg: "The instance {0} already exists , {1}",
+      code: "CONJ00164E"
+    )
+
     GeneralError = ::Util::TrackableErrorClass.new(
       msg: "Unexpected error occurred: {0}",
       code: "CONJ00163E"
     )
+
   end
 
   module Endpoints
