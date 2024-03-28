@@ -75,15 +75,12 @@ module Secrets
         # Create json result from branch and name
         json_result = super(branch, name)
 
-        # add the mime type field to the result
-        mime_type = get_mime_type(variable)
-        if mime_type
-          json_result = json_result.merge(mime_type: get_mime_type(variable))
-        end
+        # add the static fields to the result
+        annotations = get_annotations(variable)
+        json_result = annotation_to_json_field(annotations, MIME_TYPE_ANNOTATION, "mime_type", json_result, false)
 
         # add annotations to json result
-        filter_list = ["conjur/mime_type"]
-        json_result = json_result.merge(annotations: get_annotations(variable, filter_list))
+        json_result = json_result.merge(annotations: annotations)
 
         # add permissions to json result
         json_result = json_result.merge(permissions: get_permissions(variable))
@@ -123,10 +120,6 @@ module Secrets
           annotations.push(mime_type_annotation)
         end
         annotations
-      end
-
-      def get_mime_type(variable)
-        annotation_value_by_name(variable, MIME_TYPE_ANNOTATION)
       end
     end
   end

@@ -16,11 +16,11 @@ module Secrets
         secret
       end
 
-      def add_method_params(annotations, json_result)
+      def method_params_as_json(annotations, json_result)
         method_params = {
         }
-        method_params = add_dynamic_annotation(annotations, DYNAMIC_REGION, "region", method_params, false)
-        method_params = add_dynamic_annotation(annotations, DYNAMIC_POLICY, "inline_policy", method_params, false)
+        method_params = annotation_to_json_field(annotations, DYNAMIC_REGION, "region", method_params, false)
+        method_params = annotation_to_json_field(annotations, DYNAMIC_POLICY, "inline_policy", method_params, false)
         unless method_params.empty?
           json_result = json_result.merge(method_params: method_params)
         end

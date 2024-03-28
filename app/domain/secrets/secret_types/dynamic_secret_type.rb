@@ -69,18 +69,17 @@ module Secrets
         json_result = super(branch, name)
 
         # add the dynamic fields to the result
-        annotations = get_annotations(variable, [])
-        json_result = add_dynamic_annotation(annotations, DYNAMIC_ISSUER, "issuer", json_result)
-        json_result = add_dynamic_annotation(annotations, DYNAMIC_TTL, "ttl", json_result, true,true)
-        json_result = add_dynamic_annotation(annotations, DYNAMIC_METHOD, "method", json_result)
+        annotations = get_annotations(variable)
+        json_result = annotation_to_json_field(annotations, DYNAMIC_ISSUER, "issuer", json_result)
+        json_result = annotation_to_json_field(annotations, DYNAMIC_TTL, "ttl", json_result, true, true)
+        json_result = annotation_to_json_field(annotations, DYNAMIC_METHOD, "method", json_result)
 
         # get specific dynamic type
         dynamic_secret_method = json_result[:method]
         dynamic_secret_type = Secrets::SecretTypes::DynamicSecretTypeFactory.new.create_dynamic_secret_type(dynamic_secret_method)
-        json_result = dynamic_secret_type.add_method_params(annotations, json_result)
+        json_result = dynamic_secret_type.method_params_as_json(annotations, json_result)
 
         # add annotations to json result
-        annotations = annotations.map { |annotation| { name: annotation.name, value: annotation.value } }
         json_result = json_result.merge(annotations: annotations)
 
         # add permissions to json result
@@ -90,24 +89,6 @@ module Secrets
       end
 
       private
-
-      def add_dynamic_annotation(annotations, annotation_name, field_name, json_result, required=true, convert_to_int=false)
-        annotation_entity = annotations.find { |hash| hash[:name] == annotation_name }
-        annotation_value = nil
-        if annotation_entity
-          annotation_value = annotation_entity[:value]
-          if convert_to_int
-            annotation_value = annotation_value.to_i
-          end
-          annotations.delete(annotation_entity)
-        elsif required  # If the field is required but there is no annotation for it we will set it as empty
-          annotation_value = ""
-        end
-        if annotation_value
-          json_result[field_name.to_sym] = annotation_value
-        end
-        json_result
-      end
 
       def convert_fields_to_annotations(params)
         annotations = super(params)
