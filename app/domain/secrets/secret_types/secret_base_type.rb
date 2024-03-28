@@ -34,6 +34,13 @@ module Secrets
         get_resource("variable", "#{params[:branch]}/#{params[:name]}")
       end
 
+      def get_input_validation(params)
+        # check secret exists
+        branch = params[:branch]
+        secret_name = params[:name]
+        get_resource("variable", "#{branch}/#{secret_name}")
+      end
+
       def get_create_permissions(params)
         policy = get_resource("policy", params[:branch])
         { policy => :update }
@@ -122,6 +129,24 @@ module Secrets
         end
         allowed_privilege = %w[read execute update]
         validate_permissions(permissions, allowed_privilege)
+      end
+
+      def annotation_to_json_field(annotations, annotation_name, field_name, json_result, required=true, convert_to_int=false)
+        annotation_entity = annotations.find { |hash| hash[:name] == annotation_name }
+        annotation_value = nil
+        if annotation_entity
+          annotation_value = annotation_entity[:value]
+          if convert_to_int
+            annotation_value = annotation_value.to_i
+          end
+          annotations.delete(annotation_entity)
+        elsif required  # If the field is required but there is no annotation for it we will set it as empty
+          annotation_value = ""
+        end
+        if annotation_value
+          json_result[field_name.to_sym] = annotation_value
+        end
+        json_result
       end
     end
   end

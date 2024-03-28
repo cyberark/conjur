@@ -8,10 +8,17 @@ module Secrets
 
       MIME_TYPE_ANNOTATION = "conjur/mime_type"
 
+      def get_input_validation(params)
+        secret = super(params)
+        raise ApplicationController::BadRequestWithBody, "Static secret cannot be fetched under #{Issuer::DYNAMIC_VARIABLE_PREFIX}" if params[:branch].start_with?(Issuer::DYNAMIC_VARIABLE_PREFIX.chop)
+        secret
+      end
+
       def update_input_validation(params, body_params )
         #check branch and secret name are not part of body
         raise ApplicationController::UnprocessableEntity, "Branch is not allowed in the request body" if body_params[:branch]
         raise ApplicationController::UnprocessableEntity, "Secret name is not allowed in the request body" if body_params[:name]
+        raise ApplicationController::BadRequestWithBody, "Static secret cannot be updated under #{Issuer::DYNAMIC_VARIABLE_PREFIX}" if params[:branch] && params[:branch].start_with?(Issuer::DYNAMIC_VARIABLE_PREFIX.chop)
 
         # check secret exists
         secret = get_resource("variable", "#{params[:branch]}/#{params[:name]}")
@@ -22,13 +29,6 @@ module Secrets
         validate_data(body_params, data_fields)
 
         secret
-      end
-
-      def get_input_validation(params)
-        # check secret exists
-        branch = params[:branch]
-        secret_name = params[:name]
-        get_resource("variable", "#{branch}/#{secret_name}")
       end
 
       def create_input_validation(params)
@@ -45,6 +45,10 @@ module Secrets
           branch = branch[1..-1]
         end
         raise ApplicationController::BadRequestWithBody, "Static secret cannot be created under #{Issuer::DYNAMIC_VARIABLE_PREFIX}" if branch.start_with?(Issuer::DYNAMIC_VARIABLE_PREFIX.chop)
+
+        if params[:issuer]
+          raise ApplicationController::BadRequestWithBody, "Static secret can't contain issuer field"
+        end
       end
 
       def create_secret(branch, secret_name, params)
@@ -71,15 +75,12 @@ module Secrets
         # Create json result from branch and name
         json_result = super(branch, name)
 
-        # add the mime type field to the result
-        mime_type = get_mime_type(variable)
-        if mime_type
-          json_result = json_result.merge(mime_type: get_mime_type(variable))
-        end
+        # add the static fields to the result
+        annotations = get_annotations(variable)
+        json_result = annotation_to_json_field(annotations, MIME_TYPE_ANNOTATION, "mime_type", json_result, false)
 
         # add annotations to json result
-        filter_list = ["conjur/mime_type"]
-        json_result = json_result.merge(annotations: get_annotations(variable, filter_list))
+        json_result = json_result.merge(annotations: annotations)
 
         # add permissions to json result
         json_result = json_result.merge(permissions: get_permissions(variable))
@@ -119,10 +120,6 @@ module Secrets
           annotations.push(mime_type_annotation)
         end
         annotations
-      end
-
-      def get_mime_type(variable)
-        annotation_value_by_name(variable, MIME_TYPE_ANNOTATION)
       end
     end
   end

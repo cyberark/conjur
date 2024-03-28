@@ -60,4 +60,31 @@ class DynamicSecretsController < V2RestController
     #audit_failure(e, :remove)
     raise e
   end
+
+  def show
+    # As the branch is part of the path we loose the / prefix
+    branch = request.params[:branch]
+    secret_name = request.params[:name]
+
+    get_secret_log_message = "Get Dynamic Secret #{branch}/#{secret_name}"
+    logger.debug(LogMessages::Endpoints::EndpointRequested.new(get_secret_log_message))
+
+    dynamic_secret = Secrets::SecretTypes::DynamicSecretType.new
+    variable = dynamic_secret.get_input_validation(request.params)
+
+    check_read_permissions(dynamic_secret, variable)
+
+    response = dynamic_secret.as_json(branch, secret_name, variable)
+    logger.debug(LogMessages::Endpoints::EndpointFinishedSuccessfully.new(get_secret_log_message))
+    render(json: response, status: :ok)
+  end
+
+  private
+
+  def check_read_permissions(secret_type_handler, variable)
+    read_permission = secret_type_handler.get_read_permissions(variable)
+    read_permission.each do |resource, action|
+      authorize(action, resource)
+    end
+  end
 end

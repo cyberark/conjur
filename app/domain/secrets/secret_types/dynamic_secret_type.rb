@@ -53,7 +53,7 @@ module Secrets
       def create_secret(branch, secret_name, params)
         secret = super(branch, secret_name, params)
 
-        as_json(branch, secret_name)
+        as_json(branch, secret_name, secret)
       rescue Sequel::UniqueConstraintViolation => e
         raise Exceptions::RecordExists.new("secret", secret_id)
       end
@@ -61,10 +61,35 @@ module Secrets
       def replace_secret(branch, secret_name, secret, params)
         super(branch, secret, params)
 
-        as_json(branch, secret_name)
+        as_json(branch, secret_name, secret)
+      end
+
+      def as_json(branch, name, variable)
+        # Create json result from branch and name
+        json_result = super(branch, name)
+
+        # add the dynamic fields to the result
+        annotations = get_annotations(variable)
+        json_result = annotation_to_json_field(annotations, DYNAMIC_ISSUER, "issuer", json_result)
+        json_result = annotation_to_json_field(annotations, DYNAMIC_TTL, "ttl", json_result, true, true)
+        json_result = annotation_to_json_field(annotations, DYNAMIC_METHOD, "method", json_result)
+
+        # get specific dynamic type
+        dynamic_secret_method = json_result[:method]
+        dynamic_secret_type = Secrets::SecretTypes::DynamicSecretTypeFactory.new.create_dynamic_secret_type(dynamic_secret_method)
+        json_result = dynamic_secret_type.method_params_as_json(annotations, json_result)
+
+        # add annotations to json result
+        json_result = json_result.merge(annotations: annotations)
+
+        # add permissions to json result
+        json_result = json_result.merge(permissions: get_permissions(variable))
+
+        json_result.to_json
       end
 
       private
+
       def convert_fields_to_annotations(params)
         annotations = super(params)
         add_annotation(annotations, DYNAMIC_ISSUER, params[:issuer])

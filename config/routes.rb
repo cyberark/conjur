@@ -86,6 +86,13 @@ Rails.application.routes.draw do
       # Workloads
       post    "hosts/:account/*identifier"            => "workload#post"
 
+      # Dynamic secrets
+      # Issuers
+      post    "/issuers/:account"             => 'issuers#create'
+      delete  "/issuers/:account/:identifier" => 'issuers#delete'
+      get     "/issuers/:account/:identifier" => 'issuers#get'
+      get     "/issuers/:account"             => 'issuers#list'
+      patch   "/issuers/:account/:identifier" => 'issuers#update'
       # Secrets
       # NOTE: the order of these routes matters: we need the expire
       #       route to come first.
@@ -95,6 +102,7 @@ Rails.application.routes.draw do
       put "/secrets/static/(/*branch)/:name" => 'static_secrets#replace'
       post "/secrets/dynamic" => 'dynamic_secrets#create'
       put "/secrets/dynamic/(/*branch)/:name" => 'dynamic_secrets#replace'
+      get "/secrets/dynamic/(/*branch)/:name" => 'dynamic_secrets#show'
 
       post    "/secrets/:account/:kind/*identifier" => "secrets#expire",
         :constraints => QueryParameterActionRecognizer.new("expirations")
@@ -124,13 +132,6 @@ Rails.application.routes.draw do
 
       # Feature flag
       get     "/features"                       => "feature_flag#feature_flag"
-
-      # Dynamic secrets
-      post    "/issuers/:account"             => 'issuers#create'
-      delete  "/issuers/:account/:identifier" => 'issuers#delete'
-      get     "/issuers/:account/:identifier" => 'issuers#get'
-      get     "/issuers/:account"             => 'issuers#list'
-      patch   "/issuers/:account/:identifier" => 'issuers#update'
 
       # Policies
       put     "/policies/:account/:kind/*identifier" => 'policies#put'

@@ -9,9 +9,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
-## [1.0.25-cloud] - 2024-03-31
+## [1.0.25-cloud] - 2024-04-07
 ### Added
 - Return permissions in static secret
+- Get dynamic secret
 
 ## [1.0.24-cloud] - 2024-03-24
 ### Changed

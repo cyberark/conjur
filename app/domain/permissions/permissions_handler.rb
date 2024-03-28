@@ -32,7 +32,7 @@ module PermissionsHandler
         privileges: permission[:privileges].to_a
       }
     end
-    # Return empty list if no annotations after filter
+    # Return empty list if no permissions defined
     unless permissions
       permissions = []
     end
