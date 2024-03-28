@@ -31,7 +31,7 @@ class SecretsController < RestController
 
     Secret.create(resource_id: resource.id, value: value)
     resource.enforce_secrets_version_limit
-    update_redis_secret(params[:identifier], value)
+    update_redis_secret(resource_id, value)
 
     head(:created)
   ensure
@@ -57,7 +57,8 @@ class SecretsController < RestController
       value = handle_dynamic_secret
       mime_type = 'application/json'
     else
-      value, mime_type = get_redis_secret(params[:identifier], version)
+      # First we try to find secret in Redis. If not found, we take from DB and store the result in Redis
+      value, mime_type = get_redis_secret(resource_id, version)
       if value.nil?
           unless (secret = resource.secret(version: version))
             raise Exceptions::RecordNotFound.new(\
@@ -67,7 +68,7 @@ class SecretsController < RestController
           value = secret.value
           mime_type = resource.annotation('conjur/mime_type') || DEFAULT_MIME_TYPE
 
-          create_redis_secret(params[:identifier], value, mime_type)
+          create_redis_secret(resource_id, value, mime_type)
       end
     end
 

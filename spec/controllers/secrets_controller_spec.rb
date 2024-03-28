@@ -65,6 +65,14 @@ describe SecretsController, type: :request do
     end
   end
 
+  ### Redis
+  def read_from_redis(key)
+    Slosilo::EncryptedAttributes.decrypt(Rails.cache.read(key), aad: key)
+  end
+  def write_into_redis(key, value)
+    Rails.cache.write(key, Slosilo::EncryptedAttributes.encrypt(value, aad: key))
+  end
+
   context "Secret are saved to Redis when appropriate" do
     let(:data_var_id) { "#{account}:variable:data/conjur_secret" }
     let(:internal_secret) { "#{account}:variable:internal/secret" }
@@ -79,30 +87,31 @@ describe SecretsController, type: :request do
       Secret.create(resource_id: internal_secret, value: 'secret')
       Rails.cache.clear
     end
+
     it "secret is not saved in Redis if not under /data during create" do
       post("/secrets/#{internal_secret.gsub(':', '/')}", env: token_auth_header(role: admin_user).merge(payload))
-      expect(Rails.cache.read(internal_secret.split(':')[2])).to be_nil
+      expect(read_from_redis(internal_secret)).to be_nil
     end
 
     it "secret is not saved in Redis if not under /data during show" do
       get("/secrets/#{internal_secret.gsub(':', '/')}", env: token_auth_header(role: admin_user))
-      expect(Rails.cache.read(internal_secret.split(':')[2])).to be_nil
+      expect(read_from_redis(internal_secret)).to be_nil
     end
 
     it "secret is not saved in Redis if under /data during create" do
       post("/secrets/#{data_var_id.gsub(':', '/')}", env: token_auth_header(role: admin_user).merge(payload))
-      expect(Rails.cache.read(data_var_id.split(':')[2])).to be_nil
+      expect(read_from_redis(data_var_id)).to be_nil
     end
 
     it "secret is saved in Redis if under /data during show" do
       get("/secrets/#{data_var_id.gsub(':', '/')}", env: token_auth_header(role: admin_user))
-      expect(Rails.cache.read('/secrets/' + data_var_id.split(':')[2])).to_not be_nil
+      expect(read_from_redis(data_var_id)).to_not be_nil
     end
 
     it "secret is updated in Redis if under /data and exists in Redis during create" do
-      Rails.cache.write('/secrets/' + data_var_id.split(':')[2], 'secret')
+      write_into_redis(data_var_id, 'secret')
       post("/secrets/#{data_var_id.gsub(':', '/')}", env: token_auth_header(role: admin_user).merge(payload))
-      expect(Rails.cache.read('/secrets/' + data_var_id.split(':')[2])).to eq('new-secret')
+      expect(read_from_redis(data_var_id)).to eq('new-secret')
     end
   end
 
@@ -117,16 +126,16 @@ describe SecretsController, type: :request do
     end
 
     it "secret is read from Redis and not from DB" do
-      Rails.cache.write('/secrets/' + data_var_id.split(':')[2], 'secret')
-      expect(Rails.cache).to receive(:read).with('/secrets/' + data_var_id.split(':')[2]).and_call_original
-      expect(Rails.cache).to receive(:read).with('/secrets/' + data_var_id.split(':')[2] + '/mime_type').and_call_original
+      write_into_redis(data_var_id, 'secret')
+      expect(Rails.cache).to receive(:read).with(data_var_id).and_call_original
+      expect(Rails.cache).to receive(:read).with(data_var_id + '/mime_type').and_call_original
       expect_any_instance_of(Resource).to_not receive(:secret)
 
       get("/secrets/#{data_var_id.gsub(':', '/')}", env: token_auth_header(role: admin_user))
     end
 
     it "secret is not read from Redis when version requested" do
-      Rails.cache.write('/secrets/' + data_var_id.split(':')[2], 'secret')
+      write_into_redis(data_var_id, 'secret')
       expect(Rails.cache).to_not receive(:read)
       expect_any_instance_of(Resource).to receive(:secret)
 
@@ -155,7 +164,7 @@ describe SecretsController, type: :request do
     end
 
     it "Create succeeds when Redis throws exception" do
-      Rails.cache.write('/secrets/' + data_var_id.split(':')[2], 'secret')
+      write_into_redis(data_var_id, 'secret')
       expect(Rails.cache).to receive(:write).and_raise(ApplicationController::ServiceUnavailable)
 
       post("/secrets/#{data_var_id.gsub(':', '/')}", env: token_auth_header(role: admin_user).merge(payload))
@@ -164,7 +173,7 @@ describe SecretsController, type: :request do
     end
 
     it "Show succeeds when Redis returns nil" do
-      expect(Rails.cache).to receive(:read).and_return(nil)
+      expect(Rails.cache).to receive(:read).twice.and_return(nil)
 
       get("/secrets/#{data_var_id.gsub(':', '/')}", env: token_auth_header(role: admin_user))
 
@@ -172,8 +181,8 @@ describe SecretsController, type: :request do
       expect(response.body).to eq('secret')
     end
 
-    it "Create succeeds when Redis throws exception" do
-      expect(Rails.cache).to receive(:read).and_return(nil) # Create reads before it creating
+    it "Create succeeds when Redis returns nil" do
+      expect(Rails.cache).to receive(:read).twice.and_return(nil) # Create reads before it creating
 
       post("/secrets/#{data_var_id.gsub(':', '/')}", env: token_auth_header(role: admin_user).merge(payload))
 

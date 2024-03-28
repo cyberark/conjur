@@ -1,18 +1,14 @@
 # frozen_string_literal: true
 module Secrets
   module RedisHandler
+
     def get_redis_secret(key, version = nil)
       return nil, nil if !secret_applicable?(key) || version # We currently don't support version
 
-      value =  Rails.cache.read(prefix_secret_key(key))
-      if value
-        Rails.logger.debug(LogMessages::Redis::RedisAccessStart.new('Read'))
-        mime_type = Rails.cache.read(prefix_secret_key(key) + "/mime_type")
-        return value, mime_type
-      else
-        Rails.logger.debug(LogMessages::Redis::RedisAccessEnd.new('Read', 'Secret was not found in Redis'))
-        return nil, nil
-      end
+      value = read_resource(key)
+      mime_type = read_resource(key + '/mime_type') || SecretsController::DEFAULT_MIME_TYPE
+      # Returns non-nil value if found in Redis. mime_type is never nil
+      return value, mime_type
     rescue => e
       Rails.logger.error(LogMessages::Redis::RedisAccessFailure.new('Read', e.message))
       return nil, nil
@@ -21,12 +17,9 @@ module Secrets
     def create_redis_secret(key, value, mime_type)
       return unless secret_applicable?(key)
 
-      Rails.logger.debug(LogMessages::Redis::RedisAccessStart.new('Write'))
-      response = Rails.cache.write(prefix_secret_key(key), value)
-      Rails.logger.debug(LogMessages::Redis::RedisAccessEnd.new('write', response))
+      write_resource(key, value)
       if mime_type != SecretsController::DEFAULT_MIME_TYPE # We save mime_type only if it's not default
-        response = Rails.cache.write(prefix_secret_key(key) + "/mime_type", mime_type)
-        Rails.logger.debug(LogMessages::Redis::RedisAccessEnd.new('write', response))
+        write_resource(key + '/mime_type', mime_type)
       end
     rescue => e
       Rails.logger.error(LogMessages::Redis::RedisAccessFailure.new('Write', e.message))
@@ -44,13 +37,25 @@ module Secrets
 
     private
 
-    def prefix_secret_key(key)
-      '/secrets/' + key
+    def read_resource(key)
+      Rails.logger.debug(LogMessages::Redis::RedisAccessStart.new('Read'))
+      value = Rails.cache.read(key)&.
+          yield_self {|res| Slosilo::EncryptedAttributes.decrypt(res, aad: key)}
+      is_found = value.nil? ? "not " : ""
+      Rails.logger.debug(LogMessages::Redis::RedisAccessEnd.new('Read', "Secret #{key} was #{is_found} in Redis"))
+      value
+    end
+
+    def write_resource(key, value)
+      Rails.logger.debug(LogMessages::Redis::RedisAccessStart.new('Write'))
+      response = Slosilo::EncryptedAttributes.encrypt(value, aad: key)
+                                             .yield_self {|val| Rails.cache.write(key, val)}
+      Rails.logger.debug(LogMessages::Redis::RedisAccessEnd.new('write', response))
     end
 
     def secret_applicable?(key)
       redis_configured? &&
-      key.start_with?('data')
+      key.split(':').last.start_with?('data')
     end
 
     def redis_configured?
