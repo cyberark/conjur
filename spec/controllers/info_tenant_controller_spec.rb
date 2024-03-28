@@ -18,18 +18,18 @@ describe InfoTenantController, :type => :request do
   before do
     StaticAccount.set_account('rspec')
     init_slosilo_keys("rspec")
-    put(
-      '/policies/rspec/policy/root',
-      env: token_auth_header(role: super_user).merge(
-        { 'RAW_POST_DATA' => test_policy }
-      )
-    )
-    assert_response :success
   end
 
   context "Get tenant info" do
     subject{ InfoTenantController.new }
-    it "by user" do
+    it "by user positive scenrio" do
+      put(
+        '/policies/rspec/policy/root',
+        env: token_auth_header(role: super_user).merge(
+          { 'RAW_POST_DATA' => test_policy }
+        )
+      )
+      assert_response :success
       get("/info",
            env: token_auth_header(role: alice_user).merge(v2_api_header)
            )
@@ -37,6 +37,16 @@ describe InfoTenantController, :type => :request do
       json_body = JSON.parse(response.body)
       expect(json_body).to include("is_pam_self_hosted"=> true)
     end
+
+    it "by user - negative scenrio" do
+      get("/info",
+          env: token_auth_header(role: alice_user).merge(v2_api_header)
+      )
+      assert_response :ok
+      json_body = JSON.parse(response.body)
+      expect(json_body).to include("is_pam_self_hosted"=> false )
+    end
+
 
   end
 end

@@ -13,6 +13,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - Return permissions in static secret
 - Get dynamic secret
+- Create synchronizer host endpoint
+- Generate synchronizer intaller token endpoint
+- Info for tenant endpoint
 
 ## [1.0.24-cloud] - 2024-03-24
 ### Changed
