@@ -1,4 +1,5 @@
 require_relative '../../wrappers/policy_wrapper'
+require_relative '../../../domain/authentication/util/host_authentication'
 require 'digest'
 
 class SynchronizerCreationController < V2RestController
@@ -6,6 +7,27 @@ class SynchronizerCreationController < V2RestController
   include GroupMembershipValidator
   include PolicyWrapper
   include AccountValidator
+  include HostAuthentication
+
+  def generate_install_token
+    logger.debug(LogMessages::Endpoints::EndpointRequested.new("synchronizer/installer-creds endpoint started"))
+    validate_conjur_admin_group(account)
+    synchronizer_uuid = tenant_id
+    begin
+      synchronizer_installer_resource_id = "#{account}:host:synchronizer/synchronizer-installer-#{synchronizer_uuid}/synchronizer-installer-host-#{synchronizer_uuid}"
+      synchronizerHostResource = Resource.find(resource_id: synchronizer_installer_resource_id)
+      raise Exceptions::RecordNotFound.new(synchronizer_installer_resource_id, message: "Synchronizer host not found") if synchronizerHostResource.nil?
+      installer_token = get_access_token(account, synchronizer_installer_resource_id, request)
+
+      response.set_header("Content-Encoding", "base64")
+      response.set_header("Content-Type", "text/plain")
+      render(plain: Base64.strict_encode64(synchronizer_installer_resource_id + ":" + installer_token))
+      logger.debug(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("synchronizer/installer-creds endpoint succeeded"))
+    rescue => e
+      logger.error(LogMessages::Conjur::GeneralError.new(e.message))
+      raise e
+    end
+  end
   def create_synchronizer
     logger.debug(LogMessages::Endpoints::EndpointRequested.new("create synchronizer endpoint"))
     validate_conjur_admin_group(account)
@@ -14,10 +36,7 @@ class SynchronizerCreationController < V2RestController
     begin
       synchronizer_host_resource_id = "#{account}:host:synchronizer/synchronizer-#{synchronizer_uuid}/synchronizer-host-#{synchronizer_uuid}"
       synchronizerHostResource = Resource.find(resource_id: synchronizer_host_resource_id)
-
-      if not synchronizerHostResource.nil?
-        raise Exceptions::RecordExists.new("synchronizer", synchronizer_host_resource_id)
-      end
+      raise Exceptions::RecordExists.new("synchronizer", synchronizer_host_resource_id) if not synchronizerHostResource.nil?
       add_synchronizer_host_policy(synchronizer_uuid)
 
       head :created

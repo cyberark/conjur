@@ -4,6 +4,8 @@ require 'sequel'
 
 class Edge < Sequel::Model
 
+  include HostAuthentication
+
   EDGE_HOST_PATTERN = "ACCOUNT:host:edge/edge-IDENTIFIER/edge-host-IDENTIFIER"
   EDGE_INSTALLER_HOST_PATTERN = "ACCOUNT:host:edge/edge-installer-IDENTIFIER/edge-installer-host-IDENTIFIER"
     class << self
@@ -59,29 +61,7 @@ class Edge < Sequel::Model
 
   def get_installer_token(account, request)
     installer_host_full_name = self.get_edge_installer_host_name(account)
-    installer_name = Role.username_from_roleid(installer_host_full_name)
-    installer_role = Role[installer_host_full_name]
-    # Authenticate
-    auth_input = Authentication::AuthenticatorInput.new(
-      authenticator_name: Authentication::Common.default_authenticator_name,
-      service_id: nil,
-      account: account,
-      username: installer_name,
-      credentials: installer_role.api_key,
-      client_ip: request.ip,
-      request: request
-    )
-    installer_token = new_authenticate.call(
-      authenticator_input: auth_input,
-      authenticators: Authentication::InstalledAuthenticators.authenticators(ENV),
-      enabled_authenticators: Authentication::InstalledAuthenticators.enabled_authenticators_str
-    )
-    Base64.strict_encode64(installer_token.to_json)
+    get_access_token(account, installer_host_full_name, request)
   end
 
-  private
-
-  def new_authenticate
-    Authentication::Authenticate.new
-  end
 end
