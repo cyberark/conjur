@@ -112,6 +112,7 @@ Rails.application.routes.draw do
 
       #Synchronizer - V2
       post "/synchronizer"              => 'synchronizer_creation#create_synchronizer'
+      get "/synchronizer/installer-creds"   => 'synchronizer_creation#generate_install_token'
 
       # Edge
       post    "/edge/:account"                      => 'edge_creation#create_edge'

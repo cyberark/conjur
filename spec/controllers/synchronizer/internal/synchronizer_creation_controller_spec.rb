@@ -69,5 +69,50 @@ describe SynchronizerCreationController, :type => :request do
       assert_response :conflict
     end
   end
+
+  context "Synchronizer hosts get installer token" do
+    subject{ SynchronizerCreationController.new }
+
+    it "by admin user" do
+      post("/synchronizer",
+           env: token_auth_header(role: admin_user).merge(v2_api_header)
+      )
+      resource_installer = Resource.find { Sequel.like(:resource_id, 'rspec:host:synchronizer/synchronizer-installer-%/synchronizer-installer-host-%') }
+      expect(resource_installer).not_to be_nil
+      assert_response :created
+      get("/synchronizer/installer-creds",
+           env: token_auth_header(role: admin_user).merge(v2_api_header)
+      )
+      assert_response :ok
+      expect(response.body).not_to be_empty
+    end
+
+    it "by user" do
+      post("/synchronizer",
+           env: token_auth_header(role: admin_user).merge(v2_api_header)
+      )
+      resource_installer = Resource.find { Sequel.like(:resource_id, 'rspec:host:synchronizer/synchronizer-installer-%/synchronizer-installer-host-%') }
+      expect(resource_installer).not_to be_nil
+      assert_response :created
+      get("/synchronizer/installer-creds",
+          env: token_auth_header(role: alice_user).merge(v2_api_header)
+      )
+      assert_response :forbidden
+    end
+
+    it "when synchronizer hosts never created" do
+      # verify synchronizer hosts never created
+      resource_host = Resource.find { Sequel.like(:resource_id, 'rspec:host:synchronizer/synchronizer-%/synchronizer-host-%') }
+      resource_installer = Resource.find { Sequel.like(:resource_id, 'rspec:host:synchronizer/synchronizer-installer-%/synchronizer-installer-host-%') }
+      expect(resource_host).to be_nil
+      expect(resource_installer).to be_nil
+      # ask for a installer token
+      get("/synchronizer/installer-creds",
+          env: token_auth_header(role: admin_user).merge(v2_api_header)
+      )
+      assert_response :not_found
+    end
+
+  end
 end
 
