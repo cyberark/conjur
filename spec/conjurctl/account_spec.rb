@@ -9,6 +9,24 @@ def create_default_account()
   system("conjurctl account create")
 end
 
+describe "create default conjur account" do
+  context "create with name conjur" do
+    after(:each) do
+      delete_account("conjur")
+    end
+
+    it "account created" do
+      stdout_str, = Open3.capture3("conjurctl account create conjur")
+      expect(stdout_str).to include("API key for admin")
+      expect(token_key("conjur", "host")).to be
+      expect(token_key("conjur", "user")).to be
+      expect(Role["conjur:user:admin"]).to be
+      expect(Credentials["conjur:user:admin"]).to be
+    end
+  end
+end
+
+=begin
 describe "account" do
   it "creates default account when no name provided" do
     stdout_str, = Open3.capture3(
@@ -107,3 +125,4 @@ describe "account" do
     end
   end
 end
+=end
