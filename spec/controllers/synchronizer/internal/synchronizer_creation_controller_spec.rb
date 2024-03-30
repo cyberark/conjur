@@ -5,6 +5,10 @@ describe SynchronizerCreationController, :type => :request do
   let(:super_user) { Role.find_or_create(role_id: 'rspec:user:admin') }
   let(:admin_user) { Role.find_or_create(role_id: 'rspec:user:admin_user') }
   let(:alice_user) { Role.find_or_create(role_id: 'rspec:user:alice') }
+
+  let(:expected_event_object) { instance_double(Audit::Event::Policy) }
+  let(:log_object) { instance_double(::Audit::Log::SyslogAdapter, log: expected_event_object) }
+
   let(:test_policy) do
     <<~POLICY
         - !user alice
@@ -23,6 +27,8 @@ describe SynchronizerCreationController, :type => :request do
 
   before do
     StaticAccount.set_account('rspec')
+    allow(Audit).to receive(:logger).and_return(log_object)
+
     init_slosilo_keys("rspec")
     ENV['TENANT_ID'] ||= 'mytenant'
     put(
@@ -46,6 +52,10 @@ describe SynchronizerCreationController, :type => :request do
       expect(resource_host).not_to be_nil
       expect(resource_installer).not_to be_nil
       assert_response :created
+      # Correct audit is returned
+      audit_message = "User rspec:user:admin_user successfully created new Synchronizer instance"
+      verify_audit_message(audit_message)
+
     end
 
     it "by unpermitted user" do
