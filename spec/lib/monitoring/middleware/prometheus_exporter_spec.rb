@@ -7,7 +7,7 @@ describe Monitoring::Middleware::PrometheusExporter do
   before do
     Monitoring::Prometheus.setup(registry: Prometheus::Client::Registry.new)
   end
-  
+
   let(:registry) do
     Monitoring::Prometheus.registry
   end
@@ -40,7 +40,7 @@ describe Monitoring::Middleware::PrometheusExporter do
     shared_examples 'ok' do |headers, fmt|
       it "responds with 200 OK and Content-Type #{fmt::CONTENT_TYPE}" do
         registry.counter(:foo, docstring: 'foo counter').increment(by: 9)
-        
+
         env['PATH_INFO'] = path
         env['HTTP_ACCEPT'] = headers.values[0] if headers.values[0]
 

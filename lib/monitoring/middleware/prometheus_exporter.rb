@@ -37,7 +37,6 @@ module Monitoring
         parse(env.fetch('HTTP_ACCEPT', '*/*')).each do |content_type, _|
           return formats[content_type] if formats.key?(content_type)
         end
-
         nil
       end
 
@@ -61,10 +60,14 @@ module Monitoring
       end
 
       def respond_with(format)
+        response = format.marshal(@registry)
+
+        Rails.logger.info("Telemetry data: #{response}")
+
         [
           200,
           { 'Content-Type' => format::CONTENT_TYPE },
-          [format.marshal(@registry)]
+          [response]
         ]
       end
 

@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
+## [1.0.26-cloud] - 2024-03-31
+### Added
+- Adding telemetry support for  ConjurCloud
+
 ## [1.0.25-cloud] - 2024-04-07
 ### Added
 - Return permissions in static secret
@@ -60,7 +64,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Improved error messaging when a foreign key constraint violation occurs during
   a policy replace.
   [Conjur-Enterprise/conjur#93](https://github.cyberng.com/Conjur-Enterprise/conjur/pull/93)
-- Conjur API now returns the correct role graph, no longer showing resources that 
+- Conjur API now returns the correct role graph, no longer showing resources that
   the user does not have read permissions on.
 - conjurctl role retrieve-key will now work when debug logging is turned on.
   [CNJR-2954](https://ca-il-jira.il.cyber-ark.com:8443/browse/CNJR-2759)
@@ -70,7 +74,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [1.0.21-cloud] - 2024-02-18
 ### Changed
-- Changing Error logs to Warning 
+- Changing Error logs to Warning
 - API for creating static secret with annotations
 
 ## [1.0.20-cloud] - 2024-02-11
@@ -82,7 +86,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [1.0.19-cloud] - 2024-02-04
 ### Added
-- API getting the license info (number of used hosts) 
+- API getting the license info (number of used hosts)
 - API getting the edge name by id
 - Add sort parameter to list issuers
 

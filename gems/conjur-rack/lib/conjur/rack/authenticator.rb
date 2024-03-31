@@ -12,16 +12,16 @@ module Conjur
       def identity?
         !conjur_rack[:identity].nil?
       end
-      
+
       def user
-        User.new(identity[0], identity[1], 
-          :privilege => privilege, 
-          :remote_ip => remote_ip, 
-          :audit_roles => audit_roles, 
+        User.new(identity[0], identity[1],
+          :privilege => privilege,
+          :remote_ip => remote_ip,
+          :audit_roles => audit_roles,
           :audit_resources => audit_resources
           )
       end
-      
+
       def identity
         conjur_rack[:identity] or raise "No Conjur identity for current request"
       end
@@ -34,7 +34,7 @@ module Conjur
       end
     end
 
-  
+
     class Authenticator
       class AuthorizationError < SecurityError
       end
@@ -47,7 +47,7 @@ module Conjur
       class ValidationError < SecurityError
       end
       attr_reader :app, :options
-      
+
       # +options+:
       # :except :: a list of request path patterns for which to skip authentication.
       # :optional :: request path patterns for which authentication is optional.
@@ -65,14 +65,14 @@ module Conjur
           conjur_rack[a]
         end
       end
- 
+
       def call rackenv
-        # never store request-specific variables as application attributes 
+        # never store request-specific variables as application attributes
         Thread.current[:rack_env] = rackenv
         if authenticate?
           begin
             identity = verify_authorization_and_get_identity # [token, account]
-            
+
             if identity
               conjur_rack[:token] = identity[0]
               conjur_rack[:account] = identity[1]
@@ -96,9 +96,9 @@ module Conjur
           Thread.current[:conjur_rack] = {}
         end
       end
-      
+
       protected
-      
+
       def conjur_rack
         Conjur::Rack.conjur_rack
       end
@@ -115,7 +115,7 @@ module Conjur
           raise(ValidationError, 'Unauthorized: Invalid signer')
         end
       end
-      
+
       def error status, message
         [status, { 'Content-Type' => 'text/plain', 'Content-Length' => message.length.to_s }, [message] ]
       end
@@ -127,7 +127,7 @@ module Conjur
       rescue JSON::ParserError
         raise AuthorizationError.new("Malformed authorization token")
       end
-      
+
       RECOGNIZED_CLAIMS = [
         'iat', 'exp', # recognized by Slosilo
         'cidr', 'sub', 'tid',
@@ -158,7 +158,7 @@ module Conjur
           end
         end
       end
-      
+
       def authenticate?
         path = http_path
         if options[:except]
@@ -167,7 +167,7 @@ module Conjur
           true
         end
       end
-      
+
       def optional_paths
         options[:optional] || []
       end

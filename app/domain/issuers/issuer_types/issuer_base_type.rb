@@ -8,7 +8,7 @@ class IssuerBaseType
   ID_FIELD_MAX_ALLOWED_LENGTH = 60
   NUM_OF_EXPECTED_PARAMS = 4
   NUM_OF_EXPECTED_PARAMS_UPDATE = 2
-  
+
   def validate(params)
     validate_id(params[:id])
     validate_max_ttl(params[:max_ttl])
@@ -30,7 +30,7 @@ def validate_id(id)
   if id.nil?
     raise ApplicationController::BadRequestWithBody, format(IssuerBaseType::REQUIRED_PARAM_MISSING, "id")
   end
-  
+
   unless id.is_a?(String)
     raise ApplicationController::BadRequestWithBody, format(IssuerBaseType::WRONG_PARAM_TYPE, "id", "string")
   end
@@ -52,7 +52,7 @@ def validate_max_ttl(max_ttl)
   if max_ttl.nil?
     raise ApplicationController::BadRequestWithBody, format(IssuerBaseType::REQUIRED_PARAM_MISSING, "max_ttl")
   end
-  
+
   unless max_ttl.is_a?(Integer) && max_ttl.positive?
     raise ApplicationController::BadRequestWithBody, format(IssuerBaseType::WRONG_PARAM_TYPE, "max_ttl", "positive integer")
   end
@@ -63,7 +63,7 @@ def validate_type(type)
   if type.nil?
     raise ApplicationController::BadRequestWithBody, format(IssuerBaseType::REQUIRED_PARAM_MISSING, "type")
   end
-  
+
   unless type.is_a?(String)
     raise ApplicationController::BadRequestWithBody, format(IssuerBaseType::WRONG_PARAM_TYPE, "type", "string")
   end

@@ -15,7 +15,7 @@ module Monitoring
       def setup(registry, pubsub)
         @registry = registry
         @pubsub = pubsub
-        
+
         # Create/register the metric
         Metrics.create_metric(self, :gauge)
 
