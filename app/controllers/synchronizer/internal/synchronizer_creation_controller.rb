@@ -24,8 +24,11 @@ class SynchronizerCreationController < V2RestController
       render(plain: Base64.strict_encode64(synchronizer_installer_resource_id + ":" + installer_token))
       logger.debug(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("synchronizer/installer-creds endpoint succeeded"))
     rescue => e
+      @error_message = e.message
       logger.error(LogMessages::Conjur::GeneralError.new(e.message))
       raise e
+    ensure
+      token_generation_audit(synchronizer_installer_resource_id)
     end
   end
   def create_synchronizer
@@ -46,12 +49,31 @@ class SynchronizerCreationController < V2RestController
       logger.warn(LogMessages::Conjur::AlreadyExists.new(synchronizer_uuid, e.message))
       raise e
     rescue => e
+      @error_message = e.message
       logger.warn(LogMessages::Conjur::GeneralError.new(e.message))
       raise e
+    ensure
+      created_audit(synchronizer_host_resource_id)
     end
   end
 
   private
+
+  def token_generation_audit(synchronizer_id = "not-found")
+    audit_params = { synchronizer_id: synchronizer_id, user: current_user.role_id, client_ip: request.ip}
+    audit_params[:error_message] = @error_message if @error_message
+    Audit.logger.log(Audit::Event::TokenGeneration.new(
+      **audit_params
+    ))
+  end
+
+  def created_audit(synchronizer_id = "not-found")
+    audit_params = { synchronizer_id: synchronizer_id, user: current_user.role_id, client_ip: request.ip}
+    audit_params[:error_message] = @error_message if @error_message
+    Audit.logger.log(Audit::Event::SynchronizerCreation.new(
+      **audit_params
+    ))
+  end
 
   def hash_string(input_string)
     hashed_string = Digest::SHA256.hexdigest(input_string)
