@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [1.0.26-cloud] - 2024-03-31
 ### Added
-- Adding telemetry support for ConjurCloud
+- Adding telemetry support for  ConjurCloud
 
 ## [1.0.25-cloud] - 2024-04-07
 ### Added
