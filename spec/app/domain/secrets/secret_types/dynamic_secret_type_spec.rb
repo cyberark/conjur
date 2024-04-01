@@ -67,7 +67,7 @@ describe "Dynamic secret create input validation" do
     it "input validation fails" do
       params = ActionController::Parameters.new(name: "secret1", branch: "data/dynamic", ttl: "", issuer: "issuer1")
       expect { dynamic_secret.create_input_validation(params)
-      }.to raise_error(Errors::Conjur::ParameterTypeInvalid)
+      }.to raise_error(Errors::Conjur::ParameterMissing)
     end
   end
   context "when creating ephemeral secret" do

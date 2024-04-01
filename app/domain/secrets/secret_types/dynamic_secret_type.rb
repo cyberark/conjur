@@ -111,13 +111,23 @@ module Secrets
         # check if value field exist
         raise ApplicationController::BadRequestWithBody, "Adding value to a dynamic secret is not allowed" if params[:value]
 
-        # check all fields are filled and with correct type
         data_fields = {
-          issuer: String,
-          ttl: Numeric
+          issuer: {
+            field_info: {
+              type: String,
+              value: params[:issuer]
+            },
+            validators: [method(:validate_field_required), method(:validate_field_type), method(:validate_id)]
+          },
+          ttl: {
+            field_info: {
+              type: Numeric,
+              value: params[:ttl]
+            },
+            validators: [method(:validate_field_required), method(:validate_field_type)]
+          }
         }
-        validate_required_data(params, data_fields.keys)
-        validate_data(params, data_fields)
+        validate_data_fields(data_fields)
 
         # check if issuer exists
         issuer_id = params[:issuer]

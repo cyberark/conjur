@@ -359,7 +359,7 @@ describe DynamicSecretsController, type: :request do
             "method_params": {
                 "region": "us-east-1",
                 "inline_policy": "{}",
-                "role_arn": "role"      
+                "role_arn": "arn:aws:iam::123456789012:role/my-role-name"      
             } 
         }
       BODY
@@ -376,7 +376,7 @@ describe DynamicSecretsController, type: :request do
         # Correct response code
         assert_response :created
         # correct response body
-        expect(response.body).to eq("{\"branch\":\"/data/dynamic\",\"name\":\"ephemeral_secret\",\"issuer\":\"aws-issuer-1\",\"ttl\":1200,\"method\":\"assume-role\",\"method_params\":{\"role_arn\":\"role\",\"region\":\"us-east-1\",\"inline_policy\":\"{}\"},\"annotations\":[{\"name\":\"description\",\"value\":\"desc\"}],\"permissions\":[{\"subject\":{\"id\":\"alice\",\"kind\":\"user\"},\"privileges\":[\"read\"]}]}")
+        expect(response.body).to eq("{\"branch\":\"/data/dynamic\",\"name\":\"ephemeral_secret\",\"issuer\":\"aws-issuer-1\",\"ttl\":1200,\"method\":\"assume-role\",\"method_params\":{\"role_arn\":\"arn:aws:iam::123456789012:role/my-role-name\",\"region\":\"us-east-1\",\"inline_policy\":\"{}\"},\"annotations\":[{\"name\":\"description\",\"value\":\"desc\"}],\"permissions\":[{\"subject\":{\"id\":\"alice\",\"kind\":\"user\"},\"privileges\":[\"read\"]}]}")
         # Secret resource is created
         resource = Resource["rspec:variable:data/dynamic/ephemeral_secret"]
         expect(resource).to_not be_nil
@@ -874,7 +874,7 @@ describe DynamicSecretsController, type: :request do
         let(:payload_update_secret) do
           <<~BODY
           {
-              "mime_type": "plain",
+              "mime_type": "plain/text",
               "issuer": "aws-issuer-1",
               "ttl": 120,
               "method": "federation-token",
@@ -943,10 +943,10 @@ describe DynamicSecretsController, type: :request do
               )
           )
           # Correct response code
-          assert_response :ok
+          assert_response :bad_request
           # Check annotations were not updated
           annotations = Annotation.where(resource_id:"rspec:variable:data/dynamic/secret_to_update").all
-          expect(annotations.size).to eq 4
+          expect(annotations.size).to eq 5
         end
       end
       context "Update secret permissions" do
@@ -1211,7 +1211,7 @@ describe DynamicSecretsController, type: :request do
               "method": "assume-role",
               "method": "assume-role",
               "method_params": {
-                  "role_arn": "role"      
+                  "role_arn": "arn:aws:iam::123456789012:role/my-role-name"      
               }, 
               "annotations": [
                 {
@@ -1387,7 +1387,7 @@ describe DynamicSecretsController, type: :request do
               "ttl": 120,
               "method": "assume-role",
               "method_params": {
-                "role_arn": "role"
+                "role_arn": "arn:aws:iam::123456789012:role/my-role-name"
               },
               "annotations": [
                 {
@@ -1458,7 +1458,7 @@ describe DynamicSecretsController, type: :request do
             )
         )
         assert_response :success
-        expect(response.body).to eq("{\"branch\":\"/data/dynamic\",\"name\":\"assume_role_secret\",\"issuer\":\"aws-issuer-1\",\"ttl\":120,\"method\":\"assume-role\",\"method_params\":{\"role_arn\":\"role\"},\"annotations\":[{\"name\":\"description\",\"value\":\"desc\"}],\"permissions\":[{\"subject\":{\"id\":\"alice\",\"kind\":\"user\"},\"privileges\":[\"read\"]}]}")
+        expect(response.body).to eq("{\"branch\":\"/data/dynamic\",\"name\":\"assume_role_secret\",\"issuer\":\"aws-issuer-1\",\"ttl\":120,\"method\":\"assume-role\",\"method_params\":{\"role_arn\":\"arn:aws:iam::123456789012:role/my-role-name\"},\"annotations\":[{\"name\":\"description\",\"value\":\"desc\"}],\"permissions\":[{\"subject\":{\"id\":\"alice\",\"kind\":\"user\"},\"privileges\":[\"read\"]}]}")
       end
     end
     context 'User with no read permissions calls for get assume role secret' do
@@ -1525,7 +1525,7 @@ describe DynamicSecretsController, type: :request do
     let(:payload_update_secret) do
       <<~BODY
           {
-            "mime_type": "plain",
+            "mime_type": "plain/text",
             "value": "password2",
             "annotations": [
               {
@@ -1584,7 +1584,7 @@ describe DynamicSecretsController, type: :request do
         {
             "branch": "/data/dynamic",
             "name": "secret_to_update",
-            "mime_type": "plain",
+            "mime_type": "plain/text",
             "value": "password",
             "annotations": [
               {
@@ -1628,7 +1628,7 @@ describe DynamicSecretsController, type: :request do
         {
             "branch": "/data/dynamic",
             "name": "secret_to_update",
-            "mime_type": "plain",
+            "mime_type": "plain/text",
             "value": "password",
             "annotations": [
               {
@@ -1762,7 +1762,7 @@ describe DynamicSecretsController, type: :request do
         {
             "branch": "/data/secrets",
             "name": "secret_to_update",
-            "mime_type": "plain",
+            "mime_type": "plain/text",
             "value": "password",
             "annotations": [
               {
@@ -1869,7 +1869,7 @@ describe DynamicSecretsController, type: :request do
         {
             "branch": "/data/secrets",
             "name": "secret_to_update",
-            "mime_type": "plain",
+            "mime_type": "plain/text",
             "value": "password",
             "annotations": [
               {
@@ -2043,7 +2043,7 @@ describe DynamicSecretsController, type: :request do
               "ttl": 110,
               "method": "assume-role",
               "method_params": {
-                "role_arn": "role"
+                "role_arn": "arn:aws:iam::123456789012:role/my-role-name"
               },
               "permissions": [
                 {
@@ -2066,7 +2066,7 @@ describe DynamicSecretsController, type: :request do
               dynamic/issuer: aws-issuer-1  
               dynamic/ttl: 110
               dynamic/method: assume-role
-              dynamic/role-arn: role
+              dynamic/role-arn: arn:aws:iam::123456789012:role/my-role-name
               dynamic/region: us-east-1    
 
           - !permit
@@ -2124,7 +2124,7 @@ describe DynamicSecretsController, type: :request do
             env: token_auth_header(role: alice_user).merge(v2_api_header)
         )
         assert_response :ok
-        expect(response.body).to eq( "{\"branch\":\"/data/dynamic\",\"name\":\"assume_role_secret\",\"issuer\":\"aws-issuer-1\",\"ttl\":110,\"method\":\"assume-role\",\"method_params\":{\"role_arn\":\"role\",\"region\":\"us-east-1\"},\"annotations\":[{\"name\":\"description\",\"value\":\"desc\"}],\"permissions\":[{\"subject\":{\"id\":\"alice\",\"kind\":\"user\"},\"privileges\":[\"read\"]}]}")
+        expect(response.body).to eq( "{\"branch\":\"/data/dynamic\",\"name\":\"assume_role_secret\",\"issuer\":\"aws-issuer-1\",\"ttl\":110,\"method\":\"assume-role\",\"method_params\":{\"role_arn\":\"arn:aws:iam::123456789012:role/my-role-name\",\"region\":\"us-east-1\"},\"annotations\":[{\"name\":\"description\",\"value\":\"desc\"}],\"permissions\":[{\"subject\":{\"id\":\"alice\",\"kind\":\"user\"},\"privileges\":[\"read\"]}]}")
         # update assume role secret
         put("/secrets/dynamic/data/dynamic/assume_role_secret",
             env: token_auth_header(role: alice_user).merge(v2_api_header).merge(
@@ -2135,13 +2135,13 @@ describe DynamicSecretsController, type: :request do
             )
         )
         assert_response :ok
-        expect(response.body).to eq("{\"branch\":\"/data/dynamic\",\"name\":\"assume_role_secret\",\"issuer\":\"aws-issuer-1\",\"ttl\":110,\"method\":\"assume-role\",\"method_params\":{\"role_arn\":\"role\"},\"annotations\":[],\"permissions\":[{\"subject\":{\"id\":\"alice\",\"kind\":\"user\"},\"privileges\":[\"read\"]}]}")
+        expect(response.body).to eq("{\"branch\":\"/data/dynamic\",\"name\":\"assume_role_secret\",\"issuer\":\"aws-issuer-1\",\"ttl\":110,\"method\":\"assume-role\",\"method_params\":{\"role_arn\":\"arn:aws:iam::123456789012:role/my-role-name\"},\"annotations\":[],\"permissions\":[{\"subject\":{\"id\":\"alice\",\"kind\":\"user\"},\"privileges\":[\"read\"]}]}")
         # get secret
         get("/secrets/dynamic/data/dynamic/assume_role_secret",
             env: token_auth_header(role: alice_user).merge(v2_api_header)
         )
         assert_response :ok
-        expect(response.body).to eq("{\"branch\":\"/data/dynamic\",\"name\":\"assume_role_secret\",\"issuer\":\"aws-issuer-1\",\"ttl\":110,\"method\":\"assume-role\",\"method_params\":{\"role_arn\":\"role\"},\"annotations\":[],\"permissions\":[{\"subject\":{\"id\":\"alice\",\"kind\":\"user\"},\"privileges\":[\"read\"]}]}")
+        expect(response.body).to eq("{\"branch\":\"/data/dynamic\",\"name\":\"assume_role_secret\",\"issuer\":\"aws-issuer-1\",\"ttl\":110,\"method\":\"assume-role\",\"method_params\":{\"role_arn\":\"arn:aws:iam::123456789012:role/my-role-name\"},\"annotations\":[],\"permissions\":[{\"subject\":{\"id\":\"alice\",\"kind\":\"user\"},\"privileges\":[\"read\"]}]}")
         # update federation token secret using policy
         patch(
           '/policies/rspec/policy/data/dynamic',

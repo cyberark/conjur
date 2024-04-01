@@ -10,7 +10,7 @@ class IssuerBaseType
   NUM_OF_EXPECTED_PARAMS_UPDATE = 2
 
   def validate(params)
-    validate_id(params[:id])
+    validate_issuer_id(params[:id])
     validate_max_ttl(params[:max_ttl])
     validate_type(params[:type])
     validate_not_nil_data(params[:data])
@@ -26,7 +26,7 @@ end
 
 private
 
-def validate_id(id)
+def validate_issuer_id(id)
   if id.nil?
     raise ApplicationController::BadRequestWithBody, format(IssuerBaseType::REQUIRED_PARAM_MISSING, "id")
   end

@@ -32,10 +32,22 @@ module Secrets
         method_params = params[:method_params]
         if method_params
           data_fields = {
-            region: String,
-            inline_policy: String
+            region: {
+              field_info: {
+                type: String,
+                value: method_params[:region]
+              },
+              validators: [method(:validate_field_type), method(:validate_region)]
+            },
+            inline_policy: {
+              field_info: {
+                type: String,
+                value: method_params[:inline_policy]
+              },
+              validators: [method(:validate_field_type)]
+            }
           }
-          validate_data(method_params, data_fields)
+          validate_data_fields(data_fields)
         end
       end
 
