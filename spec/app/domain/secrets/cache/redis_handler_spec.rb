@@ -25,6 +25,50 @@ describe Secrets::RedisHandler do
     end
 
   end
+
+  context "Secret version" do
+    let(:key) {"data/key"}
+    let(:value) {"value"}
+    let(:version) { "5" }
+
+    before do
+      Rails.cache.clear
+      # Effectively overrides encrypt/decrypt
+      allow(Slosilo::EncryptedAttributes).to receive(:decrypt).and_wrap_original {|original, *args| args.first }
+      allow(Slosilo::EncryptedAttributes).to receive(:encrypt).and_wrap_original {|original, *args| args.first }
+    end
+
+    it "get with version returns correct version" do
+      controller.create_redis_secret(key, "1", "", "1")
+      controller.create_redis_secret(key, "2", "", "2")
+      expect(Rails.cache).to receive(:read).with("#{key}?version=1").and_call_original
+      expect(Rails.cache).to receive(:read).with("#{key}/mime_type").and_call_original
+      secret, _ = controller.get_redis_secret(key, "1")
+      expect(secret).to eq("1")
+    end
+
+    it "get without version returns latest version" do
+      controller.create_redis_secret(key, "1", nil)
+      controller.create_redis_secret(key, "2", nil)
+      expect(Rails.cache).to receive(:read).with("#{key}").and_call_original
+      expect(Rails.cache).to receive(:read).with("#{key}/mime_type").and_call_original
+      secret, _ = controller.get_redis_secret(key)
+      expect(secret).to eq("2")
+    end
+
+    it "create with version" do
+      expect(Rails.cache).to receive(:write).with("#{key}?version=#{version}", anything)
+      expect(Rails.cache).to receive(:write).with("#{key}/mime_type", anything)
+      controller.create_redis_secret(key, value, nil, version)
+    end
+
+    it "create updates latest version" do
+      expect(Rails.cache).to receive(:write).with("#{key}", anything)
+      expect(Rails.cache).to receive(:write).with("#{key}/mime_type", anything)
+      controller.create_redis_secret(key, value, nil)
+    end
+  end
+
   class Controller
     include Secrets::RedisHandler
   end

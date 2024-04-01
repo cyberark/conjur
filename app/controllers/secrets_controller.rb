@@ -68,7 +68,7 @@ class SecretsController < RestController
           value = secret.value
           mime_type = resource.annotation('conjur/mime_type') || DEFAULT_MIME_TYPE
 
-          create_redis_secret(resource_id, value, mime_type)
+          create_redis_secret(resource_id, value, mime_type, version)
       end
     end
 

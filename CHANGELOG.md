@@ -9,17 +9,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
-## [1.0.26-cloud] - 2024-03-31
-### Added
-- Adding telemetry support for  ConjurCloud
-
-## [1.0.25-cloud] - 2024-04-07
+## [1.0.25-cloud] - 2024-04-14
 ### Added
 - Return permissions in static secret
 - Get dynamic secret
 - Create synchronizer host endpoint
 - Generate synchronizer intaller token endpoint
 - Info for tenant endpoint
+- Adding telemetry support for  ConjurCloud
+- Adding Redis with version support
 
 ## [1.0.24-cloud] - 2024-03-24
 ### Changed
