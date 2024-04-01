@@ -3,9 +3,10 @@ module Secrets
   module RedisHandler
 
     def get_redis_secret(key, version = nil)
-      return nil, nil if !secret_applicable?(key) || version # We currently don't support version
+      return nil, nil unless secret_applicable?(key)
+      versioned_key = versioned_key(key, version)
 
-      value = read_resource(key)
+      value = read_resource(versioned_key)
       mime_type = read_resource(key + '/mime_type') || SecretsController::DEFAULT_MIME_TYPE
       # Returns non-nil value if found in Redis. mime_type is never nil
       return value, mime_type
@@ -14,10 +15,12 @@ module Secrets
       return nil, nil
     end
 
-    def create_redis_secret(key, value, mime_type)
+    def create_redis_secret(key, value, mime_type, version = nil)
       return unless secret_applicable?(key)
 
-      write_resource(key, value)
+      versioned_key = versioned_key(key, version)
+
+      write_resource(versioned_key, value)
       if mime_type != SecretsController::DEFAULT_MIME_TYPE # We save mime_type only if it's not default
         write_resource(key + '/mime_type', mime_type)
       end
@@ -36,6 +39,10 @@ module Secrets
     end
 
     private
+
+    def versioned_key(key, version)
+      return version ? key + "?version=" + version : key
+    end
 
     def read_resource(key)
       Rails.logger.debug(LogMessages::Redis::RedisAccessStart.new('Read'))
