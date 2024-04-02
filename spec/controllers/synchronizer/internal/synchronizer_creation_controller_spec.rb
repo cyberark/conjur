@@ -17,7 +17,7 @@ describe SynchronizerCreationController, :type => :request do
           id: synchronizer
           body:
             - !group synchronizer-hosts
-            - !group synchronizer-installer-group
+            - !group synchronizer-installer-hosts
         - !group Conjur_Cloud_Admins
         - !grant
           role: !group Conjur_Cloud_Admins

@@ -11,7 +11,7 @@ describe InfoTenantController, :type => :request do
           id: synchronizer
           body:
             - !group synchronizer-hosts
-            - !group synchronizer-installer-group
+            - !group synchronizer-installer-hosts
     POLICY
   end
 

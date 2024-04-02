@@ -26,7 +26,7 @@ module PolicyTemplates
               - !host synchronizer-<%= synchronizer_identifier %>/synchronizer-host-<%= synchronizer_identifier %>
          
           - !grant
-            role: !group synchronizer-installer-group
+            role: !group synchronizer-installer-hosts
             members:
               - !host synchronizer-installer-<%= synchronizer_identifier %>/synchronizer-installer-host-<%= synchronizer_identifier %>
        
