@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 
-KEYCLOAK_SERVICE_NAME="keycloak"
+# if HOST_IPV6 is set, use the keycloak_ipv6 service name
+if [[ -n "${HOST_IPV6}" ]]; then
+  KEYCLOAK_SERVICE_NAME="keycloak_ipv6"
+else
+  KEYCLOAK_SERVICE_NAME="keycloak"
+fi
 
 # This is executed by the main "ci/test" script after cd-ing into "ci".
 # shellcheck disable=SC1091
@@ -23,9 +28,9 @@ function _hydrate_keycloak_env_args() {
   arr=(
     "${keycloak_items[@]}"
     "KEYCLOAK_CA_CERT=$($COMPOSE exec conjur cat /etc/ssl/certs/keycloak.pem)"
-    "KEYCLOAK_PROVIDER_URI=https://keycloak:8443/auth/realms/master"
-    "PROVIDER_INTERNAL_URI=http://keycloak:8080/auth/realms/master/protocol/openid-connect"
-    "PROVIDER_ISSUER=http://keycloak:8080/auth/realms/master"
+    "KEYCLOAK_PROVIDER_URI=https://$KEYCLOAK_SERVICE_NAME:8443/auth/realms/master"
+    "PROVIDER_INTERNAL_URI=http://$KEYCLOAK_SERVICE_NAME:8080/auth/realms/master/protocol/openid-connect"
+    "PROVIDER_ISSUER=http://$KEYCLOAK_SERVICE_NAME:8080/auth/realms/master"
     "ID_TOKEN_USER_PROPERTY=preferred_username"
   )
 }
@@ -90,23 +95,35 @@ function fetch_keycloak_certificate() {
   # Fetch SSL cert to communicate with keycloak (OIDC provider).
   echo "Saving keycloak certificate in conjur server"
 
-  local parallel_services
-  read -ra parallel_services <<< "$(get_parallel_services 'conjur')"
+  # If HOST_IPV6 is set, use the ipv6 service names
+  if [[ -z "${HOST_IPV6}" ]]; then
+    local parallel_services
+    read -ra parallel_services <<< "$(get_parallel_services 'conjur')"
 
-  for parallel_service in "${parallel_services[@]}"; do
-    $COMPOSE exec -T \
-      "${parallel_service}" /oauth/keycloak/scripts/fetch_certificate
-  done
+    for parallel_service in "${parallel_services[@]}"; do
+      $COMPOSE exec -T \
+        "${parallel_service}" /oauth/keycloak/scripts/fetch_certificate
+    done
+  else
+    $COMPOSE exec -T conjur_ipv6 /oauth/keycloak/scripts/fetch_certificate keycloak_ipv6
+  fi
 }
 
 function add_keycloak_certificate_to_truststore() {
   echo "Adding keycloak certificate in conjur truststore"
 
-  local parallel_services
-  read -ra parallel_services <<< "$(get_parallel_services 'conjur')"
+  # If HOST_IPV6 is set, use the ipv6 service names
+  if [[ -z "${HOST_IPV6}" ]]; then
+    local parallel_services
+    read -ra parallel_services <<< "$(get_parallel_services 'conjur')"
 
-  for parallel_service in "${parallel_services[@]}"; do
-    $COMPOSE exec -T \
-      "${parallel_service}" /oauth/keycloak/scripts/link_certificate
-  done
+    for parallel_service in "${parallel_services[@]}"; do
+      $COMPOSE exec -T \
+        "${parallel_service}" /oauth/keycloak/scripts/link_certificate
+    done
+  else
+    $COMPOSE exec -T conjur_ipv6 /oauth/keycloak/scripts/link_certificate
+  fi
 }
+
+

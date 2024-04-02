@@ -3,10 +3,12 @@
 # This script retrieves a certificate from the keycloak OIDC provider.
 # It is needed to communicate with the provider via SSL for validating ID tokens
 
+SERVICE="${1:-keycloak}"
+
 openssl s_client \
   -showcerts \
-  -connect keycloak:8443 \
-  -servername keycloak \
+  -connect $SERVICE:8443 \
+  -servername $SERVICE \
   </dev/null | \
   openssl x509 \
     -outform PEM \
