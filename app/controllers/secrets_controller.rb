@@ -83,7 +83,9 @@ class SecretsController < RestController
     #check if there is id that repeats itself
     check_input_correct
 
-    variables = Resource.where(resource_id: variable_ids).eager(:secrets).all
+    # If redis is configured then we don't want to eagerly fetch the secrets from DB
+    where = Resource.where(resource_id: variable_ids)
+    variables = redis_configured? ? where.all : where.eager(:secrets).all
 
     unless variable_ids.count == variables.count
       raise Exceptions::RecordNotFound,
@@ -110,10 +112,14 @@ class SecretsController < RestController
   end
 
   def get_secret_from_variable(variable)
-    secret = variable.last_secret
-    raise Exceptions::RecordNotFound, variable.resource_id unless secret
+    secret_value, _ = get_redis_secret(variable.resource_id)
+    if secret_value.nil? # Access DB only if not found in Redis
+      secret = variable.last_secret
+      raise Exceptions::RecordNotFound, variable.resource_id unless secret
 
-    secret_value = secret.value
+      secret_value = secret.value
+      create_redis_secret(variable.resource_id, secret_value, DEFAULT_MIME_TYPE)
+    end
     accepts_base64 = String(request.headers['Accept-Encoding']).casecmp?('base64')
     if accepts_base64
       response.set_header("Content-Encoding", "base64")

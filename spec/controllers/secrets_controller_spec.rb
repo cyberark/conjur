@@ -217,4 +217,89 @@ describe SecretsController, type: :request do
     end
   end
 
+  context "batch fetch" do
+    let(:data_var_id) { "#{account}:variable:data/conjur_secret" }
+    let(:internal_secret) { "#{account}:variable:internal/secret" }
+    let(:empty_secret) { "#{account}:variable:data/empty_secret" }
+    let(:secret) { "secret" }
+
+    before do
+      init_slosilo_keys("rspec")
+      Role.find_or_create(role_id: user_owner_id)
+      Rails.cache.clear
+    end
+
+    it "batch fetch with redis" do
+      Resource.create(resource_id: data_var_id, owner_id: user_owner_id)
+      Secret.create(resource_id: data_var_id, value: secret)
+      # Call before value is in redis
+      expect(Rails.cache).to receive(:read).with(data_var_id).and_call_original
+      expect(Rails.cache).to receive(:read).with(data_var_id + "/mime_type").and_call_original
+      expect_any_instance_of(Resource).to receive(:last_secret).and_call_original
+      expect(Rails.cache).to receive(:write).with(data_var_id, anything).and_call_original
+      get("/secrets?variable_ids=#{data_var_id}", env: token_auth_header(role: admin_user))
+      expect(response.status).to eq(200)
+      expect(JSON.parse(response.body)).to eq({data_var_id => secret})
+      # Call after value is in redis
+      expect(Rails.cache).to receive(:read).with(data_var_id).and_call_original
+      expect(Rails.cache).to receive(:read).with(data_var_id + "/mime_type").and_call_original
+      expect_any_instance_of(Resource).to_not receive(:last_secret).and_call_original
+      expect(Rails.cache).to_not receive(:write).with(data_var_id).and_call_original
+      get("/secrets?variable_ids=#{data_var_id}", env: token_auth_header(role: admin_user))
+      expect(response.status).to eq(200)
+      expect(JSON.parse(response.body)).to eq({data_var_id => secret})
+    end
+
+    it "batch fetch without redis" do
+      Resource.create(resource_id: internal_secret, owner_id: user_owner_id)
+      Secret.create(resource_id: internal_secret, value: secret)
+      expect(Rails.cache).to_not receive(:read).with(internal_secret)
+      expect(Rails.cache).to_not receive(:read).with(internal_secret + "/mime_type")
+      expect_any_instance_of(Resource).to receive(:last_secret).and_call_original
+      get("/secrets?variable_ids=#{internal_secret}", env: token_auth_header(role: admin_user))
+
+      expect(response.status).to eq(200)
+      expect(JSON.parse(response.body)).to eq({internal_secret => secret})
+    end
+
+    it "batch fetch for empty secret" do
+      Resource.create(resource_id: empty_secret, owner_id: user_owner_id)
+      expect(Rails.cache).to receive(:read).with(empty_secret).and_call_original
+      expect(Rails.cache).to receive(:read).with(empty_secret + "/mime_type").and_call_original
+      allow_any_instance_of(Resource).to receive(:last_secret).and_call_original
+      get("/secrets?variable_ids=#{empty_secret}", env: token_auth_header(role: admin_user))
+
+      expect(response.status).to eq(404)
+    end
+
+    it "batch fetch combines secrets" do
+      Resource.create(resource_id: data_var_id, owner_id: user_owner_id)
+      Secret.create(resource_id: data_var_id, value: secret)
+      Resource.create(resource_id: internal_secret, owner_id: user_owner_id)
+      Secret.create(resource_id: internal_secret, value: secret)
+      Resource.create(resource_id: empty_secret, owner_id: user_owner_id)
+
+      # All secrets
+      expect(Rails.cache).to receive(:read).with(data_var_id).and_call_original
+      expect(Rails.cache).to receive(:read).with(data_var_id + "/mime_type").and_call_original
+      expect(Rails.cache).to_not receive(:read).with(internal_secret)
+      expect(Rails.cache).to_not receive(:read).with(internal_secret + "/mime_type")
+      expect(Rails.cache).to receive(:read).with(empty_secret).and_call_original
+      expect(Rails.cache).to receive(:read).with(empty_secret + "/mime_type").and_call_original
+      get("/secrets?variable_ids=#{data_var_id},#{internal_secret},#{empty_secret}", env: token_auth_header(role: admin_user))
+
+      expect(response.status).to eq(404)
+
+      # Non empty secrets
+      expect(Rails.cache).to receive(:read).with(data_var_id).and_call_original
+      expect(Rails.cache).to receive(:read).with(data_var_id + "/mime_type").and_call_original
+      expect(Rails.cache).to_not receive(:read).with(internal_secret)
+      expect(Rails.cache).to_not receive(:read).with(internal_secret + "/mime_type")
+      get("/secrets?variable_ids=#{data_var_id},#{internal_secret}", env: token_auth_header(role: admin_user))
+
+      expect(response.status).to eq(200)
+      expect(JSON.parse(response.body)).to eq({internal_secret => secret, data_var_id => secret})
+    end
+  end
+
 end

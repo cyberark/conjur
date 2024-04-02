@@ -38,6 +38,10 @@ module Secrets
       Rails.logger.error(LogMessages::Redis::RedisAccessFailure.new('Update', e.message))
     end
 
+    def redis_configured?
+      Rails.configuration.cache_store.include?(:redis_cache_store)
+    end
+
     private
 
     def versioned_key(key, version)
@@ -65,8 +69,5 @@ module Secrets
       key.split(':').last.start_with?('data')
     end
 
-    def redis_configured?
-      Rails.configuration.cache_store.include?(:redis_cache_store)
-    end
   end
 end
