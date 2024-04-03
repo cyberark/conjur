@@ -5,6 +5,7 @@ import argparse
 import base64
 import json
 import logging
+import socket
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from collections import OrderedDict
@@ -133,10 +134,12 @@ class JWKSRequestHandler(BaseHTTPRequestHandler):
             keys.clear()
         self.reply("DELETED")
 
+class HTTPServerV6(HTTPServer):
+    address_family = socket.AF_INET6
 
-def run(port, server_class=HTTPServer, handler_class=JWKSRequestHandler):
+def run(port, server_class=HTTPServerV6, handler_class=JWKSRequestHandler):
     '''Runs http server'''
-    server_address = ('', port)
+    server_address = ('::', port)
     httpd = server_class(server_address, handler_class)
     logging.info('Starting JWKS server...')
     logging.info('Port: %d', port)

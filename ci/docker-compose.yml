@@ -267,6 +267,7 @@ services:
     extra_hosts:
       - keycloak_ipv6:${HOST_IPV6:-[::1]}
       - pg:${HOST_IPV6:-[::1]}
+      - jwks_py:${HOST_IPV6:-[::1]}
     environment:
       DATABASE_URL: postgres://postgres@pg/postgres
       CONJUR_ADMIN_PASSWORD: ADmin123!!!!
@@ -295,6 +296,7 @@ services:
       - keycloak_ipv6:${HOST_IPV6:-[::1]}
       - pg:${HOST_IPV6:-[::1]}
       - conjur:127.0.0.1
+      - jwks_py:${HOST_IPV6:-[::1]}
     entrypoint: bash
     working_dir: /src/conjur-server
     environment:
@@ -337,12 +339,29 @@ services:
       - KEYCLOAK_REDIRECT_URI=http://conjur:3000/authn-oidc/keycloak2/cucumber/authenticate
       - KEYCLOAK_CLIENT_SECRET=1234
       - KEYCLOAK_SCOPE=openid
-      - KEYCLOAK_LOGLEVEL=DEBUG
-      - WILDFLY_LOGLEVEL=DEBUG
       - JAVA_OPTS=-server -Xms64m -Xmx512m -XX:MetaspaceSize=96M -XX:MaxMetaspaceSize=256m -Djboss.modules.system.pkgs=org.jboss.byteman -Djava.awt.headless=true -Djava.net.preferIPv4Stack=false
     volumes:
       - ./oauth/keycloak:/scripts
       - ./oauth/keycloak/standalone_ipv6.xml:/opt/jboss/keycloak/standalone/configuration/standalone.xml
+
+  jwks_py_ipv6:
+    image: python:3
+    network_mode: host
+    entrypoint:
+      - bash
+      - -c
+    command:
+      - |
+        pip install -r /usr/src/jwks/requirements.txt
+        python /usr/src/jwks/jwks_server.py -p 8090
+    volumes:
+      - ./jwt/:/usr/src/jwks/
+
+  curl_ipv6:
+    image: curlimages/curl:latest
+    network_mode: host
+    extra_hosts:
+      - jwks_py:${HOST_IPV6:-[::1]}
 
 volumes:
   authn-local:

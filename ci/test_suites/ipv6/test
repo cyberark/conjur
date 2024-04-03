@@ -108,15 +108,26 @@ run_cucumber_ipv6_tests() {
   
 }
 
+function wait_for_jwks_endpoint() {
+  for _ in $(seq 1 20); do
+    if $COMPOSE run --rm curl_ipv6 curl http://jwks_py:8090 > /dev/null; then
+      echo "JWKS endpoint is up"
+      return 0
+    fi
+    sleep 5
+  done
+  echo "Failed to reach JWKS endpoint"
+}
+  
 function main() {
-  $COMPOSE up -d conjur_ipv6 pg_ipv6 keycloak_ipv6
+  $COMPOSE up -d conjur_ipv6 pg_ipv6 keycloak_ipv6 jwks_py_ipv6
 
   wait_for_keycloak_server
   create_keycloak_users
   fetch_keycloak_certificate
   add_keycloak_certificate_to_truststore
 
-  _wait_for_pg pg_ipv6
+  wait_for_jwks_endpoint
 
   run_cucumber_ipv6_tests
 }
