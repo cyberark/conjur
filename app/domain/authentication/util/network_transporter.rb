@@ -92,12 +92,12 @@ module Authentication
         return [] unless @proxy.present?
 
         # if proxy is present, set with the appropriate host and port. Set username and password if present.
-        [@proxy.host, @proxy.port, @proxy.user, @proxy.password].compact
+        [@proxy.hostname, @proxy.port, @proxy.user, @proxy.password].compact
       end
 
       def http_client
         @http_client ||= begin
-          http = @http.new(@uri.host, @uri.port, *proxy_settings)
+          http = @http.new(@uri.hostname, @uri.port, *proxy_settings)
           return http unless @uri.instance_of?(URI::HTTPS)
 
           # Enable SSL support

@@ -41,11 +41,11 @@ module Authentication
         # contain authorization fields.
         @logger.debug(
           "Connecting to '#{@destination_host}:#{@destination_port}' " \
-          "through proxy server: '#{@proxy_uri.host}:#{@proxy_uri.port}'"
+          "through proxy server: '#{@proxy_uri.hostname}:#{@proxy_uri.port}'"
         )
 
         @proxy_socket = TCPSocket.new(
-          @proxy_uri.host,
+          @proxy_uri.hostname,
           @proxy_uri.port,
           connect_timeout: @timeout
         )
@@ -79,7 +79,7 @@ module Authentication
             # The deadline has been reached without receiving the
             # expected string
             raise "Timed out waiting for the proxy " \
-                  "('#{@proxy_uri.host}:#{@proxy_uri.port}') to respond. " \
+                  "('#{@proxy_uri.hostname}:#{@proxy_uri.port}') to respond. " \
                   "Received: '#{response.strip}'"
           end
 
@@ -91,7 +91,7 @@ module Authentication
         return if response.downcase.include?('200 connection established')
 
         # If we didn't receive the expected response, raise an error
-        raise "Proxy ('#{@proxy_uri.host}:#{@proxy_uri.port}') returned an " \
+        raise "Proxy ('#{@proxy_uri.hostname}:#{@proxy_uri.port}') returned an " \
               "invalid response: '#{response.strip}'"
       end
 

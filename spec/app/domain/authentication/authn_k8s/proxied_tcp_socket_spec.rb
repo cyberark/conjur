@@ -48,7 +48,7 @@ describe Authentication::AuthnK8s::ProxiedTcpSocket do
 
     it "establishes a TCP connection through the configured proxy" do
       expect(TCPSocket).to receive(:new).with(
-        proxy_uri.host,
+        proxy_uri.hostname,
         proxy_uri.port,
         connect_timeout: timeout
       )

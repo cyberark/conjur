@@ -107,16 +107,16 @@ module Authentication
 
       protected
 
-      # :reek:DuplicateMethodCall for @uri.host
+      # :reek:DuplicateMethodCall for @uri.hostname
       def open_socket
         @socket = if proxy_uri
           ProxiedTcpSocket.new(
             proxy_uri: proxy_uri,
-            destination_host: @uri.host,
+            destination_host: @uri.hostname,
             destination_port: @port
           ).tcp_socket
         else
-          TCPSocket.new(@uri.host, @port)
+          TCPSocket.new(@uri.hostname, @port)
         end
       end
 
@@ -124,7 +124,7 @@ module Authentication
       def secure_socket
         @socket = SecureTcpSocket.new(
           socket: @socket,
-          hostname: @hostname || @uri.host,
+          hostname: @hostname || @uri.hostname,
           cert_store: @cert_store,
           verify_mode: @verify_mode
         )

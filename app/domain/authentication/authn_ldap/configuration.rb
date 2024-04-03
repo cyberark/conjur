@@ -67,7 +67,7 @@ module Authentication
       def host
         ConfigurationLoader.load(
           AnnotationLoader.new(@input, "host"),
-          default: uri.host
+          default: uri.hostname
         )
       end
 
