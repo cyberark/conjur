@@ -305,6 +305,8 @@ services:
       CONJUR_LOG_LEVEL: debug
       CONJUR_DATA_KEY:
       INFRAPOOL_CUCUMBER_FILTER_TAGS:
+      DATABASE_CLEANER_ALLOW_REMOTE_DATABASE_URL: true
+      IPV6_ENABLED: true
     volumes:
       - ..:/src/conjur-server
       - authn-local:/run/authn-local

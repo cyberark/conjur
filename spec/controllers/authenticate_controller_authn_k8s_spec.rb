@@ -176,7 +176,7 @@ describe AuthenticateController, :type => :request do
   describe "#authenticate" do
     context "k8s mock server" do
       around(:each) do |example|
-        WebMock.disable_net_connect!(allow: ['http://localhost:1234', 'http://localhost:1111']) # Test server and bad server
+        WebMock.disable_net_connect!(allow: ['http://localhost:1234', 'http://[::1]:1234', 'http://localhost:1111']) # Test server and bad server
         AuthnK8sTestServer.run_async(
           subpath: "/some/path",
           bearer_token: "bearer token"
@@ -229,6 +229,57 @@ describe AuthenticateController, :type => :request do
 
         # Artificially increase the timeout on ExecuteCommandInContainer
         allow_any_instance_of(Authentication::AuthnK8s::ExecuteCommandInContainer.const_get("Call")).to receive(:timeout).and_return(15)
+      end
+
+      it "client successfully authenticates when the configured K8s API URL is a raw IPv6 address" do
+        # Ensure we are running in CI where the cucumber container supports IPv6
+        if ENV['IPV6_ENABLED']
+          api_url = "http://[::1]:1234/some/path"
+
+          configure_k8s_api_access(
+            account: account,
+            service_id: service_id,
+            api_url: "#{api_url}/",
+            ca_cert: Util::OpenSsl::X509::Certificate.from_subject(
+              subject: 'CN=Test CA'
+            ).to_pem,
+            service_account_token: "bearer token"
+          )
+  
+          define_and_grant_host(
+            account: account,
+            host_id: test_app_host,
+            annotations: {
+              "authn-k8s/authentication-container-name" => "bash",
+              "authn-k8s/namespace" => "default"
+            },
+            service_id: service_id
+          )
+  
+          # Login request, grab the signed certificate from the fake server
+          authn_k8s_login(
+            authenticator_id: authenticator_id,
+            host_id: test_app_host
+          )
+          expect(response).to have_http_status(:success)
+  
+          signed_cert = test_server.copied_content
+  
+          # Authenticate request
+          authn_k8s_authenticate(
+            authenticator_id: authenticator_id,
+            account: account,
+            host_id: test_app_host,
+            signed_cert_pem: signed_cert.to_s
+          )
+  
+          # Assertions
+          expect(response).to have_http_status(:success)
+          token = Slosilo::JWT.parse_json(response.body)
+          expect(token.claims['sub']).to eq("host/#{test_app_host}")
+          expect(token.signature).to be
+          expect(token.claims).to have_key('iat')
+        end
       end
 
       it "client successfully authenticates when the configured K8s API URL has a trailing slash" do
