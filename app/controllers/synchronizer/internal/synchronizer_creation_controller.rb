@@ -14,14 +14,18 @@ class SynchronizerCreationController < V2RestController
     validate_conjur_admin_group(account)
     synchronizer_uuid = tenant_id
     begin
+      # create the installer token
       synchronizer_installer_resource_id = "#{account}:host:synchronizer/synchronizer-installer-#{synchronizer_uuid}/synchronizer-installer-host-#{synchronizer_uuid}"
       synchronizerHostResource = Resource.find(resource_id: synchronizer_installer_resource_id)
       raise Exceptions::RecordNotFound.new(synchronizer_installer_resource_id, message: "Synchronizer host not found") if synchronizerHostResource.nil?
       installer_token = get_access_token(account, synchronizer_installer_resource_id, request)
-
       response.set_header("Content-Encoding", "base64")
       response.set_header("Content-Type", "text/plain")
-      render(plain: Base64.strict_encode64(synchronizer_installer_resource_id + ":" + installer_token))
+
+      # synchronizer host id by synchronizer-component-template required
+      synchronizer_host_resource_id = "host/synchronizer/synchronizer-#{synchronizer_uuid}/synchronizer-host-#{synchronizer_uuid}"
+
+      render(plain: Base64.strict_encode64(synchronizer_host_resource_id + ":" + installer_token))
       logger.debug(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("synchronizer/installer-creds endpoint succeeded"))
     rescue => e
       @error_message = e.message
