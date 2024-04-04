@@ -17,7 +17,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Generate synchronizer intaller token endpoint
 - Info for tenant endpoint
 - Adding telemetry support for  ConjurCloud
-- Adding Redis with version support
+- Redis (disabled) with support for: get, batch, version, encryption, deletion
 
 ## [1.0.24-cloud] - 2024-03-24
 ### Changed

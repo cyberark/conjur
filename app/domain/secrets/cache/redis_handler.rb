@@ -38,6 +38,20 @@ module Secrets
       Rails.logger.error(LogMessages::Redis::RedisAccessFailure.new('Update', e.message))
     end
 
+    def delete_redis_secret(key)
+      return unless secret_applicable?(key)
+
+      Rails.logger.debug(LogMessages::Redis::RedisAccessStart.new('Delete'))
+      response = Rails.cache.delete(key)
+      Rails.logger.debug(LogMessages::Redis::RedisAccessEnd.new('Delete', "Deleted #{response} items"))
+    rescue => e
+      Rails.logger.error(LogMessages::Redis::RedisAccessFailure.new('Delete', e.message))
+    end
+
+    def redis_configured?
+      Rails.configuration.cache_store.include?(:redis_cache_store)
+    end
+
     private
 
     def versioned_key(key, version)
@@ -65,8 +79,5 @@ module Secrets
       key.split(':').last.start_with?('data')
     end
 
-    def redis_configured?
-      Rails.configuration.cache_store.include?(:redis_cache_store)
-    end
   end
 end
