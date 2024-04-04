@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'conjur/extension/repository'
+require_relative '../../domain/secrets/cache/redis_handler'
 
 # Loads a policy into the database, by operating on a PolicyVersion which has already been created with the policy id,
 # policy text, the authenticated user, and the policy owner. The PolicyVersion also parses the policy
@@ -58,6 +59,7 @@ module Loader
     include Handlers::RestrictedTo
     include Handlers::Password
     include Handlers::PublicKey
+    include Secrets::RedisHandler
 
     attr_reader :policy_version, :create_records, :delete_records, :new_roles, :schemata
 
@@ -193,18 +195,23 @@ module Loader
           end.join(' AND ')
         end
 
-        db[<<-DELETE, policy_version.resource_id].delete
+        deleted_ds = db[<<-DELETE, policy_version.resource_id]
           WITH deleted_records AS (
-            SELECT existing_#{table}.*
-            FROM #{qualify_table(table)} AS existing_#{table}
-            LEFT OUTER JOIN #{table} AS new_#{table}
-              ON #{comparisons(table, columns, 'existing_', 'new_')}
-            WHERE existing_#{table}.policy_id = ? AND new_#{table}.#{columns[0]} IS NULL
-          )
-          DELETE FROM #{qualify_table(table)}
-          USING deleted_records AS deleted_from_#{table}
-          WHERE #{comparisons(table, columns, "#{primary_schema}.", 'deleted_from_')}
+              DELETE FROM #{qualify_table(table)}
+              USING (
+                SELECT existing_#{table}.*
+                FROM #{qualify_table(table)} AS existing_#{table}
+                LEFT OUTER JOIN #{table} AS new_#{table}
+                  ON #{comparisons(table, columns, 'existing_', 'new_')}
+                WHERE existing_#{table}.policy_id = ? AND new_#{table}.#{columns[0]} IS NULL
+              ) AS deleted_from_#{table}
+              WHERE #{comparisons(table, columns, "#{primary_schema}.", 'deleted_from_')}
+              RETURNING *
+            )
+            SELECT * FROM deleted_records
         DELETE
+        deleted_records = deleted_ds.all # Performs deletion and returns deleted records
+        post_process_deleted_records(deleted_records, table) unless deleted_records.empty?
       end
 
       # We want to use the if statement here to wrap the feature flag check
@@ -516,6 +523,17 @@ module Loader
     # [docs](https://www.rubydoc.info/github/jeremyevans/sequel/Sequel/ShardedThreadedConnectionPool)
     def release_db_connection
       Sequel::Model.db.disconnect
+    end
+
+    private
+
+    def post_process_deleted_records(deleted_records, table)
+      # Delete secrets from Redis
+      if table == :resources
+        deleted_records.map { |r| Resource.new.set(r) }
+                       .select { |r| r.kind == 'variable' }
+                       .each { |r| delete_redis_secret(r.resource_id) }
+      end
     end
   end
   # rubocop:enable Metrics/ClassLength
