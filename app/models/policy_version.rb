@@ -23,6 +23,7 @@
 # are enclosed within a +!policy+ statement, so that all the statements in the policy are scoped by the enclosing id. 
 # For example, suppose a PolicyVersion is being loaded for the policy +prod/myapp+. If policy being loaded
 # contains a statement like +!layer+, then the layer id as loaded will be +prod/myapp+.
+
 class PolicyVersion < Sequel::Model(:policy_versions)
   include HasId
 
@@ -52,10 +53,6 @@ class PolicyVersion < Sequel::Model(:policy_versions)
         write_id_to_json(response, field)
       end
     end
-  end
-
-  def root_policy?
-    policy.kind == "policy" && policy.identifier == "root"
   end
 
   # Indicates whether explicit deletion is permitted.
@@ -180,24 +177,18 @@ class PolicyVersion < Sequel::Model(:policy_versions)
     return if @records || @parse_error
     return unless policy_text
 
-    begin
-      records = Conjur::PolicyParser::YAML::Loader.load(policy_text, policy_filename)
-      records = wrap_in_policy(records) unless root_policy?
-      @records = Conjur::PolicyParser::Resolver.resolve(records, account, policy_admin.id)
-    rescue
-      $stderr.puts($!.message)
-      $stderr.puts($!.backtrace.join("  \n"))
-      @parse_error = $!
-    end
+    root_policy = policy.kind == "policy" && policy.identifier == "root"
+
+    policy_result = Commands::Policy::Parse.new.call(
+      account: account,
+      policy_id: policy.identifier,
+      owner_id: policy_admin.id,
+      policy_text: policy_text,
+      policy_filename: policy_filename,
+      root_policy: root_policy
+    )
+    @records = policy_result.records
+    @parse_error = policy_result.error
   end
 
-  # Wraps the input records in a policy whose id is the +policy+ id, and whose owner is the
-  # +policy_admin+.
-  def wrap_in_policy records
-    policy_record = Conjur::PolicyParser::Types::Policy.new(policy.identifier)
-    policy_record.owner = Conjur::PolicyParser::Types::Role.new(policy_admin.id)
-    policy_record.account = policy.account
-    policy_record.body = records
-    [ policy_record ]
-  end
 end
