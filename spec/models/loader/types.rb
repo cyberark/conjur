@@ -208,4 +208,38 @@ describe Loader::Types::Variable do
     end
 
   end
+
+  describe Loader::Types::Delete do
+    context "Delete from Redis" do
+
+      let(:account) { "rspec" }
+      let(:data_var_id) { "#{account}:variable:data/conjur_secret" }
+      let(:my_host) { "#{account}:host:data/my-host" }
+      let(:user_owner_id) { 'rspec:user:admin' }
+      let(:policy_record) { double(PolicyVersion) }
+      let(:record) { double("record") }
+
+      before do
+        Role.find_or_create(role_id: user_owner_id)
+        allow(policy_record).to receive(:record).and_return(record)
+      end
+
+      subject { described_class.new(policy_record) }
+
+      it "Variable is deleted from Redis on !delete" do
+        Resource.create(resource_id: data_var_id, owner_id: user_owner_id)
+        allow(record).to receive(:resourceid).and_return(data_var_id)
+        expect(Rails.cache).to receive(:delete).with(data_var_id)
+        subject.delete!
+      end
+
+      it "Non variable resource does not invoke redis" do
+        Resource.create(resource_id: my_host, owner_id: user_owner_id)
+        Role.find_or_create(role_id: my_host)
+        allow(record).to receive(:resourceid).and_return(my_host)
+        expect(Rails.cache).to_not receive(:delete)
+        subject.delete!
+      end
+    end
+  end
 end
