@@ -402,8 +402,10 @@ module Loader
       def delete!
         if policy_object.record.respond_to?(:resourceid)
           resource = ::Resource[policy_object.record.resourceid]
-          resource.destroy if resource
-          delete_redis_secret(resource.id) if resource.kind == 'variable'
+          if resource
+            resource.destroy
+            delete_redis_secret(resource.id) if resource.kind == 'variable'
+          end
         end
         if policy_object.record.respond_to?(:roleid)
           role = ::Role[policy_object.record.roleid]
