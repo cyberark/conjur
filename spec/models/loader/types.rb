@@ -240,6 +240,12 @@ describe Loader::Types::Variable do
         expect(Rails.cache).to_not receive(:delete)
         subject.delete!
       end
+
+      it "Variable that doesn't exist in Resource table" do
+        allow(record).to receive(:resourceid).and_return(data_var_id)
+        expect(Rails.cache).to_not receive(:delete).with(data_var_id)
+        expect{ subject.delete! }.to_not raise_error
+      end
     end
   end
 end
