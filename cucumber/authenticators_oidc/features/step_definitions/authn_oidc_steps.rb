@@ -38,7 +38,7 @@ Given(/I fetch a code for username "([^"]*)" and password "([^"]*)" from "([^"]*
   params.delete('code_challenge_method')
   redirect_uri.query = URI.encode_www_form(params)
 
-  http = Net::HTTP.new(redirect_uri.host, redirect_uri.port)
+  http = Net::HTTP.new(redirect_uri.hostname, redirect_uri.port)
   # Enable SSL support
   http.use_ssl = true
   # Don't verify (to simplify self-signed certificate)
@@ -57,7 +57,7 @@ Given(/I fetch a code for username "([^"]*)" and password "([^"]*)" from "([^"]*
   html = Nokogiri::HTML(response.body)
   post_uri = URI(html.xpath('//form').first.attributes['action'].value)
 
-  http = Net::HTTP.new(post_uri.host, post_uri.port)
+  http = Net::HTTP.new(post_uri.hostname, post_uri.port)
   http.use_ssl = true
   http.verify_mode = OpenSSL::SSL::VERIFY_NONE
   request = Net::HTTP::Post.new(post_uri.request_uri)
@@ -101,7 +101,7 @@ Given(/^I authenticate and fetch a code from Identity/) do
   # and returns a list of authentication mechanisms to engage with.
 
   token = ""
-  host = URI(@scenario_context.get(:redirect_uri)).host
+  host = URI(@scenario_context.get(:redirect_uri)).hostname
   resp = start_auth_request(host, @scenario_context.get(:oidc_username))
   resp_h = JSON.parse(resp.body)
 
@@ -187,7 +187,7 @@ Given(/^I authenticate and fetch a code from Identity/) do
   target = URI("#{@scenario_context.get(:redirect_uri)}&state=test-state")
   resp = nil
   until target.to_s.include?("localhost:3000/authn-oidc/identity/cucumber")
-    http = Net::HTTP.new(target.host, 443)
+    http = Net::HTTP.new(target.hostname, 443)
     http.use_ssl = true
     req = Net::HTTP::Get.new(target.request_uri)
     req['Accept'] = '*/*'
@@ -210,7 +210,7 @@ Given(/^I authenticate and fetch a code from Okta/) do
   uri = URI("https://#{URI(@scenario_context.get(:redirect_uri)).host}/api/v1/authn")
   body = JSON.generate({ username: @scenario_context.get(:oidc_username), password: @scenario_context.get(:oidc_password) })
 
-  http = Net::HTTP.new(uri.host, uri.port)
+  http = Net::HTTP.new(uri.hostname, uri.port)
   http.use_ssl = true
   request = Net::HTTP::Post.new(uri.request_uri)
   request['Accept'] = 'application/json'

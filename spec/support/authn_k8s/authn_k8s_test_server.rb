@@ -27,7 +27,7 @@ class AuthnK8sTestServer
     def self.run_server_instance(test_server)
         port = 1234
 
-        Rack::Handler::Puma.run test_server, :Port => port, :Host => "0.0.0.0", :workers => 0 do |launcher|
+        Rack::Handler::Puma.run test_server, :Port => port, :Host => "::", :workers => 0 do |launcher|
             AuthnK8sTestServer.log("Server running with port=#{port}, @subpath=#{test_server.subpath}")
 
             yield(launcher) if block_given?

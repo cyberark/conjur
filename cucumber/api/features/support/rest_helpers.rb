@@ -58,7 +58,7 @@ module RestHelpers
   def get_json_no_accept_header(path, options = {})
     uri = URI(root_url + denormalize(path))
     headers = request_opts(options)[:headers]
-    http = Net::HTTP.new(uri.host, uri.port)
+    http = Net::HTTP.new(uri.hostname, uri.port)
     request = Net::HTTP::Get.new(uri.request_uri)
 
     request.delete('Accept')

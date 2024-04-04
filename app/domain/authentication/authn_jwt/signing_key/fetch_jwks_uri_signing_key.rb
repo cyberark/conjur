@@ -50,7 +50,7 @@ module Authentication
           uri = URI(@jwks_uri)
           @logger.info(LogMessages::Authentication::AuthnJwt::FetchingJwksFromProvider.new(@jwks_uri))
           @jwks_keys = net_http_start(
-            uri.host,
+            uri.hostname,
             uri.port,
             uri.scheme == 'https'
           ) { |http| http.get(uri) }

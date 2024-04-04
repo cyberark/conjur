@@ -63,7 +63,7 @@ module AuthnOidcHelper
   end
 
   def identity_request(uri, body)
-    http = Net::HTTP.new(uri.host, 443)
+    http = Net::HTTP.new(uri.hostname, 443)
     http.use_ssl = true
 
     req = Net::HTTP::Post.new(uri.request_uri)
