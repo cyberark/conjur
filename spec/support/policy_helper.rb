@@ -15,3 +15,19 @@ def apply_policy(policy:, policy_branch: 'root', role: 'admin', account: 'rspec'
     }
   )
 end
+
+def validate_policy(policy:, policy_branch: 'root', role: 'admin', account: 'rspec', action: :post)
+  # Setup in case this is the first run
+  Slosilo["authn:#{account}"] ||= Slosilo::Key.new
+  Role.find_or_create(role_id: "#{account}:user:#{role}")
+
+  # Apply policy
+  send(
+    action,
+    "/policies/#{account}/policy/#{policy_branch}?validate=true",
+    env: {
+      'HTTP_AUTHORIZATION' => access_token_for(role),
+      'RAW_POST_DATA' => policy
+    }
+  )
+end

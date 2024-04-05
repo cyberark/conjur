@@ -15,6 +15,7 @@ require 'conjur/extension/repository'
 #
 # 2) Records which are defined in some other policy in the primary schema, are removed from the "new" policy.
 # This prevents the "new" policy from attempting to create or update records which are already owned by another policy.
+
 # In the future, this might be reported as an error or warning.
 #
 # 3) Records which are identical in the "old" and "new" policy are deleted from the "new" policy, so they will not be
@@ -59,7 +60,7 @@ module Loader
     include Handlers::Password
     include Handlers::PublicKey
 
-    attr_reader :policy_version, :create_records, :delete_records, :new_roles, :schemata
+    attr_reader :policy_parse, :policy_version, :create_records, :delete_records, :new_roles, :schemata
 
     TABLES = %i[roles role_memberships resources permissions annotations]
 
@@ -73,10 +74,13 @@ module Loader
     }
 
     def initialize(
-      policy_version,
+      policy_parse:,
+      policy_version:,
       extension_repository: Conjur::Extension::Repository.new,
-      feature_flags: Rails.application.config.feature_flags
+      feature_flags: Rails.application.config.feature_flags,
+      logger: Rails.logger
     )
+      @policy_parse = policy_parse
       @policy_version = policy_version
       @schemata = Schemata.new
       @feature_flags = feature_flags
@@ -88,10 +92,10 @@ module Loader
         end
 
       # Transform each statement into a Loader type
-      @create_records = policy_version.create_records.map do |policy_object|
+      @create_records = policy_parse.create_records.map do |policy_object|
         Loader::Types.wrap(policy_object, self)
       end
-      @delete_records = policy_version.delete_records.map do |policy_object|
+      @delete_records = policy_parse.delete_records.map do |policy_object|
         Loader::Types.wrap(policy_object, self)
       end
     end
@@ -145,12 +149,12 @@ module Loader
 
       # getting newly added roles
       new_roles_sql = <<-SQL
-          SELECT * 
+          SELECT *
           FROM #{schema_name}.roles new_roles
           WHERE NOT EXISTS (
             SELECT 1
             FROM #{primary_schema}.roles public_roles
-            WHERE ( #{join_columns} ) 
+            WHERE ( #{join_columns} )
           );
       SQL
 
@@ -591,6 +595,44 @@ module Loader
     def release_db_connection
       Sequel::Model.db.disconnect
     end
+
+    def actor_roles(roles)
+      roles.select do |role|
+        %w[user host].member?(role.kind)
+      end
+    end
+
+    def credential_roles(actor_roles)
+      actor_roles.each_with_object({}) do |role, memo|
+        credentials = Credentials[role: role] || Credentials.create(role: role)
+        role_id = role.id
+        memo[role_id] = { id: role_id, api_key: credentials.api_key }
+      end
+    end
+
+    def report(policy_result)
+      error = policy_result.policy_parse.error
+
+      if error
+        # The failure report identifies the error
+        @logger.debug("#{error}\n")
+
+        response = {
+          error: error
+        }
+
+      else
+        # The success report lists the roles
+        response = {
+          created_roles: policy_result.created_roles,
+          version: @policy_version[:version]
+        }
+
+      end
+
+      response
+    end
+
   end
   # rubocop:enable Metrics/ClassLength
 end

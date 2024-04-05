@@ -20,10 +20,10 @@ module Conjur
               resolver = cls.new(account, ownerid)
               records = resolver.resolve(records)
             end
-          rescue => err
+          rescue => e
             # Wrap in ResolverError, so we can pass it to EnhancedPolicyError
             raise ResolverError.new(
-              original_error: err,
+              original_error: e
             )
           end
 

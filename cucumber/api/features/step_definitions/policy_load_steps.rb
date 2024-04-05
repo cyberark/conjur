@@ -53,6 +53,16 @@ When('I use curl to load a policy with special characters and no content type') 
   @command_result = $CHILD_STATUS.success?
 end
 
+When(/^I validate POST(( \d+) times)? "([^"]*)" with body:$/) do |requests_num, path, body|
+  requests_num ||= 1
+
+  (1..requests_num.to_i).each do
+    try_request_accepting 422 do
+      post_json path, body
+    end
+  end
+end
+
 When(/^I migrate the db/) do
   system("rake db:migrate")
 end

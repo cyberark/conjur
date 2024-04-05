@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'exceptions/enhanced_policy'
+
 class ApplicationController < ActionController::API
   include Authenticates
   include ::ActionView::Layouts
@@ -58,8 +60,9 @@ class ApplicationController < ActionController::API
   rescue_from Sequel::ValidationFailed, with: :validation_failed
   rescue_from Sequel::NoMatchingRow, with: :no_matching_row
   rescue_from Sequel::ForeignKeyConstraintViolation, with: :foreign_key_constraint_violation
-  rescue_from Conjur::PolicyParser::Invalid, with: :policy_invalid
+  rescue_from Exceptions::EnhancedPolicyError, with: :enhanced_policy_error
   rescue_from Exceptions::InvalidPolicyObject, with: :policy_invalid
+  rescue_from NoMethodError, with: :policy_invalid
   rescue_from ArgumentError, with: :argument_error
   rescue_from ActionController::ParameterMissing, with: :argument_error
   rescue_from UnprocessableEntity, with: :unprocessable_entity
@@ -129,7 +132,7 @@ class ApplicationController < ActionController::API
       e.cause.is_a?(PG::ForeignKeyViolation) &&
       (e.cause.result.error_field(PG::PG_DIAG_MESSAGE_DETAIL) =~ /Key \(([^)]+)\)=\(([^)]+)\) is not present in table "([^"]+)"/  rescue false)
       violating_key = $2
-      
+
       exc = Exceptions::RecordNotFound.new(violating_key)
       render_record_not_found(exc)
     else
@@ -174,12 +177,25 @@ class ApplicationController < ActionController::API
       error[:innererror] = {
         code: "policy_invalid",
         filename: e.filename,
-        line: e.mark.line,
-        column: e.mark.column
+        line: e.line,
+        column: e.column
       }
     end
 
     render(json: { error: error }, status: :unprocessable_entity)
+  end
+
+  def enhanced_policy_error e
+    logger.debug("#{e}\n#{e.backtrace.join("\n")}")
+
+    code = e.original_error.instance_of?(Conjur::PolicyParser::ResolverError) ? "validation_failed" : "policy_invalid"
+
+    render(json: {
+      error: {
+        code: code,
+        message: e.message
+      }
+    }, status: :unprocessable_entity)
   end
 
   def argument_error e

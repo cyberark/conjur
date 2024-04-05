@@ -4,7 +4,7 @@ module Conjur
     class Invalid < RuntimeError
       attr_reader :message, :filename, :detail_message, :line, :column
 
-      def initialize(message:, filename:, line:-1, column:-1)
+      def initialize(message:, filename:, line: -1, column: -1)
         super(
           "Error at line #{line}, column #{column} in " \
             "#{filename} : #{message}"

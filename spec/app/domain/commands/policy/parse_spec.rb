@@ -265,7 +265,7 @@ describe 'Commands::Policy::Parse' do
       pp = parsed_policy(policy_with_missing_bang)
       aggregate_failures "deals with NoMethodError" do
         expect(pp.error).to be_an_instance_of(Exceptions::EnhancedPolicyError)
-        expect(pp.error.original_error.original_error).to be_an_instance_of NoMethodError
+        expect(pp.error.original_error.original_error).to be_an_instance_of(NoMethodError)
         expect(pp.error.message).not_to eq("")
         # Error message is
         # undefined method `referenced_records' for "user Mallory":String
@@ -275,7 +275,7 @@ describe 'Commands::Policy::Parse' do
       pp = parsed_policy(policy_with_user_defined_twice)
       aggregate_failures "deals with RuntimeError" do
         expect(pp.error).to be_an_instance_of(Exceptions::EnhancedPolicyError)
-        expect(pp.error.original_error.original_error).to be_an_instance_of RuntimeError
+        expect(pp.error.original_error.original_error).to be_an_instance_of(RuntimeError)
         expect(pp.error.message).not_to eq("")
         expect(pp.error.detail_message).to eq("user 'TheOneAndOnly@root' is declared more than once")
       end

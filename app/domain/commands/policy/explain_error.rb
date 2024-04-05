@@ -5,6 +5,7 @@
 module Commands
   module Policy
 
+    # TODO: group these by exception (to make maintenance easier)
     HELPFUL_EXPLANATIONS = {
       ## Conjur::PolicyParser::Invalid Error Messages
       # From conjur/gems/policy-parser/lib/conjur/policy/resolver.rb
@@ -106,6 +107,7 @@ module Commands
         "",
       "Maximum nesting level reached, set with yaml_set_max_nest_level()) while parsing" =>
         "",
+
     }.freeze
 
     DEFAULT_HELP_MSG = ''
@@ -167,6 +169,7 @@ module Commands
         elsif msg.end_with?('has a blank id')
           # #{record.class.simple_name.underscore} has a blank id
           advice = ''
+
         elsif msg.start_with?('Invalid relative reference')
           # Invalid relative reference: #{id}
           advice = ''
@@ -177,8 +180,9 @@ module Commands
           # #{record} is declared more than once
           advice = ''
         else
-          advice = DEFAULT_HELP_MSG
+          advice = ''
         end
+
 
         advice
       end

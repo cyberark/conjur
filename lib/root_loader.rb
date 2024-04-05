@@ -9,13 +9,13 @@ require 'app/domain/logs'
 class RootLoader
   class << self
     # Load a policy into the specified account.
-    # 
+    #
     # The policy will be owned by the 'user:admin' role. If the environment variable CONJUR_ADMIN_PASSWORD
     # exists, it will be used as the admin password (potentially resetting the existing password).
     #
     # The policy id is "root". The role and resource records for the policy will be created automatically
-    # if they don't already exist. 
-    def load account, filename
+    # if they don't already exist.
+    def load(account, filename, _validation: false)
       start_t = Time.now
       Sequel::Model.db.transaction do
         admin_id = "#{account}:user:admin"
@@ -27,8 +27,8 @@ class RootLoader
 
         root_policy_resource = Loader::Types.find_or_create_root_policy(account)
         policy = save_submitted_policy(
-          role: admin, 
-          policy: root_policy_resource, 
+          role: admin,
+          policy: root_policy_resource,
           filename: filename
         )
 
@@ -62,7 +62,11 @@ class RootLoader
     end
 
     def accepted_roles(policy_version)
-      policy_action = Loader::ReplacePolicy.from_policy(policy_version)
+      policy_action = Loader::ReplacePolicy.from_policy(
+        policy_version.policy_parse,
+        policy_version,
+        Loader::Orchestrate
+      )
       policy_action.call
       policy_action.new_roles.select do |role|
         %w[user host].member?(role.kind)

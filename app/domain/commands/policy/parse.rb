@@ -42,41 +42,54 @@ module Commands
 
           resolved_records = Conjur::PolicyParser::Resolver.resolve(yaml_records, account, owner_id)
 
-        rescue Conjur::PolicyParser::Invalid => err
+        rescue Conjur::PolicyParser::Invalid => e
           # Error format, per gems/policy-parser/lib/conjur/policy/invalid.rb
           #   "Error at line #{mark.line}, column #{mark.column} in #{filename} : #{message}"
           # The 'message' field is readable as 'detail_message'.
           error = Exceptions::EnhancedPolicyError.new(
-            original_error: err,
-            detail_message: err.detail_message
+            original_error: e,
+            detail_message: e.detail_message
           )
 
-        rescue Conjur::PolicyParser::ResolverError => err
+        rescue Conjur::PolicyParser::ResolverError => e
           # Error format, per gems/policy-parser/lib/conjur/policy/invalid.rb
           # The 'message' field is the same as 'detail_message'.
           error = Exceptions::EnhancedPolicyError.new(
-            original_error: err
+            original_error: e
           )
 
-        rescue Psych::SyntaxError => err
+        rescue Psych::SyntaxError => e
           # Error format, per https://github.com/ruby/psych/blob/master/lib/psych/syntax_error.rb
           # https://github.com/ruby/psych/blob/master/lib/psych/syntax_error.rb
           #   err      = [problem, context].compact.join ' '
           #   filename = file || '<unknown>'
           #   message  = "(%s): %s at line %d column %d" % [filename, err, line, col]
           error = Exceptions::EnhancedPolicyError.new(
-            original_error: err,
-            detail_message: [err.problem, err.context].compact.join(' ')
+            original_error: e,
+            detail_message: [e.problem, e.context].compact.join(' ')
           )
 
-        rescue ArgumentError => err
+        rescue ArgumentError => e
           # From policy-parser
           # from app/models/loader/types
           # Will we see this here? => No.  This results from Orchestrate
           # => controller level
           error = Exceptions::EnhancedPolicyError.new(
-            original_error: err
+            original_error: e
           )
+
+        rescue NoMethodError => e
+          # This is rescued by ApplicationController, so pass it up.
+          error = Exceptions::EnhancedPolicyError.new(
+            original_error: e
+          )
+
+        rescue => e
+          # Everything else can be wrapped but may not be safe to raise.
+          error = Exceptions::EnhancedPolicyError.new(
+            original_error: e
+          )
+          error.original_error = nil
         end
 
         PolicyParse.new(resolved_records, error)

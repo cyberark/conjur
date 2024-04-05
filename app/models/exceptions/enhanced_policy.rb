@@ -20,10 +20,15 @@ module Exceptions
       @detail_message = if detail_message.present?
         detail_message
       else
-        @original_error.message
+        original_message
       end
       explainer = Commands::Policy::ExplainError.new
       @advice = explainer.call(self)
+    end
+
+    def original_message
+      # Not every exception supports .message -- e.g. NoMethodError
+      @original_error.respond_to?(:message) ? original_error.message : original_error.to_s
     end
 
     def line
@@ -66,17 +71,25 @@ module Exceptions
     def enhanced_message
       # Returns a multi-line message in the form of:
       # "#{detail_message}\n#{advice}"
-      [detail_message, advice].compact.join("\n")
+      [detail_message, advice].join("\n")
     end
 
     def to_s
-      full_message
+      # This is the basic message, safe & suitable for any use
+      detail_message
     end
 
     def as_json(_options = nil)
       {
         code: "policy_invalid",
         message: full_message
+      }
+    end
+
+    def as_load_error
+      {
+        code: "policy_invalid",
+        message: enhanced_message
       }
     end
   end

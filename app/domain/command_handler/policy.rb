@@ -78,7 +78,13 @@ module CommandHandler
     end
 
     def apply_policy(loader:, policy_version:)
-      @success.new(loader.from_policy(policy_version))
+      @success.new(
+        loader.from_policy(
+          policy_version.policy_parse,
+          policy_version,
+          Loader::Orchestrate
+        )
+      )
     rescue => e
       @failure.new(e.message, exception: e)
     end

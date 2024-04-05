@@ -1,55 +1,61 @@
 # frozen_string_literal: true
 
+require 'exceptions/enhanced_policy'
+
 class PoliciesController < RestController
   include FindResource
   include AuthorizeResource
   before_action :current_user
   before_action :find_or_create_root_policy
   after_action :publish_event, if: -> { response.successful? }
-  
+
   rescue_from Sequel::UniqueConstraintViolation, with: :concurrent_load
 
   # Conjur policies are YAML documents, so we assume that if no content-type
   # is provided in the request.
   set_default_content_type_for_path(%r{^/policies}, 'application/x-yaml')
 
+  # A Conjur policy can be interpreted in various ways.
+  # A production strategy guides the interpretation.
+  # Loader::Orchestrate is a production that loads Conjur policy to database.
+  # Loader::Validate is a production that parse Conjur policy, resulting in error repors.
+  # A dryrun strategy could be a mix of these, to report effective policy changes.
+
+  def production_type
+    return :validation if params["validate"]&.strip&.downcase == "true"
+
+    :orchestration
+  end
+
+  # Match API mode to policy mode.
+  # Note: we prefer 'validation' as an argument name over 'validate'
+  # to avoid conflict with the Gem validate method.
+
   def put
-    if params[:validate] == 'true'
-      validate_policy(:validate, Loader::ValidateReplacePolicy, true)
-    else
-      load_policy(:update, Loader::ReplacePolicy, true)
-    end
+    load_policy(
+      :update,
+      Loader::ReplacePolicy,
+      delete_permitted: true
+    )
   end
 
   def patch
-    if params[:validate] == 'true'
-      validate_policy(:validate, Loader::ValidatePolicy, true)
-    else
-      load_policy(:update, Loader::ModifyPolicy, true)
-    end
+    load_policy(
+      :update,
+      Loader::ModifyPolicy,
+      delete_permitted: true
+    )
   end
- 
+
   def post
-    if params[:validate] == 'true'
-      validate_policy(:validate, Loader::ValidatePolicy, false)
-    else
-      load_policy(:create, Loader::CreatePolicy, false)
-    end
+    load_policy(
+      :create,
+      Loader::CreatePolicy,
+      delete_permitted: false
+    )
   end
 
   protected
-
-  # Returns newly created roles
-  def perform(policy_action)
-    policy_action.call
-    new_actor_roles = actor_roles(policy_action.new_roles)
-    create_roles(new_actor_roles)
-  end
-
-  def validate(policy_action)
-    policy_action.call
-    policy_action.results
-  end
 
   def find_or_create_root_policy
     Loader::Types.find_or_create_root_policy(account)
@@ -57,38 +63,100 @@ class PoliciesController < RestController
 
   private
 
-  def load_policy(action, loader_class, delete_permitted)
-    authorize(action)
-    loader_class.authorize(current_user, self.resource)
+  # Policy processing is a function of the policy mode request (load/update/replace) and
+  # is interpreted using the Orchestrate strategy.
 
-    policy = save_submitted_policy(delete_permitted: delete_permitted)
-    loaded_policy = loader_class.from_policy(policy)
-    created_roles = perform(loaded_policy)
-    audit_success(policy)
+  def load_policy(mode, mode_class, delete_permitted:)
+    # Authorization to load
+    authorize(mode)
+    mode_class.authorize(current_user, resource)
 
-    render(json: {
-      created_roles: created_roles,
-      version: policy[:version]
-    }, status: :created)
+    # Parse the policy
+    policy_parse = parse_submitted_policy
+
+    # If this is not a dry run, then save the policy. This has to occur here,
+    # as creating the policy_mode requires the policy_version
+    policy_version = unless production_type == :validation
+      save_submitted_policy(policy_parse, delete_permitted)
+    end
+
+    # Reporting on all policy errors requires an instance of the policy_mode
+    # to call the #report method.
+    policy_mode = mode_class.from_policy(
+      policy_parse,
+      policy_version,
+      production_class
+    )
+
+    # Process the rest of the policy, either to load it or further validate it
+    policy_result = policy_mode.call
+
+    raise policy_result.error if policy_result.error
+
+    audit_success(policy_version)
+    render(
+      json: policy_mode.report(policy_result),
+      status: success_status
+    )
+  # Sequel::ForeignKeyConstraintViolation and Exceptions::RecordNotFound are not
+  # currently handled by the enhanced error framework, so we pass it directly up
+  # to the application controller.
+  rescue Sequel::ForeignKeyConstraintViolation, Exceptions::RecordNotFound => e
+    audit_failure(e, mode)
+    raise
   rescue => e
-    audit_failure(e, action)
-    raise e
+    # Processing errors can be explained the same as parsing errors,
+    # but check whether the original is safe.
+    load_err = e
+    if e.instance_of?(Exceptions::EnhancedPolicyError)
+      if e.original_error
+        load_err = e.original_error
+      end
+    end
+
+    # Errors caught here include those due to mode processing.
+    audit_failure(e, mode)
+
+    # If an error occurred before the policy_mode was instantiated, raise it
+    # for the application controller to handle
+    unless production_type == :validation
+      raise load_err
+    end
+
+    # Render the errors according the mode (load or validate)
+    render(
+      json: policy_mode.report(policy_result),
+      status: :unprocessable_entity
+    )
   end
 
-  def validate_policy(action, loader_class, delete_permitted)
-    authorize(action)
-    loader_class.authorize(current_user, self.resource)
+  def success_status
+    production_type == :validation ? :ok : :created
+  end
 
-    # TODO: The below validation operations will on PolicyVersion, which
-    # validates the syntax of the policy text. Currently it is not suited to
-    # the task, since it relies on database operations. Follow up work is needed
-    # to implement validation appropriately.
-    #
-    # policy = save_submitted_policy(delete_permitted: delete_permitted)
-    # loaded_policy = loader_class.from_policy(policy)
-    # result = validate(loaded_policy)
-    result = true
+  def production_class
+    production_type == :validation ? Loader::Validate : Loader::Orchestrate
+  end
 
+  # Auditing
+
+  def audit_success(policy_version)
+    case production_type
+    when :validation
+      audit_validation_success("validate")
+    else
+      audit_load_success(policy_version)
+    end
+  end
+
+  def audit_load_success(policy_version)
+    # Audit a successful policy load.
+    policy_version.policy_log.lazy.map(&:to_audit_event).each do |event|
+      Audit.logger.log(event)
+    end
+  end
+
+  def audit_validation_success(mode)
     # Audit a successful validation.
     #
     # NOTE: this is created directly because we do not currently have a
@@ -97,32 +165,19 @@ class PoliciesController < RestController
     # very least, which policy branch was validated.
     Audit.logger.log(
       Audit::Event::Policy.new(
-        operation: action,
+        operation: mode,
         subject: {}, # Subject is empty because no role/resource has been impacted
         user: current_user,
         client_ip: request.ip,
         error_message: nil # No error message because validation was successful
       )
     )
-
-    render(json: {
-      ok: result
-    }, status: :ok)
-  rescue => e
-    audit_failure(e, action)
-    raise e
   end
 
-  def audit_success(policy)
-    policy.policy_log.lazy.map(&:to_audit_event).each do |event|
-      Audit.logger.log(event)
-    end
-  end
-
-  def audit_failure(err, operation)
+  def audit_failure(err, mode)
     Audit.logger.log(
       Audit::Event::Policy.new(
-        operation: operation,
+        operation: mode,
         subject: {}, # Subject is empty because no role/resource has been impacted
         user: current_user,
         client_ip: request.ip,
@@ -133,12 +188,15 @@ class PoliciesController < RestController
 
   def concurrent_load(_exception)
     response.headers['Retry-After'] = retry_delay
-    render(json: {
-      error: {
-        code: "policy_conflict",
-        message: "Concurrent policy load in progress, please retry"
-      }
-    }, status: :conflict)
+    render(
+      json: {
+        error: {
+          code: "policy_conflict",
+          message: "Concurrent policy load in progress, please retry"
+        }
+      },
+      status: :conflict
+    )
   end
 
   # Delay in seconds to advise the client to wait before retrying on conflict.
@@ -147,29 +205,40 @@ class PoliciesController < RestController
     rand(1..8)
   end
 
-  def save_submitted_policy(delete_permitted:)
+  # Generate a version and parse the policy
+  def save_submitted_policy(policy_parse, delete_permitted)
+    # (SYSK: as with parse_submitted_policy, PolicyVersion
+    # calls Commands::Policy::Parse, but it also generates
+    # a policy version number and binds them in a db record.)
+
     policy_version = PolicyVersion.new(
       role: current_user,
       policy: resource,
       policy_text: request.raw_post,
-      client_ip: request.ip
+      client_ip: request.ip,
+      policy_parse: policy_parse
     )
     policy_version.delete_permitted = delete_permitted
     policy_version.save
+
+    policy_version
   end
 
-  def actor_roles(roles)
-    roles.select do |role|
-      %w[user host].member?(role.kind)
-    end
-  end
+  # Parse the policy; no version is generated.
+  def parse_submitted_policy
+    # Commands::Policy::Parse catches errors related to policy validation
 
-  def create_roles(actor_roles)
-    actor_roles.each_with_object({}) do |role, memo|
-      credentials = Credentials[role: role] || Credentials.create(role: role)
-      role_id = role.id
-      memo[role_id] = { id: role_id, api_key: credentials.api_key }
-    end
+    policy = resource
+    is_root = policy.kind == "policy" && policy.identifier == "root"
+
+    Commands::Policy::Parse.new.call(
+      account: policy.account,
+      policy_id: policy.identifier,
+      owner_id: policy.owner.id,
+      policy_text: request.raw_post,
+      policy_filename: nil,  # filename is historical and no longer informative
+      root_policy: is_root
+    )
   end
 
   def publish_event
