@@ -223,4 +223,46 @@ describe Loader::Orchestrate do
       end
     end
   end
+
+  context "Post-processing of removed items" do
+    let(:base_policy_path) { 'simple.yml' }
+
+    def create_orchestrate(path)
+      version = save_policy(path, policy: Loader::Types.find_or_create_root_policy(account))
+      loader(version)
+    end
+
+    it "Removed records are passed to post-processing" do
+      orchestrate = create_orchestrate("simple.yml")
+      #base_policy_path is simple.yml so by loading simple.yml again we don't delete anything
+      expect(orchestrate).to_not receive(:post_process_deleted_records)
+      policy_action = Loader::ReplacePolicy.new(orchestrate)
+      policy_action.call
+
+      orchestrate = create_orchestrate("extended.yml")
+      expect(orchestrate).to receive(:post_process_deleted_records).with(anything, :roles) {|args| args[0][:role_id] == 'rspec:group:group-c'}
+      expect(orchestrate).to receive(:post_process_deleted_records).with(anything, :resources) {|args| args[0][:resource_id] == 'rspec:group:group-c'}
+      expect(orchestrate).to receive(:post_process_deleted_records).with(anything, :permissions) {
+        |args| args[0][:resource_id] == 'rspec:variable:the-secret' and args[0][:role_id] == 'rspec:group:group-a' and args[0][:privilege] == 'execute'}
+      expect(orchestrate).to receive(:post_process_deleted_records).with(anything, :annotations) {|args| args[0][:resource_id] == 'rspec:variable:the-secret'}
+      policy_action = Loader::ReplacePolicy.new(orchestrate)
+      policy_action.call
+    end
+
+    context "Post process deleted records" do
+      it "Correct resources are deleted from Redis" do
+        orchestrate = create_orchestrate("simple.yml")
+        deleted_records = [{resource_id: 'rspec:variable:the-secret'}, {resource_id: 'rspec:group:group-c'}]
+        expect(orchestrate).to receive(:delete_redis_secret).with('rspec:variable:the-secret')
+        orchestrate.send(:post_process_deleted_records, deleted_records, :resources)
+      end
+
+      it "Non resources do not invoke RedisHandler" do
+        orchestrate = create_orchestrate("simple.yml")
+        deleted_records = [{role_id: 'rspec:group:group-c'}]
+        expect(orchestrate).to_not receive(:delete_redis_secret)
+        orchestrate.send(:post_process_deleted_records, deleted_records, :roles)
+      end
+    end
+  end
 end
