@@ -1778,6 +1778,34 @@ describe StaticSecretsController, type: :request do
         assert_response :success
         expect(response.body).to eq("password2")
       end
+
+      it "Secret in Redis is updated on update" do
+        Rails.cache.clear
+        # Make secret value appear in Redis
+        post('/secrets/rspec/variable/data/secrets/secret_to_update',
+            env: token_auth_header(role: admin_user).merge({'RAW_POST_DATA' => 'password1'})
+        )
+        assert_response :created
+        get('/secrets/rspec/variable/data/secrets/secret_to_update',
+            env: token_auth_header(role: admin_user)
+        )
+        assert_response :success
+        secret_id = 'rspec:variable:data/secrets/secret_to_update'
+        expect(Slosilo::EncryptedAttributes.decrypt(Rails.cache.read(secret_id), aad: secret_id)).to eq('password1')
+
+        # Call update
+        put("/secrets/static/data/secrets/secret_to_update",
+            env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
+              {
+                'RAW_POST_DATA' => payload_update_secret,
+                'CONTENT_TYPE' => "application/json"
+              }
+            )
+        )
+        # Correct response code
+        assert_response :ok
+        expect(Slosilo::EncryptedAttributes.decrypt(Rails.cache.read(secret_id), aad: secret_id)).to eq('password2')
+      end
     end
   end
 
