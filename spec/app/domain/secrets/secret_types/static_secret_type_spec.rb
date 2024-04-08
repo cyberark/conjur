@@ -14,7 +14,7 @@ describe "Static secret create input validation" do
     it "input validation fails" do
       params = ActionController::Parameters.new(branch: "data/secrets", name:"secret1", mime_type: "")
       expect { static_secret.create_input_validation(params)
-      }.to raise_error(Errors::Conjur::ParameterMissing)
+      }.to raise_error(ApplicationController::BadRequestWithBody)
     end
   end
   context "when creating secret with invalid mime_type type" do
@@ -49,7 +49,7 @@ describe "Static secret update input validation" do
       body_params = ActionController::Parameters.new(mime_type:"")
       params = ActionController::Parameters.new(branch: "data/secrets", name:"secret1")
       expect { static_secret.update_input_validation(params, body_params)
-      }.to raise_error(Errors::Conjur::ParameterMissing)
+      }.to raise_error(ApplicationController::BadRequestWithBody)
     end
   end
   context "when update secret with invalid mime_type type" do

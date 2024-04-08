@@ -46,40 +46,45 @@ module PermissionsHandler
       # Validate subject field exists
       subject = permission[:subject]
       raise Errors::Conjur::ParameterMissing, "Privilege Subject" unless subject
-      # Validate all fields in subject exists
+
       data_fields = {
-        kind: String,
-        id: String
+        kind: {
+          field_info: {
+            type: String,
+            value: subject[:kind]
+          },
+          validators: [
+            method(:validate_field_required),
+            method(:validate_field_type),
+            lambda { |field_name, field_info| validate_resource_kind(field_info[:value], subject[:id], %w[user host group]) }]
+        },
+        id: {
+          field_info: {
+            type: String,
+            value: subject[:id]
+          },
+          validators: [method(:validate_field_required), method(:validate_field_type), method(:validate_path)]
+        },
+        privileges: {
+          field_info: {
+            type: String,
+            value: permission[:privileges]
+          },
+          validators: [
+            method(:validate_field_required),
+            lambda { |field_name, field_info| validate_privilege(subject[:id], field_info[:value], allowed_privilege) }
+          ]
+        }
       }
-      validate_required_data(subject, data_fields.keys)
-      # Validate subject kind value
-      validate_subject_kind(subject[:kind],subject[:id])
+      validate_data_fields(data_fields)
+
       # Validate subject resource exists
       resource_id = full_resource_id(subject[:kind], subject[:id])
       raise Exceptions::RecordNotFound, resource_id unless Resource[resource_id]
-      # Validate privileges
-      raise Errors::Conjur::ParameterMissing, "Privileges" unless permission[:privileges]
-      validate_privilege(resource_id, permission[:privileges], allowed_privilege)
       # Update resource privileges
       resources_privileges[resource_id] = permission[:privileges]
     end
 
     resources_privileges
-  end
-
-  private
-  def validate_privilege(resource_id, privileges, allowed_privilege)
-    privileges.each do |privilege|
-      unless allowed_privilege.include?(privilege)
-        raise Errors::Conjur::ParameterValueInvalid.new("Resource #{resource_id} privileges", "Allowed values are [read execute update]")
-      end
-    end
-  end
-
-  def validate_subject_kind(resource_kind, resource_id)
-    allowed_kind = %w[user host group]
-    unless allowed_kind.include?(resource_kind)
-      raise Errors::Conjur::ParameterValueInvalid.new("Resource #{resource_id} kind", "Allowed values are [user host group]")
-    end
   end
 end

@@ -23,7 +23,7 @@ describe "AWS Federation Token Dynamic secret input validation" do
       method_params = ActionController::Parameters.new(region: "", role_arn: "role")
       params = ActionController::Parameters.new(name: "secret1", branch: "data/dynamic", ttl: 120, issuer: "issuer1", method_params: method_params)
       expect { dynamic_secret.create_input_validation(params)
-      }.to raise_error(Errors::Conjur::ParameterMissing)
+      }.to raise_error(ApplicationController::BadRequestWithBody)
     end
   end
   context "when creating aws federation token ephemeral secret with wrong type region" do
@@ -35,11 +35,11 @@ describe "AWS Federation Token Dynamic secret input validation" do
     end
   end
   context "when creating aws federation token ephemeral secret with empty inline_policy" do
-    it "then the input validation fails" do
+    it "then the input validation succeeds" do
       method_params = ActionController::Parameters.new(inline_policy: "", role_arn: "role")
       params = ActionController::Parameters.new(name: "secret1", branch: "data/dynamic", ttl: 120, issuer: "issuer1", method_params: method_params)
       expect { dynamic_secret.create_input_validation(params)
-      }.to raise_error(Errors::Conjur::ParameterMissing)
+      }.to_not raise_error
     end
   end
   context "when creating aws federation token ephemeral secret with wrong type inline_policy" do
@@ -100,7 +100,7 @@ describe "AWS Federation Token Dynamic replace secret input validation" do
       params = ActionController::Parameters.new(branch: "data/dynamic", name:"secret1")
       body_params = ActionController::Parameters.new(ttl: 120, issuer: "issuer1", method_params: method_params)
       expect { dynamic_secret.update_input_validation(params, body_params)
-      }.to raise_error(Errors::Conjur::ParameterMissing)
+      }.to raise_error(ApplicationController::BadRequestWithBody)
     end
   end
   context "when replacing aws federation token dynamic secret with wrong type region" do
@@ -113,12 +113,12 @@ describe "AWS Federation Token Dynamic replace secret input validation" do
     end
   end
   context "when replacing aws federation token dynamic secret with empty inline_policy" do
-    it "then the input validation fails" do
+    it "then the input validation succeeds" do
       method_params = ActionController::Parameters.new(inline_policy: "", role_arn: "role")
       params = ActionController::Parameters.new(branch: "data/dynamic", name:"secret1")
       body_params = ActionController::Parameters.new(ttl: 120, issuer: "issuer1", method_params: method_params)
       expect { dynamic_secret.update_input_validation(params, body_params)
-      }.to raise_error(Errors::Conjur::ParameterMissing)
+      }.to_not raise_error
     end
   end
   context "when replacing aws federation token dynamic secret with wrong type inline_policy" do

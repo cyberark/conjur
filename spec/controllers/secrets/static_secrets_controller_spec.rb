@@ -226,8 +226,6 @@ describe StaticSecretsController, type: :request do
         assert_response :created
         # correct response body
         expect(response.body).to eq("{\"branch\":\"/data/secrets\",\"name\":\"secret1\",\"annotations\":[],\"permissions\":[]}")
-        #TODO
-        # expect(response.body).to eq("{\"branch\":\"/data/secrets\",\"name\":\"secret1\",\"annotations\":\"[]\",\"permissions\":\"[]\"}")
         # correct header
         expect(response.headers['Content-Type'].include?(v2_api_header["Accept"])).to eq true
         # Secret resource is created
@@ -302,8 +300,7 @@ describe StaticSecretsController, type: :request do
         # Correct response code
         assert_response :created
         # correct response body
-        # TODO
-        #        expect(response.body).to eq("{\"branch\":\"/data/secrets\",\"name\":\"secret1\",\"type\":\"static\",\"annotations\":\"[]\",\"permissions\":\"[]\"}")
+        expect(response.body).to eq("{\"branch\":\"/data/secrets\",\"name\":\"secret1\",\"annotations\":[],\"permissions\":[]}")
         # Verify secret value can be fetched
         get('/secrets/rspec/variable/data/secrets/secret1',
             env: token_auth_header(role: admin_user)
@@ -405,8 +402,9 @@ describe StaticSecretsController, type: :request do
         # Correct response code
         assert_response :created
         # correct response body
-        # TODO
-        #expect(response.body).to eq("{\"branch\":\"/data/secrets\",\"name\":\"secret_annotations\",\"type\":\"static\",\"annotations\":[{\"name\":\"description\",\"value\":\"desc\"},{\"name\":\"test_ann\",\"value\":\"test\"}],\"permissions\":\"[]\"}")
+        validate_response('secret_annotations', '/data/secrets', nil,
+                          [{"name"=>"description", "value"=>"desc"},{"name"=>"test_ann", "value"=>"test"}],
+                          [])
         # Secret resource is created with annotations
         annotations = Annotation.where(resource_id:"rspec:variable:data/secrets/secret_annotations").all
         expect(annotations.size).to eq 2
@@ -628,7 +626,9 @@ describe StaticSecretsController, type: :request do
           )
         )
         assert_response :success
-        expect(response.body).to eq("{\"branch\":\"/data\",\"name\":\"mySecret\",\"mime_type\":\"text/plain\",\"annotations\":[],\"permissions\":[{\"subject\":{\"id\":\"alice\",\"kind\":\"user\"},\"privileges\":[\"read\"]}]}")
+        validate_response('mySecret', '/data', "text/plain",
+                          [],
+                          [{"subject"=>{"id"=>"alice","kind"=>"user"},"privileges"=>["read"]}])
       end
     end
     context 'with mime type and annotations' do
@@ -667,7 +667,9 @@ describe StaticSecretsController, type: :request do
           )
         )
         assert_response :success
-        expect(response.body).to eq("{\"branch\":\"/data/secrets\",\"name\":\"secret_with_annotations\",\"mime_type\":\"text/plain\",\"annotations\":[{\"name\":\"first\",\"value\":\"first\"},{\"name\":\"second\",\"value\":\"second\"}],\"permissions\":[{\"subject\":{\"id\":\"alice\",\"kind\":\"user\"},\"privileges\":[\"read\"]}]}")
+        validate_response('secret_with_annotations', '/data/secrets', "text/plain",
+                          [{"name"=>"first", "value"=>"first"},{"name"=>"second", "value"=>"second"}],
+                          [{"subject"=>{"id"=>"alice","kind"=>"user"},"privileges"=>["read"]}])
       end
     end
     context 'with annotations and permissions' do
@@ -704,7 +706,9 @@ describe StaticSecretsController, type: :request do
               'CONTENT_TYPE' => "application/json"
             ))
         assert_response :success
-        expect(response.body).to eq("{\"branch\":\"/data/secrets\",\"name\":\"secret_with_annotations_no_mime_type\",\"annotations\":[{\"name\":\"first\",\"value\":\"first\"},{\"name\":\"second\",\"value\":\"second\"}],\"permissions\":[{\"subject\":{\"id\":\"alice\",\"kind\":\"user\"},\"privileges\":[\"read\"]}]}")
+        validate_response('secret_with_annotations_no_mime_type', '/data/secrets', nil,
+                          [{"name"=>"first", "value"=>"first"},{"name"=>"second", "value"=>"second"}],
+                          [{"subject"=>{"id"=>"alice","kind"=>"user"},"privileges"=>["read"]}])
       end
     end
     context 'with only permissions' do
@@ -756,7 +760,11 @@ describe StaticSecretsController, type: :request do
               'CONTENT_TYPE' => "application/json"
             ))
         assert_response :success
-        expect(response.body).to eq("{\"branch\":\"/data/secrets\",\"name\":\"secret_user_permissions\",\"annotations\":[],\"permissions\":[{\"subject\":{\"id\":\"data/group1\",\"kind\":\"group\"},\"privileges\":[\"execute\",\"update\"]},{\"subject\":{\"id\":\"data/host1\",\"kind\":\"host\"},\"privileges\":[\"execute\"]},{\"subject\":{\"id\":\"alice\",\"kind\":\"user\"},\"privileges\":[\"read\",\"update\"]}]}")
+        validate_response('secret_user_permissions', '/data/secrets', nil,
+                          [],
+                          [{"subject"=>{"id"=>"data/group1","kind"=>"group"},"privileges"=>["execute","update"]},
+                           {"subject"=>{"id"=>"data/host1","kind":"host"},"privileges"=>["execute"]},
+                           {"subject"=>{"id"=>"alice","kind"=>"user"},"privileges"=>["read","update"]}])
       end
     end
     context 'without any additional field' do
@@ -1065,7 +1073,7 @@ describe StaticSecretsController, type: :request do
         # Correct response code
         assert_response :bad_request
         parsed_body = JSON.parse(response.body)
-        expect(parsed_body["error"]["message"]).to eq("CONJ00190W Missing required parameter: mime_type")
+        expect(parsed_body["error"]["message"]).to eq("Invalid 'mime_type' parameter.")
       end
     end
   end
@@ -1203,7 +1211,7 @@ describe StaticSecretsController, type: :request do
         {
             "branch": "/data/secrets",
             "name": "secret_to_update",
-            "mime_type": "plain",
+            "mime_type": "text/plain",
             "value": "password",
             "annotations": [
               {
@@ -1251,7 +1259,7 @@ describe StaticSecretsController, type: :request do
       let(:payload_update_secret) do
         <<~BODY
           {
-              "mime_type": "plain",
+              "mime_type": "text/plain",
               "annotations": [
                 {
                   "name": "description",
@@ -1280,7 +1288,7 @@ describe StaticSecretsController, type: :request do
         expect(annotations.size).to eq 3
         expect(annotations.find { |hash| hash[:name] == 'description' }[:value]).to eq "desc"
         expect(annotations.find { |hash| hash[:name] == 'annotation_to_delete' }[:value]).to eq "delete"
-        expect(annotations.find { |hash| hash[:name] == 'conjur/mime_type' }[:value]).to eq "plain"
+        expect(annotations.find { |hash| hash[:name] == 'conjur/mime_type' }[:value]).to eq "text/plain"
         # Call update secret
         put("/secrets/static/data/secrets/secret_to_update",
             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
@@ -1296,7 +1304,7 @@ describe StaticSecretsController, type: :request do
         annotations = Annotation.where(resource_id:"rspec:variable:data/secrets/secret_to_update").all
         expect(annotations.size).to eq 3
         expect(annotations.find { |hash| hash[:name] == 'description' }[:value]).to eq "desc2"
-        expect(annotations.find { |hash| hash[:name] == 'conjur/mime_type' }[:value]).to eq "plain"
+        expect(annotations.find { |hash| hash[:name] == 'conjur/mime_type' }[:value]).to eq "text/plain"
         expect(annotations.find { |hash| hash[:name] == 'annotation_to_add' }[:value]).to eq "add"
         expect(annotations.find { |hash| hash[:name] == "annotation_to_delete" }).to eq nil
       end
@@ -1305,7 +1313,7 @@ describe StaticSecretsController, type: :request do
       let(:payload_update_secret) do
         <<~BODY
           {
-              "mime_type": "plain",
+              "mime_type": "text/plain",
               "permissions": [
                 {
                   "subject": {
@@ -1324,7 +1332,7 @@ describe StaticSecretsController, type: :request do
         expect(annotations.size).to eq 3
         expect(annotations.find { |hash| hash[:name] == 'description' }[:value]).to eq "desc"
         expect(annotations.find { |hash| hash[:name] == 'annotation_to_delete' }[:value]).to eq "delete"
-        expect(annotations.find { |hash| hash[:name] == 'conjur/mime_type' }[:value]).to eq "plain"
+        expect(annotations.find { |hash| hash[:name] == 'conjur/mime_type' }[:value]).to eq "text/plain"
         # Call update secret
         put("/secrets/static/data/secrets/secret_to_update",
             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
@@ -1339,7 +1347,7 @@ describe StaticSecretsController, type: :request do
         # Check annotations were updated
         annotations = Annotation.where(resource_id:"rspec:variable:data/secrets/secret_to_update").all
         expect(annotations.size).to eq 1
-        expect(annotations.find { |hash| hash[:name] == 'conjur/mime_type' }[:value]).to eq "plain"
+        expect(annotations.find { |hash| hash[:name] == 'conjur/mime_type' }[:value]).to eq "text/plain"
         expect(annotations.find { |hash| hash[:name] == 'description' }).to eq nil
         expect(annotations.find { |hash| hash[:name] == "annotation_to_delete" }).to eq nil
       end
@@ -1348,7 +1356,7 @@ describe StaticSecretsController, type: :request do
       let(:payload_update_secret) do
         <<~BODY
           {
-              "mime_type": "plain",
+              "mime_type": "text/plain",
               "annotations": [
                 {
                   "name": "description"
@@ -1377,20 +1385,20 @@ describe StaticSecretsController, type: :request do
             )
         )
         # Correct response code
-        assert_response :ok
+        assert_response :bad_request
         # correct response body
         parsed_body = JSON.parse(response.body)
-        #expect(parsed_body["error"]["message"]).to eq("Host 'data/host2' not found in account 'rspec'")
+        expect(parsed_body["error"]["message"]).to eq("CONJ00190W Missing required parameter: annotation value")
         # Check annotations were not updated
         annotations = Annotation.where(resource_id:"rspec:variable:data/secrets/secret_to_update").all
-        expect(annotations.size).to eq 2
+        expect(annotations.size).to eq 3
       end
     end
     context "Update secret mime-type annotation" do
       let(:payload_update_secret) do
         <<~BODY
           {
-              "mime_type": "json",
+              "mime_type": "application/json",
               "annotations": [
                 {
                   "name": "description",
@@ -1415,7 +1423,7 @@ describe StaticSecretsController, type: :request do
         expect(annotations.size).to eq 3
         expect(annotations.find { |hash| hash[:name] == 'description' }[:value]).to eq "desc"
         expect(annotations.find { |hash| hash[:name] == 'annotation_to_delete' }[:value]).to eq "delete"
-        expect(annotations.find { |hash| hash[:name] == 'conjur/mime_type' }[:value]).to eq "plain"
+        expect(annotations.find { |hash| hash[:name] == 'conjur/mime_type' }[:value]).to eq "text/plain"
         # Call update secret
         put("/secrets/static/data/secrets/secret_to_update",
             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
@@ -1428,14 +1436,14 @@ describe StaticSecretsController, type: :request do
         # Correct response code
         assert_response :ok
         #Check update response
-        validate_response('secret_to_update', '/data/secrets', "json",
-                          [{ "name"=>"description", "value"=>"desc" }],
-                          [{"privileges"=>["read"], "subject"=>{"id"=>"alice", "kind"=>"user"}}])
+        validate_response('secret_to_update', '/data/secrets', "application/json",
+                          [{"name"=>"description", "value"=>"desc"}],
+                          [{"subject"=>{"id"=>"alice", "kind"=>"user"},"privileges"=>["read"]}])
         # Check annotations were updated
         annotations = Annotation.where(resource_id:"rspec:variable:data/secrets/secret_to_update").all
         expect(annotations.size).to eq 2
         expect(annotations.find { |hash| hash[:name] == 'description' }[:value]).to eq "desc"
-        expect(annotations.find { |hash| hash[:name] == 'conjur/mime_type' }[:value]).to eq "json"
+        expect(annotations.find { |hash| hash[:name] == 'conjur/mime_type' }[:value]).to eq "application/json"
         expect(annotations.find { |hash| hash[:name] == "annotation_to_delete" }).to eq nil
       end
     end
@@ -1443,7 +1451,7 @@ describe StaticSecretsController, type: :request do
       let(:payload_update_secret) do
         <<~BODY
           {
-              "mime_type": "plain",
+              "mime_type": "text/plain",
               "annotations": [
                 {
                   "name": "description",
@@ -1514,7 +1522,7 @@ describe StaticSecretsController, type: :request do
       let(:payload_update_secret) do
         <<~BODY
           {
-              "mime_type": "plain",
+              "mime_type": "text/plain",
               "annotations": [
                 {
                   "name": "description",
@@ -1560,7 +1568,7 @@ describe StaticSecretsController, type: :request do
       let(:payload_update_secret) do
         <<~BODY
           {
-              "mime_type": "plain",
+              "mime_type": "text/plain",
               "annotations": [
                 {
                   "name": "description",
@@ -1625,7 +1633,7 @@ describe StaticSecretsController, type: :request do
       let(:payload_update_secret) do
         <<~BODY
           {
-              "mime_type": "plain",
+              "mime_type": "text/plain",
               "annotations": [
                 {
                   "name": "description",
@@ -1672,7 +1680,7 @@ describe StaticSecretsController, type: :request do
       let(:payload_update_secret) do
         <<~BODY
           {
-              "mime_type": "plain",
+              "mime_type": "text/plain",
               "annotations": [
                 {
                   "name": "description",
@@ -1719,7 +1727,7 @@ describe StaticSecretsController, type: :request do
       let(:payload_update_secret) do
         <<~BODY
           {
-              "mime_type": "json",
+              "mime_type": "application/json",
               "value": "password2",
               "annotations": [
                 {
@@ -1787,7 +1795,7 @@ describe StaticSecretsController, type: :request do
         {
             "branch": "/data/secrets",
             "name": "secret_to_update",
-            "mime_type": "plain",
+            "mime_type": "text/plain",
             "value": "password",
             "annotations": [
               {
@@ -1814,7 +1822,7 @@ describe StaticSecretsController, type: :request do
     let(:payload_update_secret) do
       <<~BODY
           {
-            "mime_type": "plain",
+            "mime_type": "text/plain",
             "value": "password2",
             "annotations": [
               {
@@ -1872,7 +1880,9 @@ describe StaticSecretsController, type: :request do
              )
         )
         assert_response :created
-        expect(response.body).to eq("{\"branch\":\"/data/secrets\",\"name\":\"secret_to_update\",\"mime_type\":\"plain\",\"annotations\":[{\"name\":\"description\",\"value\":\"desc\"},{\"name\":\"annotation_to_delete\",\"value\":\"delete\"}],\"permissions\":[{\"subject\":{\"id\":\"alice\",\"kind\":\"user\"},\"privileges\":[\"update\",\"read\",\"execute\"]}]}")
+        validate_response('secret_to_update', '/data/secrets', "text/plain",
+                          [{"name"=>"description","value"=>"desc"},{"name"=>"annotation_to_delete","value"=>"delete"}],
+                          [{"subject"=>{"id"=>"alice","kind"=>"user"},"privileges"=>["update","read","execute"]}])
         # Check secret value
         get('/secrets/rspec/variable/data/secrets/secret_to_update',
             env: token_auth_header(role: admin_user)
@@ -1884,8 +1894,10 @@ describe StaticSecretsController, type: :request do
              env: token_auth_header(role: alice_user).merge(v2_api_header)
         )
         assert_response :ok
-        expect(response.body).to eq("{\"branch\":\"/data/secrets\",\"name\":\"secret_to_update\",\"mime_type\":\"plain\",\"annotations\":[{\"name\":\"description\",\"value\":\"desc\"},{\"name\":\"annotation_to_delete\",\"value\":\"delete\"}],\"permissions\":[{\"subject\":{\"id\":\"alice\",\"kind\":\"user\"},\"privileges\":[\"update\",\"read\",\"execute\"]}]}")
-        # update secret
+        validate_response('secret_to_update', '/data/secrets', "text/plain",
+                          [{"name"=>"description","value"=>"desc"},{"name"=>"annotation_to_delete","value"=>"delete"}],
+                          [{"subject"=>{"id"=>"alice","kind"=>"user"},"privileges"=>["update","read","execute"]}])
+        # update secret value
         put("/secrets/static/data/secrets/secret_to_update",
              env: token_auth_header(role: alice_user).merge(v2_api_header).merge(
                {
@@ -1895,14 +1907,18 @@ describe StaticSecretsController, type: :request do
              )
         )
         assert_response :ok
-        expect(response.body).to eq("{\"branch\":\"/data/secrets\",\"name\":\"secret_to_update\",\"mime_type\":\"plain\",\"annotations\":[{\"name\":\"description\",\"value\":\"desc\"},{\"name\":\"annotation_to_delete\",\"value\":\"delete\"}],\"permissions\":[{\"subject\":{\"id\":\"alice\",\"kind\":\"user\"},\"privileges\":[\"update\",\"read\",\"execute\"]}]}")
+        validate_response('secret_to_update', '/data/secrets', "text/plain",
+                          [{"name"=>"description","value"=>"desc"},{"name"=>"annotation_to_delete","value"=>"delete"}],
+                          [{"subject"=>{"id"=>"alice","kind"=>"user"},"privileges"=>["update","read","execute"]}])
         # get secret
         get("/secrets/static/data/secrets/secret_to_update",
             env: token_auth_header(role: alice_user).merge(v2_api_header)
         )
         # Correct response code
         assert_response :ok
-        expect(response.body).to eq("{\"branch\":\"/data/secrets\",\"name\":\"secret_to_update\",\"mime_type\":\"plain\",\"annotations\":[{\"name\":\"description\",\"value\":\"desc\"},{\"name\":\"annotation_to_delete\",\"value\":\"delete\"}],\"permissions\":[{\"subject\":{\"id\":\"alice\",\"kind\":\"user\"},\"privileges\":[\"update\",\"read\",\"execute\"]}]}")
+        validate_response('secret_to_update', '/data/secrets', "text/plain",
+                          [{"name"=>"description","value"=>"desc"},{"name"=>"annotation_to_delete","value"=>"delete"}],
+                          [{"subject"=>{"id"=>"alice","kind"=>"user"},"privileges"=>["update","read","execute"]}])
         # Create secret using policy
         patch(
           '/policies/rspec/policy/data/secrets',
@@ -1929,7 +1945,24 @@ describe StaticSecretsController, type: :request do
     if mime_type
       expect(response_body['mime_type']).to eq(mime_type)
     end
-    expect(response_body['annotations']).to eq(annotations)
-    expect(response_body['permissions']).to eq(permissions)
+    expect(compare_json_arrays(response_body['annotations'], annotations)).to eq(true)
+    expect(compare_json_arrays(response_body['permissions'], permissions)).to eq(true)
+  end
+
+  def compare_json_arrays(array1, array2)
+    #array1 = JSON.parse(json1)
+    #array2 = JSON.parse(json2)
+
+    # Sort arrays based on a unique identifier or key
+    sorted_array1 = array_to_sorted_json(array1)
+    sorted_array2 = array_to_sorted_json(array2)
+
+    # Compare sorted arrays
+    sorted_array1 == sorted_array2
+  end
+
+  def array_to_sorted_json(array)
+    # Convert array of hashes to array of sorted JSON strings
+    array.map { |item| item.to_json }.sort
   end
 end

@@ -24,9 +24,15 @@ module Secrets
         secret = get_resource("variable", "#{params[:branch]}/#{params[:name]}")
 
         data_fields = {
-          mime_type: String
+          mime_type: {
+            field_info: {
+              type: String,
+              value: body_params[:mime_type]
+            },
+            validators: [method(:validate_field_type), method(:validate_mime_type)]
+          }
         }
-        validate_data(body_params, data_fields)
+        validate_data_fields(data_fields)
 
         secret
       end
@@ -35,9 +41,15 @@ module Secrets
         super(params)
 
         data_fields = {
-          mime_type: String
+          mime_type: {
+            field_info: {
+              type: String,
+              value: params[:mime_type]
+            },
+            validators: [method(:validate_field_type), method(:validate_mime_type)]
+          }
         }
-        validate_data(params, data_fields)
+        validate_data_fields(data_fields)
 
         # Can't create the secret under dynamic branch
         branch = params[:branch]
