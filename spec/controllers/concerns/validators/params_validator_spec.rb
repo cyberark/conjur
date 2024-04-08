@@ -59,11 +59,11 @@ describe ParamsValidator do
     context "validate region" do
       it "not valid region regex" do
         expect { controller.validate_region("region",{type: String,value: "us-east"})
-        }.to raise_error(ApplicationController::BadRequestWithBody)
+        }.to raise_error(ApplicationController::UnprocessableEntity)
       end
       it "not valid region length" do
         expect { controller.validate_region("region",{type: String,value: "#{create_string(30,'u')}s-east-1"})
-        }.to raise_error(ApplicationController::BadRequestWithBody)
+        }.to raise_error(ApplicationController::UnprocessableEntity)
       end
       it "valid region" do
         expect { controller.validate_region("region",{type: String,value: "us-east-2"})
@@ -74,11 +74,11 @@ describe ParamsValidator do
     context "validate role arn" do
       it "not valid role arn regex" do
         expect { controller.validate_role_arn("role_arn",{type: String,value: "aws:iam::123456789012:role/my-role-name"})
-        }.to raise_error(ApplicationController::BadRequestWithBody)
+        }.to raise_error(ApplicationController::UnprocessableEntity)
       end
       it "not valid role arn length" do
         expect { controller.validate_role_arn("region",{type: String,value: "arn:aws:iam::123456789012:role/my-role-nam#{create_string(1000,'e')}"})
-        }.to raise_error(ApplicationController::BadRequestWithBody)
+        }.to raise_error(ApplicationController::UnprocessableEntity)
       end
       it "valid role arn" do
         expect { controller.validate_role_arn("region",{type: String,value: "arn:aws:iam::123456789012:role/my-role-name"})
@@ -89,11 +89,11 @@ describe ParamsValidator do
     context "validate mime type" do
       it "not valid mime type regex" do
         expect { controller.validate_mime_type("mime_type",{type: String,value: "plain+text"})
-        }.to raise_error(ApplicationController::BadRequestWithBody)
+        }.to raise_error(ApplicationController::UnprocessableEntity)
       end
       it "not valid mime type length" do
         expect { controller.validate_mime_type("mime_type",{type: String,value: "plain/tex#{create_string(98,'t')}"})
-        }.to raise_error(ApplicationController::BadRequestWithBody)
+        }.to raise_error(ApplicationController::UnprocessableEntity)
       end
       it "valid mime type" do
         expect { controller.validate_mime_type("mime_type",{type: String,value: "plain/text"})
@@ -104,11 +104,11 @@ describe ParamsValidator do
     context "validate path" do
       it "not valid path regex" do
         expect { controller.validate_path("path",{type: String,value: "data+dynamic"})
-        }.to raise_error(ApplicationController::BadRequestWithBody)
+        }.to raise_error(ApplicationController::UnprocessableEntity)
       end
       it "not valid path length" do
-        expect { controller.validate_path("path",{type: String,value: "data/dynami#{create_string(998,'t')}"})
-        }.to raise_error(ApplicationController::BadRequestWithBody)
+        expect { controller.validate_path("path",{type: String,value: "data/dynami#{create_string(495,'t')}"})
+        }.to raise_error(ApplicationController::UnprocessableEntity)
       end
       it "valid path" do
         expect { controller.validate_path("path",{type: String,value: "data/dynamic"})
@@ -119,11 +119,11 @@ describe ParamsValidator do
     context "validate id" do
       it "not valid id regex" do
         expect { controller.validate_id("id",{type: String,value: "seceret/name"})
-        }.to raise_error(ApplicationController::BadRequestWithBody)
+        }.to raise_error(ApplicationController::UnprocessableEntity)
       end
       it "not valid id length" do
         expect { controller.validate_id("id",{type: String,value: "nam#{create_string(59,'e')}"})
-        }.to raise_error(ApplicationController::BadRequestWithBody)
+        }.to raise_error(ApplicationController::UnprocessableEntity)
       end
       it "valid id" do
         expect { controller.validate_id("id",{type: String,value: "s4c-ret_naMe"})
@@ -134,11 +134,11 @@ describe ParamsValidator do
     context "validate annotation value" do
       it "not valid annotation value regex" do
         expect { controller.validate_annotation_value("id",{type: String,value: "seceret<name"})
-        }.to raise_error(ApplicationController::BadRequestWithBody)
+        }.to raise_error(ApplicationController::UnprocessableEntity)
       end
       it "not valid annotation value length" do
         expect { controller.validate_annotation_value("id",{type: String,value: "nam#{create_string(118,'e')}"})
-        }.to raise_error(ApplicationController::BadRequestWithBody)
+        }.to raise_error(ApplicationController::UnprocessableEntity)
       end
       it "valid annotation value" do
         expect { controller.validate_annotation_value("id",{type: String,value: "s4c-ret_na%$*&+{#Me"})

@@ -396,7 +396,7 @@ describe GroupsMembershipController, type: :request do
                }
              )
         )
-        assert_response :bad_request
+        assert_response :unprocessable_entity
         expect(response.body.include? "The value in the 'Member Kind' parameter is not valid. Error: Allowed values are [host, user, group]").to eq true
       end
     end
@@ -439,7 +439,7 @@ describe GroupsMembershipController, type: :request do
                }
              )
         )
-        assert_response :bad_request
+        assert_response :unprocessable_entity
         expect(response.body.include? "The 'kind' parameter must be of 'type=String'").to eq true
       end
     end
@@ -633,14 +633,14 @@ describe GroupsMembershipController, type: :request do
              env: token_auth_header(role: alice_user).merge(v2_api_header)
       )
       # Correct response code
-      assert_response :bad_request
+      assert_response :unprocessable_entity
     end
     it 'When no kind' do
       delete("/groups/data/delegation/consumers/members/data/delegation/host1",
              env: token_auth_header(role: alice_user).merge(v2_api_header)
       )
       # Correct response code
-      assert_response :bad_request
+      assert_response :unprocessable_entity
     end
     it 'When no resource' do
       delete("/groups/data/delegation/consumers/members/host",

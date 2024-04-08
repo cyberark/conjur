@@ -52,7 +52,7 @@ describe "Annotation Handler's validate annotations" do
     end
     it 'input validation will fail' do
       expect { validate_annotations(annotations)
-      }.to raise_error(ApplicationController::BadRequestWithBody)
+      }.to raise_error(ApplicationController::UnprocessableEntity)
     end
   end
   context 'annotation name type not valid' do

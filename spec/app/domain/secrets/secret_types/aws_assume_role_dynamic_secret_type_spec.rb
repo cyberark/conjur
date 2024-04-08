@@ -23,7 +23,7 @@ describe "AWS Assume Role Dynamic secret input validation" do
       method_params = ActionController::Parameters.new(region: "", role_arn: "arn:aws:iam::123456789012:role/my-role-name")
       params = ActionController::Parameters.new(name: "secret1", branch: "data/dynamic", ttl: 120, issuer: "issuer1", method_params: method_params)
       expect { dynamic_secret.create_input_validation(params)
-      }.to raise_error(ApplicationController::BadRequestWithBody)
+      }.to raise_error(ApplicationController::UnprocessableEntity)
     end
   end
   context "when creating aws dynamic secret with wrong type region" do
@@ -132,7 +132,7 @@ describe "AWS Assume Role Dynamic update secret input validation" do
       params = ActionController::Parameters.new(branch: "data/dynamic", name:"secret1")
       body_params = ActionController::Parameters.new(ttl: 120, issuer: "issuer1", method_params: method_params)
       expect { dynamic_secret.update_input_validation(params, body_params)
-      }.to raise_error(ApplicationController::BadRequestWithBody)
+      }.to raise_error(ApplicationController::UnprocessableEntity)
     end
   end
   context "when updating aws dynamic secret with wrong type region" do
@@ -203,7 +203,7 @@ describe "AWS Assume Role Dynamic update secret input validation" do
       params = ActionController::Parameters.new(branch: "data/dynamic", name:"secret1")
       body_params = ActionController::Parameters.new(ttl: 120, issuer: "issuer1", method_params: method_params)
       expect { dynamic_secret.update_input_validation(params, body_params)
-      }.to raise_error(ApplicationController::BadRequestWithBody)
+      }.to raise_error(ApplicationController::UnprocessableEntity)
     end
   end
   context "when updating aws assume role dynamic secret with ttl bigger then issuer" do

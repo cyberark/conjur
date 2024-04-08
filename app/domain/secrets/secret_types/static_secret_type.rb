@@ -56,10 +56,10 @@ module Secrets
         if branch.start_with?("/")
           branch = branch[1..-1]
         end
-        raise ApplicationController::BadRequestWithBody, "Static secret cannot be created under #{Issuer::DYNAMIC_VARIABLE_PREFIX}" if branch.start_with?(Issuer::DYNAMIC_VARIABLE_PREFIX.chop)
+        raise ApplicationController::UnprocessableEntity, "Static secret cannot be created under #{Issuer::DYNAMIC_VARIABLE_PREFIX}" if branch.start_with?(Issuer::DYNAMIC_VARIABLE_PREFIX.chop)
 
         if params[:issuer]
-          raise ApplicationController::BadRequestWithBody, "Static secret can't contain issuer field"
+          raise ApplicationController::UnprocessableEntity, "Static secret can't contain issuer field"
         end
       end
 

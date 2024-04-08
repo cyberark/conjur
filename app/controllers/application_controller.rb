@@ -69,8 +69,8 @@ class ApplicationController < ActionController::API
   rescue_from ArgumentError, with: :argument_error
   rescue_from ActionController::ParameterMissing, with: :argument_error
   rescue_from Errors::Conjur::ParameterMissing, with: :render_bad_request_with_message
-  rescue_from Errors::Conjur::ParameterValueInvalid, with: :render_bad_request_with_message
-  rescue_from Errors::Conjur::ParameterTypeInvalid, with: :render_bad_request_with_message
+  rescue_from Errors::Conjur::ParameterValueInvalid, with: :unprocessable_entity
+  rescue_from Errors::Conjur::ParameterTypeInvalid, with: :unprocessable_entity
   rescue_from Errors::Conjur::NumOfParametersInvalid, with: :render_bad_request_with_message
   rescue_from UnprocessableEntity, with: :unprocessable_entity
   rescue_from Errors::Conjur::BadSecretEncoding, with: :bad_secret_encoding

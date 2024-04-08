@@ -9,13 +9,13 @@ module Secrets
         super(params)
 
         # check if value field exist
-        raise ApplicationController::BadRequestWithBody, "Adding value to a dynamic secret is not allowed" if params[:value]
+        raise ApplicationController::UnprocessableEntity, "Adding value to a dynamic secret is not allowed" if params[:value]
         # check the secret under the correct branch
         branch = params[:branch]
         if branch.start_with?("/")
           branch = branch[1..-1]
         end
-        raise ApplicationController::BadRequestWithBody, "Dynamic secret can be created only under #{Issuer::DYNAMIC_VARIABLE_PREFIX}" unless branch.start_with?(Issuer::DYNAMIC_VARIABLE_PREFIX.chop)
+        raise ApplicationController::UnprocessableEntity, "Dynamic secret can be created only under #{Issuer::DYNAMIC_VARIABLE_PREFIX}" unless branch.start_with?(Issuer::DYNAMIC_VARIABLE_PREFIX.chop)
 
         dynamic_input_validation(params)
       end
@@ -109,7 +109,7 @@ module Secrets
 
       def dynamic_input_validation(params)
         # check if value field exist
-        raise ApplicationController::BadRequestWithBody, "Adding value to a dynamic secret is not allowed" if params[:value]
+        raise ApplicationController::UnprocessableEntity, "Adding value to a dynamic secret is not allowed" if params[:value]
 
         data_fields = {
           issuer: {
