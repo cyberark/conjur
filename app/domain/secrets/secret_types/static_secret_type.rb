@@ -1,10 +1,12 @@
 # frozen_string_literal: true
+require_relative '../cache/redis_handler'
 
 module Secrets
   module SecretTypes
     class StaticSecretType  < SecretBaseType
       include ParamsValidator
       include AnnotationsHandler
+      include RedisHandler
 
       MIME_TYPE_ANNOTATION = "conjur/mime_type"
 
@@ -79,6 +81,7 @@ module Secrets
 
         # Set secret value
         set_value(secret, params[:value])
+        update_redis_secret(secret.id, params[:value])
 
         as_json(branch, secret_name, secret)
       end
