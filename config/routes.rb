@@ -125,8 +125,9 @@ Rails.application.routes.draw do
       get     "/edge/:account"                      => 'edge_visibility#all_edges'
       get     "/edge/name/:account/:identifier"     => 'edge_visibility#get_edge_name'
       get     "/edge/max-allowed/:account"          => 'edge_configuration#max_edges_allowed'
-      get     "/agent/validate-permission/:account" => 'edge_configuration#validate_permission'
       get     "/agent/get-role/:account"            => 'edge_configuration#get_role'
+      get     "/agents/:account/:identifier/info"   => 'edge_configuration#get_edge_info'
+
 
       post    "/edge/data/:account"                 => 'edge_handler#report_edge_data', :constraints => QueryParameterActionRecognizer.new("data_type")
       get     "/edge/slosilo_keys/:account"         => 'edge_slosilo_keys#slosilo_keys'
