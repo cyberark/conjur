@@ -34,14 +34,14 @@ describe "Base secret create input validation" do
     it "input validation fails" do
       params = ActionController::Parameters.new(name: "se#cret/not_valid", branch: "data")
       expect { secret.create_input_validation(params)
-      }.to raise_error(ApplicationController::BadRequestWithBody)
+      }.to raise_error(ApplicationController::UnprocessableEntity)
     end
   end
   context "when creating secret with too long name" do
     it "input validation fails" do
       params = ActionController::Parameters.new(name: "secretstoolongggggggggggggggggggggggggggggggggggggggggggggggg", branch: "data")
       expect { secret.create_input_validation(params)
-      }.to raise_error(ApplicationController::BadRequestWithBody)
+      }.to raise_error(ApplicationController::UnprocessableEntity)
     end
   end
   context "when creating secret with all supported symbols in its name" do

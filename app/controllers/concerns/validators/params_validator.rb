@@ -51,7 +51,7 @@ module ParamsValidator
   end
 
   def validate_path(param_name, data)
-    validate_string(param_name, data[:value], /\A[a-zA-Z0-9_\/-]+\z/, 1000)
+    validate_string(param_name, data[:value], /\A[a-zA-Z0-9_\/-]+\z/, 500)
   end
 
   def validate_mime_type(param_name, data)
@@ -104,11 +104,11 @@ module ParamsValidator
   def validate_string(param_name, data, regex_pattern, max_size)
     unless data.nil?
       unless data.match?(regex_pattern)
-        raise ApplicationController::BadRequestWithBody, "Invalid '#{param_name}' parameter."
+        raise ApplicationController::UnprocessableEntity, "Invalid '#{param_name}' parameter."
       end
 
       if data.length > max_size
-        raise ApplicationController::BadRequestWithBody, "'#{param_name}' parameter length exceeded. Limit the length to #{max_size} characters"
+        raise ApplicationController::UnprocessableEntity, "'#{param_name}' parameter length exceeded. Limit the length to #{max_size} characters"
       end
     end
   end

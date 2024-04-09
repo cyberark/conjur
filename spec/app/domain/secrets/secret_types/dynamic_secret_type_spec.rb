@@ -20,7 +20,7 @@ describe "Dynamic secret create input validation" do
     it "input validation fails" do
       params = ActionController::Parameters.new(name: "secret1", branch: "data/dynamic", issuer: "issuer1", ttl: 120, value: "secret")
       expect { dynamic_secret.create_input_validation(params)
-      }.to raise_error(ApplicationController::BadRequestWithBody)
+      }.to raise_error(ApplicationController::UnprocessableEntity)
     end
   end
   context "when creating dynamic secret not under ephemeral branch" do
@@ -32,7 +32,7 @@ describe "Dynamic secret create input validation" do
     it "input validation fails" do
       params = ActionController::Parameters.new(name: "secret1", branch: "data/secrets", type: "ephemeral", issuer: "issuer1", ttl: 120)
       expect { dynamic_secret.create_input_validation(params)
-      }.to raise_error(ApplicationController::BadRequestWithBody)
+      }.to raise_error(ApplicationController::UnprocessableEntity)
     end
   end
   context "when creating dynamic secret with no issuer" do

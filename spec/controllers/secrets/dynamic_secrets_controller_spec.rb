@@ -1617,7 +1617,7 @@ describe DynamicSecretsController, type: :request do
                }
              )
         )
-        assert_response :bad_request
+        assert_response :unprocessable_entity
         parsed_body = JSON.parse(response.body)
         expect(parsed_body["error"]["message"]).to eq("Static secret cannot be created under data/dynamic/")
       end
@@ -1706,7 +1706,7 @@ describe DynamicSecretsController, type: :request do
                }
              )
         )
-        assert_response :bad_request
+        assert_response :unprocessable_entity
         parsed_body = JSON.parse(response.body)
         expect(parsed_body["error"]["message"]).to eq("Static secret cannot be created under data/dynamic/")
       end
@@ -1751,7 +1751,7 @@ describe DynamicSecretsController, type: :request do
                }
              )
         )
-        assert_response :bad_request
+        assert_response :unprocessable_entity
         parsed_body = JSON.parse(response.body)
         expect(parsed_body["error"]["message"]).to eq("Static secret can't contain issuer field")
       end

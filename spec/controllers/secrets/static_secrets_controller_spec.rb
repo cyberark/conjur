@@ -1071,7 +1071,7 @@ describe StaticSecretsController, type: :request do
             )
         )
         # Correct response code
-        assert_response :bad_request
+        assert_response :unprocessable_entity
         parsed_body = JSON.parse(response.body)
         expect(parsed_body["error"]["message"]).to eq("Invalid 'mime_type' parameter.")
       end
