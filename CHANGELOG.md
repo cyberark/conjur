@@ -18,6 +18,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Info for tenant endpoint
 - Adding telemetry support for  ConjurCloud
 - Redis (disabled) with support for: get, batch, version, encryption, deletion, v2-update
+- API agents edge info (replace agent validate-permission)
+
+### Removed
+- API agent validate-permission
 
 ## [1.0.24-cloud] - 2024-03-24
 ### Changed
