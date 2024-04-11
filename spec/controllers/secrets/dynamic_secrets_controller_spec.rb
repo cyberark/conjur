@@ -78,6 +78,9 @@ describe DynamicSecretsController, type: :request do
         assert_response :not_found
         parsed_body = JSON.parse(response.body)
         expect(parsed_body["error"]["message"]).to eq("Issuer 'issuer1' not found in account 'rspec'")
+        # Correct audit is returned
+        audit_message = 'rspec:user:admin failed to create secret /data/dynamic/ephemeral_secret with url: \'/secrets/dynamic\' and content: {"branch":"/data/dynamic","name":"ephemeral_secret","issuer":"issuer1","ttl":1200,"method":"federation-token"}: Issuer \'issuer1\' not found in account \'rspec\''
+        verify_audit_message(audit_message)
       end
     end
     context "when creating ephemeral secret with ttl bigger then issuer ttl" do
@@ -2105,12 +2108,18 @@ describe DynamicSecretsController, type: :request do
         )
         assert_response :created
         expect(response.body).to eq("{\"branch\":\"/data/dynamic\",\"name\":\"federation_token_secret\",\"issuer\":\"aws-issuer-1\",\"ttl\":120,\"method\":\"federation-token\",\"annotations\":[{\"name\":\"description\",\"value\":\"desc\"},{\"name\":\"annotation_to_delete\",\"value\":\"delete\"}],\"permissions\":[{\"subject\":{\"id\":\"alice\",\"kind\":\"user\"},\"privileges\":[\"read\"]}]}")
+        # Correct audit is returned
+        audit_message = 'rspec:user:alice successfully created secret /data/dynamic/federation_token_secret with url: \'/secrets/dynamic\' and content: {"branch":"/data/dynamic","name":"federation_token_secret","issuer":"aws-issuer-1","ttl":120,"method":"federation-token","annotations":[{"name":"description","value":"desc"},{"name":"annotation_to_delete","value":"delete"}],"permissions":[{"subject":{"kind":"user","id":"alice"},"privileges":["read"]}]}'
+        verify_audit_message(audit_message)
         # get federation token secret
         get("/secrets/dynamic/data/dynamic/federation_token_secret",
             env: token_auth_header(role: alice_user).merge(v2_api_header)
         )
         assert_response :ok
         expect(response.body).to eq("{\"branch\":\"/data/dynamic\",\"name\":\"federation_token_secret\",\"issuer\":\"aws-issuer-1\",\"ttl\":120,\"method\":\"federation-token\",\"annotations\":[{\"name\":\"description\",\"value\":\"desc\"},{\"name\":\"annotation_to_delete\",\"value\":\"delete\"}],\"permissions\":[{\"subject\":{\"id\":\"alice\",\"kind\":\"user\"},\"privileges\":[\"read\"]}]}")
+        # Correct audit is returned
+        audit_message = "rspec:user:alice successfully got secret data/dynamic/federation_token_secret with url: '/secrets/dynamic/data/dynamic/federation_token_secret'"
+        verify_audit_message(audit_message)
         # create assume role secret using policy
         patch(
           '/policies/rspec/policy/data/dynamic',
@@ -2136,6 +2145,9 @@ describe DynamicSecretsController, type: :request do
         )
         assert_response :ok
         expect(response.body).to eq("{\"branch\":\"/data/dynamic\",\"name\":\"assume_role_secret\",\"issuer\":\"aws-issuer-1\",\"ttl\":110,\"method\":\"assume-role\",\"method_params\":{\"role_arn\":\"arn:aws:iam::123456789012:role/my-role-name\"},\"annotations\":[],\"permissions\":[{\"subject\":{\"id\":\"alice\",\"kind\":\"user\"},\"privileges\":[\"read\"]}]}")
+        # Correct audit is returned
+        audit_message = 'rspec:user:alice successfully changed secret data/dynamic/assume_role_secret with url: \'/secrets/dynamic/data/dynamic/assume_role_secret\' and content: {"issuer":"aws-issuer-1","ttl":110,"method":"assume-role","method_params":{"role_arn":"arn:aws:iam::123456789012:role/my-role-name"},"permissions":[{"subject":{"kind":"user","id":"alice"},"privileges":["read"]}]}'
+        verify_audit_message(audit_message)
         # get secret
         get("/secrets/dynamic/data/dynamic/assume_role_secret",
             env: token_auth_header(role: alice_user).merge(v2_api_header)

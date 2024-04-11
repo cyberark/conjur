@@ -26,9 +26,9 @@ class DynamicSecretsController < V2RestController
 
     logger.debug(LogMessages::Endpoints::EndpointFinishedSuccessfully.new(log_message))
     render(json: created_secret, status: :created)
-    #audit_succsess
+    send_success_audit('secret',"create", branch, secret_name, request.path, body_payload)
   rescue => e
-    #audit_failure(e, :remove)
+    send_failure_audit('secret', "create", params[:branch], params[:name], request.path, body_payload, e.message)
     raise e
   end
 
@@ -55,9 +55,9 @@ class DynamicSecretsController < V2RestController
 
     logger.debug(LogMessages::Endpoints::EndpointFinishedSuccessfully.new(log_message))
     render(json: updated_secret, status: :ok)
-    #audit_succsess
+    send_success_audit('secret',"change", branch, secret_name, request.path, body_payload)
   rescue => e
-    #audit_failure(e, :remove)
+    send_failure_audit( 'secret', "change", request.params[:branch], request.params[:name], request.path, body_payload, e.message)
     raise e
   end
 
@@ -77,6 +77,10 @@ class DynamicSecretsController < V2RestController
     response = dynamic_secret.as_json(branch, secret_name, variable)
     logger.debug(LogMessages::Endpoints::EndpointFinishedSuccessfully.new(get_secret_log_message))
     render(json: response, status: :ok)
+    send_success_audit('secret',"get", branch, secret_name, request.path, nil)
+  rescue => e
+    send_failure_audit( 'secret', "get", request.params[:branch], request.params[:name], request.path, nil, e.message)
+    raise e
   end
 
   private
