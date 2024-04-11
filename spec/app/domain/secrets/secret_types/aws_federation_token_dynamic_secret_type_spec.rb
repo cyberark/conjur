@@ -18,36 +18,19 @@ describe "AWS Federation Token Dynamic secret input validation" do
     allow(Resource).to receive(:[]).with("rspec:policy:data/dynamic").and_return("policy")
     $primary_schema = "public"
   end
-  context "when creating aws federation token ephemeral secret with empty region" do
-    it "then the input validation fails" do
-      method_params = ActionController::Parameters.new(region: "", role_arn: "role")
-      params = ActionController::Parameters.new(name: "secret1", branch: "data/dynamic", ttl: 120, issuer: "issuer1", method_params: method_params)
-      expect { dynamic_secret.create_input_validation(params)
-      }.to raise_error(ApplicationController::UnprocessableEntity)
+  context "when validating create request" do
+    let(:params) do
+      method_params = ActionController::Parameters.new(role_arn: "arn:aws:iam::123456789012:role/my-role-name", region: "us-east-1", inline_policy: "policy")
+      ActionController::Parameters.new(name: "secret1", branch: "data/dynamic", ttl: 120, issuer: "issuer1", method_params: method_params)
     end
-  end
-  context "when creating aws federation token ephemeral secret with wrong type region" do
-    it "then the input validation fails" do
-      method_params = ActionController::Parameters.new(region: 5, role_arn: "role")
-      params = ActionController::Parameters.new(name: "secret1", branch: "data/dynamic", ttl: 120, issuer: "issuer1", method_params: method_params)
-      expect { dynamic_secret.create_input_validation(params)
-      }.to raise_error(Errors::Conjur::ParameterTypeInvalid)
-    end
-  end
-  context "when creating aws federation token ephemeral secret with empty inline_policy" do
-    it "then the input validation succeeds" do
-      method_params = ActionController::Parameters.new(inline_policy: "", role_arn: "role")
-      params = ActionController::Parameters.new(name: "secret1", branch: "data/dynamic", ttl: 120, issuer: "issuer1", method_params: method_params)
-      expect { dynamic_secret.create_input_validation(params)
-      }.to_not raise_error
-    end
-  end
-  context "when creating aws federation token ephemeral secret with wrong type inline_policy" do
-    it "then the input validation fails" do
-      method_params = ActionController::Parameters.new(inline_policy: 5, role_arn: "role")
-      params = ActionController::Parameters.new(name: "secret1", branch: "data/dynamic", ttl: 120, issuer: "issuer1", method_params: method_params)
-      expect { dynamic_secret.create_input_validation(params)
-      }.to raise_error(Errors::Conjur::ParameterTypeInvalid)
+
+    it "correct validators are being called for each field" do
+      expect(dynamic_secret).to receive(:validate_field_type).with(:region,{type: String,value: "us-east-1"})
+      expect(dynamic_secret).to receive(:validate_region).with(:region,{type: String,value: "us-east-1"})
+
+      expect(dynamic_secret).to receive(:validate_field_type).with(:inline_policy,{type: String,value: "policy"})
+
+      dynamic_secret.send(:input_validation, params)
     end
   end
   context "when creating aws federation token ephemeral secret with no method params" do
@@ -94,40 +77,19 @@ describe "AWS Federation Token Dynamic replace secret input validation" do
     allow(Resource).to receive(:[]).with("rspec:variable:data/dynamic/secret1").and_return("secret")
     $primary_schema = "public"
   end
-  context "when replacing aws federation token dynamic secret with empty region" do
-    it "then the input validation fails" do
-      method_params = ActionController::Parameters.new(region: "", role_arn: "role")
-      params = ActionController::Parameters.new(branch: "data/dynamic", name:"secret1")
-      body_params = ActionController::Parameters.new(ttl: 120, issuer: "issuer1", method_params: method_params)
-      expect { dynamic_secret.update_input_validation(params, body_params)
-      }.to raise_error(ApplicationController::UnprocessableEntity)
+  context "when validating create request" do
+    let(:params) do
+      method_params = ActionController::Parameters.new(role_arn: "arn:aws:iam::123456789012:role/my-role-name", region: "us-east-1", inline_policy: "policy")
+      ActionController::Parameters.new(name: "secret1", branch: "data/dynamic", ttl: 120, issuer: "issuer1", method_params: method_params)
     end
-  end
-  context "when replacing aws federation token dynamic secret with wrong type region" do
-    it "then the input validation fails" do
-      method_params = ActionController::Parameters.new(region: 5, role_arn: "role")
-      params = ActionController::Parameters.new(branch: "data/dynamic", name:"secret1")
-      body_params = ActionController::Parameters.new(ttl: 120, issuer: "issuer1", method_params: method_params)
-      expect { dynamic_secret.update_input_validation(params, body_params)
-      }.to raise_error(Errors::Conjur::ParameterTypeInvalid)
-    end
-  end
-  context "when replacing aws federation token dynamic secret with empty inline_policy" do
-    it "then the input validation succeeds" do
-      method_params = ActionController::Parameters.new(inline_policy: "", role_arn: "role")
-      params = ActionController::Parameters.new(branch: "data/dynamic", name:"secret1")
-      body_params = ActionController::Parameters.new(ttl: 120, issuer: "issuer1", method_params: method_params)
-      expect { dynamic_secret.update_input_validation(params, body_params)
-      }.to_not raise_error
-    end
-  end
-  context "when replacing aws federation token dynamic secret with wrong type inline_policy" do
-    it "then the input validation fails" do
-      method_params = ActionController::Parameters.new(inline_policy: 5, role_arn: "role")
-      params = ActionController::Parameters.new(branch: "data/dynamic", name:"secret1")
-      body_params = ActionController::Parameters.new(ttl: 120, issuer: "issuer1", method_params: method_params)
-      expect { dynamic_secret.update_input_validation(params, body_params)
-      }.to raise_error(Errors::Conjur::ParameterTypeInvalid)
+
+    it "correct validators are being called for each field" do
+      expect(dynamic_secret).to receive(:validate_field_type).with(:region,{type: String,value: "us-east-1"})
+      expect(dynamic_secret).to receive(:validate_region).with(:region,{type: String,value: "us-east-1"})
+
+      expect(dynamic_secret).to receive(:validate_field_type).with(:inline_policy,{type: String,value: "policy"})
+
+      dynamic_secret.send(:input_validation, params)
     end
   end
   context "when replacing aws federation token dynamic secret with no method params" do

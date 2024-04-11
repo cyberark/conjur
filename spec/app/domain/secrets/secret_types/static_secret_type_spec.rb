@@ -10,20 +10,28 @@ describe "Static secret create input validation" do
     allow(Resource).to receive(:[]).with("rspec:policy:data/secrets").and_return("policy")
     $primary_schema = "public"
   end
-  context "when creating secret with empty mime_type" do
-    it "input validation fails" do
-      params = ActionController::Parameters.new(branch: "data/secrets", name:"secret1", mime_type: "")
-      expect { static_secret.create_input_validation(params)
-      }.to raise_error(ApplicationController::UnprocessableEntity)
+
+  context "when validating create request" do
+    let(:params) do
+      ActionController::Parameters.new(name: "secret1", branch: "data/secrets", mime_type: "text/plain")
+    end
+    it "correct validators are being called for each field" do
+      expect(static_secret).to receive(:validate_field_required).with(:name,{type: String,value: "secret1"})
+      expect(static_secret).to receive(:validate_field_required).with(:branch,{type: String,value: "data/secrets"})
+
+      expect(static_secret).to receive(:validate_field_type).with(:name,{type: String,value: "secret1"})
+      expect(static_secret).to receive(:validate_field_type).with(:branch,{type: String,value: "data/secrets"})
+
+      expect(static_secret).to receive(:validate_id).with(:name,{type: String,value: "secret1"})
+      expect(static_secret).to receive(:validate_path).with(:branch,{type: String,value: "data/secrets"})
+
+      expect(static_secret).to receive(:validate_field_type).with(:mime_type,{type: String,value: "text/plain"})
+      expect(static_secret).to receive(:validate_mime_type).with(:mime_type,{type: String,value: "text/plain"})
+
+      static_secret.create_input_validation(params)
     end
   end
-  context "when creating secret with invalid mime_type type" do
-    it "input validation fails" do
-      params = ActionController::Parameters.new(branch: "data/secrets", name:"secret1", mime_type: 5)
-      expect { static_secret.create_input_validation(params)
-      }.to raise_error(Errors::Conjur::ParameterTypeInvalid)
-    end
-  end
+
   context "when creating secret under dynamic branch" do
     it "input validation fails" do
       params = ActionController::Parameters.new(branch: "data/dynamic", name:"secret1")

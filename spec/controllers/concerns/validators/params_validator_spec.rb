@@ -131,6 +131,21 @@ describe ParamsValidator do
       end
     end
 
+    context "validate resource id" do
+      it "not valid resource id regex" do
+        expect { controller.validate_resource_id("id",{type: String,value: "luba_tsirulnik@cyberark.cloud.176321!"})
+        }.to raise_error(ApplicationController::UnprocessableEntity)
+      end
+      it "not valid id length" do
+        expect { controller.validate_resource_id("id",{type: String,value: "nam#{create_string(599,'e')}"})
+        }.to raise_error(ApplicationController::UnprocessableEntity)
+      end
+      it "valid id" do
+        expect { controller.validate_resource_id("id",{type: String,value: "luba_tsirulnik@cyberark.cloud.176321"})
+        }.to_not raise_error
+      end
+    end
+
     context "validate annotation value" do
       it "not valid annotation value regex" do
         expect { controller.validate_annotation_value("id",{type: String,value: "seceret<name"})
