@@ -5,6 +5,10 @@ require 'time'
 
 DatabaseCleaner.strategy = :truncation
 CREATE_ISSUER_TIMEOUT = 10 # To test created_at
+VALID_AWS_KEY = 'AKIAIOSFODNN7EXAMPLE'
+VALID_AWS_SECRET = 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY'
+CHANGED_VALID_AWS_KEY = 'AKIAIOSFODNN7CHANGED'
+CHANGED_VALID_AWS_SECRET = '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'
 
 describe IssuersController, type: :request do
   let(:url_resource) { "/resources/rspec" }
@@ -46,8 +50,8 @@ describe IssuersController, type: :request do
         {
           "max_ttl": 200,
           "data": {
-            "access_key_id": "a",
-            "secret_access_key": "a"
+            "access_key_id": "AKIAIOSFODNN7EXAMPLE",
+            "secret_access_key": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
           }
         }
       BODY
@@ -73,8 +77,8 @@ describe IssuersController, type: :request do
           "max_ttl": 3000,
           "type": "aws",
           "data": {
-            "access_key_id": "my-key-id",
-            "secret_access_key": "my-key-secret"
+            "access_key_id": "AKIAIOSFODNN7EXAMPLE",
+            "secret_access_key": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
           }
         }
       BODY
@@ -83,8 +87,8 @@ describe IssuersController, type: :request do
         {
           "max_ttl": 200,
           "data": {
-            "access_key_id": "a",
-            "secret_access_key": "a",
+            "access_key_id": "AKIAIOSFODNN7EXAMPLE",
+            "secret_access_key": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
             "invalid": "invalid"
           }
         }
@@ -111,8 +115,8 @@ describe IssuersController, type: :request do
         expect(parsed_body["id"]).to eq("aws-issuer-1")
         expect(parsed_body["max_ttl"]).to eq(3000)
         expect(parsed_body["type"]).to eq("aws")
-        expect(parsed_body["data"]["access_key_id"]).to eq("my-key-id")
-        expect(parsed_body["data"]["secret_access_key"]).to eq("my-key-secret")
+        expect(parsed_body["data"]["access_key_id"]).to eq("AKIAIOSFODNN7EXAMPLE")
+        expect(parsed_body["data"]["secret_access_key"]).to eq("wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY")
         expect(response.body).to include("\"created_at\"")
         expect(response.body).to include("\"modified_at\"")
       end
@@ -125,8 +129,8 @@ describe IssuersController, type: :request do
           "max_ttl": 3000,
           "type": "aws",
           "data": {
-            "access_key_id": "my-key-id",
-            "secret_access_key": "my-key-secret"
+            "access_key_id": "AKIAIOSFODNN7EXAMPLE",
+            "secret_access_key": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
           }
         }
       BODY
@@ -135,8 +139,8 @@ describe IssuersController, type: :request do
         {
           "max_ttl": 2000,
           "data": {
-            "access_key_id": "changed-key",
-            "secret_access_key": "changed-secret"
+            "access_key_id": "#{CHANGED_VALID_AWS_KEY}",
+            "secret_access_key": "#{CHANGED_VALID_AWS_SECRET}"
           }
         }
       BODY
@@ -164,8 +168,8 @@ describe IssuersController, type: :request do
           "max_ttl": 3000,
           "type": "aws",
           "data": {
-            "access_key_id": "my-key-id",
-            "secret_access_key": "my-key-secret"
+            "access_key_id": "AKIAIOSFODNN7EXAMPLE",
+            "secret_access_key": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
           }
         }
       BODY
@@ -174,8 +178,8 @@ describe IssuersController, type: :request do
         {
           "max_ttl": 4000,
           "data": {
-            "access_key_id": "changed-key",
-            "secret_access_key": "changed-secret"
+            "access_key_id": "#{CHANGED_VALID_AWS_KEY}",
+            "secret_access_key": "#{CHANGED_VALID_AWS_SECRET}"
           }
         }
       BODY
@@ -199,8 +203,8 @@ describe IssuersController, type: :request do
           expect(parsed_body["id"]).to eq("aws-issuer-1")
           expect(parsed_body["max_ttl"]).to eq(4000)
           expect(parsed_body["type"]).to eq("aws")
-          expect(parsed_body["data"]["access_key_id"]).to eq("changed-key")
-          expect(parsed_body["data"]["secret_access_key"]).to eq("changed-secret")
+          expect(parsed_body["data"]["access_key_id"]).to eq(CHANGED_VALID_AWS_KEY)
+          expect(parsed_body["data"]["secret_access_key"]).to eq(CHANGED_VALID_AWS_SECRET)
           expect(response.body).to include("\"created_at\"")
           created_time_from_body = Time.parse(parsed_body["created_at"])
           expect(created_time_from_body).to be_within(CREATE_ISSUER_TIMEOUT.second).of(Time.now)
@@ -258,8 +262,8 @@ describe IssuersController, type: :request do
             "max_ttl": 3000,
             "type": "aws",
             "data": {
-              "access_key_id": "my-key-id",
-              "secret_access_key": "my-key-secret"
+              "access_key_id": "AKIAIOSFODNN7EXAMPLE",
+              "secret_access_key": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
             }
           }
         BODY
@@ -276,8 +280,8 @@ describe IssuersController, type: :request do
           expect(parsed_body["id"]).to eq("AWS-issuer-1")
           expect(parsed_body["max_ttl"]).to eq(3000)
           expect(parsed_body["type"]).to eq("aws")
-          expect(parsed_body["data"]["access_key_id"]).to eq("my-key-id")
-          expect(parsed_body["data"]["secret_access_key"]).to eq("my-key-secret")
+          expect(parsed_body["data"]["access_key_id"]).to eq("AKIAIOSFODNN7EXAMPLE")
+          expect(parsed_body["data"]["secret_access_key"]).to eq("wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY")
           expect(response.body).to include("\"created_at\"")
           created_time_from_body = Time.parse(parsed_body["created_at"])
           expect(created_time_from_body).to be_within(CREATE_ISSUER_TIMEOUT.second).of(Time.now)
@@ -299,8 +303,8 @@ describe IssuersController, type: :request do
             "max_ttl": 3000,
             "type": "aws",
             "data": {
-              "access_key_id": "my-key-id",
-              "secret_access_key": "my-key-secret"
+              "access_key_id": "AKIAIOSFODNN7EXAMPLE",
+              "secret_access_key": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
             }
           }
         BODY
@@ -329,8 +333,8 @@ describe IssuersController, type: :request do
             "max_ttl": 3000,
             "type": "aws",
             "data": {
-              "access_key_id": "my-key-id",
-              "secret_access_key": "my-key-secret"
+              "access_key_id": "AKIAIOSFODNN7EXAMPLE",
+              "secret_access_key": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
             }
           }
         BODY
@@ -356,8 +360,8 @@ describe IssuersController, type: :request do
             "max_ttl": 2000,
             "type": "aws",
             "data": {
-              "access_key_id": "my-key-id",
-              "secret_access_key": "my-key-secret"
+              "access_key_id": "AKIAIOSFODNN7EXAMPLE",
+              "secret_access_key": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
             }
           }
         BODY
@@ -446,8 +450,8 @@ describe IssuersController, type: :request do
             "unsupported_parameter": "aaa",
             "type": "aws",
             "data": {
-              "access_key_id": "my-key-id",
-              "secret_access_key": "my-key-secret"
+              "access_key_id": "AKIAIOSFODNN7EXAMPLE",
+              "secret_access_key": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
             }
           }
         BODY
@@ -471,8 +475,8 @@ describe IssuersController, type: :request do
             "max_ttl": 3000,
             "type": "aws",
             "data": {
-              "access_key_id": "my-key-id",
-              "secret_access_key": "my-key-secret",
+              "access_key_id": "AKIAIOSFODNN7EXAMPLE",
+              "secret_access_key": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
               "unsupported_parameter": "aaa"
             }
           }
@@ -497,8 +501,8 @@ describe IssuersController, type: :request do
             "max_ttl": 1000,
             "type": "aws",
             "data": {
-              "access_key_id": "my-key-id",
-              "secret_access_key": "my-key-secret"
+              "access_key_id": "AKIAIOSFODNN7EXAMPLE",
+              "secret_access_key": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
             }
           }
         BODY
@@ -533,8 +537,8 @@ describe IssuersController, type: :request do
             "max_ttl": 200,
             "type": "aws",
             "data": {
-              "access_key_id": "aaa",
-              "secret_access_key": "a"
+              "access_key_id": "AKIAIOSFODNN7EXAMPLE",
+              "secret_access_key": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
             }
           }
         BODY
@@ -570,8 +574,8 @@ describe IssuersController, type: :request do
             "max_ttl": 200,
             "type": "aws",
             "data": {
-              "access_key_id": "aaa",
-              "secret_access_key": "a"
+              "access_key_id": "AKIAIOSFODNN7EXAMPLE",
+              "secret_access_key": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
             }
           }
         BODY
@@ -583,8 +587,8 @@ describe IssuersController, type: :request do
             "max_ttl": 200,
             "type": "aws",
             "data": {
-              "access_key_id": "aaa",
-              "secret_access_key": "a"
+              "access_key_id": "AKIAIOSFODNN7EXAMPLE",
+              "secret_access_key": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
             }
           }
         BODY
@@ -694,8 +698,8 @@ describe IssuersController, type: :request do
             "max_ttl": 200,
             "type": "aws",
             "data": {
-              "access_key_id": "a",
-              "secret_access_key": "a"
+              "access_key_id": "AKIAIOSFODNN7EXAMPLE",
+              "secret_access_key": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
             }
           }
         BODY
@@ -725,8 +729,8 @@ describe IssuersController, type: :request do
             "max_ttl": 200,
             "type": "aws",
             "data": {
-              "access_key_id": "a",
-              "secret_access_key": "a"
+              "access_key_id": "AKIAIOSFODNN7EXAMPLE",
+              "secret_access_key": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
             }
           }
         BODY
@@ -763,8 +767,8 @@ describe IssuersController, type: :request do
         expect(parsed_body["id"]).to eq("issuer-1")
         expect(parsed_body["max_ttl"]).to eq(200)
         expect(parsed_body["type"]).to eq("aws")
-        expect(parsed_body["data"]["access_key_id"]).to eq("a")
-        expect(parsed_body["data"]["secret_access_key"]).to eq("a")
+        expect(parsed_body["data"]["access_key_id"]).to eq("AKIAIOSFODNN7EXAMPLE")
+        expect(parsed_body["data"]["secret_access_key"]).to eq("wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY")
         expect(response.body).to include("\"created_at\"")
         expect(response.body).to include("\"modified_at\"")
       end
@@ -828,8 +832,8 @@ describe IssuersController, type: :request do
             "max_ttl": 200,
             "type": "aws",
             "data": {
-              "access_key_id": "a",
-              "secret_access_key": "a"
+              "access_key_id": "AKIAIOSFODNN7EXAMPLE",
+              "secret_access_key": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
             }
           }
         BODY
@@ -859,8 +863,8 @@ describe IssuersController, type: :request do
             "max_ttl": 200,
             "type": "aws",
             "data": {
-              "access_key_id": "a",
-              "secret_access_key": "a"
+              "access_key_id": "AKIAIOSFODNN7EXAMPLE",
+              "secret_access_key": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
             }
           }
         BODY
@@ -872,8 +876,8 @@ describe IssuersController, type: :request do
             "max_ttl": 300,
             "type": "aws",
             "data": {
-              "access_key_id": "aaa",
-              "secret_access_key": "aaa"
+              "access_key_id": "AKIAIOSFODNN7EXAMPLE",
+              "secret_access_key": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
             }
           }
         BODY
