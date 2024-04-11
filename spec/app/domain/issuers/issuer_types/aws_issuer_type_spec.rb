@@ -8,8 +8,8 @@ describe "AwsIssuerType input validation" do
                                                 max_ttl: 2000,
                                                 type: "aws",
                                                 data: {
-                                                  access_key_id: "a", 
-                                                  secret_access_key: "a"
+                                                  access_key_id: "AKIAIOSFODNN7EXAMPLE", 
+                                                  secret_access_key: "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
                                                 })
       expect { AwsIssuerType.new.validate(params) }
         .to_not raise_error
@@ -107,6 +107,32 @@ describe "AwsIssuerType input validation" do
                                                   access_key_id: "a",
                                                   secret_access_key: "",
                                                   invalid_param: "a"
+                                                })
+      expect { AwsIssuerType.new.validate(params) }
+        .to raise_error(ApplicationController::BadRequestWithBody)
+    end
+  end
+  context "when access key id is not in the correct format" do
+    it "then the input validation fails" do
+      params = ActionController::Parameters.new(id: "aws-issuer-1",
+                                                max_ttl: 2000,
+                                                type: "aws",
+                                                data: {
+                                                  access_key_id: "a",
+                                                  secret_access_key: "a"
+                                                })
+      expect { AwsIssuerType.new.validate(params) }
+        .to raise_error(ApplicationController::BadRequestWithBody)
+    end
+  end
+  context "when secret access key is not in the correct format" do
+    it "then the input validation fails" do
+      params = ActionController::Parameters.new(id: "aws-issuer-1",
+                                                max_ttl: 2000,
+                                                type: "aws",
+                                                data: {
+                                                  access_key_id: "AKIAIOSFODNN7EXAMPLE",
+                                                  secret_access_key: "a"
                                                 })
       expect { AwsIssuerType.new.validate(params) }
         .to raise_error(ApplicationController::BadRequestWithBody)

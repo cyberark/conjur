@@ -1,7 +1,12 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 require './app/domain/util/static_account'
 
 DatabaseCleaner.strategy = :truncation
+
+VALID_AWS_KEY = '"AKIAIOSFODNN7EXAMPLE"'
+VALID_AWS_SECRET = '"wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"'
 
 describe DynamicSecretsController, type: :request do
   let(:admin_user) { Role.find_or_create(role_id: 'rspec:user:admin') }
@@ -102,8 +107,8 @@ describe DynamicSecretsController, type: :request do
             "max_ttl": 1000,
             "type": "aws",
             "data": {
-              "access_key_id": "my-key-id",
-              "secret_access_key": "my-key-secret"
+              "access_key_id": #{VALID_AWS_KEY},
+              "secret_access_key":#{VALID_AWS_SECRET}
             }
           }
         BODY
@@ -178,8 +183,8 @@ describe DynamicSecretsController, type: :request do
           "max_ttl": 2000,
           "type": "aws",
           "data": {
-            "access_key_id": "my-key-id",
-            "secret_access_key": "my-key-secret"
+            "access_key_id": #{VALID_AWS_KEY},
+            "secret_access_key":#{VALID_AWS_SECRET}
           }
         }
       BODY
@@ -298,8 +303,8 @@ describe DynamicSecretsController, type: :request do
           "max_ttl": 2000,
           "type": "aws",
           "data": {
-            "access_key_id": "my-key-id",
-            "secret_access_key": "my-key-secret"
+            "access_key_id": #{VALID_AWS_KEY},
+            "secret_access_key":#{VALID_AWS_SECRET}
           }
         }
       BODY
@@ -466,8 +471,8 @@ describe DynamicSecretsController, type: :request do
           "max_ttl": 1000,
           "type": "aws",
           "data": {
-            "access_key_id": "my-key-id",
-            "secret_access_key": "my-key-secret"
+            "access_key_id": #{VALID_AWS_KEY},
+            "secret_access_key":#{VALID_AWS_SECRET}
           }
         }
       BODY
@@ -798,8 +803,8 @@ describe DynamicSecretsController, type: :request do
           "max_ttl": 100,
           "type": "aws",
           "data": {
-            "access_key_id": "my-key-id",
-            "secret_access_key": "my-key-secret"
+            "access_key_id": #{VALID_AWS_KEY},
+            "secret_access_key":#{VALID_AWS_SECRET}
           }
         }
       BODY
@@ -1345,8 +1350,8 @@ describe DynamicSecretsController, type: :request do
           "max_ttl": 1000,
           "type": "aws",
           "data": {
-            "access_key_id": "my-key-id",
-            "secret_access_key": "my-key-secret"
+            "access_key_id": #{VALID_AWS_KEY},
+            "secret_access_key":#{VALID_AWS_SECRET}
           }
         }
       BODY
@@ -1559,8 +1564,8 @@ describe DynamicSecretsController, type: :request do
           "max_ttl": 1000,
           "type": "aws",
           "data": {
-            "access_key_id": "my-key-id",
-            "secret_access_key": "my-key-secret"
+            "access_key_id": #{VALID_AWS_KEY},
+            "secret_access_key":#{VALID_AWS_SECRET}
           }
         }
       BODY
@@ -1986,8 +1991,8 @@ describe DynamicSecretsController, type: :request do
           "max_ttl": 1000,
           "type": "aws",
           "data": {
-            "access_key_id": "my-key-id",
-            "secret_access_key": "my-key-secret"
+            "access_key_id": #{VALID_AWS_KEY},
+            "secret_access_key":#{VALID_AWS_SECRET}
           }
         }
       BODY
