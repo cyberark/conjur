@@ -3,7 +3,7 @@
 require 'spec_helper'
 include AnnotationsHandler
 
-describe "Annotation Handler's get_annotations" do
+describe "Annotation Handler get annotations" do
   let(:annotation) do
     double('annotation', name: 'annotation_name', value: 'annotation_value')
   end
@@ -26,60 +26,29 @@ describe "Annotation Handler's get_annotations" do
   end
 end
 
-describe "Annotation Handler's validate annotations" do
-  context 'annotation without a name' do
-    let(:annotations) do
-      [{ :value=> 'annotation value'},
-       { :name=> 'valid_annotation', :value=> 'valid annotation value'}]
-    end
-    it 'input validation will fail' do
-      expect { validate_annotations(annotations)
-      }.to raise_error(Errors::Conjur::ParameterMissing)
-    end
+describe "Annotation Handler validate annotations" do
+  let(:annotations_handler) do
+    my_instance = Object.new
+    my_instance.extend(AnnotationsHandler)
+    my_instance
   end
-  context 'annotation without a value' do
-    let(:annotations) do
-      [{ :name=> 'annotation_name'}]
-    end
-    it 'input validation will fail' do
-      expect { validate_annotations(annotations)
-      }.to raise_error(Errors::Conjur::ParameterMissing)
-    end
+  let(:annotations) do
+    [{ :name=> "description", :value=> "desc"}]
   end
-  context 'annotation name not valid' do
-    let(:annotations) do
-      [{ :name=> 'annotation name', :value=> 'annotation value'}]
-    end
-    it 'input validation will fail' do
-      expect { validate_annotations(annotations)
-      }.to raise_error(ApplicationController::UnprocessableEntity)
-    end
-  end
-  context 'annotation name type not valid' do
-    let(:annotations) do
-      [{ :name=> 5, :value=> 'annotation value'}]
-    end
-    it 'input validation will fail' do
-      expect { validate_annotations(annotations)
-      }.to raise_error(Errors::Conjur::ParameterTypeInvalid)
-    end
-  end
-  context 'annotation value type not valid' do
-    let(:annotations) do
-      [{ :name=> "annotation_name", :value=> 5}]
-    end
-    it 'input validation will fail' do
-      expect { validate_annotations(annotations)
-      }.to raise_error(Errors::Conjur::ParameterTypeInvalid)
-    end
-  end
-  context 'annotation valid' do
-    let(:annotations) do
-      [{ :name=> "anno4t/atTion_na-me", :value=> "value"}]
-    end
-    it 'input validation passes' do
-      expect { validate_annotations(annotations)
-      }.to_not raise_error
+
+  context "when validating annotations" do
+    it "correct validators are being called for each field" do
+      expect(annotations_handler).to receive(:validate_field_required).with(:"annotation name",{type: String,value: "description"})
+      expect(annotations_handler).to receive(:validate_field_required).with(:"annotation value",{type: String,value: "desc"})
+
+      expect(annotations_handler).to receive(:validate_field_type).with(:"annotation name",{type: String,value: "description"})
+      expect(annotations_handler).to receive(:validate_field_type).with(:"annotation value",{type: String,value: "desc"})
+
+      expect(annotations_handler).to receive(:validate_path).with(:"annotation name",{type: String,value: "description"})
+
+      expect(annotations_handler).to receive(:validate_annotation_value).with(:"annotation value",{type: String,value: "desc"})
+
+      annotations_handler.validate_annotations(annotations)
     end
   end
 end

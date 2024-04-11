@@ -54,6 +54,10 @@ module ParamsValidator
     validate_string(param_name, data[:value], /\A[a-zA-Z0-9_\/-]+\z/, 500)
   end
 
+  def validate_resource_id(param_name, data)
+    validate_string(param_name, data[:value], /\A[a-zA-Z0-9@._\/-]+\z/, 500)
+  end
+
   def validate_mime_type(param_name, data)
     validate_string(param_name, data[:value], /^[a-zA-Z0-9!#$&^_-]+\/[a-zA-Z0-9!\#$&^_-]+(?:\+[a-zA-Z0-9!\#$&^_-]+)?$/, 100)
   end
