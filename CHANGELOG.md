@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Adding telemetry support for  ConjurCloud
 - Redis (disabled) with support for: get, batch, version, encryption, deletion, v2-update
 - API agents edge info (replace agent validate-permission)
+- Redis (disabled) support for slosilo key rotation and fetch.
 
 ### Removed
 - API agent validate-permission

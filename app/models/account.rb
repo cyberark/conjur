@@ -78,6 +78,7 @@ Account = Struct.new(:id) do
     Secret.where(Sequel.lit("account(resource_id)") => id).delete
     slosilo_keystore.adapter.model[token_id("user")].destroy
     slosilo_keystore.adapter.model[token_id("host")].destroy
+    Rails.cache.clear
     true
   end
 
