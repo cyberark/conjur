@@ -74,7 +74,7 @@ describe Account, :type => :model do
     describe "when the account exists" do
       it "deletes it" do
         create_account
-        Account.new(account_name).delete 
+        Account.new(account_name).delete
 
         expect(token_key(account_name, "host")).to_not be
         expect(token_key(account_name, "user")).to_not be

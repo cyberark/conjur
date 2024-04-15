@@ -143,11 +143,11 @@ describe SecretsController, type: :request do
       Role.find_or_create(role_id: user_owner_id)
       Resource.create(resource_id: data_var_id, owner_id: user_owner_id)
       Secret.create(resource_id: data_var_id, value: 'secret')
-      Rails.cache.clear
     end
 
+
     it "Show succeeds when Redis throws exception" do
-      expect(Rails.cache).to receive(:read).and_raise(ApplicationController::ServiceUnavailable)
+      expect(Rails.cache).to receive(:read).exactly(3).times.and_raise(ApplicationController::ServiceUnavailable)
 
       get("/secrets/#{data_var_id.gsub(':', '/')}", env: token_auth_header(role: admin_user))
 
@@ -157,7 +157,7 @@ describe SecretsController, type: :request do
 
     it "Create succeeds when Redis throws exception" do
       write_into_redis(data_var_id, 'secret')
-      expect(Rails.cache).to receive(:write).and_raise(ApplicationController::ServiceUnavailable)
+      expect(Rails.cache).to receive(:write).twice.and_raise(ApplicationController::ServiceUnavailable)
 
       post("/secrets/#{data_var_id.gsub(':', '/')}", env: token_auth_header(role: admin_user).merge(payload))
 
@@ -165,7 +165,7 @@ describe SecretsController, type: :request do
     end
 
     it "Show succeeds when Redis returns nil" do
-      expect(Rails.cache).to receive(:read).twice.and_return(nil)
+      expect(Rails.cache).to receive(:read).exactly(4).times.and_return(nil)
 
       get("/secrets/#{data_var_id.gsub(':', '/')}", env: token_auth_header(role: admin_user))
 
@@ -174,7 +174,7 @@ describe SecretsController, type: :request do
     end
 
     it "Create succeeds when Redis returns nil" do
-      expect(Rails.cache).to receive(:read).twice.and_return(nil) # Create reads before it creating
+      expect(Rails.cache).to receive(:read).exactly(4).times.and_return(nil) # Create reads before it creating
 
       post("/secrets/#{data_var_id.gsub(':', '/')}", env: token_auth_header(role: admin_user).merge(payload))
 
