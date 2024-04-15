@@ -17,25 +17,26 @@ describe "Dynamic secret create input validation" do
       }.to raise_error(ApplicationController::UnprocessableEntity)
     end
   end
-  context "when creating dynamic secret not under ephemeral branch" do
+  context "when creating dynamic secret not under dynamic branch" do
     before do
       StaticAccount.set_account("rspec")
       allow(Resource).to receive(:[]).with("rspec:policy:data/secrets").and_return("policy")
       $primary_schema = "public"
     end
     it "input validation fails" do
-      params = ActionController::Parameters.new(name: "secret1", branch: "data/secrets", type: "ephemeral", issuer: "issuer1", ttl: 120)
+      params = ActionController::Parameters.new(name: "secret1", branch: "data/secrets", type: "dynamic", issuer: "issuer1", ttl: 120)
       expect { dynamic_secret.create_input_validation(params)
       }.to raise_error(ApplicationController::UnprocessableEntity)
     end
   end
 
-  context "when creating ephemeral secret" do
+  context "when creating dynamic secret" do
     let(:issuer_object) { 'issuer' }
     let(:issuer) do
       {
         id: "issuer2",
-        max_ttl: 100
+        max_ttl: 1400,
+        issuer_type: "aws",
       }
     end
     context "with not existing issuer" do
@@ -45,7 +46,7 @@ describe "Dynamic secret create input validation" do
         $primary_schema = "public"
       end
       it "input validation fails" do
-        params = ActionController::Parameters.new(name: "secret1", branch: "data/dynamic", ttl: 120, issuer: "issuer2")
+        params = ActionController::Parameters.new(name: "secret1", branch: "data/dynamic", ttl: 1200, issuer: "issuer2")
         expect { dynamic_secret.create_input_validation(params)
         }.to raise_error(Exceptions::RecordNotFound)
       end
@@ -58,9 +59,9 @@ describe "Dynamic secret create input validation" do
       end
       context "with wrong ttl" do
         it "input validation fails" do
-          params = ActionController::Parameters.new(name: "secret1", branch: "data/dynamic", ttl: 120, issuer: "issuer2")
+          params = ActionController::Parameters.new(name: "secret1", branch: "data/dynamic", ttl: 2200, issuer: "issuer2")
           expect { dynamic_secret.create_input_validation(params)
-          }.to raise_error(ApplicationController::BadRequestWithBody)
+          }.to raise_error(ApplicationController::UnprocessableEntity)
         end
       end
       context "when validating create request" do
@@ -80,7 +81,7 @@ describe "Dynamic secret create input validation" do
           dynamic_secret.send(:dynamic_input_validation, params)
         end
       end
-      context "aws ephemeral secret with all correct input" do
+      context "aws dynamic secret with all correct input" do
         it "input validation succeeds" do
           params = ActionController::Parameters.new(name: "secret1", branch: "data/dynamic", ttl: 20, issuer: "issuer2")
           expect { dynamic_secret.create_input_validation(params)

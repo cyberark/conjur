@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 require_relative '../../controllers/concerns/authorize_resource'
 require_relative '../../domain/secrets/cache/redis_handler'
+require_relative '../../domain/issuers/issuer_types/issuer_type_factory'
 
 module Loader
   module Types
@@ -281,7 +282,7 @@ module Loader
 
       def_delegators :@policy_object, :kind, :mime_type
 
-      def verify;
+      def verify
         if self.id.start_with?(Issuer::DYNAMIC_VARIABLE_PREFIX)
           if self.annotations[Issuer::DYNAMIC_ANNOTATION_PREFIX + "issuer"].nil?
             message = "The dynamic variable '#{self.id}' has no issuer annotation"
@@ -293,6 +294,16 @@ module Loader
             if (issuer.nil?)
               issuer_exception_id = "#{@policy_object.account}:issuer:#{issuer_id}"
               raise Exceptions::RecordNotFound, issuer_exception_id
+            end
+           
+            if self.annotations["#{Issuer::DYNAMIC_ANNOTATION_PREFIX}method"].nil?
+              raise Exceptions::InvalidPolicyObject.new(self.id, message: "The dynamic variable '#{self.id}' has no method annotation")
+            end
+
+            begin
+              IssuerTypeFactory.new.create_issuer_type(issuer[:issuer_type]).validate_variable(self.annotations, issuer)
+            rescue ArgumentError => e
+              raise Exceptions::InvalidPolicyObject.new(self.id, message: e.message)
             end
 
             resource_id = @policy_object.account + ":policy:conjur/issuers/" + issuer_id

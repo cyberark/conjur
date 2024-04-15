@@ -134,8 +134,14 @@ module Secrets
         issuer = Issuer.where(issuer_id: issuer_id).first
         raise Exceptions::RecordNotFound, "#{account}:issuer:#{issuer_id}" unless issuer
 
-        # check secret ttl is less then the issuer ttl
-        raise ApplicationController::BadRequestWithBody, "Dynamic secret ttl can't be bigger than the issuer ttl #{issuer[:max_ttl]}" if params[:ttl] > issuer[:max_ttl]
+        annotations = { DYNAMIC_METHOD => params[:method],
+                        DYNAMIC_TTL => params[:ttl] }
+        issuer_type = issuer[:issuer_type]
+        begin
+          IssuerTypeFactory.new.create_issuer_type(issuer_type).validate_variable(annotations, issuer)
+        rescue ArgumentError => e
+          raise ApplicationController::UnprocessableEntity, e.message
+        end
       end
     end
   end

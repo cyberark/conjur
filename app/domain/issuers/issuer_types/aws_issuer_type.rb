@@ -20,9 +20,49 @@ class AwsIssuerType < IssuerBaseType
     super
     validate_data(params[:data])
   end
+
+  def validate_variable(annotations, issuer_data)
+    super
+
+    ttl_value = annotations["#{Issuer::DYNAMIC_ANNOTATION_PREFIX}ttl"]
+    return if ttl_value.nil?
+
+    variable_method = annotations["#{Issuer::DYNAMIC_ANNOTATION_PREFIX}method"]
+    unless variable_method.nil?
+      validate_ttl(ttl_value, variable_method, issuer_data)
+    end
+
+    validate_ttl_per_issuer(ttl_value, issuer_data)
+  end
 end
 
 private
+
+def validate_ttl(ttl, method, issuer_data)
+  # ttl is not mandatory
+  if ttl.nil?
+    return
+  end
+
+  if method == "federation-token"
+    if ttl < 900 || ttl > 43200
+      message = "Dynamic variable TTL is out of range for federation token (range is 900 to 43200)"
+      raise ArgumentError, message
+    end
+  elsif method == "assume-role"
+    if ttl < 900 || ttl > 129600
+      message = "Dynamic variable TTL is out of range for assume role (range is 900 to 129600)"
+      raise ArgumentError, message
+    end
+  end
+end
+
+def validate_ttl_per_issuer(ttl, issuer_data)
+  return unless ttl > issuer_data[:max_ttl]
+
+  message = "Dynamic secret ttl can't be bigger than the issuer ttl #{issuer_data[:max_ttl]}"
+  raise ArgumentError, message
+end
 
 def validate_data(data)
   unless data.is_a?(ActionController::Parameters)

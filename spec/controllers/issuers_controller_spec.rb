@@ -375,6 +375,7 @@ describe IssuersController, type: :request do
               id: related-ephemeral-variable
               annotations:
                 dynamic/issuer: my-new-aws-issuer
+                dynamic/method: assume-role
         POLICY
       end
       it 'it returns conflict' do
@@ -602,10 +603,12 @@ describe IssuersController, type: :request do
               id: related-ephemeral-variable
               annotations:
                 dynamic/issuer: my-new-aws-issuer
+                dynamic/method: assume-role
             - !variable
               id: unrelated-ephemeral-variable
               annotations:
                 dynamic/issuer: my-other-issuer
+                dynamic/method: assume-role
         POLICY
       end
       let(:payload_create_non_ephemeral_variable) do
@@ -617,6 +620,7 @@ describe IssuersController, type: :request do
               id: non-ephemeral-variable
               annotations:
                 dynamic/issuer: my-new-aws-issuer
+                dynamic/method: assume-role
         POLICY
       end
       before do
