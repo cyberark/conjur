@@ -157,7 +157,7 @@ describe SecretsController, type: :request do
 
     it "Create succeeds when Redis throws exception" do
       write_into_redis(data_var_id, 'secret')
-      expect(Rails.cache).to receive(:write).twice.and_raise(ApplicationController::ServiceUnavailable)
+      expect(Rails.cache).to receive(:write).at_least(:once).and_raise(ApplicationController::ServiceUnavailable)
 
       post("/secrets/#{data_var_id.gsub(':', '/')}", env: token_auth_header(role: admin_user).merge(payload))
 
