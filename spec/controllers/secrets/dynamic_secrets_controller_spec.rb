@@ -1455,7 +1455,23 @@ describe DynamicSecretsController, type: :request do
           )
         )
         assert_response :success
-        expect(response.body).to eq("{\"branch\":\"/data/dynamic\",\"name\":\"federation_token_secret\",\"issuer\":\"aws-issuer-1\",\"ttl\":1200,\"method\":\"federation-token\",\"annotations\":[{\"name\":\"description\",\"value\":\"desc\"},{\"name\":\"annotation_to_delete\",\"value\":\"delete\"}],\"permissions\":[{\"subject\":{\"id\":\"alice\",\"kind\":\"user\"},\"privileges\":[\"read\"]}]}")
+        body = JSON.parse(response.body)
+        expect(body["branch"]).to eq("/data/dynamic")
+        expect(body["name"]).to eq("federation_token_secret")
+        expect(body["issuer"]).to eq("aws-issuer-1")
+        expect(body["ttl"]).to eq(1200)
+        expect(body["method"]).to eq("federation-token")
+
+        # Annotations
+        expect(body["annotations"]).to include(
+                                                              { "name" => "description", "value" => "desc" },
+                                                              { "name" => "annotation_to_delete", "value" => "delete" }
+                                                            )
+
+        # Permissions
+        expect(body["permissions"][0]["subject"]["id"]).to eq("alice")
+        expect(body["permissions"][0]["subject"]["kind"]).to eq("user")
+        expect(body["permissions"][0]["privileges"]).to eq(["read"])
       end
     end
     context 'User with read permissions calls for get assume role secret' do
