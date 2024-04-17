@@ -1,0 +1,10 @@
+policy: |
+  - !user root-user
+  - !policy
+    id: nested
+    body:
+      - !user
+      - !grant
+          role: !user ../root-user
+          member: !user nested
+error: "Invalid relative reference: nested/../root-user"

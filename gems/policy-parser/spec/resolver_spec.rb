@@ -59,16 +59,102 @@ describe Conjur::PolicyParser::PolicyNamespaceResolver do
     expect(record.id).to eq('namespace/test-id')
   end
 
-  it "appends namespace to user ids" do
-    record = Types::User.new('test-id')
-    resolver.resolve_record(record, nil)
-    expect(record.id).to eq('test-id@namespace')
-  end
-
   it "leaves absolute ids intact" do
-    record = Types::User.new('/test-id')
+    record = Types::Group.new('/test-id')
     resolver.resolve_record(record, nil)
     expect(record.id).to eq('/test-id')
+  end
+
+  it "handles absolute user ids" do
+    record = Types::User.new('/root/inner/test-id')
+    resolver.resolve_record(record, nil)
+    expect(record.id).to eq('/root/inner/test-id')
+  end
+
+  it "handles relative user ids" do
+    record = Types::User.new('inner/test-id')
+    resolver.resolve_record(record, nil)
+    expect(record.id).to eq('namespace/inner/test-id')
+  end
+
+  it "handles .. operator in relative addressing" do
+    record = Types::User.new('../test-id')
+    resolver.resolve_record(record, nil)
+    expect(record.id).to eq('namespace/../test-id')
+  end
+
+  subject(:resolver) do
+    described_class.new('account', 'account:user:owner').tap do |r|
+      allow(r).to receive_messages(namespace: 'namespace')
+    end
+  end
+  Types = Conjur::PolicyParser::Types
+end
+
+describe Conjur::PolicyParser::UserIdentifierNotationResolver do
+  it "handles simple addressing" do
+    record = Types::User.new('test-id')
+    resolver.resolve_record(record, nil)
+    expect(record.id).to eq('test-id')
+  end
+
+  it "handles addressing with nesting" do
+    record = Types::User.new('root/inner/test-id')
+    resolver.resolve_record(record, nil)
+    expect(record.id).to eq('test-id@root-inner')
+  end
+
+  it "fails if .. wasn't resolved" do
+    record = Types::User.new('../test-id')
+    expect { resolver.resolve_record(record, nil) }.to(
+      raise_error("Invalid relative reference: ../test-id")
+    )
+  end
+
+  it "ignores non user resources" do
+    record = Types::Resource.new('test-kind', 'namespace/test-id')
+    resolver.resolve_record(record, nil)
+    expect(record.id).to eq('namespace/test-id')
+  end
+
+  subject(:resolver) do
+    described_class.new('account', 'account:user:owner').tap do |r|
+      allow(r).to receive_messages(namespace: 'namespace')
+    end
+  end
+  Types = Conjur::PolicyParser::Types
+end
+
+describe Conjur::PolicyParser::RelativePathResolver do
+  it "handles owner relative addressing with nesting" do
+    record = Types::Policy.new('policy-id')
+    record.owner = Types::User.new('root/inner/../test-id')
+
+    resolver.resolve_record(record, Set.new)
+    expect(record.owner.id).to eq('root/test-id')
+  end
+
+  it "handles user absolute addressing with nesting" do
+    record = Types::Policy.new('policy-id')
+    record.owner = Types::User.new('/root/inner/../test-id')
+
+    resolver.resolve_record(record, Set.new)
+    expect(record.owner.id).to eq('root/test-id')
+  end
+
+  it "fails on invalid .. addressing" do
+    record = Types::Policy.new('policy-id')
+    record.owner = Types::User.new('/../test-id')
+    expect { resolver.resolve_record(record, Set.new) }.to(
+      raise_error("Invalid relative reference: ../test-id")
+    )
+  end
+
+  it "ignores grant role addressing" do
+    record = Types::Grant.new
+    record.roles = [Types::User.new('../test-id')]
+    resolver.resolve_record(record, Set.new)
+    expect(record.roles.first.id).to eq('../test-id')
   end
 
   subject(:resolver) do
