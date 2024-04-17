@@ -19,8 +19,8 @@ Feature: Issuers audits tests
       "max_ttl": 3000,
       "type": "aws",
       "data": {
-        "access_key_id": "my-key-id",
-        "secret_access_key": "my-key-secret"
+        "access_key_id": "AKIAIOSFODNN7EXAMPLE",
+        "secret_access_key": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
       }
     }
     """
@@ -37,8 +37,8 @@ Feature: Issuers audits tests
       "max_ttl": 3000,
       "type": "aws",
       "data": {
-        "access_key_id": "my-key-id",
-        "secret_access_key": "my-key-secret"
+        "access_key_id": "AKIAIOSFODNN7EXAMPLE",
+        "secret_access_key": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
       }
     }
     """
@@ -65,8 +65,8 @@ Feature: Issuers audits tests
       "max_ttl": 3000,
       "type": "aws",
       "data": {
-        "access_key_id": "my-key-id",
-        "secret_access_key": "my-key-secret"
+        "access_key_id": "AKIAIOSFODNN7EXAMPLE",
+        "secret_access_key": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
       }
     }
     """
@@ -177,6 +177,7 @@ Feature: Issuers audits tests
         id: my-ephemeral-secret
         annotations:
           dynamic/issuer: aws-issuer-1
+          dynamic/method: assume-role
 
     - !policy
       id: data
@@ -193,6 +194,7 @@ Feature: Issuers audits tests
         id: my-other-ephemeral-secret
         annotations:
           dynamic/issuer: aws-issuer-1
+          dynamic/method: assume-role
     """
     And I save my place in the audit log file for remote
     When I clear the "Content-Type" header
