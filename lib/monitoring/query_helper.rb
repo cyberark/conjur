@@ -4,6 +4,8 @@ module Monitoring
   class QueryHelper
     include Singleton
 
+    DYNAMIC_VARIABLE_PREFIX = "data/dynamic/"
+
     def policy_resource_counts
       counts = {}
       kind = ::Sequel.function(:kind, :resource_id)

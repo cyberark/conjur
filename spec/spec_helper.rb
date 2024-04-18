@@ -26,6 +26,7 @@ require 'rspec/rails'
 Dir[Rails.root.join("spec/support/**/*.rb")].sort.each {|f| require f}
 
 ENV['CONJUR_ACCOUNT'] = 'rspec'
+ENV['TENANT_ID'] = "mytenant"
 ENV.delete('CONJUR_ADMIN_PASSWORD')
 
 $LOAD_PATH << '../app/domain'
