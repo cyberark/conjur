@@ -1961,7 +1961,7 @@ describe StaticSecretsController, type: :request do
                           [{"name"=>"description","value"=>"desc"},{"name"=>"annotation_to_delete","value"=>"delete"}],
                           [{"subject"=>{"id"=>"alice","kind"=>"user"},"privileges"=>["update","read","execute"]}])
         # Correct audit is returned
-        audit_message = "rspec:user:alice successfully got secret data/secrets/secret_to_update with url: '/secrets/static/data/secrets/secret_to_update'"
+        audit_message = "rspec:user:alice successfully retrieved secret data/secrets/secret_to_update with url: '/secrets/static/data/secrets/secret_to_update'"
         verify_audit_message(audit_message)
         # update secret value
         put("/secrets/static/data/secrets/secret_to_update",
@@ -2019,9 +2019,6 @@ describe StaticSecretsController, type: :request do
   end
 
   def compare_json_arrays(array1, array2)
-    #array1 = JSON.parse(json1)
-    #array2 = JSON.parse(json2)
-
     # Sort arrays based on a unique identifier or key
     sorted_array1 = array_to_sorted_json(array1)
     sorted_array2 = array_to_sorted_json(array2)

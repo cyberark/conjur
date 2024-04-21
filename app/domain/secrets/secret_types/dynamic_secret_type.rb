@@ -15,7 +15,7 @@ module Secrets
         if branch.start_with?("/")
           branch = branch[1..-1]
         end
-        raise ApplicationController::UnprocessableEntity, "Dynamic secret can be created only under #{Issuer::DYNAMIC_VARIABLE_PREFIX}" unless branch.start_with?(Issuer::DYNAMIC_VARIABLE_PREFIX.chop)
+        raise ApplicationController::UnprocessableEntity, "Dynamic secrets must be created under #{Issuer::DYNAMIC_VARIABLE_PREFIX}" unless is_dynamic_branch(branch)
 
         dynamic_input_validation(params)
       end
@@ -134,11 +134,8 @@ module Secrets
         issuer = Issuer.where(issuer_id: issuer_id).first
         raise Exceptions::RecordNotFound, "#{account}:issuer:#{issuer_id}" unless issuer
 
-        annotations = { DYNAMIC_METHOD => params[:method],
-                        DYNAMIC_TTL => params[:ttl] }
-        issuer_type = issuer[:issuer_type]
         begin
-          IssuerTypeFactory.new.create_issuer_type(issuer_type).validate_variable(annotations, issuer)
+          IssuerTypeFactory.new.create_issuer_type(issuer[:issuer_type]).validate_variable(params[:method], params[:ttl], issuer)
         rescue ArgumentError => e
           raise ApplicationController::UnprocessableEntity, e.message
         end

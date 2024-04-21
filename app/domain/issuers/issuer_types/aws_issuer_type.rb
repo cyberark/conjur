@@ -3,6 +3,9 @@
 require_relative './issuer_base_type'
 
 class AwsIssuerType < IssuerBaseType
+  FEDERATION_TOKEN_METHOD = "federation-token"
+  ASSUME_ROLE_METHOD = "assume-role"
+
   REQUIRED_DATA_PARAM_MISSING = "'%s' is a required parameter in data and must be specified"
   INVALID_INPUT_PARAM         = "invalid parameter received in data. Only access_key_id and secret_access_key are allowed"
   NUM_OF_EXPECTED_DATA_PARAMS = 2
@@ -21,18 +24,19 @@ class AwsIssuerType < IssuerBaseType
     validate_data(params[:data])
   end
 
-  def validate_variable(annotations, issuer_data)
+  def validate_variable(variable_method, variable_ttl, issuer_data)
     super
 
-    ttl_value = annotations["#{Issuer::DYNAMIC_ANNOTATION_PREFIX}ttl"]
-    return if ttl_value.nil?
+    validate_variable_method(variable_method)
+    validate_ttl(variable_ttl, variable_method, issuer_data)
+  end
 
-    variable_method = annotations["#{Issuer::DYNAMIC_ANNOTATION_PREFIX}method"]
-    unless variable_method.nil?
-      validate_ttl(ttl_value, variable_method, issuer_data)
+  private
+
+  def validate_variable_method(variable_method)
+    unless [AwsIssuerType::FEDERATION_TOKEN_METHOD, AwsIssuerType::ASSUME_ROLE_METHOD].include?(variable_method)
+      raise ArgumentError, "The method annotation in the variable definition for dynamic secret is not valid. Allowed values: assume-role, federation-token"
     end
-
-    validate_ttl_per_issuer(ttl_value, issuer_data)
   end
 end
 
@@ -44,23 +48,25 @@ def validate_ttl(ttl, method, issuer_data)
     return
   end
 
-  if method == "federation-token"
+  if method == AwsIssuerType::FEDERATION_TOKEN_METHOD
     if ttl < 900 || ttl > 43200
       message = "Dynamic variable TTL is out of range for federation token (range is 900 to 43200)"
       raise ArgumentError, message
     end
-  elsif method == "assume-role"
+  elsif method == AwsIssuerType::ASSUME_ROLE_METHOD
     if ttl < 900 || ttl > 129600
       message = "Dynamic variable TTL is out of range for assume role (range is 900 to 129600)"
       raise ArgumentError, message
     end
   end
+
+  validate_ttl_per_issuer(ttl, issuer_data)
 end
 
 def validate_ttl_per_issuer(ttl, issuer_data)
   return unless ttl > issuer_data[:max_ttl]
 
-  message = "Dynamic secret ttl can't be bigger than the issuer ttl #{issuer_data[:max_ttl]}"
+  message = "The TTL of the dynamic secret can't exceed the maximum TTL defined in the issuer."
   raise ArgumentError, message
 end
 
