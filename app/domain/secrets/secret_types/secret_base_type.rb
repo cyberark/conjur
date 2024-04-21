@@ -101,6 +101,14 @@ module Secrets
         }
       end
 
+      def is_dynamic_branch(branch)
+        # We want to make sure the branch start with full path of dynamic to prevent cases where the branch name contains dynamic
+        unless branch.end_with?("/")
+          branch = "#{branch}/"
+        end
+        branch.start_with?(Issuer::DYNAMIC_VARIABLE_PREFIX)
+      end
+
       private
 
       def create_resource(branch, secret_name, policy_id)

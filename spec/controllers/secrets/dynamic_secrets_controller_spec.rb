@@ -162,6 +162,67 @@ describe DynamicSecretsController, type: :request do
         expect(parsed_body["error"]["message"]).to eq("Dynamic Secret method is unsupported")
       end
     end
+    context "when creating dynamic secret under dynamic2 branch" do
+      let(:branch_policy) do
+        <<~POLICY
+          - !policy dynamic2
+        POLICY
+      end
+      let(:payload_create_secret) do
+        <<~BODY
+          {
+              "branch": "/data/dynamic2",
+              "name": "secret1",
+              "issuer": "aws-issuer-1",
+              "ttl": 1000,
+              "method": "federation-token"
+          }
+        BODY
+      end
+      let(:payload_create_issuers) do
+        <<~BODY
+          {
+            "id": "aws-issuer-1",
+            "max_ttl": 1000,
+            "type": "aws",
+            "data": {
+              "access_key_id": #{VALID_AWS_KEY},
+              "secret_access_key":#{VALID_AWS_SECRET}
+            }
+          }
+        BODY
+      end
+      it 'Secret creation failed on 404' do
+        # Load the branch policy into Conjur
+        put(
+          '/policies/rspec/policy/data',
+          env: token_auth_header(role: admin_user).merge(
+            { 'RAW_POST_DATA' => branch_policy }
+          )
+        )
+        assert_response :success
+        #Create issuer
+        post("/issuers/rspec",
+             env: token_auth_header(role: admin_user).merge(
+               'RAW_POST_DATA' => payload_create_issuers,
+               'CONTENT_TYPE' => "application/json"
+             ))
+        assert_response :created
+
+        post("/secrets/dynamic",
+             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
+               {
+                 'RAW_POST_DATA' => payload_create_secret,
+                 'CONTENT_TYPE' => "application/json"
+               }
+             )
+        )
+        # Correct response code
+        assert_response :unprocessable_entity
+        parsed_body = JSON.parse(response.body)
+        expect(parsed_body["error"]["message"]).to eq("Dynamic secrets must be created under data/dynamic/")
+      end
+    end
   end
 
   describe "Dynamic secret creation - Permissions validations" do

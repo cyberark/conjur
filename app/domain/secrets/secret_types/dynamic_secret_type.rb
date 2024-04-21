@@ -15,7 +15,7 @@ module Secrets
         if branch.start_with?("/")
           branch = branch[1..-1]
         end
-        raise ApplicationController::UnprocessableEntity, "Dynamic secrets must be created under #{Issuer::DYNAMIC_VARIABLE_PREFIX}" unless branch.start_with?(Issuer::DYNAMIC_VARIABLE_PREFIX.chop)
+        raise ApplicationController::UnprocessableEntity, "Dynamic secrets must be created under #{Issuer::DYNAMIC_VARIABLE_PREFIX}" unless is_dynamic_branch(branch)
 
         dynamic_input_validation(params)
       end

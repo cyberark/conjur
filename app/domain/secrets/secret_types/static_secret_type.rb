@@ -12,7 +12,7 @@ module Secrets
 
       def get_input_validation(params)
         secret = super(params)
-        raise ApplicationController::BadRequestWithBody, "The #{Issuer::DYNAMIC_VARIABLE_PREFIX} branch is reserved for dynamic secrets only. Choose a different branch under /data for your static secret." if params[:branch].start_with?(Issuer::DYNAMIC_VARIABLE_PREFIX.chop)
+        raise ApplicationController::BadRequestWithBody, "The #{Issuer::DYNAMIC_VARIABLE_PREFIX} branch is reserved for dynamic secrets only. Choose a different branch under /data for your static secret." if is_dynamic_branch(params[:branch])
         secret
       end
 
@@ -20,7 +20,7 @@ module Secrets
         #check branch and secret name are not part of body
         raise ApplicationController::UnprocessableEntity, "Branch is not allowed in the request body" if body_params[:branch]
         raise ApplicationController::UnprocessableEntity, "Secret name is not allowed in the request body" if body_params[:name]
-        raise ApplicationController::BadRequestWithBody, "The #{Issuer::DYNAMIC_VARIABLE_PREFIX} branch is reserved for dynamic secrets only. Choose a different branch under /data for your static secret." if params[:branch] && params[:branch].start_with?(Issuer::DYNAMIC_VARIABLE_PREFIX.chop)
+        raise ApplicationController::BadRequestWithBody, "The #{Issuer::DYNAMIC_VARIABLE_PREFIX} branch is reserved for dynamic secrets only. Choose a different branch under /data for your static secret." if params[:branch] && is_dynamic_branch(params[:branch])
 
         # check secret exists
         secret = get_resource("variable", "#{params[:branch]}/#{params[:name]}")
@@ -58,7 +58,7 @@ module Secrets
         if branch.start_with?("/")
           branch = branch[1..-1]
         end
-        raise ApplicationController::UnprocessableEntity, "The #{Issuer::DYNAMIC_VARIABLE_PREFIX} branch is reserved for dynamic secrets only. Choose a different branch under /data for your static secret." if branch.start_with?(Issuer::DYNAMIC_VARIABLE_PREFIX.chop)
+        raise ApplicationController::UnprocessableEntity, "The #{Issuer::DYNAMIC_VARIABLE_PREFIX} branch is reserved for dynamic secrets only. Choose a different branch under /data for your static secret." if is_dynamic_branch(branch)
 
         if params[:issuer]
           raise ApplicationController::UnprocessableEntity, "A static secret can't contain an 'issuer' field"
