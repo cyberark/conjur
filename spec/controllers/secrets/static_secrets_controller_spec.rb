@@ -2019,9 +2019,6 @@ describe StaticSecretsController, type: :request do
   end
 
   def compare_json_arrays(array1, array2)
-    #array1 = JSON.parse(json1)
-    #array2 = JSON.parse(json2)
-
     # Sort arrays based on a unique identifier or key
     sorted_array1 = array_to_sorted_json(array1)
     sorted_array2 = array_to_sorted_json(array2)
