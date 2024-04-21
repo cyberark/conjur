@@ -28,9 +28,7 @@ class AwsIssuerType < IssuerBaseType
     super
 
     validate_variable_method(variable_method)
-
     validate_ttl(variable_ttl, variable_method, issuer_data)
-    validate_ttl_per_issuer(variable_ttl, issuer_data)
   end
 
   private
@@ -61,6 +59,8 @@ def validate_ttl(ttl, method, issuer_data)
       raise ArgumentError, message
     end
   end
+
+  validate_ttl_per_issuer(ttl, issuer_data)
 end
 
 def validate_ttl_per_issuer(ttl, issuer_data)
