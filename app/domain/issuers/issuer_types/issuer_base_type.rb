@@ -23,7 +23,7 @@ class IssuerBaseType
     validate_no_added_parameters_update(params)
   end
 
-  def validate_variable(annotations, issuer_data)
+  def validate_variable(variable_method, variable_ttl, issuer_data)
     # This method is empty because it is not needed in the base class 
     # and it will be implemented in the child classes
   end

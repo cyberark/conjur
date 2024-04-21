@@ -22,7 +22,7 @@ describe "AWS Assume Role Dynamic secret input validation" do
   context "when validating create request" do
     let(:params) do
       method_params = ActionController::Parameters.new(role_arn: "arn:aws:iam::123456789012:role/my-role-name", region: "us-east-1", inline_policy: "policy")
-      ActionController::Parameters.new(name: "secret1", branch: "data/dynamic", ttl: 1200, issuer: "issuer1", method_params: method_params)
+      ActionController::Parameters.new(name: "secret1", branch: "data/dynamic", ttl: 1200, issuer: "issuer1", method_params: method_params, method: "assume-role")
     end
 
     it "correct validators are being called for each field" do
@@ -42,7 +42,7 @@ describe "AWS Assume Role Dynamic secret input validation" do
 
   context "when creating aws assume role dynamic secret with no method params" do
     it "then the input validation fails" do
-      params = ActionController::Parameters.new(name: "secret1", branch: "data/dynamic", ttl: 1200, issuer: "issuer1")
+      params = ActionController::Parameters.new(name: "secret1", branch: "data/dynamic", ttl: 1200, issuer: "issuer1", method: "assume-role")
       expect { dynamic_secret.create_input_validation(params)
       }.to raise_error(Errors::Conjur::ParameterMissing)
     end
@@ -51,7 +51,7 @@ describe "AWS Assume Role Dynamic secret input validation" do
   context "when creating aws assume role dynamic secret with ttl bigger then issuer" do
     it "then the input validation passes" do
       method_params = ActionController::Parameters.new(role_arn: "arn:aws:iam::123456789012:role/my-role-name")
-      params = ActionController::Parameters.new(name: "secret1", branch: "data/dynamic", ttl: 2200, issuer: "issuer1", method_params: method_params)
+      params = ActionController::Parameters.new(name: "secret1", branch: "data/dynamic", ttl: 2200, issuer: "issuer1", method_params: method_params, method: "assume-role")
       expect { dynamic_secret.create_input_validation(params)
       }.to raise_error(ApplicationController::UnprocessableEntity)
     end
@@ -60,7 +60,7 @@ describe "AWS Assume Role Dynamic secret input validation" do
   context "when creating aws assume role dynamic secret with correct input" do
     it "then the input validation passes" do
       method_params = ActionController::Parameters.new(role_arn: "arn:aws:iam::123456789012:role/my-role-name")
-      params = ActionController::Parameters.new(name: "secret1", branch: "data/dynamic", ttl: 1200, issuer: "issuer1", method_params: method_params)
+      params = ActionController::Parameters.new(name: "secret1", branch: "data/dynamic", ttl: 1200, issuer: "issuer1", method_params: method_params, method: "assume-role")
       expect { dynamic_secret.create_input_validation(params)
       }.to_not raise_error
     end
@@ -90,7 +90,7 @@ describe "AWS Assume Role Dynamic update secret input validation" do
   context "when validating create request" do
     let(:params) do
       method_params = ActionController::Parameters.new(role_arn: "arn:aws:iam::123456789012:role/my-role-name", region: "us-east-1", inline_policy: "policy")
-      ActionController::Parameters.new(name: "secret1", branch: "data/dynamic", ttl: 1200, issuer: "issuer1", method_params: method_params)
+      ActionController::Parameters.new(name: "secret1", branch: "data/dynamic", ttl: 1200, issuer: "issuer1", method_params: method_params, method: "assume-role")
     end
 
     it "correct validators are being called for each field" do
@@ -110,7 +110,7 @@ describe "AWS Assume Role Dynamic update secret input validation" do
   context "when updating aws assume role dynamic secret with no method params" do
     it "then the input validation fails" do
       params = ActionController::Parameters.new(branch: "data/dynamic", name:"secret1")
-      body_params = ActionController::Parameters.new(ttl: 1200, issuer: "issuer1")
+      body_params = ActionController::Parameters.new(ttl: 1200, issuer: "issuer1", method: "assume-role")
       expect { dynamic_secret.update_input_validation(params, body_params)
       }.to raise_error(Errors::Conjur::ParameterMissing)
     end
@@ -118,7 +118,7 @@ describe "AWS Assume Role Dynamic update secret input validation" do
   context "when updating aws assume role dynamic secret with ttl bigger then issuer" do
     it "then the input validation passes" do
       method_params = ActionController::Parameters.new(role_arn: "arn:aws:iam::123456789012:role/my-role-name")
-      params = ActionController::Parameters.new(branch: "data/dynamic", name:"secret1")
+      params = ActionController::Parameters.new(branch: "data/dynamic", name:"secret1", method: "assume-role")
       body_params = ActionController::Parameters.new(ttl: 2200, issuer: "issuer1", method_params: method_params)
       expect { dynamic_secret.update_input_validation(params, body_params) }.to raise_error(ApplicationController::UnprocessableEntity)
     end
@@ -127,7 +127,7 @@ describe "AWS Assume Role Dynamic update secret input validation" do
     it "then the input validation passes" do
       method_params = ActionController::Parameters.new(role_arn: "arn:aws:iam::123456789012:role/my-role-name")
       params = ActionController::Parameters.new(branch: "data/dynamic", name:"secret1")
-      body_params = ActionController::Parameters.new(ttl: 1200, issuer: "issuer1", method_params: method_params)
+      body_params = ActionController::Parameters.new(ttl: 1200, issuer: "issuer1", method_params: method_params, method: "assume-role")
       expect { dynamic_secret.update_input_validation(params, body_params) }.to_not raise_error
     end
   end

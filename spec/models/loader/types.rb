@@ -234,7 +234,17 @@ describe Loader::Types::Variable do
         let(:ttl) { 900 }
         let(:issuer_object) { 'issuer'  }
         it "raise not found record error" do
-          expect { variable.verify }.to raise_error(Exceptions::InvalidPolicyObject, "The dynamic variable 'data/dynamic/myvar2' has no method annotation")
+          expect { variable.verify }.to raise_error(Exceptions::InvalidPolicyObject, "The variable definition for dynamic secret 'data/dynamic/myvar2' is missing the 'method' annotation.")
+        end
+      end
+      context 'when issuer aws1 configured with not supported method' do
+        let(:resource_id) { 'data/dynamic/myvar2' }
+        let(:issuer_id) { 'aws1' }
+        let(:method) { 'not-supported' }
+        let(:ttl) { 900 }
+        let(:issuer_object) { 'issuer'  }
+        it "raise not found record error" do
+          expect { variable.verify }.to raise_error(Exceptions::InvalidPolicyObject, "The method annotation in the variable definition for dynamic secret is not valid. Allowed values: assume-role, federation-token")
         end
       end
       context 'when issuer aws1 configured with wrong ttl for federation' do

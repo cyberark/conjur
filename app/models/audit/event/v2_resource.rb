@@ -91,7 +91,7 @@ module Audit
       def success_message
         past_tense_verb = "#{@operation.to_s.chomp('e')}ed"
         if @operation == 'get'
-          past_tense_verb = "got"
+          past_tense_verb = "retrieved"
         end
         "#{@user} successfully #{past_tense_verb} #{@resource_type} #{@resource_name} with url: '#{@request_path}'#{@request_body? " and content: #{@request_body}":""}"
       end

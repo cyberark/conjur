@@ -297,11 +297,14 @@ module Loader
             end
            
             if self.annotations["#{Issuer::DYNAMIC_ANNOTATION_PREFIX}method"].nil?
-              raise Exceptions::InvalidPolicyObject.new(self.id, message: "The dynamic variable '#{self.id}' has no method annotation")
+              raise Exceptions::InvalidPolicyObject.new(self.id, message: "The variable definition for dynamic secret '#{self.id}' is missing the 'method' annotation.")
             end
 
             begin
-              IssuerTypeFactory.new.create_issuer_type(issuer[:issuer_type]).validate_variable(self.annotations, issuer)
+              IssuerTypeFactory.new.create_issuer_type(issuer[:issuer_type]).validate_variable(
+                self.annotations["#{Issuer::DYNAMIC_ANNOTATION_PREFIX}method"],
+                annotations["#{Issuer::DYNAMIC_ANNOTATION_PREFIX}ttl"],
+                issuer)
             rescue ArgumentError => e
               raise Exceptions::InvalidPolicyObject.new(self.id, message: e.message)
             end

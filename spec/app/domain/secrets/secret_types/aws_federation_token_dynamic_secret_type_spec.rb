@@ -22,7 +22,7 @@ describe "AWS Federation Token Dynamic secret input validation" do
   context "when validating create request" do
     let(:params) do
       method_params = ActionController::Parameters.new(role_arn: "arn:aws:iam::123456789012:role/my-role-name", region: "us-east-1", inline_policy: "policy")
-      ActionController::Parameters.new(name: "secret1", branch: "data/dynamic", ttl: 1200, issuer: "issuer1", method_params: method_params)
+      ActionController::Parameters.new(name: "secret1", branch: "data/dynamic", ttl: 1200, issuer: "issuer1", method_params: method_params, method: "assume-role")
     end
 
     it "correct validators are being called for each field" do
@@ -36,7 +36,7 @@ describe "AWS Federation Token Dynamic secret input validation" do
   end
   context "when creating aws federation token ephemeral secret with no method params" do
     it "then the input validation succeeds" do
-      params = ActionController::Parameters.new(name: "secret1", branch: "data/dynamic", ttl: 1200, issuer: "issuer1")
+      params = ActionController::Parameters.new(name: "secret1", branch: "data/dynamic", ttl: 1200, issuer: "issuer1", method: "federation-token")
       expect { dynamic_secret.create_input_validation(params)
       }.to_not raise_error
     end
@@ -44,7 +44,7 @@ describe "AWS Federation Token Dynamic secret input validation" do
   context "when creating aws federation token ephemeral secret with no issuer" do
     it "then the input validation passes" do
       method_params = ActionController::Parameters.new(role_arn: "role")
-      params = ActionController::Parameters.new(name: "secret1", branch: "data/dynamic", ttl: 1200, method_params: method_params)
+      params = ActionController::Parameters.new(name: "secret1", branch: "data/dynamic", ttl: 1200, method_params: method_params, method: "assume-role")
       expect { dynamic_secret.create_input_validation(params)
       }.to raise_error(Errors::Conjur::ParameterMissing)
     end
@@ -52,7 +52,7 @@ describe "AWS Federation Token Dynamic secret input validation" do
   context "when creating aws federation token ephemeral secret with correct input" do
     it "then the input validation passes" do
       method_params = ActionController::Parameters.new(region: "us-east-1")
-      params = ActionController::Parameters.new(name: "secret1", branch: "data/dynamic", ttl: 1200, issuer: "issuer1", method_params: method_params)
+      params = ActionController::Parameters.new(name: "secret1", branch: "data/dynamic", ttl: 1200, issuer: "issuer1", method_params: method_params, method: "assume-role")
       expect { dynamic_secret.create_input_validation(params)
       }.to_not raise_error
     end
@@ -82,7 +82,7 @@ describe "AWS Federation Token Dynamic replace secret input validation" do
   context "when validating create request" do
     let(:params) do
       method_params = ActionController::Parameters.new(role_arn: "arn:aws:iam::123456789012:role/my-role-name", region: "us-east-1", inline_policy: "policy")
-      ActionController::Parameters.new(name: "secret1", branch: "data/dynamic", ttl: 1200, issuer: "issuer1", method_params: method_params)
+      ActionController::Parameters.new(name: "secret1", branch: "data/dynamic", ttl: 1200, issuer: "issuer1", method_params: method_params, method: "assume-role")
     end
 
     it "correct validators are being called for each field" do
@@ -97,7 +97,7 @@ describe "AWS Federation Token Dynamic replace secret input validation" do
   context "when replacing aws federation token dynamic secret with no method params" do
     it "then the input validation succeeds" do
       params = ActionController::Parameters.new(branch: "data/dynamic", name:"secret1")
-      body_params = ActionController::Parameters.new(ttl: 1200, issuer: "issuer1")
+      body_params = ActionController::Parameters.new(ttl: 1200, issuer: "issuer1", method: "federation-token")
       expect { dynamic_secret.update_input_validation(params, body_params)
       }.to_not raise_error
     end
@@ -106,7 +106,7 @@ describe "AWS Federation Token Dynamic replace secret input validation" do
     it "then the input validation passes" do
       method_params = ActionController::Parameters.new(role_arn: "role")
       params = ActionController::Parameters.new(branch: "data/dynamic", name:"secret1")
-      body_params = ActionController::Parameters.new(ttl: 1200, method_params: method_params)
+      body_params = ActionController::Parameters.new(ttl: 1200, method_params: method_params, method: "assume-role")
       expect { dynamic_secret.update_input_validation(params, body_params)
       }.to raise_error(Errors::Conjur::ParameterMissing)
     end
@@ -115,7 +115,7 @@ describe "AWS Federation Token Dynamic replace secret input validation" do
     it "then the input validation passes" do
       method_params = ActionController::Parameters.new(region: "us-east-1")
       params = ActionController::Parameters.new(branch: "data/dynamic", name:"secret1")
-      body_params = ActionController::Parameters.new(ttl: 1200, issuer: "issuer1", method_params: method_params)
+      body_params = ActionController::Parameters.new(ttl: 1200, issuer: "issuer1", method_params: method_params, method: "assume-role")
       expect { dynamic_secret.update_input_validation(params, body_params)
       }.to_not raise_error
     end

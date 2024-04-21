@@ -1961,7 +1961,7 @@ describe StaticSecretsController, type: :request do
                           [{"name"=>"description","value"=>"desc"},{"name"=>"annotation_to_delete","value"=>"delete"}],
                           [{"subject"=>{"id"=>"alice","kind"=>"user"},"privileges"=>["update","read","execute"]}])
         # Correct audit is returned
-        audit_message = "rspec:user:alice successfully got secret data/secrets/secret_to_update with url: '/secrets/static/data/secrets/secret_to_update'"
+        audit_message = "rspec:user:alice successfully retrieved secret data/secrets/secret_to_update with url: '/secrets/static/data/secrets/secret_to_update'"
         verify_audit_message(audit_message)
         # update secret value
         put("/secrets/static/data/secrets/secret_to_update",

@@ -66,15 +66,15 @@ describe "Dynamic secret create input validation" do
       end
       context "when validating create request" do
         let(:params) do
-          ActionController::Parameters.new(branch: "data/dynamic", name: "secret1", issuer: "issuer2", ttl: 80,)
+          ActionController::Parameters.new(branch: "data/dynamic", name: "secret1", issuer: "issuer2", ttl: 920, method: "federation-token")
         end
 
         it "correct validators are being called for each field" do
           expect(dynamic_secret).to receive(:validate_field_required).with(:issuer,{type: String,value: "issuer2"})
-          expect(dynamic_secret).to receive(:validate_field_required).with(:ttl,{type: Numeric,value: 80})
+          expect(dynamic_secret).to receive(:validate_field_required).with(:ttl,{type: Numeric,value: 920})
 
           expect(dynamic_secret).to receive(:validate_field_type).with(:issuer,{type: String,value: "issuer2"})
-          expect(dynamic_secret).to receive(:validate_field_type).with(:ttl,{type: Numeric,value: 80})
+          expect(dynamic_secret).to receive(:validate_field_type).with(:ttl,{type: Numeric,value: 920})
 
           expect(dynamic_secret).to receive(:validate_id).with(:issuer,{type: String,value: "issuer2"})
 
@@ -83,7 +83,7 @@ describe "Dynamic secret create input validation" do
       end
       context "aws dynamic secret with all correct input" do
         it "input validation succeeds" do
-          params = ActionController::Parameters.new(name: "secret1", branch: "data/dynamic", ttl: 20, issuer: "issuer2")
+          params = ActionController::Parameters.new(name: "secret1", branch: "data/dynamic", ttl: 920, issuer: "issuer2", method: "assume-role")
           expect { dynamic_secret.create_input_validation(params)
           }.to_not raise_error
         end
