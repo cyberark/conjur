@@ -55,6 +55,7 @@ describe AuthenticateController, :type => :request do
         include_context "authenticate user Token"
 
         it "is unauthorized" do
+          Rails.cache.clear
           post(authenticate_url, env: request_env)
           expect(response.code).to eq("401")
         end
@@ -83,6 +84,7 @@ describe AuthenticateController, :type => :request do
     
     context "with api key" do
       it "succeeds" do
+        Rails.cache.clear
         invoke
         expect(response).to have_valid_token_for(login)
       end
@@ -92,6 +94,7 @@ describe AuthenticateController, :type => :request do
       end
 
       it "have tenant id in token" do
+        Rails.cache.clear
         tenant_id = "1234"
         allow_any_instance_of(Conjur::ConjurConfig).to receive(:tenant_id).and_return(tenant_id)
         invoke
