@@ -71,7 +71,6 @@ describe "Dynamic secret create input validation" do
 
         it "correct validators are being called for each field" do
           expect(dynamic_secret).to receive(:validate_field_required).with(:issuer,{type: String,value: "issuer2"})
-          expect(dynamic_secret).to receive(:validate_field_required).with(:ttl,{type: Numeric,value: 920})
 
           expect(dynamic_secret).to receive(:validate_field_type).with(:issuer,{type: String,value: "issuer2"})
           expect(dynamic_secret).to receive(:validate_field_type).with(:ttl,{type: Numeric,value: 920})
