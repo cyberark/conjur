@@ -124,7 +124,7 @@ module Secrets
               type: Numeric,
               value: params[:ttl]
             },
-            validators: [method(:validate_field_required), method(:validate_field_type)]
+            validators: [method(:validate_field_type)]
           }
         }
         validate_data_fields(data_fields)
