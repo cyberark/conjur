@@ -2,6 +2,8 @@
 module Secrets
   module RedisHandler
 
+    OK = 'OK' # Redis response for creation success
+
     def get_redis_secret(key, version = nil)
       return nil, nil unless secret_applicable?(key)
       versioned_key = versioned_key(key, version)
@@ -15,27 +17,47 @@ module Secrets
       return nil, nil
     end
 
+    # Returns OK if no error occurred, not necessarily write in Redis
     def create_redis_secret(key, value, mime_type, version = nil)
-      return unless secret_applicable?(key)
+      return OK unless secret_applicable?(key)
 
       versioned_key = versioned_key(key, version)
 
-      write_resource(versioned_key, value)
+      value_res = write_resource(versioned_key, value)
       if mime_type != SecretsController::DEFAULT_MIME_TYPE # We save mime_type only if it's not default
         write_resource(key + '/mime_type', mime_type)
       end
+      return value_res
     rescue => e
       Rails.logger.error(LogMessages::Redis::RedisAccessFailure.new('Write', e.message))
+      return 'false'
     end
 
     # Updates secret value if exists
     def update_redis_secret(key, value)
       value_in_redis, mime_type = get_redis_secret(key)
       unless value_in_redis.nil? # Only update secret. Don't create a new one
-        create_redis_secret(key, value, mime_type)
+        res = create_redis_secret(key, value, mime_type)
+        # Failing to update means that Redis is inconsistent with DB. Delete from Redis
+        if res != OK
+          delete_redis_secret(key, suppress_error: false)
+        end
       end
+    end
+
+    def delete_redis_secret(key, suppress_error: true)
+      return unless secret_applicable?(key)
+
+      Rails.logger.debug(LogMessages::Redis::RedisAccessStart.new('Delete'))
+      response = Rails.cache.delete(key)
+      Rails.logger.debug(LogMessages::Redis::RedisAccessEnd.new('Delete', "Deleted #{response} items"))
     rescue => e
-      Rails.logger.error(LogMessages::Redis::RedisAccessFailure.new('Update', e.message))
+      Rails.logger.error(LogMessages::Redis::RedisAccessFailure.new('Delete', e.message))
+      raise e unless suppress_error
+    end
+
+    def redis_configured?
+      Rails.configuration.cache_store.include?(:redis_cache_store)
     end
 
     private
@@ -58,6 +80,7 @@ module Secrets
       response = Slosilo::EncryptedAttributes.encrypt(value, aad: key)
                                              .yield_self {|val| Rails.cache.write(key, val)}
       Rails.logger.debug(LogMessages::Redis::RedisAccessEnd.new('write', response))
+      response
     end
 
     def secret_applicable?(key)
@@ -65,8 +88,5 @@ module Secrets
       key.split(':').last.start_with?('data')
     end
 
-    def redis_configured?
-      Rails.configuration.cache_store.include?(:redis_cache_store)
-    end
   end
 end

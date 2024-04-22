@@ -9,7 +9,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
-## [1.0.25-cloud] - 2024-04-14
+## [1.0.26-cloud] - 2024-05-05
+### Changed
+- Text review for dynamic secrets
+
+## [1.0.25-cloud] - 2024-04-21
 ### Added
 - Return permissions in static secret
 - Get dynamic secret
@@ -17,7 +21,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Generate synchronizer intaller token endpoint
 - Info for tenant endpoint
 - Adding telemetry support for  ConjurCloud
-- Adding Redis with version support
+- Redis (disabled) with support for: get, batch, version, encryption, deletion, v2-update
+- API agents edge info (replace agent validate-permission)
+- Redis (disabled) support for slosilo key rotation and fetch.
+
+### Removed
+- API agent validate-permission
 
 ## [1.0.24-cloud] - 2024-03-24
 ### Changed

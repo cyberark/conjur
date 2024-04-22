@@ -1,16 +1,18 @@
 # frozen_string_literal: true
+require_relative '../cache/redis_handler'
 
 module Secrets
   module SecretTypes
     class StaticSecretType  < SecretBaseType
       include ParamsValidator
       include AnnotationsHandler
+      include RedisHandler
 
       MIME_TYPE_ANNOTATION = "conjur/mime_type"
 
       def get_input_validation(params)
         secret = super(params)
-        raise ApplicationController::BadRequestWithBody, "Static secret cannot be fetched under #{Issuer::DYNAMIC_VARIABLE_PREFIX}" if params[:branch].start_with?(Issuer::DYNAMIC_VARIABLE_PREFIX.chop)
+        raise ApplicationController::BadRequestWithBody, "The #{Issuer::DYNAMIC_VARIABLE_PREFIX} branch is reserved for dynamic secrets only. Choose a different branch under /data for your static secret." if is_dynamic_branch(params[:branch])
         secret
       end
 
@@ -18,15 +20,21 @@ module Secrets
         #check branch and secret name are not part of body
         raise ApplicationController::UnprocessableEntity, "Branch is not allowed in the request body" if body_params[:branch]
         raise ApplicationController::UnprocessableEntity, "Secret name is not allowed in the request body" if body_params[:name]
-        raise ApplicationController::BadRequestWithBody, "Static secret cannot be updated under #{Issuer::DYNAMIC_VARIABLE_PREFIX}" if params[:branch] && params[:branch].start_with?(Issuer::DYNAMIC_VARIABLE_PREFIX.chop)
+        raise ApplicationController::BadRequestWithBody, "The #{Issuer::DYNAMIC_VARIABLE_PREFIX} branch is reserved for dynamic secrets only. Choose a different branch under /data for your static secret." if params[:branch] && is_dynamic_branch(params[:branch])
 
         # check secret exists
         secret = get_resource("variable", "#{params[:branch]}/#{params[:name]}")
 
         data_fields = {
-          mime_type: String
+          mime_type: {
+            field_info: {
+              type: String,
+              value: body_params[:mime_type]
+            },
+            validators: [method(:validate_field_type), method(:validate_mime_type)]
+          }
         }
-        validate_data(body_params, data_fields)
+        validate_data_fields(data_fields)
 
         secret
       end
@@ -35,19 +43,25 @@ module Secrets
         super(params)
 
         data_fields = {
-          mime_type: String
+          mime_type: {
+            field_info: {
+              type: String,
+              value: params[:mime_type]
+            },
+            validators: [method(:validate_field_type), method(:validate_mime_type)]
+          }
         }
-        validate_data(params, data_fields)
+        validate_data_fields(data_fields)
 
         # Can't create the secret under dynamic branch
         branch = params[:branch]
         if branch.start_with?("/")
           branch = branch[1..-1]
         end
-        raise ApplicationController::BadRequestWithBody, "Static secret cannot be created under #{Issuer::DYNAMIC_VARIABLE_PREFIX}" if branch.start_with?(Issuer::DYNAMIC_VARIABLE_PREFIX.chop)
+        raise ApplicationController::UnprocessableEntity, "The #{Issuer::DYNAMIC_VARIABLE_PREFIX} branch is reserved for dynamic secrets only. Choose a different branch under /data for your static secret." if is_dynamic_branch(branch)
 
         if params[:issuer]
-          raise ApplicationController::BadRequestWithBody, "Static secret can't contain issuer field"
+          raise ApplicationController::UnprocessableEntity, "A static secret can't contain an 'issuer' field"
         end
       end
 
@@ -67,6 +81,7 @@ module Secrets
 
         # Set secret value
         set_value(secret, params[:value])
+        update_redis_secret(secret.id, params[:value])
 
         as_json(branch, secret_name, secret)
       end

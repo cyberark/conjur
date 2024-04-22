@@ -9,13 +9,13 @@ module Secrets
         super(params)
 
         # check if value field exist
-        raise ApplicationController::BadRequestWithBody, "Adding value to a dynamic secret is not allowed" if params[:value]
+        raise ApplicationController::UnprocessableEntity, "Adding value to a dynamic secret is not allowed" if params[:value]
         # check the secret under the correct branch
         branch = params[:branch]
         if branch.start_with?("/")
           branch = branch[1..-1]
         end
-        raise ApplicationController::BadRequestWithBody, "Dynamic secret can be created only under #{Issuer::DYNAMIC_VARIABLE_PREFIX}" unless branch.start_with?(Issuer::DYNAMIC_VARIABLE_PREFIX.chop)
+        raise ApplicationController::UnprocessableEntity, "Dynamic secrets must be created under #{Issuer::DYNAMIC_VARIABLE_PREFIX}" unless is_dynamic_branch(branch)
 
         dynamic_input_validation(params)
       end
@@ -109,23 +109,36 @@ module Secrets
 
       def dynamic_input_validation(params)
         # check if value field exist
-        raise ApplicationController::BadRequestWithBody, "Adding value to a dynamic secret is not allowed" if params[:value]
+        raise ApplicationController::UnprocessableEntity, "Adding value to a dynamic secret is not allowed" if params[:value]
 
-        # check all fields are filled and with correct type
         data_fields = {
-          issuer: String,
-          ttl: Numeric
+          issuer: {
+            field_info: {
+              type: String,
+              value: params[:issuer]
+            },
+            validators: [method(:validate_field_required), method(:validate_field_type), method(:validate_id)]
+          },
+          ttl: {
+            field_info: {
+              type: Numeric,
+              value: params[:ttl]
+            },
+            validators: [method(:validate_field_required), method(:validate_field_type)]
+          }
         }
-        validate_required_data(params, data_fields.keys)
-        validate_data(params, data_fields)
+        validate_data_fields(data_fields)
 
         # check if issuer exists
         issuer_id = params[:issuer]
         issuer = Issuer.where(issuer_id: issuer_id).first
         raise Exceptions::RecordNotFound, "#{account}:issuer:#{issuer_id}" unless issuer
 
-        # check secret ttl is less then the issuer ttl
-        raise ApplicationController::BadRequestWithBody, "Dynamic secret ttl can't be bigger than the issuer ttl #{issuer[:max_ttl]}" if params[:ttl] > issuer[:max_ttl]
+        begin
+          IssuerTypeFactory.new.create_issuer_type(issuer[:issuer_type]).validate_variable(params[:method], params[:ttl], issuer)
+        rescue ArgumentError => e
+          raise ApplicationController::UnprocessableEntity, e.message
+        end
       end
     end
   end

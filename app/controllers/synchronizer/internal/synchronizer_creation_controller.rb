@@ -19,7 +19,6 @@ class SynchronizerCreationController < V2RestController
       synchronizerHostResource = Resource.find(resource_id: synchronizer_installer_resource_id)
       raise Exceptions::RecordNotFound.new(synchronizer_installer_resource_id, message: "Synchronizer host not found") if synchronizerHostResource.nil?
       installer_token = get_access_token(account, synchronizer_installer_resource_id, request)
-
       response.set_header("Content-Encoding", "base64")
       response.set_header("Content-Type", "text/plain")
 

@@ -10,7 +10,7 @@ class IssuerBaseType
   NUM_OF_EXPECTED_PARAMS_UPDATE = 2
 
   def validate(params)
-    validate_id(params[:id])
+    validate_issuer_id(params[:id])
     validate_max_ttl(params[:max_ttl])
     validate_type(params[:type])
     validate_not_nil_data(params[:data])
@@ -22,11 +22,17 @@ class IssuerBaseType
     validate_not_nil_data(params[:data])
     validate_no_added_parameters_update(params)
   end
+
+  def validate_variable(variable_method, variable_ttl, issuer_data)
+    # This method is empty because it is not needed in the base class 
+    # and it will be implemented in the child classes
+  end
+
 end
 
 private
 
-def validate_id(id)
+def validate_issuer_id(id)
   if id.nil?
     raise ApplicationController::BadRequestWithBody, format(IssuerBaseType::REQUIRED_PARAM_MISSING, "id")
   end

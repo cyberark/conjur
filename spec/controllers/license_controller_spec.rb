@@ -88,7 +88,7 @@ describe LicenseController, type: :request do
       it "returns 400" do
         get("/licenses/conjur?language=spanish",
             env: token_auth_header(role: bob_user))
-        assert_response :bad_request
+        assert_response :unprocessable_entity
       end
     end
 

@@ -45,7 +45,7 @@ describe EdgeHandlerController, :type => :request do
       edge_details = '{"edge_statistics": {"last_synch_time": 1692633684386, "cycle_requests": {
                         "get_secret":123,"apikey_authenticate": 234, "jwt_authenticate":345, "redirect": 456}},
                       "edge_version": "1.1.1", "edge_container_type": "podman"}'
-      ENV["TENANT_ID"] = "44da7894-4cc5-4bcd-b37c-316ad40ec8c6"
+      ENV["TENANT_ID"] = "mytenant"
       post("#{report_edge}?data_type=ongoing", env: token_auth_header(role: @current_user, is_user: false)
                                .merge({'RAW_POST_DATA': edge_details})
                                .merge({'CONTENT_TYPE': 'application/json'}))
@@ -58,7 +58,7 @@ describe EdgeHandlerController, :type => :request do
       output = log_output.string
       expect(output).to include("EdgeTelemetry")
       expect(output).not_to include("using edge proxy")
-      %w[edgy 123 234 345 456 44da7894-4cc5-4bcd-b37c-316ad40ec8c6 2023-08-21].each {|arg| expect(output).to include(arg)}
+      %w[edgy 123 234 345 456 mytenant 2023-08-21].each {|arg| expect(output).to include(arg)}
     end
 
     it "Report invalid data" do
@@ -92,7 +92,7 @@ describe EdgeHandlerController, :type => :request do
       edge_details = '{"edge_statistics": {"last_synch_time": 1692633684386, "cycle_requests": {
                         "get_secret":123,"apikey_authenticate": 234, "jwt_authenticate":345, "redirect": 456}},
                       "edge_version": "1.1.1", "edge_container_type": "podman", "edge_proxy": true}'
-      ENV["TENANT_ID"] = "44da7894-4cc5-4bcd-b37c-316ad40ec8c6"
+      ENV["TENANT_ID"] = "mytenant"
       post("#{report_edge}?data_type=ongoing", env: token_auth_header(role: @current_user, is_user: false)
                                                       .merge({'RAW_POST_DATA': edge_details})
                                                       .merge({'CONTENT_TYPE': 'application/json'}))
@@ -105,7 +105,7 @@ describe EdgeHandlerController, :type => :request do
       output = log_output.string
       expect(output).to include("EdgeTelemetry")
       expect(output).to include("using edge proxy")
-      %w[edgy 123 234 345 456 44da7894-4cc5-4bcd-b37c-316ad40ec8c6 2023-08-21].each {|arg| expect(output).to include(arg)}
+      %w[edgy 123 234 345 456 mytenant 2023-08-21].each {|arg| expect(output).to include(arg)}
     end
   end
 end

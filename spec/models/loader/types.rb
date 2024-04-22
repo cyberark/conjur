@@ -91,8 +91,15 @@ describe Loader::Types::Variable do
     variable = Conjur::PolicyParser::Types::Variable.new
     variable.id = resource_id
     variable.account = "conjur"
+    variable.annotations =  {}
     if issuer_id != ''
-      variable.annotations =  { "dynamic/issuer" => issuer_id }
+      variable.annotations = variable.annotations.merge({ "dynamic/issuer" => issuer_id })
+    end
+    if method != ''
+      variable.annotations = variable.annotations.merge({ "dynamic/method" => method })
+    end
+    if ttl != ''
+      variable.annotations =  variable.annotations.merge({ "dynamic/ttl" => ttl })
     end
     Loader::Types.wrap(variable, self)
   end
@@ -106,24 +113,28 @@ describe Loader::Types::Variable do
       context 'when creating regular variable without dynamic/issuer annotation' do
         let(:resource_id) { 'data/myvar1' }
         let(:issuer_id) { '' }
+        let(:method) { '' }
+        let(:ttl) { '' }
         it { expect { variable.verify }.to_not raise_error }
       end
 
-      context 'when creating regular variable with ephemerals/issuer annotation' do
+      context 'when creating regular variable with dynamic/issuer annotation' do
         let(:resource_id) { 'data/myvar2' }
         let(:issuer_id) { 'aws1' }
         it { expect { variable.verify }.to raise_error }
       end
 
-      context 'when creating ephemeral variable without ephemerals/issuer annotation' do
+      context 'when creating dynamic variable without dynamic/issuer annotation' do
         let(:resource_id) { 'data/dynamic/myvar1' }
         let(:issuer_id) { '' }
         it { expect { variable.verify }.to raise_error }
       end
 
-      context 'when creating ephemeral variable with ephemerals/issuer annotation' do
+      context 'when creating dynamic variable with dynamic/issuer annotation' do
         let(:resource_id) { 'data/dynamic/myvar2' }
         let(:issuer_id) { 'aws1' }
+        let(:method) { 'federation-token' }
+        let(:ttl) { 900 }
         it { expect { variable.verify }.to raise_error(Exceptions::RecordNotFound,"Issuer 'aws1' not found in account 'conjur'" ) }
       end
     end
@@ -134,22 +145,24 @@ describe Loader::Types::Variable do
         $primary_schema = "public"
       end
 
-      context 'when creating regular variable with ephemerals/issuer annotation' do
+      context 'when creating regular variable with dynamic/issuer annotation' do
         let(:resource_id) { 'data/myvar2' }
         let(:issuer_id) { 'aws1' }
+        let(:method) { 'federation-token' }
+        let(:ttl) { 900 }
         let(:issuer_object) { nil }
         it "raise not InvalidPolicyObject" do
           allow(Issuer).to receive(:where).with({:account=>"conjur", :issuer_id=>"aws1"}).and_return(issuer_object)
-          allow(issuer_object).to receive(:first).and_return(nil)
-          expect { variable.verify }.to raise_error(Exceptions::InvalidPolicyObject,"The ephemeral variable 'data/myvar2' is not in the correct path")
+          expect { variable.verify }.to raise_error(Exceptions::InvalidPolicyObject,"The dynamic variable 'data/myvar2' is not in the correct path")
         end
       end
 
-      context 'when creating ephemeral variable with ephemerals/issuer annotation' do
+      context 'when creating dynamic variable with dynamic/issuer annotation' do
         let(:resource_id) { 'data/dynamic/myvar2' }
         let(:issuer_id) { 'aws1' }
+        let(:method) { 'federation-token' }
+        let(:ttl) { 900 }
         let(:issuer_object) { nil }
-
         it "raise not InvalidPolicyObject" do
           allow(Issuer).to receive(:where).with({:account=>"conjur", :issuer_id=>"aws1"}).and_return(issuer_object)
           allow(issuer_object).to receive(:first).and_return(nil)
@@ -157,11 +170,14 @@ describe Loader::Types::Variable do
         end
       end
 
-      context 'when creating ephemeral variable with ephemerals/issuer annotation' do
+      context 'when creating dynamic variable with dynamic/issuer annotation' do
         let(:resource_id) { 'data/dynamic/myvar2' }
         let(:issuer_id) { 'aws1' }
+        let(:method) { 'federation-token' }
+        let(:ttl) { 900 }
         let(:issuer_object) { 'issuer' }
         it "raise not InvalidPolicyObject" do
+          allow(issuer_object).to receive(:first).and_return({ :issuer_type => "aws", :max_ttl => 2000 })
           allow_any_instance_of(Loader::Types::Record).to receive(:auth_resource).and_raise(Exceptions::RecordNotFound,"rspec:issuer:aws1")
           expect { variable.verify }.to raise_error(Exceptions::RecordNotFound,"Issuer 'aws1' not found in account 'rspec'")
         end
@@ -170,24 +186,29 @@ describe Loader::Types::Variable do
 
     context 'when issuer aws1 configured with permissions' do
       before do
+        allow(issuer_object).to receive(:first).and_return({ :issuer_type => "aws", :max_ttl => 2000 })
         allow(Issuer).to receive(:where).with({:account=>"conjur", :issuer_id=>"aws1"})
           .and_return(issuer_object)
         allow_any_instance_of(AuthorizeResource).to receive(:authorize).with(:use, nil)
         $primary_schema = "public"
       end
 
-      context 'when creating regular variable with ephemerals/issuer aws1' do
+      context 'when creating regular variable with dynamic/issuer aws1' do
         let(:resource_id) { 'data/myvar2' }
         let(:issuer_id) { 'aws1' }
+        let(:method) { 'federation-token' }
+        let(:ttl) { 900 }
         let(:issuer_object) { 'issuer'  }
         it "raise not InvalidPolicyObject" do
-          expect { variable.verify }.to raise_error(Exceptions::InvalidPolicyObject,"The ephemeral variable 'data/myvar2' is not in the correct path")
+          expect { variable.verify }.to raise_error(Exceptions::InvalidPolicyObject,"The dynamic variable 'data/myvar2' is not in the correct path")
         end
       end
 
-      context 'when creating ephemeral variable with ephemerals/issuer aws1' do
+      context 'when creating dynamic variable with dynamic/issuer aws1' do
         let(:resource_id) { 'data/dynamic/myvar2' }
         let(:issuer_id) { 'aws1' }
+        let(:method) { 'federation-token' }
+        let(:ttl) { 900 }
         let(:issuer_object) { 'issuer'  }
         it "raise not found record error" do
           allow_any_instance_of(Loader::Types::Record).to receive(:auth_resource).and_raise(Exceptions::RecordNotFound,"rspec:issuer:aws1")
@@ -195,17 +216,109 @@ describe Loader::Types::Variable do
         end
       end
 
-      context 'when creating ephemeral variable with ephemerals/issuer aws1 and with permissions' do
+      context 'when creating dynamic variable with dynamic/issuer aws1 and with permissions' do
         let(:resource_id) { 'data/dynamic/myvar2' }
         let(:issuer_id) { 'aws1' }
+        let(:method) { 'federation-token' }
+        let(:ttl) { 900 }
         let(:issuer_object) { 'issuer' }
         it "should not raise error" do
           allow_any_instance_of(Loader::Types::Record).to receive(:auth_resource)
           expect { variable.verify }.not_to raise_error
         end
-
+      end
+      context 'when issuer aws1 configured without method' do
+        let(:resource_id) { 'data/dynamic/myvar2' }
+        let(:issuer_id) { 'aws1' }
+        let(:method) { '' } # empty on purpose
+        let(:ttl) { 900 }
+        let(:issuer_object) { 'issuer'  }
+        it "raise not found record error" do
+          expect { variable.verify }.to raise_error(Exceptions::InvalidPolicyObject, "The variable definition for dynamic secret 'data/dynamic/myvar2' is missing the 'method' annotation.")
+        end
+      end
+      context 'when issuer aws1 configured with not supported method' do
+        let(:resource_id) { 'data/dynamic/myvar2' }
+        let(:issuer_id) { 'aws1' }
+        let(:method) { 'not-supported' }
+        let(:ttl) { 900 }
+        let(:issuer_object) { 'issuer'  }
+        it "raise not found record error" do
+          expect { variable.verify }.to raise_error(Exceptions::InvalidPolicyObject, "The method annotation in the variable definition for dynamic secret is not valid. Allowed values: assume-role, federation-token")
+        end
+      end
+      context 'when issuer aws1 configured with wrong ttl for federation' do
+        let(:resource_id) { 'data/dynamic/myvar2' }
+        let(:issuer_id) { 'aws1' }
+        let(:method) { 'federation-token' } 
+        let(:ttl) { 899 }
+        let(:issuer_object) { 'issuer'  }
+        it "raise not found record error" do
+          allow(issuer_object).to receive(:first).and_return({ :issuer_type => "aws", :max_ttl => 2000 })
+          expect { variable.verify }.to raise_error(Exceptions::InvalidPolicyObject, "Dynamic variable TTL is out of range for federation token (range is 900 to 43200)")
+        end
+        it "raise not found record error" do
+          allow(issuer_object).to receive(:first).and_return({ :issuer_type => "aws", :max_ttl => 2000 })
+          variable.annotations["dynamic/ttl"] = 43201
+          expect { variable.verify }.to raise_error(Exceptions::InvalidPolicyObject, "Dynamic variable TTL is out of range for federation token (range is 900 to 43200)")
+        end
+      end
+      context 'when issuer aws1 configured with wrong ttl for assume role' do
+        let(:resource_id) { 'data/dynamic/myvar2' }
+        let(:issuer_id) { 'aws1' }
+        let(:method) { 'assume-role' } 
+        let(:ttl) { 899 }
+        let(:issuer_object) { 'issuer'  }
+        it "raise not found record error" do
+          allow(issuer_object).to receive(:first).and_return({ :issuer_type => "aws", :max_ttl => 2000 })
+          expect { variable.verify }.to raise_error(Exceptions::InvalidPolicyObject, "Dynamic variable TTL is out of range for assume role (range is 900 to 129600)")
+        end
+        it "raise not found record error" do
+          allow(issuer_object).to receive(:first).and_return({ :issuer_type => "aws", :max_ttl => 2000 })
+          variable.annotations["dynamic/ttl"] = 129601
+          expect { variable.verify }.to raise_error(Exceptions::InvalidPolicyObject, "Dynamic variable TTL is out of range for assume role (range is 900 to 129600)")
+        end
       end
     end
+  end
 
+  describe Loader::Types::Delete do
+    context "Delete from Redis" do
+
+      let(:account) { "rspec" }
+      let(:data_var_id) { "#{account}:variable:data/conjur_secret" }
+      let(:my_host) { "#{account}:host:data/my-host" }
+      let(:user_owner_id) { 'rspec:user:admin' }
+      let(:policy_record) { double(PolicyVersion) }
+      let(:record) { double("record") }
+
+      before do
+        Role.find_or_create(role_id: user_owner_id)
+        allow(policy_record).to receive(:record).and_return(record)
+      end
+
+      subject { described_class.new(policy_record) }
+
+      it "Variable is deleted from Redis on !delete" do
+        Resource.create(resource_id: data_var_id, owner_id: user_owner_id)
+        allow(record).to receive(:resourceid).and_return(data_var_id)
+        expect(Rails.cache).to receive(:delete).with(data_var_id)
+        subject.delete!
+      end
+
+      it "Non variable resource does not invoke redis" do
+        Resource.create(resource_id: my_host, owner_id: user_owner_id)
+        Role.find_or_create(role_id: my_host)
+        allow(record).to receive(:resourceid).and_return(my_host)
+        expect(Rails.cache).to_not receive(:delete)
+        subject.delete!
+      end
+
+      it "Variable that doesn't exist in Resource table" do
+        allow(record).to receive(:resourceid).and_return(data_var_id)
+        expect(Rails.cache).to_not receive(:delete).with(data_var_id)
+        expect{ subject.delete! }.to_not raise_error
+      end
+    end
   end
 end

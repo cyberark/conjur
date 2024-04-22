@@ -26,6 +26,7 @@ require 'rspec/rails'
 Dir[Rails.root.join("spec/support/**/*.rb")].sort.each {|f| require f}
 
 ENV['CONJUR_ACCOUNT'] = 'rspec'
+ENV['TENANT_ID'] = "mytenant"
 ENV.delete('CONJUR_ADMIN_PASSWORD')
 
 $LOAD_PATH << '../app/domain'
@@ -51,9 +52,11 @@ end
 RSpec.configure do |config|
   config.before(:suite) do
     DatabaseCleaner.strategy = :transaction
+    Rails.cache.clear
   end
 
   config.around(:each) do |example|
+    Rails.cache.clear
     DatabaseCleaner.cleaning do
       example.run
     end

@@ -60,6 +60,10 @@ module Monitoring
       end
 
       def respond_with(format)
+
+        apiRequestCounter =  Monitoring::Metrics::ApiRequestCounter.new
+        apiRequestCounter.refresh(@registry)
+        
         response = format.marshal(@registry)
 
         Rails.logger.info("Telemetry data: #{response}")

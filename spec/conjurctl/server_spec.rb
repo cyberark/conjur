@@ -18,6 +18,7 @@ describe "conjurctl server" do
     end
 
     it "with password-from-stdin flag but no account flag" do
+      Rails.cache.clear
       _, stderr_str, = Open3.capture3(
         "conjurctl server --password-from-stdin"
       )
@@ -28,6 +29,7 @@ describe "conjurctl server" do
     end
 
     it "with account flag" do
+      Rails.cache.clear
       with_background_process(
         'conjurctl server --account demo'
       ) do
@@ -39,6 +41,7 @@ describe "conjurctl server" do
     end
 
     it "with both account and password-from-stdin flags" do
+      Rails.cache.clear
       with_background_process("
         echo -n 'MySecretP,@SS1()!' |
         conjurctl server --account demo --password-from-stdin
@@ -51,6 +54,7 @@ describe "conjurctl server" do
     end
 
     it "deletes an existing PID file on start up" do
+      Rails.cache.clear
       pid_file_path = File.join(conjur_server_dir, 'tmp/pids/server.pid')
 
       # Ensure the pid file exists before starting Conjur
@@ -73,6 +77,7 @@ describe "conjurctl server" do
     end
 
     it "doesn't attempt to delete a non-existent PID file" do
+      Rails.cache.clear
       pid_file_path = File.join(conjur_server_dir, 'tmp/pids/server.pid')
 
       # Ensure the pid file doesn't exist before starting Conjur

@@ -7,22 +7,25 @@ module Secrets
 
       def create_input_validation(params)
         data_fields = {
-          name: String,
-          branch: String
+          name: {
+            field_info: {
+              type: String,
+              value: params[:name]
+            },
+            validators: [method(:validate_field_required), method(:validate_field_type), method(:validate_id)]
+          },
+          branch: {
+            field_info: {
+              type: String,
+            value: params[:branch]
+            },
+            validators: [method(:validate_field_required), method(:validate_field_type), method(:validate_path)]
+          }
         }
-        validate_required_data(params, data_fields.keys)
-
-        data_fields = {
-          name: String,
-          branch: String
-        }
-        validate_data(params, data_fields)
+        validate_data_fields(data_fields)
 
         # check policy exists
         get_resource("policy", params[:branch])
-
-        # Validate the name of the secret is correct
-        validate_name(params[:name])
       end
 
       def update_input_validation(params, body_params )
@@ -98,6 +101,14 @@ module Secrets
         }
       end
 
+      def is_dynamic_branch(branch)
+        # We want to make sure the branch start with full path of dynamic to prevent cases where the branch name contains dynamic
+        unless branch.end_with?("/")
+          branch = "#{branch}/"
+        end
+        branch.start_with?(Issuer::DYNAMIC_VARIABLE_PREFIX)
+      end
+
       private
 
       def create_resource(branch, secret_name, policy_id)
@@ -111,8 +122,10 @@ module Secrets
       def merge_annotations(params)
         annotations = convert_fields_to_annotations(params)
         # add annotations from secret fields
-        if params[:annotations]
-          annotations.concat(params[:annotations])
+        params_annotations = params[:annotations]
+        if params_annotations
+          validate_annotations(params_annotations)
+          annotations.concat(params_annotations)
         end
 
         annotations

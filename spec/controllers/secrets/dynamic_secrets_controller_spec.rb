@@ -1,7 +1,12 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 require './app/domain/util/static_account'
 
 DatabaseCleaner.strategy = :truncation
+
+VALID_AWS_KEY = '"AKIAIOSFODNN7EXAMPLE"'
+VALID_AWS_SECRET = '"wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"'
 
 describe DynamicSecretsController, type: :request do
   let(:admin_user) { Role.find_or_create(role_id: 'rspec:user:admin') }
@@ -78,9 +83,12 @@ describe DynamicSecretsController, type: :request do
         assert_response :not_found
         parsed_body = JSON.parse(response.body)
         expect(parsed_body["error"]["message"]).to eq("Issuer 'issuer1' not found in account 'rspec'")
+        # Correct audit is returned
+        audit_message = 'rspec:user:admin failed to create secret /data/dynamic/ephemeral_secret with url: \'/secrets/dynamic\' and content: {"branch":"/data/dynamic","name":"ephemeral_secret","issuer":"issuer1","ttl":1200,"method":"federation-token"}: Issuer \'issuer1\' not found in account \'rspec\''
+        verify_audit_message(audit_message)
       end
     end
-    context "when creating ephemeral secret with ttl bigger then issuer ttl" do
+    context "when creating dynamic secret with ttl bigger then issuer ttl" do
       let(:payload_create_secret) do
         <<~BODY
           {
@@ -99,8 +107,8 @@ describe DynamicSecretsController, type: :request do
             "max_ttl": 1000,
             "type": "aws",
             "data": {
-              "access_key_id": "my-key-id",
-              "secret_access_key": "my-key-secret"
+              "access_key_id": #{VALID_AWS_KEY},
+              "secret_access_key":#{VALID_AWS_SECRET}
             }
           }
         BODY
@@ -123,9 +131,9 @@ describe DynamicSecretsController, type: :request do
              )
         )
         # Correct response code
-        assert_response :bad_request
+        assert_response :unprocessable_entity
         parsed_body = JSON.parse(response.body)
-        expect(parsed_body["error"]["message"]).to eq("Dynamic secret ttl can't be bigger than the issuer ttl 1000")
+        expect(parsed_body["error"]["message"]).to eq("The TTL of the dynamic secret can't exceed the maximum TTL defined in the issuer.")
       end
     end
     context "when creating ephemeral secret with no method" do
@@ -154,6 +162,67 @@ describe DynamicSecretsController, type: :request do
         expect(parsed_body["error"]["message"]).to eq("Dynamic Secret method is unsupported")
       end
     end
+    context "when creating dynamic secret under dynamic2 branch" do
+      let(:branch_policy) do
+        <<~POLICY
+          - !policy dynamic2
+        POLICY
+      end
+      let(:payload_create_secret) do
+        <<~BODY
+          {
+              "branch": "/data/dynamic2",
+              "name": "secret1",
+              "issuer": "aws-issuer-1",
+              "ttl": 1000,
+              "method": "federation-token"
+          }
+        BODY
+      end
+      let(:payload_create_issuers) do
+        <<~BODY
+          {
+            "id": "aws-issuer-1",
+            "max_ttl": 1000,
+            "type": "aws",
+            "data": {
+              "access_key_id": #{VALID_AWS_KEY},
+              "secret_access_key":#{VALID_AWS_SECRET}
+            }
+          }
+        BODY
+      end
+      it 'Secret creation failed on 404' do
+        # Load the branch policy into Conjur
+        put(
+          '/policies/rspec/policy/data',
+          env: token_auth_header(role: admin_user).merge(
+            { 'RAW_POST_DATA' => branch_policy }
+          )
+        )
+        assert_response :success
+        #Create issuer
+        post("/issuers/rspec",
+             env: token_auth_header(role: admin_user).merge(
+               'RAW_POST_DATA' => payload_create_issuers,
+               'CONTENT_TYPE' => "application/json"
+             ))
+        assert_response :created
+
+        post("/secrets/dynamic",
+             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
+               {
+                 'RAW_POST_DATA' => payload_create_secret,
+                 'CONTENT_TYPE' => "application/json"
+               }
+             )
+        )
+        # Correct response code
+        assert_response :unprocessable_entity
+        parsed_body = JSON.parse(response.body)
+        expect(parsed_body["error"]["message"]).to eq("Dynamic secrets must be created under data/dynamic/")
+      end
+    end
   end
 
   describe "Dynamic secret creation - Permissions validations" do
@@ -175,8 +244,8 @@ describe DynamicSecretsController, type: :request do
           "max_ttl": 2000,
           "type": "aws",
           "data": {
-            "access_key_id": "my-key-id",
-            "secret_access_key": "my-key-secret"
+            "access_key_id": #{VALID_AWS_KEY},
+            "secret_access_key":#{VALID_AWS_SECRET}
           }
         }
       BODY
@@ -292,11 +361,11 @@ describe DynamicSecretsController, type: :request do
       <<~BODY
         {
           "id": "aws-issuer-1",
-          "max_ttl": 2000,
+          "max_ttl": 1400,
           "type": "aws",
           "data": {
-            "access_key_id": "my-key-id",
-            "secret_access_key": "my-key-secret"
+            "access_key_id": #{VALID_AWS_KEY},
+            "secret_access_key":#{VALID_AWS_SECRET}
           }
         }
       BODY
@@ -359,7 +428,7 @@ describe DynamicSecretsController, type: :request do
             "method_params": {
                 "region": "us-east-1",
                 "inline_policy": "{}",
-                "role_arn": "role"      
+                "role_arn": "arn:aws:iam::123456789012:role/my-role-name"      
             } 
         }
       BODY
@@ -376,7 +445,10 @@ describe DynamicSecretsController, type: :request do
         # Correct response code
         assert_response :created
         # correct response body
-        expect(response.body).to eq("{\"branch\":\"/data/dynamic\",\"name\":\"ephemeral_secret\",\"issuer\":\"aws-issuer-1\",\"ttl\":1200,\"method\":\"assume-role\",\"method_params\":{\"role_arn\":\"role\",\"region\":\"us-east-1\",\"inline_policy\":\"{}\"},\"annotations\":[{\"name\":\"description\",\"value\":\"desc\"}],\"permissions\":[{\"subject\":{\"id\":\"alice\",\"kind\":\"user\"},\"privileges\":[\"read\"]}]}")
+        validate_response("ephemeral_secret", "/data/dynamic", "aws-issuer-1", 1200, "assume-role",
+                          {"role_arn"=>"arn:aws:iam::123456789012:role/my-role-name","region"=>"us-east-1","inline_policy"=>"{}"},
+                          [{"name"=>"description", "value"=>"desc"}],
+                          [{"subject"=>{"id"=>"alice","kind"=>"user"},"privileges"=>["read"]}])
         # Secret resource is created
         resource = Resource["rspec:variable:data/dynamic/ephemeral_secret"]
         expect(resource).to_not be_nil
@@ -385,12 +457,6 @@ describe DynamicSecretsController, type: :request do
             env: token_auth_header(role: alice_user)
         )
         assert_response :success
-        # Check the variable resource is with all the information (as the object also contains created at we want to check without it so partial json)
-        parsed_body = JSON.parse(response.body)
-        #expect(parsed_body[0].to_s.include?('"id"=>"rspec:variable:data/dynamic/ephemeral_secret", "owner"=>"rspec:policy:data/dynamic", "policy"=>"rspec:policy:data/dynamic", "permissions"=>[{"privilege"=>"read", "role"=>"rspec:user:alice", "policy"=>"rspec:policy:data/dynamic"}], "annotations"=>[{"name"=>"dynamic/issuer", "value"=>"aws-issuer-1", "policy"=>"rspec:policy:data/dynamic"}, {"name"=>"dynamic/ttl", "value"=>"1200", "policy"=>"rspec:policy:data/dynamic"}, {"name"=>"dynamic/method", "value"=>"assume-role", "policy"=>"rspec:policy:data/dynamic"}, {"name"=>"dynamic/role-arn", "value"=>"role", "policy"=>"rspec:policy:data/dynamic"}, {"name"=>"dynamic/region", "value"=>"us-east-1", "policy"=>"rspec:policy:data/dynamic"}, {"name"=>"dynamic/inline-policy", "value"=>"{}", "policy"=>"rspec:policy:data/dynamic"}, {"name"=>"description", "value"=>"desc", "policy"=>"rspec:policy:data/dynamic"}], "secrets"=>[]}')).to eq(true)
-        # Correct audit is returned
-        #audit_message = "rspec:user:alice added membership of rspec:host:data/delegation/host1 in rspec:group:data/delegation/consumers"
-        #verify_audit_message(audit_message)
       end
     end
     context "when creating federation token ephemeral secret" do
@@ -436,7 +502,10 @@ describe DynamicSecretsController, type: :request do
         # Correct response code
         assert_response :created
         # correct response body
-        #expect(response.body).to eq("{\"branch\":\"/data/dynamic\",\"name\":\"ephemeral_secret\",\"type\":\"ephemeral\",\"annotations\":[{\"name\":\"description\",\"value\":\"desc\"}],\"permissions\":[{\"subject\":{\"kind\":\"user\",\"id\":\"alice\"},\"privileges\":[\"read\"]}],\"ephemeral\":{\"issuer\":\"aws-issuer-1\",\"ttl\":1200,\"type\":\"aws\",\"type_params\":{\"method\":\"federation-token\",\"region\":\"us-east-1\",\"inline_policy\":\"{}\"}}}")
+        validate_response("ephemeral_secret", "/data/dynamic", "aws-issuer-1", 1200, "federation-token",
+                          {"region"=>"us-east-1","inline_policy"=>"{}"},
+                          [{"name"=>"description", "value"=>"desc"}],
+                          [{"subject"=>{"id"=>"alice","kind"=>"user"},"privileges"=>["read"]}])
         # Secret resource is created
         resource = Resource["rspec:variable:data/dynamic/ephemeral_secret"]
         expect(resource).to_not be_nil
@@ -445,12 +514,6 @@ describe DynamicSecretsController, type: :request do
             env: token_auth_header(role: alice_user)
         )
         assert_response :success
-        # Check the variable resource is with all the information (as the object also contains created at we want to check without it so partial json)
-        parsed_body = JSON.parse(response.body)
-        # expect(parsed_body[0].to_s.include?('"id"=>"rspec:variable:data/dynamic/ephemeral_secret", "owner"=>"rspec:policy:data/dynamic", "policy"=>"rspec:policy:data/dynamic", "permissions"=>[{"privilege"=>"read", "role"=>"rspec:user:alice", "policy"=>"rspec:policy:data/dynamic"}], "annotations"=>[{"name"=>"dynamic/issuer", "value"=>"aws-issuer-1", "policy"=>"rspec:policy:data/dynamic"}, {"name"=>"dynamic/ttl", "value"=>"1200", "policy"=>"rspec:policy:data/dynamic"}, {"name"=>"dynamic/method", "value"=>"federation-token", "policy"=>"rspec:policy:data/dynamic"}, {"name"=>"dynamic/region", "value"=>"us-east-1", "policy"=>"rspec:policy:data/dynamic"}, {"name"=>"dynamic/inline-policy", "value"=>"{}", "policy"=>"rspec:policy:data/dynamic"}, {"name"=>"description", "value"=>"desc", "policy"=>"rspec:policy:data/dynamic"}], "secrets"=>[]}')).to eq(true)
-        # Correct audit is returned
-        #audit_message = "rspec:user:alice added membership of rspec:host:data/delegation/host1 in rspec:group:data/delegation/consumers"
-        #verify_audit_message(audit_message)
       end
     end
   end
@@ -460,11 +523,11 @@ describe DynamicSecretsController, type: :request do
       <<~BODY
         {
           "id": "aws-issuer-1",
-          "max_ttl": 1000,
+          "max_ttl": 1400,
           "type": "aws",
           "data": {
-            "access_key_id": "my-key-id",
-            "secret_access_key": "my-key-secret"
+            "access_key_id": #{VALID_AWS_KEY},
+            "secret_access_key":#{VALID_AWS_SECRET}
           }
         }
       BODY
@@ -475,7 +538,7 @@ describe DynamicSecretsController, type: :request do
               "branch": "/data/dynamic",
               "name": "secret_to_update",
               "issuer": "aws-issuer-1",
-              "ttl": 120,
+              "ttl": 1200,
               "method": "federation-token",
               "annotations": [
               {
@@ -580,7 +643,7 @@ describe DynamicSecretsController, type: :request do
             {
                 "branch": "data/dynamic"   ,
                 "issuer": "aws-issuer-1",
-                "ttl": 100,
+                "ttl": 1000,
                 "method": "federation-token"           
             }
           BODY
@@ -606,7 +669,7 @@ describe DynamicSecretsController, type: :request do
             {
                 "name": "secrets2",
                 "issuer": "aws-issuer-1",
-                "ttl": 100,
+                "ttl": 1000,
                 "method": "federation-token"       
             }
           BODY
@@ -656,7 +719,7 @@ describe DynamicSecretsController, type: :request do
           <<~BODY
             {
                "issuer": "aws-issuer-1",
-                "ttl": 1200,
+                "ttl": 3000,
                 "method": "federation-token"
             }
           BODY
@@ -671,9 +734,9 @@ describe DynamicSecretsController, type: :request do
                )
           )
           # Correct response code
-          assert_response :bad_request
+          assert_response :unprocessable_entity
           parsed_body = JSON.parse(response.body)
-          expect(parsed_body["error"]["message"]).to eq("Dynamic secret ttl can't be bigger than the issuer ttl 1000")
+          expect(parsed_body["error"]["message"]).to eq("The TTL of the dynamic secret can't exceed the maximum TTL defined in the issuer.")
         end
       end
       context "when replacing dynamic secret with no method" do
@@ -707,7 +770,7 @@ describe DynamicSecretsController, type: :request do
         <<~BODY
             {
                 "issuer": "aws-issuer-1",
-                "ttl": 100,
+                "ttl": 1000,
                 "method": "federation-token"       
             }
           BODY
@@ -792,11 +855,11 @@ describe DynamicSecretsController, type: :request do
         <<~BODY
         {
           "id": "aws-issuer-2",
-          "max_ttl": 100,
+          "max_ttl": 1200,
           "type": "aws",
           "data": {
-            "access_key_id": "my-key-id",
-            "secret_access_key": "my-key-secret"
+            "access_key_id": #{VALID_AWS_KEY},
+            "secret_access_key":#{VALID_AWS_SECRET}
           }
         }
       BODY
@@ -823,7 +886,7 @@ describe DynamicSecretsController, type: :request do
           <<~BODY
           {
               "issuer": "aws-issuer-1",
-              "ttl": 120,
+              "ttl": 1200,
               "method": "federation-token",
               "annotations": [
                 {
@@ -874,9 +937,9 @@ describe DynamicSecretsController, type: :request do
         let(:payload_update_secret) do
           <<~BODY
           {
-              "mime_type": "plain",
+              "mime_type": "plain/text",
               "issuer": "aws-issuer-1",
-              "ttl": 120,
+              "ttl": 1200,
               "method": "federation-token",
               "permissions": [
                 {
@@ -913,7 +976,7 @@ describe DynamicSecretsController, type: :request do
           <<~BODY
           {
               "issuer": "aws-issuer-1",
-              "ttl": 120,
+              "ttl": 1200,
               "method": "federation-token",
               "annotations": [
                 {
@@ -943,10 +1006,10 @@ describe DynamicSecretsController, type: :request do
               )
           )
           # Correct response code
-          assert_response :ok
+          assert_response :bad_request
           # Check annotations were not updated
           annotations = Annotation.where(resource_id:"rspec:variable:data/dynamic/secret_to_update").all
-          expect(annotations.size).to eq 4
+          expect(annotations.size).to eq 5
         end
       end
       context "Update secret permissions" do
@@ -954,7 +1017,7 @@ describe DynamicSecretsController, type: :request do
           <<~BODY
           {
               "issuer": "aws-issuer-1",
-              "ttl": 120,
+              "ttl": 1200,
               "method": "federation-token",
               "annotations": [
                 {
@@ -1016,7 +1079,7 @@ describe DynamicSecretsController, type: :request do
           <<~BODY
           {
               "issuer": "aws-issuer-1",
-              "ttl": 120,
+              "ttl": 1200,
               "method": "federation-token",
               "annotations": [
                 {
@@ -1053,7 +1116,7 @@ describe DynamicSecretsController, type: :request do
           <<~BODY
           {
               "issuer": "aws-issuer-1",
-              "ttl": 120,
+              "ttl": 1200,
               "method": "federation-token",
               "annotations": [
                 {
@@ -1109,7 +1172,7 @@ describe DynamicSecretsController, type: :request do
           <<~BODY
           {
               "issuer": "aws-issuer-1",
-              "ttl": 120,
+              "ttl": 1200,
               "method": "federation-token",
               "annotations": [
                 {
@@ -1158,7 +1221,7 @@ describe DynamicSecretsController, type: :request do
           <<~BODY
           {
               "issuer": "aws-issuer-1",
-              "ttl": 120,
+              "ttl": 1200,
               "method": "federation-token",
               "annotations": [
                 {
@@ -1207,11 +1270,11 @@ describe DynamicSecretsController, type: :request do
           <<~BODY
           {
               "issuer": "aws-issuer-1",
-              "ttl": 120,
+              "ttl": 1200,
               "method": "assume-role",
               "method": "assume-role",
               "method_params": {
-                  "role_arn": "role"      
+                  "role_arn": "arn:aws:iam::123456789012:role/my-role-name"      
               }, 
               "annotations": [
                 {
@@ -1252,7 +1315,7 @@ describe DynamicSecretsController, type: :request do
           <<~BODY
           {
               "issuer": "aws-issuer-2",
-              "ttl": 120,
+              "ttl": 3000,
               "method": "federation-token",
               "annotations": [
                 {
@@ -1283,9 +1346,9 @@ describe DynamicSecretsController, type: :request do
               )
           )
           # Correct response code
-          assert_response :bad_request
+          assert_response :unprocessable_entity
           parsed_body = JSON.parse(response.body)
-          expect(parsed_body["error"]["message"]).to eq("Dynamic secret ttl can't be bigger than the issuer ttl 100")
+          expect(parsed_body["error"]["message"]).to eq("The TTL of the dynamic secret can't exceed the maximum TTL defined in the issuer.")
         end
       end
       context "Update secret ttl" do
@@ -1293,7 +1356,7 @@ describe DynamicSecretsController, type: :request do
           <<~BODY
           {
               "issuer": "aws-issuer-1",
-              "ttl": 1200,
+              "ttl": 120,
               "method": "federation-token",
               "annotations": [
                 {
@@ -1324,9 +1387,9 @@ describe DynamicSecretsController, type: :request do
               )
           )
           # Correct response code
-          assert_response :bad_request
+          assert_response :unprocessable_entity
           parsed_body = JSON.parse(response.body)
-          expect(parsed_body["error"]["message"]).to eq("Dynamic secret ttl can't be bigger than the issuer ttl 1000")
+          expect(parsed_body["error"]["message"]).to eq("Dynamic variable TTL is out of range for federation token (range is 900 to 43200)")
         end
       end
     end
@@ -1339,11 +1402,11 @@ describe DynamicSecretsController, type: :request do
       <<~BODY
         {
           "id": "aws-issuer-1",
-          "max_ttl": 1000,
+          "max_ttl": 1400,
           "type": "aws",
           "data": {
-            "access_key_id": "my-key-id",
-            "secret_access_key": "my-key-secret"
+            "access_key_id": #{VALID_AWS_KEY},
+            "secret_access_key":#{VALID_AWS_SECRET}
           }
         }
       BODY
@@ -1354,7 +1417,7 @@ describe DynamicSecretsController, type: :request do
               "branch": "/data/dynamic",
               "name": "federation_token_secret",
               "issuer": "aws-issuer-1",
-              "ttl": 120,
+              "ttl": 1200,
               "method": "federation-token",
               "annotations": [
               {
@@ -1384,10 +1447,10 @@ describe DynamicSecretsController, type: :request do
               "branch": "/data/dynamic",
               "name": "assume_role_secret",
               "issuer": "aws-issuer-1",
-              "ttl": 120,
+              "ttl": 1200,
               "method": "assume-role",
               "method_params": {
-                "role_arn": "role"
+                "role_arn": "arn:aws:iam::123456789012:role/my-role-name"
               },
               "annotations": [
                 {
@@ -1447,7 +1510,10 @@ describe DynamicSecretsController, type: :request do
           )
         )
         assert_response :success
-        expect(response.body).to eq("{\"branch\":\"/data/dynamic\",\"name\":\"federation_token_secret\",\"issuer\":\"aws-issuer-1\",\"ttl\":120,\"method\":\"federation-token\",\"annotations\":[{\"name\":\"description\",\"value\":\"desc\"},{\"name\":\"annotation_to_delete\",\"value\":\"delete\"}],\"permissions\":[{\"subject\":{\"id\":\"alice\",\"kind\":\"user\"},\"privileges\":[\"read\"]}]}")
+        validate_response("federation_token_secret", "/data/dynamic", "aws-issuer-1", 1200, "federation-token",
+                          nil,
+                          [{"name"=>"description", "value"=>"desc"}, { "name" => "annotation_to_delete", "value" => "delete" }],
+                          [{"subject"=>{"id"=>"alice","kind"=>"user"},"privileges"=>["read"]}])
       end
     end
     context 'User with read permissions calls for get assume role secret' do
@@ -1458,7 +1524,10 @@ describe DynamicSecretsController, type: :request do
             )
         )
         assert_response :success
-        expect(response.body).to eq("{\"branch\":\"/data/dynamic\",\"name\":\"assume_role_secret\",\"issuer\":\"aws-issuer-1\",\"ttl\":120,\"method\":\"assume-role\",\"method_params\":{\"role_arn\":\"role\"},\"annotations\":[{\"name\":\"description\",\"value\":\"desc\"}],\"permissions\":[{\"subject\":{\"id\":\"alice\",\"kind\":\"user\"},\"privileges\":[\"read\"]}]}")
+        validate_response("assume_role_secret", "/data/dynamic", "aws-issuer-1", 1200, "assume-role",
+                          {"role_arn"=>"arn:aws:iam::123456789012:role/my-role-name"},
+                          [{"name"=>"description", "value"=>"desc"}],
+                          [{"subject"=>{"id"=>"alice","kind"=>"user"},"privileges"=>["read"]}])
       end
     end
     context 'User with no read permissions calls for get assume role secret' do
@@ -1525,7 +1594,7 @@ describe DynamicSecretsController, type: :request do
     let(:payload_update_secret) do
       <<~BODY
           {
-            "mime_type": "plain",
+            "mime_type": "plain/text",
             "value": "password2",
             "annotations": [
               {
@@ -1553,11 +1622,11 @@ describe DynamicSecretsController, type: :request do
       <<~BODY
         {
           "id": "aws-issuer-1",
-          "max_ttl": 1000,
+          "max_ttl": 1400,
           "type": "aws",
           "data": {
-            "access_key_id": "my-key-id",
-            "secret_access_key": "my-key-secret"
+            "access_key_id": #{VALID_AWS_KEY},
+            "secret_access_key":#{VALID_AWS_SECRET}
           }
         }
       BODY
@@ -1584,7 +1653,7 @@ describe DynamicSecretsController, type: :request do
         {
             "branch": "/data/dynamic",
             "name": "secret_to_update",
-            "mime_type": "plain",
+            "mime_type": "plain/text",
             "value": "password",
             "annotations": [
               {
@@ -1617,9 +1686,9 @@ describe DynamicSecretsController, type: :request do
                }
              )
         )
-        assert_response :bad_request
+        assert_response :unprocessable_entity
         parsed_body = JSON.parse(response.body)
-        expect(parsed_body["error"]["message"]).to eq("Static secret cannot be created under data/dynamic/")
+        expect(parsed_body["error"]["message"]).to eq("The data/dynamic/ branch is reserved for dynamic secrets only. Choose a different branch under /data for your static secret.")
       end
     end
     context 'create static secret under dynamic branch with dynamic api' do
@@ -1628,7 +1697,7 @@ describe DynamicSecretsController, type: :request do
         {
             "branch": "/data/dynamic",
             "name": "secret_to_update",
-            "mime_type": "plain",
+            "mime_type": "plain/text",
             "value": "password",
             "annotations": [
               {
@@ -1673,7 +1742,7 @@ describe DynamicSecretsController, type: :request do
               "branch": "/data/dynamic",
               "name": "federation_token_secret",
               "issuer": "aws-issuer-1",
-              "ttl": 120,
+              "ttl": 1000,
               "method": "federation-token",
               "annotations": [
               {
@@ -1706,9 +1775,9 @@ describe DynamicSecretsController, type: :request do
                }
              )
         )
-        assert_response :bad_request
+        assert_response :unprocessable_entity
         parsed_body = JSON.parse(response.body)
-        expect(parsed_body["error"]["message"]).to eq("Static secret cannot be created under data/dynamic/")
+        expect(parsed_body["error"]["message"]).to eq("The data/dynamic/ branch is reserved for dynamic secrets only. Choose a different branch under /data for your static secret.")
       end
     end
     context 'create dynamic secret under regular branch with static api' do
@@ -1718,7 +1787,7 @@ describe DynamicSecretsController, type: :request do
               "branch": "/data/secrets",
               "name": "federation_token_secret",
               "issuer": "aws-issuer-1",
-              "ttl": 120,
+              "ttl": 1000,
               "method": "federation-token",
               "annotations": [
               {
@@ -1751,9 +1820,9 @@ describe DynamicSecretsController, type: :request do
                }
              )
         )
-        assert_response :bad_request
+        assert_response :unprocessable_entity
         parsed_body = JSON.parse(response.body)
-        expect(parsed_body["error"]["message"]).to eq("Static secret can't contain issuer field")
+        expect(parsed_body["error"]["message"]).to eq("A static secret can't contain an 'issuer' field")
       end
     end
     context 'update static secret under regular branch with dynamic api' do
@@ -1762,7 +1831,7 @@ describe DynamicSecretsController, type: :request do
         {
             "branch": "/data/secrets",
             "name": "secret_to_update",
-            "mime_type": "plain",
+            "mime_type": "plain/text",
             "value": "password",
             "annotations": [
               {
@@ -1816,7 +1885,7 @@ describe DynamicSecretsController, type: :request do
               "branch": "/data/dynamic",
               "name": "federation_token_secret",
               "issuer": "aws-issuer-1",
-              "ttl": 120,
+              "ttl": 1000,
               "method": "federation-token",
               "annotations": [
               {
@@ -1860,7 +1929,7 @@ describe DynamicSecretsController, type: :request do
         )
         assert_response :bad_request
         parsed_body = JSON.parse(response.body)
-        expect(parsed_body["error"]["message"]).to eq("Static secret cannot be updated under data/dynamic/")
+        expect(parsed_body["error"]["message"]).to eq("The data/dynamic/ branch is reserved for dynamic secrets only. Choose a different branch under /data for your static secret.")
       end
     end
     context 'get static secret under regular branch with dynamic api' do
@@ -1869,7 +1938,7 @@ describe DynamicSecretsController, type: :request do
         {
             "branch": "/data/secrets",
             "name": "secret_to_update",
-            "mime_type": "plain",
+            "mime_type": "plain/text",
             "value": "password",
             "annotations": [
               {
@@ -1918,7 +1987,7 @@ describe DynamicSecretsController, type: :request do
               "branch": "/data/dynamic",
               "name": "federation_token_secret",
               "issuer": "aws-issuer-1",
-              "ttl": 120,
+              "ttl": 1200,
               "method": "federation-token",
               "annotations": [
               {
@@ -1957,7 +2026,7 @@ describe DynamicSecretsController, type: :request do
         )
         assert_response :bad_request
         parsed_body = JSON.parse(response.body)
-        expect(parsed_body["error"]["message"]).to eq("Static secret cannot be fetched under data/dynamic/")
+        expect(parsed_body["error"]["message"]).to eq("The data/dynamic/ branch is reserved for dynamic secrets only. Choose a different branch under /data for your static secret.")
       end
     end
   end
@@ -1980,11 +2049,11 @@ describe DynamicSecretsController, type: :request do
       <<~BODY
         {
           "id": "aws-issuer-1",
-          "max_ttl": 1000,
+          "max_ttl": 1300,
           "type": "aws",
           "data": {
-            "access_key_id": "my-key-id",
-            "secret_access_key": "my-key-secret"
+            "access_key_id": #{VALID_AWS_KEY},
+            "secret_access_key":#{VALID_AWS_SECRET}
           }
         }
       BODY
@@ -1995,7 +2064,7 @@ describe DynamicSecretsController, type: :request do
               "branch": "/data/dynamic",
               "name": "federation_token_secret",
               "issuer": "aws-issuer-1",
-              "ttl": 120,
+              "ttl": 1200,
               "method": "federation-token",
               "annotations": [
               {
@@ -2026,7 +2095,7 @@ describe DynamicSecretsController, type: :request do
             annotations:
               description: desc
               dynamic/issuer: aws-issuer-1  
-              dynamic/ttl: 110
+              dynamic/ttl: 1100
               dynamic/method: federation-token
               dynamic/region: us-east-1    
 
@@ -2040,10 +2109,10 @@ describe DynamicSecretsController, type: :request do
       <<~BODY
           {             
               "issuer": "aws-issuer-1",
-              "ttl": 110,
+              "ttl": 1100,
               "method": "assume-role",
               "method_params": {
-                "role_arn": "role"
+                "role_arn": "arn:aws:iam::123456789012:role/my-role-name"
               },
               "permissions": [
                 {
@@ -2064,9 +2133,9 @@ describe DynamicSecretsController, type: :request do
             annotations:
               description: desc
               dynamic/issuer: aws-issuer-1  
-              dynamic/ttl: 110
+              dynamic/ttl: 1100
               dynamic/method: assume-role
-              dynamic/role-arn: role
+              dynamic/role-arn: arn:aws:iam::123456789012:role/my-role-name
               dynamic/region: us-east-1    
 
           - !permit
@@ -2104,13 +2173,25 @@ describe DynamicSecretsController, type: :request do
              )
         )
         assert_response :created
-        expect(response.body).to eq("{\"branch\":\"/data/dynamic\",\"name\":\"federation_token_secret\",\"issuer\":\"aws-issuer-1\",\"ttl\":120,\"method\":\"federation-token\",\"annotations\":[{\"name\":\"description\",\"value\":\"desc\"},{\"name\":\"annotation_to_delete\",\"value\":\"delete\"}],\"permissions\":[{\"subject\":{\"id\":\"alice\",\"kind\":\"user\"},\"privileges\":[\"read\"]}]}")
+        validate_response("federation_token_secret", "/data/dynamic", "aws-issuer-1", 1200, "federation-token",
+                          nil,
+                          [{"name"=>"description", "value"=>"desc"}, {"name"=>"annotation_to_delete","value"=>"delete"}],
+                          [{"subject"=>{"id"=>"alice","kind"=>"user"},"privileges"=>["read"]}])
+        # Correct audit is returned
+        audit_message = 'rspec:user:alice successfully created secret /data/dynamic/federation_token_secret with url: \'/secrets/dynamic\' and content: {"branch":"/data/dynamic","name":"federation_token_secret","issuer":"aws-issuer-1","ttl":1200,"method":"federation-token","annotations":[{"name":"description","value":"desc"},{"name":"annotation_to_delete","value":"delete"}],"permissions":[{"subject":{"kind":"user","id":"alice"},"privileges":["read"]}]}'
+        verify_audit_message(audit_message)
         # get federation token secret
         get("/secrets/dynamic/data/dynamic/federation_token_secret",
             env: token_auth_header(role: alice_user).merge(v2_api_header)
         )
         assert_response :ok
-        expect(response.body).to eq("{\"branch\":\"/data/dynamic\",\"name\":\"federation_token_secret\",\"issuer\":\"aws-issuer-1\",\"ttl\":120,\"method\":\"federation-token\",\"annotations\":[{\"name\":\"description\",\"value\":\"desc\"},{\"name\":\"annotation_to_delete\",\"value\":\"delete\"}],\"permissions\":[{\"subject\":{\"id\":\"alice\",\"kind\":\"user\"},\"privileges\":[\"read\"]}]}")
+        validate_response("federation_token_secret", "/data/dynamic", "aws-issuer-1", 1200, "federation-token",
+                          nil,
+                          [{"name"=>"description", "value"=>"desc"}, {"name"=>"annotation_to_delete","value"=>"delete"}],
+                          [{"subject"=>{"id"=>"alice","kind"=>"user"},"privileges"=>["read"]}])
+        # Correct audit is returned
+        audit_message = "rspec:user:alice successfully retrieved secret data/dynamic/federation_token_secret with url: '/secrets/dynamic/data/dynamic/federation_token_secret'"
+        verify_audit_message(audit_message)
         # create assume role secret using policy
         patch(
           '/policies/rspec/policy/data/dynamic',
@@ -2124,7 +2205,10 @@ describe DynamicSecretsController, type: :request do
             env: token_auth_header(role: alice_user).merge(v2_api_header)
         )
         assert_response :ok
-        expect(response.body).to eq( "{\"branch\":\"/data/dynamic\",\"name\":\"assume_role_secret\",\"issuer\":\"aws-issuer-1\",\"ttl\":110,\"method\":\"assume-role\",\"method_params\":{\"role_arn\":\"role\",\"region\":\"us-east-1\"},\"annotations\":[{\"name\":\"description\",\"value\":\"desc\"}],\"permissions\":[{\"subject\":{\"id\":\"alice\",\"kind\":\"user\"},\"privileges\":[\"read\"]}]}")
+        validate_response("assume_role_secret", "/data/dynamic", "aws-issuer-1", 1100, "assume-role",
+                          {"role_arn"=>"arn:aws:iam::123456789012:role/my-role-name","region"=>"us-east-1"},
+                          [{"name"=>"description", "value"=>"desc"}],
+                          [{"subject"=>{"id"=>"alice","kind"=>"user"},"privileges"=>["read"]}])
         # update assume role secret
         put("/secrets/dynamic/data/dynamic/assume_role_secret",
             env: token_auth_header(role: alice_user).merge(v2_api_header).merge(
@@ -2135,13 +2219,22 @@ describe DynamicSecretsController, type: :request do
             )
         )
         assert_response :ok
-        expect(response.body).to eq("{\"branch\":\"/data/dynamic\",\"name\":\"assume_role_secret\",\"issuer\":\"aws-issuer-1\",\"ttl\":110,\"method\":\"assume-role\",\"method_params\":{\"role_arn\":\"role\"},\"annotations\":[],\"permissions\":[{\"subject\":{\"id\":\"alice\",\"kind\":\"user\"},\"privileges\":[\"read\"]}]}")
+        validate_response("assume_role_secret", "/data/dynamic", "aws-issuer-1", 1100, "assume-role",
+                          {"role_arn"=>"arn:aws:iam::123456789012:role/my-role-name"},
+                          [],
+                          [{"subject"=>{"id"=>"alice","kind"=>"user"},"privileges"=>["read"]}])
+        # Correct audit is returned
+        audit_message = 'rspec:user:alice successfully changed secret data/dynamic/assume_role_secret with url: \'/secrets/dynamic/data/dynamic/assume_role_secret\' and content: {"issuer":"aws-issuer-1","ttl":1100,"method":"assume-role","method_params":{"role_arn":"arn:aws:iam::123456789012:role/my-role-name"},"permissions":[{"subject":{"kind":"user","id":"alice"},"privileges":["read"]}]}'
+        verify_audit_message(audit_message)
         # get secret
         get("/secrets/dynamic/data/dynamic/assume_role_secret",
             env: token_auth_header(role: alice_user).merge(v2_api_header)
         )
         assert_response :ok
-        expect(response.body).to eq("{\"branch\":\"/data/dynamic\",\"name\":\"assume_role_secret\",\"issuer\":\"aws-issuer-1\",\"ttl\":110,\"method\":\"assume-role\",\"method_params\":{\"role_arn\":\"role\"},\"annotations\":[],\"permissions\":[{\"subject\":{\"id\":\"alice\",\"kind\":\"user\"},\"privileges\":[\"read\"]}]}")
+        validate_response("assume_role_secret", "/data/dynamic", "aws-issuer-1", 1100, "assume-role",
+                          {"role_arn"=>"arn:aws:iam::123456789012:role/my-role-name"},
+                          [],
+                          [{"subject"=>{"id"=>"alice","kind"=>"user"},"privileges"=>["read"]}])
         # update federation token secret using policy
         patch(
           '/policies/rspec/policy/data/dynamic',
@@ -2155,8 +2248,37 @@ describe DynamicSecretsController, type: :request do
             env: token_auth_header(role: alice_user).merge(v2_api_header)
         )
         assert_response :ok
-        expect(response.body).to eq("{\"branch\":\"/data/dynamic\",\"name\":\"federation_token_secret\",\"issuer\":\"aws-issuer-1\",\"ttl\":110,\"method\":\"federation-token\",\"method_params\":{\"region\":\"us-east-1\"},\"annotations\":[{\"name\":\"description\",\"value\":\"desc\"},{\"name\":\"annotation_to_delete\",\"value\":\"delete\"}],\"permissions\":[{\"subject\":{\"id\":\"alice\",\"kind\":\"user\"},\"privileges\":[\"read\"]}]}")
+        validate_response("federation_token_secret", "/data/dynamic", "aws-issuer-1", 1100, "federation-token",
+                          {"region"=>"us-east-1"},
+                          [{"name"=>"description", "value"=>"desc"}, {"name"=>"annotation_to_delete","value"=>"delete"}],
+                          [{"subject"=>{"id"=>"alice","kind"=>"user"},"privileges"=>["read"]}])
       end
     end
+  end
+
+  def validate_response(name, branch, issuer, ttl, method, method_params, annotations, permissions)
+    response_body = JSON.parse(response.body)
+    expect(response_body['name']).to eq(name)
+    expect(response_body['branch']).to eq(branch)
+    expect(response_body['issuer']).to eq(issuer)
+    expect(response_body['ttl']).to eq(ttl)
+    expect(response_body['method']).to eq(method)
+    expect(response_body['method_params']).to eq(method_params)
+    expect(compare_json_arrays(response_body['annotations'], annotations)).to eq(true)
+    expect(compare_json_arrays(response_body['permissions'], permissions)).to eq(true)
+  end
+
+  def compare_json_arrays(array1, array2)
+    # Sort arrays based on a unique identifier or key
+    sorted_array1 = array_to_sorted_json(array1)
+    sorted_array2 = array_to_sorted_json(array2)
+
+    # Compare sorted arrays
+    sorted_array1 == sorted_array2
+  end
+
+  def array_to_sorted_json(array)
+    # Convert array of hashes to array of sorted JSON strings
+    array.map { |item| item.to_json }.sort
   end
 end

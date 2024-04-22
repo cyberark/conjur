@@ -42,16 +42,31 @@ module Secrets
         if method_params.nil?
           raise Errors::Conjur::ParameterMissing.new("method_params")
         end
+
         data_fields = {
-          role_arn: String
+          role_arn: {
+            field_info: {
+              type: String,
+              value: method_params[:role_arn]
+            },
+            validators: [method(:validate_field_required), method(:validate_field_type), method(:validate_role_arn)]
+          },
+          region: {
+            field_info: {
+              type: String,
+              value: method_params[:region]
+            },
+            validators: [method(:validate_field_type), method(:validate_region)]
+          },
+          inline_policy: {
+            field_info: {
+              type: String,
+              value: method_params[:inline_policy]
+            },
+            validators: [method(:validate_field_type)]
+          }
         }
-        validate_required_data(method_params, data_fields.keys)
-        data_fields = {
-          role_arn: String,
-          region: String,
-          inline_policy: String
-        }
-        validate_data(method_params, data_fields)
+        validate_data_fields(data_fields)
       end
     end
   end
