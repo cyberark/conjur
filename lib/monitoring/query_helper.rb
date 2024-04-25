@@ -23,6 +23,8 @@ module Monitoring
       counts["secrets"] = Resource.where(Sequel.like(:resource_id, '%conjur:variable:data/%')).count
       counts["workloads"] = Resource.where(Sequel.like(:resource_id, '%conjur:host:data/%')).count
       counts["users"] = Resource.where(Sequel.like(:resource_id, '%conjur:user:%')).count
+      counts["host-factory"] = HostFactoryToken.count
+
       counts
     end
 
