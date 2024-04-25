@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
+## [1.21.1] - 2024-04-17
+
+### Fixed
+- Dedicated user identifier resolver allowing the user identifiers work like any other resource id. The Conjur internal
+  representation of user identification should not be used with policies. Supports relative and absolute addressing in
+  case of nested policies.
+  CNJR-4394
+
 ## [1.21.0] - 2024-03-08
 
 ### Changed
