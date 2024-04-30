@@ -13,6 +13,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 - Text review for dynamic secrets
 
+### Added
+- Redis (disabled) support for user,resource and dynamic secret
+
 ## [1.0.25-cloud] - 2024-04-21
 ### Added
 - Return permissions in static secret
