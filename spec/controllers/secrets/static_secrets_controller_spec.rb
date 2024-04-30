@@ -831,7 +831,6 @@ describe StaticSecretsController, type: :request do
     context 'when the branch doesnt exist' do
       it 'returns 404' do
         expect(Rails.cache).to receive(:read).with("getSecret/counter").and_return(0)
-        expect(Rails.cache).to receive(:read).with("user/rspec:user:alice").and_call_original
         get(
           '/secrets/static/doesNotExist/mySecret',
           env: token_auth_header(role: alice_user).merge(v2_api_header).merge(

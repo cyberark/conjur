@@ -10,35 +10,20 @@ describe Secrets::RedisHandler do
 
     it "Encryption is called on write" do
       expect(Slosilo::EncryptedAttributes).to receive(:encrypt).with(value, aad: key)
-      controller.send(:write_secret, key, value)
-    end
-
-    it "Decryption is called on read" do
-      controller.send(:write_secret, key, value)
-      expect(Slosilo::EncryptedAttributes).to receive(:decrypt)
-      controller.send(:read_secret, key)
-    end
-
-    it "data is preserved through encrypt + decrypt" do
-      controller.send(:write_secret, key, value)
-      expect(controller.send(:read_secret, key)).to eq(value)
-    end
-
-  end
-
-  context "Resource redis" do
-    let(:key) {"key"}
-    let(:value) {"value"}
-
-    it "write_resource is called on write" do
-      expect(Rails.cache).to receive(:write).with("secrets/resource/#{key}", value)
       controller.send(:write_resource, key, value)
     end
 
-    it "read_resource is called on read" do
-      expect(Rails.cache).to receive(:read).with("secrets/resource/#{key}")
+    it "Decryption is called on read" do
+      controller.send(:write_resource, key, value)
+      expect(Slosilo::EncryptedAttributes).to receive(:decrypt)
       controller.send(:read_resource, key)
     end
+
+    it "data is preserved through encrypt + decrypt" do
+      controller.send(:write_resource, key, value)
+      expect(controller.send(:read_resource, key)).to eq(value)
+    end
+
   end
 
   context "Secret version" do
