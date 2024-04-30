@@ -991,6 +991,7 @@ pipeline {
           notifyBuildStatus("conjur_cloud")
         }
       }
+      emailNotification(project: "conjur-cloud", branchName: "conjur-cloud")
     }
   }
 }
