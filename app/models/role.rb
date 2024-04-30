@@ -37,9 +37,6 @@ class Role < Sequel::Model
     end
   end
 
-  def from_json! string
-    self.role_id = JSON.load(string)["id"]
-  end
   class << self
     def that_can(permission, resource)
       Role.from(

@@ -49,24 +49,11 @@ class SecretsController < RestController
 
   DEFAULT_MIME_TYPE = 'application/octet-stream'
 
-  def get_resource_object(resource_id)
-    resource_from_cache = get_redis_resource(resource_id)
-    if resource_from_cache.nil?
-      resource_object = self.resource
-      create_redis_resource(resource_id, resource_object.as_json)
-    else
-      resource_object = Resource.new
-      resource_object.from_json!(resource_from_cache)
-    end
-    resource_object
-  end
-
   def show
-    resource_object = get_resource_object(resource_id)
-    authorize(:execute, resource_object)
+    authorize(:execute)
     version = params[:version]
 
-    if dynamic_secret?(resource_object)
+    if dynamic_secret?
       value = handle_dynamic_secret
       mime_type = 'application/json'
     else
@@ -212,8 +199,8 @@ class SecretsController < RestController
     @variable_ids
   end
 
-  def dynamic_secret?(resource_object = resource)
-    resource_object.kind == "variable" && resource_object.identifier.start_with?(Issuer::DYNAMIC_VARIABLE_PREFIX)
+  def dynamic_secret?
+    resource.kind == "variable" && resource.identifier.start_with?(Issuer::DYNAMIC_VARIABLE_PREFIX)
   end
 
   def handle_dynamic_secret
