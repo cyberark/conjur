@@ -1,3 +1,5 @@
+require 'util/redis_cache'
+
 module Monitoring
   module Metrics
     class ApiRequestCounter
@@ -20,46 +22,6 @@ module Monitoring
 
       end
 
-      def read_from_cache(key)
-        val = 0
-        begin
-          val = Rails.cache.read(key)
-        rescue Redis::BaseError => e
-          # Catch any Redis-related exceptions
-          puts "Error connecting to Redis: #{e.message}"
-        end
-        if (val.nil?)
-          val = 0
-        end
-        val
-      end
-
-      def write_date_cache(date_key, current_date, key)
-        begin
-          Rails.cache.write(date_key, current_date)
-          Rails.cache.write(key, 0)
-        rescue Redis::BaseError => e
-          # Catch any Redis-related exceptions
-          Rails.logger.info( "Error connecting to Redis: #{e.message}")
-        end
-      end
-
-      def write_counter_cache(key, val)
-        begin
-          if (val == 0)
-            Rails.cache.write(key, 1)
-          else
-            Rails.cache.increment(key)
-          end
-        rescue Redis::BaseError => e
-          # Catch any Redis-related exceptions
-          Rails.logger.info("Error connecting to Redis: #{e.message}")
-        rescue ApplicationController::ServiceUnavailable => e
-          # Catch any Redis-related exceptions
-          Rails.logger.info("Error connecting to Redis: #{e.message}")
-        end
-      end
-
       def refresh(registry)
 
         @metric_name = :conjur_requests_total
@@ -67,13 +29,13 @@ module Monitoring
         key = operation + "/counter"
         date_key = operation + "/date"
 
-        last_date = read_from_cache(date_key)
+        last_date = Util::RedisCache.read_from(date_key)
         current_date = Date.today
         if (current_date != last_date)
-          write_date_cache(date_key, current_date, key)
+          Util::RedisCache.write_to(date_key, current_date, key)
         end
 
-        val = read_from_cache(key)
+        val = Util::RedisCache.read_from(key)
         update_labels = {
           operation: operation,
           tenant_id: ENV['TENANT_ID']
@@ -84,7 +46,6 @@ module Monitoring
         end
 
       end
-
 
       def update(payload)
 
@@ -104,9 +65,9 @@ module Monitoring
 
         key = payload[:operation] + "/counter"
 
-        val = read_from_cache(key)
+        val = Util::RedisCache.read_from(key)
 
-        write_counter_cache(key, val)
+        Util::RedisCache.write_to(key, val)
         val = val + 1;
         metric.set(val , labels: update_labels)
 

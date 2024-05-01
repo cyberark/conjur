@@ -63,10 +63,19 @@ module Monitoring
 
         apiRequestCounter =  Monitoring::Metrics::ApiRequestCounter.new
         apiRequestCounter.refresh(@registry)
-        
+
         response = format.marshal(@registry)
 
-        Rails.logger.info("Telemetry data: #{response}")
+        loggerTime = Util::RedisCache.read_from("logger_time")
+        if (loggerTime.nil?)
+          loggerTime = 0
+        end
+
+        currentTime = Time.now.to_f
+        if (currentTime - loggerTime > 1800)
+          Util::RedisCache.write_to("logger_time", currentTime)
+          Rails.logger.info("Telemetry data: #{response}")
+        end
 
         [
           200,
