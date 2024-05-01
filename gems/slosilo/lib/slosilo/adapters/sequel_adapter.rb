@@ -102,8 +102,9 @@ module Slosilo
         end
       end
 
-
+      OK = 'OK'
       def write_redis_slosilo(id, value)
+        return OK unless redis_configured?
         begin
           Rails.logger.debug(LogMessages::Redis::RedisAccessStart.new('Write'))
           redis_id = "slosilo/#{id}"
@@ -115,7 +116,12 @@ module Slosilo
         end
       end
 
+
+      def redis_configured?
+        Rails.configuration.cache_store.include?(:redis_cache_store)
+      end
       def get_redis_slosilo(id)
+        return nil unless redis_configured?
         begin
           Rails.logger.debug(LogMessages::Redis::RedisAccessStart.new('Read'))
           redis_id = "slosilo/#{id}"
