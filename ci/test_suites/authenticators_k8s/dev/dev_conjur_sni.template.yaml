@@ -37,10 +37,6 @@ spec:
         # Enable coverage tracking.
         - name: REQUIRE_SIMPLECOV
           value: "true"
-        # Sleep after generating the coverage report to keep the pod alive
-        # so the report can be retrieved.
-        - name: SIMPLECOV_SLEEP
-          value: "true"
         - name: WEB_CONCURRENCY
           value: "0"
         - name: RAILS_MAX_THREADS

@@ -54,10 +54,10 @@ function finish {
       cat output/gke-authn-k8s-logs.txt
       echo "==========================="
 
-      echo "Killing conjur so that coverage report is written"
-      # The container is kept alive using an infinite sleep in the at_exit hook
-      # (see .simplecov) so that the kubectl cp below works.
-      kubectl exec "${conjur_pod_name}" -- bash -c "pkill -f 'puma 6'"
+      echo "Generating conjur coverage report"
+      # SimpleCov will listen on the /tmp/simplecov.sock socket for a 'generate_report' command and block until the
+      # report is generated. The report will be written to /opt/conjur-server/coverage/.resultset.json
+      kubectl exec "${conjur_pod_name}" -- bash -c "echo 'generate_report' | nc -U /tmp/simplecov.sock"
 
       echo "Retrieving coverage report"
       kubectl cp \

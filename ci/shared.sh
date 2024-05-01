@@ -179,12 +179,11 @@ _run_cucumber_tests() {
   # Stage 4: Coverage results
   # -----------------------------------------------------------
 
-  # Simplecov writes its report using an at_exit ruby hook. If the container is
-  # killed before ruby, the report doesn't get written. So here we kill the
-  # process to write the report. The container is kept alive using an infinite
-  # sleep in the at_exit hook (see .simplecov).
+  # Generate the coverage report
   for parallel_service in "${parallel_services[@]}"; do
-    $COMPOSE exec -T "$parallel_service" bash -c "pkill -f 'puma 6'"
+    # SimpleCov will listen on the /tmp/simplecov.sock socket for a 'generate_report' command and block until the
+    # report is generated. The report will be written to /opt/conjur-server/coverage/.resultset.json
+    $COMPOSE exec -T "$parallel_service" bash -c "echo 'generate_report' | nc -U /tmp/simplecov.sock"
   done
 }
 
