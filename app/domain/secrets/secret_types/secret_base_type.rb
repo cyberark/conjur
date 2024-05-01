@@ -30,8 +30,8 @@ module Secrets
 
       def update_input_validation(params, body_params )
         #check branch and secret name are not part of body
-        raise ApplicationController::UnprocessableEntity, "Branch is not allowed in the request body" if body_params[:branch]
-        raise ApplicationController::UnprocessableEntity, "Secret name is not allowed in the request body" if body_params[:name]
+        raise ApplicationController::UnprocessableEntity, "'branch' is not allowed in the request body" if body_params[:branch]
+        raise ApplicationController::UnprocessableEntity, "'name' is not allowed in the request body" if body_params[:name]
 
         # check secret exists
         get_resource("variable", "#{params[:branch]}/#{params[:name]}")

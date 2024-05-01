@@ -77,7 +77,7 @@ describe "Dynamic secret create input validation" do
 
           expect(dynamic_secret).to receive(:validate_id).with(:issuer,{type: String,value: "issuer2"})
 
-          dynamic_secret.send(:dynamic_input_validation, params)
+          dynamic_secret.send(:dynamic_input_validation, "secret1", params)
         end
       end
       context "aws dynamic secret with all correct input" do
