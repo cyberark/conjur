@@ -58,7 +58,7 @@ module Secrets
         if branch.start_with?("/")
           branch = branch[1..-1]
         end
-        raise ApplicationController::UnprocessableEntity, "The #{Issuer::DYNAMIC_VARIABLE_PREFIX} branch is reserved for dynamic secrets only. Choose a different branch under /data for your static secret." if is_dynamic_branch(branch)
+        raise ApplicationController::UnprocessableEntity, "Choose a different branch under /data for your static secret. The #{Issuer::DYNAMIC_VARIABLE_PREFIX} branch is reserved for dynamic secrets only." if is_dynamic_branch(branch)
 
         if params[:issuer]
           raise ApplicationController::UnprocessableEntity, "A static secret can't contain an 'issuer' field"
