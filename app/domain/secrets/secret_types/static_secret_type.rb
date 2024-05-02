@@ -12,15 +12,15 @@ module Secrets
 
       def get_input_validation(params)
         secret = super(params)
-        raise ApplicationController::BadRequestWithBody, "The #{Issuer::DYNAMIC_VARIABLE_PREFIX} branch is reserved for dynamic secrets only. Choose a different branch under /data for your static secret." if is_dynamic_branch(params[:branch])
+        raise ApplicationController::BadRequestWithBody, "Check the branch you have provided for your static secret. The #{Issuer::DYNAMIC_VARIABLE_PREFIX} branch is reserved for dynamic secrets only." if is_dynamic_branch(params[:branch])
         secret
       end
 
       def update_input_validation(params, body_params )
         #check branch and secret name are not part of body
-        raise ApplicationController::UnprocessableEntity, "Branch is not allowed in the request body" if body_params[:branch]
-        raise ApplicationController::UnprocessableEntity, "Secret name is not allowed in the request body" if body_params[:name]
-        raise ApplicationController::BadRequestWithBody, "The #{Issuer::DYNAMIC_VARIABLE_PREFIX} branch is reserved for dynamic secrets only. Choose a different branch under /data for your static secret." if params[:branch] && is_dynamic_branch(params[:branch])
+        raise ApplicationController::UnprocessableEntity, "'branch' is not allowed in the request body" if body_params[:branch]
+        raise ApplicationController::UnprocessableEntity, "'name' is not allowed in the request body" if body_params[:name]
+        raise ApplicationController::BadRequestWithBody, "Check the branch you have provided for your static secret. The #{Issuer::DYNAMIC_VARIABLE_PREFIX} branch is reserved for dynamic secrets only." if params[:branch] && is_dynamic_branch(params[:branch])
 
         # check secret exists
         secret = get_resource("variable", "#{params[:branch]}/#{params[:name]}")

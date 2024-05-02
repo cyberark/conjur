@@ -133,7 +133,7 @@ describe DynamicSecretsController, type: :request do
         # Correct response code
         assert_response :unprocessable_entity
         parsed_body = JSON.parse(response.body)
-        expect(parsed_body["error"]["message"]).to eq("The TTL of the dynamic secret can't exceed the maximum TTL defined in the issuer.")
+        expect(parsed_body["error"]["message"]).to eq("The TTL of the dynamic secret must be less than or equal to the maximum TTL defined in the issuer. (Max TTL: 1000)")
       end
     end
     context "when creating ephemeral secret with no method" do
@@ -660,7 +660,7 @@ describe DynamicSecretsController, type: :request do
           # Correct response code
           assert_response :unprocessable_entity
           parsed_body = JSON.parse(response.body)
-          expect(parsed_body["error"]["message"]).to eq("Branch is not allowed in the request body")
+          expect(parsed_body["error"]["message"]).to eq("'branch' is not allowed in the request body")
         end
       end
       context "Trying to Replace secret with secret name in body" do
@@ -686,7 +686,7 @@ describe DynamicSecretsController, type: :request do
           # Correct response code
           assert_response :unprocessable_entity
           parsed_body = JSON.parse(response.body)
-          expect(parsed_body["error"]["message"]).to eq("Secret name is not allowed in the request body")
+          expect(parsed_body["error"]["message"]).to eq("'name' is not allowed in the request body")
         end
       end
       context "when replacing dynamic secret with no existent issuer" do
@@ -736,7 +736,7 @@ describe DynamicSecretsController, type: :request do
           # Correct response code
           assert_response :unprocessable_entity
           parsed_body = JSON.parse(response.body)
-          expect(parsed_body["error"]["message"]).to eq("The TTL of the dynamic secret can't exceed the maximum TTL defined in the issuer.")
+          expect(parsed_body["error"]["message"]).to eq("The TTL of the dynamic secret must be less than or equal to the maximum TTL defined in the issuer. (Max TTL: 1400)")
         end
       end
       context "when replacing dynamic secret with no method" do
@@ -1348,7 +1348,7 @@ describe DynamicSecretsController, type: :request do
           # Correct response code
           assert_response :unprocessable_entity
           parsed_body = JSON.parse(response.body)
-          expect(parsed_body["error"]["message"]).to eq("The TTL of the dynamic secret can't exceed the maximum TTL defined in the issuer.")
+          expect(parsed_body["error"]["message"]).to eq("The TTL of the dynamic secret must be less than or equal to the maximum TTL defined in the issuer. (Max TTL: 1200)")
         end
       end
       context "Update secret ttl" do
@@ -1389,7 +1389,7 @@ describe DynamicSecretsController, type: :request do
           # Correct response code
           assert_response :unprocessable_entity
           parsed_body = JSON.parse(response.body)
-          expect(parsed_body["error"]["message"]).to eq("Dynamic variable TTL is out of range for federation token (range is 900 to 43200)")
+          expect(parsed_body["error"]["message"]).to eq("The TTL defined for dynamic secret 'data/dynamic/secret_to_update' (method=federation token) is out of the allowed range: 900-43,200 seconds.")
         end
       end
     end
@@ -1929,7 +1929,7 @@ describe DynamicSecretsController, type: :request do
         )
         assert_response :bad_request
         parsed_body = JSON.parse(response.body)
-        expect(parsed_body["error"]["message"]).to eq("The data/dynamic/ branch is reserved for dynamic secrets only. Choose a different branch under /data for your static secret.")
+        expect(parsed_body["error"]["message"]).to eq("Check the branch you have provided for your static secret. The data/dynamic/ branch is reserved for dynamic secrets only.")
       end
     end
     context 'get static secret under regular branch with dynamic api' do
@@ -2026,7 +2026,7 @@ describe DynamicSecretsController, type: :request do
         )
         assert_response :bad_request
         parsed_body = JSON.parse(response.body)
-        expect(parsed_body["error"]["message"]).to eq("The data/dynamic/ branch is reserved for dynamic secrets only. Choose a different branch under /data for your static secret.")
+        expect(parsed_body["error"]["message"]).to eq("Check the branch you have provided for your static secret. The data/dynamic/ branch is reserved for dynamic secrets only.")
       end
     end
   end

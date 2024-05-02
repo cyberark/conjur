@@ -1020,9 +1020,9 @@ describe StaticSecretsController, type: :request do
         # Correct response code
         assert_response :unprocessable_entity
         parsed_body = JSON.parse(response.body)
-        expect(parsed_body["error"]["message"]).to eq("Branch is not allowed in the request body")
+        expect(parsed_body["error"]["message"]).to eq("'branch' is not allowed in the request body")
         # Correct audit is returned
-        audit_message = 'rspec:user:alice failed to change secret data/secrets/secret_to_update with url: \'/secrets/static/data/secrets/secret_to_update\' and content: {"branch":"data/secrets2","annotations":[{"name":"description","value":"desc2"}],"permissions":[{"subject":{"kind":"user","id":"alice"},"privileges":["read"]}]}: Branch is not allowed in the request body'
+        audit_message = 'rspec:user:alice failed to change secret data/secrets/secret_to_update with url: \'/secrets/static/data/secrets/secret_to_update\' and content: {"branch":"data/secrets2","annotations":[{"name":"description","value":"desc2"}],"permissions":[{"subject":{"kind":"user","id":"alice"},"privileges":["read"]}]}: \'branch\' is not allowed in the request body'
         verify_audit_message(audit_message)
       end
     end
@@ -1061,9 +1061,9 @@ describe StaticSecretsController, type: :request do
         # Correct response code
         assert_response :unprocessable_entity
         parsed_body = JSON.parse(response.body)
-        expect(parsed_body["error"]["message"]).to eq("Secret name is not allowed in the request body")
+        expect(parsed_body["error"]["message"]).to eq("'name' is not allowed in the request body")
         # Correct audit is returned
-        audit_message = 'rspec:user:alice failed to change secret data/secrets/secret_to_update with url: \'/secrets/static/data/secrets/secret_to_update\' and content: {"name":"secrets2","annotations":[{"name":"description","value":"desc2"}],"permissions":[{"subject":{"kind":"user","id":"alice"},"privileges":["read"]}]}: Secret name is not allowed in the request body'
+        audit_message = 'rspec:user:alice failed to change secret data/secrets/secret_to_update with url: \'/secrets/static/data/secrets/secret_to_update\' and content: {"name":"secrets2","annotations":[{"name":"description","value":"desc2"}],"permissions":[{"subject":{"kind":"user","id":"alice"},"privileges":["read"]}]}: \'name\' is not allowed in the request body'
         verify_audit_message(audit_message)
       end
     end
