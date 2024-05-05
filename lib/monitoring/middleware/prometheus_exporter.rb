@@ -74,7 +74,8 @@ module Monitoring
         currentTime = Time.now.to_f
         if (currentTime - loggerTime > 1800)
           Util::RedisCache.write_to("logger_time", currentTime)
-          Rails.logger.info("Telemetry data: #{response}")
+
+          #Rails.logger.info("Telemetry data: #{response}")
         end
 
         [
