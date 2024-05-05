@@ -75,7 +75,7 @@ module Secrets
         # add the dynamic fields to the result
         annotations = get_annotations(variable)
         json_result = annotation_to_json_field(annotations, DYNAMIC_ISSUER, "issuer", json_result)
-        json_result = annotation_to_json_field(annotations, DYNAMIC_TTL, "ttl", json_result, true, true)
+        json_result = annotation_to_json_field(annotations, DYNAMIC_TTL, "ttl", json_result, false, true)
         json_result = annotation_to_json_field(annotations, DYNAMIC_METHOD, "method", json_result)
 
         # get specific dynamic type
@@ -125,10 +125,10 @@ module Secrets
           },
           ttl: {
             field_info: {
-              type: Numeric,
+              type: Integer,
               value: params[:ttl]
             },
-            validators: [method(:validate_field_type)]
+            validators: [method(:validate_field_type), method(:validate_positive_integer)]
           }
         }
         validate_data_fields(data_fields)

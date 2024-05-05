@@ -223,6 +223,60 @@ describe DynamicSecretsController, type: :request do
         expect(parsed_body["error"]["message"]).to eq("Dynamic secrets must be created under data/dynamic/")
       end
     end
+    context "when creating ephemeral secret with not integer ttl" do
+      let(:payload_create_secret) do
+        <<~BODY
+          {
+              "branch": "/data/dynamic",
+              "name": "ephemeral_secret",
+              "issuer": "issuer1",
+              "ttl": 1200.4,
+              "method": "federation-token"
+          }
+        BODY
+      end
+      it 'Secret creation failed on 422' do
+        post("/secrets/dynamic",
+             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
+               {
+                 'RAW_POST_DATA' => payload_create_secret,
+                 'CONTENT_TYPE' => "application/json"
+               }
+             )
+        )
+        # Correct response code
+        assert_response :unprocessable_entity
+        parsed_body = JSON.parse(response.body)
+        expect(parsed_body["error"]["message"]).to eq("CONJ00192W The 'ttl' parameter must be of 'type=Integer'")
+      end
+    end
+    context "when creating ephemeral secret with negative integer ttl" do
+      let(:payload_create_secret) do
+        <<~BODY
+          {
+              "branch": "/data/dynamic",
+              "name": "ephemeral_secret",
+              "issuer": "issuer1",
+              "ttl": -1200,
+              "method": "federation-token"
+          }
+        BODY
+      end
+      it 'Secret creation failed on 422' do
+        post("/secrets/dynamic",
+             env: token_auth_header(role: admin_user).merge(v2_api_header).merge(
+               {
+                 'RAW_POST_DATA' => payload_create_secret,
+                 'CONTENT_TYPE' => "application/json"
+               }
+             )
+        )
+        # Correct response code
+        assert_response :unprocessable_entity
+        parsed_body = JSON.parse(response.body)
+        expect(parsed_body["error"]["message"]).to eq("ttl must be positive number")
+      end
+    end
   end
 
   describe "Dynamic secret creation - Permissions validations" do
@@ -2252,6 +2306,78 @@ describe DynamicSecretsController, type: :request do
                           {"region"=>"us-east-1"},
                           [{"name"=>"description", "value"=>"desc"}, {"name"=>"annotation_to_delete","value"=>"delete"}],
                           [{"subject"=>{"id"=>"alice","kind"=>"user"},"privileges"=>["read"]}])
+      end
+    end
+    context "Remove ttl after creating secret with" do
+      let(:payload_update_federation_secret) do
+        <<~BODY
+          {              
+              "issuer": "aws-issuer-1",
+              "method": "federation-token",
+              "annotations": [
+              {
+                "name": "description",
+                "value": "desc"
+              },
+              {
+                "name": "annotation_to_delete",
+                "value": "delete"
+              }
+              ],
+              "permissions": [
+                {
+                  "subject": {
+                    "kind": "user",
+                    "id": "alice"
+                  },
+                  "privileges": [ "read" ]
+                }  
+              ]
+           }
+        BODY
+      end
+      it 'TTL is removed' do
+        post("/secrets/dynamic",
+             env: token_auth_header(role: alice_user).merge(v2_api_header).merge(
+               {
+                 'RAW_POST_DATA' => payload_create_federation_secret,
+                 'CONTENT_TYPE' => "application/json"
+               }
+             )
+        )
+        assert_response :created
+        validate_response("federation_token_secret", "/data/dynamic", "aws-issuer-1", 1200, "federation-token",
+                          nil,
+                          [{"name"=>"description", "value"=>"desc"}, {"name"=>"annotation_to_delete","value"=>"delete"}],
+                          [{"subject"=>{"id"=>"alice","kind"=>"user"},"privileges"=>["read"]}])
+        # Read resource
+        get("/resources/rspec/variable/data/dynamic/federation_token_secret",
+            env: token_auth_header(role: admin_user)
+        )
+        assert_response :success
+        response_body = JSON.parse(response.body)
+        expect(response_body['annotations'].any? { |hash| hash['name'] == 'dynamic/ttl' }).to eq(true)
+
+        put("/secrets/dynamic/data/dynamic/federation_token_secret",
+             env: token_auth_header(role: alice_user).merge(v2_api_header).merge(
+               {
+                 'RAW_POST_DATA' => payload_update_federation_secret,
+                 'CONTENT_TYPE' => "application/json"
+               }
+             )
+        )
+        assert_response :success
+        validate_response("federation_token_secret", "/data/dynamic", "aws-issuer-1", nil, "federation-token",
+                          nil,
+                          [{"name"=>"description", "value"=>"desc"}, {"name"=>"annotation_to_delete","value"=>"delete"}],
+                          [{"subject"=>{"id"=>"alice","kind"=>"user"},"privileges"=>["read"]}])
+        # Read resource
+        get("/resources/rspec/variable/data/dynamic/federation_token_secret",
+            env: token_auth_header(role: admin_user)
+        )
+        assert_response :success
+        response_body = JSON.parse(response.body)
+        expect(response_body['annotations'].any? { |hash| hash['name'] == 'dynamic/ttl' }).to eq(false)
       end
     end
   end

@@ -74,6 +74,12 @@ module ParamsValidator
     validate_string(param_name, data[:value], /^[^<>']+$/, 120)
   end
 
+  def validate_positive_integer(param_name, data)
+    if !data[:value].nil? && data[:value] < 0
+      raise ApplicationController::UnprocessableEntity, "#{param_name} must be positive number"
+    end
+  end
+
   def validate_field_required(param_name, data)
     # The field exists in data
     if data[:value].nil? || (data[:value].is_a?(String) and data[:value].empty?)
