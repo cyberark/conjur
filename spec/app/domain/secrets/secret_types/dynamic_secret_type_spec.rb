@@ -29,6 +29,18 @@ describe "Dynamic secret create input validation" do
       }.to raise_error(ApplicationController::UnprocessableEntity)
     end
   end
+  context "when creating dynamic secret with wrong ttl number format" do
+    it "input validation fails on not an integer number" do
+      params = ActionController::Parameters.new(name: "secret1", branch: "data/dynamic", issuer: "issuer1", ttl: 120.4, value: "secret")
+      expect { dynamic_secret.create_input_validation(params)
+      }.to raise_error(ApplicationController::UnprocessableEntity)
+    end
+    it "input validation fails on negative integer" do
+      params = ActionController::Parameters.new(name: "secret1", branch: "data/dynamic", issuer: "issuer1", ttl: -120, value: "secret")
+      expect { dynamic_secret.create_input_validation(params)
+      }.to raise_error(ApplicationController::UnprocessableEntity)
+    end
+  end
 
   context "when creating dynamic secret" do
     let(:issuer_object) { 'issuer' }
@@ -73,9 +85,11 @@ describe "Dynamic secret create input validation" do
           expect(dynamic_secret).to receive(:validate_field_required).with(:issuer,{type: String,value: "issuer2"})
 
           expect(dynamic_secret).to receive(:validate_field_type).with(:issuer,{type: String,value: "issuer2"})
-          expect(dynamic_secret).to receive(:validate_field_type).with(:ttl,{type: Numeric,value: 920})
+          expect(dynamic_secret).to receive(:validate_field_type).with(:ttl,{type: Integer,value: 920})
 
           expect(dynamic_secret).to receive(:validate_id).with(:issuer,{type: String,value: "issuer2"})
+
+          expect(dynamic_secret).to receive(:validate_positive_integer).with(:ttl,{type: Integer,value: 920})
 
           dynamic_secret.send(:dynamic_input_validation, "secret1", params)
         end
@@ -132,14 +146,14 @@ describe "Dynamic secret as json" do
       it "dynamic required fields return empty" do
         allow(secret).to receive(:annotations).and_return([Annotation.new(name: 'dynamic/method', value: 'federation-token')])
         json_result = federation_token_dynamic_secret.as_json(branch, secret_name, secret)
-        expect(json_result).to eq("{\"branch\":\"/data/dynamic/secrets\",\"name\":\"dynamic_secret\",\"issuer\":\"\",\"ttl\":\"\",\"method\":\"federation-token\",\"annotations\":[],\"permissions\":[]}")
+        expect(json_result).to eq("{\"branch\":\"/data/dynamic/secrets\",\"name\":\"dynamic_secret\",\"issuer\":\"\",\"method\":\"federation-token\",\"annotations\":[],\"permissions\":[]}")
       end
     end
     context "and custom annotations" do
       it "dynamic required fields return empty" do
         allow(secret).to receive(:annotations).and_return([Annotation.new(name: 'dynamic/method', value: 'federation-token'), Annotation.new(name: 'description', value: 'desc'), Annotation.new(name: 'annotation_to_delete', value: 'delete')])
         json_result = federation_token_dynamic_secret.as_json(branch, secret_name, secret)
-        expect(json_result).to eq("{\"branch\":\"/data/dynamic/secrets\",\"name\":\"dynamic_secret\",\"issuer\":\"\",\"ttl\":\"\",\"method\":\"federation-token\",\"annotations\":[{\"name\":\"description\",\"value\":\"desc\"},{\"name\":\"annotation_to_delete\",\"value\":\"delete\"}],\"permissions\":[]}")
+        expect(json_result).to eq("{\"branch\":\"/data/dynamic/secrets\",\"name\":\"dynamic_secret\",\"issuer\":\"\",\"method\":\"federation-token\",\"annotations\":[{\"name\":\"description\",\"value\":\"desc\"},{\"name\":\"annotation_to_delete\",\"value\":\"delete\"}],\"permissions\":[]}")
       end
     end
     context "required fields and custom annotations" do
@@ -179,14 +193,14 @@ describe "Dynamic secret as json" do
       it "dynamic required fields return empty" do
         allow(secret).to receive(:annotations).and_return([Annotation.new(name: 'dynamic/method', value: 'assume-role')])
         json_result = assume_role_dynamic_secret.as_json(branch, secret_name, secret)
-        expect(json_result).to eq("{\"branch\":\"/data/dynamic/secrets\",\"name\":\"dynamic_secret\",\"issuer\":\"\",\"ttl\":\"\",\"method\":\"assume-role\",\"method_params\":{\"role_arn\":\"\"},\"annotations\":[],\"permissions\":[]}")
+        expect(json_result).to eq("{\"branch\":\"/data/dynamic/secrets\",\"name\":\"dynamic_secret\",\"issuer\":\"\",\"method\":\"assume-role\",\"method_params\":{\"role_arn\":\"\"},\"annotations\":[],\"permissions\":[]}")
       end
     end
     context "and custom annotations" do
       it "dynamic required fields return empty" do
         allow(secret).to receive(:annotations).and_return([Annotation.new(name: 'dynamic/method', value: 'assume-role'), Annotation.new(name: 'description', value: 'desc'), Annotation.new(name: 'annotation_to_delete', value: 'delete')])
         json_result = assume_role_dynamic_secret.as_json(branch, secret_name, secret)
-        expect(json_result).to eq("{\"branch\":\"/data/dynamic/secrets\",\"name\":\"dynamic_secret\",\"issuer\":\"\",\"ttl\":\"\",\"method\":\"assume-role\",\"method_params\":{\"role_arn\":\"\"},\"annotations\":[{\"name\":\"description\",\"value\":\"desc\"},{\"name\":\"annotation_to_delete\",\"value\":\"delete\"}],\"permissions\":[]}")
+        expect(json_result).to eq("{\"branch\":\"/data/dynamic/secrets\",\"name\":\"dynamic_secret\",\"issuer\":\"\",\"method\":\"assume-role\",\"method_params\":{\"role_arn\":\"\"},\"annotations\":[{\"name\":\"description\",\"value\":\"desc\"},{\"name\":\"annotation_to_delete\",\"value\":\"delete\"}],\"permissions\":[]}")
       end
     end
     context "required fields and custom annotations" do

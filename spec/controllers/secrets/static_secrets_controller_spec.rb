@@ -278,7 +278,7 @@ describe StaticSecretsController, type: :request do
         # Correct response code
         assert_response :conflict
         # Correct audit is returned
-        audit_message = 'rspec:user:admin failed to create secret /data/secrets/secret1 with URI path: \'/secrets/static\' and JSON object: {"branch":"/data/secrets","name":"secret1"}: secret "rspec:variable:data/secrets/secret1" already exists'
+        audit_message = 'rspec:user:admin failed to create secret /data/secrets/secret1 with URI path: \'/secrets/static\' and JSON object: {"branch":"/data/secrets","name":"secret1"}: secret \'rspec:variable:data/secrets/secret1\' already exists'
         verify_audit_message(audit_message)
       end
     end
