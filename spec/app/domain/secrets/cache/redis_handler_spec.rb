@@ -10,20 +10,35 @@ describe Secrets::RedisHandler do
 
     it "Encryption is called on write" do
       expect(Slosilo::EncryptedAttributes).to receive(:encrypt).with(value, aad: key)
-      controller.send(:write_resource, key, value)
+      controller.send(:write_secret, key, value)
     end
 
     it "Decryption is called on read" do
-      controller.send(:write_resource, key, value)
+      controller.send(:write_secret, key, value)
       expect(Slosilo::EncryptedAttributes).to receive(:decrypt)
-      controller.send(:read_resource, key)
+      controller.send(:read_secret, key)
     end
 
     it "data is preserved through encrypt + decrypt" do
-      controller.send(:write_resource, key, value)
-      expect(controller.send(:read_resource, key)).to eq(value)
+      controller.send(:write_secret, key, value)
+      expect(controller.send(:read_secret, key)).to eq(value)
     end
 
+  end
+
+  context "Resource redis" do
+    let(:key) {"key"}
+    let(:value) {"value"}
+
+    it "write_resource is called on write" do
+      expect(Rails.cache).to receive(:write).with("secrets/resource/#{key}", value)
+      controller.send(:write_resource, key, value)
+    end
+
+    it "read_resource is called on read" do
+      expect(Rails.cache).to receive(:read).with("secrets/resource/#{key}")
+      controller.send(:read_resource, key)
+    end
   end
 
   context "Secret version" do
@@ -79,14 +94,14 @@ describe Secrets::RedisHandler do
     it "Secret is deleted from Redis if update failed" do
       controller.create_redis_secret(key, "1", "")
       allow(controller).to receive(:create_redis_secret).and_return('false')
-      expect(controller).to receive(:delete_redis_secret).with(key, suppress_error: false)
+      expect(controller).to receive(:delete_redis_secret).with(key)
       controller.update_redis_secret(key, "2")
     end
 
     it "Error is raised if deletion fails during update" do
       controller.create_redis_secret(key, "1", "")
       allow(controller).to receive(:create_redis_secret).and_return('false')
-      allow(controller).to receive(:delete_redis_secret).with(key, suppress_error: false).and_raise(RuntimeError)
+      allow(controller).to receive(:delete_redis_secret).with(key).and_raise(RuntimeError)
       expect{ controller.update_redis_secret(key, "2") }.to raise_error
     end
 

@@ -49,26 +49,38 @@ class SecretsController < RestController
 
   DEFAULT_MIME_TYPE = 'application/octet-stream'
 
+  def get_resource_object(resource_id)
+    resource_from_cache = get_redis_resource(resource_id)
+    if resource_from_cache.nil?
+      resource_object = self.resource
+      create_redis_resource(resource_id, resource_object.to_hash!)
+    else
+      resource_object = Resource.new
+      resource_object.from_hash!(resource_from_cache)
+    end
+    resource_object
+  end
   def show
-    authorize(:execute)
+    resource_object = get_resource_object(resource_id)
+    authorize(:execute, resource_object)
     version = params[:version]
 
-    if dynamic_secret?
+    if dynamic_secret?(resource_object)
       value = handle_dynamic_secret
       mime_type = 'application/json'
     else
       # First we try to find secret in Redis. If not found, we take from DB and store the result in Redis
       value, mime_type = get_redis_secret(resource_id, version)
       if value.nil?
-          unless (secret = resource.secret(version: version))
-            raise Exceptions::RecordNotFound.new(\
-              resource_id, message: "Requested version does not exist"
-            )
-          end
-          value = secret.value
-          mime_type = resource.annotation('conjur/mime_type') || DEFAULT_MIME_TYPE
+        unless (secret = resource.secret(version: version))
+          raise Exceptions::RecordNotFound.new(\
+            resource_id, message: "Requested version does not exist"
+          )
+        end
+        value = secret.value
+        mime_type = resource.annotation('conjur/mime_type') || DEFAULT_MIME_TYPE
 
-          create_redis_secret(resource_id, value, mime_type, version)
+        create_redis_secret(resource_id, value, mime_type, version)
       end
     end
 
@@ -199,8 +211,8 @@ class SecretsController < RestController
     @variable_ids
   end
 
-  def dynamic_secret?
-    resource.kind == "variable" && resource.identifier.start_with?(Issuer::DYNAMIC_VARIABLE_PREFIX)
+  def dynamic_secret?(resource_object = resource)
+    resource_object.kind == "variable" && resource_object.identifier.start_with?(Issuer::DYNAMIC_VARIABLE_PREFIX)
   end
 
   def handle_dynamic_secret

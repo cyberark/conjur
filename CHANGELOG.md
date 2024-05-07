@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
+## [1.0.27-cloud] - 2024-05-19
+### Added
+- Redis (disabled) with support for: user, resource (secret)
+
 ## [1.0.26-cloud] - 2024-05-12
 ### Changed
 - Text review for dynamic secrets
