@@ -1,4 +1,3 @@
-version: "3"
 services:
   dev:
     image: cyberark/ubuntu-ruby-fips:latest
