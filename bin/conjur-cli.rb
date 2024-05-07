@@ -43,8 +43,8 @@ command :server do |c|
   c.flag [ :p, :port ]
 
   c.desc 'Skip running database migrations on start'
-  c.default_value false
-  c.switch :'no-migrate'
+  c.default_value true
+  c.switch(:migrate)
 
   c.desc 'Server bind address'
   c.default_value(ENV['BIND_ADDRESS'] || '0.0.0.0')
@@ -60,7 +60,7 @@ command :server do |c|
       file_name: options[:file],
       bind_address: options[:'bind-address'],
       port: options[:port],
-      no_migrate: options[:'no-migrate']
+      no_migrate: !options[:migrate],
     )
   end
 end
