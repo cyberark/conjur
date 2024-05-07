@@ -46,6 +46,14 @@ command :server do |c|
   c.default_value true
   c.switch(:migrate)
 
+  c.desc 'Enable the Conjur rotation service'
+  c.default_value true
+  c.switch(:rotation)
+
+  c.desc 'Enable the local Conjur authentication socket'
+  c.default_value true
+  c.switch(:'authn-local')
+
   c.desc 'Server bind address'
   c.default_value(ENV['BIND_ADDRESS'] || '0.0.0.0')
   c.arg_name :ip
@@ -61,6 +69,8 @@ command :server do |c|
       bind_address: options[:'bind-address'],
       port: options[:port],
       no_migrate: !options[:migrate],
+      no_rotation: !options[:rotation],
+      no_authn_local: !options[:'authn-local']
     )
   end
 end
