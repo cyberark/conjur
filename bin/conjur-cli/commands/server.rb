@@ -23,6 +23,8 @@ module Commands
       bind_address
       port
       no_migrate
+      no_rotation
+      no_authn_local
     ]
   ) do
     def call
@@ -45,8 +47,8 @@ module Commands
       # Start the Conjur API and service
       # processes
       fork_server_process
-      fork_authn_local_process
-      fork_rotation_process
+      fork_authn_local_process unless @no_authn_local
+      fork_rotation_process unless @no_rotation
 
       # Block until all child processes end
       wait_for_child_processes
@@ -55,7 +57,7 @@ module Commands
     private
 
     def migrate_database
-      system("rake db:migrate") || exit(($CHILD_STATUS.exitstatus))
+      Kernel.system("rake db:migrate") || exit(($CHILD_STATUS.exitstatus))
     end
 
     def create_account
@@ -70,11 +72,11 @@ module Commands
         # delimiting addtional arguments to rake itself.
         # Reference: https://github.com/ruby/rake/blob/a842fb2c30cc3ca80803fba903006b1324a62e9a/lib/rake/application.rb#L163
         password = stdin_input.gsub(',', '\,')
-        system(
+        Kernel.system(
           "rake 'account:create_with_password[#{@account},#{password}]'"
         ) || exit(($CHILD_STATUS.exitstatus))
       else
-        system(
+        Kernel.system(
           "rake 'account:create[#{@account}]'"
         ) || exit(($CHILD_STATUS.exitstatus))
       end
@@ -104,12 +106,12 @@ module Commands
     def cleanup_pidfile
       # Get the path to conjurctl
       conjurctl_path = `readlink -f $(which conjurctl)`
-    
+
       # Navigate from its directory (/bin) to the root Conjur server directory
       conjur_server_dir = Pathname.new(File.join(File.dirname(conjurctl_path), '..')).cleanpath
       pid_file_path = File.join(conjur_server_dir, 'tmp/pids/server.pid')
       return unless File.exist?(pid_file_path)
-      
+
       puts("Removing existing PID file: #{pid_file_path}")
       File.delete(pid_file_path)
     end
@@ -118,7 +120,7 @@ module Commands
       Process.fork do
         puts("Conjur v#{conjur_version} starting up...")
 
-        exec("
+        Kernel.exec("
           rails server -p '#{@port}' -b '#{@bind_address}'
         ")
       end
@@ -135,7 +137,7 @@ module Commands
 
     def fork_authn_local_process
       Process.fork do
-        exec("rake authn_local:run")
+        Kernel.exec("rake authn_local:run")
       end
     end
 
@@ -146,7 +148,7 @@ module Commands
       return unless is_leader
 
       Process.fork do
-        exec("rake expiration:watch")
+        Kernel.exec("rake expiration:watch")
       end
 
       # # Start the rotation "watcher" in a separate thread

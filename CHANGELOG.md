@@ -11,6 +11,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [1.21.1] - 2024-04-17
 
+### Added
+- Added two options to the `conjurctl server` command to start the Conjur
+  service: `--no-rotation` to disable the internal secret rotation process and
+  `--no-authn-local` to disable the internal local authentication socket server.
+  CNJR-3503
+
 ### Fixed
 - Dedicated user identifier resolver allowing the user identifiers work like any other resource id. The Conjur internal
   representation of user identification should not be used with policies. Supports relative and absolute addressing in
