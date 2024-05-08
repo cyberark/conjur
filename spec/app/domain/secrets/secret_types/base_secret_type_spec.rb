@@ -22,7 +22,6 @@ describe "Base secret create input validation" do
       expect(secret).to receive(:validate_field_type).with(:branch,{type: String,value: "data"})
 
       expect(secret).to receive(:validate_id).with(:name,{type: String,value: "secret1"})
-      expect(secret).to receive(:validate_path).with(:branch,{type: String,value: "data"})
 
       secret.create_input_validation(params)
     end

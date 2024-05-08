@@ -126,7 +126,7 @@ describe ParamsValidator do
         }.to raise_error(ApplicationController::UnprocessableEntity)
       end
       it "valid id" do
-        expect { controller.validate_id("id",{type: String,value: "s4c-ret_naMe"})
+        expect { controller.validate_id("id",{type: String,value: "s4c-ret_na.Me"})
         }.to_not raise_error
       end
     end

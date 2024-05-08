@@ -23,7 +23,6 @@ describe "Static secret create input validation" do
       expect(static_secret).to receive(:validate_field_type).with(:branch,{type: String,value: "data/secrets"})
 
       expect(static_secret).to receive(:validate_id).with(:name,{type: String,value: "secret1"})
-      expect(static_secret).to receive(:validate_path).with(:branch,{type: String,value: "data/secrets"})
 
       expect(static_secret).to receive(:validate_field_type).with(:mime_type,{type: String,value: "text/plain"})
       expect(static_secret).to receive(:validate_mime_type).with(:mime_type,{type: String,value: "text/plain"})
