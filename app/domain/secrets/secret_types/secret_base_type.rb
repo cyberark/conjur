@@ -19,7 +19,7 @@ module Secrets
               type: String,
             value: params[:branch]
             },
-            validators: [method(:validate_field_required), method(:validate_field_type), method(:validate_path)]
+            validators: [method(:validate_field_required), method(:validate_field_type)]
           }
         }
         validate_data_fields(data_fields)

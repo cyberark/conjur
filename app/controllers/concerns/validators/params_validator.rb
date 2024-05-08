@@ -47,7 +47,7 @@ module ParamsValidator
   end
 
   def validate_id(param_name, data)
-    validate_string(param_name, data[:value], /\A[a-zA-Z0-9_-]+\z/, 60)
+    validate_string(param_name, data[:value], /\A[a-zA-Z0-9._-]+\z/, 60)
   end
 
   def validate_path(param_name, data)
