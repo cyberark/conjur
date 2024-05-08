@@ -70,7 +70,7 @@ Feature: Create a new account
           "message": "new-account",
           "target": "id"
         },
-        "message": "account \"new-account\" already exists",
+        "message": "account 'new-account' already exists",
         "target": "account"
       }
     }
