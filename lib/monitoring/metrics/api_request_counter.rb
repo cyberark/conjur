@@ -10,7 +10,7 @@ module Monitoring
         @pubsub = pubsub
         @metric_name = :conjur_requests_total
         @docstring = 'The total number of HTTP requests handled by Conjur.'
-        @labels = %i[operation tenant_id]
+        @labels = %i[operation tenant_id environment]
         @sub_event_name = 'conjur.request'
 
         # Create/register the metric
@@ -38,7 +38,8 @@ module Monitoring
         val = Util::RedisCache.read_from(key)
         update_labels = {
           operation: operation,
-          tenant_id: ENV['TENANT_ID']
+          tenant_id: ENV['TENANT_ID'],
+          environment: ENV['TENANT_ENV']
         }
         metric = registry.get(metric_name)
         unless (metric.nil?)
@@ -60,7 +61,8 @@ module Monitoring
         metric = registry.get(metric_name)
         update_labels = {
           operation: payload[:operation],
-          tenant_id: ENV['TENANT_ID']
+          tenant_id: ENV['TENANT_ID'],
+          environment: ENV['TENANT_ENV']
         }
 
         key = payload[:operation] + "/counter"
