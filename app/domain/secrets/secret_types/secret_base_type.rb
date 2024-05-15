@@ -135,12 +135,11 @@ module Secrets
         []
       end
 
-      def collect_all_permissions(params)
+      def collect_all_valid_permissions(params, allowed_privilege)
         permissions = []
         if params[:permissions]
           permissions = params[:permissions]
         end
-        allowed_privilege = %w[read execute update]
         validate_permissions(permissions, allowed_privilege)
       end
 
