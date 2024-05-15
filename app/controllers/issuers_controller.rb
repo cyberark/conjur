@@ -19,6 +19,7 @@ class IssuersController < RestController
   rescue_from Sequel::UniqueConstraintViolation, with: :concurrent_load
 
   ISSUER_NOT_FOUND = "Issuer not found"
+  SENSITIVE_DATA_MASK = "*****"
 
   def update
     logger.debug(LogMessages::Endpoints::EndpointRequested.new("PATCH issuers/#{params[:account]}/update/#{params[:identifier]}"))
@@ -39,7 +40,8 @@ class IssuersController < RestController
 
     issuer_audit_success(issuer.account, issuer.issuer_id, "update")
     logger.info(LogMessages::Issuers::TelemetryIssuerLog.new("update", issuer.account, issuer.issuer_id, request.ip))
-    render(json: issuer.as_json, status: :ok)
+    json_response = mask_sensitive_data_in_response(issuer.as_json)
+    render(json: json_response, status: :ok)
   rescue => e
     audit_failure(e, action)
     issuer_audit_failure(params[:account], params[:identifier], "update", e.message)
@@ -71,7 +73,8 @@ class IssuersController < RestController
     issuer.save
     issuer_audit_success(issuer.account, issuer.issuer_id, "add")
     logger.info(LogMessages::Issuers::TelemetryIssuerLog.new("create", issuer.account, issuer.issuer_id, request.ip))
-    render(json: issuer.as_json, status: :created)
+    json_response = mask_sensitive_data_in_response(issuer.as_json)
+    render(json: json_response, status: :created)
 
     logger.debug(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("POST issuers/#{params[:account]}"))
   rescue Exceptions::RecordNotFound => e
@@ -161,7 +164,8 @@ class IssuersController < RestController
       end
       issuer_audit_success(issuer.account, issuer.issuer_id, operation)
       logger.info(LogMessages::Issuers::TelemetryIssuerLog.new(operation, issuer.account, issuer.issuer_id, request.ip))
-      render(json: result, status: :ok)
+      json_response = mask_sensitive_data_in_response(result)
+      render(json: json_response, status: :ok)
     else
       raise Exceptions::RecordNotFound.new(params[:identifier], message: ISSUER_NOT_FOUND)
     end
@@ -192,7 +196,8 @@ class IssuersController < RestController
     results = params[:sort] ? sort_by_key(results, params[:sort]) : results
     issuer_audit_success(params[:account], "*", "list")
     logger.info(LogMessages::Issuers::TelemetryIssuerLog.new("list", params[:account], "*", request.ip))
-    render(json: { issuers: results }, status: :ok)
+    json_response = mask_sensitive_data_in_response(results)
+    render(json: { issuers: json_response}, status: :ok)
 
     logger.debug(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("GET issuers/#{params[:account]}"))
   rescue Exceptions::RecordNotFound => e
@@ -204,9 +209,28 @@ class IssuersController < RestController
     logger.error(LogMessages::Conjur::GeneralError.new(e.message))
     raise e
   end
-end
 
-private
+  private
+
+  def mask_sensitive_data_in_response(response)
+    if response.is_a?(Array)
+      response.each do |item|
+        mask_data_field(item)
+      end
+    else
+      mask_data_field(response)
+    end
+    response
+  end
+
+  def mask_data_field(response)
+    return unless response.key?(:data) 
+
+    response[:data]["access_key_id"] = SENSITIVE_DATA_MASK
+    response[:data]["secret_access_key"] = SENSITIVE_DATA_MASK
+  end
+
+end
 # Function to sort array of hashes by a specified key in asc order
 def sort_by_key(array, key)
   if array.size >0
