@@ -25,44 +25,40 @@ describe SecretsController, type: :request do
       described_class.set_pcloud_access(nil)
     end
 
-    xit 'pCloud fetch is checked only until relevant calls' do
-      # fetch show with user
-      checked_access = false
-      allow_any_instance_of(described_class).to receive(:check_first_pcloud_fetch).and_wrap_original do |original_method, *args, &block|
-        checked_access = true
-        original_method.call(*args, &block)
-      end
-      get("/secrets/#{pcloud_var_id.gsub(':', '/')}", env: token_auth_header(role: admin_user))
-      expect(checked_access).to be_truthy
+    it 'pCloud fetch is updated only for correct use case and only once' do
+      # Check the PCloud fetch secret is empty
+      expect(Secret[resource_id: "#{account}:variable:internal/telemetry/first_pcloud_fetch"]).to be_nil
 
-      checked_access = false
+      # fetch show with user
+      get("/secrets/#{pcloud_var_id.gsub(':', '/')}", env: token_auth_header(role: admin_user))
+      expect(Secret[resource_id: "#{account}:variable:internal/telemetry/first_pcloud_fetch"]).to be_nil
+
       # fetch show for non pCloud secret
       get("/secrets/#{non_pcloud_var_id.gsub(':', '/')}", env: token_auth_header(role: my_host))
-      expect(checked_access).to be_truthy
-      checked_access = false
+      expect(Secret[resource_id: "#{account}:variable:internal/telemetry/first_pcloud_fetch"]).to be_nil
+
       # fetch batch with user
       get("/secrets?variable_ids=#{pcloud_var_id}", env: token_auth_header(role: admin_user))
-      expect(checked_access).to be_truthy
-      checked_access = false
+      expect(Secret[resource_id: "#{account}:variable:internal/telemetry/first_pcloud_fetch"]).to be_nil
+
       # fetch batch for non pCloud secret
       get("/secrets?variable_ids=#{non_pcloud_var_id}", env: token_auth_header(role: my_host))
-      expect(checked_access).to be_truthy
-      checked_access = false
+      expect(Secret[resource_id: "#{account}:variable:internal/telemetry/first_pcloud_fetch"]).to be_nil
 
       # fetch show with host and pCloud secret
       get("/secrets/#{pcloud_var_id.gsub(':', '/')}", env: token_auth_header(role: my_host))
-      expect(checked_access).to be_truthy
-      checked_access = false
+      expect(Secret[resource_id: "#{account}:variable:internal/telemetry/first_pcloud_fetch"]).to_not be_nil
+      secret_value = Secret[resource_id: "#{account}:variable:internal/telemetry/first_pcloud_fetch"]
 
-      # Subsequent calls don't check fetch
+      # Subsequent calls don't change the value
       get("/secrets/#{pcloud_var_id.gsub(':', '/')}", env: token_auth_header(role: my_host))
-      expect(checked_access).to be_falsey
+      expect(Secret[resource_id: "#{account}:variable:internal/telemetry/first_pcloud_fetch"]).to eq(secret_value)
       get("/secrets?variable_ids=#{pcloud_var_id}", env: token_auth_header(role: my_host))
-      expect(checked_access).to be_falsey
+      expect(Secret[resource_id: "#{account}:variable:internal/telemetry/first_pcloud_fetch"]).to eq(secret_value)
       get("/secrets?variable_ids=#{non_pcloud_var_id}", env: token_auth_header(role: my_host))
-      expect(checked_access).to be_falsey
+      expect(Secret[resource_id: "#{account}:variable:internal/telemetry/first_pcloud_fetch"]).to eq(secret_value)
       get("/secrets?variable_ids=#{non_pcloud_var_id}", env: token_auth_header(role: admin_user))
-      expect(checked_access).to be_falsey
+      expect(Secret[resource_id: "#{account}:variable:internal/telemetry/first_pcloud_fetch"]).to eq(secret_value)
     end
   end
 
