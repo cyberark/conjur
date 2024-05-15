@@ -418,7 +418,12 @@ module Loader
           resource = ::Resource[policy_object.record.resourceid]
           if resource
             resource.destroy
+            ## remove role (user or host)
+            delete_redis_resource(USER_PATTERN + resource.id) if resource.kind == 'user' || resource.kind == 'host'
+            ## remove secret
             delete_redis_secret(resource.id) if resource.kind == 'variable'
+            ## remove resource_id for variable in show endpoint
+            delete_redis_resource(RESOURCE_PREFIX + resource.id) if resource.kind == 'variable'
           end
         end
         if policy_object.record.respond_to?(:roleid)

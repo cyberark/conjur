@@ -158,4 +158,18 @@ describe Resource, :type => :model do
       expect(remove_expires_at.(the_resource.as_json['secrets'])).to eq([ 3 ].map{|i| { "version" => i }})
     end
   end
+
+  describe '#to_hash!' do
+    it 'converts the resource object to Hash' do
+      Role.create(role_id: "rspec:user:test")
+      resource = Resource.create(resource_id: 'rspec:variable:test', owner_id: 'rspec:user:test')
+      hash_resource = resource.to_hash!
+
+      expect(hash_resource).to be_a(Hash)
+      resource_filled = Resource.new
+      resource_filled.from_hash!(hash_resource)
+      expect(resource_filled.resource_id).to eq('rspec:variable:test')
+      expect(resource_filled.owner_id).to eq('rspec:user:test')
+    end
+  end
 end

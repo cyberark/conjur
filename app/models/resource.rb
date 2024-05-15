@@ -23,6 +23,20 @@ class Resource < Sequel::Model
     id.split(":", 3)[2]
   end
 
+  def from_hash!(resource_hash)
+    self.resource_id = resource_hash["id"]
+    self.owner_id = resource_hash['owner']
+    self.policy_id = resource_hash['policy']
+  end
+
+  def to_hash!
+    {
+      "id" => id,
+      "owner" => owner_id,
+      "policy" => policy_id
+    }
+  end
+
   def as_json options = {}
     super(options).tap do |response|
       response["id"] = response.delete("resource_id")
