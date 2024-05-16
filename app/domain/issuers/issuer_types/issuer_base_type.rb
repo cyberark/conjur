@@ -18,8 +18,7 @@ class IssuerBaseType
   end
 
   def validate_update(params)
-    validate_max_ttl(params[:max_ttl])
-    validate_not_nil_data(params[:data])
+    validate_max_ttl(params[:max_ttl]) unless params[:max_ttl].nil?
     validate_no_added_parameters_update(params)
   end
 
@@ -86,7 +85,7 @@ def validate_not_nil_data(data)
 end
 
 def validate_no_added_parameters_update(params)
-  if params.keys.count != IssuerBaseType::NUM_OF_EXPECTED_PARAMS_UPDATE
+  if params.keys.count > IssuerBaseType::NUM_OF_EXPECTED_PARAMS_UPDATE
     raise ApplicationController::BadRequestWithBody, IssuerBaseType::INVALID_INPUT_PARAM_UPDATE
   end
 end
