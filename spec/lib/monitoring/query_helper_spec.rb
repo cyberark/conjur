@@ -58,7 +58,8 @@ RSpec.describe Monitoring::QueryHelper do
 
       counts = Monitoring::QueryHelper.instance.policy_visible_resource_counts
 
-      expect(counts).to eq({ 'issuers' => 3, 'dynamic-secrets' => 2, "host-factory"=>3, 'secrets' => 4, 'workloads' => 2, 'users' => 1 })
+      expect(counts).to eq({ 'issuers' => 3, 'dynamic-secrets' => 2, "host-factory"=>3, 'secrets' => 4,
+          'workloads' => 2, 'users' => 1, 'pam-self-hosted' => 0 })
     end
 
     it 'returns zero-valued hash if there are no resources' do
@@ -67,7 +68,8 @@ RSpec.describe Monitoring::QueryHelper do
 
       counts = Monitoring::QueryHelper.instance.policy_visible_resource_counts
 
-      expect(counts).to eq({"dynamic-secrets"=>0, "host-factory"=>7, "issuers"=>0, "secrets"=>0, "users"=>0, "workloads"=>0 }   )
+      expect(counts).to eq({"dynamic-secrets"=>0, "host-factory"=>7, "issuers"=>0,
+        "secrets"=>0, "users"=>0, "workloads"=>0, 'pam-self-hosted' => 0 }   )
     end
   end
 
