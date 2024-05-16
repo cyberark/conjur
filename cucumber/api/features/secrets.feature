@@ -15,6 +15,7 @@ Feature: Adding and fetching secrets
   Secrets are encrypted using AES-256-GCM.
 
   Background:
+    Given I clear Redis cache
     Given I am a user named "eve"
     Given I create a new "variable" resource called "probe"
 

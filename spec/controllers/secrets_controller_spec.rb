@@ -11,22 +11,34 @@ describe SecretsController, type: :request do
   let(:my_host) { Role.find_or_create(role_id: host_id) }
 
   context 'pCloud secrets fetch monitoring' do
-    let(:pcloud_var_id) { "#{account}:variable:data/vault/pcloud_secret" }
-    let(:non_pcloud_var_id) { "#{account}:variable:data/conjur_secret" }
+    let(:pcloud_var_id) { "#{account}:variable:data/vault/first_pcloud_secret" }
+    let(:non_pcloud_var_id) { "#{account}:variable:data/first_conjur_secret" }
     let(:access_variable_id) { "#{account}:variable:internal/telemetry/first_pcloud_fetch" }
     before do
       init_slosilo_keys("rspec")
       Role.find_or_create(role_id: user_owner_id)
+      Role.find_or_create(role_id: host_id)
+      Resource.create(resource_id: access_variable_id, owner_id: user_owner_id)
       Resource.create(resource_id: pcloud_var_id, owner_id: user_owner_id)
       Secret.create(resource_id: pcloud_var_id, value: 'secret')
       Resource.create(resource_id: non_pcloud_var_id, owner_id: user_owner_id)
       Secret.create(resource_id: non_pcloud_var_id, value: 'secret')
-      Resource.create(resource_id: access_variable_id, owner_id: user_owner_id)
+      Permission.create(
+        resource_id: non_pcloud_var_id,
+        privilege: "execute",
+        role_id: host_id
+      )
+      Permission.create(
+        resource_id: pcloud_var_id,
+        privilege: "execute",
+        role_id: host_id
+      )
       described_class.set_pcloud_access(nil)
     end
 
     it 'pCloud fetch is updated only for correct use case and only once' do
-      # Check the PCloud fetch secret is empty
+      # Check the PCloud fetch secret exists and is empty
+      expect(Resource[resource_id: access_variable_id]).to_not be_nil
       expect(Secret[resource_id: "#{account}:variable:internal/telemetry/first_pcloud_fetch"]).to be_nil
 
       # fetch show with user
