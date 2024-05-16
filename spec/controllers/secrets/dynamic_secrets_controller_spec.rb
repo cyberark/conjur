@@ -610,7 +610,7 @@ describe DynamicSecretsController, type: :request do
                     "kind": "user",
                     "id": "alice"
                   },
-                  "privileges": [ "update" ]
+                  "privileges": [ "execute" ]
                 }  
               ]
            }
@@ -1107,7 +1107,7 @@ describe DynamicSecretsController, type: :request do
           permissions = Permission.where(resource_id:"rspec:variable:data/dynamic/secret_to_update").all
           expect(permissions.size).to eq 1
           expect(permissions[0][:role_id]).to eq "rspec:user:alice"
-          expect(permissions[0][:privilege]).to eq "update"
+          expect(permissions[0][:privilege]).to eq "execute"
           # Call update secret
           put("/secrets/dynamic/data/dynamic/secret_to_update",
               env: token_auth_header(role: alice_user).merge(v2_api_header).merge(
@@ -1326,7 +1326,6 @@ describe DynamicSecretsController, type: :request do
               "issuer": "aws-issuer-1",
               "ttl": 1200,
               "method": "assume-role",
-              "method": "assume-role",
               "method_params": {
                   "role_arn": "arn:aws:iam::123456789012:role/my-role-name"      
               }, 
@@ -1342,7 +1341,7 @@ describe DynamicSecretsController, type: :request do
                     "kind": "user",
                     "id": "alice"
                   },
-                  "privileges": [ "update" ]
+                  "privileges": [ "execute" ]
                 }  
               ]
           }
@@ -1361,7 +1360,8 @@ describe DynamicSecretsController, type: :request do
           # Correct response code
           assert_response :ok
           # Check the body to see type was changed
-          # TODO
+          parsed_body = JSON.parse(response.body)
+          expect(parsed_body['method']).to eq("assume-role")
         end
       end
       context "Update secret issuer" do

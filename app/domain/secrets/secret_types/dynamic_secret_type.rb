@@ -54,6 +54,11 @@ module Secrets
         permissions.merge! issuer_permissions
       end
 
+      def collect_all_permissions(params)
+        allowed_privilege = %w[read execute]
+        collect_all_valid_permissions(params, allowed_privilege)
+      end
+
       def create_secret(branch, secret_name, params)
         secret = super(branch, secret_name, params)
 
