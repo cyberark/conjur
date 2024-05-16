@@ -82,7 +82,7 @@ class IssuersController < RestController
     audit_failure(e, action)
     issuer_audit_failure(params[:account], params[:id], "add", e.message)
     raise Exceptions::Forbidden, "issuers"
-  rescue ApplicationController::BadRequestWithBody => e
+  rescue ApplicationController::BadRequestWithBody, ApplicationController::UnprocessableEntity => e
     logger.warn("Input validation error for issuer [#{params[:id]}]: #{e.message}")
     audit_failure(e, action)
     issuer_audit_failure(params[:account], params[:id], "add", e.message)
