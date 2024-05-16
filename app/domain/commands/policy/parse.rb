@@ -40,7 +40,6 @@ module Commands
           # The parse-specific error is what we want to enhance with explainer information.
           explainer = Commands::Policy::ExplainError.new
           explanation = ""
-          explanation = explainer.call(parse_error: message) unless message == ""
           error += "\n#{explanation}" unless explanation == nil
 
           $stderr.puts(error)
