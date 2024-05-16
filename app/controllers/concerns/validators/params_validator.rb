@@ -105,7 +105,7 @@ module ParamsValidator
   def validate_privilege(resource_id, privileges, allowed_privilege)
     privileges.each do |privilege|
       unless allowed_privilege.include?(privilege)
-        raise Errors::Conjur::ParameterValueInvalid.new("Resource #{resource_id} privileges", "Allowed values are [read execute update]")
+        raise Errors::Conjur::ParameterValueInvalid.new("Resource #{resource_id} privileges", "Allowed values are #{allowed_privilege}")
       end
     end
   end

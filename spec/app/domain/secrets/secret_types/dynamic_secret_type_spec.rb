@@ -102,6 +102,34 @@ describe "Dynamic secret create input validation" do
         end
       end
     end
+    context "permissions validation" do
+      before do
+        allow(Issuer).to receive(:where).with({:issuer_id=>"issuer2"}).and_return(issuer_object)
+        allow(issuer_object).to receive(:first).and_return(issuer)
+        $primary_schema = "public"
+        allow(Resource).to receive(:[]).with("rspec:host:data/host1").and_return("host1")
+      end
+      context "Sending not allowed permission" do
+        it "input validation fails" do
+          params = ActionController::Parameters.new(name: "secret1", branch: "data/dynamic", ttl: 920, issuer: "issuer2",
+                                                    method: "assume-role",
+                                                    permissions: [{subject: {id: "data/host1", kind: "host"},
+                                                                   privileges: ["execute", "update"]}])
+          expect { dynamic_secret.collect_all_permissions(params)
+          }.to raise_error(Errors::Conjur::ParameterValueInvalid)
+        end
+      end
+      context "Sending only allowed permission" do
+        it "input validation succeeds" do
+          params = ActionController::Parameters.new(name: "secret1", branch: "data/dynamic", ttl: 920, issuer: "issuer2",
+                                                    method: "assume-role",
+                                                    permissions: [{subject: {id: "data/host1", kind: "host"},
+                                                                   privileges: ["execute", "read"]}])
+          expect { dynamic_secret.collect_all_permissions(params)
+          }.to_not raise_error
+        end
+      end
+    end
   end
 end
 
