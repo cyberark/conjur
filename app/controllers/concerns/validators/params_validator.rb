@@ -47,7 +47,7 @@ module ParamsValidator
   end
 
   def validate_id(param_name, data)
-    validate_string(param_name, data[:value], /\A[a-zA-Z0-9_-]+\z/, 60)
+    validate_string(param_name, data[:value], /\A[a-zA-Z0-9._-]+\z/, 60)
   end
 
   def validate_path(param_name, data)
@@ -72,6 +72,12 @@ module ParamsValidator
 
   def validate_annotation_value(param_name, data)
     validate_string(param_name, data[:value], /^[^<>']+$/, 120)
+  end
+
+  def validate_positive_integer(param_name, data)
+    if !data[:value].nil? && data[:value] < 0
+      raise ApplicationController::UnprocessableEntity, "#{param_name} must be positive number"
+    end
   end
 
   def validate_field_required(param_name, data)
@@ -99,7 +105,7 @@ module ParamsValidator
   def validate_privilege(resource_id, privileges, allowed_privilege)
     privileges.each do |privilege|
       unless allowed_privilege.include?(privilege)
-        raise Errors::Conjur::ParameterValueInvalid.new("Resource #{resource_id} privileges", "Allowed values are [read execute update]")
+        raise Errors::Conjur::ParameterValueInvalid.new("Resource #{resource_id} privileges", "Allowed values are #{allowed_privilege}")
       end
     end
   end

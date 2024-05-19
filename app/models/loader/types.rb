@@ -297,12 +297,12 @@ module Loader
             end
            
             if self.annotations["#{Issuer::DYNAMIC_ANNOTATION_PREFIX}method"].nil?
-              raise Exceptions::InvalidPolicyObject.new(self.id, message: "The variable definition for dynamic secret '#{self.id}' is missing the 'method' annotation.")
+              raise Exceptions::InvalidPolicyObject.new(self.id, message: "The variable definition for dynamic secret \"#{self.id}\" requires a 'method' annotation.")
             end
 
             begin
               IssuerTypeFactory.new.create_issuer_type(issuer[:issuer_type]).validate_variable(
-                self.annotations["#{Issuer::DYNAMIC_ANNOTATION_PREFIX}method"],
+                self.id, self.annotations["#{Issuer::DYNAMIC_ANNOTATION_PREFIX}method"],
                 annotations["#{Issuer::DYNAMIC_ANNOTATION_PREFIX}ttl"],
                 issuer)
             rescue ArgumentError => e
@@ -418,7 +418,12 @@ module Loader
           resource = ::Resource[policy_object.record.resourceid]
           if resource
             resource.destroy
+            ## remove role (user or host)
+            delete_redis_resource(USER_PATTERN + resource.id) if resource.kind == 'user' || resource.kind == 'host'
+            ## remove secret
             delete_redis_secret(resource.id) if resource.kind == 'variable'
+            ## remove resource_id for variable in show endpoint
+            delete_redis_resource(RESOURCE_PREFIX + resource.id) if resource.kind == 'variable'
           end
         end
         if policy_object.record.respond_to?(:roleid)

@@ -252,7 +252,7 @@ describe StaticSecretsController, type: :request do
         assert_response :success
         expect(response.body).to_not eq("[]")
         # Correct audit is returned
-        audit_message = 'rspec:user:admin successfully created secret /data/secrets/secret1 with url: \'/secrets/static\' and content: {"branch":"/data/secrets","name":"secret1"}'
+        audit_message = 'rspec:user:admin successfully created secret /data/secrets/secret1 with URI path: \'/secrets/static\' and JSON object: {"branch":"/data/secrets","name":"secret1"}'
         verify_audit_message(audit_message)
       end
       it 'Secret creation failed on 409 for existing secret' do
@@ -278,7 +278,7 @@ describe StaticSecretsController, type: :request do
         # Correct response code
         assert_response :conflict
         # Correct audit is returned
-        audit_message = 'rspec:user:admin failed to create secret /data/secrets/secret1 with url: \'/secrets/static\' and content: {"branch":"/data/secrets","name":"secret1"}: secret "rspec:variable:data/secrets/secret1" already exists'
+        audit_message = 'rspec:user:admin failed to create secret /data/secrets/secret1 with URI path: \'/secrets/static\' and JSON object: {"branch":"/data/secrets","name":"secret1"}: secret \'rspec:variable:data/secrets/secret1\' already exists'
         verify_audit_message(audit_message)
       end
     end
@@ -824,13 +824,14 @@ describe StaticSecretsController, type: :request do
         )
         assert_response :not_found
         # Correct audit is returned
-        audit_message = 'rspec:user:alice failed to get secret data/doesNotExist with url: \'/secrets/static/data/doesNotExist\': Variable \'data/doesNotExist\' not found in account \'rspec\''
+        audit_message = 'rspec:user:alice failed to retrieve secret data/doesNotExist with URI path: \'/secrets/static/data/doesNotExist\': Variable \'data/doesNotExist\' not found in account \'rspec\''
         verify_audit_message(audit_message)
       end
     end
     context 'when the branch doesnt exist' do
       it 'returns 404' do
         expect(Rails.cache).to receive(:read).with("getSecret/counter").and_return(0)
+        expect(Rails.cache).to receive(:read).with("user/rspec:user:alice").and_call_original
         get(
           '/secrets/static/doesNotExist/mySecret',
           env: token_auth_header(role: alice_user).merge(v2_api_header).merge(
@@ -839,7 +840,7 @@ describe StaticSecretsController, type: :request do
         )
         assert_response :not_found
         # Correct audit is returned
-        audit_message = 'rspec:user:alice failed to get secret doesNotExist/mySecret with url: \'/secrets/static/doesNotExist/mySecret\': Variable \'doesNotExist/mySecret\' not found in account \'rspec\''
+        audit_message = 'rspec:user:alice failed to retrieve secret doesNotExist/mySecret with URI path: \'/secrets/static/doesNotExist/mySecret\': Variable \'doesNotExist/mySecret\' not found in account \'rspec\''
         verify_audit_message(audit_message)
       end
     end
@@ -853,7 +854,7 @@ describe StaticSecretsController, type: :request do
         )
         assert_response :not_found
         # Correct audit is returned
-        audit_message = 'rspec:user:alice failed to get secret /mySecret with url: \'/secrets/static/mySecret\': Variable \'mySecret\' not found in account \'rspec\''
+        audit_message = 'rspec:user:alice failed to retrieve secret /mySecret with URI path: \'/secrets/static/mySecret\': Variable \'mySecret\' not found in account \'rspec\''
         verify_audit_message(audit_message)
       end
     end
@@ -947,7 +948,7 @@ describe StaticSecretsController, type: :request do
         parsed_body = JSON.parse(response.body)
         expect(parsed_body["error"]["message"]).to eq("Variable 'data/secrets/secret_not_exists' not found in account 'rspec'")
         # Correct audit is returned
-        audit_message = 'rspec:user:alice failed to change secret data/secrets/secret_not_exists with url: \'/secrets/static/data/secrets/secret_not_exists\' and content: {"annotations":[{"name":"description","value":"desc2"}],"permissions":[{"subject":{"kind":"user","id":"alice"},"privileges":["read"]}]}: Variable \'data/secrets/secret_not_exists\' not found in account \'rspec\''
+        audit_message = 'rspec:user:alice failed to update secret data/secrets/secret_not_exists with URI path: \'/secrets/static/data/secrets/secret_not_exists\' and JSON object: {"annotations":[{"name":"description","value":"desc2"}],"permissions":[{"subject":{"kind":"user","id":"alice"},"privileges":["read"]}]}: Variable \'data/secrets/secret_not_exists\' not found in account \'rspec\''
         verify_audit_message(audit_message)
       end
       it 'Branch not exist' do
@@ -964,7 +965,7 @@ describe StaticSecretsController, type: :request do
         parsed_body = JSON.parse(response.body)
         expect(parsed_body["error"]["message"]).to eq("Variable 'data/no_secrets/secret_to_update' not found in account 'rspec'")
         # Correct audit is returned
-        audit_message = 'rspec:user:alice failed to change secret data/no_secrets/secret_to_update with url: \'/secrets/static/data/no_secrets/secret_to_update\' and content: {"annotations":[{"name":"description","value":"desc2"}],"permissions":[{"subject":{"kind":"user","id":"alice"},"privileges":["read"]}]}: Variable \'data/no_secrets/secret_to_update\' not found in account \'rspec\''
+        audit_message = 'rspec:user:alice failed to update secret data/no_secrets/secret_to_update with URI path: \'/secrets/static/data/no_secrets/secret_to_update\' and JSON object: {"annotations":[{"name":"description","value":"desc2"}],"permissions":[{"subject":{"kind":"user","id":"alice"},"privileges":["read"]}]}: Variable \'data/no_secrets/secret_to_update\' not found in account \'rspec\''
         verify_audit_message(audit_message)
       end
       it 'Empty Branch' do
@@ -981,7 +982,7 @@ describe StaticSecretsController, type: :request do
         parsed_body = JSON.parse(response.body)
         expect(parsed_body["error"]["message"]).to eq("Variable 'secret_to_update' not found in account 'rspec'")
         # Correct audit is returned
-        audit_message = 'rspec:user:alice failed to change secret /secret_to_update with url: \'/secrets/static/secret_to_update\' and content: {"annotations":[{"name":"description","value":"desc2"}],"permissions":[{"subject":{"kind":"user","id":"alice"},"privileges":["read"]}]}: Variable \'secret_to_update\' not found in account \'rspec\''
+        audit_message = 'rspec:user:alice failed to update secret /secret_to_update with URI path: \'/secrets/static/secret_to_update\' and JSON object: {"annotations":[{"name":"description","value":"desc2"}],"permissions":[{"subject":{"kind":"user","id":"alice"},"privileges":["read"]}]}: Variable \'secret_to_update\' not found in account \'rspec\''
         verify_audit_message(audit_message)
       end
     end
@@ -1020,9 +1021,9 @@ describe StaticSecretsController, type: :request do
         # Correct response code
         assert_response :unprocessable_entity
         parsed_body = JSON.parse(response.body)
-        expect(parsed_body["error"]["message"]).to eq("Branch is not allowed in the request body")
+        expect(parsed_body["error"]["message"]).to eq("'branch' is not allowed in the request body")
         # Correct audit is returned
-        audit_message = 'rspec:user:alice failed to change secret data/secrets/secret_to_update with url: \'/secrets/static/data/secrets/secret_to_update\' and content: {"branch":"data/secrets2","annotations":[{"name":"description","value":"desc2"}],"permissions":[{"subject":{"kind":"user","id":"alice"},"privileges":["read"]}]}: Branch is not allowed in the request body'
+        audit_message = 'rspec:user:alice failed to update secret data/secrets/secret_to_update with URI path: \'/secrets/static/data/secrets/secret_to_update\' and JSON object: {"branch":"data/secrets2","annotations":[{"name":"description","value":"desc2"}],"permissions":[{"subject":{"kind":"user","id":"alice"},"privileges":["read"]}]}: \'branch\' is not allowed in the request body'
         verify_audit_message(audit_message)
       end
     end
@@ -1061,9 +1062,9 @@ describe StaticSecretsController, type: :request do
         # Correct response code
         assert_response :unprocessable_entity
         parsed_body = JSON.parse(response.body)
-        expect(parsed_body["error"]["message"]).to eq("Secret name is not allowed in the request body")
+        expect(parsed_body["error"]["message"]).to eq("'name' is not allowed in the request body")
         # Correct audit is returned
-        audit_message = 'rspec:user:alice failed to change secret data/secrets/secret_to_update with url: \'/secrets/static/data/secrets/secret_to_update\' and content: {"name":"secrets2","annotations":[{"name":"description","value":"desc2"}],"permissions":[{"subject":{"kind":"user","id":"alice"},"privileges":["read"]}]}: Secret name is not allowed in the request body'
+        audit_message = 'rspec:user:alice failed to update secret data/secrets/secret_to_update with URI path: \'/secrets/static/data/secrets/secret_to_update\' and JSON object: {"name":"secrets2","annotations":[{"name":"description","value":"desc2"}],"permissions":[{"subject":{"kind":"user","id":"alice"},"privileges":["read"]}]}: \'name\' is not allowed in the request body'
         verify_audit_message(audit_message)
       end
     end
@@ -1104,7 +1105,7 @@ describe StaticSecretsController, type: :request do
         parsed_body = JSON.parse(response.body)
         expect(parsed_body["error"]["message"]).to eq("Invalid 'mime_type' parameter.")
         # Correct audit is returned
-        audit_message = 'rspec:user:alice failed to change secret data/secrets/secret_to_update with url: \'/secrets/static/data/secrets/secret_to_update\' and content: {"mime_type":"","annotations":[{"name":"description","value":"desc2"}],"permissions":[{"subject":{"kind":"user","id":"alice"},"privileges":["read"]}]}: Invalid \'mime_type\' parameter.'
+        audit_message = 'rspec:user:alice failed to update secret data/secrets/secret_to_update with URI path: \'/secrets/static/data/secrets/secret_to_update\' and JSON object: {"mime_type":"","annotations":[{"name":"description","value":"desc2"}],"permissions":[{"subject":{"kind":"user","id":"alice"},"privileges":["read"]}]}: Invalid \'mime_type\' parameter.'
         verify_audit_message(audit_message)
       end
     end
@@ -1944,7 +1945,7 @@ describe StaticSecretsController, type: :request do
                           [{"name"=>"description","value"=>"desc"},{"name"=>"annotation_to_delete","value"=>"delete"}],
                           [{"subject"=>{"id"=>"alice","kind"=>"user"},"privileges"=>["update","read","execute"]}])
         # Correct audit is returned
-        audit_message = 'rspec:user:alice successfully created secret /data/secrets/secret_to_update with url: \'/secrets/static\' and content: {"branch":"/data/secrets","name":"secret_to_update","mime_type":"text/plain","value":"xxxxxxx","annotations":[{"name":"description","value":"desc"},{"name":"annotation_to_delete","value":"delete"}],"permissions":[{"subject":{"kind":"user","id":"alice"},"privileges":["update","read","execute"]}]}'
+        audit_message = 'rspec:user:alice successfully created secret /data/secrets/secret_to_update with URI path: \'/secrets/static\' and JSON object: {"branch":"/data/secrets","name":"secret_to_update","mime_type":"text/plain","value":"xxxxxxx","annotations":[{"name":"description","value":"desc"},{"name":"annotation_to_delete","value":"delete"}],"permissions":[{"subject":{"kind":"user","id":"alice"},"privileges":["update","read","execute"]}]}'
         verify_audit_message(audit_message)
         # Check secret value
         get('/secrets/rspec/variable/data/secrets/secret_to_update',
@@ -1961,7 +1962,7 @@ describe StaticSecretsController, type: :request do
                           [{"name"=>"description","value"=>"desc"},{"name"=>"annotation_to_delete","value"=>"delete"}],
                           [{"subject"=>{"id"=>"alice","kind"=>"user"},"privileges"=>["update","read","execute"]}])
         # Correct audit is returned
-        audit_message = "rspec:user:alice successfully retrieved secret data/secrets/secret_to_update with url: '/secrets/static/data/secrets/secret_to_update'"
+        audit_message = "rspec:user:alice successfully retrieved secret data/secrets/secret_to_update with URI path: '/secrets/static/data/secrets/secret_to_update'"
         verify_audit_message(audit_message)
         # update secret value
         put("/secrets/static/data/secrets/secret_to_update",
@@ -1977,7 +1978,7 @@ describe StaticSecretsController, type: :request do
                           [{"name"=>"description","value"=>"desc"},{"name"=>"annotation_to_delete","value"=>"delete"}],
                           [{"subject"=>{"id"=>"alice","kind"=>"user"},"privileges"=>["update","read","execute"]}])
         # Correct audit is returned
-        audit_message = 'rspec:user:alice successfully changed secret data/secrets/secret_to_update with url: \'/secrets/static/data/secrets/secret_to_update\' and content: {"mime_type":"text/plain","value":"xxxxxxx","annotations":[{"name":"description","value":"desc"},{"name":"annotation_to_delete","value":"delete"}],"permissions":[{"subject":{"kind":"user","id":"alice"},"privileges":["update","read","execute"]}]}'
+        audit_message = 'rspec:user:alice successfully updated secret data/secrets/secret_to_update with URI path: \'/secrets/static/data/secrets/secret_to_update\' and JSON object: {"mime_type":"text/plain","value":"xxxxxxx","annotations":[{"name":"description","value":"desc"},{"name":"annotation_to_delete","value":"delete"}],"permissions":[{"subject":{"kind":"user","id":"alice"},"privileges":["update","read","execute"]}]}'
         verify_audit_message(audit_message)
         # get secret
         get("/secrets/static/data/secrets/secret_to_update",

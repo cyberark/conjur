@@ -23,6 +23,17 @@ module Monitoring
       counts["secrets"] = Resource.where(Sequel.like(:resource_id, '%conjur:variable:data/%')).count
       counts["workloads"] = Resource.where(Sequel.like(:resource_id, '%conjur:host:data/%')).count
       counts["users"] = Resource.where(Sequel.like(:resource_id, '%conjur:user:%')).count
+      counts["host-factory"] = HostFactoryToken.count
+
+      synchronizer_policy = "conjur:policy:synchronizer"
+      synchronizerPolicyResource = Resource.find(resource_id: synchronizer_policy)
+      is_pam_self_hosted = !synchronizerPolicyResource.nil?
+      if is_pam_self_hosted
+        counts["pam-self-hosted"] = 1
+      else
+        counts["pam-self-hosted"] = 0
+      end
+
       counts
     end
 

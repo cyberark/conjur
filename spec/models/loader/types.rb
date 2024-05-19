@@ -234,7 +234,7 @@ describe Loader::Types::Variable do
         let(:ttl) { 900 }
         let(:issuer_object) { 'issuer'  }
         it "raise not found record error" do
-          expect { variable.verify }.to raise_error(Exceptions::InvalidPolicyObject, "The variable definition for dynamic secret 'data/dynamic/myvar2' is missing the 'method' annotation.")
+          expect { variable.verify }.to raise_error(Exceptions::InvalidPolicyObject, "The variable definition for dynamic secret \"data/dynamic/myvar2\" requires a 'method' annotation.")
         end
       end
       context 'when issuer aws1 configured with not supported method' do
@@ -244,7 +244,7 @@ describe Loader::Types::Variable do
         let(:ttl) { 900 }
         let(:issuer_object) { 'issuer'  }
         it "raise not found record error" do
-          expect { variable.verify }.to raise_error(Exceptions::InvalidPolicyObject, "The method annotation in the variable definition for dynamic secret is not valid. Allowed values: assume-role, federation-token")
+          expect { variable.verify }.to raise_error(Exceptions::InvalidPolicyObject, "The 'method' annotation in the variable definition for dynamic secret \"data/dynamic/myvar2\" is not valid. Allowed values: assume-role, federation-token")
         end
       end
       context 'when issuer aws1 configured with wrong ttl for federation' do
@@ -255,12 +255,12 @@ describe Loader::Types::Variable do
         let(:issuer_object) { 'issuer'  }
         it "raise not found record error" do
           allow(issuer_object).to receive(:first).and_return({ :issuer_type => "aws", :max_ttl => 2000 })
-          expect { variable.verify }.to raise_error(Exceptions::InvalidPolicyObject, "Dynamic variable TTL is out of range for federation token (range is 900 to 43200)")
+          expect { variable.verify }.to raise_error(Exceptions::InvalidPolicyObject, "The TTL defined for dynamic secret 'data/dynamic/myvar2' (method=federation token) is out of the allowed range: 900-43,200 seconds.")
         end
         it "raise not found record error" do
           allow(issuer_object).to receive(:first).and_return({ :issuer_type => "aws", :max_ttl => 2000 })
           variable.annotations["dynamic/ttl"] = 43201
-          expect { variable.verify }.to raise_error(Exceptions::InvalidPolicyObject, "Dynamic variable TTL is out of range for federation token (range is 900 to 43200)")
+          expect { variable.verify }.to raise_error(Exceptions::InvalidPolicyObject, "The TTL defined for dynamic secret 'data/dynamic/myvar2' (method=federation token) is out of the allowed range: 900-43,200 seconds.")
         end
       end
       context 'when issuer aws1 configured with wrong ttl for assume role' do
@@ -271,12 +271,12 @@ describe Loader::Types::Variable do
         let(:issuer_object) { 'issuer'  }
         it "raise not found record error" do
           allow(issuer_object).to receive(:first).and_return({ :issuer_type => "aws", :max_ttl => 2000 })
-          expect { variable.verify }.to raise_error(Exceptions::InvalidPolicyObject, "Dynamic variable TTL is out of range for assume role (range is 900 to 129600)")
+          expect { variable.verify }.to raise_error(Exceptions::InvalidPolicyObject, "The TTL defined for dynamic secret 'data/dynamic/myvar2' (method=assumed role) is out of the allowed range: 900-129,600 seconds.")
         end
         it "raise not found record error" do
           allow(issuer_object).to receive(:first).and_return({ :issuer_type => "aws", :max_ttl => 2000 })
           variable.annotations["dynamic/ttl"] = 129601
-          expect { variable.verify }.to raise_error(Exceptions::InvalidPolicyObject, "Dynamic variable TTL is out of range for assume role (range is 900 to 129600)")
+          expect { variable.verify }.to raise_error(Exceptions::InvalidPolicyObject, "The TTL defined for dynamic secret 'data/dynamic/myvar2' (method=assumed role) is out of the allowed range: 900-129,600 seconds.")
         end
       end
     end

@@ -118,6 +118,8 @@ describe SecretsController, type: :request do
 
   context "Secrets are read from Redis when appropriate" do
     let(:data_var_id) { "#{account}:variable:data/conjur_secret" }
+    let(:resource_data_id) { "secrets/resource/#{account}:variable:data/conjur_secret" }
+    let(:admin_user_id) { "user/#{account}:user:admin"}
     before do
       init_slosilo_keys("rspec")
       Role.find_or_create(role_id: user_owner_id)
@@ -129,6 +131,8 @@ describe SecretsController, type: :request do
     it "secret is read from Redis and not from DB" do
       write_into_redis(data_var_id, 'secret')
       expect(Rails.cache).to receive(:read).with("getSecret/counter").and_return(0)
+      expect(Rails.cache).to receive(:read).with(admin_user_id).and_call_original
+      expect(Rails.cache).to receive(:read).with(resource_data_id).and_call_original
       expect(Rails.cache).to receive(:read).with(data_var_id).and_call_original
       expect(Rails.cache).to receive(:read).with(data_var_id + '/mime_type').and_call_original
       expect_any_instance_of(Resource).to_not receive(:secret)
@@ -139,7 +143,9 @@ describe SecretsController, type: :request do
 
   context "SecretsController works despite Redis malfunction" do
     let(:data_var_id) { "#{account}:variable:data/conjur_secret" }
+    let(:resource_data_id) { "secrets/resource/#{account}:variable:data/conjur_secret" }
     let(:payload) { {'RAW_POST_DATA' => 'new-secret'} }
+    let(:admin_user_id) { "user/#{account}:user:admin"}
     before do
       init_slosilo_keys("rspec")
       Role.find_or_create(role_id: user_owner_id)
@@ -150,6 +156,8 @@ describe SecretsController, type: :request do
 
     it "Show succeeds when Redis throws exception" do
       expect(Rails.cache).to receive(:read).with("getSecret/counter").and_return(0)
+      expect(Rails.cache).to receive(:read).with(resource_data_id).and_call_original
+      expect(Rails.cache).to receive(:read).with(admin_user_id).and_call_original
       expect(Rails.cache).to receive(:read).exactly(3).times.and_raise(ApplicationController::ServiceUnavailable)
 
       get("/secrets/#{data_var_id.gsub(':', '/')}", env: token_auth_header(role: admin_user))
@@ -160,6 +168,9 @@ describe SecretsController, type: :request do
 
     it "Create succeeds when Redis throws exception" do
       write_into_redis(data_var_id, 'secret')
+      expect(Rails.cache).to receive(:read).with(admin_user_id).and_call_original
+      expect(Rails.cache).to receive(:read).with(data_var_id).and_call_original
+      expect(Rails.cache).to receive(:read).with("rspec:variable:data/conjur_secret/mime_type").and_call_original
       expect(Rails.cache).to receive(:write).at_least(:once).and_raise(ApplicationController::ServiceUnavailable)
 
       post("/secrets/#{data_var_id.gsub(':', '/')}", env: token_auth_header(role: admin_user).merge(payload))
@@ -169,7 +180,7 @@ describe SecretsController, type: :request do
 
     it "Show succeeds when Redis returns nil" do
       expect(Rails.cache).to receive(:read).with("getSecret/counter").and_return(0)
-      expect(Rails.cache).to receive(:read).exactly(4).times.and_return(nil)
+      expect(Rails.cache).to receive(:read).exactly(6).times.and_return(nil)
 
       get("/secrets/#{data_var_id.gsub(':', '/')}", env: token_auth_header(role: admin_user))
 
@@ -178,7 +189,7 @@ describe SecretsController, type: :request do
     end
 
     it "Create succeeds when Redis returns nil" do
-      expect(Rails.cache).to receive(:read).exactly(4).times.and_return(nil) # Create reads before it creating
+      expect(Rails.cache).to receive(:read).exactly(5).times.and_return(nil) # Create reads before it creating
 
       post("/secrets/#{data_var_id.gsub(':', '/')}", env: token_auth_header(role: admin_user).merge(payload))
 
@@ -188,6 +199,8 @@ describe SecretsController, type: :request do
 
   context "Redis with version" do
     let(:data_var_id) { "#{account}:variable:data/conjur_secret" }
+    let(:resource_data_id) { "secrets/resource/#{account}:variable:data/conjur_secret" }
+    let(:admin_user_id) { "user/#{account}:user:admin"}
     before do
       init_slosilo_keys("rspec")
       Role.find_or_create(role_id: user_owner_id)
@@ -202,6 +215,8 @@ describe SecretsController, type: :request do
       get("/secrets/#{data_var_id.gsub(':', '/')}", env: token_auth_header(role: admin_user)) # Should get the secret into Redis
 
       expect(Rails.cache).to receive(:read).with("getSecret/counter").exactly(3).and_return(0)
+      expect(Rails.cache).to receive(:read).with(admin_user_id).exactly(3).and_call_original
+      expect(Rails.cache).to receive(:read).with(resource_data_id).exactly(3).and_call_original
       expect(Rails.cache).to receive(:read).with(data_var_id + "?version=1").and_call_original
       expect(Rails.cache).to receive(:read).with(data_var_id + "/mime_type").and_call_original
       expect_any_instance_of(Resource).to_not receive(:secret)
@@ -226,6 +241,7 @@ describe SecretsController, type: :request do
     let(:data_var_id) { "#{account}:variable:data/conjur_secret" }
     let(:internal_secret) { "#{account}:variable:internal/secret" }
     let(:empty_secret) { "#{account}:variable:data/empty_secret" }
+    let(:admin_user_id) { "user/#{account}:user:admin"}
     let(:secret) { "secret" }
 
     before do
@@ -238,15 +254,19 @@ describe SecretsController, type: :request do
       Resource.create(resource_id: data_var_id, owner_id: user_owner_id)
       Secret.create(resource_id: data_var_id, value: secret)
       # Call before value is in redis
+
       expect(Rails.cache).to receive(:read).with(data_var_id).and_call_original
       expect(Rails.cache).to receive(:read).with(data_var_id + "/mime_type").and_call_original
+      expect(Rails.cache).to receive(:read).with(admin_user_id).and_call_original
       expect_any_instance_of(Resource).to receive(:last_secret).and_call_original
       expect(Rails.cache).to receive(:write).with(data_var_id, anything).and_call_original
+      expect(Rails.cache).to receive(:write).with(admin_user_id,anything).and_call_original
       get("/secrets?variable_ids=#{data_var_id}", env: token_auth_header(role: admin_user))
       expect(response.status).to eq(200)
       expect(JSON.parse(response.body)).to eq({data_var_id => secret})
       # Call after value is in redis
       expect(Rails.cache).to receive(:read).with(data_var_id).and_call_original
+      expect(Rails.cache).to receive(:read).with(admin_user_id).and_call_original
       expect(Rails.cache).to receive(:read).with(data_var_id + "/mime_type").and_call_original
       expect_any_instance_of(Resource).to_not receive(:last_secret).and_call_original
       expect(Rails.cache).to_not receive(:write).with(data_var_id).and_call_original
@@ -271,6 +291,7 @@ describe SecretsController, type: :request do
       Resource.create(resource_id: empty_secret, owner_id: user_owner_id)
       expect(Rails.cache).to receive(:read).with(empty_secret).and_call_original
       expect(Rails.cache).to receive(:read).with(empty_secret + "/mime_type").and_call_original
+      expect(Rails.cache).to receive(:read).with("user/rspec:user:admin").and_call_original
       allow_any_instance_of(Resource).to receive(:last_secret).and_call_original
       get("/secrets?variable_ids=#{empty_secret}", env: token_auth_header(role: admin_user))
 

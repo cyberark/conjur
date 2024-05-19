@@ -74,7 +74,7 @@ describe Monitoring::Middleware::PrometheusCollector do
 
     status, _headers, _response = subject.call(env)
 
-    labels = { operation: 'getSecret', tenant_id: ENV['TENANT_ID'] }
+    labels = { operation: 'getSecret', tenant_id: ENV['TENANT_ID'], environment: ENV['TENANT_ENV'] }
     expect(request_counter_metric.get(labels: labels)).to eql(1.0)
 
   end

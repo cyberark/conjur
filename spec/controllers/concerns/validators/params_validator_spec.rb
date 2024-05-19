@@ -11,7 +11,7 @@ describe ParamsValidator do
     context "validate privilege" do
       it "not valid privilege" do
         expect { controller.validate_privilege("resource", ["read", "create"], %w[read update execute])
-        }.to raise_error(Errors::Conjur::ParameterValueInvalid, "CONJ00191W The value in the 'Resource resource privileges' parameter is not valid. Error: Allowed values are [read execute update]")
+        }.to raise_error(Errors::Conjur::ParameterValueInvalid, "CONJ00191W The value in the 'Resource resource privileges' parameter is not valid. Error: Allowed values are [\"read\", \"update\", \"execute\"]")
       end
       it " valid privilege" do
         expect { controller.validate_privilege("resource", ["read", "update"], %w[read update execute])
@@ -126,7 +126,7 @@ describe ParamsValidator do
         }.to raise_error(ApplicationController::UnprocessableEntity)
       end
       it "valid id" do
-        expect { controller.validate_id("id",{type: String,value: "s4c-ret_naMe"})
+        expect { controller.validate_id("id",{type: String,value: "s4c-ret_na.Me"})
         }.to_not raise_error
       end
     end

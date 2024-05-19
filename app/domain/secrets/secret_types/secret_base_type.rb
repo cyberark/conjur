@@ -19,7 +19,7 @@ module Secrets
               type: String,
             value: params[:branch]
             },
-            validators: [method(:validate_field_required), method(:validate_field_type), method(:validate_path)]
+            validators: [method(:validate_field_required), method(:validate_field_type)]
           }
         }
         validate_data_fields(data_fields)
@@ -30,8 +30,8 @@ module Secrets
 
       def update_input_validation(params, body_params )
         #check branch and secret name are not part of body
-        raise ApplicationController::UnprocessableEntity, "Branch is not allowed in the request body" if body_params[:branch]
-        raise ApplicationController::UnprocessableEntity, "Secret name is not allowed in the request body" if body_params[:name]
+        raise ApplicationController::UnprocessableEntity, "'branch' is not allowed in the request body" if body_params[:branch]
+        raise ApplicationController::UnprocessableEntity, "'name' is not allowed in the request body" if body_params[:name]
 
         # check secret exists
         get_resource("variable", "#{params[:branch]}/#{params[:name]}")
@@ -135,12 +135,11 @@ module Secrets
         []
       end
 
-      def collect_all_permissions(params)
+      def collect_all_valid_permissions(params, allowed_privilege)
         permissions = []
         if params[:permissions]
           permissions = params[:permissions]
         end
-        allowed_privilege = %w[read execute update]
         validate_permissions(permissions, allowed_privilege)
       end
 

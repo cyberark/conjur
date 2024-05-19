@@ -37,6 +37,14 @@ class Role < Sequel::Model
     end
   end
 
+  def to_hash!
+    {
+      "role_id" => role_id
+    }
+  end
+  def from_hash! role_hash
+    self.role_id = role_hash["role_id"]
+  end
   class << self
     def that_can(permission, resource)
       Role.from(

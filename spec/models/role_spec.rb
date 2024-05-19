@@ -63,4 +63,25 @@ describe Role, :type => :model do
       expect(subject.api_key).to be_nil
     end
   end
+
+  describe '#to_hash!' do
+    it 'converts the role object to a hash' do
+      admin_role = Role.create(role_id: 'rspec:user:test')
+      hash_role = admin_role.to_hash!
+
+      expect(hash_role).to be_a(Hash)
+      expect(hash_role['role_id']).to eq('rspec:user:test')
+    end
+  end
+  describe '#from_hash!' do
+    it 'converts the hash back to a role object' do
+      admin_role = Role.create(role_id: 'rspec:user:test')
+      hash_role = admin_role.to_hash!
+      new_role = Role.new
+      new_role.from_hash!(hash_role)
+
+      expect(new_role).to be_a(Role)
+      expect(new_role.role_id).to eq('rspec:user:test')
+    end
+  end
 end

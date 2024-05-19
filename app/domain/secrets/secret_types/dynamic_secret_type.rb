@@ -17,13 +17,17 @@ module Secrets
         end
         raise ApplicationController::UnprocessableEntity, "Dynamic secrets must be created under #{Issuer::DYNAMIC_VARIABLE_PREFIX}" unless is_dynamic_branch(branch)
 
-        dynamic_input_validation(params)
+        dynamic_input_validation("#{branch}/#{params[:name]}", params)
       end
 
       def update_input_validation(params, body_params)
         secret = super(params, body_params)
 
-        dynamic_input_validation(body_params)
+        branch = params[:branch]
+        if branch.start_with?("/")
+          branch = branch[1..-1]
+        end
+        dynamic_input_validation("#{branch}/#{params[:name]}", body_params)
 
         secret
       end
@@ -50,6 +54,11 @@ module Secrets
         permissions.merge! issuer_permissions
       end
 
+      def collect_all_permissions(params)
+        allowed_privilege = %w[read execute]
+        collect_all_valid_permissions(params, allowed_privilege)
+      end
+
       def create_secret(branch, secret_name, params)
         secret = super(branch, secret_name, params)
 
@@ -71,7 +80,7 @@ module Secrets
         # add the dynamic fields to the result
         annotations = get_annotations(variable)
         json_result = annotation_to_json_field(annotations, DYNAMIC_ISSUER, "issuer", json_result)
-        json_result = annotation_to_json_field(annotations, DYNAMIC_TTL, "ttl", json_result, true, true)
+        json_result = annotation_to_json_field(annotations, DYNAMIC_TTL, "ttl", json_result, false, true)
         json_result = annotation_to_json_field(annotations, DYNAMIC_METHOD, "method", json_result)
 
         # get specific dynamic type
@@ -107,7 +116,7 @@ module Secrets
         end
       end
 
-      def dynamic_input_validation(params)
+      def dynamic_input_validation(secret_name, params)
         # check if value field exist
         raise ApplicationController::UnprocessableEntity, "Adding value to a dynamic secret is not allowed" if params[:value]
 
@@ -121,10 +130,10 @@ module Secrets
           },
           ttl: {
             field_info: {
-              type: Numeric,
+              type: Integer,
               value: params[:ttl]
             },
-            validators: [method(:validate_field_required), method(:validate_field_type)]
+            validators: [method(:validate_field_type), method(:validate_positive_integer)]
           }
         }
         validate_data_fields(data_fields)
@@ -135,7 +144,7 @@ module Secrets
         raise Exceptions::RecordNotFound, "#{account}:issuer:#{issuer_id}" unless issuer
 
         begin
-          IssuerTypeFactory.new.create_issuer_type(issuer[:issuer_type]).validate_variable(params[:method], params[:ttl], issuer)
+          IssuerTypeFactory.new.create_issuer_type(issuer[:issuer_type]).validate_variable(secret_name, params[:method], params[:ttl], issuer)
         rescue ArgumentError => e
           raise ApplicationController::UnprocessableEntity, e.message
         end

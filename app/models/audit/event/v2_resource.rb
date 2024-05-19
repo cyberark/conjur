@@ -92,12 +92,20 @@ module Audit
         past_tense_verb = "#{@operation.to_s.chomp('e')}ed"
         if @operation == 'get'
           past_tense_verb = "retrieved"
+        elsif @operation == 'change'
+          past_tense_verb = "updated"
         end
-        "#{@user} successfully #{past_tense_verb} #{@resource_type} #{@resource_name} with url: '#{@request_path}'#{@request_body? " and content: #{@request_body}":""}"
+        "#{@user} successfully #{past_tense_verb} #{@resource_type} #{@resource_name} with URI path: '#{@request_path}'#{@request_body? " and JSON object: #{@request_body}":""}"
       end
 
       def failure_message
-        "#{@user} failed to #{@operation} #{@resource_type} #{@resource_name} with url: '#{@request_path}'#{@request_body? " and content: #{@request_body}":""}"
+        action = @operation
+        if @operation == 'get'
+          action = "retrieve"
+        elsif @operation == 'change'
+          action = "update"
+        end
+        "#{@user} failed to #{action} #{@resource_type} #{@resource_name} with URI path: '#{@request_path}'#{@request_body? " and JSON object: #{@request_body}":""}"
       end
 
       def success?

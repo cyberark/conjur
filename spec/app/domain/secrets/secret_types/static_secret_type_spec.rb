@@ -23,7 +23,6 @@ describe "Static secret create input validation" do
       expect(static_secret).to receive(:validate_field_type).with(:branch,{type: String,value: "data/secrets"})
 
       expect(static_secret).to receive(:validate_id).with(:name,{type: String,value: "secret1"})
-      expect(static_secret).to receive(:validate_path).with(:branch,{type: String,value: "data/secrets"})
 
       expect(static_secret).to receive(:validate_field_type).with(:mime_type,{type: String,value: "text/plain"})
       expect(static_secret).to receive(:validate_mime_type).with(:mime_type,{type: String,value: "text/plain"})
@@ -37,6 +36,33 @@ describe "Static secret create input validation" do
       params = ActionController::Parameters.new(branch: "data/dynamic", name:"secret1")
       expect { static_secret.create_input_validation(params)
       }.to raise_error(ApplicationController::UnprocessableEntity)
+    end
+  end
+
+  context "permissions validation" do
+    before do
+      allow(Resource).to receive(:[]).with("rspec:host:data/host1").and_return("host1")
+    end
+    context "Sending not allowed permission" do
+      it "input validation fails" do
+        params = ActionController::Parameters.new(name: "secret1", branch: "data",
+                                                  permissions: [{subject: {id: "data/host1", kind: "host"},
+                                                                 privileges: ["execute", "update", "authenticate"]}])
+        expect { static_secret.collect_all_permissions(params)
+        }.to raise_error(Errors::Conjur::ParameterValueInvalid)
+      end
+    end
+    context "Sending only allowed permission" do
+      before do
+        allow(Resource).to receive(:[]).with("rspec:host:data/host1").and_return("host1")
+      end
+      it "input validation succeeds" do
+        params = ActionController::Parameters.new(name: "secret1", branch: "data",
+                                                  permissions: [{subject: {id: "data/host1", kind: "host"},
+                                                                 privileges: ["execute", "read", "update"]}])
+        expect { static_secret.collect_all_permissions(params)
+        }.to_not raise_error
+      end
     end
   end
 end
