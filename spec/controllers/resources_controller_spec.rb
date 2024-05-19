@@ -35,13 +35,19 @@ describe ResourcesController, type: :request do
       assert_response :success
     end
     context 'when validating check permission request' do
-      it "should return true when permission exists" do
+      it "should return 204 when permission exists" do
         get(
-          "/resources/rspec/variable/perm_secret?check=true&role=alice&privilege=update",
+          "/resources/rspec/variable/perm_secret?check=true&role=rspec:user:alice&privilege=update",
           env: token_auth_header(role: current_user)
         )
-        expect(response.code).to eq("200")
-        expect(response.body).to eq("{\"count\":12}")
+        expect(response.code).to eq("204")
+      end
+      it "should return 404 when permission not exists" do
+        get(
+          "/resources/rspec/variable/perm_secret?check=true&role=rspec:user:alice&privilege=execute",
+          env: token_auth_header(role: current_user)
+        )
+        expect(response.code).to eq("404")
       end
     end
   end
