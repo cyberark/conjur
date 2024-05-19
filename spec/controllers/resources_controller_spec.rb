@@ -11,6 +11,40 @@ describe ResourcesController, type: :request do
   end
 
   let(:current_user) { Role.find_or_create(role_id: 'rspec:user:admin') }
+  let(:alice_user) { Role.find_or_create(role_id: 'rspec:user:alice') }
+
+  describe "resource permissions" do
+    let(:test_policy) do
+      <<~POLICY
+        - !user alice
+        - !variable perm_secret
+        - !permit
+          resource: !variable perm_secret
+          privilege: [ update ]
+          role: !user alice
+      POLICY
+    end
+    before do
+      # Load the test policy into Conjur
+      put(
+        '/policies/rspec/policy/root',
+        env: token_auth_header(role: current_user).merge(
+          { 'RAW_POST_DATA' => test_policy }
+        )
+      )
+      assert_response :success
+    end
+    context 'when validating check permission request' do
+      it "should return true when permission exists" do
+        get(
+          "/resources/rspec/variable/perm_secret?check=true&role=alice&privilege=update",
+          env: token_auth_header(role: current_user)
+        )
+        expect(response.code).to eq("200")
+        expect(response.body).to eq("{\"count\":12}")
+      end
+    end
+  end
 
   describe '#post' do
 
@@ -27,12 +61,13 @@ describe ResourcesController, type: :request do
       '/policies/rspec/policy/root'
     end
 
-    def list_resources(limit: nil, offset: nil, count: false, short: false)
+    def list_resources(limit: nil, offset: nil, count: false, short: false, kind: false)
       params = {}
       params.merge!({ :limit => limit }) if limit
       params.merge!({ :offset => offset }) if offset
       params.merge!({ :count => count }) if count
       params.merge!({ :short => short }) if short
+      params.merge!({ :kind => kind }) if kind
       get(
         resources_url,
         env: token_auth_header(role: current_user),
@@ -46,6 +81,19 @@ describe ResourcesController, type: :request do
 
     def load_variables()
       payload = '[!variable a, !variable b, !variable c, !variable d, !host a, !host b, !host c, !host d, !layer a, !layer b, !layer c]'
+      put(
+        policies_url,
+        env: token_auth_header(role: current_user).merge({ 'RAW_POST_DATA' => payload })
+      )
+    end
+
+    def load_many_variables(num_of_variables)
+      payload = "[!host a, ".dup
+      (1..num_of_variables).each { |i|
+        payload += "!variable a#{i}, "
+      }
+      payload[-1] = "]"
+
       put(
         policies_url,
         env: token_auth_header(role: current_user).merge({ 'RAW_POST_DATA' => payload })
@@ -87,7 +135,6 @@ describe ResourcesController, type: :request do
           end
         end
       end
-
       context 'with limit query param defined' do
         before(:each) do
           list_resources(limit: 5)
@@ -109,7 +156,6 @@ describe ResourcesController, type: :request do
           end
         end
       end
-
       context 'with offset query param defined' do
         before(:each) do
           list_resources(offset: 1)
@@ -136,6 +182,21 @@ describe ResourcesController, type: :request do
             next if idx == 0
             expect(resource["id"]).to be > @resources[idx-1]["id"]
           end
+        end
+      end
+      context 'with max limit query param defined' do
+        before(:each) do
+          load_many_variables(1001)
+          list_resources(limit: 1000, kind: "variable")
+          @resources = JSON.parse(response.body)
+        end
+
+        it 'should return a 200 status code' do
+          expect(response.code).to eq("200")
+        end
+
+        it 'should list resources according to the provided limit' do
+          expect(@resources.size).to eq(1000)
         end
       end
     end
