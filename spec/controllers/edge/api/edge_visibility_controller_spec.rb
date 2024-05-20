@@ -31,7 +31,7 @@ describe EdgeVisibilityController, :type => :request do
     before do
       Role.create(role_id: "#{account}:group:edge/edge-hosts")
       RoleMembership.create(role_id: "#{account}:group:edge/edge-hosts", member_id: host_id, admin_option: false, ownership:false)
-      Edge.new_edge(name: "edgy", id: 1234, version: "1.1.1", platform: "podman", installation_date: Time.at(111111111), last_sync: Time.at(222222222))
+      Edge.new_edge(max_edges: 10, name: "edgy", id: 1234, version: "1.1.1", platform: "podman", installation_date: Time.at(111111111), last_sync: Time.at(222222222))
       EdgeHandlerController.logger = logger
       Role.create(role_id: "#{account}:group:Conjur_Cloud_Admins")
       RoleMembership.create(role_id: "#{account}:group:Conjur_Cloud_Admins", member_id: admin_user_id, admin_option: false, ownership:false)
@@ -40,9 +40,9 @@ describe EdgeVisibilityController, :type => :request do
 
     it "List endpoint works" do
       # Add some more edges
-      Edge.new_edge(name: "hedge", id: 7777)
-      Edge.new_edge(name: "grudge", id: 8888)
-      Edge.new_edge(name: "fudge", id: 9999)
+      Edge.new_edge(max_edges: 10, name: "hedge", id: 7777)
+      Edge.new_edge(max_edges: 10, name: "grudge", id: 8888)
+      Edge.new_edge(max_edges: 10, name: "fudge", id: 9999)
 
       get(list_edges, env: token_auth_header(role: @admin_user, is_user: true))
 
@@ -126,7 +126,7 @@ describe EdgeVisibilityController, :type => :request do
       get("/edge/name/#{account}/2222", env: token_auth_header(role: @current_user_2, is_user: true ))
       expect(response.code).to eq("404")
       # now add the missing Edge 2222 and test again
-      Edge.new_edge(name: "edge2", id: 2222)
+      Edge.new_edge(max_edges: 10, name: "edge2", id: 2222)
       get("/edge/name/#{account}/2222", env: token_auth_header(role: @current_user_2, is_user: true ))
       expect(response.code).to eq("200")
       resp = JSON.parse(response.body)
