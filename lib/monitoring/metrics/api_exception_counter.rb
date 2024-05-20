@@ -8,7 +8,7 @@ module Monitoring
         @pubsub = pubsub
         @metric_name = :conjur_request_exceptions_total
         @docstring = 'The total number of API exceptions raised by Conjur.'
-        @labels = %i[operation exception tenant_id environment]
+        @labels = %i[environment exception operation tenant_id]
         @sub_event_name = 'conjur.request_exception'
 
         # Create/register the metric
@@ -18,10 +18,10 @@ module Monitoring
       def update(payload)
         metric = registry.get(metric_name)
         update_labels = {
-          operation: payload[:operation],
+          environment: ENV['TENANT_ENV'],
           exception: payload[:exception],
+          operation: payload[:operation],
           tenant_id: ENV['TENANT_ID'],
-          environment: ENV['TENANT_ENV']
         }
         metric.increment(labels: update_labels)
       end

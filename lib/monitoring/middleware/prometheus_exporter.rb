@@ -63,6 +63,7 @@ module Monitoring
 
         apiRequestCounter =  Monitoring::Metrics::ApiRequestCounter.new
         apiRequestCounter.refresh(@registry)
+        Monitoring::PubSub.instance.publish('conjur.policy_loaded')
 
         response = format.marshal(@registry)
 
@@ -70,6 +71,8 @@ module Monitoring
         if (loggerTime.nil?)
           loggerTime = 0
         end
+
+        Rails.logger.debug("Telemetry data: #{response}")
 
         currentTime = Time.now.to_f
         if (currentTime - loggerTime > 1800)
