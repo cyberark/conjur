@@ -34,9 +34,9 @@ describe EdgeConfigurationController, :type => :request do
       RoleMembership.create(role_id: "#{account}:group:Conjur_Cloud_Users", member_id: other_user_id, admin_option: false, ownership:false)
       Role.create(role_id: "#{account}:group:edge/edge-hosts")
       RoleMembership.create(role_id: "#{account}:group:edge/edge-hosts", member_id: edge_host_id, admin_option: false, ownership:false)
-      Edge.new_edge(name: "#{edge_name}", id: "#{identifier}", version: "1.1.1", platform: "podman", installation_date: Time.at(111111111), last_sync: Time.at(222222222))
+      Edge.new_edge(max_edges: 10, name: "#{edge_name}", id: "#{identifier}", version: "1.1.1", platform: "podman", installation_date: Time.at(111111111), last_sync: Time.at(222222222))
       RoleMembership.create(role_id: "#{account}:group:edge/edge-hosts", member_id: edge_host_id_2, admin_option: false, ownership:false)
-      #Edge.new_edge(name: "edgy2", id: "2", version: "1.1.1", platform: "podman", installation_date: Time.at(111111111), last_sync: Time.at(222222222))
+      #Edge.new_edge(max_edges: 10, name: "edgy2", id: "2", version: "1.1.1", platform: "podman", installation_date: Time.at(111111111), last_sync: Time.at(222222222))
     end
 
     it "Edge host get role" do

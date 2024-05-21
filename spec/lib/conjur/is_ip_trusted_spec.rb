@@ -18,7 +18,7 @@ describe Conjur::IsIpTrusted do
   end
 
   it "Edge IPs are considered as trusted IPS" do
-    Edge.new_edge(name: "edgy", ip: "1.1.1.1")
+    Edge.new_edge(max_edges: 10, name: "edgy", ip: "1.1.1.1")
 
     is_trusted = Conjur::IsIpTrusted.new(config: config).call("1.1.1.1")
     expect(is_trusted).to eq(true)
@@ -26,7 +26,7 @@ describe Conjur::IsIpTrusted do
 
   it "DB is not queried too often" do
     is_ip_trusted = Conjur::IsIpTrusted.new(config: config, disable_cache: false)
-    Edge.new_edge(name: "edgy", ip: "1.1.1.1")
+    Edge.new_edge(max_edges: 10, name: "edgy", ip: "1.1.1.1")
     is_trusted = is_ip_trusted.call("1.1.1.1")
     # Expecting false since it indicates that cache is used and not actual DB
     expect(is_trusted).to eq(false)
