@@ -16,7 +16,6 @@ module Monitoring
     end
 
     def policy_visible_resource_counts
-
       counts = {}
       counts["issuers"] = Issuer.where(account: 'conjur').count
       counts["dynamic-secrets"] = Resource.where(Sequel.like(:resource_id, 'conjur:variable:' + Issuer::DYNAMIC_VARIABLE_PREFIX + '%')).count
