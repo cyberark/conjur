@@ -9,16 +9,18 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
-## [1.0.28-cloud] - 2024-05-23
-### Added
-- Adding PAM SH telemetry
-
 ## [1.0.27-cloud] - 2024-05-26
 ### Added
 - Redis (disabled) with support for: user, resource (secret)
+- Adding PAM SH telemetry
+- Adding Env dimension to telemetry metrics
 
 ### Changed
 - Removed update permission as allowed permission for dynamic secret
+- Change return value for dynamic secret when issuer not found
+
+### Fixed
+- Fix security issue - edge max limit exceed on concurrent requests [CONCLOUDSE-246](https://ca-il-jira.il.cyber-ark.com:8443/browse/CONCLOUDSE-246)
 
 ## [1.0.26-cloud] - 2024-05-12
 ### Changed

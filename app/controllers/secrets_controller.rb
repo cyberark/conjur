@@ -231,7 +231,7 @@ class SecretsController < RestController
     issuer = Issuer.first(account: account, issuer_id: variable_data["issuer"])
 
     # There shouldn't be a state where a variable belongs to an issuer that doesn't exit, but we check it to be safe
-    raise ApplicationController::InternalServerError, "Issuer assigned to #{account}:#{params[:kind]}:#{params[:identifier]} was not found" unless issuer
+    raise ApplicationController::UnprocessableEntity, "Issuer assigned to #{account}:#{params[:kind]}:#{params[:identifier]} was not found" unless issuer
 
     logger.info(LogMessages::Secrets::DynamicSecretRequest.new(request_id, variable_data["issuer"], issuer.issuer_type, variable_data["method"]))
 
