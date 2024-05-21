@@ -10,7 +10,7 @@ describe "EdgeObject" do
   let(:installer_host_id) {"#{account}:host:edge/edge-installer-#{identifier}/edge-installer-host-#{identifier}"}
 
   before do
-    Edge.new_edge(id: identifier, name: "Edgy")
+    Edge.new_edge(max_edges: 10, id: identifier, name: "Edgy")
     Role.find_or_create(role_id: host_id)
     Role.find_or_create(role_id: installer_host_id)
   end
@@ -28,6 +28,14 @@ describe "EdgeObject" do
       end
 
       expect{ subject_mock.get_installer_token(account, request) }.to_not raise_error
+    end
+  end
+
+  context "Edge max validation" do
+    subject{ EdgeCreationController.new }
+
+    it "missing max edge" do
+      expect { Edge.new_edge(name: "edgy2", id: 2, version: "1.1.1", platform: "podman", installation_date: Time.at(111111111), last_sync: Time.at(222222222)) }.to raise_error(ArgumentError)
     end
   end
 end

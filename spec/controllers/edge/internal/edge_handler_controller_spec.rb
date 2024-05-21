@@ -24,7 +24,7 @@ describe EdgeHandlerController, :type => :request do
     before do
       Role.create(role_id: "#{account}:group:edge/edge-hosts")
       RoleMembership.create(role_id: "#{account}:group:edge/edge-hosts", member_id: host_id, admin_option: false, ownership:false)
-      Edge.new_edge(name: "edgy", id: 1234, version: "1.1.1", platform: "podman", installation_date: Time.at(111111111), last_sync: Time.at(222222222))
+      Edge.new_edge(max_edges: 10, name: "edgy", id: 1234, version: "1.1.1", platform: "podman", installation_date: Time.at(111111111), last_sync: Time.at(222222222))
       EdgeHandlerController.logger = logger
       Role.create(role_id: "#{account}:group:Conjur_Cloud_Admins")
       RoleMembership.create(role_id: "#{account}:group:Conjur_Cloud_Admins", member_id: admin_user_id, admin_option: false, ownership:false)

@@ -50,8 +50,8 @@ class EdgeCreationController < RestController
     params[:identifier] = "edge"
 
     begin
-      validate_max_edge_allowed(url_params[:account])
-      Edge.new_edge(name: edge_name, id: edge_uuid)
+      max_edges = extract_max_edge_value(url_params[:account])
+      Edge.new_edge(max_edges: max_edges, name: edge_name, id: edge_uuid)
       edge = Edge[name: edge_name]
       add_edge_host_policy(edge[:id])
 
@@ -67,12 +67,6 @@ class EdgeCreationController < RestController
   end
 
   private
-
-  def validate_max_edge_allowed(account)
-    max_edges = extract_max_edge_value(account)
-    table_size = Edge.count
-    raise UnprocessableEntity, "Edge number exceeded max edge allowed" unless table_size < max_edges.to_i
-  end
 
   def add_edge_host_policy(host_id)
     input = input_post_yaml(host_id)
