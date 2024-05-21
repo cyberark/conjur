@@ -11,8 +11,8 @@ set -eux
 
 DIR="coverage"
 REPORT="$DIR/.resultset.json"
-GKE_DIR="ci/test_suites/authenticators_k8s/output"
-GKE_REPORT="$GKE_DIR/simplecov-resultset-authnk8s-gke.json"
+#GKE_DIR="ci/test_suites/authenticators_k8s/output"
+#GKE_REPORT="$GKE_DIR/simplecov-resultset-authnk8s-gke.json"
 
 ensure_report_exists() {
   local dir=$1
@@ -35,9 +35,10 @@ ensure_report_exists() {
 }
 
 ensure_report_exists "$DIR" "$REPORT"
-ensure_report_exists "$GKE_DIR" "$GKE_REPORT"
+#ensure_report_exists "$GKE_DIR" "$GKE_REPORT"
 
-echo "SimpleCov Reports Found: $REPORT, $GKE_REPORT"
+#echo "SimpleCov Reports Found: $REPORT, $GKE_REPORT"
+echo "SimpleCov Reports Found: $REPORT"
 
 # Preserve a pre-merge version of the results from the non gke test branches.
 cp "$REPORT" "$DIR/.resultset-non-gke.json"
@@ -45,10 +46,11 @@ cp "$REPORT" "$DIR/.resultset-non-gke.json"
 # Merge GKE report with the already combined cucumber and rspec results.
 # -s loads input files into an array
 # * merges objects
-jq -s '.[0] * .[1]' "$REPORT" "$GKE_REPORT" > simplecov_combined
+#jq -s '.[0] * .[1]' "$REPORT" "$GKE_REPORT" > simplecov_combined
+#jq -s '.[0] * .[1]' "$REPORT" > simplecov_combined
 
 # This mv is safe as it happens after all the parallel tests are complete.
-mv simplecov_combined "$REPORT"
+#mv simplecov_combined "$REPORT"
 
 # Simplecov excludes files not within the current repo, it also needs to be
 # able to read all the files referenced within the report. As the reports are
