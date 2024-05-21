@@ -15,6 +15,7 @@ Feature: Adding and fetching secrets
   Secrets are encrypted using AES-256-GCM.
 
   Background:
+    Given I clear Redis cache
     Given I am a user named "eve"
     Given I create a new "variable" resource called "probe"
 
@@ -237,4 +238,4 @@ Feature: Adding and fetching secrets
 
     Given I create a new "variable" resource called "data/dynamic/ephemeral"
     When I GET "/secrets/cucumber/variable/data/dynamic/ephemeral"
-    Then the HTTP response status code is 500
+    Then the HTTP response status code is 422
