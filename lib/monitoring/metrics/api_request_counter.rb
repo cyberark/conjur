@@ -10,6 +10,7 @@ module Monitoring
         @pubsub = pubsub
         @metric_name = :conjur_requests_total
         @docstring = 'The total number of HTTP requests handled by Conjur.'
+        # labels should be only in alphabetic order
         @labels = %i[environment operation tenant_id]
         @sub_event_name = 'conjur.request'
 
@@ -36,6 +37,7 @@ module Monitoring
         end
 
         val = Util::RedisCache.read_from(key)
+        # labels should be only in alphabetic order
         update_labels = {
           environment: ENV['TENANT_ENV'],
           operation: operation,
@@ -59,6 +61,7 @@ module Monitoring
         end
 
         metric = registry.get(metric_name)
+        # labels should be only in alphabetic order
         update_labels = {
           environment: ENV['TENANT_ENV'],
           operation: payload[:operation],
