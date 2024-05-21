@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Changed
 - Removed update permission as allowed permission for dynamic secret
+- Change return value for dynamic secret when issuer not found
 
 ## [1.0.26-cloud] - 2024-05-12
 ### Changed
