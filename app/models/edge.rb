@@ -11,10 +11,17 @@ class Edge < Sequel::Model
     class << self
 
     def new_edge(**values)
+      raise ArgumentError, 'max allowed edges not provided' unless values[:max_edges]
+      # extract max_edges from values and delete it from the data to be inserted
+      max_edges = values.delete(:max_edges)
       raise ArgumentError, 'Edge name is not provided' unless values[:name]
-
       values[:id] ||= SecureRandom.uuid
       begin
+        # Acquire the lock on the table (lock is released automatically at the end of the transaction)
+        Sequel::Model.db.execute("LOCK TABLE edges IN ACCESS EXCLUSIVE MODE NOWAIT")
+        table_size = Edge.count
+        # Add a check for the maximum allowed limit
+        raise ApplicationController::UnprocessableEntity, "Edge number exceeded max edge allowed #{max_edges}" unless table_size < max_edges.to_i
         Edge.insert(**values)
       rescue Sequel::UniqueConstraintViolation => e
         raise Exceptions::RecordExists.new("edge", values[:name])
