@@ -11,8 +11,8 @@ describe SecretsController, type: :request do
   let(:my_host) { Role.find_or_create(role_id: host_id) }
 
   context 'pCloud secrets fetch monitoring' do
-    let(:pcloud_var_id) { "#{account}:variable:data/vault/first_pcloud_secret" }
-    let(:non_pcloud_var_id) { "#{account}:variable:data/first_conjur_secret" }
+    let(:pcloud_var_id) { "#{account}:variable:data/vault/pCloud_fetch_pcloud_secret" }
+    let(:non_pcloud_var_id) { "#{account}:variable:data/pCloud_fetch_conjur_secret" }
     let(:access_variable_id) { "#{account}:variable:internal/telemetry/first_pcloud_fetch" }
     before do
       init_slosilo_keys("rspec")
