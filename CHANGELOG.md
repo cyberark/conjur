@@ -17,6 +17,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Changed
 - Removed update permission as allowed permission for dynamic secret
+- Change return value for dynamic secret when issuer not found
+
+### Fixed
+- Fix security issue - edge max limit exceed on concurrent requests [CONCLOUDSE-246](https://ca-il-jira.il.cyber-ark.com:8443/browse/CONCLOUDSE-246)
 
 ## [1.0.26-cloud] - 2024-05-12
 ### Changed

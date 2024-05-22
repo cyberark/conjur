@@ -226,6 +226,22 @@ pipeline {
           }
         }
 
+        // TODO: Add comments explaining which env vars are set here.
+        stage('Prepare For CodeClimate Coverage Report Submission') {
+          when {
+            expression { params.RUN_ONLY == '' }
+          }
+          steps {
+            catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+              script {
+                INFRAPOOL_EXECUTORV2_AGENT_0.agentSh 'mkdir -p coverage'
+                sh 'mkdir -p coverage'
+                env.CODE_CLIMATE_PREPARED = "true"
+              }
+            }
+          }
+        }
+
         // Run outside parallel block to avoid external pressure
         stage('RSpec - Standard agent tests') {
           steps {
@@ -840,16 +856,23 @@ pipeline {
         always {
           script {
 
+            if (testShouldRunOnAgent(params.RUN_ONLY, runSpecificTestOnAgent(params.RUN_ONLY, NESTED_ARRAY_OF_TESTS_TO_RUN[0]))) {
+              unstash 'standardTestResult'
+            }
+
             if (testShouldRunOnAgent(params.RUN_ONLY, runSpecificTestOnAgent(params.RUN_ONLY, NESTED_ARRAY_OF_TESTS_TO_RUN[1]))) {
               unstash 'standardTestResult2'
+              INFRAPOOL_EXECUTORV2_AGENT_0.agentUnstash 'standardTestResult2'
             }
 
             if (testShouldRunOnAgent(params.RUN_ONLY, runSpecificTestOnAgent(params.RUN_ONLY, NESTED_ARRAY_OF_TESTS_TO_RUN[2]))) {
               unstash 'standardTestResult3'
+              INFRAPOOL_EXECUTORV2_AGENT_0.agentUnstash 'standardTestResult3'
             }
 
             // Only unstash azure if it ran.
             if (testShouldRun(params.RUN_ONLY, "azure_authenticator")) {
+              unstash 'testResultAzure'
               INFRAPOOL_EXECUTORV2_AGENT_0.agentUnstash 'testResultAzure'
             }
 
@@ -932,6 +955,25 @@ pipeline {
         }
       }
     } // end stage: build and test conjur
+
+    stage('Submit Coverage Report') {
+      when {
+        expression {
+          env.CODE_CLIMATE_PREPARED == "true"
+        }
+      }
+      steps{
+        script {
+          INFRAPOOL_EXECUTORV2_AGENT_0.agentSh 'ci/submit-coverage'
+          INFRAPOOL_EXECUTORV2_AGENT_0.agentStash name: 'coverage', includes: 'coverage/**'
+          unstash 'coverage'
+          archiveFiles('coverage/*.xml')
+          retry(2) {
+            codacy action: 'reportCoverage', filePath: "coverage/coverage.xml"
+          }
+        }
+      }
+    }
   }
 
   post {
