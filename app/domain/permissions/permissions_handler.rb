@@ -63,7 +63,7 @@ module PermissionsHandler
             type: String,
             value: subject[:id]
           },
-          validators: [method(:validate_field_required), method(:validate_field_type), method(:validate_resource_id)]
+          validators: [method(:validate_field_required), method(:validate_field_type)]
         },
         privileges: {
           field_info: {

@@ -37,7 +37,6 @@ describe "Permissions input validation" do
 
       expect(permissions_handler).to receive(:validate_field_required).with(:id,{type: String,value: "alice"})
       expect(permissions_handler).to receive(:validate_field_type).with(:id,{type: String,value: "alice"})
-      expect(permissions_handler).to receive(:validate_resource_id).with(:id,{type: String,value: "alice"})
 
       expect(permissions_handler).to receive(:validate_field_required).with(:privileges,{type: String,value: ["read"]})
       expect(permissions_handler).to receive(:validate_privilege).with("alice",[ "read" ], allowed_privilege)
