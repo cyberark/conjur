@@ -83,7 +83,6 @@ describe WorkloadController, type: :request do
         BODY
       end
       it 'returns created' do
-        init_slosilo_keys("rspec")
         # Testing that slosilo key was received from redis and not DB
         expect_any_instance_of(Slosilo::Adapters::SequelAdapter).not_to receive(:model)
         post("/hosts/rspec/dev",
