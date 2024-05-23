@@ -1905,20 +1905,20 @@ describe StaticSecretsController, type: :request do
               }
             ]
         }
-        BODY
+      BODY
     end
     let(:create_secret_policy) do
       <<~POLICY
-          - !variable
-            id: secret1
-            annotations:
-              description: desc
+        - !variable
+          id: secret1
+          annotations:
+            description: desc
 
-          - !permit
-            resource: !variable secret1
-            privilege: [ read ]
-            role: !user /alice
-        POLICY
+        - !permit
+          resource: !variable secret1
+          privilege: [ read ]
+          role: !user /alice
+      POLICY
     end
     before do
       patch(

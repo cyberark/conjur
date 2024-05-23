@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
+## [1.0.28-cloud] - 2024-06-02
+### Changed
+- Updated first PCloud fetch telemetry
+
 ## [1.0.27-cloud] - 2024-05-26
 ### Added
 - Redis (disabled) with support for: user, resource (secret)

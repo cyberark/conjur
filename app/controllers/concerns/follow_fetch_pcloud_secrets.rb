@@ -21,8 +21,14 @@ module FollowFetchPcloudSecrets
 
     private
     def relevant_call?
-      current_user.kind == "host" &&
-        [resource_id].concat(get_variable_ids).any?{|v| v&.start_with?("#{get_account}:variable:data/vault")}
+      if action_name == "batch"
+        action_variables_ids = variable_ids
+      else
+        action_variables_ids = [resource_id]
+      end
+      result = current_user.kind == "host" &&
+        action_variables_ids.any?{|v| v&.start_with?("#{get_account}:variable:data/vault")}
+      result
     end
 
     PCLOUD_ACCESS_SECRET = 'internal/telemetry/first_pcloud_fetch'
@@ -37,18 +43,12 @@ module FollowFetchPcloudSecrets
     def set_first_fetch
       if Resource[resource_id: get_pcloud_fetch_secret_name] && Secret[resource_id: get_pcloud_fetch_secret_name].nil?
         Secret.create(resource_id: get_pcloud_fetch_secret_name, value: Time.now.to_s)
+        @@is_pcloud_fetched = true
       end
-      @@is_pcloud_fetched = true
     end
 
     def get_account
       account || StaticAccount.account
-    end
-
-    def get_variable_ids
-      variable_ids
-    rescue
-      []
     end
   end
 
