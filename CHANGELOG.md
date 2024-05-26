@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [1.0.28-cloud] - 2024-06-02
 ### Changed
 - Updated first PCloud fetch telemetry
+- Remove warning on updating DB outside of policy as its needed for v2 apis (20240526095700_policy_log_remove_error_on_out_of_policy_change.rb)
 
 ## [1.0.27-cloud] - 2024-05-26
 ### Added
