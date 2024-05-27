@@ -122,6 +122,102 @@ describe IssuersController, type: :request do
       end
     end
 
+    context "when a user updates an issuer with ttl change only" do
+      payload_create_issuers = <<~BODY
+        {
+          "id": "aws-issuer-1",
+          "max_ttl": 2000,
+          "type": "aws",
+          "data": {
+            "access_key_id": "AKIAIOSFODNN7EXAMPLE",
+            "secret_access_key": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+          }
+        }
+      BODY
+
+      payload_update_issuer = <<~BODY
+        {
+          "max_ttl": 3000
+        }
+      BODY
+
+      it 'updates the issuer' do
+        post("/issuers/rspec",
+             env: token_auth_header(role: admin_user).merge(
+               'RAW_POST_DATA' => payload_create_issuers,
+               'CONTENT_TYPE' => "application/json"
+             ))
+        patch("/issuers/rspec/aws-issuer-1",
+              env: token_auth_header(role: admin_user).merge(
+                'RAW_POST_DATA' => payload_update_issuer,
+                'CONTENT_TYPE' => "application/json"
+              ))
+
+        assert_response :success
+        get("/issuers/rspec/aws-issuer-1",
+            env: token_auth_header(role: admin_user))
+        assert_response :success
+
+        parsed_body = JSON.parse(response.body)
+        expect(parsed_body["id"]).to eq("aws-issuer-1")
+        expect(parsed_body["max_ttl"]).to eq(3000)
+        expect(parsed_body["type"]).to eq("aws")
+        expect(parsed_body["data"]["access_key_id"]).to eq("AKIAIOSFODNN7EXAMPLE")
+        expect(parsed_body["data"]["secret_access_key"]).to eq("wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY")
+        expect(response.body).to include("\"created_at\"")
+        expect(response.body).to include("\"modified_at\"")
+      end
+    end
+    context "when a user updates an issuer with data only" do
+      payload_create_issuers = <<~BODY
+        {
+          "id": "aws-issuer-1",
+          "max_ttl": 3000,
+          "type": "aws",
+          "data": {
+            "access_key_id": "AKIAIOSFODNN7EXAMPLE",
+            "secret_access_key": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+          }
+        }
+      BODY
+
+      payload_update_issuer = <<~BODY
+        {
+          "data": {
+            "access_key_id": "AKIAIOSFODNN7CHANGED",
+            "secret_access_key": "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"
+          }
+        }
+      BODY
+
+      it 'updates the issuer' do
+        post("/issuers/rspec",
+             env: token_auth_header(role: admin_user).merge(
+               'RAW_POST_DATA' => payload_create_issuers,
+               'CONTENT_TYPE' => "application/json"
+             ))
+        patch("/issuers/rspec/aws-issuer-1",
+              env: token_auth_header(role: admin_user).merge(
+                'RAW_POST_DATA' => payload_update_issuer,
+                'CONTENT_TYPE' => "application/json"
+              ))
+
+        assert_response :success
+        get("/issuers/rspec/aws-issuer-1",
+            env: token_auth_header(role: admin_user))
+        assert_response :success
+
+        parsed_body = JSON.parse(response.body)
+        expect(parsed_body["id"]).to eq("aws-issuer-1")
+        expect(parsed_body["max_ttl"]).to eq(3000)
+        expect(parsed_body["type"]).to eq("aws")
+        expect(parsed_body["data"]["access_key_id"]).to eq("AKIAIOSFODNN7CHANGED")
+        expect(parsed_body["data"]["secret_access_key"]).to eq("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")
+        expect(response.body).to include("\"created_at\"")
+        expect(response.body).to include("\"modified_at\"")
+      end
+    end
+
     context "when a user decrease TTL" do
       payload_create_issuers = <<~BODY
         {

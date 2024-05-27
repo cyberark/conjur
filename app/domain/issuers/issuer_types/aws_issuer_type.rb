@@ -21,6 +21,8 @@ class AwsIssuerType < IssuerBaseType
 
   def validate_update(params)
     super
+    return if params[:data].nil?
+
     validate_data(params[:data])
   end
 

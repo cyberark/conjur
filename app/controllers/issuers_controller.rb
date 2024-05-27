@@ -32,13 +32,9 @@ class IssuersController < RestController
     issuer_type = IssuerTypeFactory.new.create_issuer_type(issuer.issuer_type)
     issuer_type.validate_update(body_params)
 
-    if issuer.max_ttl > params[:max_ttl]
-      raise ApplicationController::BadRequestWithBody, "The new max_ttl must be equal or higher than the current max_ttl"
-    end
+    update_issuer_ttl(params, issuer)
+    update_issuer_data(params, issuer)
     
-    issuer.update(data: params[:data].to_json,
-                  max_ttl: params[:max_ttl],
-                  modified_at: Time.now) 
     issuer.save
 
     issuer_audit_success(issuer.account, issuer.issuer_id, "update")
@@ -289,4 +285,26 @@ def issuer_variables_audit_delete(account, issuer_id, deleted_variables)
       )
     )
   end
+end
+
+# this function updates the issuer data but 
+# reuires the user to call issuer.save 
+# This is to save DB calls
+def update_issuer_data(params, issuer)
+  return unless params.key?(:data)
+
+  issuer.update(data: params[:data].to_json, modified_at: Time.now) 
+end
+
+# this function updates the issuer max_ttl but 
+# reuires the user to call issuer.save 
+# This is to save DB calls
+def update_issuer_ttl(params, issuer)
+  return unless params.key?(:max_ttl)
+
+  if issuer.max_ttl > params[:max_ttl]
+    raise ApplicationController::BadRequestWithBody, "The new max_ttl must be equal or higher than the current max_ttl"
+  end
+
+  issuer.update(max_ttl: params[:max_ttl], modified_at: Time.now)
 end
