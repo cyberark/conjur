@@ -1,5 +1,13 @@
 module Monitoring
   module Metrics
+    LOGGED_OPERATIONS = {
+      getSecret: "getSecret",
+      getIssuer: "getIssuer",
+      listIssuers: "listIssuers",
+      createIssuer: "createIssuer",
+      deleteIssuer: "deleteIssuer"
+    }.freeze
+
     OPERATIONS = [
       # AccountsApi (undocumented)
       {
@@ -193,7 +201,7 @@ module Monitoring
       {
         method: "GET",
         pattern: %r{^(/secrets)(/[^/]+){2}(/.*)$},
-        operation: "getSecret"
+        operation: LOGGED_OPERATIONS[:getSecret]
       },
       {
         method: "GET",
@@ -221,6 +229,32 @@ module Monitoring
         method: "GET",
         pattern: %r{^(/whoami)$},
         operation: "whoAmI"
+      },
+      # Issuer API
+      {
+        method: "GET",
+        pattern: %r{^/issuers/([^/]+)/(.*)$},
+        operation: LOGGED_OPERATIONS[:getIssuer]
+      },
+      {
+        method: "GET",
+        pattern: %r{"^/issuers/([^/]+)$"},
+        operation: LOGGED_OPERATIONS[:listIssuers]
+      },
+      {
+        method: "POST",
+        pattern: %r{^/issuers/([^/]+)$},
+        operation: LOGGED_OPERATIONS[:createIssuer]
+      },
+      {
+        method: "DELETE",
+        pattern: %r{^/issuers/([^/]+)/(.*)$},
+        operation: LOGGED_OPERATIONS[:deleteIssuer]
+      },
+      {
+        methods: "PATCH",
+        pattern: %r{^/issuers/([^/]+)/(.*)$},
+        operation: LOGGED_OPERATIONS[:updateIssuer]
       }
     ].freeze
   end
