@@ -35,14 +35,18 @@ class ConjurDynamicEngineClient
     # Create the POST request
     secret_request = Net::HTTP::Post.new("/secrets")
     secret_request.body = request_body.to_json
+    
 
     # Add headers
     secret_request.add_field('Content-Type', 'application/json')
     secret_request.add_field('X-Request-ID', @request_id)
     secret_request.add_field('X-Tenant-ID', tenant_id)
 
+    # Filter out sensitive data from the request body and log the request
+    request_body[:issuer]["data"].delete("secret_access_key")
+    request_to_log = request_body.to_json
     # Send the request and get the response
-    @logger.debug(LogMessages::Secrets::DynamicSecretRequestBody.new(@request_id, secret_request.body))
+    @logger.debug(LogMessages::Secrets::DynamicSecretRequestBody.new(@request_id, request_to_log))
     begin
       response = @client.request(secret_request)
     rescue => e
