@@ -186,7 +186,7 @@ client_load_policy() {
   local policy_file=$1
 
   docker compose exec client \
-    conjur policy load root "$policy_file"
+    conjur policy load --branch root --file "$policy_file"
 }
 
 client_add_secret() {
@@ -194,7 +194,7 @@ client_add_secret() {
   local value=$2
 
   docker compose exec client \
-    conjur variable values add "$variable" "$value"
+    conjur variable set --id "$variable" --value "$value"
 }
 
 start_conjur_server() {
@@ -213,7 +213,7 @@ wait_for_conjur() {
 
   docker compose exec -T conjur conjurctl wait
 
-  docker compose exec client conjur authn login -u admin -p "$api_key"
+  docker compose exec client conjur login --id admin --password  "$api_key"
 }
 
 configure_oidc_authenticators() {

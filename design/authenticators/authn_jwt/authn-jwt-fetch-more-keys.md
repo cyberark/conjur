@@ -286,7 +286,7 @@ Populating relevant variables using [Python CLI](https://github.com/cyberark/con
 (based on google's [openid configuration](https://accounts.google.com/.well-known/openid-configuration)):
 
 ```bash
-conjur variable set -i conjur/authn-jwt/myUnreachableVendor/public-keys \
+conjur variable set --id conjur/authn-jwt/myUnreachableVendor/public-keys \
   "{ \"type\":\"jwks\", \"value\": $(curl https://www.googleapis.com/oauth2/v3/certs) }"
 conjur variable set -i conjur/authn-jwt/myUnreachableVendor/issuer \
   "https://accounts.google.com"
@@ -311,7 +311,7 @@ and [OpenSSL command line tool](https://www.openssl.org/docs/manmaster/man1/open
 for fetching certificate bundle:
 
 ```bash
-conjur variable set -i conjur/authn-jwt/myUntrustedVendor/jwks-uri \
+conjur variable set --id conjur/authn-jwt/myUntrustedVendor/jwks-uri \
   "https://provider.host.name/jwks-uri"
 conjur variable set -i conjur/authn-jwt/myUntrustedVendor/ca-cert \
   "$(openssl s_client \

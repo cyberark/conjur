@@ -240,13 +240,13 @@ function loadConjurPolicies() {
   # kubectl wait not needed -- already done in copyConjurPolicies.
   cli_pod=$(retrieve_pod conjur-cli)
 
-  kubectl exec "$cli_pod" -- conjur init -u conjur -a cucumber
+  kubectl exec "$cli_pod" -- conjur init --insecure --url conjur --account cucumber
   sleep 5
-  kubectl exec "$cli_pod" -- conjur authn login -u admin -p "$API_KEY"
+  kubectl exec "$cli_pod" -- conjur login --id admin --password "$API_KEY"
 
   # load policies
   wait_for_it 300 "kubectl exec $cli_pod -- \
-    conjur policy load root /policies/policy.${TEMPLATE_TAG}yml"
+    conjur policy load --branch root --file /policies/policy.${TEMPLATE_TAG}yml"
 
   # init ca certs
   # kubectl wait not needed -- already done in launchConjurMaster.
