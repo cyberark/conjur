@@ -378,14 +378,25 @@ module Loader
 
     class Delete < Deletion
       def delete!
-        if policy_object.record.respond_to?(:resourceid)
-          resource = ::Resource[policy_object.record.resourceid]
-          resource.destroy if resource
-        end
         if policy_object.record.respond_to?(:roleid)
-          role = ::Role[policy_object.record.roleid]
-          role.destroy if role
+          delete_recursive!(policy_object.record.roleid)
         end
+        if policy_object.record.respond_to?(:resourceid)
+          delete_recursive!(policy_object.record.resourceid)
+        end
+      end
+
+      def delete_recursive!(record_id)
+        # First delete all resources and roles that are owned by this resource
+        ::Resource.where(owner_id: record_id).each do |resource|
+          delete_recursive!(resource.resource_id)
+        end
+
+        # Delete any resource or role that matches the record_id
+        resource = ::Resource[record_id]
+        resource.destroy if resource
+        role = ::Role[record_id]
+        role.destroy if role
       end
     end
   end
