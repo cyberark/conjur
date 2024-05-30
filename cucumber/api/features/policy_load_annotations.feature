@@ -152,12 +152,12 @@ Feature: Updating Policies with Annotations
         {
           "policy": "cucumber:policy:root",
           "privilege": "read",
-          "role": "cucumber:user:bob"
+          "role": "cucumber:user:alice"
         },
         {
           "policy": "cucumber:policy:root",
           "privilege": "read",
-          "role": "cucumber:user:alice"
+          "role": "cucumber:user:bob"
         },
         {
           "policy": "cucumber:policy:root",
@@ -241,12 +241,12 @@ Feature: Updating Policies with Annotations
         {
           "policy": "cucumber:policy:root",
           "privilege": "read",
-          "role": "cucumber:user:bob"
+          "role": "cucumber:user:alice"
         },
         {
           "policy": "cucumber:policy:root",
           "privilege": "read",
-          "role": "cucumber:user:alice"
+          "role": "cucumber:user:bob"
         },
         {
           "policy": "cucumber:policy:root",
@@ -348,12 +348,12 @@ Feature: Updating Policies with Annotations
         {
           "policy": "cucumber:policy:root",
           "privilege": "read",
-          "role": "cucumber:user:bob"
+          "role": "cucumber:user:alice"
         },
         {
           "policy": "cucumber:policy:root",
           "privilege": "read",
-          "role": "cucumber:user:alice"
+          "role": "cucumber:user:bob"
         },
         {
           "policy": "cucumber:policy:root",
@@ -437,12 +437,12 @@ Feature: Updating Policies with Annotations
         {
           "policy": "cucumber:policy:root",
           "privilege": "read",
-          "role": "cucumber:user:bob"
+          "role": "cucumber:user:alice"
         },
         {
           "policy": "cucumber:policy:root",
           "privilege": "read",
-          "role": "cucumber:user:alice"
+          "role": "cucumber:user:bob"
         },
         {
           "policy": "cucumber:policy:root",
@@ -490,12 +490,12 @@ Feature: Updating Policies with Annotations
         {
           "policy": "cucumber:policy:root",
           "privilege": "read",
-          "role": "cucumber:user:bob"
+          "role": "cucumber:user:alice"
         },
         {
           "policy": "cucumber:policy:root",
           "privilege": "read",
-          "role": "cucumber:user:alice"
+          "role": "cucumber:user:bob"
         },
         {
           "policy": "cucumber:policy:root",
@@ -543,12 +543,12 @@ Feature: Updating Policies with Annotations
         {
           "policy": "cucumber:policy:root",
           "privilege": "read",
-          "role": "cucumber:user:bob"
+          "role": "cucumber:user:alice"
         },
         {
           "policy": "cucumber:policy:root",
           "privilege": "read",
-          "role": "cucumber:user:alice"
+          "role": "cucumber:user:bob"
         },
         {
           "policy": "cucumber:policy:root",
