@@ -9,6 +9,7 @@ VALID_AWS_KEY = 'AKIAIOSFODNN7EXAMPLE'
 VALID_AWS_SECRET = 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY'
 CHANGED_VALID_AWS_KEY = 'AKIAIOSFODNN7CHANGED'
 CHANGED_VALID_AWS_SECRET = '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'
+SENSITIVE_DATA_MASK = "*****"
 
 describe IssuersController, type: :request do
   let(:url_resource) { "/resources/rspec" }
@@ -115,8 +116,8 @@ describe IssuersController, type: :request do
         expect(parsed_body["id"]).to eq("aws-issuer-1")
         expect(parsed_body["max_ttl"]).to eq(3000)
         expect(parsed_body["type"]).to eq("aws")
-        expect(parsed_body["data"]["access_key_id"]).to eq("AKIAIOSFODNN7EXAMPLE")
-        expect(parsed_body["data"]["secret_access_key"]).to eq("wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY")
+        expect(parsed_body["data"]["access_key_id"]).to eq(SENSITIVE_DATA_MASK)
+        expect(parsed_body["data"]["secret_access_key"]).to eq(SENSITIVE_DATA_MASK)
         expect(response.body).to include("\"created_at\"")
         expect(response.body).to include("\"modified_at\"")
       end
@@ -162,8 +163,8 @@ describe IssuersController, type: :request do
         expect(parsed_body["id"]).to eq("aws-issuer-1")
         expect(parsed_body["max_ttl"]).to eq(3000)
         expect(parsed_body["type"]).to eq("aws")
-        expect(parsed_body["data"]["access_key_id"]).to eq("AKIAIOSFODNN7EXAMPLE")
-        expect(parsed_body["data"]["secret_access_key"]).to eq("wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY")
+        expect(parsed_body["data"]["access_key_id"]).to eq("*****")
+        expect(parsed_body["data"]["secret_access_key"]).to eq("*****")
         expect(response.body).to include("\"created_at\"")
         expect(response.body).to include("\"modified_at\"")
       end
@@ -211,8 +212,8 @@ describe IssuersController, type: :request do
         expect(parsed_body["id"]).to eq("aws-issuer-1")
         expect(parsed_body["max_ttl"]).to eq(3000)
         expect(parsed_body["type"]).to eq("aws")
-        expect(parsed_body["data"]["access_key_id"]).to eq("AKIAIOSFODNN7CHANGED")
-        expect(parsed_body["data"]["secret_access_key"]).to eq("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")
+        expect(parsed_body["data"]["access_key_id"]).to eq("*****")
+        expect(parsed_body["data"]["secret_access_key"]).to eq("*****")
         expect(response.body).to include("\"created_at\"")
         expect(response.body).to include("\"modified_at\"")
       end
@@ -299,8 +300,8 @@ describe IssuersController, type: :request do
           expect(parsed_body["id"]).to eq("aws-issuer-1")
           expect(parsed_body["max_ttl"]).to eq(4000)
           expect(parsed_body["type"]).to eq("aws")
-          expect(parsed_body["data"]["access_key_id"]).to eq(CHANGED_VALID_AWS_KEY)
-          expect(parsed_body["data"]["secret_access_key"]).to eq(CHANGED_VALID_AWS_SECRET)
+          expect(parsed_body["data"]["access_key_id"]).to eq(SENSITIVE_DATA_MASK)
+          expect(parsed_body["data"]["secret_access_key"]).to eq(SENSITIVE_DATA_MASK)
           expect(response.body).to include("\"created_at\"")
           created_time_from_body = Time.parse(parsed_body["created_at"])
           expect(created_time_from_body).to be_within(CREATE_ISSUER_TIMEOUT.second).of(Time.now)
@@ -376,8 +377,8 @@ describe IssuersController, type: :request do
           expect(parsed_body["id"]).to eq("AWS-issuer-1")
           expect(parsed_body["max_ttl"]).to eq(3000)
           expect(parsed_body["type"]).to eq("aws")
-          expect(parsed_body["data"]["access_key_id"]).to eq("AKIAIOSFODNN7EXAMPLE")
-          expect(parsed_body["data"]["secret_access_key"]).to eq("wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY")
+          expect(parsed_body["data"]["access_key_id"]).to eq(SENSITIVE_DATA_MASK)
+          expect(parsed_body["data"]["secret_access_key"]).to eq(SENSITIVE_DATA_MASK)
           expect(response.body).to include("\"created_at\"")
           created_time_from_body = Time.parse(parsed_body["created_at"])
           expect(created_time_from_body).to be_within(CREATE_ISSUER_TIMEOUT.second).of(Time.now)
@@ -867,8 +868,8 @@ describe IssuersController, type: :request do
         expect(parsed_body["id"]).to eq("issuer-1")
         expect(parsed_body["max_ttl"]).to eq(200)
         expect(parsed_body["type"]).to eq("aws")
-        expect(parsed_body["data"]["access_key_id"]).to eq("AKIAIOSFODNN7EXAMPLE")
-        expect(parsed_body["data"]["secret_access_key"]).to eq("wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY")
+        expect(parsed_body["data"]["access_key_id"]).to eq(SENSITIVE_DATA_MASK)
+        expect(parsed_body["data"]["secret_access_key"]).to eq(SENSITIVE_DATA_MASK)
         expect(response.body).to include("\"created_at\"")
         expect(response.body).to include("\"modified_at\"")
       end
