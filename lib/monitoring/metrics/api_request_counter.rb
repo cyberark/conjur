@@ -1,4 +1,5 @@
 require 'util/redis_cache'
+require_relative '../operations'
 
 module Monitoring
   module Metrics
@@ -56,9 +57,7 @@ module Monitoring
           return
         end
 
-        if (payload[:operation] != "getSecret")
-          return
-        end
+        return unless Monitoring::Metrics::LOGGED_OPERATIONS.include?(payload[:operation].to_sym)
 
         metric = registry.get(metric_name)
         # labels should be only in alphabetic order
