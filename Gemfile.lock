@@ -357,11 +357,11 @@ GEM
       pry (>= 0.10.4)
     psych (3.3.2)
     public_suffix (5.0.4)
-    puma (6.3.1)
+    puma (6.4.2)
       nio4r (~> 2.0)
     raabro (1.4.0)
     racc (1.7.1)
-    rack (2.2.7)
+    rack (2.2.8.1)
     rack-oauth2 (2.2.0)
       activesupport
       attr_required
@@ -549,6 +549,7 @@ PLATFORMS
   aarch64-linux
   x86_64-darwin-20
   x86_64-darwin-21
+  x86_64-darwin-22
   x86_64-linux
 
 DEPENDENCIES
@@ -602,8 +603,8 @@ DEPENDENCIES
   pry-byebug
   pry-rails
   psych (= 3.3.2)
-  puma (~> 6)
-  rack (~> 2.2)
+  puma (~> 6, >= 6.4.2)
+  rack (~> 2.2, >= 2.2.8.1)
   rack-rewrite
   rails (~> 6.1, >= 6.1.4.6)
   rails-controller-testing
