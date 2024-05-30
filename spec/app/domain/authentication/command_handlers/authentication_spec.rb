@@ -82,8 +82,65 @@ RSpec.describe(Authentication::CommandHandlers::Authentication) do
       end
       let(:available_authenticators) do
         class_double(Authentication::InstalledAuthenticators).tap do |double|
-          allow(double).to receive(:enabled_authenticators).and_return(['test-empty', 'test/foo'])
-          allow(double).to receive(:native_authenticators).and_return(['test-empty'])
+          # rubocop:disable Style/WordArray
+          allow(double).to receive(:enabled_authenticators).and_return(['test-empty', 'test/foo', 'test-with-ttl'])
+          allow(double).to receive(:native_authenticators).and_return(['test-empty', 'test-with-ttl'])
+          # rubocop:enable Style/WordArray
+        end
+      end
+      context 'auth token TTL' do
+        let(:host_ttl) { 100 }
+        let(:user_ttl) { 200 }
+
+        let(:configuration) { ConjurConfiguration.new(host_ttl, user_ttl) }
+        let(:handler) do
+          described_class.new(
+            authenticator_type: authenticator_type,
+            klass_loader_library: klass_loader_class,
+            available_authenticators: available_authenticators,
+            role_resource: role_resource,
+            token_factory: token_factory,
+            configuration: configuration
+          )
+        end
+
+        context 'when authenticator TTL is not defined on the authenticator data object' do
+          let(:authenticator_type) { 'test-empty' }
+          let(:token_factory) do
+            instance_double(TokenFactory).tap do |double|
+              allow(double).to receive(:signed_token).with(
+                account: 'rspec',
+                username: 'foo-bar',
+                host_ttl: host_ttl,
+                user_ttl: user_ttl
+              ).and_return('success-token')
+            end
+          end
+          it 'uses the configured TTL' do
+            response = handler.call(**args.merge(parameters: { account: 'rspec' }))
+            expect(response.success?).to be(true)
+            expect(response.result).to eq('success-token')
+          end
+        end
+
+        context 'when authenticator data object defines the TTL' do
+          let(:authenticator_type) { 'test-with-ttl' }
+          let(:token_factory) do
+            instance_double(TokenFactory).tap do |double|
+              allow(double).to receive(:signed_token).with(
+                account: 'rspec',
+                username: 'foo-bar',
+                host_ttl: 180,
+                user_ttl: 180
+              ).and_return('success-token')
+            end
+          end
+
+          it 'is successful' do
+            response = handler.call(**args.merge(parameters: { account: 'rspec' }))
+            expect(response.success?).to be(true)
+            expect(response.result).to eq('success-token')
+          end
         end
       end
       context 'when authenticator is native' do
@@ -167,6 +224,8 @@ RSpec.describe(Authentication::CommandHandlers::Authentication) do
   end
 end
 
+ConjurConfiguration = Struct.new(:host_authorization_token_ttl, :user_authorization_token_ttl)
+
 module Authentication
   module Test
     module V2
@@ -204,6 +263,33 @@ module Authentication
 
           def initialize(account:)
             super(account: account)
+          end
+        end
+      end
+
+      class Strategy
+        def initialize(authenticator:); end
+
+        def callback(*)
+          SuccessResponse.new(
+            Authentication::RoleIdentifier.new(
+              identifier: 'rspec:user:foo-bar'
+            )
+          )
+        end
+      end
+    end
+  end
+
+  module TestWithTtl
+    module V2
+      module DataObjects
+        class Authenticator < Authentication::Base::DataObject
+          attr_reader(:account)
+
+          def initialize(account:)
+            super(account: account)
+            @token_ttl = 'PT3M'
           end
         end
       end

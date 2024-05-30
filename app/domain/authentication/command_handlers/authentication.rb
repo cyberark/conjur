@@ -15,7 +15,8 @@ module Authentication
         role_resource: ::Role,
         authorization: ::RBAC::Permission.new,
         token_factory: ::TokenFactory.new,
-        validator: ::DB::Validation
+        validator: ::DB::Validation,
+        configuration: Rails.application.config.conjur_config
       )
         @authenticator_type = authenticator_type
         @logger = logger
@@ -27,6 +28,7 @@ module Authentication
         @token_factory = token_factory
         @authenticator_repository = authenticator_repository
         @validator = validator
+        @configuration = configuration
 
         klass_loader = klass_loader_library.new(authenticator_type)
         @strategy = klass_loader.strategy
@@ -100,7 +102,8 @@ module Authentication
           @token_factory.signed_token(
             account: account,
             username: login,
-            user_ttl: ttl
+            host_ttl: ttl || @configuration.host_authorization_token_ttl,
+            user_ttl: ttl || @configuration.user_authorization_token_ttl
           )
         )
       end
