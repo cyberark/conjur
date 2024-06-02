@@ -226,7 +226,6 @@ class IssuersController < RestController
   def mask_data_field(response)
     return unless response.key?(:data) 
 
-    response[:data]["access_key_id"] = SENSITIVE_DATA_MASK
     response[:data]["secret_access_key"] = SENSITIVE_DATA_MASK
   end
 
