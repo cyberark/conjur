@@ -963,17 +963,6 @@ pipeline {
       }
 
       post {
-        success {
-          script {
-            if (env.BRANCH_NAME == 'master') {
-              build(
-                job:'/Conjur-Enterprise/Conjur-Enterprise-secrets-provider-for-k8s/main/Conjur-Enterprise-secrets-provider-for-k8s-main-full/main',
-                wait: false
-              )
-            }
-          }
-        }
-
         always {
           script {
             if (testShouldRunOnAgent(params.RUN_ONLY, runSpecificTestOnAgent(params.RUN_ONLY, NESTED_ARRAY_OF_TESTS_TO_RUN[0]))) {
