@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
+## [1.21.0.1] - 2024-06-11
+
+### Fixed
+- Fixed orphaned roles when deleting policy resources.
+  CONJSE-1875
+
 ## [1.21.0] - 2024-03-08
 
 ### Changed

@@ -8,7 +8,7 @@ describe PoliciesController, type: :request do
   describe '#patch' do
     context 'when policy includes a delete operation' do
       context 'for a policy' do
-        it 'then all roles and resources inside that policy are removed' do
+        it 'removes all roles and resources inside that policy' do
           role_resource_ids = ['rspec:policy:data', 'rspec:user:alice@data', 'rspec:host:data/host-01']
 
           # Apply Policy with role w/ corresponding resource
@@ -44,7 +44,7 @@ describe PoliciesController, type: :request do
           end
         end
 
-        it 'then all roles and resources owned by the deletor in that policy are removed' do
+        it 'deletes all roles and resources owned by the deletor in that policy' do
           deleted_role_resource_ids = [
             'rspec:policy:data/subdata-1',
             'rspec:user:bob@data-subdata-1',
