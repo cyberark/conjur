@@ -83,21 +83,24 @@ def validate_data(data)
   }
 
   data_fields.each do |field_symbol, field_string|
+    unless data.key?(field_symbol)
+      raise ApplicationController::UnprocessableEntity, format(IssuerBaseType::REQUIRED_PARAM_MISSING, field_string)
+    end
     if data[field_symbol].nil?
-      raise ApplicationController::BadRequestWithBody, format(IssuerBaseType::REQUIRED_PARAM_MISSING, field_string)
+      raise ApplicationController::UnprocessableEntity, format(IssuerBaseType::REQUIRED_PARAM_MISSING, field_string)
     end
     
     unless data[field_symbol].is_a?(String)
-      raise ApplicationController::BadRequestWithBody, format(IssuerBaseType::WRONG_PARAM_TYPE, field_string, "string")
+      raise ApplicationController::UnprocessableEntity, format(IssuerBaseType::WRONG_PARAM_TYPE, field_string, "string")
     end
 
     if data[field_symbol].empty?
-      raise ApplicationController::BadRequestWithBody, format(IssuerBaseType::REQUIRED_PARAM_MISSING, field_string)
+      raise ApplicationController::UnprocessableEntity, format(IssuerBaseType::REQUIRED_PARAM_MISSING, field_string)
     end
   end
 
-  if data.keys.count != AwsIssuerType::NUM_OF_EXPECTED_DATA_PARAMS
-    raise ApplicationController::BadRequestWithBody, AwsIssuerType::INVALID_INPUT_PARAM
+  if data.keys.count > AwsIssuerType::NUM_OF_EXPECTED_DATA_PARAMS
+    raise ApplicationController::UnprocessableEntity, AwsIssuerType::INVALID_INPUT_PARAM
   end
 
   validate_aws_acces_key_id(data[:access_key_id])
@@ -107,11 +110,11 @@ end
 def validate_aws_acces_key_id(access_key_string)
   return if access_key_string.match?(AwsIssuerType::ACCESS_KEY_ID_FIELD_VALID_FORMAT)
 
-  raise ApplicationController::BadRequestWithBody, AwsIssuerType::INVALID_ACCESS_KEY_ID_FORMAT
+  raise ApplicationController::UnprocessableEntity, AwsIssuerType::INVALID_ACCESS_KEY_ID_FORMAT
 end
 
 def validate_aws_secret_access_key(secret_access_key_string)
   return if secret_access_key_string.match?(AwsIssuerType::SECRET_ACCESS_KEY_FIELD_VALID_FORMAT)
 
-  raise ApplicationController::BadRequestWithBody, AwsIssuerType::INVALID_SECRET_ACCESS_KEY_FORMAT
+  raise ApplicationController::UnprocessableEntity, AwsIssuerType::INVALID_SECRET_ACCESS_KEY_FORMAT
 end

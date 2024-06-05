@@ -25,7 +25,7 @@ describe "AwsIssuerType input validation" do
                                                   secret_access_key: "a" 
                                                 })
       expect { AwsIssuerType.new.validate(params) }
-        .to raise_error(ApplicationController::BadRequestWithBody)
+        .to raise_error(ApplicationController::UnprocessableEntity)
     end
   end
 
@@ -38,7 +38,7 @@ describe "AwsIssuerType input validation" do
                                                   access_key_id: "a" 
                                                 })
       expect { AwsIssuerType.new.validate(params) }
-        .to raise_error(ApplicationController::BadRequestWithBody)
+        .to raise_error(ApplicationController::UnprocessableEntity)
     end
   end
 
@@ -52,7 +52,7 @@ describe "AwsIssuerType input validation" do
                                                   secret_access_key: "a" 
                                                 })
       expect { AwsIssuerType.new.validate(params) }
-        .to raise_error(ApplicationController::BadRequestWithBody)
+        .to raise_error(ApplicationController::UnprocessableEntity)
     end
   end
 
@@ -66,7 +66,7 @@ describe "AwsIssuerType input validation" do
                                                   secret_access_key: "a" 
                                                 })
       expect { AwsIssuerType.new.validate(params) }
-        .to raise_error(ApplicationController::BadRequestWithBody)
+        .to raise_error(ApplicationController::UnprocessableEntity)
     end
   end
 
@@ -80,7 +80,7 @@ describe "AwsIssuerType input validation" do
                                                   secret_access_key: 1 
                                                 })
       expect { AwsIssuerType.new.validate(params) }
-        .to raise_error(ApplicationController::BadRequestWithBody)
+        .to raise_error(ApplicationController::UnprocessableEntity)
     end
   end
 
@@ -94,7 +94,7 @@ describe "AwsIssuerType input validation" do
                                                   secret_access_key: "" 
                                                 })
       expect { AwsIssuerType.new.validate(params) }
-        .to raise_error(ApplicationController::BadRequestWithBody)
+        .to raise_error(ApplicationController::UnprocessableEntity)
     end
   end
 
@@ -109,7 +109,7 @@ describe "AwsIssuerType input validation" do
                                                   invalid_param: "a"
                                                 })
       expect { AwsIssuerType.new.validate(params) }
-        .to raise_error(ApplicationController::BadRequestWithBody)
+        .to raise_error(ApplicationController::UnprocessableEntity)
     end
   end
   context "when access key id is not in the correct format" do
@@ -122,7 +122,7 @@ describe "AwsIssuerType input validation" do
                                                   secret_access_key: "a"
                                                 })
       expect { AwsIssuerType.new.validate(params) }
-        .to raise_error(ApplicationController::BadRequestWithBody)
+        .to raise_error(ApplicationController::UnprocessableEntity)
     end
   end
   context "when secret access key is not in the correct format" do
@@ -135,7 +135,7 @@ describe "AwsIssuerType input validation" do
                                                   secret_access_key: "a"
                                                 })
       expect { AwsIssuerType.new.validate(params) }
-        .to raise_error(ApplicationController::BadRequestWithBody)
+        .to raise_error(ApplicationController::UnprocessableEntity)
     end
   end
 end

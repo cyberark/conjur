@@ -95,7 +95,7 @@ describe IssuersController, type: :request do
         }
       BODY
 
-      it 'returns bad request and does not change the user' do
+      it 'returns unprocessable entity and does not change the user' do
         post("/issuers/rspec",
              env: token_auth_header(role: admin_user).merge(
                'RAW_POST_DATA' => payload_create_issuers,
@@ -107,7 +107,7 @@ describe IssuersController, type: :request do
                 'CONTENT_TYPE' => "application/json"
               ))
 
-        assert_response :bad_request
+        assert_response :unprocessable_entity
         get("/issuers/rspec/aws-issuer-1",
             env: token_auth_header(role: admin_user))
         assert_response :success
@@ -258,6 +258,45 @@ describe IssuersController, type: :request do
         expect(response.body).to eq("{\"error\":{\"code\":\"bad_request\",\"message\":\"The new max_ttl must be equal or higher than the current max_ttl\"}}")
       end
     end
+
+    context "when a user change the acces key but no the secret" do
+      payload_create_issuers = <<~BODY
+        {
+          "id": "aws-issuer-1",
+          "max_ttl": 3000,
+          "type": "aws",
+          "data": {
+            "access_key_id": "AKIAIOSFODNN7EXAMPLE",
+            "secret_access_key": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+          }
+        }
+      BODY
+
+      payload_update_issuer = <<~BODY
+        {
+          "data": {
+            "access_key_id": "#{CHANGED_VALID_AWS_KEY}"
+          }
+        }
+      BODY
+
+      it 'returns 422 and does not change the issuer' do
+        post("/issuers/rspec",
+             env: token_auth_header(role: admin_user).merge(
+               'RAW_POST_DATA' => payload_create_issuers,
+               'CONTENT_TYPE' => "application/json"
+             ))
+        patch("/issuers/rspec/aws-issuer-1",
+              env: token_auth_header(role: admin_user).merge(
+                'RAW_POST_DATA' => payload_update_issuer,
+                'CONTENT_TYPE' => "application/json"
+              ))
+
+        assert_response :unprocessable_entity
+        expect(response.body).to eq("{\"error\":{\"code\":\"unprocessable_entity\",\"message\":\"secret_access_key is a required parameter and must be specified\"}}")
+      end
+    end
+
     context "when a user updates an issuer with valid data" do
       payload_create_issuers = <<~BODY
         {
@@ -580,14 +619,14 @@ describe IssuersController, type: :request do
           }
         BODY
       end
-      it 'it returns bad_request' do
+      it 'it returns unprocessable entity' do
         post("/issuers/rspec",
              env: token_auth_header(role: admin_user).merge(
                'RAW_POST_DATA' => payload_create_issuers_symbols_input,
                'CONTENT_TYPE' => "application/json"
              ))
-        assert_response :bad_request
-        expect(response.body).to eq("{\"error\":{\"code\":\"bad_request\",\"message\":\"invalid parameter received in data. Only access_key_id and secret_access_key are allowed\"}}")
+        assert_response :unprocessable_entity
+        expect(response.body).to eq("{\"error\":{\"code\":\"unprocessable_entity\",\"message\":\"invalid parameter received in data. Only access_key_id and secret_access_key are allowed\"}}")
       end
     end
 

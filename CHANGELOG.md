@@ -9,8 +9,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
-## [1.0.29-cloud] - 2024-06-07
+## [1.0.30-cloud] - 2024-06-16
 ### Changed
+- In the case that an issuer access key id is updated the API requires the secret to change as well
+
+## [1.0.29-cloud] - 2024-06-09
+### Added
+- Issuer API have telemetry counting API calls
+
+### Changed
+- Update issuer can now update TTL or data field as seperate request
 - Issuer API will not return secret_access_key anymore, instead they will return '*****'
 - First part of the sync with conjur enterprise V13.3 includes:  
   - support for arm64 
