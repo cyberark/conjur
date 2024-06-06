@@ -43,6 +43,19 @@ RSpec.describe(Authentication::AuthnApiKey::V2::Strategy) do
               expect(response.result.identifier).to eq(conjur_role_identifier)
               expect(response.result.annotations).to eq({})
             end
+            context 'when role id is prefixed with user/' do
+              let(:params_id) { 'user/foo-bar' }
+              let(:conjur_role_identifier) { 'default:user:foo-bar' }
+
+              it 'is successful' do
+                response = strategy.callback(request_body: request_body, parameters: parameters)
+
+                expect(response.success?).to eq(true)
+                expect(response.result.class).to eq(Authentication::RoleIdentifier)
+                expect(response.result.identifier).to eq(conjur_role_identifier)
+                expect(response.result.annotations).to eq({})
+              end
+            end
           end
           context 'when provided API key does not match the stored API key' do
             before do
