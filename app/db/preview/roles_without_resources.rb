@@ -10,6 +10,8 @@ module DB
           roles.sort_by { |role| role.id }.each do |role|
             printf("%-#{max_id}s %s\n", role.identifier, role.kind)
           end
+        else
+          printf("\nNo roles to remove\n")
         end
       end
 
