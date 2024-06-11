@@ -26,9 +26,9 @@ module Authentication
           role_id = parameters[:id]
           api_key = request_body
 
-          full_role_id = if role_id.match?(%r{^host/.})
-            id = role_id.split('/')[1..-1].join('/')
-            "#{@authenticator.account}:host:#{id}"
+          # Support accessing user roles with an optional "user/" prefix.
+          full_role_id = if (match = role_id.match(%r{^(host|user)/(.+)})&.captures)
+            "#{@authenticator.account}:#{match[0]}:#{match[1]}"
           else
             "#{@authenticator.account}:user:#{role_id}"
           end
