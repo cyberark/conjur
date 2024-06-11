@@ -75,11 +75,29 @@ When(/^I( (?:can|successfully))? GET "([^"]*)" with username "([^"]*)" and passw
   end
 end
 
-When(/^I( (?:can|successfully))? PUT "([^"]*)" with body from file "([^"]*)"/) do |can, path, filename|
+When(/^I( (?:can|successfully))? POST "([^"]*)" with body from file "([^"]*)"/) do |can, path, filename|
   absolute_path = "#{File.dirname(__FILE__)}/../support/#{filename}"
   File.open(absolute_path) do |file|
     try_request can do
       post_json path, file.read
+    end
+  end
+end
+
+When(/^I( (?:can|successfully))? PUT "([^"]*)" with body from file "([^"]*)"/) do |can, path, filename|
+  absolute_path = "#{File.dirname(__FILE__)}/../support/#{filename}"
+  File.open(absolute_path) do |file|
+    try_request can do
+      put_json path, file.read
+    end
+  end
+end
+
+When(/^I( (?:can|successfully))? PATCH "([^"]*)" with body from file "([^"]*)"/) do |can, path, filename|
+  absolute_path = "#{File.dirname(__FILE__)}/../support/#{filename}"
+  File.open(absolute_path) do |file|
+    try_request can do
+      patch_json path, file.read
     end
   end
 end
@@ -259,4 +277,40 @@ Then("the host factory JSON should be:") do |json|
     )
   end
   expect(@result).to eq(JSON.parse(json))
+end
+
+When(/^I( (?:can|successfully))? POST "([^"]*)" with all files from folder "([^"]*)"/) do |can, path, dirname|
+  absolute_path = "#{File.dirname(__FILE__)}/../#{dirname}"
+  Dir.glob("#{absolute_path}/*.yml") do |yml_file|
+    File.open(yml_file) do |file|
+      try_request can do
+        post_json path, file.read
+      end
+    end
+
+  end
+end
+
+When(/^I( (?:can|successfully))? PUT "([^"]*)" with all files from folder "([^"]*)"/) do |can, path, dirname|
+  absolute_path = "#{File.dirname(__FILE__)}/../#{dirname}"
+  Dir.glob("#{absolute_path}/*.yml") do |yml_file|
+    File.open(yml_file) do |file|
+      try_request can do
+        put_json path, file.read
+      end
+    end
+
+  end
+end
+
+When(/^I( (?:can|successfully))? PATCH "([^"]*)" with all files from folder "([^"]*)"/) do |can, path, dirname|
+  absolute_path = "#{File.dirname(__FILE__)}/../#{dirname}"
+  Dir.glob("#{absolute_path}/*.yml") do |yml_file|
+    File.open(yml_file) do |file|
+      try_request can do
+        patch_json path, file.read
+      end
+    end
+
+  end
 end
