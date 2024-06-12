@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
+## [1.21.0.1] - 2024-06-11
+### Added
+- Adds support for optionally prefixing user role_id with "user/" during API key authentication.
+  CNJR-5214
+
+### Fixed
+- Fixed orphaned roles when deleting policy resources.
+  CONJSE-1875
+
+### Security
+- Upgraded Rails to 6.1.7.8, to resolve CVE-2024-28103
+
 ## [1.21.0] - 2024-03-08
 
 ### Changed
