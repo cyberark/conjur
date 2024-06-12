@@ -18,6 +18,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Fixed orphaned roles when deleting policy resources.
   CONJSE-1875
 
+### Security
+- Upgraded Rails to 6.1.7.8, to resolve CVE-2024-28103
+
 ## [1.21.0] - 2024-03-08
 
 ### Changed

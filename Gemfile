@@ -21,7 +21,7 @@ gem 'jbuilder', '~> 2.7.0'
 gem 'nokogiri', '>= 1.8.2'
 gem 'puma', '~> 6', '>= 6.4.2'
 gem 'rack', '~> 2.2', '>= 2.2.8.1'
-gem 'rails', '~> 6.1', '>= 6.1.4.6'
+gem 'rails', '~> 6.1', '>= 6.1.7.8'
 gem 'rake'
 
 gem 'pg'
