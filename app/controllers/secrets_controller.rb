@@ -8,6 +8,9 @@ class SecretsController < RestController
   include AuthorizeResource
   include FollowFetchPcloudSecrets
   include Secrets::RedisHandler
+  include GroupMembershipValidator
+  include EdgeValidator
+  include AccountValidator
 
   before_action :current_user
 
@@ -49,10 +52,10 @@ class SecretsController < RestController
 
   DEFAULT_MIME_TYPE = 'application/octet-stream'
 
-  def get_resource_object(resource_id)
+  def get_resource_object(resource_id, skip_auth: false)
     resource_from_cache = get_redis_resource(resource_id)
     if resource_from_cache.nil?
-      resource_object = self.resource
+      resource_object = skip_auth ? resource! : resource
       create_redis_resource(resource_id, resource_object.to_hash!)
     else
       resource_object = Resource.new
@@ -60,9 +63,23 @@ class SecretsController < RestController
     end
     resource_object
   end
+
   def show
-    resource_object = get_resource_object(resource_id)
-    authorize(:execute, resource_object)
+    # Check if role is edge, if so, skip the authorization and
+    # get the secret even if the resource is not visible
+    if possibly_edge?(params, current_user)
+      begin
+        verify_edge_host(params)
+        resource_object = get_resource_object(resource_id, skip_auth: true)
+      rescue ApplicationController::Forbidden
+        resource_object = get_resource_object(resource_id)
+        authorize(:execute, resource_object)
+      end
+    else
+      resource_object = get_resource_object(resource_id)
+      authorize(:execute, resource_object)
+    end
+
     version = params[:version]
 
     if dynamic_secret?(resource_object)
@@ -72,13 +89,13 @@ class SecretsController < RestController
       # First we try to find secret in Redis. If not found, we take from DB and store the result in Redis
       value, mime_type = get_redis_secret(resource_id, version)
       if value.nil?
-        unless (secret = resource.secret(version: version))
+        unless (secret = resource_object.secret(version: version))
           raise Exceptions::RecordNotFound.new(\
             resource_id, message: "Requested version does not exist"
           )
         end
         value = secret.value
-        mime_type = resource.annotation('conjur/mime_type') || DEFAULT_MIME_TYPE
+        mime_type = resource_object.annotation('conjur/mime_type') || DEFAULT_MIME_TYPE
 
         create_redis_secret(resource_id, value, mime_type, version)
       end
@@ -191,6 +208,14 @@ class SecretsController < RestController
   end
 
   private
+
+  # check if there is a chance that the user is an edge host
+  # doesn't verify if the user is an edge host!
+  def possibly_edge?(params, current_user)
+    allowed_params = %i[account]
+    options = params.permit(*allowed_params).to_h.symbolize_keys
+    is_group_ancestor_of_role(current_user.id, "#{options[:account]}:group:edge/edge-hosts")
+  end
 
   def check_input_correct
     unique_variables = variable_ids.uniq

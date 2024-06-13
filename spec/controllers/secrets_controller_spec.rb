@@ -335,5 +335,43 @@ describe SecretsController, type: :request do
       expect(JSON.parse(response.body)).to eq({internal_secret => secret, data_var_id => secret})
     end
   end
+  
+  context "When the user is edge" do
+    let(:secret_resource) { "#{account}:variable:data/my_secret" }
+    let(:edge_host_id) {"#{account}:host:edge/edge-1234/edge-host-1234"}
+    let(:secret_resource) { "#{account}:variable:data/my_secret" }
+    let(:other_edge_host_id) {"#{account}:host:data/other"}
+    let(:my_host) { Role.find_or_create(role_id: edge_host_id) }
 
+    before do
+      init_slosilo_keys(account)
+      @current_user = create_host(edge_host_id, admin_user)
+      @other_user = create_host(other_edge_host_id, admin_user)
+      Resource.create(resource_id: secret_resource, owner_id: user_owner_id)
+      Secret.create(resource_id: secret_resource, value: 'secret')
+    end
+
+    context "and he tries to get secret" do
+      before do
+        Role.create(role_id: "#{account}:group:edge/edge-hosts")
+        RoleMembership.create(role_id: "#{account}:group:edge/edge-hosts", member_id: edge_host_id, admin_option: false, ownership: false)
+        Rails.cache.clear
+      end
+      it "Successfully gets the secret" do
+        get("/secrets/#{secret_resource.gsub(':', '/')}", env: token_auth_header(role: @current_user, is_user: false))
+        expect(response.code).to eq("200")
+        expect(response.body).to eq("secret")
+      end
+    end
+
+    context "and the edge is invalid and tries to get secret" do
+      before do
+        Rails.cache.clear
+      end
+      it "Return Not-Found" do
+        get("/secrets/#{secret_resource.gsub(':', '/')}", env: token_auth_header(role: @other_user, is_user: false))
+        expect(response.code).to eq("404")
+      end
+    end
+  end
 end
