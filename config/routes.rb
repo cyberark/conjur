@@ -117,7 +117,7 @@ Rails.application.routes.draw do
       # Edge
       post    "/edge/:account"                      => 'edge_creation#create_edge'
       delete  "/edge/:account/:identifier"          => 'edge_deletion#delete_edge'
-      get     "/edge/secrets/:account"              => 'edge_secrets#all_secrets'
+      get     "/edge/secrets/:account"              => 'edge_secrets#secrets'
       get     "/edge/hosts/:account"                => 'edge_hosts#all_hosts'
       get     "/edge/authenticators/:account"       => 'edge_authenticators#all_authenticators'
 

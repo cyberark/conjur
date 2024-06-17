@@ -75,6 +75,161 @@ Feature: Fetching secrets from edge endpoint
     And I log out
 
   @acceptance @smoke
+  Scenario: Fetching single secrets with edge host return 200 OK with json results
+    Given I login as the host associated with Edge "edge_secrets"
+    When I GET "/edge/secrets/cucumber?id=cucumber:variable:data/secret1"
+    Then the HTTP response status code is 200
+    And the JSON should be:
+    """
+    {"secrets":[
+      {
+        "id": "cucumber:variable:data/secret1",
+        "owner": "cucumber:policy:data",
+        "permissions": [{
+                "policy": "cucumber:policy:root",
+                "privilege": "execute",
+                "resource": "cucumber:variable:data/secret1",
+                "role": "cucumber:host:data/some_host1"
+               },
+               {
+                "policy": "cucumber:policy:root",
+                "privilege": "execute",
+                "resource": "cucumber:variable:data/secret1",
+                "role": "cucumber:host:data/some_host2"
+              }
+        ],
+        "value": "s1",
+        "version": 1,
+        "versions": [
+        {
+          "value": "s1",
+          "version": 1
+        }
+        ]
+      }
+    ],
+    "failed": []}
+    """
+
+  @negative @acceptance
+  Scenario: Fetching a single secret with edge host without Accept-Encoding base64 return 200 and I have special character secret
+    Given I login as "some_user"
+    And I add the secret value "s1±" to the resource "cucumber:variable:data/secret1"
+    Given I login as the host associated with Edge "edge_secrets"
+    When I GET "/edge/secrets/cucumber?id=cucumber:variable:data/secret1"
+    Then the HTTP response status code is 200
+    And the JSON should be:
+    """
+    {"secrets":[
+      {
+       "id": "cucumber:variable:data/secret1",
+       "owner": "cucumber:policy:data",
+       "permissions": [
+       {
+         "policy": "cucumber:policy:root",
+         "privilege": "execute",
+         "resource": "cucumber:variable:data/secret1",
+         "role": "cucumber:host:data/some_host1"
+       },
+       {
+         "policy": "cucumber:policy:root",
+         "privilege": "execute",
+         "resource": "cucumber:variable:data/secret1",
+         "role": "cucumber:host:data/some_host2"
+       }
+       ],
+       "value": "s1±",
+       "version": 2,
+       "versions": [
+       {
+        "value": "s1±",
+        "version": 2
+       }
+       ]
+      }
+    ],
+    "failed": []}
+    """
+
+  @acceptance
+  Scenario: Fetching single secret with a special character secret1 with edge host without Accept-Encoding base64, return 200 and json result with escaping
+    Given I login as "some_user"
+    And I add the secret value "s1\" to the resource "cucumber:variable:data/secret1"
+    Given I login as the host associated with Edge "edge_secrets"
+    When I GET "/edge/secrets/cucumber?id=cucumber:variable:data/secret1"
+    Then the HTTP response status code is 200
+    And the JSON should be:
+  """
+  {"secrets":[
+    {
+      "id": "cucumber:variable:data/secret1",
+      "owner": "cucumber:policy:data",
+      "permissions": [{
+                "policy": "cucumber:policy:root",
+                "privilege": "execute",
+                "resource": "cucumber:variable:data/secret1",
+                "role": "cucumber:host:data/some_host1"
+               },
+               {
+                "policy": "cucumber:policy:root",
+                "privilege": "execute",
+                "resource": "cucumber:variable:data/secret1",
+                "role": "cucumber:host:data/some_host2"
+              }],
+      "value": "s1\\",
+      "version": 2,
+        "versions": [
+        {
+          "value": "s1\\",
+          "version": 2
+        }
+        ]
+    }
+  ],
+  "failed":[]}
+  """
+
+  @acceptance
+  Scenario: Fetching single secret with special characters secret with edge host and Accept-Encoding base64 return 200 OK with json results
+    Given I login as "some_user"
+    And I add the secret value "s1±\" to the resource "cucumber:variable:data/secret1"
+    Given I login as the host associated with Edge "edge_secrets"
+    And I set the "Accept-Encoding" header to "base64"
+    When I GET "/edge/secrets/cucumber?id=cucumber:variable:data/secret1"
+    Then the HTTP response status code is 200
+    And the JSON should be:
+  """
+  {"secrets":[
+    {
+      "id": "cucumber:variable:data/secret1",
+      "owner": "cucumber:policy:data",
+      "permissions": [{
+                "policy": "cucumber:policy:root",
+                "privilege": "execute",
+                "resource": "cucumber:variable:data/secret1",
+                "role": "cucumber:host:data/some_host1"
+               },
+               {
+                "policy": "cucumber:policy:root",
+                "privilege": "execute",
+                "resource": "cucumber:variable:data/secret1",
+                "role": "cucumber:host:data/some_host2"
+              }
+      ],
+      "value": "czHCsVw=",
+      "version": 2,
+        "versions": [
+        {
+          "value": "czHCsVw=",
+          "version": 2
+        }
+        ]
+    }
+  ],
+  "failed":[]}
+  """
+
+  @acceptance @smoke
   Scenario: Fetching all secrets with edge host return 200 OK with json results
     Given I login as the host associated with Edge "edge_secrets"
     When I GET "/edge/secrets/cucumber"
@@ -168,13 +323,18 @@ Feature: Fetching secrets from edge endpoint
     Given I login as "some_user"
     When I GET "/edge/secrets/cucumber"
     Then the HTTP response status code is 403
+    When I GET "/edge/secrets/cucumber?id=cucumber:variable:data/secret1"
+    Then the HTTP response status code is 403
     Given I login as "host/data/some_host1"
     When I GET "/edge/secrets/cucumber"
+    Then the HTTP response status code is 403
+    When I GET "/edge/secrets/cucumber?id=cucumber:variable:data/secret1"
     Then the HTTP response status code is 403
     Given I am the super-user
     When I GET "/edge/secrets/cucumber"
     Then the HTTP response status code is 403
-
+    When I GET "/edge/secrets/cucumber?id=cucumber:variable:data/secret1"
+    Then the HTTP response status code is 403
 
   @acceptance
   Scenario: Fetching secrets by batch with edge host return right json every batch call
@@ -409,6 +569,7 @@ Feature: Fetching secrets from edge endpoint
   ],
   "failed":[]}
   """
+
 
   @negative @acceptance
   Scenario: Fetching all secrets with edge host without Accept-Encoding base64 return 200 and I have special character secret
