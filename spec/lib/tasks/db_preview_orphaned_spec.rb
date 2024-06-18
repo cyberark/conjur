@@ -12,7 +12,7 @@ describe "db:preview-orphaned" do
   end
 
   def reset_stdout
-    $stdout = @old
+    $stdout = @old if @old
   end
 
   def load_base_policy(path)
@@ -42,7 +42,7 @@ describe "db:preview-orphaned" do
     let(:base_policy_path) { 'empty.yml' }
     it "prints out no roles found" do
       Rake::Task["db:preview-orphaned"].invoke
-      expect(@fake.string).to eq("\nNo roles to remove\n")
+      expect(@fake.string).to eq("\nNo items to remove\n")
     end
   end
 
@@ -52,7 +52,7 @@ describe "db:preview-orphaned" do
 
     it "prints out no roles found" do
       Rake::Task["db:preview-orphaned"].invoke
-      expect(@fake.string).to eq("\nNo roles to remove\n")
+      expect(@fake.string).to eq("\nNo items to remove\n")
     end
   end
 
@@ -60,28 +60,44 @@ describe "db:preview-orphaned" do
     let(:base_policy_path) { 'CONJSE-1875-add.yml'}
     let(:resource_policy) { Resource['rspec:policy:root'] }
 
-    it "prints out roles that will be deleted" do
+    it "prints out items that will be deleted" do
       Sequel::Model.db << "delete from resources where resource_id in ('rspec:user:sasha@myDemoApp', 'rspec:host:myDemoApp/app')"
       Rake::Task["db:preview-orphaned"].invoke
+
       expect(@fake.string).to eq("
-Roles that will be removed because the parent policy has been removed
-ID              TYPE
-myDemoApp/app   host
-sasha@myDemoApp user
+Roles and resources that will be removed because the parent policy has been removed
+ID                                                      TYPE
+myDemoApp/app                                           host
+myDemoApp/sub_policy/extraTopSecret                     variable
+myDemoApp/sub_policy/sub_app                            host
+myDemoApp/sub_policy/sub_sub_policy/extraExtraTopSecret variable
+myDemoApp/sub_policy/sub_sub_policy/sub_sub_app         host
+sasha@myDemoApp                                         user
 ")
 
-      # Check that the roles are not deleted
+      # Check that the items are not deleted
       expect(Role['rspec:user:sasha@myDemoApp']).to be_a(Role)
       expect(Role['rspec:host:myDemoApp/app']).to be_a(Role)
+      expect(Role['rspec:host:myDemoApp/sub_policy/sub_app']).to be_a(Role)
+      expect(Role['rspec:host:myDemoApp/sub_policy/sub_sub_policy/sub_sub_app']).to be_a(Role)
+      expect(Resource['rspec:variable:myDemoApp/sub_policy/sub_sub_policy/extraExtraTopSecret']).to be_a(Resource)
+      expect(Resource['rspec:variable:myDemoApp/sub_policy/extraTopSecret']).to be_a(Resource)
     end
 
-    it "deletes the roles" do
+    it "deletes the items" do
       Rake::Task["db:remove-orphaned"].invoke
-      expect(@fake.string).to include("Deleting 2 roles that no longer exist in policy:")
+      expect(@fake.string).to include("Deleting 6 items that no longer exist in policy:")
       expect(@fake.string).to include("rspec:user:sasha@myDemoApp")
       expect(@fake.string).to include("rspec:host:myDemoApp/app")
+      expect(@fake.string).to include("rspec:host:myDemoApp/sub_policy/sub_app")
+      expect(@fake.string).to include("rspec:host:myDemoApp:myDemoApp/sub_policy/sub_sub_policy/extraExtraTopSecret")
+      expect(@fake.string).to include("rspec:host:myDemoApp:myDemoApp/sub_policy/extraTopSecret")
       expect(Role['rspec:user:sasha@myDemoApp']).to be_nil
       expect(Role['rspec:host:myDemoApp/app']).to be_nil
+      expect(Role['rspec:host:myDemoApp/sub_policy/sub_app']).to be_nil
+      expect(Role['rspec:host:myDemoApp/sub_policy/sub_sub_policy/sub_sub_app']).to be_nil
+      expect(Resource['rspec:variable:myDemoApp/sub_policy/sub_sub_policy/extraExtraTopSecret']).to be_nil
+      expect(Resource['rspec:variable:myDemoApp/sub_policy/extraTopSecret']).to be_nil
     end
   end
 end

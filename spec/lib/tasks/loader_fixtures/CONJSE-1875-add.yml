@@ -9,6 +9,30 @@
       privileges: [ read, execute ]
       resources: !variable secret
 
+    - !policy
+      id: sub_policy
+      body:
+        # This host is owned by Sasha, so it should be deleted when Sasha is deleted
+        - !host
+          id: sub_app
+          owner: !user /sasha@myDemoApp
+
+        - !variable
+          id: extraTopSecret
+          owner: !user /sasha@myDemoApp
+
+        - !policy
+          id: sub_sub_policy
+          body:
+            # This host is owned by sub_policy/sub_app, so it should be deleted when sub_policy/sub_app is deleted
+            - !host
+              id: sub_sub_app
+              owner: !host /myDemoApp/sub_policy/sub_app
+
+            - !variable
+              id: extraExtraTopSecret
+              owner: !host /myDemoApp/sub_policy/sub_app
+
 - !variable topSecret
 - !permit
   role: [ !user sasha@myDemoApp, !host myDemoApp/app ]
