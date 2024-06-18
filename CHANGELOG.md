@@ -13,6 +13,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 - In the case that an issuer access key id is updated the API requires the secret to change as well
 
+### Fixed
+- Fixed orphaned roles when deleting policy resources. CONJSE-1875
+
 ## [1.0.29-cloud] - 2024-06-09
 ### Added
 - Issuer API have telemetry counting API calls

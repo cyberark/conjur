@@ -295,7 +295,7 @@ module Loader
               issuer_exception_id = "#{@policy_object.account}:issuer:#{issuer_id}"
               raise Exceptions::RecordNotFound, issuer_exception_id
             end
-           
+
             if self.annotations["#{Issuer::DYNAMIC_ANNOTATION_PREFIX}method"].nil?
               raise Exceptions::InvalidPolicyObject.new(self.id, message: "The variable definition for dynamic secret \"#{self.id}\" requires a 'method' annotation.")
             end
@@ -414,22 +414,33 @@ module Loader
     class Delete < Deletion
       include Secrets::RedisHandler
       def delete!
-        if policy_object.record.respond_to?(:resourceid)
-          resource = ::Resource[policy_object.record.resourceid]
-          if resource
-            resource.destroy
-            ## remove role (user or host)
-            delete_redis_resource(USER_PATTERN + resource.id) if resource.kind == 'user' || resource.kind == 'host'
-            ## remove secret
-            delete_redis_secret(resource.id) if resource.kind == 'variable'
-            ## remove resource_id for variable in show endpoint
-            delete_redis_resource(RESOURCE_PREFIX + resource.id) if resource.kind == 'variable'
-          end
-        end
         if policy_object.record.respond_to?(:roleid)
-          role = ::Role[policy_object.record.roleid]
-          role.destroy if role
+          delete_recursive!(policy_object.record.roleid)
         end
+        if policy_object.record.respond_to?(:resourceid)
+          delete_recursive!(policy_object.record.resourceid)
+        end
+      end
+
+      def delete_recursive!(record_id)
+        # First delete all resources and roles that are owned by this resource
+        ::Resource.where(owner_id: record_id).each do |resource|
+          delete_recursive!(resource.resource_id)
+        end
+
+        # Delete any resource or role that matches the record_id
+        resource = ::Resource[record_id]
+        if resource
+          resource.destroy
+          ## remove role (user or host)
+          delete_redis_resource(USER_PATTERN + resource.id) if resource.kind == 'user' || resource.kind == 'host'
+          ## remove secret
+          delete_redis_secret(resource.id) if resource.kind == 'variable'
+          ## remove resource_id for variable in show endpoint
+          delete_redis_resource(RESOURCE_PREFIX + resource.id) if resource.kind == 'variable'
+        end
+        role = ::Role[record_id]
+        role.destroy if role
       end
     end
   end
