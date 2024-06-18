@@ -15,11 +15,11 @@
         # This host is owned by Sasha, so it should be deleted when Sasha is deleted
         - !host
           id: sub_app
-          owner: !user /sasha@myDemoApp
+          owner: !user /myDemoApp/sasha
 
         - !variable
           id: extraTopSecret
-          owner: !user /sasha@myDemoApp
+          owner: !user /myDemoApp/sasha
 
         - !policy
           id: sub_sub_policy
