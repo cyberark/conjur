@@ -14,11 +14,11 @@ namespace :db do
 
     # Don't do anything if there are no latent roles
     if latent_item_ids.count.zero?
-      $stderr.puts("No items to remove")
-      exit
+      $stdout.puts("No items to remove")
+      next
     end
 
-    $stderr.puts(
+    $stdout.puts(
       "Deleting #{latent_item_ids.count} " \
       "item#{'s' if latent_item_ids.count > 1} that no longer " \
       "exist#{'s' if latent_item_ids.count == 1} in policy:"
@@ -26,7 +26,7 @@ namespace :db do
 
     # Print the ID for deleted items
     latent_item_ids.each do |id|
-      $stderr.puts("\t#{id}")
+      $stdout.puts("\t#{id}")
 
       Role[id]&.delete
       Resource[id]&.delete

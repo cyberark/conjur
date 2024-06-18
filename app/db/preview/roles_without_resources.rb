@@ -29,8 +29,8 @@ module DB
         Resource.where(owner_id: role_ids).all.map(&:resource_id) | role_ids
       end
 
-      def get_recursive_role_ids(role_id, i)
-        if i > 100
+      def get_recursive_role_ids(role_id, iterator)
+        if iterator > 100
           raise "Recursion limit reached"
         end
 
@@ -40,7 +40,7 @@ module DB
           .map(&:role_id)
         
         role_ids.each do |id|
-          role_ids += get_recursive_role_ids(id, i+1)
+          role_ids += get_recursive_role_ids(id, iterator+1)
         end
 
         role_ids
