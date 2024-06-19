@@ -25,7 +25,6 @@ module Monitoring
       end
 
       def refresh(registry)
-
         @metric_name = :conjur_requests_total
         operation = "getSecret"
         key = operation + "/counter"
@@ -36,8 +35,7 @@ module Monitoring
         if (current_date != last_date)
           Util::RedisCache.write_to(date_key, current_date, key)
         end
-
-        val = Util::RedisCache.read_from(key)
+        val = Util::RedisCache.read_count_from(key)
         # labels should be only in alphabetic order
         update_labels = {
           environment: ENV['TENANT_ENV'],
@@ -48,7 +46,6 @@ module Monitoring
         unless (metric.nil?)
           metric.set(val, labels: update_labels)
         end
-
       end
 
       def update(payload)
@@ -68,11 +65,7 @@ module Monitoring
         }
 
         key = payload[:operation] + "/counter"
-
-        val = Util::RedisCache.read_from(key)
-
-        Util::RedisCache.write_to(key, val)
-        val = val + 1;
+        val = Util::RedisCache.increment_counter_cache(key)
         metric.set(val , labels: update_labels)
 
       end

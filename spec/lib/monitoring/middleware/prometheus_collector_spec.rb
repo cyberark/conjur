@@ -70,7 +70,7 @@ describe Monitoring::Middleware::PrometheusCollector do
 
     env['PATH_INFO'] = "/secrets/conjur/variable/db/password"
 
-    expect(Rails.cache).to receive(:read).with("getSecret/counter").and_return(0)
+    expect(Rails.cache).to receive(:increment).with("getSecret/counter", {:expires_in=>nil}).and_return(1)
 
     status, _headers, _response = subject.call(env)
 
