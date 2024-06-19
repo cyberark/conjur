@@ -80,6 +80,7 @@ Feature: Adding and fetching secrets
 
     Given I set annotation "conjur/mime_type" to "application/json"
     And I save my place in the audit log file for remote
+    And I save my place in the log file
     When I successfully POST "/secrets/cucumber/variable/probe" with body:
     """
     [ "v-1" ]
@@ -93,12 +94,24 @@ Feature: Adding and fetching secrets
       [action@43868 result="success" operation="update"]
       cucumber:user:eve updated cucumber:variable:probe
     """
+#    And The following appears 0 times in the log after my savepoint:
+#    """
+#    Started POST
+#    """
     When I successfully GET "/secrets/cucumber/variable/probe"
     Then the JSON should be:
     """
     [ "v-1" ]
     """
     And the HTTP response content type is "application/json"
+#    And The following appears 0 times in the log after my savepoint:
+#    """
+#    Started GET
+#    """
+    And The following appears 0 times in the log after my savepoint:
+    """
+      Rendered
+    """
 
   @acceptance
   Scenario: Secrets can contain any binary data.
