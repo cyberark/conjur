@@ -9,6 +9,51 @@ class EdgeSecretsController < RestController
   include GroupMembershipValidator
   include ReplicationHandler
 
+  def secrets
+    if params[:id] 
+      specific_secret
+    else
+      all_secrets
+    end
+  end
+
+  # Return a specific secret
+  def specific_secret
+    logger.debug(LogMessages::Endpoints::EndpointRequested.new("specific_secret replication for edge '#{Edge.get_name_by_hostname(current_user.role_id)}'"))
+
+    allowed_params = %i[account variable_id]
+    options = params.permit(*allowed_params).slice(*allowed_params).to_h.symbolize_keys
+
+    verify_edge_host(options)
+
+    selective_enabled = ENV['SELECTIVE_REPLICATION_ENABLED'] || "false"
+    accepts_base64 = String(request.headers['Accept-Encoding']).casecmp?('base64')
+    if accepts_base64
+      response.set_header("Content-Encoding", "base64")
+    end
+
+    begin
+      results, failed = replicate_single_secret(params[:id], accepts_base64, selective_enabled) 
+
+      if failed.empty?
+        limit = 1
+        offset = 0
+        logger.debug(LogMessages::Util::FailedSerializationOfResources.new(
+          "single secrets replication for edge '#{Edge.get_name_by_hostname(current_user.role_id)}'",
+          limit,
+          offset,
+          failed.size,
+          failed.first
+        ))
+      end
+      render(json: { "secrets": results, "failed": failed })
+      logger.debug(LogMessages::Endpoints::EndpointFinishedSuccessfully.new(
+        "specific_secret replication for edge '#{Edge.get_name_by_hostname(current_user.role_id)}'"))
+    rescue => e
+      raise ApplicationController::InternalServerError, e.message
+    end
+  end
+
   # Return all secrets within offset-limit frame. Default is 0-1000
   def all_secrets
     logger.debug(LogMessages::Endpoints::EndpointRequested.new(

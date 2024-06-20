@@ -23,45 +23,57 @@ module ReplicationHandler
     results
   end
 
-  def replicate_secrets(limit, offset, options, accepts_base64,selective_enabled)
-    results = []
-    failed = []
+  def replicate_secrets(limit, offset, options, accepts_base64, selective_enabled)
+    variables = build_variables_map(limit, offset, options, selective_enabled)
+    construct_variable(variables, accepts_base64, selective_enabled)
+  end
 
-    variables = build_variables_map(limit, offset, options,selective_enabled)
-
-    variables.each do |id, variable|
-      variableToReturn = {}
-      variableToReturn[:id] = id
-      variableToReturn[:owner] = variable[:owner_id]
-      variableToReturn[:permissions] = get_permissions(id,variable,selective_enabled)
-      secret_value = Slosilo::EncryptedAttributes.decrypt(variable[:value], aad: id)
-      variableToReturn[:value] = accepts_base64 ? Base64.strict_encode64(secret_value) : secret_value
-      variableToReturn[:version] = variable[:version]
-      variableToReturn[:versions] = []
-      value = {
-        "version": variableToReturn[:version],
-        "value": variableToReturn[:value]
-      }
-      variableToReturn[:versions] << value
-      begin
-        JSON.generate(variableToReturn)
-        results << variableToReturn
-      rescue => e
-        failed << { "id": id }
-      end
-    end
-
-    [results, failed]
+  def replicate_single_secret(id, accepts_base64, selective_enabled)
+    # limit = 1 and offset = 0 are used to get the latest version of the secret
+    # If the secret has multiple versions, the latest version is returned
+    limit = 1
+    offset = 0
+    variables = build_variables_map(limit, offset, nil, selective_enabled, id: id)
+    construct_variable(variables, accepts_base64, selective_enabled)
   end
 
   private
 
-  def build_variables_map(limit, offset, options,selective_enabled)
+  def construct_variable(variables, accepts_base64, selective_enabled)
+    results = []
+    failed = []
+
+    variables.each do |id, variable|
+      variable_to_return = {}
+      variable_to_return[:id] = id
+      variable_to_return[:owner] = variable[:owner_id]
+      variable_to_return[:permissions] = get_permissions(id, variable, selective_enabled)
+      secret_value = Slosilo::EncryptedAttributes.decrypt(variable[:value], aad: id)
+      variable_to_return[:value] = accepts_base64 ? Base64.strict_encode64(secret_value) : secret_value
+      variable_to_return[:version] = variable[:version]
+      variable_to_return[:versions] = []
+      value = {
+        "version": variable_to_return[:version],
+        "value": variable_to_return[:value]
+      }
+      variable_to_return[:versions] << value
+      begin
+        JSON.generate(variable_to_return)
+        results << variable_to_return
+      rescue
+        failed << { "id": id }
+      end
+    end
+    [results, failed]
+  end
+
+  def build_variables_map(limit, offset, options, selective_enabled, id: nil)
+    variable_id = id.nil? ? "'#{options[:account]}:variable:data/%'" : "'#{id}'"  
     variables = {}
     if selective_enabled == "true"
-      query_string = "SELECT * from allowed_secrets_per_role('" + current_user.id + "','" + options[:account] + ":variable:data/%', " + limit.to_s + ", " + offset.to_s + ")"
+      query_string = "SELECT * from allowed_secrets_per_role('#{current_user.id}', #{variable_id}, #{limit}, #{offset})"
     else
-      query_string = "SELECT * FROM secrets JOIN (SELECT resource_id, owner_id FROM resources WHERE (resource_id LIKE '" + options[:account] + ":variable:data/%') ORDER BY resource_id LIMIT " + limit.to_s + " OFFSET " + offset.to_s + ") AS res ON (res.resource_id = secrets.resource_id)"
+      query_string = "SELECT * FROM secrets JOIN (SELECT resource_id, owner_id FROM resources WHERE (resource_id LIKE #{variable_id}) ORDER BY resource_id LIMIT #{limit} OFFSET #{offset}) AS res ON (res.resource_id = secrets.resource_id)"
     end
 
     Sequel::Model.db.fetch(query_string) do |row|

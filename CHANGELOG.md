@@ -9,7 +9,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
-## [1.0.30-cloud] - 2024-06-16
+## [1.0.30-cloud] - 2024-06-30
+### Added
+- Edge agents can now fetch single secret with secrets API
+- Edge agents can now replicate a specific secret
+
 ### Changed
 - In the case that an issuer access key id is updated the API requires the secret to change as well
 
