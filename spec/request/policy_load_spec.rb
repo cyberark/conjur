@@ -96,6 +96,57 @@ describe PoliciesController, type: :request do
             expect(Resource[id]).to be(nil)
           end
         end
+
+        it "deletes all related resources" do
+          # Apply Policy with role w/ corresponding resource
+          apply_policy(
+            policy: <<~TEMPLATE
+              - !policy
+                id: data
+                body:                
+                - !host
+                  id: host-01
+                  annotations:
+                    authn/api-keu: true
+                - !variable var-01
+                - !permit
+                  resource: !variable var-01
+                  role: !host host-01
+                  privileges: [read, execute]
+                - !group group-01
+                - !grant
+                  role: !group group-01
+                  member: !host host-01
+          TEMPLATE
+          )
+
+          # Verify desired resources and roles have been created
+          host_id = 'rspec:host:data/host-01'
+          group_id = 'rspec:group:data/group-01'
+          expect(Role[host_id]).to_not be(nil)
+          expect(Resource[host_id]).to_not be(nil)
+          expect(Annotation[resource_id: host_id]).to_not be(nil)
+          expect(Credentials[host_id]).to_not be(nil)
+          expect(Permission[role_id: host_id]).to_not be(nil)
+          expect(RoleMembership[role_id: group_id, member_id: host_id]).to_not be(nil)
+
+          # Now, delete the above roles and resources by deleting the policy
+          apply_policy(
+            action: :patch,
+            policy: <<~TEMPLATE
+              - !delete
+                record: !policy data
+          TEMPLATE
+          )
+
+          # Verify desired resources and roles have been removed
+          expect(Role[host_id]).to be(nil)
+          expect(Resource[host_id]).to be(nil)
+          expect(Annotation[resource_id: host_id]).to be(nil)
+          expect(Credentials[host_id]).to be(nil)
+          expect(Permission[role_id: host_id]).to be(nil)
+          expect(RoleMembership[role_id: group_id, member_id: host_id]).to be(nil)
+        end
       end
     end
   end
