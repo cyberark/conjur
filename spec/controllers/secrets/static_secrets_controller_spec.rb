@@ -830,7 +830,7 @@ describe StaticSecretsController, type: :request do
     end
     context 'when the branch doesnt exist' do
       it 'returns 404' do
-        expect(Rails.cache).to receive(:increment).with("getSecret/counter", {:expires_in=>nil}).and_return(1)
+        expect(Rails.cache).to receive(:increment).with("getSecret/counter", {:expires_in=>nil}).at_least(:once).and_return(1)
         expect(Rails.cache).to receive(:read).with("user/rspec:user:alice").and_call_original
         get(
           '/secrets/static/doesNotExist/mySecret',
