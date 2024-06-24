@@ -10,7 +10,6 @@ class SecretsController < RestController
   include Secrets::RedisHandler
   include GroupMembershipValidator
   include EdgeValidator
-  include AccountValidator
 
   before_action :current_user
 
@@ -214,7 +213,7 @@ class SecretsController < RestController
   def possibly_edge?(params, current_user)
     allowed_params = %i[account]
     options = params.permit(*allowed_params).to_h.symbolize_keys
-    is_group_ancestor_of_role(current_user.id, "#{options[:account]}:group:edge/edge-hosts")
+    current_user.id.start_with?("#{options[:account]}:host:edge/edge")
   end
 
   def check_input_correct
