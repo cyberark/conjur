@@ -37,6 +37,21 @@ Feature: Fetching edge configuration from edge endpoint
     And I log out
 
   @negative @acceptance
+  Scenario: max edges allowed variable doesn't exist
+    Given I am the super-user
+    And I successfully PUT "/policies/cucumber/policy/edge/edge-configuration" with body:
+    """ 
+    - !delete 
+      record: !variable max-edge-allowed
+    """
+    Given I login as "admin_user"
+    When I GET "/edge/max-allowed/cucumber"
+    Then the HTTP response status code is 404 
+    Given I login as "some_user"
+    When I GET "/edge/max-allowed/cucumber"
+    Then the HTTP response status code is 403
+
+  @negative @acceptance
   Scenario: max edges allowed is permitted only to admins
     Given I login as "admin_user"
     When I GET "/edge/max-allowed/cucumber"
