@@ -168,17 +168,3 @@ def token_auth_header(role:, account: 'rspec')
 
   { 'HTTP_AUTHORIZATION' => "Token token=\"#{base64_token}\"" }
 end
-
-def apply_policy(policy:, policy_branch: 'root', role: 'admin', account: 'rspec', action: :post, querystring: '')
-  # Setup in case this is the first run
-  Slosilo["authn:#{account}"] ||= Slosilo::Key.new
-
-  # Apply policy using the provided action
-  send(
-    action,
-    "/policies/#{account}/policy/#{policy_branch}#{querystring}",
-    env: token_auth_header(
-      role: Role.find_or_create(role_id: "#{account}:user:#{role}")
-    ).merge('RAW_POST_DATA' => policy)
-  )
-end

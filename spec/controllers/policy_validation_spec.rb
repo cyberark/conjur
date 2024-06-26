@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
+require 'spec_helper_policy'
 
 # This is intended as regression testing for the validation feature, not as a comprehensive test
 # of policy cases.  Enough policy cases are included to exercise all the policy parsing error sources
