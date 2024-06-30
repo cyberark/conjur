@@ -290,7 +290,7 @@ describe WorkloadController, type: :request do
       let(:payload) do
         <<~BODY
           {
-            "id": "h/oSt_c1-s"
+            "id": "h/oS:t_c1-s"
           }
         BODY
       end
