@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 - Add ':' for allowed chars in workload name for workload create API
 
+### Security
+- Upgraded Rails to 6.1.7.8, to resolve CVE-2023-22796 
+- Upgrade Nokogiri, actionpack, json-jwt to to solve vulnerabilities
+
 ## [1.0.30-cloud] - 2024-06-30
 ### Added
 - Edge agents can now fetch single secret with secrets API
