@@ -20,10 +20,10 @@ gem 'command_class'
 gem 'http', '~> 4.2.0'
 gem 'iso8601'
 gem 'jbuilder', '~> 2.7.0'
-gem 'nokogiri', '>= 1.8.2'
+gem 'nokogiri', '>= 1.16.5'
 gem 'puma', '~> 6', '>= 6.4.2'
 gem 'rack', '~> 2.2', '>= 2.2.8.1'
-gem 'rails', '~> 6.1', '>= 6.1.4.6'
+gem 'rails', '~> 6.1', '>= 6.1.7.8'
 gem 'rake'
 gem 'rufus-scheduler'
 
@@ -46,6 +46,8 @@ gem 'slosilo',  path: 'gems/slosilo'
 # Explicitly required as there are vulnerabilities in older versions
 gem "ffi", ">= 1.9.24"
 gem "loofah", ">= 2.2.3"
+gem "json-jwt", ">= 1.16.6"
+gem "actionpack", ">= 6.1.7.7"
 
 # Pinned to update for role member search, using ref so merging and removing
 # the branch doesn't immediately break this link
