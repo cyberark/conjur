@@ -254,7 +254,7 @@ describe WorkloadController, type: :request do
       let(:payload_long) do
         <<~BODY
           {
-            "id": "SuperExtremelyLongWorkloadName11111111111111111111111111111111111111111111111111"
+            "id": "SuperExtremelyLongWorkloadName11111111111111111111111111111111111111111111111111SuperExtremelyLongWorkloadName11111111111111111111111111111111111111111111111111565757"
           }
         BODY
       end
@@ -290,7 +290,7 @@ describe WorkloadController, type: :request do
       let(:payload) do
         <<~BODY
           {
-            "id": "h/oS:t_c1-s"
+            "id": "h/oS:t_c1-sSuperExtremelyLongWorkloadName11111111111111111111111111111111111111111111111111"
           }
         BODY
       end
