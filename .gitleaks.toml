@@ -179,18 +179,12 @@ tags = ["key", "twilio"]
 [whitelist]
 files = [
   "(.*?)(jpg|gif|doc|pdf|bin)$",
-  "(.*)(issuers_controller_spec.rb)$"
   ".gitleaks.toml"
 ]
 regexes = [
 ]
 commits = [
 ]
-
-[exclude]
-  files = [
-    "spec/controllers/issuers_controller_spec.rb"
-  ]
 
 # Additional Examples
 

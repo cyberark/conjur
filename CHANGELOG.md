@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
+## [1.0.32-cloud] - 2024-07-14
+### Changed
+- change minimal flag to projection flag in get issuer api
+
 ## [1.0.31-cloud] - 2024-07-07
 ### Changed
 - Add ':' for allowed chars in workload name for workload create API
