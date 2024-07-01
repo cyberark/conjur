@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [1.0.31-cloud] - 2024-07-07
 ### Changed
 - Add ':' for allowed chars in workload name for workload create API
+- Add projection flag for get issuer api
 
 ## [1.0.30-cloud] - 2024-06-30
 ### Added

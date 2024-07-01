@@ -141,7 +141,7 @@ class IssuersController < RestController
 
   def get
     logger.debug(LogMessages::Endpoints::EndpointRequested.new("GET issuers/#{params[:account]}/#{params[:identifier]}"))
-    minimum_request = params.key?(:minimum)
+    minimum_request = is_minimum_request(params)
     if minimum_request
       # If there is use permissions I can see the minimum info
       action = :use
@@ -211,6 +211,18 @@ class IssuersController < RestController
   end
 
   private
+
+  def is_minimum_request(params)
+    if params.key?(:projection)
+      if params[:projection] == "minimal"
+        # If there is use permissions I can see the minimum info
+        return true
+      else
+        raise ApplicationController::UnprocessableEntity, "Value provided for projection query param is invalid"
+      end
+    end
+    false
+  end
 
   def mask_sensitive_data_in_response(response)
     if response.is_a?(Array)

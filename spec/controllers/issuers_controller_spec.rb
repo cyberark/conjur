@@ -912,8 +912,18 @@ describe IssuersController, type: :request do
         expect(response.body).to include("\"created_at\"")
         expect(response.body).to include("\"modified_at\"")
       end
+      it 'wrong value for projection returns error' do
+        get("/issuers/rspec/issuer-1?projection=not_supported",
+            env: token_auth_header(role: admin_user))
+        assert_response :unprocessable_entity
+      end
+      it 'no value for projection returns error' do
+        get("/issuers/rspec/issuer-1?projection",
+            env: token_auth_header(role: admin_user))
+        assert_response :unprocessable_entity
+      end
       it 'the minimum issuer is returned' do
-        get("/issuers/rspec/issuer-1?minimum",
+        get("/issuers/rspec/issuer-1?projection=minimal",
             env: token_auth_header(role: admin_user))
         assert_response :success
         parsed_body = JSON.parse(response.body)
@@ -929,7 +939,7 @@ describe IssuersController, type: :request do
         )
         assert_response :success
 
-        get("/issuers/rspec/issuer-1?minimum",
+        get("/issuers/rspec/issuer-1?projection=minimal",
             env: token_auth_header(role: alice_user))
         assert_response :success
         parsed_body = JSON.parse(response.body)
@@ -949,7 +959,7 @@ describe IssuersController, type: :request do
             env: token_auth_header(role: bob_user))
         assert_response :success
 
-        get("/issuers/rspec/issuer-1?minimum",
+        get("/issuers/rspec/issuer-1?projection=minimal",
             env: token_auth_header(role: bob_user))
         assert_response :forbidden
       end
