@@ -62,6 +62,9 @@ def validate_max_ttl(max_ttl)
     raise ApplicationController::BadRequestWithBody, format(IssuerBaseType::WRONG_PARAM_TYPE, "max_ttl", "positive integer")
   end
 
+  unless max_ttl.between?(900, 43_200)
+    raise ApplicationController::BadRequestWithBody, format(IssuerBaseType::WRONG_PARAM_TYPE, "max_ttl", "between 900 and 43200")
+  end
 end
 
 def validate_type(type)

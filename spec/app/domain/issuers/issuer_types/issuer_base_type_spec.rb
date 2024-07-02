@@ -31,6 +31,28 @@ describe "IssuerBaseType input validation" do
     end
   end
 
+  context "when max_ttl is out of lower bounds" do
+    it "then the input validation fails" do
+      params = ActionController::Parameters.new(id: "aws-issuer-1",
+                                                max_ttl: 899, 
+                                                type: "aws",
+                                                data: {})
+      expect { BaseTypeTest.new.validate(params) }
+        .to raise_error(ApplicationController::BadRequestWithBody)
+    end
+  end
+
+  context "when max_ttl is out of upper bounds" do
+    it "then the input validation fails" do
+      params = ActionController::Parameters.new(id: "aws-issuer-1",
+                                                max_ttl: 43201, 
+                                                type: "aws",
+                                                data: {})
+      expect { BaseTypeTest.new.validate(params) }
+        .to raise_error(ApplicationController::BadRequestWithBody)
+    end
+  end
+
   context "when max_ttl is 0" do
     it "then the input validation fails" do
       params = ActionController::Parameters.new(id: "aws-issuer-1",
