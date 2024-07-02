@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [1.0.31-cloud] - 2024-07-07
 ### Changed
 - Add ':' for allowed chars in workload name for workload create API
+- From now on, issuer's TTL must be between 900 to 43200 seconds
 
 ### Security
 - Upgraded Rails to 6.1.7.8, to resolve CVE-2023-22796 
