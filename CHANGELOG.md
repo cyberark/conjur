@@ -12,7 +12,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [1.0.32-cloud] - 2024-07-14
 ### Changed
 - change minimal flag to projection flag in get issuer api
-- Add projection flag for get issuer api
 
 ## [1.0.31-cloud] - 2024-07-07
 ### Changed
