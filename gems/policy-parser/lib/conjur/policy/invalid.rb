@@ -1,17 +1,30 @@
 module Conjur
   module PolicyParser
+
     class Invalid < RuntimeError
-      attr_reader :filename, :mark, :detail_message
-      
-      def initialize message, filename, mark
+      attr_reader :message, :filename, :detail_message, :line, :column
+
+      def initialize(message:, filename:, line:-1, column:-1)
         super(
-          "Error at line #{mark.line}, column #{mark.column} in " \
+          "Error at line #{line}, column #{column} in " \
             "#{filename} : #{message}"
         )
         @filename = filename
-        @mark = mark
+        @line = line
+        @column = column
         @detail_message = message
       end
     end
+
+    class ResolverError < RuntimeError
+      attr_reader :original_error, :detail_message
+
+      def initialize(original_error:)
+        super(original_error.message)
+        @original_error = original_error
+        @detail_message = original_error.message
+      end
+    end
+
   end
 end
