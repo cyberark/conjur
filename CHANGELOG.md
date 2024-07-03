@@ -12,11 +12,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [1.0.32-cloud] - 2024-07-14
 ### Changed
 - change minimal flag to projection flag in get issuer api
+- Add projection flag for get issuer api
 
 ## [1.0.31-cloud] - 2024-07-07
 ### Changed
 - Add ':' for allowed chars in workload name for workload create API
-- Add projection flag for get issuer api
+- From now on, issuer's TTL must be between 900 to 43200 seconds
 
 ### Security
 - Upgraded Rails to 6.1.7.8, to resolve CVE-2023-22796 

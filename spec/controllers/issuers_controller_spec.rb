@@ -86,7 +86,7 @@ describe IssuersController, type: :request do
 
       payload_update_issuer = <<~BODY
         {
-          "max_ttl": 200,
+          "max_ttl": 2000,
           "data": {
             "access_key_id": "AKIAIOSFODNN7EXAMPLE",
             "secret_access_key": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
@@ -169,6 +169,7 @@ describe IssuersController, type: :request do
         expect(response.body).to include("\"modified_at\"")
       end
     end
+
     context "when a user updates an issuer with data only" do
       payload_create_issuers = <<~BODY
         {
@@ -671,7 +672,7 @@ describe IssuersController, type: :request do
         <<~BODY
           {
             "id": "my-new-aws-issuer",
-            "max_ttl": 200,
+            "max_ttl": 2000,
             "type": "aws",
             "data": {
               "access_key_id": "AKIAIOSFODNN7EXAMPLE",
@@ -708,7 +709,7 @@ describe IssuersController, type: :request do
         <<~BODY
           {
             "id": "my-new-aws-issuer",
-            "max_ttl": 200,
+            "max_ttl": 2000,
             "type": "aws",
             "data": {
               "access_key_id": "AKIAIOSFODNN7EXAMPLE",
@@ -721,7 +722,7 @@ describe IssuersController, type: :request do
         <<~BODY
           {
             "id": "my-other-issuer",
-            "max_ttl": 200,
+            "max_ttl": 2000,
             "type": "aws",
             "data": {
               "access_key_id": "AKIAIOSFODNN7EXAMPLE",
@@ -835,7 +836,7 @@ describe IssuersController, type: :request do
         <<~BODY
           {
             "id": "issuer-1",
-            "max_ttl": 200,
+            "max_ttl": 2000,
             "type": "aws",
             "data": {
               "access_key_id": "AKIAIOSFODNN7EXAMPLE",
@@ -866,7 +867,7 @@ describe IssuersController, type: :request do
         <<~BODY
           {
             "id": "issuer-1",
-            "max_ttl": 200,
+            "max_ttl": 2000,
             "type": "aws",
             "data": {
               "access_key_id": "AKIAIOSFODNN7EXAMPLE",
@@ -905,7 +906,7 @@ describe IssuersController, type: :request do
         assert_response :success
         parsed_body = JSON.parse(response.body)
         expect(parsed_body["id"]).to eq("issuer-1")
-        expect(parsed_body["max_ttl"]).to eq(200)
+        expect(parsed_body["max_ttl"]).to eq(2000)
         expect(parsed_body["type"]).to eq("aws")
         expect(parsed_body["data"]["access_key_id"]).to eq("AKIAIOSFODNN7EXAMPLE")
         expect(parsed_body["data"]["secret_access_key"]).to eq(SENSITIVE_DATA_MASK)
@@ -928,7 +929,7 @@ describe IssuersController, type: :request do
         assert_response :success
         parsed_body = JSON.parse(response.body)
         expect(parsed_body.length).to eq(1)
-        expect(parsed_body["max_ttl"]).to eq(200)
+        expect(parsed_body["max_ttl"]).to eq(2000)
       end
       it 'get minimum with use permissions only' do
         patch(
@@ -944,7 +945,7 @@ describe IssuersController, type: :request do
         assert_response :success
         parsed_body = JSON.parse(response.body)
         expect(parsed_body.length).to eq(1)
-        expect(parsed_body["max_ttl"]).to eq(200)
+        expect(parsed_body["max_ttl"]).to eq(2000)
       end
       it 'get minimum with update permissions fail' do
         patch(
@@ -979,7 +980,7 @@ describe IssuersController, type: :request do
         <<~BODY
           {
             "id": "issuer-1",
-            "max_ttl": 200,
+            "max_ttl": 2000,
             "type": "aws",
             "data": {
               "access_key_id": "AKIAIOSFODNN7EXAMPLE",
@@ -1010,7 +1011,7 @@ describe IssuersController, type: :request do
         <<~BODY
           {
             "id": "issuer-1",
-            "max_ttl": 200,
+            "max_ttl": 2000,
             "type": "aws",
             "data": {
               "access_key_id": "AKIAIOSFODNN7EXAMPLE",
@@ -1023,7 +1024,7 @@ describe IssuersController, type: :request do
         <<~BODY
           {
             "id": "issuer-2",
-            "max_ttl": 300,
+            "max_ttl": 3000,
             "type": "aws",
             "data": {
               "access_key_id": "AKIAIOSFODNN7EXAMPLE",
@@ -1054,11 +1055,11 @@ describe IssuersController, type: :request do
         expect(parsed_body["issuers"].length).to eq(2)
 
         expect(parsed_body["issuers"][1]["id"]).to eq("issuer-1")
-        expect(parsed_body["issuers"][1]["max_ttl"]).to eq(200)
+        expect(parsed_body["issuers"][1]["max_ttl"]).to eq(2000)
         expect(parsed_body["issuers"][1]["type"]).to eq("aws")
 
         expect(parsed_body["issuers"][0]["id"]).to eq("issuer-2")
-        expect(parsed_body["issuers"][0]["max_ttl"]).to eq(300)
+        expect(parsed_body["issuers"][0]["max_ttl"]).to eq(3000)
         expect(parsed_body["issuers"][0]["type"]).to eq("aws")
       end
       it 'the issuers are returned ordered asc' do
@@ -1069,11 +1070,11 @@ describe IssuersController, type: :request do
         expect(parsed_body["issuers"].length).to eq(2)
 
         expect(parsed_body["issuers"][0]["id"]).to eq("issuer-1")
-        expect(parsed_body["issuers"][0]["max_ttl"]).to eq(200)
+        expect(parsed_body["issuers"][0]["max_ttl"]).to eq(2000)
         expect(parsed_body["issuers"][0]["type"]).to eq("aws")
 
         expect(parsed_body["issuers"][1]["id"]).to eq("issuer-2")
-        expect(parsed_body["issuers"][1]["max_ttl"]).to eq(300)
+        expect(parsed_body["issuers"][1]["max_ttl"]).to eq(3000)
         expect(parsed_body["issuers"][1]["type"]).to eq("aws")
       end
       it 'the issuers are returned without ordered on not existent sort field' do
