@@ -10,7 +10,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   (and update the corresponding date), or add a new version.
 
 ## [1.0.32-cloud] - 2024-07-14
-### Changed
+### Fixed
+- Fix rake task cleaning orphan resources. CONJSE-1875
 - change minimal flag to projection flag in get issuer api
 
 ## [1.0.31-cloud] - 2024-07-07

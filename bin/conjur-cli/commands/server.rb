@@ -50,6 +50,8 @@ module Commands
       # We might want to use the secret rotation process in the future when using Conjur without pcloud/CMP
       #fork_rotation_process
 
+      system("rake db:remove-orphaned") # TODO: remove once run once on production
+
       # Block until all child processes end
       wait_for_child_processes
     end
