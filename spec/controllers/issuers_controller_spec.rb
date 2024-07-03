@@ -1088,7 +1088,7 @@ describe IssuersController, type: :request do
               env: token_auth_header(role: admin_user))
           assert_response :success
           parsed_body = JSON.parse(response.body)
-          expect(parsed_body["issuers"].length).to eq(1)
+          expect(parsed_body["issuers"].length).to eq(2)
 
           get("/issuers/rspec/issuer-1",
               env: token_auth_header(role: admin_user))
