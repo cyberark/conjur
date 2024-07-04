@@ -913,8 +913,18 @@ describe IssuersController, type: :request do
         expect(response.body).to include("\"created_at\"")
         expect(response.body).to include("\"modified_at\"")
       end
+      it 'wrong value for projection returns error' do
+        get("/issuers/rspec/issuer-1?projection=not_supported",
+            env: token_auth_header(role: admin_user))
+        assert_response :unprocessable_entity
+      end
+      it 'no value for projection returns error' do
+        get("/issuers/rspec/issuer-1?projection",
+            env: token_auth_header(role: admin_user))
+        assert_response :unprocessable_entity
+      end
       it 'the minimum issuer is returned' do
-        get("/issuers/rspec/issuer-1?minimum",
+        get("/issuers/rspec/issuer-1?projection=minimal",
             env: token_auth_header(role: admin_user))
         assert_response :success
         parsed_body = JSON.parse(response.body)
@@ -930,7 +940,7 @@ describe IssuersController, type: :request do
         )
         assert_response :success
 
-        get("/issuers/rspec/issuer-1?minimum",
+        get("/issuers/rspec/issuer-1?projection=minimal",
             env: token_auth_header(role: alice_user))
         assert_response :success
         parsed_body = JSON.parse(response.body)
@@ -950,7 +960,7 @@ describe IssuersController, type: :request do
             env: token_auth_header(role: bob_user))
         assert_response :success
 
-        get("/issuers/rspec/issuer-1?minimum",
+        get("/issuers/rspec/issuer-1?projection=minimal",
             env: token_auth_header(role: bob_user))
         assert_response :forbidden
       end
@@ -1072,6 +1082,34 @@ describe IssuersController, type: :request do
             env: token_auth_header(role: admin_user))
         assert_response :bad_request
       end
+      context "when admin creates issuer" do
+        it 'He can list the issuer and get it' do
+          get("/issuers/rspec",
+              env: token_auth_header(role: admin_user))
+          assert_response :success
+          parsed_body = JSON.parse(response.body)
+          expect(parsed_body["issuers"].length).to eq(2)
+
+          get("/issuers/rspec/issuer-1",
+              env: token_auth_header(role: admin_user))
+          assert_response :success
+          parsed_body = JSON.parse(response.body)
+          expect(parsed_body["id"]).to eq("issuer-1")
+          expect(parsed_body["max_ttl"]).to eq(200)
+          expect(parsed_body["type"]).to eq("aws")
+          expect(response.body).to include("\"data\"")
+          expect(response.body).to include("\"created_at\"")
+          expect(response.body).to include("\"modified_at\"")
+
+          get("/issuers/rspec/issuer-1?projection=minimal",
+              env: token_auth_header(role: admin_user))
+          assert_response :success
+          parsed_body = JSON.parse(response.body)
+          expect(parsed_body.length).to eq(1)
+          expect(parsed_body["max_ttl"]).to eq(200)
+          expect(response.body).to_not include("\"data\"")
+        end
+      end
     end
 
     context "when a user lists the issuers, and there are no issuers" do
@@ -1093,3 +1131,6 @@ describe IssuersController, type: :request do
     end
   end
 end
+
+
+

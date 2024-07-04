@@ -9,18 +9,18 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
-## [1.0.32-cloud] - 2024-07-14
-### Fixed
-- Fix rake task cleaning orphan resources. CONJSE-1875
-
 ## [1.0.31-cloud] - 2024-07-07
 ### Changed
 - Add ':' for allowed chars in workload name for workload create API
 - From now on, issuer's TTL must be between 900 to 43200 seconds
+- change minimal flag to projection flag in get issuer api
 
 ### Security
 - Upgraded Rails to 6.1.7.8, to resolve CVE-2023-22796 
 - Upgrade Nokogiri, actionpack, json-jwt to to solve vulnerabilities
+
+### Fixed
+- Fix rake task cleaning orphan resources. CONJSE-1875
 
 ## [1.0.30-cloud] - 2024-06-30
 ### Added

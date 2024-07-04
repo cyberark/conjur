@@ -3,6 +3,8 @@
 module EdgeValidator
   extend ActiveSupport::Concern
 
+  include AccountValidator
+
   def verify_edge_host(options)
     msg = ""
     raise_excep = false
