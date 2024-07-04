@@ -122,6 +122,7 @@ describe SecretsController, type: :request do
       post("/secrets/#{data_var_id.gsub(':', '/')}", env: token_auth_header(role: admin_user).merge(payload))
       expect(read_from_redis(data_var_id)).to eq('new-secret')
     end
+
   end
 
   context "Secrets are read from Redis when appropriate" do
@@ -372,6 +373,35 @@ describe SecretsController, type: :request do
         get("/secrets/#{secret_resource.gsub(':', '/')}", env: token_auth_header(role: @other_user, is_user: false))
         expect(response.code).to eq("404")
       end
+    end
+
+    context "get resource object handling" do
+      let(:secret_resource) { "#{account}:variable:data/my_secret2" }
+      let(:current_user) { Role.find_or_create(role_id: 'rspec:user:alice') }
+      let(:host_id) {"#{account}:host:data/other1"}
+
+      before do
+        init_slosilo_keys(account)
+        @current_user = create_host(host_id, admin_user)
+        Secret.create(resource_id: secret_resource, value: 'secret')
+        Permission.create(
+          resource_id: secret_resource,
+          privilege: "read",
+          role_id: host_id
+        )
+
+      end
+
+      context 'when resource is not visible to current user' do
+        it 'raises an Exceptions::RecordNotFound error' do
+          write_into_redis(secret_resource, 'secret')
+          get("/secrets/#{secret_resource.gsub(':', '/')}", env: token_auth_header(role: current_user))
+
+          expect(response.code).to eq("404")
+        end
+      end
+
+
     end
   end
 end
