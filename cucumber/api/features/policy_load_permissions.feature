@@ -5,6 +5,7 @@ Feature: Updating policies
   The permission required depends on the mode.
 
   Background:
+    Given I clear Redis cache
     Given I am the super-user
     And I successfully PUT "/policies/cucumber/policy/root" with body:
     """

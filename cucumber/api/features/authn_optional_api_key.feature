@@ -1,6 +1,7 @@
 @api @sanity
 Feature: API key for host is created and removed based on host's annotation
   Background:
+    Given I clear Redis cache
     Given I am the super-user
 
   Scenario: Host Creation with true annotation impacts API key

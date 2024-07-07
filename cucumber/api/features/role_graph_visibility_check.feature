@@ -4,6 +4,7 @@ Feature: The role graph for a given role render appropriately, showing only
   on both the parent and child.
 
   Background:
+    Given I clear Redis cache
     Given I am the super-user
     And I successfully PUT "/policies/cucumber/policy/root" with body:
     """

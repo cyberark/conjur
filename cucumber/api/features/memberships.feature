@@ -17,6 +17,7 @@ Feature: Obtain the memberships of a role
 
 
   Background:
+    Given I clear Redis cache
     Given I am the super-user
     And I create a new user "alice"
 

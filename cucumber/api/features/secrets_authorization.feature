@@ -2,6 +2,7 @@
 Feature: RBAC privileges control whether a role can update and/or fetch a secret.
 
   Background:
+    Given I clear Redis cache
     Given I create a new user "bob"
     And I create a new "variable" resource called "probe"
     And I permit user "bob" to "read" it

@@ -2,6 +2,9 @@
 @logged-in
 Feature: Rules which govern the visibility of resources to roles.
 
+  Background:
+    Given I clear Redis cache
+
   @acceptance
   Scenario: Resources from a foreign account are not visible without a permission
     Given I create a new resource in a foreign account

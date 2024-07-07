@@ -5,14 +5,15 @@ Feature: Export Conjur Open Source data
    into a Conjur EE appliance
 
    Background:
-   Given I create a new user "admin" in account "export_account"
+      Given I clear Redis cache
+      Given I create a new user "admin" in account "export_account"
 
    Scenario: Export using `conjurctl`
-   When I run conjurctl export
-   Then the export file exists
-   And the accounts file contains "export_account"
+      When I run conjurctl export
+      Then the export file exists
+      And the accounts file contains "export_account"
 
    @acceptance
    Scenario: Export with chosen label
-   When I run conjurctl export with label "my_export"
-   Then the export file exists with label "my_export"
+      When I run conjurctl export with label "my_export"
+      Then the export file exists with label "my_export"

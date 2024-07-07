@@ -5,6 +5,7 @@ Feature: Retrieve the role graph for a given role
   role can be retrieved throug the api
 
   Background:
+    Given I clear Redis cache
     Given I am the super-user
     And I successfully PUT "/policies/cucumber/policy/root" with body:
     """

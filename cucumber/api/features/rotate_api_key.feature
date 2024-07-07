@@ -21,6 +21,7 @@ Feature: Rotate the API key of a role
   to validate behavior for each authentication method.
 
   Background:
+    Given I clear Redis cache
     Given I create a new user "bob"
     And I create a new user "privileged_user"
     And I create a new user "unprivileged_user"

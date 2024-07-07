@@ -10,6 +10,9 @@ Feature: Create a new account
   Accounts are managed through a standard REST interface.  The "accounts" routes
   are authorized via privileges on the resource "!:webservice:accounts".
 
+  Background:
+    Given I clear Redis cache
+
   Scenario: POST /accounts to create a new account.
 
     "execute" privilege on "!:webservice:accounts" is required.

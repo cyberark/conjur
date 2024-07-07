@@ -2,6 +2,7 @@
 Feature: User and Host authentication can be network restricted
 
   Background:
+    Given I clear Redis cache
     Given I am the super-user
     And I load a network-restricted policy
 

@@ -2,6 +2,7 @@
 Feature: Conjur signs certificates using a configured CA
 
   Background:
+    Given I clear Redis cache
     Given I am the super-user
     And I successfully PUT "/policies/cucumber/policy/root" with body:
     """

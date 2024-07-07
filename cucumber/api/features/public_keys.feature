@@ -2,6 +2,7 @@
 Feature: List a role's public keys
 
   Background:
+    Given I clear Redis cache
     Given I create a new user "alice"
     And I create a new "public_key" resource called "user/alice/workstation"
     And I create a new "public_key" resource called "user/alice/laptop"

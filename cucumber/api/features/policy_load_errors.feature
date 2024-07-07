@@ -1,5 +1,7 @@
 @api @smoke
 Feature: Policy loading error messages
+  Background:
+    Given I clear Redis cache
 
   @negative @acceptance
   @logged-in-admin

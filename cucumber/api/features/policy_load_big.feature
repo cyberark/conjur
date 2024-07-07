@@ -3,6 +3,9 @@ Feature: Loading big policies
 
   The API can be used to load large policies
 
+  Background:
+    Given I clear Redis cache
+
   @acceptance
   Scenario: I load a policy with 1k users, 1k groups
     Given I am the super-user

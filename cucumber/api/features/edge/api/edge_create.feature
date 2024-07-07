@@ -2,6 +2,7 @@
 Feature: Create edge process
 
   Background:
+    Given I clear Redis cache
     Given I create a new user "some_user"
     And I create a new user "admin_user"
     And I have host "data/some_host1"

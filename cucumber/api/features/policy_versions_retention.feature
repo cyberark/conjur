@@ -5,6 +5,7 @@ Feature: Limit the number of policy versions
   the number of versions in the database to default value of 20 version, older versions are deleted.
 
   Background:
+    Given I clear Redis cache
     Given I am the super-user
     And I successfully POST "/policies/cucumber/policy/root" with body:
     """
