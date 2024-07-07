@@ -104,13 +104,14 @@ class EdgeSecretsController < RestController
   end
 
   def generate_secrets_result(limit, offset, options,selective_enabled)
+    sync_time = Time.now
     accepts_base64 = String(request.headers['Accept-Encoding']).casecmp?('base64')
     if accepts_base64
       response.set_header("Content-Encoding", "base64")
     end
     results, failed = replicate_secrets(limit, offset, options, accepts_base64,selective_enabled)
 
-    render(json: { "secrets": results, "failed": failed })
+    render(json: { "secrets": results, "failed": failed, "timestamp":  sync_time})
     logger.debug(LogMessages::Endpoints::EndpointFinishedSuccessfullyWithLimitAndOffset.new(
       "all_secrets replication for edge '#{Edge.get_name_by_hostname(current_user.role_id)}'",
       limit,

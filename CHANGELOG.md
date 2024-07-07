@@ -13,6 +13,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Fixed
 - Fixed return 403 when 404 suppose to return. ONYX-58244
 
+### Changed
+- Return timestamp in Edge API. ONYX-58711
+
 ## [1.0.31-cloud] - 2024-07-07
 ### Changed
 - Add ':' for allowed chars in workload name for workload create API
