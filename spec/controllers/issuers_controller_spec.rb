@@ -1095,7 +1095,7 @@ describe IssuersController, type: :request do
           assert_response :success
           parsed_body = JSON.parse(response.body)
           expect(parsed_body["id"]).to eq("issuer-1")
-          expect(parsed_body["max_ttl"]).to eq(200)
+          expect(parsed_body["max_ttl"]).to eq(2000)
           expect(parsed_body["type"]).to eq("aws")
           expect(response.body).to include("\"data\"")
           expect(response.body).to include("\"created_at\"")
@@ -1106,7 +1106,7 @@ describe IssuersController, type: :request do
           assert_response :success
           parsed_body = JSON.parse(response.body)
           expect(parsed_body.length).to eq(1)
-          expect(parsed_body["max_ttl"]).to eq(200)
+          expect(parsed_body["max_ttl"]).to eq(2000)
           expect(response.body).to_not include("\"data\"")
         end
       end
