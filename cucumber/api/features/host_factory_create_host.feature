@@ -2,6 +2,7 @@
 Feature: Create a host using the host factory.
 
   Background:
+    Given I clear Redis cache
     Given I create a host factory for layer "the-layer"
     And I create a host factory token
 

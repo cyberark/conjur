@@ -1,6 +1,8 @@
 @api
 @logged-in
 Feature: Test to allow bad content types in
+  Background:
+    Given I clear Redis cache
 
   @acceptance
   Scenario: I pass in a valid content type and it works successfully

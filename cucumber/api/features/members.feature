@@ -7,6 +7,7 @@ Feature: List direct members of a role
   Unlike role memberships, role members are not expanded recursively.
 
   Background:
+    Given I clear Redis cache
     Given I create a new user "bob"
     And I create a new user "alice"
     And I am the super-user

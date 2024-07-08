@@ -7,6 +7,7 @@ Feature: Change the password of a role
   the credential.
 
   Background:
+    Given I clear Redis cache
     Given I create a new user "alice"
 
   Scenario: With basic authentication, users can update their own password using the current password.

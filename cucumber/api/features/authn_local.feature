@@ -1,5 +1,7 @@
 @api @skip
 Feature: Custom Authenticators can obtain access tokens for any role
+  Background:
+    Given I clear Redis cache
 
   @sanity
   Scenario: Obtain an access token for a user

@@ -3,6 +3,7 @@ Feature: Fetching slosilo keys from edge endpoint
 
   Background:
     Given I clear Redis cache
+    Given I clear Redis cache
     Given I create a new user "some_user"
     And I create a new user "admin_user"
     And I am the super-user

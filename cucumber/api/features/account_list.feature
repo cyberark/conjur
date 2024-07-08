@@ -5,6 +5,7 @@ Feature: List accounts
   API. 
 
   Background:
+    Given I clear Redis cache
     Given I create a new user "admin" in account "!"
     And I permit role "!:user:admin" to "execute" resource "!:webservice:accounts"
     And I login as "!:user:admin"

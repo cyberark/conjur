@@ -7,6 +7,7 @@ Feature: Updating policies
   The initial policy create sub-policies which can be modified by privileged users.
 
   Background:
+    Given I clear Redis cache
     Given I am the super-user
     And I successfully PUT "/policies/cucumber/policy/root" with body:
     """

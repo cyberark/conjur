@@ -40,6 +40,7 @@ Feature: Updating Policies with Annotations
   How can we update how we handle policy to fail in this case?
 
   Background:
+    Given I clear Redis cache
     Given I am the super-user
     And I successfully PUT "/policies/cucumber/policy/root" with body:
     """

@@ -1,6 +1,7 @@
 @api @skip @smoke @sanity
 Feature: Creating host
   Background:
+    Given I clear Redis cache
     Given I am the super-user
     And I successfully PUT "/policies/cucumber/policy/root" with body:
     """

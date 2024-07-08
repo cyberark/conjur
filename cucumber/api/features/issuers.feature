@@ -4,6 +4,7 @@
 Feature: Issuers audits tests
 
   Background:
+    Given I clear Redis cache
     Given I am the super-user
     And I successfully POST "/policies/cucumber/policy/root" with body:
     """

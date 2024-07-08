@@ -2,6 +2,7 @@
 Feature: Retrieving an API key with conjurctl
 
   Background:
+    Given I clear Redis cache
     # We need to be in production environment to test this to demonstrate a real use-case
     Given I set environment variable "RAILS_ENV" to "production"
     And I set environment variable "CONJUR_LOG_LEVEL" to "info"

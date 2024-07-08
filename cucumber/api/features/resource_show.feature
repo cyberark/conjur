@@ -2,6 +2,7 @@
 Feature: Fetch resource details.
 
   Background:
+    Given I clear Redis cache
     Given I am a user named "alice"
     And I create a new "variable" resource called "@namespace@/app-01.mycorp.com"
 

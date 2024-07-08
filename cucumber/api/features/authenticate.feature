@@ -7,6 +7,7 @@ Feature: Exchange a role's API key for a signed authentication token
   token can be sent as the `Authorization` header to other Conjur REST
   functions as proof of authentication.
   Background:
+    Given I clear Redis cache
     Given I create a new user "alice"
     And I have host "app"
     And I have host "appNoApiKey" without api key

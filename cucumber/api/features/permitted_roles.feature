@@ -5,6 +5,7 @@ Feature: List roles which have a specific permission on a resource
   a specified privilege on some resource.
 
   Background:
+    Given I clear Redis cache
     Given I am a user named "alice"
     And I create a new resource
 

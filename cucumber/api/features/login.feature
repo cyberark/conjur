@@ -5,6 +5,7 @@ Feature: Exchange a role's password for its API key
   The API key is then used to authenticate and receive an auth token.
 
   Background:
+    Given I clear Redis cache
     Given I create a new user "alice"
     And I have host "app"
 

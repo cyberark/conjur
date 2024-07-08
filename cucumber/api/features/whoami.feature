@@ -1,6 +1,9 @@
 @api
 Feature: Who Am I
 
+  Background:
+    Given I clear Redis cache
+
   @acceptance
   Scenario: Audit entry
 

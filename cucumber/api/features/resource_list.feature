@@ -3,6 +3,7 @@
 Feature: List resources with various types of filtering
 
   Background:
+    Given I clear Redis cache
     Given I am a user named "alice"
     And I create 3 new resources
 

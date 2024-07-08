@@ -3,6 +3,7 @@
 Feature: Create a host factory token.
 
   Background:
+    Given I clear Redis cache
     Given I create a new user "alice"
     And I create a host factory for layer "the-layer"
 

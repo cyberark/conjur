@@ -4,6 +4,7 @@ Feature: Delete an account
   Accounts can be deleted through the API.
 
   Background:
+    Given I clear Redis cache
     Given I create a new user "privileged" in account "!"
     And I permit role "!:user:privileged" to "execute" resource "!:webservice:accounts"
     And I permit role "!:user:privileged" to "read" resource "!:webservice:accounts"

@@ -5,6 +5,7 @@ Feature: Manage the role entitlements through the API
   there are two API endpoints for granting and revoking role membership.
 
   Background:
+    Given I clear Redis cache
     Given I am the super-user
     And I successfully PUT "/policies/cucumber/policy/root" with body:
     """

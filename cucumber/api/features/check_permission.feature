@@ -5,6 +5,7 @@ Feature: Check whether a role has a privilege on a resource
   check determines whether a transaction is allowed or not.
 
   Background:
+    Given I clear Redis cache
     Given I am a user named "charlie"
     Given I create a new "chunky" resource called "bacon"
     And I create a new user "bob"
