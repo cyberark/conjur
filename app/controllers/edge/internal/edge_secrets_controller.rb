@@ -104,7 +104,7 @@ class EdgeSecretsController < RestController
   end
 
   def generate_secrets_result(limit, offset, options,selective_enabled)
-    sync_time = Time.now
+    sync_time = Time.now.utc.iso8601(3)
     accepts_base64 = String(request.headers['Accept-Encoding']).casecmp?('base64')
     if accepts_base64
       response.set_header("Content-Encoding", "base64")
