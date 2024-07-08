@@ -34,4 +34,4 @@ Slosilo["authn:cucumber:host:current"] ||= Slosilo::Key.new
 Slosilo["authn:cucumber:user:previous"] ||= Slosilo::Key.new
 Slosilo["authn:cucumber:host:previous"] ||= Slosilo::Key.new
 
-JsonSpec.excluded_keys = %w[created_at updated_at]
+JsonSpec.excluded_keys = %w[created_at updated_at timestamp]
