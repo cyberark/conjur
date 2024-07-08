@@ -1006,6 +1006,15 @@ describe IssuersController, type: :request do
   end
 
   describe "#list" do
+    context "when a user lists the issuers with no issuers defined" do
+      it 'empty list returned' do
+        get("/issuers/rspec?sort=id",
+            env: token_auth_header(role: admin_user))
+        assert_response :success
+        parsed_body = JSON.parse(response.body)
+        expect(parsed_body["issuers"].length).to eq(0)
+      end
+    end
     context "when a user lists the issuers" do
       let(:payload_create_issuer_1) do
         <<~BODY
