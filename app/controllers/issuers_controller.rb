@@ -244,13 +244,15 @@ class IssuersController < RestController
 end
 # Function to sort array of hashes by a specified key in asc order
 def sort_by_key(array, key)
+  result = array
   if array.size >0
     # check the key is a valid field
     unless array[0].key?(key.to_sym)
       raise ApplicationController::BadRequestWithBody, "the sort key #{key} is not a valid field of the issuer object"
     end
-    array.sort_by { |hash| hash[key.to_sym] }
+    result = array.sort_by { |hash| hash[key.to_sym] }
   end
+  result
 end
 
 def create_issuer_policy(policy_fields)

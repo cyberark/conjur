@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [1.0.32-cloud] - 2024-07-14
 ### Fixed
 - Fixed return 403 when 404 suppose to return. ONYX-58244
+- Fixed sort on empty issuers list. ONYX-58767
 
 ### Changed
 - Return timestamp in Edge API. ONYX-58711
