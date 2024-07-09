@@ -13,6 +13,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Fixed
 - Existing test in the middle (Cherry Pick form conjur-OSS)
 
+### Security
+- Stop printing puma's stacktrace CONCLOUDESE-249
+
 ## [1.0.32-cloud] - 2024-07-14
 ### Fixed
 - Fixed return 403 when 404 suppose to return. ONYX-58244

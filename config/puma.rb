@@ -66,7 +66,12 @@ max_fast_inline Float(ENV['MAX_REQUESTS_PER_CONNECTION'] || Float::INFINITY)
 preload_app!
 
 port        ENV['PORT']     || 3000
-environment ENV['RACK_ENV'] || 'development'
+
+# for development, export RACK_ENV=development will be more verbose
+# This variable is used in the Rails to determine the environment.
+# We choose to default to staging to avoid accidentally running in
+# production and yet still have a more verbose output. (not shown to the user)
+environment ENV['RACK_ENV'] || 'staging'
 
 # Logging the FIPS mode needs to happen in the `before_fork` callback to ensure
 # that the Rails and domain libraries have been loaded. Otherwise this will
