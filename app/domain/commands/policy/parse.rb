@@ -3,17 +3,31 @@
 # Parses a policy -- from a YAML file -- into records using Conjur::PolicyParser.
 # Versioning, storage in DB, and results presentation are left for the caller.
 
+require 'exceptions/enhanced_policy'
+
 module Commands
   module Policy
     class Parse
 
-      def call(account:, policy_id:, owner_id:, policy_text:, policy_filename:, root_policy:)
+      def call(account:,
+        policy_id:,
+        owner_id:,
+        policy_text:,
+        policy_filename:,
+        root_policy:
+      )
 
+        # in anticipation of no errors...
         resolved_records = []
         error = nil
 
+        # policy_filename is deprecated -- Policy class does not require it but because
+        #   the parser error classes use it we'll either pass the name or provide a substitute
+        @policy_filename = policy_filename
+        @policy_filename = "policy" if policy_filename.to_s.empty?
+
         begin
-          yaml_records = Conjur::PolicyParser::YAML::Loader.load(policy_text, policy_filename)
+          yaml_records = Conjur::PolicyParser::YAML::Loader.load(policy_text, @policy_filename)
 
           unless root_policy
             # Wraps the input records in a policy whose id is the
@@ -29,27 +43,40 @@ module Commands
           resolved_records = Conjur::PolicyParser::Resolver.resolve(yaml_records, account, owner_id)
 
         rescue Conjur::PolicyParser::Invalid => err
-          # Parse-specific errors arrive in the full error format:
-          error = err.message
-
-          # The full error format is composed of these fields:
+          # Error format, per gems/policy-parser/lib/conjur/policy/invalid.rb
           #   "Error at line #{mark.line}, column #{mark.column} in #{filename} : #{message}"
           # The 'message' field is readable as 'detail_message'.
-          message = err.detail_message
+          error = Exceptions::EnhancedPolicyError.new(
+            original_error: err,
+            detail_message: err.detail_message
+          )
 
-          # The parse-specific error is what we want to enhance with explainer information.
-          explainer = Commands::Policy::ExplainError.new
-          explanation = ""
-          error += "\n#{explanation}" unless explanation == nil
+        rescue Conjur::PolicyParser::ResolverError => err
+          # Error format, per gems/policy-parser/lib/conjur/policy/invalid.rb
+          # The 'message' field is the same as 'detail_message'.
+          error = Exceptions::EnhancedPolicyError.new(
+            original_error: err
+          )
 
-          $stderr.puts(error)
+        rescue Psych::SyntaxError => err
+          # Error format, per https://github.com/ruby/psych/blob/master/lib/psych/syntax_error.rb
+          # https://github.com/ruby/psych/blob/master/lib/psych/syntax_error.rb
+          #   err      = [problem, context].compact.join ' '
+          #   filename = file || '<unknown>'
+          #   message  = "(%s): %s at line %d column %d" % [filename, err, line, col]
+          error = Exceptions::EnhancedPolicyError.new(
+            original_error: err,
+            detail_message: [err.problem, err.context].compact.join(' ')
+          )
 
-        rescue => err
-          # Other runtime errors are captured but not enhanced.
-          error = err.message
-
-          $stderr.puts(error)
-
+        rescue ArgumentError => err
+          # From policy-parser
+          # from app/models/loader/types
+          # Will we see this here? => No.  This results from Orchestrate
+          # => controller level
+          error = Exceptions::EnhancedPolicyError.new(
+            original_error: err
+          )
         end
 
         PolicyParse.new(resolved_records, error)

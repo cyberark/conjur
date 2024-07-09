@@ -2,23 +2,31 @@ module Conjur
   module PolicyParser
     class Resolver
       attr_reader :account, :ownerid, :namespace
-      
+
       class << self
         # Resolve records to the specified owner id and namespace.
         def resolve records, account, ownerid
-          [
-            AccountResolver,
-            PolicyNamespaceResolver,
-            RelativePathResolver,
-            UserIdentifierNotationResolver,
-            OwnerResolver,
-            FlattenResolver,
-            DuplicateResolver,
-            AbsoluteChecker
-          ].each do |cls|
-            resolver = cls.new(account, ownerid)
-            records = resolver.resolve(records)
+          begin
+            [
+              AccountResolver,
+              PolicyNamespaceResolver,
+              RelativePathResolver,
+              UserIdentifierNotationResolver,
+              OwnerResolver,
+              FlattenResolver,
+              DuplicateResolver,
+              AbsoluteChecker
+            ].each do |cls|
+              resolver = cls.new(account, ownerid)
+              records = resolver.resolve(records)
+            end
+          rescue => err
+            # Wrap in ResolverError, so we can pass it to EnhancedPolicyError
+            raise ResolverError.new(
+              original_error: err,
+            )
           end
+
           records
         end
       end
