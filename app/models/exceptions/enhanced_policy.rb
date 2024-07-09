@@ -92,5 +92,13 @@ module Exceptions
         message: enhanced_message
       }
     end
+
+    def as_validation
+      {
+        line: line,
+        column: column,
+        message: enhanced_message
+      }
+    end
   end
 end
