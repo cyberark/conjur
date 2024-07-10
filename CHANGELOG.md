@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
+## [1.0.33-cloud] - 2024-07-21
+### Fixed
+- Existing test in the middle (Cherry Pick form conjur-OSS)
+
 ## [1.0.32-cloud] - 2024-07-14
 ### Fixed
 - Fixed return 403 when 404 suppose to return. ONYX-58244

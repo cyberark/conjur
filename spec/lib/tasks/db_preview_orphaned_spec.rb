@@ -12,7 +12,7 @@ describe "db:preview-orphaned" do
   end
 
   def reset_stdout
-    $stdout = @old if @old
+    $stdout = @old
   end
 
   def load_base_policy(path)
@@ -60,10 +60,12 @@ describe "db:preview-orphaned" do
     let(:base_policy_path) { 'CONJSE-1875-add.yml'}
     let(:resource_policy) { Resource['rspec:policy:root'] }
 
-    it "prints out items that will be deleted" do
+    before do
       Sequel::Model.db << "delete from resources where resource_id in ('rspec:user:sasha@myDemoApp', 'rspec:host:myDemoApp/app')"
-      Rake::Task["db:preview-orphaned"].invoke
+    end
 
+    it "prints out items that will be deleted and deletes them" do
+      Rake::Task["db:preview-orphaned"].invoke
       expect(@fake.string).to eq("
 Roles and resources that will be removed because the parent policy has been removed
 ID                                                      TYPE
@@ -90,8 +92,8 @@ sasha@myDemoApp                                         user
       expect(@fake.string).to include("rspec:user:sasha@myDemoApp")
       expect(@fake.string).to include("rspec:host:myDemoApp/app")
       expect(@fake.string).to include("rspec:host:myDemoApp/sub_policy/sub_app")
-      expect(@fake.string).to include("rspec:host:myDemoApp:myDemoApp/sub_policy/sub_sub_policy/extraExtraTopSecret")
-      expect(@fake.string).to include("rspec:host:myDemoApp:myDemoApp/sub_policy/extraTopSecret")
+      expect(@fake.string).to include("rspec:variable:myDemoApp/sub_policy/sub_sub_policy/extraExtraTopSecret")
+      expect(@fake.string).to include("rspec:variable:myDemoApp/sub_policy/extraTopSecret")
       expect(Role['rspec:user:sasha@myDemoApp']).to be_nil
       expect(Role['rspec:host:myDemoApp/app']).to be_nil
       expect(Role['rspec:host:myDemoApp/sub_policy/sub_app']).to be_nil
