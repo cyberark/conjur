@@ -329,7 +329,18 @@ module RestHelpers
     @http_status = $ERROR_INFO.http_code
     raise if can
 
-    set_result(@exception.response)  
+    set_result(@exception.response)
+  end
+
+  def try_request_accepting http_code
+    yield
+  rescue RestClient::Exception
+    puts($ERROR_INFO)
+    @exception = $ERROR_INFO
+    @http_status = $ERROR_INFO.http_code
+    raise unless @http_status == http_code
+
+    set_result(@exception.response)
   end
 
   def account

@@ -61,12 +61,12 @@ Feature: Policy loading error messages
     {
       "error": {
         "code": "validation_failed",
-        "message": "policy_text Error in policy:\nresource has a blank id\n",
+        "message": "policy_text resource has a blank id",
         "details": [
           {
             "code": "validation_failed",
             "target": "policy_text",
-            "message": "Error in policy:\nresource has a blank id\n"
+            "message": "resource has a blank id"
           }
         ]
       }

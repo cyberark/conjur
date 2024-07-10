@@ -73,7 +73,7 @@ describe 'reset_password.rake' do
   end
 
   # Load Policy can be specific to each context
-  # NB suppress its stderr logging with mute_stdio.
+  # Note: suppress its stderr logging with mute_stdio.
 
   def load_base_policy(account, path)
     require 'root_loader'

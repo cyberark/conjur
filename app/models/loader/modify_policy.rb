@@ -3,30 +3,56 @@
 # Responsible for modifying policy. Called when a PATCH request is received
 module Loader
   class ModifyPolicy
-    def initialize(loader)
+    def initialize(
+      loader:,
+      logger: Rails.logger
+    )
       @loader = loader
+      @logger = logger
     end
 
-    def self.from_policy(policy_version)
-      ModifyPolicy.new(Loader::Orchestrate.new(policy_version))
+    def self.from_policy(
+      policy_parse,
+      policy_version,
+      production_class,
+      logger: Rails.logger
+    )
+      ModifyPolicy.new(
+        loader: production_class.new(
+          policy_parse: policy_parse,
+          policy_version: policy_version,
+          logger: logger
+        ),
+        logger: logger
+      )
     end
 
     def call
       @loader.setup_db_for_new_policy
-      
       @loader.delete_shadowed_and_duplicate_rows
-
       @loader.upsert_policy_records
-
       @loader.clean_db
-
       @loader.store_auxiliary_data
-
       @loader.release_db_connection
+
+      PolicyResult.new(
+        policy_parse: @loader.policy_parse,
+        policy_version: @loader.policy_version,
+        created_roles: credential_roles
+      )
     end
 
     def new_roles
       @loader.new_roles
+    end
+
+    def credential_roles
+      actor_roles = @loader.actor_roles(new_roles)
+      @loader.credential_roles(actor_roles)
+    end
+
+    def report(policy_result)
+      @loader.report(policy_result)
     end
 
     def self.authorize(current_user, resource)
