@@ -20,6 +20,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   CNJR-5214
 - Added endpoint for getting effective policy
   CNJR-2040
+- Ensure logging of all HTTP status codes during authentication.
+  CNJR-232
 
 ### Fixed
 - Dedicated user identifier resolver allowing the user identifiers work like any other resource id. The Conjur internal

@@ -14,7 +14,8 @@ end
 RSpec.shared_context "with authenticator" do
   let(:options) { {} }
   let(:app) { double(:app) }
-  subject(:authenticator) { Conjur::Rack::Authenticator.new(app, options) }
+  let(:logger) { double("Rails.logger") }
+  subject(:authenticator) { Conjur::Rack::Authenticator.new(app, options, logger) }
   let(:call) { authenticator.call env }
 end
 

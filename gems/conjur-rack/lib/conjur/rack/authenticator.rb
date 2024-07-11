@@ -11,16 +11,16 @@ module Conjur
       def identity?
         !conjur_rack[:identity].nil?
       end
-      
+
       def user
-        User.new(identity[0], identity[1], 
-          :privilege => privilege, 
-          :remote_ip => remote_ip, 
-          :audit_roles => audit_roles, 
+        User.new(identity[0], identity[1],
+          :privilege => privilege,
+          :remote_ip => remote_ip,
+          :audit_roles => audit_roles,
           :audit_resources => audit_resources
           )
       end
-      
+
       def identity
         conjur_rack[:identity] or raise "No Conjur identity for current request"
       end
@@ -33,7 +33,7 @@ module Conjur
       end
     end
 
-  
+
     class Authenticator
       class AuthorizationError < SecurityError
       end
@@ -41,15 +41,20 @@ module Conjur
       end
       class Forbidden < SecurityError
       end
-      
+
       attr_reader :app, :options
-      
+
       # +options+:
       # :except :: a list of request path patterns for which to skip authentication.
       # :optional :: request path patterns for which authentication is optional.
-      def initialize app, options = {}
+      def initialize(
+        app,
+        options = {},
+        logger = Rails.logger
+      )
         @app = app
         @options = options
+        @logger = logger
       end
 
       # threadsafe accessors, values are established explicitly below
@@ -61,14 +66,14 @@ module Conjur
           conjur_rack[a]
         end
       end
- 
+
       def call rackenv
-        # never store request-specific variables as application attributes 
+        # never store request-specific variables as application attributes
         Thread.current[:rack_env] = rackenv
         if authenticate?
           begin
             identity = verify_authorization_and_get_identity # [token, account]
-            
+
             if identity
               conjur_rack[:token] = identity[0]
               conjur_rack[:account] = identity[1]
@@ -80,9 +85,13 @@ module Conjur
             end
 
           rescue Forbidden
-            return error 403, $!.message
+            @logger.info($!.message)
+            @logger.info("Completed 403 Forbidden\n\n")
+            return error(403, $!.message)
           rescue SecurityError, RestClient::Exception
-            return error 401, $!.message
+            @logger.info($!.message)
+            @logger.info("Completed 401 Unauthorized\n\n")
+            return error(401, $!.message)
           end
         end
         begin
@@ -92,9 +101,9 @@ module Conjur
           Thread.current[:conjur_rack] = {}
         end
       end
-      
+
       protected
-      
+
       def conjur_rack
         Conjur::Rack.conjur_rack
       end
@@ -109,7 +118,7 @@ module Conjur
           $1
         end
       end
-      
+
       def error status, message
         [status, { 'Content-Type' => 'text/plain', 'Content-Length' => message.length.to_s }, [message] ]
       end
@@ -121,7 +130,7 @@ module Conjur
       rescue JSON::ParserError
         raise AuthorizationError.new("Malformed authorization token")
       end
-      
+
       RECOGNIZED_CLAIMS = [
         'iat', 'exp', # recognized by Slosilo
         'cidr', 'sub',
@@ -152,7 +161,7 @@ module Conjur
           end
         end
       end
-      
+
       def authenticate?
         path = http_path
         if options[:except]
@@ -161,7 +170,7 @@ module Conjur
           true
         end
       end
-      
+
       def optional_paths
         options[:optional] || []
       end
