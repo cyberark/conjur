@@ -3,7 +3,7 @@
 # Responsible for validating the business rules of policy that is
 # loaded with the CREATE/UPDATE (Modify) operation
 # (which do not use custom AuthZ). Called when any policy load
-# is called with the ?validate=true query parameter. This is designed to
+# is called with the ?dryRun=true query parameter. This is designed to
 # maintain parity with the existing Loaders.
 module Loader
   class ValidatePolicy

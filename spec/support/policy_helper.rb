@@ -24,7 +24,7 @@ def validate_policy(policy:, policy_branch: 'root', role: 'admin', account: 'rsp
   # Apply policy
   send(
     action,
-    "/policies/#{account}/policy/#{policy_branch}?validate=true",
+    "/policies/#{account}/policy/#{policy_branch}?dryRun=true",
     env: {
       'HTTP_AUTHORIZATION' => access_token_for(role),
       'RAW_POST_DATA' => policy
