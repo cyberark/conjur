@@ -99,7 +99,7 @@ module Loader
         response = {
           "status" => "Invalid YAML",
           "errors" => [
-            error.as_json
+            error.as_validation
           ]
         }
         msg = "Invalid YAML.\n#{error}"

@@ -88,7 +88,7 @@ describe PoliciesController, type: :request do
           expect(response.code).to eq("422")
           expect(validation_status).to match("Invalid YAML")
           expect(validation_error_text).to match(/Invalid IP address or CIDR range/)
-          expect(validation_explanation).to match(/Use care to ensure your address or range is in the correct format/)
+          expect(validation_explanation).to match(/Make sure your address or range is in the correct format/)
         end
       end
 

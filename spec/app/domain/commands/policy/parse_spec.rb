@@ -190,7 +190,7 @@ describe 'Commands::Policy::Parse' do
   end
 
   # Be sure that Parse passes all expected error classes.
-  # Verify they always result as EPE with non-null message, original error in og_error
+  # Verify they always result as EPE with non-null message and original_error
   context 'with errors in the policy' do
     it 'returns an EnhancedPolicyError and no records' do
       pp = Commands::Policy::Parse.new.call(
