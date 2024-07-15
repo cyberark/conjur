@@ -39,6 +39,7 @@ $LOAD_PATH << '../app/domain'
 # not under the default load paths.
 $LOAD_PATH << './bin/conjur-cli'
 
+
 # Please note, VCR is configured to only run when the `:vcr` arguement
 # is passed to the RSpec block. Calling VCR with `VCR.use_cassette` will
 # not work.
@@ -51,6 +52,7 @@ VCR.configure do |config|
   config.default_cassette_options = {
     decode_compressed_response: true
   }
+  config.allow_http_connections_when_no_cassette = true
 end
 
 RSpec.configure do |config|
@@ -85,6 +87,7 @@ end
 RSpec::Support::ObjectFormatter.default_instance.max_formatted_output_length = 999
 
 def create_sqs_queue
+
   WebMock.allow_net_connect!
   sqs = Aws::SQS::Client.new
   response = sqs.create_queue(queue_name: 'MyTestQueue')

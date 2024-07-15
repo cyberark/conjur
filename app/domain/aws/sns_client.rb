@@ -6,8 +6,6 @@ class SnsClient
   include Singleton
 
   def initialize
-    @tid = get_tenant_id
-    @topic_arn = get_topic_arn
     @sns_client = Aws::SNS::Client.new
   end
 
@@ -24,10 +22,10 @@ class SnsClient
   def publish_message_and_error_handle(message, message_attributes, should_retry: false)
     begin
       response = @sns_client.publish({
-        topic_arn: @topic_arn,
+        topic_arn: get_topic_arn,
         message: message,
         message_attributes: message_attributes,
-        message_group_id: @tid,
+        message_group_id: get_tenant_id,
       })
       return response
 

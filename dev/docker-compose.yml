@@ -63,7 +63,8 @@ services:
       RAILS_ENV:
       CONJUR_LOG_LEVEL: debug
       TENANT_ID: mytenant
-      TOPIC_ARN: arn:aws:sns:us-east-1:0000000000000:developer.fifo
+      TOPIC_ARN: arn:aws:sns:us-east-1:000000000000:MyDeveloperTopic.fifo
+      TOPIC_NAME: MyDeveloperTopic.fifo
       TENANT_REGION: "us-east-1"
       REDIS_URL: redis://redis:6379
       AUDIT_DATABASE_URL:
