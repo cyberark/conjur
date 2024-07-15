@@ -63,7 +63,7 @@ _run_cucumber_tests() {
   echo "Start all services..."
 
   local parallel_services
-  read -ra parallel_services <<< "$(get_parallel_services 'conjur pg')"
+  read -ra parallel_services <<< "$(get_parallel_services 'conjur pg localstack')"
 
   if (( ${#services[@]} )); then
     $COMPOSE up --no-deps --no-recreate -d "${parallel_services[@]}" "${services[@]}"

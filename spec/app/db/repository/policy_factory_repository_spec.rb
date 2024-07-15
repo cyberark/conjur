@@ -7,6 +7,7 @@ RSpec.describe(DB::Repository::PolicyFactoryRepository) do
   before(:all) do
     ::Resource['rspec:variable:conjur/factories/core/v1/group']&.destroy
     ::Resource['rspec:variable:conjur/factories/core/v1/user']&.destroy
+    create_sns_topic
   end
   subject { DB::Repository::PolicyFactoryRepository.new }
 
