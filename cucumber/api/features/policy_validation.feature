@@ -23,9 +23,8 @@ Feature: Validating policies
       kind: password
     """
 
-  @skip
   Scenario: When an invalid policy is loaded an error and a recommendation are reported.
-    When I validate POST "/policies/cucumber/policy/dev/db?validate=true" with body:
+    When I validate POST "/policies/cucumber/policy/dev/db?dryRun=true" with body:
     """
    - !!str, xxx
 
@@ -36,7 +35,7 @@ Feature: Validating policies
     And the enhanced error includes "Only one node can be defined per line."
 
   Scenario: When a valid policy is loaded the status is reported as Valid YAML.
-    When I validate POST "/policies/cucumber/policy/dev/db?validate=true" with body:
+    When I validate POST "/policies/cucumber/policy/dev/db?dryRun=true" with body:
     """
     - !user bob
     """
@@ -49,7 +48,7 @@ Feature: Validating policies
     """
     - !variable ValidateDoesNotTouch
     """
-    And I successfully PUT "/policies/cucumber/policy/dev/db?validate=true" with body:
+    And I successfully PUT "/policies/cucumber/policy/dev/db?dryRun=true" with body:
     """
     - !delete
       record: !variable ValidateDoesNotTouch
@@ -68,7 +67,7 @@ Feature: Validating policies
   Scenario: When a policy is validated it is audited and not loaded.
     Given I am the super-user
     And I save my place in the audit log file for remote
-    And I successfully POST "/policies/cucumber/policy/root?validate=true" with body:
+    And I successfully POST "/policies/cucumber/policy/root?dryRun=true" with body:
     """
     - !user alice
     """

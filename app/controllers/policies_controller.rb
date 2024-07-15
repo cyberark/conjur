@@ -18,11 +18,12 @@ class PoliciesController < RestController
   # A Conjur policy can be interpreted in various ways.
   # A production strategy guides the interpretation.
   # Loader::Orchestrate is a production that loads Conjur policy to database.
-  # Loader::Validate is a production that parse Conjur policy, resulting in error repors.
-  # A dryrun strategy could be a mix of these, to report effective policy changes.
+  # Loader::Validate is a production that parses Conjur policy, resulting in error reports.
+  # The dryRun strategy parses Conjur policy, reports any errors, 
+  #   and if valid, reports the effective policy changes.
 
   def production_type
-    return :validation if params["validate"]&.strip&.downcase == "true"
+    return :validation if params["dryRun"]&.strip&.downcase == "true"
 
     :orchestration
   end

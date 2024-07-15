@@ -2,7 +2,7 @@
   
 # Responsible for validating the business rules of policy that is
 # loaded with the REPLACE operation (which does use custom AuthZ). Called when
-# any policy load is called with the ?validate=true query parameter. This is
+# any policy load is called with the ?dryRun=true query parameter. This is
 # designed to maintain parity with
 # the existing Loaders.
 module Loader
