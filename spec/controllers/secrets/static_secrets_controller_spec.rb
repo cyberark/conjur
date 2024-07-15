@@ -88,8 +88,21 @@ describe StaticSecretsController, type: :request do
           )
         )
         assert_response :success
+          create_sns_topic
+          ENV['ENABLE_PUBSUB'] = 'true'
       end
       it 'Secret resource was created with update permissions' do
+        post("/secrets/static",
+             env: token_auth_header(role: bob_user).merge(v2_api_header).merge(
+               {
+                 'RAW_POST_DATA' => payload_create_secret,
+                 'CONTENT_TYPE' => "application/json"
+               }
+             ))
+        # Correct response code
+        assert_response :created
+      end
+      it 'Check trigger_message_job work' do
         post("/secrets/static",
              env: token_auth_header(role: bob_user).merge(v2_api_header).merge(
                {

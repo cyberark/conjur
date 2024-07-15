@@ -3,11 +3,18 @@
 class PoliciesController < RestController
   include FindResource
   include AuthorizeResource
+  include TriggerMessage
+
   before_action :current_user
   before_action :find_or_create_root_policy
   after_action :publish_event, if: -> { response.successful? }
 
   rescue_from Sequel::UniqueConstraintViolation, with: :concurrent_load
+
+  def run_with_transaction(&block)
+    Sequel::Model.db.transaction(&block)
+    trigger_message_job
+  end
 
   # Conjur policies are YAML documents, so we assume that if no content-type
   # is provided in the request.

@@ -2,6 +2,12 @@ class StaticSecretsController < V2RestController
   include AuthorizeResource
   include BodyParser
   include ParamsValidator
+  include TriggerMessage
+
+  def run_with_transaction(&block)
+    Sequel::Model.db.transaction(&block)
+    trigger_message_job
+  end
 
   def create
     branch = params[:branch]

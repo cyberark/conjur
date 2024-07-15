@@ -10,6 +10,7 @@ class SecretsController < RestController
   include Secrets::RedisHandler
   include GroupMembershipValidator
   include EdgeValidator
+  include TriggerMessage
 
   before_action :current_user
 
@@ -19,6 +20,7 @@ class SecretsController < RestController
       yield
     else
       Sequel::Model.db.transaction(&block)
+      trigger_message_job
     end
   end
 
@@ -30,7 +32,6 @@ class SecretsController < RestController
     value = request.raw_post
 
     raise ArgumentError, "'value' may not be empty" if value.blank?
-
     ::DB::Service::SecretService.instance.secret_value_change(resource.id, value)
     resource.enforce_secrets_version_limit
 
