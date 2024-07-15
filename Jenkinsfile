@@ -1030,15 +1030,6 @@ pipeline {
               keepAll: true
             ])
 
-            publishHTML(
-              reportName: 'Coverage Report',
-              reportDir: 'coverage',
-              reportFiles: 'index.html',
-              reportTitles: '',
-              allowMissing: false,
-              alwaysLinkToLastBuild: true,
-              keepAll: true
-            )
             junit('''
               spec/reports/*.xml,
               spec/reports-audit/*.xml,
@@ -1073,7 +1064,23 @@ pipeline {
           INFRAPOOL_EXECUTORV2_AGENT_0.agentStash name: 'coverage', includes: 'coverage/**'
           unstash 'coverage'
           archiveFiles('coverage/*.xml')
-          codacy action: 'reportCoverage', filePath: "coverage/coverage.xml"
+
+          cobertura(
+            autoUpdateHealth: false,
+            autoUpdateStability: false,
+            coberturaReportFile: 'coverage/coverage.xml',
+            conditionalCoverageTargets: '70, 0, 0',
+            failUnhealthy: false,
+            failUnstable: false,
+            maxNumberOfBuilds: 0,
+            lineCoverageTargets: '70, 0, 0',
+            methodCoverageTargets: '70, 0, 0',
+            onlyStable: false,
+            sourceEncoding: 'ASCII',
+            zoomCoverageChart: false
+          )
+
+          codacy(action: 'reportCoverage', filePath: "coverage/coverage.xml")
         }
       }
     }
