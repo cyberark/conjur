@@ -8,6 +8,8 @@ require 'stringio'
 
 require 'simplecov'
 
+require 'aws-sdk-sns'
+
 SimpleCov.command_name("SimpleCov #{rand(1000000)}")
 SimpleCov.merge_timeout(7200)
 SimpleCov.start do
@@ -80,6 +82,12 @@ end
 # limit for those when they're printed
 RSpec::Support::ObjectFormatter.default_instance.max_formatted_output_length = 999
 
+def create_sns_topic
+  WebMock.allow_net_connect!
+  sns = Aws::SNS::Client.new
+  response = sns.create_topic(name: "test-topic-arn")
+  ENV['TOPIC_ARN'] = response.topic_arn
+end
 def secret_logged?(secret)
   log_file = './log/test.log'
 

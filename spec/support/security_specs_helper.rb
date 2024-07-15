@@ -81,7 +81,7 @@ shared_context "security mocks" do
     mock_validator(validation_succeeded: validation_succeeded, validation_error: validate_webservice_is_authenticator_error)
   end
 
-  # generates user_role authorized for all or no services
+  # generates user_role authorized for all or no localstack
   def user_role(is_authorized:)
     double('user_role').tap do |role|
       allow(role).to receive(:allowed_to?).and_return(is_authorized)

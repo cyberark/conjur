@@ -35,6 +35,17 @@ services:
     ports:
       - "6379:6379"
 
+  localstack:
+    image: localstack/localstack:latest
+    ports:
+      - "4566:4566"
+      - "4575:4575"
+    environment:
+      - SERVICES=sns
+      - DEBUG=1
+    volumes:
+      - "./localstack:/var/lib/localstack"
+
   conjur:
     build:
       context: ../
@@ -88,6 +99,7 @@ services:
     - pg:pg
     - ldap-server
     - keycloak
+    - localstack:localstack
 
   cucumber:
     image: conjur-dev

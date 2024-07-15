@@ -66,6 +66,7 @@ gem 'net-ldap'
 
 # for AWS rotator
 gem 'aws-sdk-iam', require: false
+gem 'aws-sdk-sns'
 
 # we need this version since any newer introduces braking change that causes issues with safe_yaml: https://github.com/ruby/psych/discussions/571
 gem 'psych', '=3.3.2'
