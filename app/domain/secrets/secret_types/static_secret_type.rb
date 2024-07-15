@@ -86,7 +86,6 @@ module Secrets
 
         # Set secret value
         set_value(secret, params[:value])
-        update_redis_secret(secret.id, params[:value])
 
         as_json(branch, secret_name, secret)
       end
@@ -122,7 +121,7 @@ module Secrets
 
       def set_value(secret, value)
         unless value.nil? || value.empty?
-          Secret.create(resource_id: secret.id, value: value)
+          ::DB::Service::SecretService.instance.secret_value_change(secret.id, value)
           secret.enforce_secrets_version_limit
         end
       end

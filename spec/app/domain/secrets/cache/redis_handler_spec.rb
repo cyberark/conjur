@@ -84,29 +84,6 @@ describe Secrets::RedisHandler do
     end
   end
 
-  context "Secret update - error handling" do
-    let(:key) {"data/key"}
-
-    before do
-      Rails.cache.clear
-    end
-
-    it "Secret is deleted from Redis if update failed" do
-      controller.create_redis_secret(key, "1", "")
-      allow(controller).to receive(:create_redis_secret).and_return('false')
-      expect(controller).to receive(:delete_redis_secret).with(key)
-      controller.update_redis_secret(key, "2")
-    end
-
-    it "Error is raised if deletion fails during update" do
-      controller.create_redis_secret(key, "1", "")
-      allow(controller).to receive(:create_redis_secret).and_return('false')
-      allow(controller).to receive(:delete_redis_secret).with(key).and_raise(RuntimeError)
-      expect{ controller.update_redis_secret(key, "2") }.to raise_error
-    end
-
-  end
-
   class Controller
     include Secrets::RedisHandler
   end

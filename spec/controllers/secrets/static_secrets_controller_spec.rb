@@ -1812,7 +1812,7 @@ describe StaticSecretsController, type: :request do
         expect(response.body).to eq("password2")
       end
 
-      it "Secret in Redis is updated on update" do
+      it "Secret in Redis is deleted on update" do
         Rails.cache.clear
         # Make secret value appear in Redis
         post('/secrets/rspec/variable/data/secrets/secret_to_update',
@@ -1837,7 +1837,7 @@ describe StaticSecretsController, type: :request do
         )
         # Correct response code
         assert_response :ok
-        expect(Slosilo::EncryptedAttributes.decrypt(Rails.cache.read(secret_id), aad: secret_id)).to eq('password2')
+        expect(Rails.cache.read(secret_id)).to eq(nil)
       end
     end
   end

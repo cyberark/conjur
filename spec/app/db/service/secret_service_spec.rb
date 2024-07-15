@@ -39,6 +39,7 @@ describe DB::Service::SecretService do
     end
 
     it 'adds an event to event table' do
+      allow(ENV).to receive(:[]).with('ENABLE_PUBSUB').and_return('true')
       subject.secret_value_change(secret_id, secret_value)
       events = Event.all
       expect(events.size).to eq(1)
