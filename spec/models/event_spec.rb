@@ -91,4 +91,17 @@ describe Event, :type => :model do
       expect(remaining_events.size).to eq(0)
     end
   end
+  describe '.unique_transaction_ids_count' do
+    it 'returns the correct count of unique transaction IDs' do
+      event4 = Event.create_event(event_type: 'create', event_value: "{\"id\": \"var1\"}")
+      event5 = Event.create_event(event_type: 'create', event_value: "{\"id\": \"var1\"}")
+      event6 = Event.create_event(event_type: 'create', event_value: "{\"id\": \"var1\"}")
+
+      # Update the transaction_id for the events
+      event4.update(transaction_id: "100")
+      event5.update(transaction_id: "101")
+      event6.update(transaction_id: "102")
+      expect(Event.unique_transaction_ids_count).to eq(3)
+    end
+  end
 end

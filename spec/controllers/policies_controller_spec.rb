@@ -130,4 +130,49 @@ describe PoliciesController, type: :request do
       expect(roles.keys).to eq([created1.id, updated1.id, updated2.id])
     end
   end
+
+  context "check run_with_transaction and trigger message job in policies controller" do
+    let(:user_owner_id) { 'rspec:user:admin' }
+    let(:admin_user) { Role.find_or_create(role_id: user_owner_id) }
+    let(:account) { "rspec" }
+
+    before {
+      create_sns_topic
+      ENV['ENABLE_PUBSUB'] = 'true'
+    }
+    # let(:payload) { {'RAW_POST_DATA' => %Q('- !host  id: testHost\n  annotations:\n    authn/api-key: true')} }
+    it "run_with_transaction and trigger message job" do
+      host_policy = %Q(
+# Define test app host
+- !host
+  id: hostTest
+  annotations:
+    authn/api-key: true
+  )
+      # event1 = Event.create_event(event_type: 'test_event1', event_value: '{"key":"value1"}')
+      # Event.create_event(event_type: 'test_event2', event_value: '{"key":"value2"}')
+
+      transaction_id = ""
+      # Ensure events are present before running the method
+      # expect(Event.where(transaction_id: transaction_id).count).to be > 0
+
+
+
+      expect(MessageJob.instance).to receive(:run).and_call_original
+
+      thread = nil
+      allow_any_instance_of(PoliciesController).to receive(:trigger_message_job) do
+        thread = Thread.new {
+          event1 = Event.create_event(event_type: 'test_event1', event_value: '{"key":"value1"}')
+          Event.create_event(event_type: 'test_event2', event_value: '{"key":"value2"}')
+          MessageJob.instance.run
+        transaction_id = event1[:transaction_id]}
+        thread
+      end
+      post("/policies/#{account}/policy/root", env: token_auth_header(role: admin_user).merge({'RAW_POST_DATA' => host_policy}))
+      thread.join if thread
+      expect(response.status).to eq(201)
+      expect(Event.where(transaction_id: transaction_id).count).to eq(0)
+    end
+  end
 end

@@ -10,6 +10,14 @@ describe SecretsController, type: :request do
   let(:admin_user) { Role.find_or_create(role_id: user_owner_id) }
   let(:my_host) { Role.find_or_create(role_id: host_id) }
 
+  before(:each) do
+    create_sns_topic
+  end
+
+  after(:each) do
+    delete_sns_topic
+  end
+
   context 'pCloud secrets fetch monitoring' do
     let(:pcloud_var_id) { "#{account}:variable:data/vault/pCloud_fetch_pcloud_secret" }
     let(:non_pcloud_var_id) { "#{account}:variable:data/pCloud_fetch_conjur_secret" }
@@ -197,9 +205,16 @@ describe SecretsController, type: :request do
 
     it "Create succeeds when Redis returns nil" do
       expect(Rails.cache).to receive(:read).exactly(3).times.and_return(nil) # Create reads before it creating
+      expect(MessageJob.instance).to receive(:run)
+
+      thread = nil
+      allow_any_instance_of(SecretsController).to receive(:trigger_message_job) do
+        thread = Thread.new { MessageJob.instance.run }
+        thread
+      end
 
       post("/secrets/#{data_var_id.gsub(':', '/')}", env: token_auth_header(role: admin_user).merge(payload))
-
+      thread.join if thread # Ensure the thread completes execution
       expect(response.status).to eq(201)
     end
   end
@@ -401,5 +416,9 @@ describe SecretsController, type: :request do
 
 
     end
+
+
+
+
   end
 end
