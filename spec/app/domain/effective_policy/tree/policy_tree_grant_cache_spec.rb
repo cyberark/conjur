@@ -1,7 +1,9 @@
 require 'spec_helper'
 
 RSpec.describe(EffectivePolicy::PolicyTree::GrantCache) do
-  let(:grant_cache) { EffectivePolicy::PolicyTree::GrantCache.new }
+  let(:grant_cache) { EffectivePolicy::PolicyTree::GrantCache.new(
+    EffectivePolicy::PolicyTree::PolicyCache.new)
+  }
 
   describe '#add' do
     let(:role_kind) { 'group' }

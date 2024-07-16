@@ -2,6 +2,7 @@
 - !host root-hst
 - !layer root-lyr
 - !webservice root-ws
+- !variable with/slash
 - !host-factory
   id: root-hf
   layers: [!layer root-lyr]

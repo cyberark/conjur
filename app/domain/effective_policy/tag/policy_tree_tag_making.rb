@@ -18,7 +18,7 @@ module EffectivePolicy
         tag(:policy, values)
       end
 
-      def enhance_policy(initial_pol, res)
+      def enhance_policy(initial_pol, res_with_id)
         # - !policy
         #   id: <name>
         #   owner: !<kind-of-role> <role-name>
@@ -26,27 +26,28 @@ module EffectivePolicy
         #     <key>: <value>
         #   body:
         #     [keeps, existing, entries]
-        values = init_res_values_with_owner_and_anns(res)
+        values = init_res_values_with_owner_and_anns(res_with_id)
           .merge(initial_pol.value)
 
         initial_pol.value = values
         initial_pol
       end
 
-      def make_user(res)
+      def make_user(res_with_id)
         # - !user
         #   id: <name>
         #   owner: !<kind-of-role> <role-name>
         #   annotations:
         #     <key>: <value>
         #   restricted_to: <network range>
-        values = init_res_values_with_owner_and_anns(res)
+        res = res_with_id[:res]
+        values = init_res_values_with_owner_and_anns(res_with_id)
           .merge(prepare_host_restricted_to(res))
 
         tag(res.kind, values)
       end
 
-      def make_group_or_layer(res)
+      def make_group_or_layer(res_with_id)
         # - !group
         #   id: <group-name>
         #   owner: !<kind-of-role> <role-name>
@@ -57,40 +58,43 @@ module EffectivePolicy
         #   owner: !<kind-of-role> <role-name>
         #   annotations:
         #     <key>: <value>
-        values = init_res_values_with_owner_and_anns(res)
+        res = res_with_id[:res]
+        values = init_res_values_with_owner_and_anns(res_with_id)
 
         tag(res.kind, values)
       end
 
-      def make_host(res)
+      def make_host(res_with_id)
         # - !host
         #   id: <name>
         #   owner: !<kind-of-role> <role-name>
         #   annotations:
         #     <key>: <value>
         #   restricted_to: <network range>
-        values = init_res_values_with_owner_and_anns(res)
+        res = res_with_id[:res]
+        values = init_res_values_with_owner_and_anns(res_with_id)
           .merge(prepare_host_restricted_to(res))
 
         tag(res.kind, values)
       end
 
-      def make_host_factory(res)
+      def make_host_factory(res_with_id, layers)
         # - !host-factory
         #   id: <name>
         #   owner: !<kind-of-role> <role-name>
         #   layers: [ !layer <layer-name>, ... ]
         #   annotations:
         #     <key>: <value>
-        values = prepare_id(id(res.identifier))
-          .merge(prepare_owner(res))
-          .merge(prepare_host_factory_layers(res))
+        res = res_with_id[:res]
+        values = prepare_id(res_with_id[:identifier])
+          .merge(prepare_owner(res_with_id))
+          .merge(prepare_host_factory_layers(layers))
           .merge(prepare_annotations(res))
 
         tag(res.kind, values)
       end
 
-      def make_variable(res)
+      def make_variable(res_with_id)
         # - !variable
         #   id: <name>
         #   kind: <description>
@@ -100,8 +104,9 @@ module EffectivePolicy
 
         # kind and mime_type are stored in the annotations
         # key prefix is 'conjur/'
+        res = res_with_id[:res]
         anns = build_annotations(res)
-        values = prepare_id(id(res.identifier))
+        values = prepare_id(res_with_id[:identifier])
           .merge(prepare_var_kind(anns))
           .merge(prepare_var_mime_type(anns))
           .merge(prepare_annotations_hash(anns))
@@ -109,11 +114,12 @@ module EffectivePolicy
         tag(res.kind, values)
       end
 
-      def make_webservice(res)
+      def make_webservice(res_with_id)
         # - !webservice
         #   id: <name>
         #   owner: !<kind-of-role> <role-name>
-        values = init_res_values_with_owner_and_anns(res)
+        res = res_with_id[:res]
+        values = init_res_values_with_owner_and_anns(res_with_id)
 
         tag(res.kind, values)
       end

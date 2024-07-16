@@ -9,8 +9,9 @@ module EffectivePolicy
 
       attr_reader :grants
 
-      def initialize
+      def initialize(policies_cache)
         @grants = {}
+        @policies_cache = policies_cache
       end
 
       def to_s
@@ -27,7 +28,7 @@ module EffectivePolicy
       private
 
       def get_or_init(role_kind, role_identifier)
-        @grants[role_identifier] ||= make_initial_grant(role_kind, id(role_identifier))
+        @grants[role_identifier] ||= make_initial_grant(role_kind, @policies_cache.id(role_identifier))
       end
     end
   end

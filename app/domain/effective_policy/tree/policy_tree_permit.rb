@@ -8,11 +8,8 @@ module EffectivePolicy
         permits_cache = {}
         # reducing permissions to permits and combining privileges in an array
         permissions.each_with_object([]) do |perm, permits|
-          role_full_id = perm[:role_id]
-          res_full_id = perm[:resource_id]
 
-          permit_key = role_full_id + res_full_id
-          permit = get_or_init(permits_cache, permit_key, role_full_id, res_full_id)
+          permit = get_or_init(permits_cache, perm)
 
           privileges_arr = get_privileges_arr(permit)
 
@@ -26,11 +23,16 @@ module EffectivePolicy
 
       private
 
-      def get_or_init(permits_cache, permit_key, role_full_id, res_full_id)
+      def get_or_init(permits_cache, perm)
+        role_full_id = perm[:role_id]
+        res_full_id = perm[:resource_id]
+
+        permit_key = role_full_id + res_full_id
+
         role_kind = kind(role_full_id)
-        role_id = id(identifier(role_full_id))
+        role_id = perm[:proper_role_id]
         res_kind = kind(res_full_id)
-        res_id = id(identifier(res_full_id))
+        res_id = perm[:proper_resource_id]
 
         permits_cache[permit_key] ||= make_initial_permit(role_kind, role_id, res_kind, res_id)
       end
