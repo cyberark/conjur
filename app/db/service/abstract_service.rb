@@ -15,7 +15,9 @@ module DB
 
       private
       def listeners
-        [Listeners::RedisWriteListener.instance, Listeners::EventWriteListener.instance]
+        [Listeners::RedisWriteListener.instance].tap do |array|
+          array << Listeners::EventWriteListener.instance if ENV['ENABLE_PUBSUB'] == 'true'
+        end
       end
 
     end

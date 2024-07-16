@@ -117,10 +117,10 @@ describe SecretsController, type: :request do
       expect(read_from_redis(data_var_id)).to_not be_nil
     end
 
-    it "secret is updated in Redis if under /data and exists in Redis during create" do
+    it "secret is deleted in Redis if under /data and exists in Redis during create" do
       write_into_redis(data_var_id, 'secret')
       post("/secrets/#{data_var_id.gsub(':', '/')}", env: token_auth_header(role: admin_user).merge(payload))
-      expect(read_from_redis(data_var_id)).to eq('new-secret')
+      expect(read_from_redis(data_var_id)).to eq(nil)
     end
 
   end
@@ -175,16 +175,14 @@ describe SecretsController, type: :request do
       expect(response.body).to eq('secret')
     end
 
-    it "Create succeeds when Redis throws exception" do
+    it "Create fails when Redis throws exception" do
       write_into_redis(data_var_id, 'secret')
       expect(Rails.cache).to receive(:read).with(admin_user_id).and_call_original
-      expect(Rails.cache).to receive(:read).with(data_var_id).and_call_original
-      expect(Rails.cache).to receive(:read).with("rspec:variable:data/conjur_secret/mime_type").and_call_original
-      expect(Rails.cache).to receive(:write).at_least(:once).and_raise(ApplicationController::ServiceUnavailable)
+      expect(Rails.cache).to receive(:delete).with(data_var_id).at_least(:once).and_raise(ApplicationController::ServiceUnavailable)
 
       post("/secrets/#{data_var_id.gsub(':', '/')}", env: token_auth_header(role: admin_user).merge(payload))
 
-      expect(response.status).to eq(201)
+      expect(response.status).to eq(503)
     end
 
     it "Show succeeds when Redis returns nil" do
@@ -198,7 +196,7 @@ describe SecretsController, type: :request do
     end
 
     it "Create succeeds when Redis returns nil" do
-      expect(Rails.cache).to receive(:read).exactly(5).times.and_return(nil) # Create reads before it creating
+      expect(Rails.cache).to receive(:read).exactly(3).times.and_return(nil) # Create reads before it creating
 
       post("/secrets/#{data_var_id.gsub(':', '/')}", env: token_auth_header(role: admin_user).merge(payload))
 

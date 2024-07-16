@@ -35,18 +35,6 @@ module Secrets
       return 'false'
     end
 
-    # Updates secret value if exists
-    def update_redis_secret(key, value)
-      value_in_redis, mime_type = get_redis_secret(key)
-      unless value_in_redis.nil? # Only update secret. Don't create a new one
-        res = create_redis_secret(key, value, mime_type)
-        # Failing to update means that Redis is inconsistent with DB. Delete from Redis
-        if res != OK
-          delete_redis_secret(key)
-        end
-      end
-    end
-
     def delete_redis_secret(key)
       return unless secret_applicable?(key)
 

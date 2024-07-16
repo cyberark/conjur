@@ -42,7 +42,7 @@ module FollowFetchPcloudSecrets
 
     def set_first_fetch
       if Resource[resource_id: get_pcloud_fetch_secret_name] && Secret[resource_id: get_pcloud_fetch_secret_name].nil?
-        Secret.create(resource_id: get_pcloud_fetch_secret_name, value: Time.now.to_s)
+        ::DB::Service::SecretService.instance.secret_value_change(get_pcloud_fetch_secret_name, Time.now.to_s)
         @@is_pcloud_fetched = true
       end
     end

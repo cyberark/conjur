@@ -5,8 +5,8 @@ module Repos
     def self.create(resource_id)
       ca_info = ::Conjur::CaInfo.new(resource_id)
       ca = ::Util::OpenSsl::CA.from_subject(ca_info.cert_subject)
-      Secret.create(resource_id: ca_info.cert_id, value: ca.cert.to_pem)
-      Secret.create(resource_id: ca_info.key_id, value: ca.key.to_pem)
+      ::DB::Service::SecretService.instance.secret_value_change(ca_info.cert_id, ca.cert.to_pem)
+      ::DB::Service::SecretService.instance.secret_value_change(ca_info.key_id, ca.key.to_pem)
       ca.cert
     end
 
