@@ -17,6 +17,19 @@ module AuthorizeResource
     end
   end
 
+  def authorize_ownership(resource = self.resource)
+    unless current_user.all_roles.all.map(&:role_id).include?(resource.owner_id)
+      logger.info(
+        Errors::Authentication::Security::RoleNotAuthorizedOnResource.new(
+          user.role_id,
+          :ownership,
+          resource.resource_id
+        )
+      )
+      raise ApplicationController::Forbidden
+    end
+  end
+
   private
 
   def auth(user, privilege, resource)

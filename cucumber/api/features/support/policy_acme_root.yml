@@ -1,0 +1,17 @@
+- !user rot
+- !host root-hst
+- !layer root-lyr
+- !webservice root-ws
+- !host-factory
+  id: root-hf
+  layers: [!layer root-lyr]
+- !group root-grp
+- !grant
+  role: !group root-grp
+  members:
+    - !user rot
+- !permit
+  role: !group root-grp
+  privileges: [ read, execute ]
+  resource: !policy rootpolicy
+- !variable root-var

@@ -15,6 +15,45 @@ class PoliciesController < RestController
   # is provided in the request.
   set_default_content_type_for_path(%r{^/policies}, 'application/x-yaml')
 
+  def get
+    action = :read
+    unless params[:kind] == 'policy'
+      raise(Errors::EffectivePolicy::PathParamError.new(params[:kind]))
+    end
+    authorize_ownership
+
+    allowed_params = %i[account kind identifier depth limit]
+    options = params.permit(*allowed_params)
+      .slice(:account, :identifier, :depth, :limit).to_h.symbolize_keys
+      .merge(role_id: current_user.id)
+
+    resources = EffectivePolicy::GetEffectivePolicy.new(**options).verify.call
+    policy_tree = EffectivePolicy::BuildPolicyTree.new.call(options[:identifier], resources)
+
+    Audit.logger.log(Audit::Event::Policy.new(
+      operation: action, subject: options,
+      user: current_user, client_ip: request.ip,
+      error_message: nil # No error message because reading was successful
+    ))
+
+    json_content_type = 'application/json'
+    if request.headers["Content-Type"] == json_content_type
+      render(plain: policy_tree.to_json, content_type: json_content_type)
+    else
+      render(plain: policy_tree.to_yaml, content_type: "application/x-yaml")
+    end
+
+  rescue Errors::EffectivePolicy::NumberParamError, Errors::EffectivePolicy::PathParamError => e
+    audit_failure(e, action)
+    raise ApplicationController::BadRequest, e.message
+  rescue Errors::EffectivePolicy::PolicySizeExceeded => e
+    audit_failure(e, action)
+    raise ApplicationController::UnprocessableEntity, e.message
+  rescue => e
+    audit_failure(e, action)
+    raise e
+  end
+
   # A Conjur policy can be interpreted in various ways.
   # A production strategy guides the interpretation.
   # Loader::Orchestrate is a production that loads Conjur policy to database.

@@ -70,3 +70,18 @@ Then(/^the binary data is preserved for "([^"]*)"$/) do |resource_id|
   data = Base64.decode64(@result[resource_id])
   expect(data).to eq(@value)
 end
+
+Then(/^the yaml result is:$/) do |value|
+  expect(@result).to be
+  expect(@result.headers[:content_type]).to include("application/x-yaml")
+  expect(YAML.safe_load(@result.body)).to eq(YAML.safe_load(value))
+end
+
+Then(/^the yaml result is like in file: "([^"]*)"$/) do |filename|
+  expect(@result).to be
+  expect(@result.headers[:content_type]).to include("application/x-yaml")
+  absolute_path = "#{File.dirname(__FILE__)}/../support/#{filename}"
+  File.open(absolute_path) do |file|
+    expect(YAML.safe_load(@result.body)).to eq(YAML.safe_load(file.read))
+  end
+end

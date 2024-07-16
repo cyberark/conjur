@@ -804,4 +804,21 @@ module Errors
       code: 'CONJ00161E'
     )
   end
+
+  module EffectivePolicy
+    NumberParamError = ::Util::TrackableErrorClass.new(
+      msg: "Param '{0-name}' is '{1-value}' but should be a number from {2-min} up to {3-max}",
+      code: 'CONJ00163E'
+    )
+
+    PolicySizeExceeded = ::Util::TrackableErrorClass.new(
+      msg: "Policy max allowed '{0-name}' = {1-max} exceeded. Value for policy is: {2-value}",
+      code: 'CONJ00164E'
+    )
+
+    PathParamError = ::Util::TrackableErrorClass.new(
+      msg: "Unsupported kind '{0-name}'. Only 'policy' is allowed.",
+      code: 'CONJ00165E'
+    )
+  end
 end

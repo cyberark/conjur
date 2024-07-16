@@ -1,0 +1,75 @@
+---
+- !policy
+  id: outer-adm
+  owner: !user /rootpolicy/acme-adm/ali
+  body:
+    - !user
+      id: bob
+      restricted_to: [172.17.0.3/32, 10.0.0.0/24]
+    - !policy
+      id: inner-adm
+      owner: !user /rootpolicy/acme-adm/outer-adm/bob
+      body:
+        - !user cac
+        - !policy
+          id: data-adm
+          body:
+            - !variable inner-data-adm-var1
+            - !variable
+              id: inner-data-adm-var2
+              kind: description
+              mime_type: text/plain
+              annotations:
+                description: Desc for var 2 in inner-adm
+            - !webservice inner-data-adm-ws1
+            - !webservice
+              id: inner-data-adm-ws2
+              annotations:
+                description: Desc for var 2 in inner-adm
+            - !webservice inner-data-adm-ws3
+            - !host data-adm-hst1
+            - !host
+              id: data-adm-hst2
+              restricted_to: [172.17.0.3/32, 10.0.0.0/24]
+            - !layer data-adm-lyr1
+            - !layer data-adm-lyr2
+            - !host-factory
+              id: data-adm-hf1
+              layers: [!layer data-adm-lyr1]
+            - !host-factory
+              id: data-adm-hf2
+              owner: !host /rootpolicy/acme-adm/outer-adm/inner-adm/data-adm/data-adm-hst2
+              layers: [!layer data-adm-lyr1, !layer data-adm-lyr2]
+              annotations:
+                description: annotation description
+            - !group data-adm-grp1
+            - !group
+              id: data-adm-grp2
+              owner: !host-factory /rootpolicy/acme-adm/outer-adm/inner-adm/data-adm/data-adm-hf2
+              annotations:
+                description: annotation description
+        - !variable
+          id: inner-adm-var1
+          kind: description
+          mime_type: text/plain
+          annotations:
+            description: Desc for var 2 in inner-adm
+        - !variable
+          id: inner-adm-var2
+          kind: description
+          mime_type: text/plain
+          annotations:
+            description: Desc for var 2 in inner-adm
+    - !policy
+      id: root
+      body:
+        - !user usr
+    - !group grp-outer-adm
+    - !permit
+      role: !group grp-outer-adm
+      privileges: [execute, read]
+      resource: !policy inner-adm
+    - !permit
+      role: !user bob
+      privileges: [create, read, update]
+      resource: !policy inner-adm

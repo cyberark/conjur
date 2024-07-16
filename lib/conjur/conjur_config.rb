@@ -40,7 +40,9 @@ module Conjur
       authenticators: [],
       extensions: [],
       telemetry_enabled: false,
-      policy_factories_path: 'conjur/factories'
+      policy_factories_path: 'conjur/factories',
+      effective_policy_max_depth: 64,
+      effective_policy_max_limit: 100000
     )
 
     def initialize(
