@@ -19,7 +19,7 @@ module EffectivePolicy
         normalize_role_ids!(res)
         normalize_permissions!(res)
         res
-      end
+      end.filter { |res| res.identifier.count('/') <= @absolute_depth + 1 }
     end
 
     private

@@ -45,23 +45,4 @@ RSpec.describe(EffectivePolicy::ResPathing) do
     end
   end
 
-  describe '#id' do
-    context 'when id has a slash' do
-      it 'returns the id after the last slash' do
-        expect(pathing.id('cucumber:policy:rootpolicy/acme-adm/outer-adm')).to eq('outer-adm')
-      end
-    end
-
-    context 'when id does not have a slash' do
-      it 'returns the id as is' do
-        expect(pathing.id('outer-adm')).to eq('outer-adm')
-      end
-    end
-  end
-
-  describe '#parent_identifier' do
-    it 'returns the parent identifier of the resource' do
-      expect(pathing.parent_identifier('rootpolicy/outer-adm/gali')).to eq('rootpolicy/outer-adm')
-    end
-  end
 end

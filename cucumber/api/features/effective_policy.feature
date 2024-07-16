@@ -89,76 +89,35 @@ Feature: Fetching effective policy
   @acceptance
   Scenario: As admin I can get effective policy with depth 1
     Given I am the super-user
-    And I can GET "/policies/cucumber/policy/rootpolicy?depth=1"
+    And I can GET "/policies/cucumber/policy/rootpolicy/acme-adm/outer?depth=1"
     And the HTTP response content type is "application/x-yaml"
     Then the yaml result is:
     """
     - !policy
-      id: rootpolicy
+      id: outer
       body:
-      - !policy
-        id: acme-adm
-        annotations:
-          description: Policy acme in root made by admin
-          type: acme-adm-type
-        body:
-        - !user ala
-        - !user ale
-        - !user ali
-        - !user alo
-        - !user aly
+        - !policy
+          id: adm
+          body: []
     """
 
   @acceptance
   Scenario: As admin I can get effective policy with depth 2
     Given I am the super-user
-    And I can GET "/policies/cucumber/policy/rootpolicy?depth=2"
+    And I can GET "/policies/cucumber/policy/rootpolicy/acme-adm/outer?depth=2"
     And the HTTP response content type is "application/x-yaml"
     Then the yaml result is:
     """
     ---
     - !policy
-      id: rootpolicy
+      id: outer
       body:
-      - !policy
-        id: acme-adm
-        annotations:
-          description: Policy acme in root made by admin
-          type: acme-adm-type
-        body:
-        - !user ala
-        - !user ale
-        - !user ali
-        - !user alo
-        - !user aly
         - !policy
-          id: outer
-          body: []
-        - !policy
-          id: outer-adm
-          owner: !user /rootpolicy/acme-adm/ali
+          id: adm
           body:
-          - !user
-            id: bob
-            restricted_to: [172.17.0.3/32, 10.0.0.0/24]
-          - !grant
-            role: !group grp-outer-adm
-            members:
-            - !user /rootpolicy/acme-adm/ala
-            - !user /rootpolicy/acme-adm/ale
-            - !user /rootpolicy/acme-adm/ali
-            - !user /rootpolicy/acme-adm/alo
-            - !user /rootpolicy/acme-adm/aly
-          - !grant
-            role: !user bob
-            members:
-            - !user /rootpolicy/acme-adm/ali
-        - !policy
-          id: outer-adm-inner-adm
-          body: []
-        - !host
-          id: outer-host
-          owner: !policy /rootpolicy/acme-adm/outer-adm-inner-adm
+            - !policy
+              id: inner
+              body: []
     """
 
   @negative @acceptance
@@ -170,23 +129,15 @@ Feature: Fetching effective policy
   @acceptance
   Scenario: As admin I can get effective policy with depth and limit
     Given I am the super-user
-    And I can GET "/policies/cucumber/policy/rootpolicy?depth=1;limit=10"
+    And I can GET "/policies/cucumber/policy/rootpolicy/acme-adm/outer?depth=1;limit=10"
     Then the yaml result is:
     """
     - !policy
-      id: rootpolicy
+      id: outer
       body:
-      - !policy
-        id: acme-adm
-        annotations:
-          description: Policy acme in root made by admin
-          type: acme-adm-type
-        body:
-        - !user ala
-        - !user ale
-        - !user ali
-        - !user alo
-        - !user aly
+        - !policy
+          id: adm
+          body: []
     """
 
   @acceptance

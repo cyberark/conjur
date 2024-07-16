@@ -7,14 +7,14 @@ module EffectivePolicy
         { "id" => id }
       end
 
-      def init_res_values_with_owner_and_anns(res)
-        prepare_id(id(res.identifier))
-          .merge(prepare_owner(res))
+      def init_res_values_with_owner_and_anns(res_with_id)
+        res = res_with_id[:res]
+        prepare_id(res_with_id[:identifier])
+          .merge(prepare_owner(res_with_id))
           .merge(prepare_annotations(res))
       end
 
-      def prepare_host_factory_layers(res)
-        layers = res.role.layers.map { |layer| tag('layer', id(identifier(layer.role_id)).to_s) }
+      def prepare_host_factory_layers(layers)
         layers.empty? ? {} : { "layers" => pure_str_tag(layers) }
       end
 
@@ -33,11 +33,12 @@ module EffectivePolicy
         var_mime_type.nil? ? {} : { "mime_type" => var_mime_type }
       end
 
-      def prepare_owner(res)
+      def prepare_owner(res_with_id)
+        res = res_with_id[:res]
         owner_identifier = identifier(res.owner_id)
         owner_kind = kind(res.owner_id)
         owner_id = "/#{owner_identifier}"
-        return {} if owner_has_default_policy_or_is_admin?(res.identifier, owner_kind, owner_identifier, owner_id)
+        return {} if owner_has_default_policy_or_is_admin?(res_with_id[:parent_identifier], owner_kind, owner_identifier, owner_id)
 
         owner = tag(owner_kind, owner_id)
         { "owner" => owner }
@@ -62,8 +63,8 @@ module EffectivePolicy
 
       private
 
-      def owner_has_default_policy_or_is_admin?(res_identifier, owner_kind, owner_identifier, owner_id)
-        (policy?(owner_kind) && parent_identifier(res_identifier) == owner_identifier) || owner_id == '/admin'
+      def owner_has_default_policy_or_is_admin?(parent_identifier, owner_kind, owner_identifier, owner_id)
+        (policy?(owner_kind) && parent_identifier == owner_identifier) || owner_id == '/admin'
       end
     end
   end

@@ -123,6 +123,7 @@
           members:
             - !user /rot
 - !variable root-var
+- !variable with/slash
 - !webservice root-ws
 - !host root-hst
 - !layer root-lyr
