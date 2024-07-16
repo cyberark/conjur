@@ -38,7 +38,12 @@ module EffectivePolicy
         owner_identifier = identifier(res.owner_id)
         owner_kind = kind(res.owner_id)
         owner_id = "/#{owner_identifier}"
-        return {} if owner_has_default_policy_or_is_admin?(res_with_id[:parent_identifier], owner_kind, owner_identifier, owner_id)
+
+        # we do not want to create owner value
+        # if we the policy in which the resource is created is the owner
+        # or we are in top of the tree and admin user is the owner as it is handled by convention
+        # during loading a policy
+        return {} if owner_has_default_policy_or_is_admin?(res, res_with_id[:parent_identifier])
 
         owner = tag(owner_kind, owner_id)
         { "owner" => owner }
@@ -63,8 +68,9 @@ module EffectivePolicy
 
       private
 
-      def owner_has_default_policy_or_is_admin?(parent_identifier, owner_kind, owner_identifier, owner_id)
-        (policy?(owner_kind) && parent_identifier == owner_identifier) || owner_id == '/admin'
+      def owner_has_default_policy_or_is_admin?(res, parent_identifier)
+        (policy?(kind(res.owner_id)) && parent_identifier == identifier(res.owner_id)) ||
+          (parent_identifier == '' && res.owner_id == "#{res.account}:user:admin")
       end
     end
   end

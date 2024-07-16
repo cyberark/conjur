@@ -16,3 +16,7 @@
   privileges: [ read, execute ]
   resource: !policy rootpolicy
 - !variable root-var
+- !policy
+  id: pol-root
+  owner: !user admin
+  body: []
