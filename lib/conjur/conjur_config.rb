@@ -9,6 +9,7 @@ require 'anyway_config'
 # that change greatly expands the scope of this PR and so, instead, I used a
 # relative require to include the log definitions here.
 require_relative '../../app/domain/logs'
+require_relative 'spring_config_loader'
 
 module Conjur
   # We are temporarily avoiding hooking into the application error system
@@ -61,6 +62,8 @@ module Conjur
       # First verify that we have the permissions necessary to read the config
       # file.
       verify_config_is_readable
+
+      register_config_server if ENV['ENABLE_PUBSUB'] == 'true'
 
       # Initialize Anyway::Config
       super(*args, **kwargs)
@@ -274,6 +277,16 @@ module Conjur
 
     def telemetry_enabled_valid?
       [true, false].include?(telemetry_enabled)
+    end
+
+    def register_config_server
+      return if ::Anyway.loaders.registry.find { |(hid, _)| hid == :config_server }
+
+      config_loader = ::Anyway::Loaders::SpringConfigLoader
+      config_loader.fetch_configs.each do |key, value|
+        self.class.attr_config(config_loader.adjust_key(key) => value)
+      end
+      ::Anyway.loaders.prepend :config_server, config_loader
     end
   end
 end
