@@ -20,11 +20,8 @@ module EffectivePolicy
 
       # reducing provided policies to the policy tree
       resources.each do |res|
-        # we ignore 'root' policy and assign its children to the top layer in yaml
-        next if res.identifier == 'root'
-
         par_pol = get_parent_policy(policies_cache, res)
-        make_and_store_tree_elem(policies_cache, par_pol, res)
+        make_and_store_tree_elem(policies_cache, par_pol, res) unless root_policy?(res)
         make_and_store_permits(policies_cache, par_pol, res)
         make_and_store_grants(policies_cache, grants_cache, res)
       end
@@ -37,6 +34,10 @@ module EffectivePolicy
     end
 
     private
+
+    def root_policy?(res)
+      res.resource_id == "#{res.account}:policy:root"
+    end
 
     def get_parent_policy(policies_cache, res)
       policies_cache.get_or_init(policies_cache.parent_identifier(res.identifier))

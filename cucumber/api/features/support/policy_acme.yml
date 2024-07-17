@@ -1,5 +1,6 @@
 - !policy
   id: acme-adm
+  owner: !user /admin
   annotations:
     description: Policy acme in root made by admin
     type: acme-adm-type
