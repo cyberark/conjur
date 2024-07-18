@@ -27,6 +27,7 @@ end
 Given("Previous host slosilo key is null") do
   if Slosilo["authn:cucumber:host:previous"]
     Slosilo.send(:keystore).adapter.model["authn:cucumber:host:previous"].destroy
+    Rails.cache.delete("slosilo/authn:cucumber:host:previous")
   end
 end
 
