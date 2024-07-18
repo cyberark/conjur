@@ -196,6 +196,10 @@ pipeline {
     // Sets the MODE to the specified or autocalculated value as appropriate
     MODE = release.canonicalizeMode()
     TAG_SHA = tagWithSHA()
+
+    // Values to direct scan results to the right place in DefectDojo
+    INFRAPOOL_PRODUCT_NAME = "${productName}"
+    INFRAPOOL_DD_PRODUCT_TYPE_NAME = "${productTypeName}"
   }
 
   stages {
@@ -364,49 +368,65 @@ pipeline {
           }
         }
 
-        stage('Scan Docker Image') {
-          when {
-            expression { params.RUN_ONLY == '' }
-          }
+        stage('Run security scans') {
           parallel {
-            stage("Scan Docker Image for fixable issues (AMD64)") {
+            stage('AMD64 Ubuntu-based Docker image scans') { 
               steps {
-                scanAndReport(INFRAPOOL_EXECUTORV2_AGENT_0, "conjur:${TAG_SHA}", "HIGH", false)
+                runSecurityScans(INFRAPOOL_EXECUTORV2_AGENT_0, 
+                  image: "registry.tld/conjur:${TAG_SHA}",
+                  buildMode: MODE,
+                  branch: env.BRANCH_NAME,
+                  arch: "linux/amd64")
               }
             }
-            stage("Scan Docker image for total issues (AMD64)") {
+            
+            stage('ARM64 Ubuntu-based Docker image scans') { 
               steps {
-                scanAndReport(INFRAPOOL_EXECUTORV2_AGENT_0, "conjur:${TAG_SHA}", "NONE", true)
+                runSecurityScans(INFRAPOOL_EXECUTORV2ARM_AGENT_0, 
+                  image: "registry.tld/conjur:${TAG_SHA}",
+                  buildMode: MODE,
+                  branch: env.BRANCH_NAME,
+                  arch: "linux/arm64")
               }
             }
-            stage("Scan UBI-based Docker Image for fixable issues (AMD64)") {
+            
+            stage('AMD64 UBI-based Docker image scans') {
               steps {
-                scanAndReport(INFRAPOOL_EXECUTORV2_AGENT_0, "conjur-ubi:${TAG_SHA}", "HIGH", false)
+                runSecurityScans(INFRAPOOL_EXECUTORV2_AGENT_1, 
+                  image: "registry.tld/conjur-ubi:${TAG_SHA}",
+                  buildMode: MODE,
+                  branch: env.BRANCH_NAME,
+                  arch: "linux/amd64")
               }
             }
-            stage("Scan UBI-based Docker image for total issues (AMD64)") {
+            
+            stage('ARM64 UBI-based Docker image scans') {
               steps {
-                scanAndReport(INFRAPOOL_EXECUTORV2_AGENT_0, "conjur-ubi:${TAG_SHA}", "NONE", true)
+                runSecurityScans(INFRAPOOL_EXECUTORV2ARM_AGENT_0, 
+                  image: "registry.tld/conjur-ubi:${TAG_SHA}",
+                  buildMode: MODE,
+                  branch: env.BRANCH_NAME,
+                  arch: "linux/arm64")
               }
             }
-            stage("Scan Docker Image for fixable issues (ARM64)") {
+            
+            stage('AMD64 Conjur-Test Docker image scans') {
               steps {
-                scanAndReport(INFRAPOOL_EXECUTORV2ARM_AGENT_0, "conjur:${TAG_SHA}", "HIGH", false)
+                runSecurityScans(INFRAPOOL_EXECUTORV2_AGENT_2, 
+                  image: "registry.tld/conjur-test:${TAG_SHA}",
+                  buildMode: MODE,
+                  branch: env.BRANCH_NAME,
+                  arch: "linux/amd64")
               }
             }
-            stage("Scan Docker image for total issues (ARM64)") {
+            
+            stage('ARM64 Conjur-Test Docker image scans') {
               steps {
-                scanAndReport(INFRAPOOL_EXECUTORV2ARM_AGENT_0, "conjur:${TAG_SHA}", "NONE", true)
-              }
-            }
-            stage("Scan UBI-based Docker Image for fixable issues (ARM64)") {
-              steps {
-                scanAndReport(INFRAPOOL_EXECUTORV2ARM_AGENT_0, "conjur-ubi:${TAG_SHA}", "HIGH", false)
-              }
-            }
-            stage("Scan UBI-based Docker image for total issues (ARM64)") {
-              steps {
-                scanAndReport(INFRAPOOL_EXECUTORV2ARM_AGENT_0, "conjur-ubi:${TAG_SHA}", "NONE", true)
+                runSecurityScans(INFRAPOOL_EXECUTORV2ARM_AGENT_0, 
+                  image: "registry.tld/conjur-test:${TAG_SHA}",
+                  buildMode: MODE,
+                  branch: env.BRANCH_NAME,
+                  arch: "linux/arm64")              
               }
             }
           }
