@@ -67,6 +67,17 @@ services:
       #   PostgreSQL documentation about "trust"
       POSTGRES_HOST_AUTH_METHOD: trust
 
+  localstack:
+    image: localstack/localstack:latest
+    ports:
+      - "4566:4566"
+      - "4575:4575"
+    environment:
+      - SERVICES=sns
+      - DEBUG=1
+    volumes:
+      - "./localstack:/var/lib/localstack"
+
   conjur:
     image: "conjur-test:${TAG}"
     environment:
@@ -102,6 +113,7 @@ services:
       - ldap-server
       - keycloak
       - redis
+      - localstack
 
   conjur2:
     image: "conjur-test:${TAG}"
@@ -138,6 +150,7 @@ services:
       - ldap-server
       - keycloak
       - redis
+      - localstack
 
   cucumber:
     image: conjur-test:$TAG
@@ -174,6 +187,7 @@ services:
       - testdb2
       - keycloak
       - redis
+      - localstack
 
   ldap-server:
     image: osixia/openldap
