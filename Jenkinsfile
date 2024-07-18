@@ -60,23 +60,29 @@ properties([
 
 // Performs release promotion.  No other stages will be run
 if (params.MODE == "PROMOTE") {
-  release.promote(params.VERSION_TO_PROMOTE) { sourceVersion, targetVersion, assetDirectory ->
-    sh "docker pull registry.tld/cyberark/conjur:${sourceVersion}-amd64"
-    sh "docker tag registry.tld/cyberark/conjur:${sourceVersion}-amd64 conjur:${sourceVersion}-amd64"
-    sh "docker pull registry.tld/cyberark/conjur:${sourceVersion}-arm64"
-    sh "docker tag registry.tld/cyberark/conjur:${sourceVersion}-arm64 conjur:${sourceVersion}-arm64"
+  release.promote(params.VERSION_TO_PROMOTE) { infrapool, sourceVersion, targetVersion, assetDirectory ->
+    infrapool.agentSh """
+      docker pull registry.tld/cyberark/conjur:${sourceVersion}-amd64
+      docker tag registry.tld/cyberark/conjur:${sourceVersion}-amd64 conjur:${sourceVersion}-amd64
+      docker pull registry.tld/cyberark/conjur:${sourceVersion}-arm64
+      docker tag registry.tld/cyberark/conjur:${sourceVersion}-arm64 conjur:${sourceVersion}-arm64
 
-    sh "docker pull registry.tld/conjur-ubi:${sourceVersion}-amd64"
-    sh "docker tag registry.tld/conjur-ubi:${sourceVersion}-amd64 conjur-ubi:${sourceVersion}-amd64"
-    sh "docker pull registry.tld/conjur-ubi:${sourceVersion}-arm64"
-    sh "docker tag registry.tld/conjur-ubi:${sourceVersion}-arm64 conjur-ubi:${sourceVersion}-arm64"
+      docker pull registry.tld/conjur-ubi:${sourceVersion}-amd64
+      docker tag registry.tld/conjur-ubi:${sourceVersion}-amd64 conjur-ubi:${sourceVersion}-amd64
+      docker pull registry.tld/conjur-ubi:${sourceVersion}-arm64
+      docker tag registry.tld/conjur-ubi:${sourceVersion}-arm64 conjur-ubi:${sourceVersion}-arm64
 
-    // Promote both images for AMD64 and ARM64
-    sh "summon -f ./secrets.yml ./publish-images.sh --promote --redhat --base-version=${sourceVersion} --version=${targetVersion}"
-    sh "summon -f ./secrets.yml ./publish-images.sh --promote --base-version=${sourceVersion} --version=${targetVersion} --arch=arm64"
-    // Promote manifest that links above images
-    sh "summon -f ./secrets.yml ./publish-manifest.sh --promote --base-version=${sourceVersion} --version=${targetVersion}"
+      # Promote both images for AMD64 and ARM64
+      summon -f ./secrets.yml ./publish-images.sh --promote --redhat --base-version=${sourceVersion} --version=${targetVersion}
+      summon -f ./secrets.yml ./publish-images.sh --promote --base-version=${sourceVersion} --version=${targetVersion} --arch=arm64
+      
+      # Promote manifest that links above images
+      summon -f ./secrets.yml ./publish-manifest.sh --promote --base-version=${sourceVersion} --version=${targetVersion}
+    """
 
+    // TODO: In talking to Neil King, this likely won't work until conjurops is migrated over
+    // to github enterprise. In the absence of promoting an OSS conjur release, though, we haven't
+    // tried it since the Conjur repo migrated over.
     // Trigger Conjurops build to push newly promoted releases of conjur to ConjurOps Staging
     build(
       job:'../conjurinc--conjurops/master',
