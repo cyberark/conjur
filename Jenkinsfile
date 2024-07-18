@@ -48,6 +48,12 @@ These are defined in runConjurTests, and also include the one-offs
 */
 @Library("product-pipelines-shared-library") _
 
+// runSecurityScans uses 2 environment variables to determine where in DefectDojo to 
+// upload the results of the scans. We have to set those variables in both the regular
+// pipeline and the promote block, so use variables for it to keep them consistent.
+def productName = 'Conjur'
+def productTypeName = 'Conjur OSS'
+
 // Automated release, promotion and dependencies
 properties([
   // Include the automated release parameters for the build
@@ -61,6 +67,52 @@ properties([
 // Performs release promotion.  No other stages will be run
 if (params.MODE == "PROMOTE") {
   release.promote(params.VERSION_TO_PROMOTE) { infrapool, sourceVersion, targetVersion, assetDirectory ->
+    env.INFRAPOOL_PRODUCT_NAME = "${productName}"
+    env.INFRAPOOL_DD_PRODUCT_TYPE_NAME = "${productTypeName}"
+
+    def scans = [:]
+
+    scans["Conjur AMD64"] = {
+      stage("Conjur AMD64 scans") {
+        runSecurityScans(infrapool,
+          image: "registry.tld/cyberark/conjur:${sourceVersion}-amd64",
+          buildMode: params.MODE,
+          branch: env.BRANCH_NAME,
+          architecure: 'linux/amd64')
+      }
+    }
+
+    scans["Conjur ARM64"] = {
+      stage("Conjur ARM64 scans") {
+        runSecurityScans(infrapool,
+          image: "registry.tld/cyberark/conjur:${sourceVersion}-arm64",
+          buildMode: params.MODE,
+          branch: env.BRANCH_NAME,
+          architecure: 'linux/arm64')
+      }
+    }
+
+    scans["Conjur UBI AMD64"] = {
+      stage("Conjur UBI AMD64 scans") {
+        runSecurityScans(infrapool,
+          image: "registry.tld/cyberark/conjur-ubi:${sourceVersion}-amd64",
+          buildMode: params.MODE,
+          branch: env.BRANCH_NAME,
+          architecure: 'linux/amd64')
+      }
+    }
+
+    scans["Conjur UBI ARM64"] = {
+      stage("Conjur UBI ARM64 scans") {
+        runSecurityScans(infrapool,
+          image: "registry.tld/cyberark/conjur-ubi:${sourceVersion}-arm64",
+          buildMode: params.MODE,
+          branch: env.BRANCH_NAME)
+      }
+    }
+
+    parallel(scans)
+
     infrapool.agentSh """
       docker pull registry.tld/cyberark/conjur:${sourceVersion}-amd64
       docker tag registry.tld/cyberark/conjur:${sourceVersion}-amd64 conjur:${sourceVersion}-amd64
@@ -144,7 +196,6 @@ pipeline {
     // Sets the MODE to the specified or autocalculated value as appropriate
     MODE = release.canonicalizeMode()
     TAG_SHA = tagWithSHA()
-
   }
 
   stages {
