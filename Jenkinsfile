@@ -48,6 +48,12 @@ These are defined in runConjurTests, and also include the one-offs
 */
 @Library("product-pipelines-shared-library") _
 
+// runSecurityScans uses 2 environment variables to determine where in DefectDojo to 
+// upload the results of the scans. We have to set those variables in both the regular
+// pipeline and the promote block, so use variables for it to keep them consistent.
+def productName = 'Conjur'
+def productTypeName = 'Conjur OSS'
+
 // Automated release, promotion and dependencies
 properties([
   // Include the automated release parameters for the build
@@ -60,23 +66,75 @@ properties([
 
 // Performs release promotion.  No other stages will be run
 if (params.MODE == "PROMOTE") {
-  release.promote(params.VERSION_TO_PROMOTE) { sourceVersion, targetVersion, assetDirectory ->
-    sh "docker pull registry.tld/cyberark/conjur:${sourceVersion}-amd64"
-    sh "docker tag registry.tld/cyberark/conjur:${sourceVersion}-amd64 conjur:${sourceVersion}-amd64"
-    sh "docker pull registry.tld/cyberark/conjur:${sourceVersion}-arm64"
-    sh "docker tag registry.tld/cyberark/conjur:${sourceVersion}-arm64 conjur:${sourceVersion}-arm64"
+  release.promote(params.VERSION_TO_PROMOTE) { infrapool, sourceVersion, targetVersion, assetDirectory ->
+    env.INFRAPOOL_PRODUCT_NAME = "${productName}"
+    env.INFRAPOOL_DD_PRODUCT_TYPE_NAME = "${productTypeName}"
 
-    sh "docker pull registry.tld/conjur-ubi:${sourceVersion}-amd64"
-    sh "docker tag registry.tld/conjur-ubi:${sourceVersion}-amd64 conjur-ubi:${sourceVersion}-amd64"
-    sh "docker pull registry.tld/conjur-ubi:${sourceVersion}-arm64"
-    sh "docker tag registry.tld/conjur-ubi:${sourceVersion}-arm64 conjur-ubi:${sourceVersion}-arm64"
+    def scans = [:]
 
-    // Promote both images for AMD64 and ARM64
-    sh "summon -f ./secrets.yml ./publish-images.sh --promote --redhat --base-version=${sourceVersion} --version=${targetVersion}"
-    sh "summon -f ./secrets.yml ./publish-images.sh --promote --base-version=${sourceVersion} --version=${targetVersion} --arch=arm64"
-    // Promote manifest that links above images
-    sh "summon -f ./secrets.yml ./publish-manifest.sh --promote --base-version=${sourceVersion} --version=${targetVersion}"
+    scans["Conjur AMD64"] = {
+      stage("Conjur AMD64 scans") {
+        runSecurityScans(infrapool,
+          image: "registry.tld/cyberark/conjur:${sourceVersion}-amd64",
+          buildMode: params.MODE,
+          branch: env.BRANCH_NAME,
+          architecure: 'linux/amd64')
+      }
+    }
 
+    scans["Conjur ARM64"] = {
+      stage("Conjur ARM64 scans") {
+        runSecurityScans(infrapool,
+          image: "registry.tld/cyberark/conjur:${sourceVersion}-arm64",
+          buildMode: params.MODE,
+          branch: env.BRANCH_NAME,
+          architecure: 'linux/arm64')
+      }
+    }
+
+    scans["Conjur UBI AMD64"] = {
+      stage("Conjur UBI AMD64 scans") {
+        runSecurityScans(infrapool,
+          image: "registry.tld/cyberark/conjur-ubi:${sourceVersion}-amd64",
+          buildMode: params.MODE,
+          branch: env.BRANCH_NAME,
+          architecure: 'linux/amd64')
+      }
+    }
+
+    scans["Conjur UBI ARM64"] = {
+      stage("Conjur UBI ARM64 scans") {
+        runSecurityScans(infrapool,
+          image: "registry.tld/cyberark/conjur-ubi:${sourceVersion}-arm64",
+          buildMode: params.MODE,
+          branch: env.BRANCH_NAME)
+      }
+    }
+
+    parallel(scans)
+
+    infrapool.agentSh """
+      docker pull registry.tld/cyberark/conjur:${sourceVersion}-amd64
+      docker tag registry.tld/cyberark/conjur:${sourceVersion}-amd64 conjur:${sourceVersion}-amd64
+      docker pull registry.tld/cyberark/conjur:${sourceVersion}-arm64
+      docker tag registry.tld/cyberark/conjur:${sourceVersion}-arm64 conjur:${sourceVersion}-arm64
+
+      docker pull registry.tld/conjur-ubi:${sourceVersion}-amd64
+      docker tag registry.tld/conjur-ubi:${sourceVersion}-amd64 conjur-ubi:${sourceVersion}-amd64
+      docker pull registry.tld/conjur-ubi:${sourceVersion}-arm64
+      docker tag registry.tld/conjur-ubi:${sourceVersion}-arm64 conjur-ubi:${sourceVersion}-arm64
+
+      # Promote both images for AMD64 and ARM64
+      summon -f ./secrets.yml ./publish-images.sh --promote --redhat --base-version=${sourceVersion} --version=${targetVersion}
+      summon -f ./secrets.yml ./publish-images.sh --promote --base-version=${sourceVersion} --version=${targetVersion} --arch=arm64
+      
+      # Promote manifest that links above images
+      summon -f ./secrets.yml ./publish-manifest.sh --promote --base-version=${sourceVersion} --version=${targetVersion}
+    """
+
+    // TODO: In talking to Neil King, this likely won't work until conjurops is migrated over
+    // to github enterprise. In the absence of promoting an OSS conjur release, though, we haven't
+    // tried it since the Conjur repo migrated over.
     // Trigger Conjurops build to push newly promoted releases of conjur to ConjurOps Staging
     build(
       job:'../conjurinc--conjurops/master',
@@ -139,6 +197,9 @@ pipeline {
     MODE = release.canonicalizeMode()
     TAG_SHA = tagWithSHA()
 
+    // Values to direct scan results to the right place in DefectDojo
+    INFRAPOOL_PRODUCT_NAME = "${productName}"
+    INFRAPOOL_DD_PRODUCT_TYPE_NAME = "${productTypeName}"
   }
 
   stages {
@@ -307,49 +368,65 @@ pipeline {
           }
         }
 
-        stage('Scan Docker Image') {
-          when {
-            expression { params.RUN_ONLY == '' }
-          }
+        stage('Run security scans') {
           parallel {
-            stage("Scan Docker Image for fixable issues (AMD64)") {
+            stage('AMD64 Ubuntu-based Docker image scans') { 
               steps {
-                scanAndReport(INFRAPOOL_EXECUTORV2_AGENT_0, "conjur:${TAG_SHA}", "HIGH", false)
+                runSecurityScans(INFRAPOOL_EXECUTORV2_AGENT_0, 
+                  image: "registry.tld/conjur:${TAG_SHA}",
+                  buildMode: MODE,
+                  branch: env.BRANCH_NAME,
+                  arch: "linux/amd64")
               }
             }
-            stage("Scan Docker image for total issues (AMD64)") {
+            
+            stage('ARM64 Ubuntu-based Docker image scans') { 
               steps {
-                scanAndReport(INFRAPOOL_EXECUTORV2_AGENT_0, "conjur:${TAG_SHA}", "NONE", true)
+                runSecurityScans(INFRAPOOL_EXECUTORV2ARM_AGENT_0, 
+                  image: "registry.tld/conjur:${TAG_SHA}",
+                  buildMode: MODE,
+                  branch: env.BRANCH_NAME,
+                  arch: "linux/arm64")
               }
             }
-            stage("Scan UBI-based Docker Image for fixable issues (AMD64)") {
+            
+            stage('AMD64 UBI-based Docker image scans') {
               steps {
-                scanAndReport(INFRAPOOL_EXECUTORV2_AGENT_0, "conjur-ubi:${TAG_SHA}", "HIGH", false)
+                runSecurityScans(INFRAPOOL_EXECUTORV2_AGENT_1, 
+                  image: "registry.tld/conjur-ubi:${TAG_SHA}",
+                  buildMode: MODE,
+                  branch: env.BRANCH_NAME,
+                  arch: "linux/amd64")
               }
             }
-            stage("Scan UBI-based Docker image for total issues (AMD64)") {
+            
+            stage('ARM64 UBI-based Docker image scans') {
               steps {
-                scanAndReport(INFRAPOOL_EXECUTORV2_AGENT_0, "conjur-ubi:${TAG_SHA}", "NONE", true)
+                runSecurityScans(INFRAPOOL_EXECUTORV2ARM_AGENT_0, 
+                  image: "registry.tld/conjur-ubi:${TAG_SHA}",
+                  buildMode: MODE,
+                  branch: env.BRANCH_NAME,
+                  arch: "linux/arm64")
               }
             }
-            stage("Scan Docker Image for fixable issues (ARM64)") {
+            
+            stage('AMD64 Conjur-Test Docker image scans') {
               steps {
-                scanAndReport(INFRAPOOL_EXECUTORV2ARM_AGENT_0, "conjur:${TAG_SHA}", "HIGH", false)
+                runSecurityScans(INFRAPOOL_EXECUTORV2_AGENT_2, 
+                  image: "registry.tld/conjur-test:${TAG_SHA}",
+                  buildMode: MODE,
+                  branch: env.BRANCH_NAME,
+                  arch: "linux/amd64")
               }
             }
-            stage("Scan Docker image for total issues (ARM64)") {
+            
+            stage('ARM64 Conjur-Test Docker image scans') {
               steps {
-                scanAndReport(INFRAPOOL_EXECUTORV2ARM_AGENT_0, "conjur:${TAG_SHA}", "NONE", true)
-              }
-            }
-            stage("Scan UBI-based Docker Image for fixable issues (ARM64)") {
-              steps {
-                scanAndReport(INFRAPOOL_EXECUTORV2ARM_AGENT_0, "conjur-ubi:${TAG_SHA}", "HIGH", false)
-              }
-            }
-            stage("Scan UBI-based Docker image for total issues (ARM64)") {
-              steps {
-                scanAndReport(INFRAPOOL_EXECUTORV2ARM_AGENT_0, "conjur-ubi:${TAG_SHA}", "NONE", true)
+                runSecurityScans(INFRAPOOL_EXECUTORV2ARM_AGENT_0, 
+                  image: "registry.tld/conjur-test:${TAG_SHA}",
+                  buildMode: MODE,
+                  branch: env.BRANCH_NAME,
+                  arch: "linux/arm64")              
               }
             }
           }
