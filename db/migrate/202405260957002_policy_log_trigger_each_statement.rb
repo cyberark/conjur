@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# This file is cherry picked from db/migrate/202403221318214_policy_log_trigger_each_statement.rb in master branch.
+# It's been renamed to make it run after 202405260957001_policy_log_trigger_up.rb
 Sequel.migration do
   tables = %i[roles role_memberships resources permissions annotations]
 
