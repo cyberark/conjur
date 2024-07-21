@@ -232,6 +232,12 @@ module Errors
         msg: "'{0-role}' matched multiple roles",
         code: "CONJ00009E"
       )
+
+      UnauthorizedSnsRoleCreds  = ::Util::TrackableErrorClass.new(
+        msg: "Unauthorized role or expired credentials for sns topic",
+        code: "CONJ00010E"
+      )
+
     end
 
     module RequestBody

@@ -113,6 +113,9 @@ GEM
     aws-sdk-sns (1.62.0)
       aws-sdk-core (~> 3, >= 3.174.0)
       aws-sigv4 (~> 1.1)
+    aws-sdk-sqs (1.58.0)
+      aws-sdk-core (~> 3, >= 3.174.0)
+      aws-sigv4 (~> 1.1)
     aws-sigv4 (1.5.2)
       aws-eventstream (~> 1, >= 1.0.2)
     base32-crockford (0.1.0)
@@ -566,6 +569,7 @@ DEPENDENCIES
   aws-sdk-iam
   aws-sdk-rds
   aws-sdk-sns
+  aws-sdk-sqs
   base32-crockford
   base58
   bcrypt

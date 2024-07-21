@@ -10,6 +10,8 @@ require 'simplecov'
 
 require 'aws-sdk-sns'
 
+require 'aws-sdk-sqs'
+
 SimpleCov.command_name("SimpleCov #{rand(1000000)}")
 SimpleCov.merge_timeout(7200)
 SimpleCov.start do
@@ -82,12 +84,38 @@ end
 # limit for those when they're printed
 RSpec::Support::ObjectFormatter.default_instance.max_formatted_output_length = 999
 
+def create_sqs_queue
+  WebMock.allow_net_connect!
+  sqs = Aws::SQS::Client.new
+  response = sqs.create_queue(queue_name: 'MyTestQueue')
+  queue_url = response.queue_url
+  ENV['QUEUE_URL'] = queue_url
+  sqs.get_queue_attributes(queue_url: queue_url, attribute_names: ['QueueArn']).attributes['QueueArn']
+end
+
+def delete_sqs_queue
+  sqs = Aws::SQS::Client.new
+  sqs.delete_queue(queue_url: ENV['QUEUE_URL'])
+end
+
 def create_sns_topic
   WebMock.allow_net_connect!
   sns = Aws::SNS::Client.new
-  response = sns.create_topic(name: "test-topic-arn")
+  response = sns.create_topic(
+    name: "MyFifoTopic.fifo",
+    attributes: {
+      'FifoTopic' => 'true',
+      'ContentBasedDeduplication' => 'true'
+    }
+  )
   ENV['TOPIC_ARN'] = response.topic_arn
 end
+
+def delete_sns_topic
+  sns = Aws::SNS::Client.new
+  sns.delete_topic(topic_arn: ENV['TOPIC_ARN'])
+end
+
 def secret_logged?(secret)
   log_file = './log/test.log'
 
