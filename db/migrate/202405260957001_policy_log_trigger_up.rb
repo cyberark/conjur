@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# This file is cherry picked from db/migrate/202402230827123_policy_log_trigger_up.rb in master branch.
+# It's been renamed to make it run after 202405260957000_policy_log_remove_error_on_out_of_policy_change.rb
 Sequel.migration do
   tables = %i[roles role_memberships resources permissions annotations]
 
@@ -61,9 +63,7 @@ Sequel.migration do
                     current.resource_id,
                     current.version,
                     TG_OP
-                  )).*;
-            ELSE
-              RAISE WARNING 'modifying data outside of policy load: %', subject.policy_id;
+                  )).*;           
             END IF;
             RETURN subject;
           END;
