@@ -84,6 +84,7 @@ class ApplicationController < ActionController::API
 
   # Wrap the request in a transaction.
   def run_with_transaction(&block)
+    Rails.logger.debug("Wrapping request in transaction...")
     Sequel::Model.db.transaction(&block)
   end
 

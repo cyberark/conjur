@@ -141,9 +141,9 @@ describe PoliciesController, type: :request do
         end
       end
 
-      # This test exposes a difference in what can be validated vs. what happens
-      # when the policy is fully loaded.  Validation determines there's no lexical
-      # problem, and only when loaded can it find that 'bob' has not yet been added.
+      # Policy dry run includes the syntax/lexical validation, and now also
+      # the business logic validation. Business logic fails when a database
+      # exception is thrown during the policy loading process.
       context 'such as bob-not-found (from policy_load_errors.feature)' do
         it 'returns Valid status, expected Error, and advice' do
           validate_policy(
@@ -156,10 +156,15 @@ describe PoliciesController, type: :request do
                 resource: !variable password
             YAML
           )
-          expect(response.code).to match(/20\d/)
+          expect(response.code).to eq("404")
           body = JSON.parse(response.body)
-          expect(body['status']).to match("Valid YAML")
-          expect(body['errors']).to match([])
+          puts "QWE #{body}"
+          expect(body['error']['code']).to eq("not_found")
+          expect(body['error']['message']).to eq("User 'bob' not found in account 'rspec'")
+          expect(body['error']['target']).to eq("user")
+          expect(body['error']['details']["code"]).to eq("not_found")
+          expect(body['error']['details']["target"]).to eq("id")
+          expect(body['error']['details']["message"]).to eq("rspec:user:bob")
         end
       end
 

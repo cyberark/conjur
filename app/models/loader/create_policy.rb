@@ -49,8 +49,8 @@ module Loader
       @loader.credential_roles(actor_roles)
     end
 
-    def report(policy_result)
-      @loader.report(policy_result)
+    def report(policy_result, production_type)
+      @loader.report(policy_result, production_type)
     end
 
     def self.authorize(current_user, resource)

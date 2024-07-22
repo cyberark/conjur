@@ -116,26 +116,68 @@ class PoliciesController < RestController
 
     # If this is not a dry run, then save the policy. This has to occur here,
     # as creating the policy_mode requires the policy_version
-    policy_version = unless production_type == :validation
-      save_submitted_policy(policy_parse, delete_permitted)
-    end
+    policy_version = nil
 
     # Reporting on all policy errors requires an instance of the policy_mode
     # to call the #report method.
     policy_mode = mode_class.from_policy(
       policy_parse,
       policy_version,
-      production_class
+      Loader::Validate
     )
 
-    # Process the rest of the policy, either to load it or further validate it
+    # Process the syntax of the policy. If it is invalid, an exception will
+    # be thrown.
     policy_result = policy_mode.call
-
     raise policy_result.error if policy_result.error
 
+    if production_type == :validation
+      Rails.logger.debug("Begin operating in nested transaction...")
+      Sequel::Model.db.transaction(savepoint: true) do # SAVEPOINT
+        Rails.logger.debug("Operating in a nested transaction...")
+
+        # If we've made it this far, the syntax of a policy is valid. Now we
+        # perform the loading of policy.
+        policy_version = save_submitted_policy(policy_parse, delete_permitted)
+        policy_mode = mode_class.from_policy(
+          policy_parse,
+          policy_version,
+          Loader::Orchestrate
+        )
+        policy_result = nil
+        # Process the business logic of the policy. If it is invalid, an exception
+        # will be thrown.
+        policy_result = policy_mode.call
+        raise policy_result.error if policy_result.error
+        raise Sequel::Rollback
+      end # ROLLBACK TO SAVEPOINT
+      Rails.logger.debug("Transaction should've been rolled back...")
+    else
+      Rails.logger.debug("Skip operating in nested transaction...")
+      policy_version = save_submitted_policy(policy_parse, delete_permitted)
+      policy_mode = mode_class.from_policy(
+        policy_parse,
+        policy_version,
+        Loader::Orchestrate
+      )
+      policy_result = nil
+      # Process the business logic of the policy. If it is invalid, an exception
+      # will be thrown.
+      policy_result = policy_mode.call
+      raise policy_result.error if policy_result.error
+    end
+
+    # If this is a dry run, we need to undo any changes to the database.
+    # WARNING: this isn't ideal because we may need to access original
+    # db state after rollback, however, a rollback does not occur until
+    # the end of the transaction. We don't want to fetch all resources before
+    # hand as we only want to fetch resources that we know have been changed.
+    # rollback_dryrun()
+
     audit_success(policy_version)
+
     render(
-      json: policy_mode.report(policy_result),
+      json: policy_mode.report(policy_result, production_type),
       status: success_status
     )
   # Sequel::ForeignKeyConstraintViolation and Exceptions::RecordNotFound are not
@@ -165,17 +207,19 @@ class PoliciesController < RestController
 
     # Render the errors according the mode (load or validate)
     render(
-      json: policy_mode.report(policy_result),
+      json: policy_mode.report(policy_result, production_type),
       status: :unprocessable_entity
     )
   end
 
-  def success_status
-    production_type == :validation ? :ok : :created
+  def rollback_dryrun
+    return unless production_type == :validation
+    Sequel::Model.db.rollback_on_exit
+    Rails.logger.debug("Rollback fired!")
   end
 
-  def production_class
-    production_type == :validation ? Loader::Validate : Loader::Orchestrate
+  def success_status
+    production_type == :validation ? :ok : :created
   end
 
   # Auditing

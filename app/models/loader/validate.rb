@@ -91,7 +91,7 @@ module Loader
     #   concern for the content
     # Note: either the provided error already has the enhanced error information,
     #   or alternatively that could be performed here before constructing the response.
-    def report(policy_result)
+    def report(policy_result, production_type)
       error = policy_result.policy_parse.error
 
       if error

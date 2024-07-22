@@ -80,6 +80,7 @@ module Loader
       feature_flags: Rails.application.config.feature_flags,
       logger: Rails.logger
     )
+      @logger = logger
       @policy_parse = policy_parse
       @policy_version = policy_version
       @schemata = Schemata.new
@@ -610,7 +611,10 @@ module Loader
       end
     end
 
-    def report(policy_result)
+    # Returns the normal policy load report interface
+    def report(policy_result, production_type)
+      return validation_report(policy_result) if production_type == :validation
+
       error = policy_result.policy_parse.error
 
       if error
@@ -629,6 +633,33 @@ module Loader
         }
 
       end
+
+      response
+    end
+
+    # Returns the syntax / business logic validation report interface
+    def validation_report(policy_result)
+      error = @policy_parse.error
+
+      if error
+        # Construct the message with enhanced error info
+        response = {
+          "status" => "Invalid YAML",
+          "errors" => [
+            error.as_validation
+          ]
+        }
+        msg = "Invalid YAML.\n#{error}"
+
+      else
+        response = {
+          "status" => "Valid YAML",
+          "errors" => []
+        }
+        msg = "Valid YAML"
+      end
+
+      @logger.debug(msg)
 
       response
     end
