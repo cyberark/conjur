@@ -9,16 +9,19 @@ describe Conjur::Rack::Authenticator do
     context "to an unprotected path" do
       let(:except) { [ /^\/foo/ ] }
       let(:env) { { 'SCRIPT_NAME' => '', 'PATH_INFO' => '/foo/bar' } }
+
       before {
         options[:except] = except
         expect(app).to receive(:call).with(env).and_return app
       }
+
       context "without authorization" do
         it "proceeds" do
           expect(call).to eq(app)
           expect(Conjur::Rack.identity?).to be(false)
         end
       end
+
       context "with authorization" do
         include_context "with authorization"
         it "ignores the authorization" do
@@ -30,17 +33,30 @@ describe Conjur::Rack::Authenticator do
 
     context "to a protected path" do
       let(:env) { { 'SCRIPT_NAME' => '/pathname' } }
+
+      before do
+        allow(logger).to receive(:info)
+      end
+
       context "without authorization" do
+        it "logs an error" do
+          expect(logger).to receive(:info).with("Authorization missing")
+          expect(logger).to receive(:info).with("Completed 401 Unauthorized\n\n")
+          call
+        end
+
         it "returns a 401 error" do
           expect(call).to return_http 401, "Authorization missing"
         end
       end
+
       context "with Conjur authorization" do
         include_context "with authorization"
 
         context "with CIDR restriction" do
           let(:claims) { { 'sub' => 'test-user', 'cidr' => %w(192.168.2.0/24 2001:db8::/32) } }
           let(:token) { Slosilo::JWT.new(claims) }
+
           before do
             allow(subject).to receive_messages \
                 parsed_token: token,
@@ -50,6 +66,13 @@ describe Conjur::Rack::Authenticator do
           %w(10.0.0.2 fdda:5cc1:23:4::1f).each do |addr|
             context "with address #{addr} out of range" do
               let(:remote_ip) { addr }
+
+              it "logs an error" do
+                expect(logger).to receive(:info).with("IP address rejected")
+                expect(logger).to receive(:info).with("Completed 403 Forbidden\n\n")
+                call
+              end
+
               it "returns 403" do
                 expect(call).to return_http 403, "IP address rejected"
               end
@@ -72,18 +95,39 @@ describe Conjur::Rack::Authenticator do
             expect(call).to eq(app)
           end
         end
+
         context "of an invalid token" do
-          it "returns a 401 error" do
+          before do
             allow(Slosilo).to receive(:token_signer).and_return(nil)
-            expect(call).to return_http 401, "Unauthorized: Invalid token"
           end
-        end
-        context "of a token invalid for authn" do
+
+          it "logs an error" do
+            expect(logger).to receive(:info).with("Unauthorized: Invalid token")
+            expect(logger).to receive(:info).with("Completed 401 Unauthorized\n\n")
+            call
+          end
+
           it "returns a 401 error" do
-            allow(Slosilo).to receive(:token_signer).and_return('a-totally-different-key')
             expect(call).to return_http 401, "Unauthorized: Invalid token"
           end
         end
+
+        context "of a token invalid for authn" do
+          before do
+            allow(Slosilo).to receive(:token_signer).and_return('a-totally-different-key')
+          end
+
+          it "logs an error" do
+            expect(logger).to receive(:info).with("Unauthorized: Invalid token")
+            expect(logger).to receive(:info).with("Completed 401 Unauthorized\n\n")
+            call
+          end
+
+          it "returns a 401 error" do
+            expect(call).to return_http 401, "Unauthorized: Invalid token"
+          end
+        end
+
         context "of 'own' token" do
           it "returns ENV['CONJUR_ACCOUNT']" do
             expect(ENV).to receive(:[]).with("CONJUR_ACCOUNT").and_return("test-account")
@@ -95,6 +139,7 @@ describe Conjur::Rack::Authenticator do
             allow(Slosilo).to receive(:token_signer).and_return('own')
             expect(call).to eq(:done)
           end
+
           it "requires ENV['CONJUR_ACCOUNT']" do
             expect(ENV).to receive(:[]).with("CONJUR_ACCOUNT").and_return(nil)
             allow(Slosilo).to receive(:token_signer).and_return('own')
@@ -105,6 +150,13 @@ describe Conjur::Rack::Authenticator do
 
       context "with junk in token" do
         let(:env) { { 'HTTP_AUTHORIZATION' => 'Token token="open sesame"' } }
+
+        it "logs an error" do
+          expect(logger).to receive(:info).with("Malformed authorization token")
+          expect(logger).to receive(:info).with("Completed 401 Unauthorized\n\n")
+          call
+        end
+
         it "returns 401" do
           expect(call).to return_http 401, "Malformed authorization token"
         end
@@ -112,21 +164,31 @@ describe Conjur::Rack::Authenticator do
 
       context "with JSON junk in token" do
         let(:env) { { 'HTTP_AUTHORIZATION' => 'Token token="eyJmb28iOiAiYmFyIn0="' } }
+
         before do
           allow(Slosilo).to receive(:token_signer).and_return(nil)
         end
 
+        it "logs an error" do
+          expect(logger).to receive(:info).with("Unauthorized: Invalid token")
+          expect(logger).to receive(:info).with("Completed 401 Unauthorized\n\n")
+          call
+        end
+
         it "returns 401" do
-            expect(call).to return_http 401, "Unauthorized: Invalid token"
+          expect(call).to return_http 401, "Unauthorized: Invalid token"
         end
       end
     end
+
     context "to an optional path" do
       let(:optional) { [ /^\/foo/ ] }
       let(:env) { { 'SCRIPT_NAME' => '', 'PATH_INFO' => '/foo/bar' } }
+
       before {
         options[:optional] = optional
       }
+
       context "without authorization" do
         it "proceeds" do
           expect(app).to receive(:call) do |*args|
@@ -136,6 +198,7 @@ describe Conjur::Rack::Authenticator do
           expect(call).to eq(:done)
         end
       end
+
       context "with authorization" do
         include_context "with authorization"
         it "processes the authorization" do
