@@ -112,7 +112,6 @@ module Loader
         @extensions.call(:before_load_policy, policy_version: @policy_version)
       end
 
-      # NOTE: SET PATH POINTS TO search_path THE TEMP SCHEMA
       create_schema
       load_records
     end
@@ -128,13 +127,10 @@ module Loader
     def store_policy_in_db
       eliminate_duplicates_pk
 
-      # This manipulates the effective policy
       insert_new
 
-      # This deletes the temp schema
       drop_schema
 
-      # ALl of the following manipulates the effective policy
       perform_deletion
 
       store_passwords
@@ -259,208 +255,17 @@ module Loader
       store_restricted_to
     end
 
+    def snapshot_public_schema_before
+      # No-op.
+    end
+
+    def drop_snapshot_public_schema_before
+      # No-op.
+    end
+
     def get_diff
-      result = {
-        summary: {
-          # TODO:
-          # - aggregate create/delete using database (count from resources table
-          #   across schemas)
-          # - somewhere we need to get a union set of all resource ids in the
-          #   resources table of both schemas... then after we map the raw diff
-          #   results below into DTOs, rollback transaction, query this set of
-          #   resources from the original schema, and if they exist, these are
-          #   updated resources
-          resources: {
-            create: 0,
-            delete: 0,
-            update: 0,
-          },
-          role_memberships: {
-            create: 0,
-            delete: 0,
-            update: 0,
-          }
-        },
-        create: {
-          annotations: get_created_annotations,
-          permissions: get_created_permissions,
-          resources: get_created_resources,
-          role_memberships: get_created_role_memberships,
-          roles: get_created_roles,
-          credentials: get_created_credentials,
-          
-        },
-        delete: {
-          annotations: get_deleted_annotations,
-          permissions: get_deleted_permissions,
-          resources: get_deleted_resources,
-          role_memberships: get_deleted_role_memberships,
-          roles: get_deleted_roles,
-          credentials: get_deleted_credentials,
-        }
-      }
-      result
+      # No-op.
     end
-
-    #
-    # --- Diff Queries for Create ---
-    # TODO: these could be more dynamic, but we want to ensure that the
-    # results are sorted, and I'm too lazy to determine how to do that. Perhaps
-    # with the utilization of TABLE_EQUIVALENCE values? Then all of these
-    # become 2 methods, 1 for create, and 1 for delete, each taking a table
-    # name...
-    #
-
-    def get_created_annotations
-      query = <<-SQL
-        SELECT *
-        FROM #{primary_schema}.annotations
-        EXCEPT
-        SELECT *
-        FROM #{public_schema_before_changes}.annotations
-        ORDER BY resource_id, name;
-      SQL
-      db.fetch(query).all
-    end
-  
-    def get_created_permissions
-      query = <<-SQL
-        SELECT *
-        FROM #{primary_schema}.permissions
-        EXCEPT
-        SELECT *
-        FROM #{public_schema_before_changes}.permissions
-        ORDER BY resource_id, role_id, privilege;
-      SQL
-      db.fetch(query).all
-    end
-
-    def get_created_resources
-      query = <<-SQL
-        SELECT *
-        FROM #{primary_schema}.resources
-        EXCEPT
-        SELECT *
-        FROM #{public_schema_before_changes}.resources
-        ORDER BY policy_id, resource_id, owner_id;
-      SQL
-      db.fetch(query).all
-    end
-
-    def get_created_role_memberships
-      query = <<-SQL
-        SELECT *
-        FROM #{primary_schema}.role_memberships
-        EXCEPT
-        SELECT *
-        FROM #{public_schema_before_changes}.role_memberships
-        ORDER BY role_id, member_id;
-      SQL
-      db.fetch(query).all
-    end
-    
-    def get_created_roles
-      query = <<-SQL
-        SELECT *
-        FROM #{primary_schema}.roles
-        EXCEPT
-        SELECT *
-        FROM #{public_schema_before_changes}.roles
-        ORDER BY role_id;
-      SQL
-      db.fetch(query).all
-    end
-
-    def get_created_credentials
-      query = <<-SQL
-        SELECT role_id, client_id, restricted_to
-        FROM #{primary_schema}.credentials
-        EXCEPT
-        SELECT role_id, client_id, restricted_to
-        FROM #{public_schema_before_changes}.credentials
-        ORDER BY role_id;
-      SQL
-      db.fetch(query).all
-    end
-  
-    #
-    # --- Diff Queries for Delete ---
-    # NOTE THE DIFFERENCE BETWEEN THE CREATE DIFF QUERIES
-    # (order of select statements)
-    #
-
-    def get_deleted_annotations
-      query = <<-SQL
-        SELECT *
-        FROM #{public_schema_before_changes}.annotations
-        EXCEPT
-        SELECT *
-        FROM #{primary_schema}.annotations
-        ORDER BY resource_id, name;
-      SQL
-      db.fetch(query).all
-    end
-
-    def get_deleted_permissions
-      query = <<-SQL
-        SELECT *
-        FROM #{public_schema_before_changes}.permissions
-        EXCEPT
-        SELECT *
-        FROM #{primary_schema}.permissions
-        ORDER BY resource_id, role_id, privilege;
-      SQL
-      db.fetch(query).all
-    end
-
-    def get_deleted_resources
-      query = <<-SQL
-        SELECT *
-        FROM #{public_schema_before_changes}.resources
-        EXCEPT
-        SELECT *
-        FROM #{primary_schema}.resources
-        ORDER BY policy_id, resource_id, owner_id;
-      SQL
-      db.fetch(query).all
-    end
-
-    def get_deleted_role_memberships
-      query = <<-SQL
-        SELECT *
-        FROM #{public_schema_before_changes}.role_memberships
-        EXCEPT
-        SELECT *
-        FROM #{primary_schema}.role_memberships
-        ORDER BY role_id, member_id;
-      SQL
-      db.fetch(query).all
-    end
-    
-    def get_deleted_roles
-      query = <<-SQL
-        SELECT *
-        FROM #{public_schema_before_changes}.roles
-        EXCEPT
-        SELECT *
-        FROM #{primary_schema}.roles
-        ORDER BY role_id;
-      SQL
-      db.fetch(query).all
-    end
-
-    def get_deleted_credentials
-      query = <<-SQL
-        SELECT role_id, client_id, restricted_to
-        FROM #{public_schema_before_changes}.credentials
-        EXCEPT
-        SELECT role_id, client_id, restricted_to
-        FROM #{primary_schema}.credentials
-        ORDER BY role_id;
-      SQL
-      db.fetch(query).all
-    end
-  
 
     def table_data schema = ""
       self.class.table_data(policy_version.policy.account, schema)
@@ -468,9 +273,9 @@ module Loader
 
     def print_debug
       puts("Temporary schema:")
-      puts(table_data())
+      puts(table_data)
       puts
-      puts("Master schema:", primary_schema)
+      puts("Master schema:")
       puts(table_data("#{primary_schema}__"))
     end
 
@@ -482,8 +287,6 @@ module Loader
         tp.set(:io, io)
         tp.set(:max_width, 100)
         begin
-          # new_tables = TABLES + [:credentials]
-          # new_tables.each do |table|
           TABLES.each do |table|
             model = Sequel::Model("#{schema}#{table}".to_sym)
             account_column = TABLE_EQUIVALENCE_COLUMNS[table].include?(:resource_id) ? :resource_id : :role_id
@@ -680,12 +483,6 @@ module Loader
       @schema_name ||= "policy_loader_#{rnd}"
     end
 
-    # A random schema name used for the snapshot of tables before policy is
-    # loaded
-    def public_schema_before_changes
-      "policy_loader_before"
-    end
-
     # Perform explicitly requested deletions
     #
     # We intentionally call @feature_flags.enabled? multiple times and don't
@@ -738,58 +535,11 @@ module Loader
       db.execute("SET search_path = #{schema_name}")
     end
 
-    def snapshot_public_schema_before
-      schema_name=public_schema_before_changes()
-      puts "SEARCH PATH BEFORE CREATING [#{schema_name}]: #{Sequel::Model.db.search_path}"
-      db.execute("DROP SCHEMA IF EXISTS #{schema_name} CASCADE")
-      db.execute("CREATE SCHEMA #{schema_name}")
-      db.search_path = schema_name
-      puts "SEARCH PATH AFTER CREATE [#{schema_name}] #{Sequel::Model.db.search_path}"
-
-      TABLES.each do |table|
-        db.execute("CREATE TABLE #{table} AS SELECT * FROM #{qualify_table(table)} WHERE 0 = 1")
-      end
-  
-      db.execute(Functions.ownership_trigger_sql)
-
-      db.execute(<<-SQL_STATEMENT)
-      CREATE OR REPLACE FUNCTION account(id text) RETURNS text
-      LANGUAGE sql IMMUTABLE
-      AS $$
-      SELECT CASE
-        WHEN split_part($1, ':', 1) = '' THEN NULL
-        ELSE split_part($1, ':', 1)
-      END
-      $$;
-      SQL_STATEMENT
-
-      db.execute("ALTER TABLE resources ADD PRIMARY KEY ( resource_id )")
-      db.execute("ALTER TABLE roles ADD PRIMARY KEY ( role_id )")
-
-      db.execute("ALTER TABLE role_memberships ALTER COLUMN admin_option SET DEFAULT 'f'")
-
-      puts "SEARCH PATH BEFORE LOADING RECORDS [#{schema_name}] #{Sequel::Model.db.search_path}"
-
-      # Clone public schema into new tables
-      TABLES.each do |table|
-        db.execute("INSERT INTO #{table} select *  from #{qualify_table(table)};")
-      end
-
-      # Store credentials
-      db.execute("CREATE TABLE credentials AS SELECT role_id, client_id, restricted_to FROM #{qualify_table("credentials")} WHERE 0 = 1")
-      db.execute("INSERT INTO credentials select role_id, client_id, restricted_to  FROM #{qualify_table("credentials")};")
-
-      restore_search_path
-      puts "SEARCH PATH AFTER RESTORING: [#{schema_name}] #{Sequel::Model.db.search_path}"
-      print_debug
-    end
-
     # Creates the new schema.
     #
     # Creates a set of tables in the new schema to mirror the tables in the primary schema.
     # The new tables are not created with constraints, aside from primary keys.
     def create_schema
-      # byebug
       db.execute("CREATE SCHEMA #{schema_name}")
       db.search_path = schema_name
 
@@ -841,10 +591,6 @@ module Loader
       # rubocop:enable Style/GuardClause
     end
 
-    def drop_snapshot_public_schema_before
-      db.execute("DROP SCHEMA #{public_schema_before_changes} CASCADE")
-    end
-
     def db
       Sequel::Model.db
     end
@@ -876,11 +622,8 @@ module Loader
       end
     end
 
-    # Returns the normal policy load report interface
-    def report(policy_result, production_type)
-      return validation_report(policy_result) if production_type == :validation
-
-      error = policy_result.policy_parse.error
+    def report(policy_result)
+      error = policy_result.error
 
       if error
         # The failure report identifies the error
@@ -898,40 +641,6 @@ module Loader
         }
 
       end
-
-      response
-    end
-
-    # Returns the syntax / business logic validation report interface
-    def validation_report(policy_result)
-      error = @policy_parse.error
-
-      if error
-        # Construct the message with enhanced error info
-        response = {
-          "status" => "Invalid YAML",
-          "errors" => [
-            error.as_validation
-          ],
-          "create" => policy_result.diff[:create],
-          "delete" => policy_result.diff[:delete],
-          "update" => policy_result.diff[:update],
-        }
-        msg = "Invalid YAML.\n#{error}"
-
-      else
-        response = {
-          "status" => "Valid YAML",
-          "errors" => [],
-          "summary" => policy_result.diff[:summary],
-          "create" => policy_result.diff[:create],
-          "delete" => policy_result.diff[:delete],
-          "update" => policy_result.diff[:update],
-        }
-        msg = "Valid YAML"
-      end
-
-      @logger.debug(msg)
 
       response
     end

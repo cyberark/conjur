@@ -26,8 +26,9 @@ end
 
 def validation_explanation
   body = JSON.parse(response.body)
-  message = body['errors'][0]['message']
-  message.match(/^.*(\n.+)$/).to_s
+  msg = body['errors'][0]['message']
+  adv = msg.match(/^[^\n]*\n{1,1}(.*)$/).to_s
+  adv
 end
 
 describe PoliciesController, type: :request do
@@ -42,7 +43,7 @@ describe PoliciesController, type: :request do
           )
           expect(response.code).to match(/20\d/)
           body = JSON.parse(response.body)
-          expect(body['status']).to match("Valid YAML")
+          expect(validation_status).to match("Valid YAML")
           expect(body['errors']).to match([])
         end
       end
@@ -59,7 +60,7 @@ describe PoliciesController, type: :request do
           expect(response.code).to eq("422")
           expect(validation_status).to match("Invalid YAML")
           expect(validation_error_text).to match(/did not find expected whitespace or line break/)
-          expect(validation_explanation).to match(/did not find expected whitespace or line break/)
+          expect(validation_explanation).to match(/Only one node can be defined per line./)
         end
       end
 
@@ -146,7 +147,7 @@ describe PoliciesController, type: :request do
       # exception is thrown during the policy loading process.
       context 'such as bob-not-found (from policy_load_errors.feature)' do
         it 'returns Valid status, expected Error, and advice' do
-          validate_policy(
+          apply_policy(
             policy: <<~YAML
               - !variable password
 
@@ -158,7 +159,6 @@ describe PoliciesController, type: :request do
           )
           expect(response.code).to eq("404")
           body = JSON.parse(response.body)
-          puts "QWE #{body}"
           expect(body['error']['code']).to eq("not_found")
           expect(body['error']['message']).to eq("User 'bob' not found in account 'rspec'")
           expect(body['error']['target']).to eq("user")

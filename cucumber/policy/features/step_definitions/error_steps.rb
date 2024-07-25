@@ -9,6 +9,7 @@ Then(/^the error message is "([^"]*)"$/) do |message|
 end
 
 Then(/^the error message includes "([^"]*)"$/) do |message|
+  $stderr.puts("Got message field: #{@error['message']}")
   expect(@error['message']).to include(message)
 end
 
@@ -36,9 +37,14 @@ Then(/^there's no error$/) do
   expect(@result.body).not_to have_key('error')
 end
 
+Then(/^the policy status is "([^"]*)"$/) do |status|
+  expect(@result.body).to have_key('status')
+  expect(@result.body['status']).to match(status)
+end
+
 Then(/^the policy error includes "([^"]*)"$/) do |message|
-  expect(@result.body).to have_key('error')
-  @error = @result.body['error']
+  expect(@result.body).to have_key('errors')
+  @error = @result.body['errors'][0]
   expect(@error).to have_key('message')
   @policymessage = @error['message']
   expect(@policymessage).to include(message)
@@ -73,7 +79,7 @@ Then(/^the validation error includes "([^"]*)"$/) do |message|
   expect(@result).to have_key('errors')
   @message = @result['errors'][0]['message']
   @original = @message.split("\n")
-  expect(@original).to include(message)
+  expect(@original[0]).to include(message)
 end
 
 Then(/^the enhanced error includes "([^"]*)"$/) do |message|

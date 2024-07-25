@@ -62,7 +62,9 @@ class ApplicationController < ActionController::API
   rescue_from Sequel::ForeignKeyConstraintViolation, with: :foreign_key_constraint_violation
   rescue_from Exceptions::EnhancedPolicyError, with: :enhanced_policy_error
   rescue_from Exceptions::InvalidPolicyObject, with: :policy_invalid
-  rescue_from NoMethodError, with: :policy_invalid
+  rescue_from Conjur::PolicyParser::Invalid, with: :policy_invalid
+  rescue_from Conjur::PolicyParser::ResolverError, with: :policy_invalid
+  rescue_from NoMethodError, with: :validation_failed
   rescue_from ArgumentError, with: :argument_error
   rescue_from ActionController::ParameterMissing, with: :argument_error
   rescue_from UnprocessableEntity, with: :unprocessable_entity
@@ -84,7 +86,6 @@ class ApplicationController < ActionController::API
 
   # Wrap the request in a transaction.
   def run_with_transaction(&block)
-    Rails.logger.debug("Wrapping request in transaction...")
     Sequel::Model.db.transaction(&block)
   end
 
@@ -172,7 +173,8 @@ class ApplicationController < ActionController::API
   def policy_invalid e
     logger.debug("#{e}\n#{e.backtrace.join("\n")}")
 
-    error = { code: "policy_invalid", message: e.message }
+    msg = e.message == nil ? e.to_s : e.message
+    error = { code: "policy_invalid", message: msg }
 
     if e.instance_of?(Conjur::PolicyParser::Invalid)
       error[:innererror] = {

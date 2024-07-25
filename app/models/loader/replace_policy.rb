@@ -32,6 +32,12 @@ module Loader
       )
     end
 
+    def call_pr(policy_result)
+      result = call
+      policy_result.created_roles = (result.created_roles)
+      policy_result.diff = (result.diff)
+    end
+
     # Call sequence that will perform the 'policy replace'
     def call
       @loader.snapshot_public_schema_before
@@ -72,8 +78,8 @@ module Loader
       @loader.credential_roles(actor_roles)
     end
 
-    def report(policy_result, production_type)
-      @loader.report(policy_result, production_type)
+    def report(policy_result)
+      @loader.report(policy_result)
     end
 
     def self.authorize(current_user, resource)

@@ -54,15 +54,13 @@ class PoliciesController < RestController
     raise e
   end
 
-  # A Conjur policy can be interpreted in various ways.
-  # A production strategy guides the interpretation.
-  # Loader::Orchestrate is a production that loads Conjur policy to database.
-  # Loader::Validate is a production that parses Conjur policy, resulting in error reports.
-  # The dryRun strategy parses Conjur policy, reports any errors, 
-  #   and if valid, reports the effective policy changes.
+  # A Conjur policy can be interpreted under various strategies.
+  # Loader::Validate is a strategy that parses policy to look for lexical errors.
+  # Loader::DryRun is a strategy that rehearses policy application and reports what would change.
+  # Loader::Orchestrate is a strategy that actually does apply policy and store it to database.
 
-  def production_type
-    return :validation if params["dryRun"]&.strip&.downcase == "true"
+  def strategy_type
+    return :rehearsal if params["dryRun"]&.strip&.downcase == "true"
 
     :orchestration
   end
@@ -103,133 +101,134 @@ class PoliciesController < RestController
 
   private
 
+  def enhance_error(error)
+    enhanced = error
+    unless error.instance_of?(Exceptions::EnhancedPolicyError)
+      enhanced = Exceptions::EnhancedPolicyError.new(
+        original_error: error
+      )
+    end
+    enhanced
+  end
+
   # Policy processing is a function of the policy mode request (load/update/replace) and
-  # is interpreted using the Orchestrate strategy.
+  # is interpreted using strategies to match the user command.
 
   def load_policy(mode, mode_class, delete_permitted:)
-    # Authorization to load
+    # A single instance of PolicyResult tracks policy progress and
+    # is passed to successive operations.
+    policy_result = PolicyResult.new
+    policy_mode = nil
+
+    # Declare above any vars that the lambdas need to recognize as local.
+
+    # Has a policy error been encountered yet?
+    policy_erred = lambda {
+      !policy_result.nil? &&
+      !policy_result.policy_parse.nil? &&
+      !policy_result.policy_parse.error.nil?
+    }
+
+    # policy_mode is used to call loader methods
+    get_policy_mode = lambda { |strategy_class|
+      # mode = f(strategy, parse, version)
+      policy_mode = mode_class.from_policy(
+        policy_result.policy_parse,
+        policy_result.policy_version,
+        strategy_class
+      )
+    }
+  
+    # We wrap policy operations (parsing, loading, applying business rules)
+    # in rescue blocks and capture the exceptions as the error results.
+    # This prevents exceptions from rising uncontrollably (which would be a
+    # problem in situations such as the dry-run rollback).
+    evaluate_policy = lambda { |strategy_class|
+      # load, raise, enhance
+      begin
+        get_policy_mode.call(strategy_class)
+        policy_mode.call_pr(policy_result) unless policy_erred.call
+      rescue => e
+        policy_result.error=(enhance_error(e))
+      end
+    }
+
+    # Evaluate policy until success or an error is encountered.
+    # If errored, skip remaining evaluation and raise the error
+    # to redirect to strategy-based report generation.
+
     authorize(mode)
     mode_class.authorize(current_user, resource)
 
-    # Parse the policy
-    policy_parse = parse_submitted_policy
+    parse_submitted_policy(policy_result)
 
-    # If this is not a dry run, then save the policy. This has to occur here,
-    # as creating the policy_mode requires the policy_version
-    policy_version = nil
+    if strategy_type == :rehearsal
+      evaluate_policy.call(Loader::Validate)
+      raise policy_result.error if policy_erred.call
 
-    # Reporting on all policy errors requires an instance of the policy_mode
-    # to call the #report method.
-    policy_mode = mode_class.from_policy(
-      policy_parse,
-      policy_version,
-      Loader::Validate
-    )
+      Sequel::Model.db.transaction(savepoint: true) do
+        save_submitted_policy(policy_result, delete_permitted) unless policy_erred.call
+        evaluate_policy.call(Loader::DryRun)
 
-    # Process the syntax of the policy. If it is invalid, an exception will
-    # be thrown.
-    policy_result = policy_mode.call
-    raise policy_result.error if policy_result.error
-
-    if production_type == :validation
-      Rails.logger.debug("Begin operating in nested transaction...")
-      Sequel::Model.db.transaction(savepoint: true) do # SAVEPOINT
-        Rails.logger.debug("Operating in a nested transaction...")
-
-        # If we've made it this far, the syntax of a policy is valid. Now we
-        # perform the loading of policy.
-        policy_version = save_submitted_policy(policy_parse, delete_permitted)
-        policy_mode = mode_class.from_policy(
-          policy_parse,
-          policy_version,
-          Loader::Orchestrate
-        )
-        policy_result = nil
-        # Process the business logic of the policy. If it is invalid, an exception
-        # will be thrown.
-        policy_result = policy_mode.call
-        raise policy_result.error if policy_result.error
         raise Sequel::Rollback
-      end # ROLLBACK TO SAVEPOINT
-      Rails.logger.debug("Transaction should've been rolled back...")
-    else
-      Rails.logger.debug("Skip operating in nested transaction...")
-      policy_version = save_submitted_policy(policy_parse, delete_permitted)
-      policy_mode = mode_class.from_policy(
-        policy_parse,
-        policy_version,
-        Loader::Orchestrate
-      )
-      policy_result = nil
-      # Process the business logic of the policy. If it is invalid, an exception
-      # will be thrown.
-      policy_result = policy_mode.call
-      raise policy_result.error if policy_result.error
+      end
+
+    else # :orchestration
+      save_submitted_policy(policy_result, delete_permitted) unless policy_erred.call
+      evaluate_policy.call(Loader::Orchestrate)
+
     end
 
-    # If this is a dry run, we need to undo any changes to the database.
-    # WARNING: this isn't ideal because we may need to access original
-    # db state after rollback, however, a rollback does not occur until
-    # the end of the transaction. We don't want to fetch all resources before
-    # hand as we only want to fetch resources that we know have been changed.
-    # rollback_dryrun()
+    raise policy_result.error if policy_erred.call
 
-    audit_success(policy_version)
+    # Success
+    audit_success(policy_result.policy_version)
 
     render(
-      json: policy_mode.report(policy_result, production_type),
-      status: success_status
+      json: policy_mode.report(policy_result),
+      status: strategy_type == :orchestration ? :created : :ok
     )
+
+  # Error triage:
+  # - Audit the original
+  # - Report the enhanced
+  # - Raise the original
+
   # Sequel::ForeignKeyConstraintViolation and Exceptions::RecordNotFound are not
   # currently handled by the enhanced error framework, so we pass it directly up
   # to the application controller.
   rescue Sequel::ForeignKeyConstraintViolation, Exceptions::RecordNotFound => e
     audit_failure(e, mode)
-    raise
+    raise e
+
   rescue => e
-    # Processing errors can be explained the same as parsing errors,
-    # but check whether the original is safe.
-    load_err = e
+    original_error = e
     if e.instance_of?(Exceptions::EnhancedPolicyError)
       if e.original_error
-        load_err = e.original_error
+        original_error = e.original_error
       end
     end
 
-    # Errors caught here include those due to mode processing.
-    audit_failure(e, mode)
+    audit_failure(original_error, mode)
 
-    # If an error occurred before the policy_mode was instantiated, raise it
-    # for the application controller to handle
-    unless production_type == :validation
-      raise load_err
-    end
+    # Render Orchestration errors through ApplicationController
+    raise original_error if strategy_type == :orchestration
 
-    # Render the errors according the mode (load or validate)
     render(
-      json: policy_mode.report(policy_result, production_type),
+      json: policy_mode.report(policy_result),
       status: :unprocessable_entity
     )
-  end
 
-  def rollback_dryrun
-    return unless production_type == :validation
-    Sequel::Model.db.rollback_on_exit
-    Rails.logger.debug("Rollback fired!")
-  end
-
-  def success_status
-    production_type == :validation ? :ok : :created
   end
 
   # Auditing
 
   def audit_success(policy_version)
-    case production_type
-    when :validation
-      audit_validation_success("validate")
-    else
+    case strategy_type
+    when :orchestration
       audit_load_success(policy_version)
+    else
+      audit_validation_success("validate")
     end
   end
 
@@ -289,33 +288,37 @@ class PoliciesController < RestController
     rand(1..8)
   end
 
-  # Generate a version and parse the policy
-  def save_submitted_policy(policy_parse, delete_permitted)
-    # (SYSK: as with parse_submitted_policy, PolicyVersion
-    # calls Commands::Policy::Parse, but it also generates
-    # a policy version number and binds them in a db record.)
-
-    policy_version = PolicyVersion.new(
-      role: current_user,
-      policy: resource,
-      policy_text: request.raw_post,
-      client_ip: request.ip,
-      policy_parse: policy_parse
-    )
-    policy_version.delete_permitted = delete_permitted
-    policy_version.save
-
-    policy_version
+  # Generate a version and parse the policy.
+  # Returns a PolicyResult; errors related to version creation are packaged inside.
+  # Raises no exceptions.
+  def save_submitted_policy(policy_result, delete_permitted)
+    version = nil
+    begin
+      version = PolicyVersion.new(
+        role: current_user,
+        policy: resource,
+        policy_text: request.raw_post,
+        client_ip: request.ip,
+        policy_parse: policy_result.policy_parse
+      )
+      version.delete_permitted = delete_permitted
+      version.save
+    rescue => e
+      policy_result.policy_parse = (PolicyParse.new([], enhance_error(e)))
+    end
+    policy_result.policy_version = (version)
   end
 
   # Parse the policy; no version is generated.
-  def parse_submitted_policy
+  # Returns a PolicyParse; errors, if any, are packaged inside.
+  # Raises no exceptions.
+  def parse_submitted_policy(policy_result)
     # Commands::Policy::Parse catches errors related to policy validation
 
     policy = resource
     is_root = policy.kind == "policy" && policy.identifier == "root"
 
-    Commands::Policy::Parse.new.call(
+    parse = Commands::Policy::Parse.new.call(
       account: policy.account,
       policy_id: policy.identifier,
       owner_id: policy.owner.id,
@@ -323,6 +326,7 @@ class PoliciesController < RestController
       policy_filename: nil,  # filename is historical and no longer informative
       root_policy: is_root
     )
+    policy_result.policy_parse = (parse)
   end
 
   def publish_event

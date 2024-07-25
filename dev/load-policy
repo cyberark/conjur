@@ -21,7 +21,6 @@ if [ ! -f "$API_KEY_FILE" ]; then
 fi
 
 API_KEY=$(cat $API_KEY_FILE | tr -d '\r')
-echo "$API_KEY"
 
 TOKEN=$(docker exec "$DOCKER_LEADER_CONTAINER" curl \
       --silent \
@@ -30,25 +29,12 @@ TOKEN=$(docker exec "$DOCKER_LEADER_CONTAINER" curl \
       --data "$API_KEY" \
       "http://localhost:3000/authn/$CONJUR_ACCOUNT/$CONJUR_USER/authenticate" | base64)
 
-echo $TOKEN
-
 if [ -z "$TOKEN" ]; then
   echo "Failed to authenticate with Conjur"
   exit 1
 fi
 
 POLICY_BODY=$(cat "$FILE_PATH")
-# POLICY_BODY=$(cat << EOF
-# - !user alice
-# - !group dev
-# - !grant
-#   role: !group dev
-#   members: !user bob
-
-# EOF
-# )
-
-echo "$POLICY_BODY"
 
 # CREATE -> POST
 # UPDATE -> PATCH (can delete)
