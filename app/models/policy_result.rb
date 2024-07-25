@@ -6,16 +6,18 @@
 # to another.
 
 class PolicyResult
-  attr_reader :policy_version, :created_roles, :policy_parse
+  attr_reader :policy_version, :created_roles, :policy_parse, :diff
 
   def initialize(
     policy_version:,
     created_roles:,
-    policy_parse:
+    policy_parse:,
+    diff:
   )
     @policy_version = policy_version
     @created_roles = created_roles
     @policy_parse = policy_parse
+    @diff = diff
   end
 
   # Surface the parse error as the policy result error, in the future this

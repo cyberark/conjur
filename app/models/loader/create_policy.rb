@@ -28,16 +28,29 @@ module Loader
     end
 
     def call
+      @loader.snapshot_public_schema_before
       @loader.setup_db_for_new_policy
       @loader.delete_shadowed_and_duplicate_rows
       @loader.store_policy_in_db
+
+      diff
+
+      # Destroy the temp schema used for diffing
+      @loader.drop_snapshot_public_schema_before
       @loader.release_db_connection
 
       PolicyResult.new(
         policy_parse: @loader.policy_parse,
         policy_version: @loader.policy_version,
-        created_roles: credential_roles
+        created_roles: credential_roles,
+        diff: diff
       )
+    end
+
+    # This cache needs to be hydrated before the transaction is rolled back
+    # and/or before the temp schema is dropped.
+    def diff
+      @cached_diff ||= @loader.get_diff
     end
 
     def new_roles

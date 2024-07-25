@@ -61,4 +61,4 @@ docker exec "$DOCKER_LEADER_CONTAINER" curl \
       --request "$POLICY_MODE" \
       --header "Authorization: Token token=\"$TOKEN\"" \
       --data "$POLICY_BODY" \
-      http://localhost:3000/policies/$CONJUR_ACCOUNT/policy/$POLICY_BRANCH?dryRun=$VALIDATE
+      http://localhost:3000/policies/$CONJUR_ACCOUNT/policy/$POLICY_BRANCH?dryRun=$VALIDATE | jq -r
