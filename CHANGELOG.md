@@ -9,9 +9,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
-## [1.0.34-cloud] - 2024-08-04
+## [1.0.34-cloud] - 2024-08-11
 ### Fixed
 - Improve policy load performance (Cherry Pick form conjur-OSS) 
+- Improve is_allowed_to DB query (Cherry Pick form conjur-OSS) 
 
 ## [1.0.33-cloud] - 2024-07-28
 ### Fixed
