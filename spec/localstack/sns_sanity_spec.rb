@@ -10,13 +10,19 @@ describe "Sanity for localstack service" do
 
   it 'sanity check for localstack service' do
     # Create SNS topic
-    response = sns_object.create_topic(name: 'sanity-check-topic')
+    response = sns_object.create_topic(
+      name: "sanity-check-topic.fifo",
+      attributes: {
+        'FifoTopic' => 'true',  # Required attribute to indicate FIFO topic
+        'ContentBasedDeduplication' => 'true'
+      }
+    )
     topic_arn = response.topic_arn
     expect(topic_arn).to_not be_nil
 
     # Publish a message to the SNS topic
     message = 'Hello, LocalStack!'
-    publish_response = sns_object.publish(topic_arn: topic_arn, message: message)
+    publish_response = sns_object.publish(topic_arn: topic_arn, message: message, message_group_id: "01234")
     expect(publish_response.message_id).to_not be_nil
   end
 
@@ -27,7 +33,7 @@ describe "Sanity for localstack service" do
 
     # Publish a message to the SNS topic
     message = 'Hello, LocalStack!'
-    publish_response = sns_object.publish(topic_arn: topic_arn, message: message)
+    publish_response = sns_object.publish(topic_arn: topic_arn, message: message, message_group_id: "01234")
     expect(publish_response.message_id).to_not be_nil
   end
 end
