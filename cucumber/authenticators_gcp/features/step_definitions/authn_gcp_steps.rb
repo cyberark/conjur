@@ -130,4 +130,16 @@ Given(/I authenticate (?:(\d+) times? in (\d+) threads? )?with authn-gcp using (
       gcp_token: token
     }
   )
+  # If the called failed retry to send it
+  if http_status != 200
+    authenticate_with_performance(
+      num_requests,
+      num_threads,
+      authentication_func: :authenticate_gcp_token,
+      authentication_func_params: {
+        account: account,
+        gcp_token: token
+      }
+    )
+  end
 end
