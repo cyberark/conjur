@@ -14,6 +14,13 @@ describe Monitoring::Middleware::PrometheusCollector do
     Monitoring::Prometheus.setup(registry: Prometheus::Client::Registry.new, metrics: metrics)
   end
 
+  after do
+    metrics.each do |m|
+      pubsub.unsubscribe(m.sub_event_name)
+      m.registry.unregister(m.metric_name)
+    end
+  end
+
   let(:metrics) { [
     Monitoring::Metrics::ApiRequestCounter.new,
     Monitoring::Metrics::ApiRequestHistogram.new,
