@@ -114,6 +114,7 @@ services:
     - conjur:conjur
     volumes:
     - ..:/src/conjur-server
+    working_dir: /src/conjur-server
 
   ldap-server:
     image: osixia/openldap

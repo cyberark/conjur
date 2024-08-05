@@ -33,6 +33,7 @@ COMMANDS
     --authn-azure   Enables Azure features
     --authn-gcp     Enables GCP features
     --authn-jwt     Enables JWT features
+    --client        Steps into the running Conjur CLI container, instead, as a bash shell. 
 EOF
 exit
 }
@@ -252,17 +253,16 @@ while true ; do
     exec )
       api_key=$(docker compose exec -T conjur conjurctl role retrieve-key cucumber:user:admin | tr -d '\r')
       env_args=(-e "CONJUR_AUTHN_API_KEY=$api_key")
-
       case "$2" in
         -h | --help ) print_exec_help ; shift ;;
         --authn-oidc ) enable_oidc ; shift ;;
         --authn-azure ) enable_azure ; shift ;;
         --authn-gcp ) handle_gcp "${@:3:4}"; shift 5;;
         --authn-jwt ) enable_jwt ; shift ;;
+        --client ) container=client ; shift ;;
         * ) if [ -z "$2" ]; then shift ; else echo "$2 is not a valid option"; exit 1; fi;;
       esac
-
-      docker exec "${env_args[@]}" -it --detach-keys 'ctrl-\' "$(docker compose ps -q conjur)" bash
+      docker exec "${env_args[@]}" -it --detach-keys 'ctrl-\' "$(docker compose ps -q "${container:-conjur}")" bash
      shift ;;
     policy )
       case "$2" in
