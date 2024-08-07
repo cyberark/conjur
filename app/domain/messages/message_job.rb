@@ -95,13 +95,6 @@ class MessageJob
     filled_events
   end
 
-  def fill_event_hash(event)
-    value_hash = JSON.parse(event[:event_value])
-    value_hash['id'] = event[:event_id]
-    value_hash['time'] = event[:created_at].iso8601(3)
-    value_hash['type'] = event[:event_type]
-    return value_hash
-  end
 
   # I take in to account that a single event never exceeds the max size
   def split_events_into_json_chunks_recursive(events, max_size_kb = 120)

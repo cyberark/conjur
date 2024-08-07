@@ -17,6 +17,14 @@ RSpec.describe MessageJob do
     delete_sns_topic
   end
 
+  def fill_event_hash(event)
+    value_hash = JSON.parse(event[:event_value])
+    value_hash['id'] = event[:event_id]
+    value_hash['time'] = event[:created_at].iso8601(3)
+    value_hash['type'] = event[:event_type]
+    return value_hash
+  end
+
   describe '#fill_events_hash' do
     it 'fills the event hash with additional fields' do
       events = [
@@ -173,7 +181,7 @@ RSpec.describe MessageJob do
 
     while total_size <= size * 1024
       event = Event.create_event(event_type: event_type, event_value: base_event_value)
-      events << message_job.send(:fill_event_hash,event)
+      events << fill_event_hash(event)
       total_size += base_event_value.bytesize
     end
 
@@ -187,7 +195,6 @@ RSpec.describe MessageJob do
 
     it 'splits large events into multiple chunks' do
       filled_events_value = create_events_values_until_size_exceeds(2)
-      # filled_events = message_job.send(:fill_events_hash,events)
       max_size = 1.5
       chunks = message_job.send(:split_events_into_json_chunks_recursive, filled_events_value, max_size)
       expect(chunks.size).to be > 1
@@ -213,7 +220,7 @@ RSpec.describe MessageJob do
       large_event_value = { 'key' => 'a' * 1025 }.to_json # Ensure the value is in JSON format
       event_type = 'test_event'
       large_event = Event.create_event(event_type: event_type, event_value: large_event_value)
-      filled_event = message_job.send(:fill_event_hash, large_event)
+      filled_event = fill_event_hash(large_event)
       filled_events_value << filled_event
 
       chunks = message_job.send(:split_events_into_json_chunks_recursive, filled_events_value, 1)
