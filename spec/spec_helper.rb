@@ -61,6 +61,7 @@ RSpec.configure do |config|
 
   config.around(:each) do |example|
     Rails.cache.clear
+    puts("Running #{example.metadata[:location]}")
     DatabaseCleaner.cleaning do
       example.run
     end

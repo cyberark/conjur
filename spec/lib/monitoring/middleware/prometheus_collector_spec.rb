@@ -8,17 +8,13 @@ Dir.glob(Rails.root + 'lib/monitoring/metrics/api_*.rb', &method(:require))
 describe Monitoring::Middleware::PrometheusCollector do
 
   # Clear out any existing subscribers and reset the data store
-  before do
+  around do |ex|
+    orig_metrics = Monitoring::Prometheus.metrics
     pubsub.unsubscribe('conjur.request_exception')
     pubsub.unsubscribe('conjur.request')
     Monitoring::Prometheus.setup(registry: Prometheus::Client::Registry.new, metrics: metrics)
-  end
-
-  after do
-    metrics.each do |m|
-      pubsub.unsubscribe(m.sub_event_name)
-      m.registry.unregister(m.metric_name)
-    end
+    ex.run
+    Monitoring::Prometheus.setup(registry: Prometheus::Client::Registry.new, metrics: orig_metrics)
   end
 
   let(:metrics) { [
