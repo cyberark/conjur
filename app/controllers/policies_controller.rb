@@ -12,7 +12,7 @@ class PoliciesController < RestController
   rescue_from Sequel::UniqueConstraintViolation, with: :concurrent_load
 
   def run_with_transaction(&block)
-    Sequel::Model.db.transaction(&block)
+    super(&block)
     trigger_message_job
   end
 

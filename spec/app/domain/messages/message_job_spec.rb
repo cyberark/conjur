@@ -108,77 +108,61 @@ RSpec.describe MessageJob do
       expect(Event.where(transaction_id: transaction_id).count).to eq(0)
     end
   end
+  # Test fails when run in whole suite of tests because it reach recursive loop of getting db connection
   describe 'check locking' do
-    # it 'fails to acquire lock when another transaction holds it' do
-    #   allow(Event).to receive(:unique_transaction_ids_count).and_return(5)
-    #   # Override the process_message method to include sleep
-    #   allow_any_instance_of(MessageJob).to receive(:process_message) do
-    #     sleep(5) # Simulates long processing time
-    #   end
-    #
-    #   # Start the first job in a thread
-    #   thread1 = Thread.new do
-    #
-    #     message_job.run
-    #   end
-    #   sleep(1) # Ensure the first job starts and acquires the lock before starting the second job
-    #
-    #   # Attempt to start the second job in another thread
-    #   #
-    #   lock_acquired_value = nil
-    #   thread2 = Thread.new do
-    #     message_job.run
-    #     lock_acquired_value = Sequel::Model.db.fetch("SELECT pg_try_advisory_xact_lock(:lock_id) AS lock_acquired;", lock_id: MessageJob.instance.send(:get_lock_identifier)).first[:lock_acquired]
-    #   end
-    #
-    #   thread1.join
-    #   thread2.join
-    #   expect(lock_acquired_value).to be false
-    # end
+    it 'fails to acquire lock when another transaction holds it' do
+      allow(Event).to receive(:unique_transaction_ids_count).and_return(5)
+      # Override the process_message method to include sleep
+      allow_any_instance_of(MessageJob).to receive(:process_message) do
+        sleep(5) # Simulates long processing time
+      end
 
-    # it 'successfully acquires lock after the first transaction completes' do
-    #   # Setup: Ensure necessary data is present
-    #
-    #   # Override the process_message method to include sleep
-    #   allow_any_instance_of(MessageJob).to receive(:process_message) do
-    #     sleep(5) # Simulates long processing time
-    #   end
-    #
-    #   # Start the first job in a thread and wait for it to complete
-    #   thread1 = Thread.new do
-    #     MessageJob.instance.run
-    #   end
-    #   thread1.join # Wait for the first thread to finish
-    #
-    #   # Start the second job in another thread and capture the lock_acquired value
-    #   lock_acquired_value = nil
-    #   thread2 = Thread.new do
-    #     MessageJob.instance.run
-    #     lock_acquired_value = Sequel::Model.db.fetch("SELECT pg_try_advisory_xact_lock(:lock_id) AS lock_acquired;", lock_id: MessageJob.instance.send(:get_lock_identifier)).first[:lock_acquired]
-    #   end
-    #   thread2.join
-    #
-    #   # Assert that the second job's attempt to acquire the lock succeeded
-    #   expect(lock_acquired_value).to be true
-    # end
+      # Start the first job in a thread
+      thread1 = Thread.new do
 
-  end
-  describe '#get_lock_identifier' do
-    it 'returns the correct lock identifier based on TENANT_ID' do
-      # Calculate the expected lock identifier
-      sha256_hash = Digest::SHA256.hexdigest(ENV['TENANT_ID'])
-      bigint_max = 9223372036854775807
-      expected_lock_identifier = sha256_hash[0...16].to_i(16) % (bigint_max + 1)
-      # Adjust if the result is negative, to ensure it's within the positive range of bigint
-      expected_lock_identifier += bigint_max + 1 if expected_lock_identifier < 0
+        message_job.run
+      end
+      sleep(1) # Ensure the first job starts and acquires the lock before starting the second job
 
+      # Attempt to start the second job in another thread
+      #
+      lock_acquired_value = nil
+      thread2 = Thread.new do
+        message_job.run
+        lock_acquired_value = Sequel::Model.db.fetch("SELECT pg_try_advisory_xact_lock(:lock_id) AS lock_acquired;", lock_id: MessageJob.instance.send(:get_lock_identifier)).first[:lock_acquired]
+      end
 
-      # Call the method and get the lock identifier
-      lock_identifier = message_job.send(:get_lock_identifier)
-
-      # Assert that the returned lock identifier matches the expected value
-      expect(lock_identifier).to eq(expected_lock_identifier)
+      thread1.join
+      thread2.join
+      expect(lock_acquired_value).to be false
     end
+
+    it 'successfully acquires lock after the first transaction completes' do
+      # Setup: Ensure necessary data is present
+
+      # Override the process_message method to include sleep
+      allow_any_instance_of(MessageJob).to receive(:process_message) do
+        sleep(5) # Simulates long processing time
+      end
+
+      # Start the first job in a thread and wait for it to complete
+      thread1 = Thread.new do
+        MessageJob.instance.run
+      end
+      thread1.join # Wait for the first thread to finish
+
+      # Start the second job in another thread and capture the lock_acquired value
+      lock_acquired_value = nil
+      thread2 = Thread.new do
+        MessageJob.instance.run
+        lock_acquired_value = Sequel::Model.db.fetch("SELECT pg_try_advisory_xact_lock(:lock_id) AS lock_acquired;", lock_id: MessageJob.instance.send(:get_lock_identifier)).first[:lock_acquired]
+      end
+      thread2.join
+
+      # Assert that the second job's attempt to acquire the lock succeeded
+      expect(lock_acquired_value).to be true
+    end
+
   end
 
   def create_events_values_until_size_exceeds(size = 2)

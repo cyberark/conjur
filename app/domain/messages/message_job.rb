@@ -34,6 +34,7 @@ class MessageJob
     end
   end
 
+  # lock releases in the transaction end
   def acquire_lock
       Sequel::Model.db.fetch("SELECT pg_try_advisory_xact_lock(:lock_id) AS lock_acquired;", lock_id: get_lock_identifier).first[:lock_acquired]
   end
@@ -139,11 +140,6 @@ class MessageJob
   end
 
   def get_lock_identifier
-    sha256_hash = Digest::SHA256.hexdigest(ENV['TENANT_ID'])
-    bigint_max = 9223372036854775807
-    lock_identifier = sha256_hash[0...16].to_i(16) % (bigint_max + 1)
-    # Adjust if the result is negative, to ensure it's within the positive range of bigint
-    lock_identifier += bigint_max + 1 if lock_identifier < 0
-    return lock_identifier
+     ENV['TENANT_ID'].to_i(36)
   end
 end

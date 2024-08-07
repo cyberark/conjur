@@ -44,4 +44,7 @@ Rails.application.configure do
 
   # Raises error for missing translations
   # config.action_view.raise_on_missing_translations = true
+
+  # Config server for local development
+  config.config_server_endpoint = 'https://config-us-east-1.secretsmgr.cyberark-everest-integdev.cloud'
 end

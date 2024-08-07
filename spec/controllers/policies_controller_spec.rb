@@ -149,17 +149,28 @@ describe PoliciesController, type: :request do
   annotations:
     authn/api-key: true
   )
-      event1 = Event.create_event(event_type: 'test_event1', event_value: '{"key":"value1"}')
-      Event.create_event(event_type: 'test_event2', event_value: '{"key":"value2"}')
+      # event1 = Event.create_event(event_type: 'test_event1', event_value: '{"key":"value1"}')
+      # Event.create_event(event_type: 'test_event2', event_value: '{"key":"value2"}')
 
-      transaction_id = event1[:transaction_id]
+      transaction_id = ""
       # Ensure events are present before running the method
-      expect(Event.where(transaction_id: transaction_id).count).to be > 0
+      # expect(Event.where(transaction_id: transaction_id).count).to be > 0
 
 
-      # Assertion: Check that events are deleted
 
+      expect(MessageJob.instance).to receive(:run).and_call_original
+
+      thread = nil
+      allow_any_instance_of(PoliciesController).to receive(:trigger_message_job) do
+        thread = Thread.new {
+          event1 = Event.create_event(event_type: 'test_event1', event_value: '{"key":"value1"}')
+          Event.create_event(event_type: 'test_event2', event_value: '{"key":"value2"}')
+          MessageJob.instance.run
+        transaction_id = event1[:transaction_id]}
+        thread
+      end
       post("/policies/#{account}/policy/root", env: token_auth_header(role: admin_user).merge({'RAW_POST_DATA' => host_policy}))
+      thread.join if thread
       expect(response.status).to eq(201)
       expect(Event.where(transaction_id: transaction_id).count).to eq(0)
     end

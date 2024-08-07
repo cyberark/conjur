@@ -16,6 +16,7 @@ RSpec.describe TriggerMessage, type: :controller do
       it "executes the MessageJob in a new thread" do
         expect(MessageJob.instance).to receive(:run)
         subject.trigger_message_job
+        sleep 1 # make sure entered thread
       end
 
       it "raises a StandardError if one is raised" do

@@ -19,7 +19,7 @@ class SecretsController < RestController
     if params[:action].downcase.starts_with?('show') || params[:action].downcase.starts_with?('batch')
       yield
     else
-      Sequel::Model.db.transaction(&block)
+      super(&block)
       trigger_message_job
     end
   end

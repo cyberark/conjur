@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [1.0.35-cloud] - 2024-08-18
 ### Added
+- Integration with Configuration Manager (disabled by default)
 - Added sending messages to sns topic
 
 ## [1.0.34-cloud] - 2024-08-11

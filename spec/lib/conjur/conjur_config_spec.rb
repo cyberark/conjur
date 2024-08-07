@@ -18,6 +18,10 @@ describe Conjur::ConjurConfig do
     )
   end
 
+  before do
+    allow(Anyway::Loaders::SpringConfigLoader).to receive(:fetch_configs).and_return({})
+  end
+
   it "uses default value if not set by environment variable or config file" do
     expect(subject.trusted_proxies).to eq([])
     expect(subject.telemetry_enabled).to eq(false)
@@ -368,6 +372,55 @@ describe Conjur::ConjurConfig do
     it "returns a 401" do
       get '/metrics'
       expect(response).to have_http_status(401)
+    end
+  end
+
+  context "configurations are retrieved from config server" do
+    # ConjurConfig is created on rspec startup w/o config_server loader because ENABLE_PUBSUB is unset
+    # The hack below is used to reset loaders for the scope of the test,
+    # such that config_server loader is also registered
+    # TODO: when we remove conditioning over ENABLE_PUBSUB we can remove this around block
+    around do |example|
+      module Anyway
+        def self.set_loaders(loaders)
+          @loaders = loaders
+        end
+      end
+      orig_loaders = Anyway.loaders
+      Anyway.set_loaders(nil)
+      Anyway.loaders.append :env, ::Anyway::Loaders::Env
+      example.run
+      Anyway.set_loaders(orig_loaders)
+    end
+
+    before do
+      allow(ENV).to receive(:[]).and_call_original
+      allow(ENV).to receive(:[]).with('ENABLE_PUBSUB').and_return('true')
+    end
+
+    let(:config_server_response) {
+      {"feature1.enabled" => true, "feature2.name" => "great_feature"}
+    }
+
+    it 'succeeds to pull secrets from config server' do
+      allow(Anyway::Loaders::SpringConfigLoader).to receive(:fetch_configs).and_return(config_server_response)
+      expect(subject.feature1_enabled).to eq(true)
+      expect(subject.feature2_name).to eq('great_feature')
+    end
+
+    it "updates secrets when config is reloaded" do
+      allow(Anyway::Loaders::SpringConfigLoader).to receive(:fetch_configs).and_return(config_server_response)
+      expect(subject.feature1_enabled).to eq(true)
+      allow(Anyway::Loaders::SpringConfigLoader).to receive(:fetch_configs).and_return({"feature1.enabled" => false})
+      subject.reload
+      expect(subject.feature1_enabled).to eq(false)
+    end
+
+    it "Env var overrides config server" do
+      ENV['CONJUR_feature1_enabled'] = 'false'
+      allow(Anyway::Loaders::SpringConfigLoader).to receive(:fetch_configs).and_return(config_server_response)
+      expect(subject.feature1_enabled).to eq(false)
+      ENV.delete('CONJUR_feature1_enabled')
     end
   end
 end
