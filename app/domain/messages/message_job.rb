@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 require 'singleton'
-require 'digest'
-
+require_relative '../aws/sns_client'
 class MessageJob
   include Singleton
 
