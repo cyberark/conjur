@@ -80,18 +80,7 @@ services:
       - "./localstack:/var/lib/localstack"
       - "/var/run/docker.sock:/var/run/docker.sock"
 
-  localstack2:
-    image: localstack/localstack:latest
-    ports:
-      - "127.0.0.1:4566:4566"
-      - "127.0.0.1:4510-4559:4510-4559"
-    environment:
-      - SERVICES=sns,sqs
-      - DEBUG=1
-      - SQS_ENDPOINT_STRATEGY=dynamic
-    volumes:
-      - "./localstack:/var/lib/localstack"
-      - "/var/run/docker.sock:/var/run/docker.sock"
+
 
 
   conjur:
@@ -172,7 +161,7 @@ services:
       - ldap-server
       - keycloak
       - redis
-      - localstack2
+      - localstack
 
   cucumber:
     image: conjur-test:$TAG
@@ -210,7 +199,6 @@ services:
       - keycloak
       - redis
       - localstack
-      - localstack2
 
   ldap-server:
     image: osixia/openldap
