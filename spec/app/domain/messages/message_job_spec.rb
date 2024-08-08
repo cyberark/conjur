@@ -6,10 +6,10 @@ RSpec.describe MessageJob do
 
   let(:message_job) { MessageJob.instance }
 
-  before(:all) do
-    ENV['ENABLE_PUBSUB'] = 'true'
-  end
+
   before(:each) do
+    allow(ENV).to receive(:[]).and_call_original
+    allow(ENV).to receive(:[]).with('ENABLE_PUBSUB').and_return('true')
     create_sns_topic
   end
 

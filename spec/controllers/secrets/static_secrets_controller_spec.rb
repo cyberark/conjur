@@ -89,7 +89,8 @@ describe StaticSecretsController, type: :request do
         )
         assert_response :success
           create_sns_topic
-          ENV['ENABLE_PUBSUB'] = 'true'
+        allow(ENV).to receive(:[]).and_call_original
+        allow(ENV).to receive(:[]).with('ENABLE_PUBSUB').and_return('true')
       end
       it 'Secret resource was created with update permissions' do
         post("/secrets/static",

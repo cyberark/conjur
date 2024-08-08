@@ -11,7 +11,10 @@ RSpec.describe TriggerMessage, type: :controller do
 
   describe "#trigger_message_job" do
     context "when ENABLE_PUBSUB is true" do
-      before { ENV['ENABLE_PUBSUB'] = 'true' }
+      before {
+        allow(ENV).to receive(:[]).and_call_original
+        allow(ENV).to receive(:[]).with('ENABLE_PUBSUB').and_return('true')
+      }
 
       it "executes the MessageJob in a new thread" do
         expect(MessageJob.instance).to receive(:run)
@@ -26,7 +29,8 @@ RSpec.describe TriggerMessage, type: :controller do
     end
 
     context "when ENABLE_PUBSUB is not true" do
-      before { ENV['ENABLE_PUBSUB'] = 'false' }
+      before { allow(ENV).to receive(:[]).and_call_original
+      allow(ENV).to receive(:[]).with('ENABLE_PUBSUB').and_return('false') }
 
       it "does not execute the MessageJob" do
         expect(MessageJob.instance).not_to receive(:run)

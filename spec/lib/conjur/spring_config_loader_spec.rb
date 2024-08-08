@@ -42,5 +42,11 @@ describe Anyway::Loaders::SpringConfigLoader do
       expect(Net::HTTP).to receive(:get).and_raise(HTTP::ConnectionError)
       expect{described_class.fetch_configs}.to raise_error(HTTP::ConnectionError)
     end
+
+    it "fetches token successfully and attaches to request" do
+      expect(File).to receive(:read).with("/var/run/secrets/kubernetes.io/serviceaccount/token").and_return('token')
+      expect(Net::HTTP).to receive(:get).with(any_args, {'X-token' => 'token'}).and_return(config_response([{source: {"feature" => "great_feature"}}]))
+      expect(described_class.fetch_configs).to eq({'feature' => 'great_feature'})
+    end
   end
 end

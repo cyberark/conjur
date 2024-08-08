@@ -28,7 +28,7 @@ module Anyway
         result = {}
         if spring_profiles
           uri = build_uri(config_server_url, application_name, spring_profiles)
-          response = Net::HTTP.get(uri)
+          response = Net::HTTP.get(uri, fetch_token)
           config_data = JSON.parse(response)
           result = config_data['propertySources']
                    .reverse # To iterate from last precedence to first
@@ -67,6 +67,15 @@ module Anyway
         else
           Logger.new($stderr)
         end
+      end
+
+      def self.fetch_token
+        file_path_in_pod = "/var/run/secrets/kubernetes.io/serviceaccount/token"
+        x_token = "X-token"
+        {x_token => File.read(file_path_in_pod).strip}
+      rescue Errno::ENOENT => e
+        logger.warn("Error reading token from file to fetch properties. #{e.message}")
+        {x_token => 'empty'}
       end
     end
   end

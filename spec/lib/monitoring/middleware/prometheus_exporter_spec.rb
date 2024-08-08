@@ -4,8 +4,11 @@ require 'monitoring/middleware/prometheus_exporter'
 describe Monitoring::Middleware::PrometheusExporter do
 
   # Reset the data store
-  before do
+  around do |ex|
+    orig_metrics = Monitoring::Prometheus.metrics
     Monitoring::Prometheus.setup(registry: Prometheus::Client::Registry.new)
+    ex.run
+    Monitoring::Prometheus.setup(registry: Prometheus::Client::Registry.new, metrics: orig_metrics)
   end
 
   let(:registry) do

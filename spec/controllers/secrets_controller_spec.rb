@@ -147,7 +147,6 @@ describe SecretsController, type: :request do
 
     it "secret is read from Redis and not from DB" do
       write_into_redis(data_var_id, 'secret')
-      expect(Rails.cache).to receive(:increment).with("getSecret/counter", {:expires_in=>nil}).and_return(1)
       expect(Rails.cache).to receive(:read).with(admin_user_id).and_call_original
       expect(Rails.cache).to receive(:read).with(resource_data_id).and_call_original
       expect(Rails.cache).to receive(:read).with(data_var_id).and_call_original
@@ -172,7 +171,6 @@ describe SecretsController, type: :request do
 
 
     it "Show succeeds when Redis throws exception" do
-      expect(Rails.cache).to receive(:increment).with("getSecret/counter", {:expires_in=>nil}).and_return(1)
       expect(Rails.cache).to receive(:read).with(resource_data_id).and_call_original
       expect(Rails.cache).to receive(:read).with(admin_user_id).and_call_original
       expect(Rails.cache).to receive(:read).exactly(3).times.and_raise(ApplicationController::ServiceUnavailable)
@@ -194,7 +192,6 @@ describe SecretsController, type: :request do
     end
 
     it "Show succeeds when Redis returns nil" do
-      expect(Rails.cache).to receive(:increment).with("getSecret/counter", {:expires_in=>nil}).and_return(1)
       expect(Rails.cache).to receive(:read).exactly(6).times.and_return(nil)
 
       get("/secrets/#{data_var_id.gsub(':', '/')}", env: token_auth_header(role: admin_user))
@@ -206,7 +203,8 @@ describe SecretsController, type: :request do
     it "Create succeeds when Redis returns nil" do
       expect(Rails.cache).to receive(:read).exactly(3).times.and_return(nil) # Create reads before it creating
       expect(MessageJob.instance).to receive(:run)
-
+      allow(ENV).to receive(:[]).and_call_original
+      allow(ENV).to receive(:[]).with('ENABLE_PUBSUB').and_return('true')
       thread = nil
       allow_any_instance_of(SecretsController).to receive(:trigger_message_job) do
         thread = Thread.new { MessageJob.instance.run }
@@ -236,7 +234,6 @@ describe SecretsController, type: :request do
       get("/secrets/#{data_var_id.gsub(':', '/')}?version=2", env: token_auth_header(role: admin_user)) # Should get the secret into Redis
       get("/secrets/#{data_var_id.gsub(':', '/')}", env: token_auth_header(role: admin_user)) # Should get the secret into Redis
 
-      expect(Rails.cache).to receive(:increment).with("getSecret/counter", {:expires_in=>nil}).exactly(3).and_return(1)
       expect(Rails.cache).to receive(:read).with(admin_user_id).exactly(3).and_call_original
       expect(Rails.cache).to receive(:read).with(resource_data_id).exactly(3).and_call_original
       expect(Rails.cache).to receive(:read).with(data_var_id + "?version=1").and_call_original
@@ -420,5 +417,28 @@ describe SecretsController, type: :request do
 
 
 
+  end
+
+  context "Telemetry is called for get secret" do
+    around do |ex|
+      orig_metrics = Monitoring::Prometheus.metrics
+      Monitoring::Prometheus.setup(registry: Prometheus::Client::Registry.new, metrics: [Monitoring::Metrics::ApiRequestCounter.new])
+      ex.run
+      Monitoring::Prometheus.setup(registry: Prometheus::Client::Registry.new, metrics: orig_metrics)
+    end
+
+    let(:data_var_id) { "#{account}:variable:data/conjur_secret" }
+    before do
+      init_slosilo_keys("rspec")
+      Role.find_or_create(role_id: user_owner_id)
+      Resource.create(resource_id: data_var_id, owner_id: user_owner_id)
+      Rails.cache.clear
+    end
+
+    it "calls telemetry as many times as get secrets is called" do
+      expect(Rails.cache).to receive(:increment).with("getSecret/counter", {:expires_in=>nil}).twice.and_return(1)
+      get("/secrets/#{data_var_id.gsub(':', '/')}", env: token_auth_header(role: admin_user))
+      get("/secrets/#{data_var_id.gsub(':', '/')}", env: token_auth_header(role: admin_user))
+    end
   end
 end
