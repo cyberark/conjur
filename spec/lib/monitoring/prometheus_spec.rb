@@ -14,6 +14,10 @@ class SampleMetric
       metric.set(payload[:value], labels: payload[:labels])
     end
   end
+
+  def sub_event_name
+    "sample_test_gauge"
+  end
 end
 
 describe Monitoring::Prometheus do
@@ -45,10 +49,13 @@ describe Monitoring::Prometheus do
   end
 
   context 'when given a list of metrics to setup' do
-    before do
+    around do |ex|
+      orig_metrics = Monitoring::Prometheus.metrics
       @metric_obj = SampleMetric.new
       @registry = ::Prometheus::Client::Registry.new
       @mock_pubsub = double("Mock Monitoring::PubSub")
+      ex.run
+      Monitoring::Prometheus.setup(registry: Prometheus::Client::Registry.new, metrics: orig_metrics)
     end
 
     def prometheus_setup
