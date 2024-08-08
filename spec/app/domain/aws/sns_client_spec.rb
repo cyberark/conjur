@@ -10,6 +10,8 @@ RSpec.describe('aws::SnsClient') do
 
   before(:each) do
     create_sns_topic
+    allow(ENV).to receive(:[]).and_call_original
+    allow(ENV).to receive(:[]).with('TENANT_ID').and_return('mytenant')
   end
 
   after(:each) do
