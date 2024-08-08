@@ -41,7 +41,7 @@ module Conjur
       extensions: [],
       telemetry_enabled: false,
       slosilo_rotation_interval: 24,  # Sloislo rotation should be every 24 hours
-      events_to_sns_interval: 10, # Events to SNS interval should be every 30 seconds
+      events_to_sns_interval: 30, # Events to SNS interval should be every 30 seconds
       tenant_id: @tenant_id,
       tenant_name: @tenant_name,
       tenant_env: @tenant_env,

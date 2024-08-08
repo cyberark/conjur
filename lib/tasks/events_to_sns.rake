@@ -8,7 +8,6 @@ namespace :events_to_sns do
     begin
       MessageJob.instance.run
     rescue => e
-      puts "Failed to publish events to SNS: #{e.message}"
       Rails.logger.error("Failed to publish events to SNS: #{e.message}")
     end
   end

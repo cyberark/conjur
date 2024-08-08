@@ -13,9 +13,7 @@ unless scheduler.down?
     system("rake rotate:slosilo")
   end
 
-  # Schedule task one second after startup and every interval
-  scheduler.every "#{events_to_sns_interval}s", first_in: 10.seconds.since do
-    puts "Publishing events to SNS"
+  scheduler.every "#{events_to_sns_interval}s", first_in: 5.minutes.since do
     system("rake events_to_sns:publish")
   end
 
