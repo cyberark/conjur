@@ -39,4 +39,24 @@ describe Secret, :type => :model do
       expect(Secret.latest_public_keys("rspec", "user", login)).to eq(["value-1"])
     end
   end
+
+  describe "#enforce_secrets_version_limit" do
+    let(:resource) { Resource.create(resource_id: "rspec:test-resource:#{random_hex}", owner: the_user) }
+    it "deletes extra secrets" do
+      Secret.create(resource: resource, value: "v-1")
+      Secret.create(resource: resource, value: "v-2")
+      Secret.create(resource: resource, value: "v-3")
+      expect(Secret.where(resource_id: resource.id).order(Sequel.asc(:version)).all
+                   .map{ |s| s.value }.to_a).to eq(%w[v-1 v-2 v-3])
+
+      secret = Secret[resource_id: resource.id]
+      secret.enforce_secrets_version_limit(2)
+      expect(Secret.where(resource_id: resource.id).order(Sequel.asc(:version)).all
+               .map{ |s| s.value }.to_a).to eq(%w[v-2 v-3])
+
+      secret.enforce_secrets_version_limit(1)
+      expect(Secret.where(resource_id: resource.id).order(Sequel.asc(:version)).all
+               .map{ |s| s.value }.to_a).to eq(%w[v-3])
+    end
+  end
 end

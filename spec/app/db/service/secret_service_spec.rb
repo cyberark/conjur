@@ -39,6 +39,7 @@ describe DB::Service::SecretService do
     end
 
     it 'adds an event to event table' do
+      allow(ENV).to receive(:[]).and_return('')
       allow(ENV).to receive(:[]).with('ENABLE_PUBSUB').and_return('true')
       subject.secret_value_change(secret_id, secret_value)
       events = Event.all
@@ -51,6 +52,15 @@ describe DB::Service::SecretService do
       expect(event_value['name']).to eq('my_secret')
       expect(event_value['version']).to eq(1)
       expect(event_value['value']).to eq(nil)
+    end
+
+    it "enforces the number of secrets" do
+      allow(ENV).to receive(:[]).and_return('')
+      allow(ENV).to receive(:[]).with('SECRETS_VERSION_LIMIT').and_return('2')
+      (1..3).each{|i| subject.secret_value_change(secret_id, "version-#{i}")}
+
+      expect(Secret.where(resource_id: secret_id).count).to eq(2)
+      expect(Resource[resource_id: secret_id].secret.value).to eq("version-3")
     end
   end
 

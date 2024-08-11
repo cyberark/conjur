@@ -20,7 +20,7 @@ module Loader
           id, public_key = entry
           resource = Resource[id]
           existing_secret = resource.last_secret
-          ::DB::Service::SecretService.instance.secret_value_change(resource, public_key.strip) unless existing_secret && existing_secret.value == public_key
+          ::DB::Service::SecretService.instance.secret_value_change(id, public_key.strip) unless existing_secret && existing_secret.value == public_key
         end
       end
   
