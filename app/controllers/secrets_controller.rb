@@ -33,7 +33,6 @@ class SecretsController < RestController
 
     raise ArgumentError, "'value' may not be empty" if value.blank?
     ::DB::Service::SecretService.instance.secret_value_change(resource.id, value)
-    resource.enforce_secrets_version_limit
 
     head(:created)
   ensure
