@@ -73,15 +73,12 @@ services:
       - "127.0.0.1:4566:4566"
       - "127.0.0.1:4510-4559:4510-4559"
     environment:
-      - SERVICES=sns,sqs
+      - SERVICES=sns,sqs,sts
       - DEBUG=1
       - SQS_ENDPOINT_STRATEGY=dynamic
     volumes:
       - "./localstack:/var/lib/localstack"
       - "/var/run/docker.sock:/var/run/docker.sock"
-
-
-
 
   conjur:
     image: "conjur-test:${TAG}"
@@ -94,7 +91,8 @@ services:
       REQUIRE_SIMPLECOV: "true"
       CONJUR_LOG_LEVEL: debug
       TENANT_ID: mytenant
-      TOPIC_ARN: arn:aws:sns:us-east-1:000000000000:MyDeveloperTopic.fifo
+      TOPIC_ARN: arn:aws:sns:us-east-1:0000000000000:developer.fifo
+      ROLE_ARN_SNS: arn:aws:iam::0000000000000:role/developer
       TOPIC_NAME: MyDeveloperTopic.fifo
       TENANT_REGION: "us-east-1"
       REDIS_URL: redis://redis:6379
@@ -134,7 +132,8 @@ services:
       REQUIRE_SIMPLECOV: "true"
       CONJUR_LOG_LEVEL: debug
       TENANT_ID: mytenant
-      TOPIC_ARN: arn:aws:sns:us-east-1:000000000000:MyDeveloperTopic.fifo
+      TOPIC_ARN: arn:aws:sns:us-east-1:0000000000000:developer.fifo
+      ROLE_ARN_SNS: arn:aws:iam::0000000000000:role/developer
       TOPIC_NAME: MyDeveloperTopic.fifo
       TENANT_REGION: "us-east-1"
       REDIS_URL: redis://redis:6379

@@ -1,7 +1,9 @@
+# spec/app/domain/aws/sns_client_spec.rb
 require 'spec_helper'
 require 'aws-sdk-sns'
 require 'aws-sdk-sqs'
 require 'json'
+require 'thread'
 
 RSpec.describe('aws::SnsClient') do
   let(:message) { 'Test message 123#$%^&' }
@@ -26,20 +28,27 @@ RSpec.describe('aws::SnsClient') do
     end
   end
 
-  context 'when publish raises an UnauthorizedOperation error' do
-    it 'raises UnauthorizedSnsRoleCreds after retry' do
-      allow(sns_client_instance.instance_variable_get(:@sns_client)).to receive(:publish).and_raise(Aws::SNS::Errors::UnauthorizedOperation.new(nil, 'UnauthorizedOperation error'))
+  context 'when publish always raises Authentication::Security::UnauthorizedSnsRoleCreds' do
+    it 'raises Authentication::Security::UnauthorizedSnsRoleCreds every time publish is called' do
+      allow(sns_client_instance.instance_variable_get(:@sns_client)).to receive(:publish).and_raise(Errors::Authentication::Security::UnauthorizedSnsRoleCreds)
       expect { sns_client_instance.publish(message, message_attributes) }.to raise_error(Errors::Authentication::Security::UnauthorizedSnsRoleCreds)
     end
   end
 
-  context 'when publish raises an UnauthorizedOperation error on the first attempt and succeeds on the second attempt' do
-    it 'succeeds on retry' do
-      allow(sns_client_instance.instance_variable_get(:@sns_client)).to receive(:publish).and_raise(Aws::SNS::Errors::UnauthorizedOperation.new(nil, 'UnauthorizedOperation error')).once
-      allow(sns_client_instance.instance_variable_get(:@sns_client)).to receive(:publish).and_call_original
+  context 'when credentials are expired' do
+    it 'retries with new credentials and publishes successfully' do
+      expired_credentials = double('Credentials', access_key_id: 'key', secret_access_key: 'secret', session_token: 'token', expiration: Time.now - 3600)
+      valid_credentials = double('Credentials', access_key_id: 'key', secret_access_key: 'secret', session_token: 'token', expiration: Time.now + 3600)
+
+      # Mock assume_role to return expired credentials first, then valid credentials
+      allow_any_instance_of(Aws::STS::Client).to receive(:assume_role).and_return(
+        double('AssumeRoleResponse', credentials: expired_credentials),
+        double('AssumeRoleResponse', credentials: valid_credentials)
+      )
 
       response = sns_client_instance.publish(message, message_attributes)
       expect(response.data).to be_a(Aws::SNS::Types::PublishResponse)
+      expect(response.message_id).not_to be_empty
     end
   end
 
@@ -84,4 +93,28 @@ RSpec.describe('aws::SnsClient') do
       expect(parsed_message['Message']).to eq(message)
     end
   end
+
+  context 'when multiple threads call assume_role' do
+    it 'ensures synchronization works correctly' do
+      threads = []
+      credentials = []
+
+      allow(sns_client_instance).to receive(:credentials_valid?).and_return(false, true)
+      # Track the number of times assume_role is called
+      expect_any_instance_of(Aws::STS::Client).to receive(:assume_role).once.and_call_original
+
+      10.times do
+        threads << Thread.new do
+          sns_client_instance.send(:assume_role)
+          credentials << sns_client_instance.instance_variable_get(:@credentials)
+        end
+      end
+
+      threads.each(&:join)
+
+      # Ensure all threads received the same credentials object - because the creds updated only once for the first call
+      expect(credentials.uniq.size).to eq(1)
+    end
+  end
+
 end
