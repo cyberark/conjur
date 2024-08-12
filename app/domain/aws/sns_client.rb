@@ -60,10 +60,13 @@ class SnsClient
     @mutex.synchronize do
       return @credentials if credentials_valid?
       role_arn = fetch_role_arn
+      tenant_id_tag = fetch_tenant_id.gsub('-', '')
+      tags = [{ key: 'tenant_id', value: "#{tenant_id_tag}" }]
       sts_client = Aws::STS::Client.new
       resp = sts_client.assume_role(
-         role_arn: role_arn,
-        role_session_name: "PublishSNSMessageSession"
+        role_arn: role_arn,
+        role_session_name: "PublishSNSMessageSession",
+        tags: tags
       )
       @credentials = resp.credentials
     end
