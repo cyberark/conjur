@@ -203,8 +203,7 @@ describe SecretsController, type: :request do
     it "Create succeeds when Redis returns nil" do
       expect(Rails.cache).to receive(:read).exactly(3).times.and_return(nil) # Create reads before it creating
       expect(MessageJob.instance).to receive(:run)
-      allow(ENV).to receive(:[]).and_call_original
-      allow(ENV).to receive(:[]).with('ENABLE_PUBSUB').and_return('true')
+      allow(Rails.application.config.conjur_config).to receive(:conjur_pubsub_enabled).and_return(true)
       thread = nil
       allow_any_instance_of(SecretsController).to receive(:trigger_message_job) do
         thread = Thread.new { MessageJob.instance.run }

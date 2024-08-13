@@ -39,8 +39,7 @@ describe DB::Service::SecretService do
     end
 
     it 'adds an event to event table' do
-      allow(ENV).to receive(:[]).and_return('')
-      allow(ENV).to receive(:[]).with('ENABLE_PUBSUB').and_return('true')
+      allow(Rails.application.config.conjur_config).to receive(:conjur_pubsub_enabled).and_return(true)
       subject.secret_value_change(secret_id, secret_value)
       events = Event.all
       expect(events.size).to eq(1)

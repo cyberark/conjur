@@ -64,7 +64,7 @@ module Conjur
       # file.
       verify_config_is_readable
 
-      register_config_server if ENV['ENABLE_PUBSUB'] == 'true'
+      register_config_server
 
       # Initialize Anyway::Config
       super(*args, **kwargs)

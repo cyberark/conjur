@@ -377,10 +377,8 @@ describe Conjur::ConjurConfig do
   end
 
   context "configurations are retrieved from config server" do
-    # ConjurConfig is created on rspec startup w/o config_server loader because ENABLE_PUBSUB is unset
-    # The hack below is used to reset loaders for the scope of the test,
-    # such that config_server loader is also registered
-    # TODO: when we remove conditioning over ENABLE_PUBSUB we can remove this around block
+    # ConjurConfig is created on rspec startup with specific configs from CM.
+    # Since we want to modify them we apply this around clause
     around do |example|
       module Anyway
         def self.set_loaders(loaders)
@@ -392,11 +390,6 @@ describe Conjur::ConjurConfig do
       Anyway.loaders.append :env, ::Anyway::Loaders::Env
       example.run
       Anyway.set_loaders(orig_loaders)
-    end
-
-    before do
-      allow(ENV).to receive(:[]).and_call_original
-      allow(ENV).to receive(:[]).with('ENABLE_PUBSUB').and_return('true')
     end
 
     let(:config_server_response) {
