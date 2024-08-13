@@ -31,8 +31,8 @@ Dir[Rails.root.join("spec/support/**/*.rb")].sort.each {|f| require f}
 
 ENV['CONJUR_ACCOUNT'] = 'rspec'
 ENV['TENANT_ID'] = "mytenant"
-ENV['ROLE_ARN_SNS'] = "arn:aws:iam::0000000000000:role/developer"
 ENV['TENANT_REGION'] = "us-east-1"
+
 ENV.delete('CONJUR_ADMIN_PASSWORD')
 
 $LOAD_PATH << '../app/domain'
@@ -114,6 +114,7 @@ def create_sns_topic
       'ContentBasedDeduplication' => 'true'
     }
   )
+  ENV['ROLE_ARN_SNS'] = "arn:aws:iam::0000000000000:role/developer"
   ENV['TOPIC_ARN'] = response.topic_arn
 end
 

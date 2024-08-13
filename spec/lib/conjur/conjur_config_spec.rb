@@ -343,7 +343,8 @@ describe Conjur::ConjurConfig do
         ENV['TENANT_ID'] = "mytenant"
         ENV['TENANT_NAME'] = "tenant1"
         ENV['TENANT_ENV'] = "test"
-        ENV['TENANT_REGION'] = "us-east-1"
+        # TENANT_REGION is defined globally in spec/spec_helper.rb
+        # ENV['TENANT_REGION'] = "us-east-1"
 
         # Anyway Config caches prefixed env vars at the class level so we must
         # clear the cache to have it pick up the new var with a reload.
@@ -353,7 +354,7 @@ describe Conjur::ConjurConfig do
       after do
         ENV.delete('TENANT_NAME')
         ENV.delete('TENANT_ENV')
-        ENV.delete('TENANT_REGION')
+        # ENV.delete('TENANT_REGION')
 
         # Clear again to make sure we don't affect future tests.
         Anyway.env.clear
