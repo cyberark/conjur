@@ -12,7 +12,7 @@ class MessageJob
   end
 
   def run
-    return unless ENV['ENABLE_PUBSUB'] == 'true'
+    return unless Rails.application.config.conjur_config.try(:conjur_pubsub_enabled)
     unique_transaction_ids_count_value = Event.unique_transaction_ids_count
     return if unique_transaction_ids_count_value.zero?
     Sequel::Model.db.transaction do

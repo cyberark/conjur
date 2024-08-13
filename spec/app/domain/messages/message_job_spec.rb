@@ -8,8 +8,7 @@ RSpec.describe MessageJob do
 
 
   before(:each) do
-    allow(ENV).to receive(:[]).and_call_original
-    allow(ENV).to receive(:[]).with('ENABLE_PUBSUB').and_return('true')
+    allow(Rails.application.config.conjur_config).to receive(:conjur_pubsub_enabled).and_return(true)
     create_sns_topic
   end
 

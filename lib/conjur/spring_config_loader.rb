@@ -38,7 +38,8 @@ module Anyway
         result
       rescue => e
         logger.error("Failed to load configuration from Config Server: #{e.message}")
-        raise e
+        raise e if defined?(::Rails) && ::Rails.env.cloud?
+        {}
       end
 
       def self.adjust_key(key)

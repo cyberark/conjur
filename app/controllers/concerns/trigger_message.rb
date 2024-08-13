@@ -2,7 +2,7 @@ module TriggerMessage
   extend ActiveSupport::Concern
 
   def trigger_message_job
-    if ENV['ENABLE_PUBSUB'] == 'true'
+    if Rails.application.config.conjur_config.try(:conjur_pubsub_enabled)
       Thread.new do
         begin
           logger.debug("Starting MessageJob")

@@ -40,6 +40,7 @@ describe Anyway::Loaders::SpringConfigLoader do
 
     it "raises exception when config server is unavailable" do
       expect(Net::HTTP).to receive(:get).and_raise(HTTP::ConnectionError)
+      expect(Rails.env).to receive(:cloud?).and_return(true)
       expect{described_class.fetch_configs}.to raise_error(HTTP::ConnectionError)
     end
 
