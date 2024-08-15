@@ -16,7 +16,12 @@ module ReplicationHandler
         host_to_return[:api_key] = Base64.strict_encode64(hmac_api_key(host.api_key, salt))
         host_to_return[:salt] = Base64.strict_encode64(salt)
       end
-      host_to_return[:memberships] = host.all_roles.all.select { |h| h[:role_id] != (host[:role_id]) }
+      all_roles = host.all_roles
+      if Rails.application.config.conjur_config.try(:conjur_edge_rep_only_host_members)
+        # Filter out memberships to host, which probably indicates ownership rather than real membership
+        all_roles = all_roles.where(~:role_id.like('%:host:%'))
+      end
+      host_to_return[:memberships] = all_roles.all.select { |h| h[:role_id] != (host[:role_id]) }
       host_to_return[:annotations] = host[:annotations] == "[null]" ? [] : JSON.parse(host[:annotations])
       results << host_to_return
     end
