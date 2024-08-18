@@ -71,4 +71,7 @@ Rails.application.configure do
   # We don't want to cache TRUSTED_PROXIES for tests so that these may
   # be modified for different test scenarios.
   config.conjur_disable_trusted_proxies_cache = true
+
+  # Config server for local development
+  config.config_server_endpoint = 'https://config-us-east-1.secretsmgr.cyberark-everest-integdev.cloud'
 end

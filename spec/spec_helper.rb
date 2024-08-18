@@ -121,6 +121,7 @@ end
 def delete_sns_topic
   sns = Aws::SNS::Client.new
   sns.delete_topic(topic_arn: ENV['TOPIC_ARN'])
+  WebMock.disallow_net_connect!
 end
 
 def secret_logged?(secret)
