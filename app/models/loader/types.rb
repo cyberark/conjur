@@ -342,6 +342,7 @@ module Loader
       def create!
         Array(roles).each do |r|
           Array(members).each do |m|
+            verify(r, m)
             ::RoleMembership.create(
               role_id: find_roleid(r.roleid),
               member_id: find_roleid(m.role.roleid),
@@ -349,6 +350,12 @@ module Loader
               ownership: false
             )
           end
+        end
+      end
+
+      def verify(role, member)
+        unless %w[user host group layer].include?(member.role.role_kind) and %w[group layer].include?(role.role_kind)
+          raise Exceptions::InvalidPolicyObject.new(role.id, message: "Type #{member.role.role_kind} cannot be a member of #{role.role_kind}")
         end
       end
     end
@@ -413,6 +420,7 @@ module Loader
 
     class Delete < Deletion
       include Secrets::RedisHandler
+      include CurrentUser
       def delete!
         if policy_object.record.respond_to?(:roleid)
           delete_recursive!(policy_object.record.roleid)
@@ -423,6 +431,7 @@ module Loader
       end
 
       def delete_recursive!(record_id)
+        verify(record_id)
         # First delete all resources and roles that are owned by this resource
         ::Resource.where(owner_id: record_id).each do |resource|
           delete_recursive!(resource.resource_id)
@@ -441,6 +450,13 @@ module Loader
         end
         role = ::Role[record_id]
         role.destroy if role
+      end
+
+      def verify(record_id)
+        return if current_user.identifier == 'admin'
+        if record_id.ends_with?(":group:data/authn-admins") or record_id.ends_with?(":group:data/issuer-admins")
+          raise Exceptions::InvalidPolicyObject.new(record_id, message: "group #{record_id} is forbidden for deletion")
+        end
       end
     end
   end
