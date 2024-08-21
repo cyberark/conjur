@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   (and update the corresponding date), or add a new version.
 
 ## [1.0.36-cloud] - 2024-09-01
+### Added
+- Restrict grant only to appropriate types 
+
 ### Changed
 - Consume Pubsub configurations from CM
 

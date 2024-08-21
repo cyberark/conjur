@@ -22,10 +22,6 @@ Feature: Updating policies
       - !policy
         id: db
 
-    - !grant
-      role: !policy dev/db
-      member: !user bob
-
     - !permit
       resource: !policy dev/db
       privilege: [ update ]
@@ -43,6 +39,7 @@ Feature: Updating policies
     Then I successfully PUT "/policies/cucumber/policy/dev/db" with body:
     """
     - !layer
+      owner: !user /bob
     """
     And I successfully GET "/resources/cucumber/layer/dev/db"
     Then there is an audit record matching:
@@ -69,11 +66,11 @@ Feature: Updating policies
     """
       <85>1 * * conjur * policy
       [auth@43868 user="cucumber:user:bob"]
-      [subject@43868 role="cucumber:layer:dev/db" owner="cucumber:policy:dev/db"]
+      [subject@43868 role="cucumber:layer:dev/db" owner="cucumber:user:bob"]
       [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
       [action@43868 result="success" operation="add"]
       [policy@43868 id="cucumber:policy:dev/db" version="1"]
-      cucumber:user:bob added ownership of cucumber:policy:dev/db in cucumber:layer:dev/db
+      cucumber:user:bob added ownership of cucumber:user:bob in cucumber:layer:dev/db
     """
 
   @negative @acceptance
