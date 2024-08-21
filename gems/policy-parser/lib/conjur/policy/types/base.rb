@@ -133,10 +133,6 @@ module Conjur
           validate_cidr = lambda do
             cidr = Conjur::CIDR.new(value)
 
-            unless cidr.ipv4?
-              raise "Invalid IP address or CIDR range '#{value}': Address must be IPv4"
-            end
-
             unless cidr.valid_input?
               raise "Invalid IP address or CIDR range '#{value}': Value has " \
                 "bits set to right of mask. Did you mean '#{cidr}'?"
