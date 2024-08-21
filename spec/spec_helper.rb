@@ -22,6 +22,7 @@ end
 # This file is copied to spec/ when you run 'rails generate rspec:install'
 ENV["RAILS_ENV"] ||= 'test'
 ENV["CONJUR_LOG_LEVEL"] ||= 'debug'
+ENV['TENANT_PROFILES'] = 'us-east-1'
 require File.expand_path("../../config/environment", __FILE__)
 require 'rspec/rails'
 
@@ -114,13 +115,13 @@ def create_sns_topic
       'ContentBasedDeduplication' => 'true'
     }
   )
-  ENV['ROLE_ARN_SNS'] = "arn:aws:iam::0000000000000:role/developer"
-  ENV['TOPIC_ARN'] = response.topic_arn
+  Rails.application.config.conjur_config.conjur_pubsub_sns_topic = response.topic_arn
+  Rails.application.config.conjur_config.conjur_pubsub_iam_role =  "arn:aws:iam::0000000000000:role/developer"
 end
 
 def delete_sns_topic
   sns = Aws::SNS::Client.new
-  sns.delete_topic(topic_arn: ENV['TOPIC_ARN'])
+  sns.delete_topic(topic_arn: Rails.application.config.conjur_config.conjur_pubsub_sns_topic)
   WebMock.disallow_net_connect!
 end
 

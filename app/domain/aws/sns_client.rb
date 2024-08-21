@@ -84,18 +84,18 @@ class SnsClient
   end
 
   def fetch_tenant_id
-    ENV['TENANT_ID'] { raise "TENANT_ID not set in environment variables" }
+    Rails.application.config.conjur_config.tenant_id { raise "TENANT_ID not set in environment variables" }
   end
 
   def fetch_topic_arn
-    ENV['TOPIC_ARN'] { raise "TOPIC_ARN not set in environment variables" }
+    Rails.application.config.conjur_config.conjur_pubsub_sns_topic { raise "conjur_pubsub_sns_topic not set in config" }
   end
 
   def fetch_tenant_region
-    ENV['TENANT_REGION'] { raise "TENANT_REGION not set in environment variables" }
+    Rails.application.config.conjur_config.tenant_region { raise "TENANT_REGION not set in environment variables" }
   end
 
   def fetch_role_arn
-    ENV['ROLE_ARN_SNS'] { raise "ROLE_ARN not set in environment variables" }
+    Rails.application.config.conjur_config.conjur_pubsub_iam_role { raise "conjur_pubsub_iam_role not set in config" }
   end
 end
