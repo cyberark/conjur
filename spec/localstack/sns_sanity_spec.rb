@@ -28,7 +28,7 @@ describe "Sanity for localstack service" do
 
   it 'sanity check - using mock SNS topic and publishes a message' do
     # verify the exist SNS topic
-    topic_arn = ENV['TOPIC_ARN']
+    topic_arn = Rails.application.config.conjur_config.conjur_pubsub_sns_topic
     expect(topic_arn).to_not be_nil
 
     # Publish a message to the SNS topic

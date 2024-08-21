@@ -67,7 +67,7 @@ RSpec.describe('aws::SnsClient') do
     end
 
     before(:each) do
-      sns_client_instance.sns_client.subscribe(topic_arn: ENV['TOPIC_ARN'], protocol: 'sqs', endpoint: queue_arn)
+      sns_client_instance.sns_client.subscribe(topic_arn: Rails.application.config.conjur_config.conjur_pubsub_sns_topic, protocol: 'sqs', endpoint: queue_arn)
     end
 
     after(:each) do

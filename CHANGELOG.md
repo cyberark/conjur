@@ -9,7 +9,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
-## [1.0.35-cloud] - 2024-08-18
+## [1.0.36-cloud] - 2024-09-01
+### Changed
+- Consume Pubsub configurations from CM
+
+## [1.0.35-cloud] - 2024-08-25
 ### Added
 - Integration with Configuration Manager (disabled by default)
 - Added sending messages to sns topic
