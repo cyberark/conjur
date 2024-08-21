@@ -288,11 +288,11 @@ Feature: Deleting objects and relationships.
       """
       - !group hosts
       - !grant
-        role: !host host-01
-        member: !group hosts
+        role: !group hosts
+        member: !host host-01
       - !revoke
-        role: !host host-01
-        member: !group hosts
+        role: !group hosts
+        member: !host host-01
       """
       When I show the group "hosts"
       Then host "host-01" is not a role member
