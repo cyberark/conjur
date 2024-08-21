@@ -146,8 +146,8 @@ if (params.MODE == "PROMOTE") {
   }
 
   // Copy Github Enterprise release to Github
-  // Uncomment this after security fix is approved for public release
-  // release.copyEnterpriseRelease(params.VERSION_TO_PROMOTE)
+  release.copyEnterpriseRelease(params.VERSION_TO_PROMOTE)
+  
   return
 }
 
