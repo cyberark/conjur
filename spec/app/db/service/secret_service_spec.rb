@@ -46,11 +46,12 @@ describe DB::Service::SecretService do
       event = events[0]
       expect(event.event_type).to eq('conjur.secret.value.changed')
       event_value = JSON.parse(event.event_value)
+      puts event_value
       expect(event_value['specversion']).to eq('1.0')
-      expect(event_value['branch']).to eq('data')
-      expect(event_value['name']).to eq('my_secret')
-      expect(event_value['version']).to eq(1)
-      expect(event_value['value']).to eq(nil)
+      expect(event_value['data']['branch']).to eq('data')
+      expect(event_value['data']['name']).to eq('my_secret')
+      expect(event_value['data']['version']).to eq(1)
+      expect(event_value['data']['value']).to eq(nil)
     end
 
     it "enforces the number of secrets" do
