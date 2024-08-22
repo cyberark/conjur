@@ -95,7 +95,7 @@ if (params.MODE == "PROMOTE") {
     scans["Conjur UBI AMD64"] = {
       stage("Conjur UBI AMD64 scans") {
         runSecurityScans(infrapool,
-          image: "registry.tld/cyberark/conjur-ubi:${sourceVersion}-amd64",
+          image: "registry.tld/conjur-ubi:${sourceVersion}-amd64",
           buildMode: params.MODE,
           branch: env.BRANCH_NAME,
           architecure: 'linux/amd64')
@@ -105,7 +105,7 @@ if (params.MODE == "PROMOTE") {
     scans["Conjur UBI ARM64"] = {
       stage("Conjur UBI ARM64 scans") {
         runSecurityScans(infrapool,
-          image: "registry.tld/cyberark/conjur-ubi:${sourceVersion}-arm64",
+          image: "registry.tld/conjur-ubi:${sourceVersion}-arm64",
           buildMode: params.MODE,
           branch: env.BRANCH_NAME)
       }
