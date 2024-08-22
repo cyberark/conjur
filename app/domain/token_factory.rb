@@ -16,14 +16,21 @@ class TokenFactory < Dry::Struct
     sloislo_key = host?(username) ? Account.token_key(account, "host") : Account.token_key(account, "user")
     sloislo_key || raise(NoSigningKey, Account.token_id(account, host?(username) ? "host" : "user"))
   end
-  
+
   def signed_token(account:,
                    username:,
                    host_ttl: Rails.application.config.conjur_config.host_authorization_token_ttl,
                    user_ttl: Rails.application.config.conjur_config.user_authorization_token_ttl)
+    # Issue a JWT will auto-populate iat (issued at). However, this is done by
+    # calling Time.now again, which can lead to discrepancies between the
+    # expected and actual JWT lifespan. To avoid this, we capture the current
+    # time once, and use it to provide both the iat and exp values for the
+    # token.
+    iat = Time.now
     signing_key(username, account).issue_jwt(
+      iat: iat,
       sub: username,
-      exp: Time.now + offset(
+      exp: iat + offset(
         ttl: host?(username) ? host_ttl : user_ttl
       ),
       tid: Rails.application.config.conjur_config.tenant_id
@@ -44,7 +51,7 @@ class TokenFactory < Dry::Struct
     # Attempt to coerce a string into integer
     ttl.to_s.to_i
   end
-  
+
   def host?(username)
     username.start_with?('host/')
   end

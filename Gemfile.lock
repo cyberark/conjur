@@ -195,7 +195,7 @@ GEM
     date (3.3.3)
     debase (0.2.5.beta2)
       debase-ruby_core_source (>= 0.10.12)
-    debase-ruby_core_source (3.2.1)
+    debase-ruby_core_source (3.2.2)
     deep_merge (1.2.2)
     diff-lcs (1.5.0)
     docile (1.4.0)
@@ -309,7 +309,7 @@ GEM
     method_source (1.0.0)
     mime-types (3.5.2)
       mime-types-data (~> 3.2015)
-    mime-types-data (3.2024.0206)
+    mime-types-data (3.2024.0305)
     mini_mime (1.1.2)
     minitest (5.22.2)
     multi_json (1.15.0)
@@ -588,7 +588,7 @@ DEPENDENCIES
   cucumber (~> 7.1)
   database_cleaner (~> 1.8)
   debase (~> 0.2.5.beta2)
-  debase-ruby_core_source (= 3.2.1)
+  debase-ruby_core_source (= 3.2.2)
   dry-struct
   dry-types
   event_emitter
