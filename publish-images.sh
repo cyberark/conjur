@@ -125,13 +125,13 @@ fi
 
 if [[ "${PROMOTE}" = true ]]; then
   echo "Promoting image to ${VERSION}-${ARCH}"
-
+  
   # Push latest, 1.x.y, 1.x, and 1 images
   readarray -t prefix_versions < <(gen_versions "${VERSION}")
 
   for version in latest "${prefix_versions[@]}"; do
-    tag_and_push "${version}-${ARCH}" "${LOCAL_IMAGE}" "registry.tld/${IMAGE_NAME}"
-    tag_and_push "${version}-${ARCH}" "${RH_LOCAL_IMAGE}" "registry.tld/conjur-ubi"
+    tag_and_push "${version}-${ARCH}" "registry.tld/${IMAGE_NAME}:${VERSION}-${ARCH}" "registry.tld/${IMAGE_NAME}"
+    tag_and_push "${version}-${ARCH}" "registry.tld/conjur-ubi:${VERSION}-${ARCH}" "registry.tld/conjur-ubi"
 
     if [[ "${DOCKERHUB}" ]]; then
       tag_and_push "${version}" "${LOCAL_IMAGE}" "${IMAGE_NAME}"
