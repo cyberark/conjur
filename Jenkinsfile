@@ -78,7 +78,7 @@ if (params.MODE == "PROMOTE") {
           image: "registry.tld/cyberark/conjur:${sourceVersion}-amd64",
           buildMode: params.MODE,
           branch: env.BRANCH_NAME,
-          architecure: 'linux/amd64')
+          arch: 'linux/amd64')
       }
     }
 
@@ -88,7 +88,7 @@ if (params.MODE == "PROMOTE") {
           image: "registry.tld/cyberark/conjur:${sourceVersion}-arm64",
           buildMode: params.MODE,
           branch: env.BRANCH_NAME,
-          architecure: 'linux/arm64')
+          arch: 'linux/arm64')
       }
     }
 
@@ -98,7 +98,7 @@ if (params.MODE == "PROMOTE") {
           image: "registry.tld/conjur-ubi:${sourceVersion}-amd64",
           buildMode: params.MODE,
           branch: env.BRANCH_NAME,
-          architecure: 'linux/amd64')
+          arch: 'linux/amd64')
       }
     }
 
@@ -107,7 +107,8 @@ if (params.MODE == "PROMOTE") {
         runSecurityScans(infrapool,
           image: "registry.tld/conjur-ubi:${sourceVersion}-arm64",
           buildMode: params.MODE,
-          branch: env.BRANCH_NAME)
+          branch: env.BRANCH_NAME,
+          arch: 'linux/arm64')
       }
     }
 
