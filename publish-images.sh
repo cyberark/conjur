@@ -130,8 +130,8 @@ if [[ "${PROMOTE}" = true ]]; then
   readarray -t prefix_versions < <(gen_versions "${VERSION}")
 
   for version in latest "${prefix_versions[@]}"; do
-    tag_and_push "${version}-${ARCH}" "registry.tld/${IMAGE_NAME}:${VERSION}-${ARCH}" "registry.tld/${IMAGE_NAME}"
-    tag_and_push "${version}-${ARCH}" "registry.tld/conjur-ubi:${VERSION}-${ARCH}" "registry.tld/conjur-ubi"
+    tag_and_push "${version}-${ARCH}" "registry.tld/${IMAGE_NAME}:${LOCAL_TAG}-${ARCH}" "registry.tld/${IMAGE_NAME}"
+    tag_and_push "${version}-${ARCH}" "registry.tld/conjur-ubi:${LOCAL_TAG}-${ARCH}" "registry.tld/conjur-ubi"
 
     if [[ "${DOCKERHUB}" ]]; then
       tag_and_push "${version}" "${LOCAL_IMAGE}" "${IMAGE_NAME}"
