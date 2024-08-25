@@ -18,6 +18,10 @@ describe Conjur::ConjurConfig do
     )
   end
 
+  before do
+    allow(Anyway::Loaders::SpringConfigLoader).to receive(:fetch_configs).and_return({})
+  end
+
   it "uses default value if not set by environment variable or config file" do
     expect(subject.trusted_proxies).to eq([])
     expect(subject.telemetry_enabled).to eq(false)
@@ -158,7 +162,7 @@ describe Conjur::ConjurConfig do
 
     context "with multiple values" do
       before do
-        ENV['CONJUR_TRUSTED_PROXIES'] = "5.6.7.8,9.10.11.12"
+        ENV['CONJUR_TRUSTED_PROXIES'] = "5.6.7.8,9.10.11.12,::1"
 
         # Anyway Config caches prefixed env vars at the class level so we must
         # clear the cache to have it pick up the new var with a reload.
@@ -174,7 +178,7 @@ describe Conjur::ConjurConfig do
 
       it "overrides the config file value" do
         expect(subject.trusted_proxies).
-          to eq(["5.6.7.8", "9.10.11.12"])
+          to eq(["5.6.7.8", "9.10.11.12", "::1"])
       end
     end
   end
@@ -339,7 +343,8 @@ describe Conjur::ConjurConfig do
         ENV['TENANT_ID'] = "mytenant"
         ENV['TENANT_NAME'] = "tenant1"
         ENV['TENANT_ENV'] = "test"
-        ENV['TENANT_REGION'] = "us-east-1"
+        # TENANT_REGION is defined globally in spec/spec_helper.rb
+        # ENV['TENANT_REGION'] = "us-east-1"
 
         # Anyway Config caches prefixed env vars at the class level so we must
         # clear the cache to have it pick up the new var with a reload.
@@ -349,7 +354,7 @@ describe Conjur::ConjurConfig do
       after do
         ENV.delete('TENANT_NAME')
         ENV.delete('TENANT_ENV')
-        ENV.delete('TENANT_REGION')
+        # ENV.delete('TENANT_REGION')
 
         # Clear again to make sure we don't affect future tests.
         Anyway.env.clear
@@ -368,6 +373,48 @@ describe Conjur::ConjurConfig do
     it "returns a 401" do
       get '/metrics'
       expect(response).to have_http_status(401)
+    end
+  end
+
+  context "configurations are retrieved from config server" do
+    # ConjurConfig is created on rspec startup with specific configs from CM.
+    # Since we want to modify them we apply this around clause
+    around do |example|
+      module Anyway
+        def self.set_loaders(loaders)
+          @loaders = loaders
+        end
+      end
+      orig_loaders = Anyway.loaders
+      Anyway.set_loaders(nil)
+      Anyway.loaders.append :env, ::Anyway::Loaders::Env
+      example.run
+      Anyway.set_loaders(orig_loaders)
+    end
+
+    let(:config_server_response) {
+      {"feature1.enabled" => true, "feature2.name" => "great_feature"}
+    }
+
+    it 'succeeds to pull secrets from config server' do
+      allow(Anyway::Loaders::SpringConfigLoader).to receive(:fetch_configs).and_return(config_server_response)
+      expect(subject.feature1_enabled).to eq(true)
+      expect(subject.feature2_name).to eq('great_feature')
+    end
+
+    it "updates secrets when config is reloaded" do
+      allow(Anyway::Loaders::SpringConfigLoader).to receive(:fetch_configs).and_return(config_server_response)
+      expect(subject.feature1_enabled).to eq(true)
+      allow(Anyway::Loaders::SpringConfigLoader).to receive(:fetch_configs).and_return({"feature1.enabled" => false})
+      subject.reload
+      expect(subject.feature1_enabled).to eq(false)
+    end
+
+    it "Env var overrides config server" do
+      ENV['CONJUR_feature1_enabled'] = 'false'
+      allow(Anyway::Loaders::SpringConfigLoader).to receive(:fetch_configs).and_return(config_server_response)
+      expect(subject.feature1_enabled).to eq(false)
+      ENV.delete('CONJUR_feature1_enabled')
     end
   end
 end

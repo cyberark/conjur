@@ -9,6 +9,7 @@ def token_id(account, role, tag = "current")
 end
 
 def init_slosilo_keys(account)
+  Rails.cache.delete_matched('slosilo/*')
   Slosilo[token_id(account, "host")] ||= Slosilo::Key.new
   Slosilo[token_id(account, "user")] ||= Slosilo::Key.new
 end

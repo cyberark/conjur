@@ -10,6 +10,8 @@ require 'simplecov'
 
 require 'aws-sdk-sns'
 
+require 'aws-sdk-sqs'
+
 SimpleCov.command_name("SimpleCov #{rand(1000000)}")
 SimpleCov.merge_timeout(7200)
 SimpleCov.start do
@@ -20,6 +22,7 @@ end
 # This file is copied to spec/ when you run 'rails generate rspec:install'
 ENV["RAILS_ENV"] ||= 'test'
 ENV["CONJUR_LOG_LEVEL"] ||= 'debug'
+ENV['TENANT_PROFILES'] = 'us-east-1'
 require File.expand_path("../../config/environment", __FILE__)
 require 'rspec/rails'
 
@@ -29,6 +32,8 @@ Dir[Rails.root.join("spec/support/**/*.rb")].sort.each {|f| require f}
 
 ENV['CONJUR_ACCOUNT'] = 'rspec'
 ENV['TENANT_ID'] = "mytenant"
+ENV['TENANT_REGION'] = "us-east-1"
+
 ENV.delete('CONJUR_ADMIN_PASSWORD')
 
 $LOAD_PATH << '../app/domain'
@@ -36,6 +41,7 @@ $LOAD_PATH << '../app/domain'
 # Add conjur-cli load path to the specs, since these source files are
 # not under the default load paths.
 $LOAD_PATH << './bin/conjur-cli'
+
 
 # Please note, VCR is configured to only run when the `:vcr` arguement
 # is passed to the RSpec block. Calling VCR with `VCR.use_cassette` will
@@ -49,6 +55,7 @@ VCR.configure do |config|
   config.default_cassette_options = {
     decode_compressed_response: true
   }
+  config.allow_http_connections_when_no_cassette = true
 end
 
 RSpec.configure do |config|
@@ -59,6 +66,7 @@ RSpec.configure do |config|
 
   config.around(:each) do |example|
     Rails.cache.clear
+    puts("Running #{example.metadata[:location]}")
     DatabaseCleaner.cleaning do
       example.run
     end
@@ -82,12 +90,41 @@ end
 # limit for those when they're printed
 RSpec::Support::ObjectFormatter.default_instance.max_formatted_output_length = 999
 
+def create_sqs_queue
+
+  WebMock.allow_net_connect!
+  sqs = Aws::SQS::Client.new
+  response = sqs.create_queue(queue_name: 'MyTestQueue')
+  queue_url = response.queue_url
+  ENV['QUEUE_URL'] = queue_url
+  sqs.get_queue_attributes(queue_url: queue_url, attribute_names: ['QueueArn']).attributes['QueueArn']
+end
+
+def delete_sqs_queue
+  sqs = Aws::SQS::Client.new
+  sqs.delete_queue(queue_url: ENV['QUEUE_URL'])
+end
+
 def create_sns_topic
   WebMock.allow_net_connect!
   sns = Aws::SNS::Client.new
-  response = sns.create_topic(name: "test-topic-arn")
-  ENV['TOPIC_ARN'] = response.topic_arn
+  response = sns.create_topic(
+    name: "MyFifoTopic.fifo",
+    attributes: {
+      'FifoTopic' => 'true',
+      'ContentBasedDeduplication' => 'true'
+    }
+  )
+  Rails.application.config.conjur_config.conjur_pubsub_sns_topic = response.topic_arn
+  Rails.application.config.conjur_config.conjur_pubsub_iam_role =  "arn:aws:iam::0000000000000:role/developer"
 end
+
+def delete_sns_topic
+  sns = Aws::SNS::Client.new
+  sns.delete_topic(topic_arn: Rails.application.config.conjur_config.conjur_pubsub_sns_topic)
+  WebMock.disallow_net_connect!
+end
+
 def secret_logged?(secret)
   log_file = './log/test.log'
 

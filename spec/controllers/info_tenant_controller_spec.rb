@@ -36,6 +36,7 @@ describe InfoTenantController, :type => :request do
       assert_response :ok
       json_body = JSON.parse(response.body)
       expect(json_body).to include("is_pam_self_hosted"=> true)
+      expect(json_body).to include("tenant_id"=> "mytenant")
     end
 
     it "by user - negative scenrio" do
@@ -50,4 +51,3 @@ describe InfoTenantController, :type => :request do
 
   end
 end
-

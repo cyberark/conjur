@@ -6,9 +6,11 @@ module Monitoring
   module Prometheus
     extend self
 
-    attr_reader :registry
+    attr_reader :registry, :metrics
 
     def setup(options = {})
+      unsetup_metrics if @metrics
+
       @registry = options[:registry] || ::Prometheus::Client::Registry.new
       @metrics_dir_path = ENV['CONJUR_METRICS_DIR'] || '/tmp/prometheus'
       @pubsub = options[:pubsub] || PubSub.instance
@@ -40,6 +42,14 @@ module Monitoring
     def setup_metrics
       @metrics.each do |metric|
         metric.setup(@registry, @pubsub)
+      end
+    end
+
+    def unsetup_metrics
+      if @pubsub.is_a?(PubSub)
+        @metrics.each do |metric|
+          @pubsub.unsubscribe(metric.sub_event_name)
+        end
       end
     end
 

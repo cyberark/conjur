@@ -9,7 +9,25 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
-## [1.0.33-cloud] - 2024-07-21
+## [1.0.36-cloud] - 2024-09-01
+### Added
+- Restrict grant only to appropriate types 
+
+### Changed
+- Consume Pubsub configurations from CM
+
+## [1.0.35-cloud] - 2024-08-25
+### Added
+- Integration with Configuration Manager (disabled by default)
+- Added sending messages to sns topic
+- Added scheduler to send messages to sns topic
+
+## [1.0.34-cloud] - 2024-08-11
+### Fixed
+- Improve policy load performance (Cherry Pick form conjur-OSS) 
+- Improve is_allowed_to DB query (Cherry Pick form conjur-OSS) 
+
+## [1.0.33-cloud] - 2024-07-28
 ### Fixed
 - Existing test in the middle (Cherry Pick form conjur-OSS)
 

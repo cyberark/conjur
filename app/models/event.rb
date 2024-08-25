@@ -40,5 +40,9 @@ class Event < Sequel::Model
     def delete_by_transaction_id(transaction_id)
       Event.where(transaction_id: transaction_id).delete
     end
+
+    def unique_transaction_ids_count
+      Event.distinct.count(:transaction_id)
+    end
   end
 end

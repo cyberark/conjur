@@ -257,7 +257,8 @@ describe "Conjur ephemeral engine client validation" do
 
   context "when the hostname is parsed for the tenant ID" do
     it "then the tenant ID is successfully found" do
-      ENV["TENANT_ID"] = "mytenant"
+      allow(ENV).to receive(:[]).and_call_original
+      allow(ENV).to receive(:[]).with('TENANT_ID').and_return('mytenant')
       result = MockConjurEngineClient.new(logger: logger, request_id: "abc", http_client: mock_ephemeral_secrets_service(error: nil)).tenant_id
 
       expect(result).to eq("mytenant")
@@ -266,7 +267,8 @@ describe "Conjur ephemeral engine client validation" do
 
   context "when the hostname does not exist" do
     it "then the tenant ID is empty" do
-      ENV["TENANT_ID"] = ""
+      allow(ENV).to receive(:[]).and_call_original
+      allow(ENV).to receive(:[]).with('TENANT_ID').and_return('')
       result = MockConjurEngineClient.new(logger: logger, request_id: "abc", http_client: mock_ephemeral_secrets_service(error: nil)).tenant_id
 
       expect(result).to eq("")

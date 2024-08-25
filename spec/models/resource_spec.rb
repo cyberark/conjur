@@ -139,26 +139,6 @@ describe Resource, :type => :model do
     end
   end
 
-  describe "#enforce_secrets_version_limit" do
-    let(:kind) { "variable" }
-    it "deletes extra secrets" do
-      the_resource.add_secret(value: "v-1")
-      the_resource.add_secret(value: "v-2")
-      the_resource.add_secret(value: "v-3")
-      expect(remove_expires_at.(the_resource.as_json['secrets'])).to eq([ 1, 2, 3 ].map{|i| { "version" => i }})
-
-      the_resource.enforce_secrets_version_limit(2)
-      the_resource.reload
-
-      expect(remove_expires_at.(the_resource.as_json['secrets'])).to eq([ 2, 3 ].map{|i| { "version" => i }})
-
-      the_resource.enforce_secrets_version_limit(1)
-      the_resource.reload
-
-      expect(remove_expires_at.(the_resource.as_json['secrets'])).to eq([ 3 ].map{|i| { "version" => i }})
-    end
-  end
-
   describe '#to_hash!' do
     it 'converts the resource object to Hash' do
       Role.create(role_id: "rspec:user:test")

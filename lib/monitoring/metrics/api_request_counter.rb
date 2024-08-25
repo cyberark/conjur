@@ -1,5 +1,6 @@
 require 'util/redis_cache'
 require_relative '../operations'
+require 'time'
 
 module Monitoring
   module Metrics
@@ -28,12 +29,12 @@ module Monitoring
         @metric_name = :conjur_requests_total
         operation = "getSecret"
         key = operation + "/counter"
-        date_key = operation + "/date"
+        time_hour_key = operation + "/time_hour"
 
-        last_date = Util::RedisCache.read_from(date_key)
-        current_date = Date.today
-        if (current_date != last_date)
-          Util::RedisCache.write_to(date_key, current_date, key)
+        last_time_hour = Util::RedisCache.read_from(time_hour_key)
+        current_time_hour = Time.now.hour
+        if (current_time_hour != last_time_hour)
+          Util::RedisCache.write_to(time_hour_key, current_time_hour, key)
         end
         val = Util::RedisCache.read_count_from(key)
         # labels should be only in alphabetic order

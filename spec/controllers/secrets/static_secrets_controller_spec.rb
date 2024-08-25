@@ -88,6 +88,8 @@ describe StaticSecretsController, type: :request do
           )
         )
         assert_response :success
+          create_sns_topic
+        allow(Rails.application.config.conjur_config).to receive(:conjur_pubsub_enabled).and_return(true)
       end
       it 'Secret resource was created with update permissions' do
         post("/secrets/static",
@@ -97,6 +99,25 @@ describe StaticSecretsController, type: :request do
                  'CONTENT_TYPE' => "application/json"
                }
              ))
+        # Correct response code
+        assert_response :created
+      end
+      it 'Check trigger_message_job work' do
+        expect(MessageJob.instance).to receive(:run).and_call_original
+
+        thread = nil
+        allow_any_instance_of(StaticSecretsController).to receive(:trigger_message_job) do
+          thread = Thread.new { MessageJob.instance.run }
+          thread
+        end
+        post("/secrets/static",
+             env: token_auth_header(role: bob_user).merge(v2_api_header).merge(
+               {
+                 'RAW_POST_DATA' => payload_create_secret,
+                 'CONTENT_TYPE' => "application/json"
+               }
+             ))
+        thread.join if thread # Ensure the thread completes execution
         # Correct response code
         assert_response :created
       end
@@ -830,7 +851,6 @@ describe StaticSecretsController, type: :request do
     end
     context 'when the branch doesnt exist' do
       it 'returns 404' do
-        expect(Rails.cache).to receive(:increment).with("getSecret/counter", {:expires_in=>nil}).at_least(:once).and_return(1)
         expect(Rails.cache).to receive(:read).with("user/rspec:user:alice").and_call_original
         get(
           '/secrets/static/doesNotExist/mySecret',

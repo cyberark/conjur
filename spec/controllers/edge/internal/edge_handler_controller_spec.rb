@@ -45,7 +45,8 @@ describe EdgeHandlerController, :type => :request do
       edge_details = '{"edge_statistics": {"last_synch_time": 1692633684386, "cycle_requests": {
                         "get_secret":123,"apikey_authenticate": 234, "jwt_authenticate":345, "redirect": 456}},
                       "edge_version": "1.1.1", "edge_container_type": "podman"}'
-      ENV["TENANT_ID"] = "mytenant"
+      allow(ENV).to receive(:[]).and_call_original
+      allow(ENV).to receive(:[]).with('TENANT_ID').and_return('mytenant')
       post("#{report_edge}?data_type=ongoing", env: token_auth_header(role: @current_user, is_user: false)
                                .merge({'RAW_POST_DATA': edge_details})
                                .merge({'CONTENT_TYPE': 'application/json'}))
@@ -92,7 +93,8 @@ describe EdgeHandlerController, :type => :request do
       edge_details = '{"edge_statistics": {"last_synch_time": 1692633684386, "cycle_requests": {
                         "get_secret":123,"apikey_authenticate": 234, "jwt_authenticate":345, "redirect": 456}},
                       "edge_version": "1.1.1", "edge_container_type": "podman", "edge_proxy": true}'
-      ENV["TENANT_ID"] = "mytenant"
+      allow(ENV).to receive(:[]).and_call_original
+      allow(ENV).to receive(:[]).with('TENANT_ID').and_return('mytenant')
       post("#{report_edge}?data_type=ongoing", env: token_auth_header(role: @current_user, is_user: false)
                                                       .merge({'RAW_POST_DATA': edge_details})
                                                       .merge({'CONTENT_TYPE': 'application/json'}))
