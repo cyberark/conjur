@@ -106,7 +106,7 @@ docker_diagnostics() {
 
     # For the conjur container, we want the development.log too
     if [[ "$name" =~ conjur ]]; then
-      docker cp "$name:/opt/conjur-server/log/development.log" \
+      docker cp "$name:/src/conjur-server/log/development.log" \
         "${cont_log_dir}/development.log"
     fi
   done
