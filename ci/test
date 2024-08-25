@@ -100,15 +100,23 @@ docker_diagnostics() {
 
   mkdir -p "${cont_log_dir}"
 
+
   for name in "${cont_names[@]}"; do
     docker inspect "$name" > "${cont_log_dir}/${name}-inspect.log"
     docker logs "$name" > "${cont_log_dir}/${name}.log"
 
     # For the conjur container, we want the development.log too
     if [[ "$name" =~ conjur ]]; then
-      docker cp "$name:/src/conjur-server/log/development.log" \
-        "${cont_log_dir}/development.log"
+      docker cp "$name:/src/conjur-server/log/development.log" "${cont_log_dir}/development.log"
+      docker cp "$name:/src/conjur-server/log/test.log" "${cont_log_dir}/test.log"
+    fi 
+    # copy conjur-server log for rspec tests (rspecs are run in the cucumber container)
+    if [[ "$name" =~ cucumber ]]; then
+      docker cp "$name:/src/conjur-server/log/test.log" "${cont_log_dir}/test.log"
+      docker rm "$name" 
     fi
+  # copy rspec.log from cucumber container
+  cp "../spec/reports/rspec.log" "${cont_log_dir}/rspec.log"
   done
 }
 
