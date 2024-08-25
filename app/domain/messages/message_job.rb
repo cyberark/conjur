@@ -52,15 +52,15 @@ class MessageJob
     number_of_messages = events_chunks.size
     events_chunks.each_with_index do |message, index|
       message_attributes = {
-        "Source" => {
+        "source" => {
           data_type: "String",
           string_value: "Conjur" # This is default value for conjur service
         },
-        "Id" => {
+        "id" => {
           data_type: "String",
           string_value: transaction_id.to_s
         },
-        "Version" => {
+        "version" => {
           data_type: "String",
           string_value: @message_version
         },
@@ -71,6 +71,14 @@ class MessageJob
         "PartNumber" => {
           data_type: "Number",
           string_value: (index + 1).to_s
+        },
+        "tenant_id" => {
+          data_type: "String",
+          string_value: ENV['TENANT_ID']
+        },
+        "time" => {
+          data_type: "String",
+          string_value: Time.now.utc.iso8601(3).to_s
         }
       }
       SnsClient.instance.publish(message, message_attributes)
@@ -86,14 +94,13 @@ class MessageJob
     filled_events = []
     events.each do |event|
       value_hash = JSON.parse(event[:event_value])
-      value_hash['id'] = event[:event_id]
+      value_hash['id'] = event[:event_id].to_s
       value_hash['time'] = event[:created_at].iso8601(3)
       value_hash['type'] = event[:event_type]
       filled_events.append(value_hash)
     end
     filled_events
   end
-
 
   # I take in to account that a single event never exceeds the max size
   def split_events_into_json_chunks_recursive(events, max_size_kb = 120)
@@ -132,6 +139,6 @@ class MessageJob
   end
 
   def get_lock_identifier
-     ENV['TENANT_ID'].to_i(36)
+    ENV['TENANT_ID'].to_i(36)
   end
 end
