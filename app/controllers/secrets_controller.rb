@@ -58,7 +58,9 @@ class SecretsController < RestController
     else
       resource_object = Resource.new
       resource_object.from_hash!(resource_from_cache)
-      raise Exceptions::RecordNotFound, resource_id unless resource_object.visible_to?(current_user)
+      unless skip_auth
+        raise Exceptions::RecordNotFound, resource_id unless resource_object.visible_to?(current_user)
+      end
     end
     resource_object
   end
