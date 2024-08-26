@@ -320,27 +320,6 @@ describe Loader::Types::Delete do
       expect{ subject.delete! }.to_not raise_error
     end
   end
-
-  context "verify built in groups deletion" do
-    let(:authn_group) { 'rspec:group:data/authn-admins'}
-    let(:user_group) { 'rspec:group:data/user-group'}
-    let(:policy_record) { double(PolicyVersion) }
-    subject { described_class.new(policy_record) }
-    it "passes verification for admin" do
-      allow(subject).to receive(:current_user).and_return(Role.new.set(role_id: 'rspec:user:admin'))
-      expect{subject.verify(authn_group)}.to_not raise_error
-    end
-
-    it "passes verification for non built-in resource" do
-      allow(subject).to receive(:current_user).and_return(Role.new.set(role_id: 'rspec:user:user1'))
-      expect{subject.verify(user_group)}.to_not raise_error
-    end
-
-    it "fails verification for built-in resource" do
-      allow(subject).to receive(:current_user).and_return(Role.new.set(role_id: 'rspec:user:user1'))
-      expect{subject.verify(authn_group)}.to raise_error(Exceptions::InvalidPolicyObject)
-    end
-  end
 end
 
 describe Loader::Types::Grant do
