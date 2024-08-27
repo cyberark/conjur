@@ -13,8 +13,8 @@ unless scheduler.down?
     system("rake rotate:slosilo")
   end
 
-  scheduler.every "#{events_to_sns_interval}s", first_in: 5.minutes.since do
-    system("rake events_to_sns:publish")
-  end
+  # scheduler.every "#{events_to_sns_interval}s", first_in: 5.minutes.since do
+  #   system("rake events_to_sns:publish")
+  # end
 
 end
