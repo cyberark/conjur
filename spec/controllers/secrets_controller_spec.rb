@@ -371,6 +371,9 @@ describe SecretsController, type: :request do
         get("/secrets/#{secret_resource.gsub(':', '/')}", env: token_auth_header(role: @current_user, is_user: false))
         expect(response.code).to eq("200")
         expect(response.body).to eq("secret")
+        get("/secrets/#{secret_resource.gsub(':', '/')}", env: token_auth_header(role: @current_user, is_user: false))
+        expect(response.code).to eq("200")
+        expect(response.body).to eq("secret")
       end
     end
 
