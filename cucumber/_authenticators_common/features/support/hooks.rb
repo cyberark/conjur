@@ -1,9 +1,6 @@
 # frozen_string_literal: true
 require 'cucumber/_common/slosilo_helper'
 
-Before('@skip') do
-  skip_this_scenario
-end
 
 # Reset the DB between each test
 #
