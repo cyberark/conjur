@@ -86,7 +86,7 @@
 
 |  **Name**   | **Link** |
 |-------------|----------|
-| Feature Doc |    [link](https://cyberark365.sharepoint.com/:w:/r/sites/Conjur/Shared%20Documents/SDLC/Projects/Conjur%20OSS/Conjur%20Telemetry/Feature%20Doc%20-%20Conjur%20Telemetry.docx?d=w7bf6e887888f4ba28c1ca72423af59eb&csf=1&web=1&e=evywen)  (private)    |
+| Feature Doc | (Sharepoint - Conjur Telemetry) |
 
 ## Background
 
