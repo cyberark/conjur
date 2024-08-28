@@ -74,6 +74,7 @@ authenticators_ldap: >
 
 authenticators_oidc: >
   --tags @authenticators_oidc
+  --tags "not @skip"
   --format pretty
   -r cucumber/api/features/support/step_def_transforms.rb
   -r cucumber/api/features/support/rest_helpers.rb
