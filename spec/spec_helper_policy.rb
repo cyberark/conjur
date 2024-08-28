@@ -21,7 +21,7 @@ def validate_policy(policy:, policy_branch: 'root', role: 'admin', account: 'rsp
   Slosilo["authn:#{account}"] ||= Slosilo::Key.new
   Role.find_or_create(role_id: "#{account}:user:#{role}")
 
-  # Apply policy
+  # Dry-run the policy
   send(
     action,
     "/policies/#{account}/policy/#{policy_branch}?dryRun=true",

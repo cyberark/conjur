@@ -21,7 +21,7 @@ interpolated_messages = {
     "Make sure your address or range is in the correct format " \
     "(e.g. 192.168.1.0 or 192.168.1.0/16)",
   "YAML field color already defined on sky as blue": "",
-  "Thingy has a blank id": "",
+  "Thingy has a blank id": "Each resource must be identified using the 'id' field",
   "Invalid relative reference: mom": "",
   "Dependency cycle encountered between bing and bong": "Try redefining one or both.",
   "BOOP is declared more than once": "",

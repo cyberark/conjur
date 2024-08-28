@@ -1,0 +1,50 @@
+#!/bin/bash -ex
+
+# USAGE
+#
+# ./load-policy POST root $FILE_PATH
+# ./load-policy POST root "policies/bad-policy.yml"
+# ./load-policy PUT root "policies/dry-run-policies/00-replace_root.yml"
+# ./load-policy POST root "policies/dry-run-policies/01-IsAllowed_Group 1.yml"
+
+POLICY_MODE="$1"
+POLICY_BRANCH="$2"
+FILE_PATH="$3"
+CONJUR_ACCOUNT="cucumber"
+CONJUR_USER="admin"
+DOCKER_LEADER_CONTAINER="dev-conjur-1"
+API_KEY_FILE="key.txt"
+
+if [ ! -f "$API_KEY_FILE" ]; then
+  API_KEY=$(docker compose exec -T conjur conjurctl role retrieve-key $CONJUR_ACCOUNT:user:$CONJUR_USER | tr -d '\r')
+  echo "$API_KEY" > "$API_KEY_FILE"
+fi
+
+API_KEY=$(cat $API_KEY_FILE | tr -d '\r')
+
+TOKEN=$(docker exec "$DOCKER_LEADER_CONTAINER" curl \
+      --silent \
+      --insecure \
+      --request POST \
+      --data "$API_KEY" \
+      "http://localhost:3000/authn/$CONJUR_ACCOUNT/$CONJUR_USER/authenticate" | base64)
+
+if [ -z "$TOKEN" ]; then
+  echo "Failed to authenticate with Conjur"
+  exit 1
+fi
+
+POLICY_BODY=$(cat "$FILE_PATH")
+
+# CREATE -> POST
+# UPDATE -> PATCH (can delete)
+# REPLACE -> PUT (can delete)
+#VALIDATE=true
+VALIDATE=false
+docker exec "$DOCKER_LEADER_CONTAINER" curl \
+      --silent \
+      --insecure \
+      --request "$POLICY_MODE" \
+      --header "Authorization: Token token=\"$TOKEN\"" \
+      --data "$POLICY_BODY" \
+      http://localhost:3000/policies/$CONJUR_ACCOUNT/policy/$POLICY_BRANCH?validate=$VALIDATE

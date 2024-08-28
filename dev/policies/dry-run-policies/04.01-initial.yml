@@ -1,0 +1,72 @@
+- !policy
+  id: example
+  body:
+    - !user
+      id: alice
+      annotations:
+        description: description
+    - !user
+      id: annie
+      annotations:
+        description: description
+    - !user
+      id: bob
+      annotations:
+        description: description
+    - !user
+      id: barrett
+      restricted_to: [ "127.0.0.1" ]
+      annotations:
+        description: description
+    - !user
+      id: carson
+      annotations:
+        description: description
+    - !policy
+      id: alpha
+      owner: !user alice
+      body:
+        - &alpha_variables
+          - !variable
+            id: secret01
+            annotations: 
+              description: description
+          - !variable
+            id: secret02
+            annotations: 
+              description: description
+        - !group
+          id: secret-users
+          annotations:
+            description: description
+        - !grant
+          role: !group secret-users
+          member: !user /example/annie
+        - !permit
+          role: !group secret-users
+          privileges: [ read, execute ]
+          resources: *alpha_variables
+    - !policy
+      id: omega
+      owner: !user bob
+      body:
+        - &omega_variables
+          - !variable
+            id: secret01
+            annotations: 
+              description: description
+        - !variable
+          id: secret02
+          annotations: 
+            description: description
+        - !group
+          id: secret-users
+          annotations:
+            description: description
+        - !grant
+          role: !group secret-users
+          member: !user /example/barrett
+        - !permit
+          role: !group secret-users
+          privileges: [ read, execute ]
+          resources: *omega_variables

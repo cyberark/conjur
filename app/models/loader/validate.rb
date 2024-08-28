@@ -40,6 +40,18 @@ module Loader
 
     # For the Validate interpreter all of these are no-op because we perform no db operations.
 
+    def snapshot_public_schema_before
+      # No-op.
+    end
+
+    def drop_snapshot_public_schema_before
+      # No-op.
+    end
+
+    def get_diff
+      # No-op.
+    end
+
     def setup_db_for_new_policy
       # No-op
     end
@@ -92,7 +104,7 @@ module Loader
     # Note: either the provided error already has the enhanced error information,
     #   or alternatively that could be performed here before constructing the response.
     def report(policy_result)
-      error = policy_result.policy_parse.error
+      error = policy_result.error
 
       if error
         # Construct the message with enhanced error info

@@ -168,7 +168,7 @@ module Commands
           # From conjur/gems/policy-parser/lib/conjur/policy/resolver.rb
         elsif msg.end_with?('has a blank id')
           # #{record.class.simple_name.underscore} has a blank id
-          advice = ''
+          advice = "Each resource must be identified using the 'id' field"
 
         elsif msg.start_with?('Invalid relative reference')
           # Invalid relative reference: #{id}

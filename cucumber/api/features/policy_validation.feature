@@ -31,8 +31,8 @@ Feature: Validating policies
     """
     Then the HTTP response status code is 422
     And the status is "Invalid YAML"
-#   And the validation error includes "did not find expected whitespace or line break"
-    And the enhanced error includes "Only one node can be defined per line."
+    And the validation error includes "did not find expected whitespace or line break"
+    # And the enhanced error includes "Only one node can be defined per line."
 
   Scenario: When a valid policy is loaded the status is reported as Valid YAML.
     When I validate POST "/policies/cucumber/policy/dev/db?dryRun=true" with body:

@@ -74,3 +74,4 @@ conjur_git_commit
 dev/policies/authenticators/authn-oidc/identity-users.yml
 
 VERSION
+key.txt

@@ -60,15 +60,8 @@ Feature: Policy loading error messages
     """
     {
       "error": {
-        "code": "validation_failed",
-        "message": "policy_text resource has a blank id",
-        "details": [
-          {
-            "code": "validation_failed",
-            "target": "policy_text",
-            "message": "resource has a blank id"
-          }
-        ]
+        "code": "policy_invalid",
+        "message": "resource has a blank id"
       }
     }
     """
@@ -79,7 +72,7 @@ Feature: Policy loading error messages
       [subject@43868]
       [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
       [action@43868 result="failure" operation="create"]
-      Failed to load policy: policy_text resource has a blank id
+      Failed to load policy: resource has a blank id
     """
 
   @negative @acceptance

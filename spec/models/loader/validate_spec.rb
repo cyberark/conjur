@@ -20,7 +20,8 @@ describe Loader::Validate do
       policy_result = PolicyResult.new(
         policy_version: nil,
         created_roles: nil,
-        policy_parse: PolicyParse.new([], adhoc_err)
+        policy_parse: PolicyParse.new([], adhoc_err),
+        diff: nil
       )
       response = mode.report(policy_result)
 
@@ -34,7 +35,8 @@ describe Loader::Validate do
       policy_result = PolicyResult.new(
         policy_version: nil,
         created_roles: nil,
-        policy_parse: PolicyParse.new([], nil)
+        policy_parse: PolicyParse.new([], nil),
+        diff: nil
       )
       response = mode.report(policy_result)
 

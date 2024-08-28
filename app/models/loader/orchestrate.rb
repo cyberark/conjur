@@ -80,6 +80,7 @@ module Loader
       feature_flags: Rails.application.config.feature_flags,
       logger: Rails.logger
     )
+      @logger = logger
       @policy_parse = policy_parse
       @policy_version = policy_version
       @schemata = Schemata.new
@@ -112,7 +113,6 @@ module Loader
       end
 
       create_schema
-
       load_records
     end
 
@@ -149,12 +149,12 @@ module Loader
 
       # getting newly added roles
       new_roles_sql = <<-SQL
-          SELECT *
+          SELECT * 
           FROM #{schema_name}.roles new_roles
           WHERE NOT EXISTS (
             SELECT 1
             FROM #{primary_schema}.roles public_roles
-            WHERE ( #{join_columns} )
+            WHERE ( #{join_columns} ) 
           );
       SQL
 
@@ -253,6 +253,18 @@ module Loader
       store_public_keys
 
       store_restricted_to
+    end
+
+    def snapshot_public_schema_before
+      # No-op.
+    end
+
+    def drop_snapshot_public_schema_before
+      # No-op.
+    end
+
+    def get_diff
+      # No-op.
     end
 
     def table_data schema = ""
@@ -611,7 +623,7 @@ module Loader
     end
 
     def report(policy_result)
-      error = policy_result.policy_parse.error
+      error = policy_result.error
 
       if error
         # The failure report identifies the error
