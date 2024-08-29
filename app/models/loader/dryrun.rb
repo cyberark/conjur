@@ -4,8 +4,6 @@
 # to produce a dry-run simulation of what the resulting policy would be.
 #
 module Loader
-  # Because the DryRun interpreter uses many of the Orchestrate functions it made sense
-  # to extend it and add the new DryRun operations.
   class DryRun < Orchestrate
 
     def initialize(
@@ -43,25 +41,58 @@ module Loader
 
     # Returns the syntax / business logic validation report interface
     def report(policy_result)
-      error = policy_result.error
 
+      # Fetch
+      error = policy_result.error
+      version = policy_result.policy_version
+      roles = policy_result.created_roles
+      diff = policy_result.diff
+
+      # Hydrate
+      # TODO: this presupposes that dry-run diff processing
+      # would return results in the created_roles and diff components, and then
+      # extraction from those components populates the 'items' array.
+      # The actual implementation will be different,
+      # and those steps may occur elsewhere.
+
+      status = error ? "Invalid YAML" : "Valid YAML"
+      # includes enhanced error info
+      errors = error ? [error.as_validation] : []
+
+      items = []
+
+      initial = {
+        "items" => items.length ? items : []
+      }
+      final = {
+        "items" => items.length ? items : []
+      }
+
+      created = {
+        "items" => items.length ? items : []
+      }
+      updated = {
+        "before" => initial,
+        "after" => final,
+      }
+      deleted = {
+        "items" => items.length ? items : []
+      }
+
+      # API response format follows "Policy Dry Run v2 Solution Design" document
       if error
-        # Construct the message with enhanced error info
         response = {
-          "status" => "Invalid YAML",
-          "errors" => [
-            error.as_validation
-          ],
+          "status" => status,
+          "errors" => errors,
         }
       else
         response = {
-          "status" => "Valid YAML",
-          "errors" => [],
+          "status" => status,
+          "created" => created,
+          "updated" => updated,
+          "deleted" => deleted,
         }
       end
-
-      msg = error ? "Invalid YAML.\n#{error}" : "Valid YAML"
-      @logger.debug(msg)
 
       response
     end
