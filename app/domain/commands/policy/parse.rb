@@ -69,27 +69,11 @@ module Commands
             detail_message: [e.problem, e.context].compact.join(' ')
           )
 
-        rescue ArgumentError => e
-          # From policy-parser
-          # from app/models/loader/types
-          # Will we see this here? => No.  This results from Orchestrate
-          # => controller level
-          error = Exceptions::EnhancedPolicyError.new(
-            original_error: e
-          )
-
-        rescue NoMethodError => e
-          # This is rescued by ApplicationController, so pass it up.
-          error = Exceptions::EnhancedPolicyError.new(
-            original_error: e
-          )
-
         rescue => e
           # Everything else can be wrapped but may not be safe to raise.
           error = Exceptions::EnhancedPolicyError.new(
             original_error: e
           )
-          error.original_error = nil
         end
 
         PolicyParse.new(resolved_records, error)
