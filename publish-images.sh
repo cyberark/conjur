@@ -118,6 +118,8 @@ if [[ "${PUBLISH_EDGE}" = true ]]; then
 
   # Publish release specific and edge tags to dockerhub
   if [[ "${DOCKERHUB}" = true ]]; then
+    echo "Pushing to DockerHub"
+    
     tag_and_push "${VERSION}" "${LOCAL_IMAGE}" "${IMAGE_NAME}"
     tag_and_push "edge" "${LOCAL_IMAGE}" "${IMAGE_NAME}"
   fi
@@ -130,10 +132,14 @@ if [[ "${PROMOTE}" = true ]]; then
   readarray -t prefix_versions < <(gen_versions "${VERSION}")
 
   for version in latest "${prefix_versions[@]}"; do
+    echo "Pushing images for tag: $version"
+      
     tag_and_push "${version}-${ARCH}" "registry.tld/${IMAGE_NAME}:${LOCAL_TAG}-${ARCH}" "registry.tld/${IMAGE_NAME}"
     tag_and_push "${version}-${ARCH}" "registry.tld/conjur-ubi:${LOCAL_TAG}-${ARCH}" "registry.tld/conjur-ubi"
 
     if [[ "${DOCKERHUB}" ]]; then
+      echo "Pushing to DockerHub"
+      
       tag_and_push "${version}" "${LOCAL_IMAGE}" "${IMAGE_NAME}"
     fi
   done

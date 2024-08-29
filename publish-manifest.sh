@@ -95,6 +95,8 @@ if [[ "${PROMOTE}" = true ]]; then
   readarray -t prefix_versions < <(gen_versions "${VERSION}")
 
   for version in latest "${prefix_versions[@]}"; do
+    echo "Preparing manifests for tag: $version"
+      
     prepare_manifest "registry.tld/${IMAGE_NAME}" "${version}"
     prepare_manifest "registry.tld/conjur-ubi" "${version}"
   done
