@@ -1,0 +1,166 @@
+#!/usr/bin/env bash
+set -e
+
+# These tests are broken out into a separate profile due to the requirement
+# of restarting the Conjur service with a different environment
+# configuration between each test.
+
+# No point in paralellizing since only 1 test runs per configuration
+export PARALLEL_PROCESSES=1
+
+# This is executed by the main "ci/test" script after cd-ing into "ci".
+# shellcheck disable=SC1091
+source "./shared.sh"
+source "./oauth/keycloak/keycloak_functions.sh"
+
+function _hydrate_all_env_args() {
+  local -n arr=$1
+  local keycloak_items
+
+  readarray -t keycloak_items < <(
+    set -o pipefail
+    # Note: This prints all lines that look like:
+    # KEYCLOAK_XXX=someval
+    $COMPOSE exec -T "${KEYCLOAK_SERVICE_NAME}" printenv | awk '/KEYCLOAK/'
+  )
+
+  # shellcheck disable=SC2034
+  arr=(
+    "${keycloak_items[@]}"
+    "KEYCLOAK_CA_CERT=$KEYCLOAK_CA_CERT"
+    "PROVIDER_URI=https://keycloak:8443/auth/realms/master"
+    "PROVIDER_INTERNAL_URI=http://keycloak:8080/auth/realms/master/protocol/openid-connect"
+    "PROVIDER_ISSUER=http://keycloak:8080/auth/realms/master"
+    "ID_TOKEN_USER_PROPERTY=preferred_username"
+  )
+}
+
+run_cucumber_proxy_tests() {
+  local profile=proxy
+
+  # Stage 1: Make sure conjur is up, create cuke account
+  # -----------------------------------------------------------
+
+  $COMPOSE exec -T conjur bash -c "printenv | grep -E 'HTTPS_PROXY|https_proxy' && conjurctl wait --retries 180"
+
+  echo "Create cucumber account..."
+
+  $COMPOSE exec -T conjur conjurctl account create cucumber
+
+  # Stage 2: Prepare cucumber environment args
+  # -----------------------------------------------------------
+
+  local env_vars
+  local env_var_flags
+  local run_flags
+
+  # Hydrate the env args.
+  env_vars=()
+  _hydrate_all_env_args env_vars
+
+  # Add the -e flags before each of the var=val items.
+  env_var_flags=()
+  for item in "${env_vars[@]}"; do
+    env_var_flags+=(-e "$item")
+  done
+
+  # Add the cucumber env vars that we always want to send.
+  # Note: These are args for docker compose run, and as such the right hand
+  # sides of the = do NOT require escaped quotes.  docker compose takes the
+  # entire arg, splits on the =, and uses the rhs as the value,
+  env_var_flags+=(
+    -e "CUCUMBER_NETWORK=$(_find_cucumber_network)"
+    -e "INFRAPOOL_CUCUMBER_FILTER_TAGS=$INFRAPOOL_CUCUMBER_FILTER_TAGS"
+    -e "CONJUR_AUTHN_API_KEY=$(_get_api_key conjur)"
+    -e "AUTHN_LOCAL_SOCKET=/run/authn-local/.socket"
+  )
+
+  # If there's no tty (e.g. we're running as a Jenkins job), pass -T to
+  # docker compose.
+  run_flags=(--no-deps --rm)
+  if ! tty -s; then
+    run_flags+=(-T)
+  fi
+
+  # THE INFRAPOOL_CUCUMBER_FILTER_TAGS environment variable is not natively
+  # implemented in cucumber-ruby, so we pass it as a CLI argument
+  # if the variable is set.
+  local cucumber_tags_arg
+  if [[ -n "$INFRAPOOL_CUCUMBER_FILTER_TAGS" ]]; then
+    cucumber_tags_arg="--tags \"$INFRAPOOL_CUCUMBER_FILTER_TAGS\""
+  fi
+
+  # Stage 3: Run Cucumber test cases
+  # -----------------------------------------------------------
+
+  echo "ENV_ARG_FN: ${env_arg_fn}" >&2
+  echo "RUN_FLAGS: ${run_flags[*]}" >&2
+  echo "ENV_VAR_FLAGS: ${env_var_flags[*]}" >&2
+  echo "CUCUMBER TAGS: ${cucumber_tags_arg}" >&2
+  echo "CUCUMBER PROFILE: ${profile}" >&2
+
+  # Test case 1: HTTPS_PROXY with a valid proxy succeeds
+  $COMPOSE run "${run_flags[@]}" "${env_var_flags[@]}" \
+    cucumber -ec "\
+      bundle exec parallel_cucumber . -n ${PARALLEL_PROCESSES} \
+       -o '--strict --profile \"${profile}\" --tags \"not @negative\"'"
+
+
+  # Test case 2: HTTPS_PROXY with an invalid proxy fails
+  export HTTPS_PROXY=http://invalid-proxy
+
+  $COMPOSE stop conjur
+  $COMPOSE up --no-deps -d conjur
+
+  $COMPOSE exec -T conjur bash -c "printenv | grep -E 'HTTPS_PROXY|https_proxy' && conjurctl wait --retries 180"
+
+  $COMPOSE run "${run_flags[@]}" "${env_var_flags[@]}" \
+    cucumber -ec "\
+      bundle exec parallel_cucumber . -n ${PARALLEL_PROCESSES} \
+       -o '--strict --profile \"${profile}\" --tags \"not @smoke\"'"
+
+  unset HTTPS_PROXY
+
+  # Test case 3: https_proxy with a valid proxy succeeds
+  export https_proxy=http://tinyproxy:8888
+
+  $COMPOSE stop conjur
+  $COMPOSE up --no-deps -d conjur
+
+  $COMPOSE exec -T conjur bash -c "printenv | grep -E 'HTTPS_PROXY|https_proxy' && conjurctl wait --retries 180"
+
+  $COMPOSE run "${run_flags[@]}" "${env_var_flags[@]}" \
+    cucumber -ec "\
+      bundle exec parallel_cucumber . -n ${PARALLEL_PROCESSES} \
+       -o '--strict --profile \"${profile}\" --tags \"not @negative\"'"
+
+  # Test case 4: https_proxy with an invalid proxy fails
+  export https_proxy=http://invalid-proxy
+
+  $COMPOSE stop conjur
+  $COMPOSE up --no-deps -d conjur
+
+  $COMPOSE exec -T conjur bash -c "printenv | grep -E 'HTTPS_PROXY|https_proxy' && conjurctl wait --retries 180"
+
+  $COMPOSE run "${run_flags[@]}" "${env_var_flags[@]}" \
+    cucumber -ec "\
+      bundle exec parallel_cucumber . -n ${PARALLEL_PROCESSES} \
+       -o '--strict --profile \"${profile}\" --tags \"not @smoke\"'"
+}
+
+
+function main() {
+  # Create compose environment with happy path configuration first
+  export HTTPS_PROXY=http://tinyproxy:8888
+  $COMPOSE up --no-deps -d conjur pg keycloak tinyproxy
+
+  wait_for_keycloak_server
+  create_keycloak_users
+  fetch_keycloak_certificate
+
+  export KEYCLOAK_CA_CERT="$($COMPOSE exec conjur cat /etc/ssl/certs/keycloak.pem)"
+
+  run_cucumber_proxy_tests
+  }
+
+main

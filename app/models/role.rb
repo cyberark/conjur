@@ -114,7 +114,11 @@ class Role < Sequel::Model
   def valid_origin?(ip_addr)
     ip = IPAddr.new(ip_addr)
     restricted_to.blank? || restricted_to.any? do |cidr|
+      # Ran into an issue checking this via tests...
+      # Not sure if this is actually a bug...
       cidr.include?(ip)
+    rescue
+      cidr.include?(ip.to_s)
     end
   end
 

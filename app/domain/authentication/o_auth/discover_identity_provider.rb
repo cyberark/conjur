@@ -1,10 +1,14 @@
 module Authentication
   module OAuth
+    # Object to match the previously used `OpenIDConnect::Discovery::Provider::Config::Resource`
+    # object used as part of the OpenIDConnect library. This is needed until we can fully
+    # port all existing JWT based authenticators to the new authenticator architecture.
+    DiscoveryProvider = Struct.new(:jwks, :supported_algorithms, keyword_init: true)
 
     DiscoverIdentityProvider = CommandClass.new(
       dependencies: {
         logger: Rails.logger,
-        open_id_discovery_service: OpenIDConnect::Discovery::Provider::Config
+        client: Authentication::Util::NetworkTransporter
       },
       inputs: %i[provider_uri ca_cert]
     ) do
@@ -23,28 +27,32 @@ module Authentication
         )
       end
 
-      # returns an OpenIDConnect::Discovery::Provider::Config::Resource instance.
-      # While this leaks 3rd party code into ours, the only time this Resource
-      # is used is inside of FetchProviderKeys.  This is unlikely change, and hence
-      # unlikely to be a problem
+      # Returns an mocked version of OpenIDConnect::Discovery::Provider::Config::Resource
+      # instance. While this leaks 3rd party code into ours, the only time this Resource
+      # is used is inside of FetchProviderKeys. This is unlikely to change, and hence
+      # unlikely to be a problem.
       def discover_provider
-        @discovered_provider = Authentication::AuthnOidc::V2::Client.discover(
-          provider_uri: @provider_uri,
-          discovery_configuration: @open_id_discovery_service,
-          cert_string: @ca_cert
-        )
-        @logger.debug(
-          LogMessages::Authentication::OAuth::IdentityProviderDiscoverySuccess.new
-        )
-        @discovered_provider
-      rescue Errno::ETIMEDOUT => e
-        raise_error(Errors::Authentication::OAuth::ProviderDiscoveryTimeout, e)
-      rescue => e
-        raise_error(Errors::Authentication::OAuth::ProviderDiscoveryFailed, e)
-      end
+        response = @client.new(hostname: @provider_uri, ca_certificate: @ca_cert).get("#{@provider_uri}/.well-known/openid-configuration").bind do |endpoint|
+          @logger.debug(LogMessages::Authentication::OAuth::IdentityProviderDiscoverySuccess.new)
+          @client.new(hostname: endpoint['jwks_uri'], ca_certificate: @ca_cert).get(endpoint['jwks_uri']).bind do |jwks|
+            return DiscoveryProvider.new(
+              jwks: jwks['keys'],
+              supported_algorithms: endpoint['id_token_signing_alg_values_supported']
+            )
+          end
+        end
 
-      def raise_error(error_class, original_error)
-        raise error_class.new(@provider_uri, original_error.inspect)
+        if response.exception.is_a?(Errno::ETIMEDOUT)
+          raise Errors::Authentication::OAuth::ProviderDiscoveryTimeout.new(
+            @provider_uri,
+            response.exception
+          )
+        else
+          raise Errors::Authentication::OAuth::ProviderDiscoveryFailed.new(
+            @provider_uri,
+            response.exception
+          )
+        end
       end
     end
   end

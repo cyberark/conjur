@@ -66,6 +66,7 @@ module Authentication
           )
           @fetch_provider_uri_signing_key ||= @fetch_provider_uri_signing_key_class.new(
             provider_uri: signing_key_settings.uri,
+            ca_certificate: signing_key_settings.ca_cert,
             fetch_signing_key: @fetch_signing_key
           )
         end

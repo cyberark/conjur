@@ -7,7 +7,7 @@ module Authentication
       JWKS_PROVIDER_URI_SIGNING_PAIR = "#{JWKS_URI_RESOURCE_NAME} and #{PROVIDER_URI_RESOURCE_NAME} cannot be defined simultaneously".freeze
       JWKS_URI_PUBLIC_KEYS_PAIR = "#{JWKS_URI_RESOURCE_NAME} and #{PUBLIC_KEYS_RESOURCE_NAME} cannot be defined simultaneously".freeze
       PUBLIC_KEYS_PROVIDER_URI_PAIR = "#{PUBLIC_KEYS_RESOURCE_NAME} and #{PROVIDER_URI_RESOURCE_NAME} cannot be defined simultaneously".freeze
-      CERT_STORE_ONLY_WITH_JWKS_URI = "#{CA_CERT_RESOURCE_NAME} can only be defined together with #{JWKS_URI_RESOURCE_NAME}".freeze
+      CERT_STORE_ONLY_WITH_JWKS_URI_OR_PROVIDER_URI = "#{CA_CERT_RESOURCE_NAME} can only be defined together with #{JWKS_URI_RESOURCE_NAME} or #{PROVIDER_URI_RESOURCE_NAME}".freeze
       PUBLIC_KEYS_HAVE_ISSUER = "#{ISSUER_RESOURCE_NAME} is mandatory when #{PUBLIC_KEYS_RESOURCE_NAME} is defined".freeze
 
       # fetches signing key settings, validates and builds SigningKeysSettings object
@@ -26,7 +26,7 @@ module Authentication
 
         def validate_signing_key_parameters
           single_signing_key_source
-          cert_store_only_with_jwks_uri
+          cert_store_only_with_jwks_uri_or_provider_uri
           public_keys_have_issuer
         end
 
@@ -45,7 +45,7 @@ module Authentication
         end
 
         def check_all_signing_keys_sources
-          return unless jwks_uri && public_keys &&  provider_uri
+          return unless jwks_uri && public_keys && provider_uri
 
           raise Errors::Authentication::AuthnJwt::InvalidSigningKeySettings, ALL_SIGNING_KEYS_SOURCES
         end
@@ -68,10 +68,10 @@ module Authentication
           raise Errors::Authentication::AuthnJwt::InvalidSigningKeySettings, PUBLIC_KEYS_PROVIDER_URI_PAIR
         end
 
-        def cert_store_only_with_jwks_uri
-          return unless ca_cert && !jwks_uri
+        def cert_store_only_with_jwks_uri_or_provider_uri
+          return unless ca_cert && (!jwks_uri && !provider_uri)
 
-          raise Errors::Authentication::AuthnJwt::InvalidSigningKeySettings, CERT_STORE_ONLY_WITH_JWKS_URI
+          raise Errors::Authentication::AuthnJwt::InvalidSigningKeySettings, CERT_STORE_ONLY_WITH_JWKS_URI_OR_PROVIDER_URI
         end
 
         def public_keys_have_issuer
@@ -85,7 +85,8 @@ module Authentication
             uri: signing_key_settings_uri,
             type: signing_key_settings_type,
             cert_store: signing_key_settings_cert_store,
-            signing_keys: public_keys
+            signing_keys: public_keys,
+            ca_cert: ca_cert
           )
         end
 

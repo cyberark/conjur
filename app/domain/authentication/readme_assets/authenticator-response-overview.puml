@@ -1,0 +1,66 @@
+@startuml
+|Controller|
+start
+:Request Made;
+if (Authenticator and Service ID whitelisted?) then (yes)
+  if (Authenticator Webservice exists?) then (yes)
+    if (Are required variables present in correct format?) then (yes)
+      if (Is Authentication payload authentic?) then (yes)
+        if (Is there a potential identifier?) then (yes)
+          if (Does matching Conjur role exist?) then (yes)
+            if (Is role allowed to authenticate?) then (yes)
+              if (From the request IP address?) then (yes)
+                :Generate Auth Token;
+                :Generate Audit success message;
+                #green:Return Auth Token;
+                end
+              else (<color:red>no)
+                :Generate Audit failure message;
+                :Log exception: ;
+                #indianred:Request Status:\n[400] bad request;
+                end
+              endif
+            else (no)
+              :Generate Audit failure message;
+              :Log exception: ;
+              #indianred:Request Status:\n[400] bad request;
+              end
+            endif
+          else (no)
+            :Generate Audit failure message;
+            :Log exception: ;
+            #indianred:Request Status:\n[400] bad request;
+            end
+          endif
+        else (no)
+          :Generate Audit failure message;
+          :Log exception: ;
+          #indianred:Request Status:\n[400] bad request;
+          end
+        endif
+      else (no)
+        :Generate Audit failure message;
+        :Log exception: ;
+        #indianred:Request Status:\n[400] bad request;
+        end
+      endif
+    else (no)
+      :Generate Audit failure message;
+      :Log exception: ;
+      #indianred:Request Status:\n[401] unauthorized;
+      end
+    endif
+  else (no)
+    :Generate Audit failure message;
+    :Log exception: \nErrors::Authentication::Security::WebserviceNotFound;
+    #indianred:Request Status:\n[401] unauthorized;
+    end
+  endif
+else(no)
+  :Generate Audit failure message;
+  :Log exception: \nErrors::Authentication::Security::AuthenticatorNotWhitelisted;
+  #indianred:Request Status:\n[400] bad request;
+  end
+endif
+end
+@enduml

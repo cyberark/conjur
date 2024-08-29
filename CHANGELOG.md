@@ -10,12 +10,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   (and update the corresponding date), or add a new version.
 
 ## [1.0.37-cloud] - 2024-09-08
-### Changed
+### Added
+- conjur sync version 13.3 - part 3 (continues from 1.0.36v)
 - switch OIDC tests to use @skip with yaml instead of Before hook 
 
 ## [1.0.36-cloud] - 2024-09-01
 ### Added
 - Restrict grant only to appropriate types 
+- conjur sync version 13.3 - part 2 (continues from 1.0.29v)
 
 ### Changed
 - Consume Pubsub configurations from CM
