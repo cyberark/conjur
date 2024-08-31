@@ -23,7 +23,7 @@ module Authentication
         # These is command class so only call is called from outside. Other functions are needed here.
         # :reek:TooManyMethods
         def call
-          @logger.debug(LogMessages::Authentication::AuthnJwt::CreateContraintsFromPolicy.new)
+          @logger.debug{LogMessages::Authentication::AuthnJwt::CreateContraintsFromPolicy.new}
           fetch_enforced_claims
           fetch_claim_aliases
           map_enforced_claims
@@ -32,7 +32,7 @@ module Authentication
           add_required_constraint
           add_non_permitted_constraint
           create_multiple_constraint
-          @logger.debug(LogMessages::Authentication::AuthnJwt::CreatedConstraintsFromPolicy.new)
+          @logger.debug{LogMessages::Authentication::AuthnJwt::CreatedConstraintsFromPolicy.new}
           multiple_constraint
         end
 
@@ -63,7 +63,7 @@ module Authentication
         def convert_claim(claim)
           if claim_aliases.include?(claim)
             claim_reference = claim_aliases[claim]
-            @logger.debug(LogMessages::Authentication::AuthnJwt::ConvertingClaimAccordingToAlias.new(claim, claim_reference))
+            @logger.debug{LogMessages::Authentication::AuthnJwt::ConvertingClaimAccordingToAlias.new(claim, claim_reference)}
             return claim_reference
           end
           claim
@@ -104,7 +104,7 @@ module Authentication
         end
 
         def required_constraint
-          @logger.debug(LogMessages::Authentication::AuthnJwt::ConstraintsFromEnforcedClaims.new(mapped_enforced_claims))
+          @logger.debug{LogMessages::Authentication::AuthnJwt::ConstraintsFromEnforcedClaims.new(mapped_enforced_claims)}
           @required_constraint ||= @required_constraint_class.new(
             required: mapped_enforced_claims
           )

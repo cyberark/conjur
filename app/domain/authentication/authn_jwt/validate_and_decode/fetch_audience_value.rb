@@ -16,14 +16,14 @@ module Authentication
         def_delegators(:@authenticator_input, :service_id, :authenticator_name, :account)
 
         def call
-          @logger.debug(LogMessages::Authentication::AuthnJwt::FetchingAudienceValue.new)
+          @logger.debug{LogMessages::Authentication::AuthnJwt::FetchingAudienceValue.new}
 
           return empty_audience_value unless audience_resource_exists?
 
           fetch_audience_secret_value
           validate_audience_secret_has_value
 
-          @logger.debug(LogMessages::Authentication::AuthnJwt::FetchedAudienceValue.new(audience_secret_value))
+          @logger.debug{LogMessages::Authentication::AuthnJwt::FetchedAudienceValue.new(audience_secret_value)}
 
           audience_secret_value
         end
@@ -42,7 +42,7 @@ module Authentication
         end
 
         def empty_audience_value
-          @logger.debug(LogMessages::Authentication::AuthnJwt::FetchingAudienceValue.new)
+          @logger.debug{LogMessages::Authentication::AuthnJwt::FetchingAudienceValue.new}
           ''
         end
 

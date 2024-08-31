@@ -6,9 +6,11 @@ class EdgeSlosiloKeysController < RestController
   include ExtractEdgeResources
   include GroupMembershipValidator
 
+  def log_message(role_id)
+    "slosilo_keys replication for edge '#{Edge.get_name_by_hostname(role_id)}'"
+  end
   def slosilo_keys
-    log_message = "slosilo_keys replication for edge '#{Edge.get_name_by_hostname(current_user.role_id)}'"
-    logger.debug(LogMessages::Endpoints::EndpointRequested.new(log_message))
+    logger.debug{LogMessages::Endpoints::EndpointRequested.new(log_message(current_user.role_id))}
 
     allowed_params = %i[account]
     options = params.permit(*allowed_params).to_h.symbolize_keys
@@ -34,7 +36,7 @@ class EdgeSlosiloKeysController < RestController
       return_json[:previousSlosiloKeys] = prev_key_obj
 
       render(json: return_json)
-      logger.debug(LogMessages::Endpoints::EndpointFinishedSuccessfully.new(log_message))
+      logger.debug{LogMessages::Endpoints::EndpointFinishedSuccessfully.new(log_message(current_user.role_id))}
     rescue => e
       raise ApplicationController::InternalServerError, e.message
     end

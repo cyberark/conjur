@@ -35,7 +35,7 @@ module Authentication
           keys: @discovered_provider.jwks
         }
         algs = @discovered_provider.supported_algorithms
-        @logger.debug(LogMessages::Authentication::OAuth::FetchProviderKeysSuccess.new)
+        @logger.debug{LogMessages::Authentication::OAuth::FetchProviderKeysSuccess.new}
         ProviderKeys.new(jwks_keys, algs)
       rescue => e
         raise Errors::Authentication::OAuth::FetchProviderKeysFailed.new(

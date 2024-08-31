@@ -28,20 +28,20 @@ module Util
       cache_key = cache_key(args)
       @concurrency_mutex.synchronize do
         if @concurrent_requests >= @max_concurrent_requests
-          @logger.debug(
+          @logger.debug{
             LogMessages::Util::ConcurrencyLimitedCacheReached.new(@max_concurrent_requests)
-          )
+          }
           raise Errors::Util::ConcurrencyLimitReachedBeforeCacheInitialization unless @cache.key?(cache_key)
 
           return @cache[cache_key]
         end
 
         @concurrent_requests += 1
-        @logger.debug(
+        @logger.debug{
           LogMessages::Util::ConcurrencyLimitedCacheConcurrentRequestsUpdated.new(
             @concurrent_requests
           )
-        )
+        }
       end
 
       @semaphore.synchronize do
@@ -54,7 +54,7 @@ module Util
 
     def recalculate(args, cache_key)
       @cache[cache_key] = @target.call(**args)
-      @logger.debug(LogMessages::Util::ConcurrencyLimitedCacheUpdated.new)
+      @logger.debug{LogMessages::Util::ConcurrencyLimitedCacheUpdated.new}
       decrease_concurrent_requests
     rescue => e
       decrease_concurrent_requests
@@ -64,11 +64,11 @@ module Util
     def decrease_concurrent_requests
       unless @concurrent_requests.zero?
         @concurrent_requests -= 1
-        @logger.debug(
+        @logger.debug{
           LogMessages::Util::ConcurrencyLimitedCacheConcurrentRequestsUpdated.new(
             @concurrent_requests
           )
-        )
+        }
       end
     end
 
@@ -76,11 +76,11 @@ module Util
     def cache_key(args)
       if args.key?(:cache_key)
         cache_key = args.fetch(:cache_key)
-        @logger.debug(
+        @logger.debug{
           LogMessages::Util::ConcurrencyLimitedCacheKeyRetrieved.new(
             cache_key
           )
-        )
+        }
       else
         cache_key = args
       end

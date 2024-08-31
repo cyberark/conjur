@@ -49,13 +49,13 @@ module Authentication
         @validate_account_exists.(
           account: account
         )
-        @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatedAccountExists.new)
+        @logger.debug{LogMessages::Authentication::AuthnJwt::ValidatedAccountExists.new}
       end
 
       def validate_service_id_exists
         raise Errors::Authentication::AuthnJwt::ServiceIdMissing unless service_id
 
-        @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatedServiceIdExists.new)
+        @logger.debug{LogMessages::Authentication::AuthnJwt::ValidatedServiceIdExists.new}
       end
 
       def validate_user_has_access_to_status_webservice
@@ -65,7 +65,7 @@ module Authentication
           user_id: username,
           privilege: 'read'
         )
-        @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatedUserHasAccessToStatusWebservice.new)
+        @logger.debug{LogMessages::Authentication::AuthnJwt::ValidatedUserHasAccessToStatusWebservice.new}
       end
 
       def validate_authenticator_webservice_exists
@@ -73,7 +73,7 @@ module Authentication
           webservice: webservice,
           account: account
         )
-        @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatedAuthenticatorWebServiceExists.new)
+        @logger.debug{LogMessages::Authentication::AuthnJwt::ValidatedAuthenticatorWebServiceExists.new}
       end
 
       def validate_webservice_is_whitelisted
@@ -82,34 +82,34 @@ module Authentication
           account: account,
           enabled_authenticators: @enabled_authenticators
         )
-        @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatedStatusWebserviceIsWhitelisted.new)
+        @logger.debug{LogMessages::Authentication::AuthnJwt::ValidatedStatusWebserviceIsWhitelisted.new}
       end
 
       def validate_issuer
         @fetch_issuer_value.call(authenticator_input: authenticator_input)
-        @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatedIssuerConfiguration.new)
+        @logger.debug{LogMessages::Authentication::AuthnJwt::ValidatedIssuerConfiguration.new}
       end
 
       def validate_audience
         @fetch_audience_value.call(authenticator_input: authenticator_input)
-        @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatedAudienceConfiguration.new)
+        @logger.debug{LogMessages::Authentication::AuthnJwt::ValidatedAudienceConfiguration.new}
       end
 
       def validate_enforced_claims
         @fetch_enforced_claims.call(jwt_authenticator_input: jwt_authenticator_input)
-        @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatedEnforcedClaimsConfiguration.new)
+        @logger.debug{LogMessages::Authentication::AuthnJwt::ValidatedEnforcedClaimsConfiguration.new}
       end
 
       def validate_claim_aliases
         @fetch_claim_aliases.call(jwt_authenticator_input: jwt_authenticator_input)
-        @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatedClaimAliasesConfiguration.new)
+        @logger.debug{LogMessages::Authentication::AuthnJwt::ValidatedClaimAliasesConfiguration.new}
       end
 
       def validate_identity_secrets
         @validate_identity_configured_properly.call(
           jwt_authenticator_input: jwt_authenticator_input
         )
-        @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatedIdentityConfiguration.new)
+        @logger.debug{LogMessages::Authentication::AuthnJwt::ValidatedIdentityConfiguration.new}
       end
 
       def jwt_authenticator_input
@@ -143,7 +143,7 @@ module Authentication
         signing_key_provider.call(
           force_fetch: false
         )
-        @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatedSigningKeyConfiguration.new)
+        @logger.debug{LogMessages::Authentication::AuthnJwt::ValidatedSigningKeyConfiguration.new}
       end
 
       def signing_key_provider

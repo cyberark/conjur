@@ -12,11 +12,11 @@ module Authentication
         inputs: %i[enforced_claims]
       ) do
         def call
-          @logger.debug(LogMessages::Authentication::AuthnJwt::ParsingEnforcedClaims.new(@enforced_claims))
+          @logger.debug{LogMessages::Authentication::AuthnJwt::ParsingEnforcedClaims.new(@enforced_claims)}
           validate_enforced_claims_exists
           validate_enforced_claims_list_format
           validate_enforced_claims_list_value
-          @logger.debug(LogMessages::Authentication::AuthnJwt::ParsedEnforcedClaims.new(parsed_enforced_claims_list))
+          @logger.debug{LogMessages::Authentication::AuthnJwt::ParsedEnforcedClaims.new(parsed_enforced_claims_list)}
 
           parsed_enforced_claims_list
         end

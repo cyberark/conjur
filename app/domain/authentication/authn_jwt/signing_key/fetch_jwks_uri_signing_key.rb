@@ -48,13 +48,13 @@ module Authentication
           return @jwks_keys if defined?(@jwks_keys)
 
           uri = URI(@jwks_uri)
-          @logger.debug(LogMessages::Authentication::AuthnJwt::FetchingJwksFromProvider.new(@jwks_uri))
+          @logger.debug{LogMessages::Authentication::AuthnJwt::FetchingJwksFromProvider.new(@jwks_uri)}
           @jwks_keys = net_http_start(
             uri.host,
             uri.port,
             uri.scheme == 'https'
           ) { |http| http.get(uri) }
-          @logger.debug(LogMessages::Authentication::AuthnJwt::FetchJwtUriKeysSuccess.new)
+          @logger.debug{LogMessages::Authentication::AuthnJwt::FetchJwtUriKeysSuccess.new}
         rescue => e
           raise Errors::Authentication::AuthnJwt::FetchJwksKeysFailed.new(
             @jwks_uri,

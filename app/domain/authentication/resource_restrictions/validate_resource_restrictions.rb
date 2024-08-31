@@ -28,13 +28,13 @@ module Authentication
       inputs: %i[authenticator_name service_id role_name account constraints authentication_request]
     ) do
       def call
-        @logger.debug(LogMessages::Authentication::ResourceRestrictions::ValidatingResourceRestrictions.new(@role_name))
+        @logger.debug{LogMessages::Authentication::ResourceRestrictions::ValidatingResourceRestrictions.new(@role_name)}
 
         extract_resource_restrictions
         validate_resource_restrictions_configuration
         validate_request_matches_resource_restrictions
 
-        @logger.debug(LogMessages::Authentication::ResourceRestrictions::ValidatedResourceRestrictions.new)
+        @logger.debug{LogMessages::Authentication::ResourceRestrictions::ValidatedResourceRestrictions.new}
       end
 
       private
@@ -53,27 +53,27 @@ module Authentication
       end
 
       def validate_resource_restrictions_configuration
-        @logger.debug(LogMessages::Authentication::ResourceRestrictions::ValidatingResourceRestrictionsConfiguration.new)
+        @logger.debug{LogMessages::Authentication::ResourceRestrictions::ValidatingResourceRestrictionsConfiguration.new}
 
         @constraints.validate(
           resource_restrictions: resource_restrictions.names
         )
 
-        @logger.debug(LogMessages::Authentication::ResourceRestrictions::ValidatedResourceRestrictionsConfiguration.new)
+        @logger.debug{LogMessages::Authentication::ResourceRestrictions::ValidatedResourceRestrictionsConfiguration.new}
       end
 
       def validate_request_matches_resource_restrictions
-        @logger.debug(LogMessages::Authentication::ResourceRestrictions::ValidatingResourceRestrictionsValues.new)
+        @logger.debug{LogMessages::Authentication::ResourceRestrictions::ValidatingResourceRestrictionsValues.new}
 
         resource_restrictions.each do |restriction|
-          @logger.debug(LogMessages::Authentication::ResourceRestrictions::ValidatingResourceRestrictionOnRequest.new(restriction.name))
+          @logger.debug{LogMessages::Authentication::ResourceRestrictions::ValidatingResourceRestrictionOnRequest.new(restriction.name)}
 
           next if @authentication_request.valid_restriction?(restriction)
 
           raise Errors::Authentication::ResourceRestrictions::InvalidResourceRestrictions, restriction.name
         end
 
-        @logger.debug(LogMessages::Authentication::ResourceRestrictions::ValidatedResourceRestrictionsValues.new)
+        @logger.debug{LogMessages::Authentication::ResourceRestrictions::ValidatedResourceRestrictionsValues.new}
       end
     end
   end

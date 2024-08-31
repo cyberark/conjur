@@ -20,11 +20,11 @@ module Authentication
       private
 
       def log_provider_uri
-        @logger.debug(
+        @logger.debug{
           LogMessages::Authentication::OAuth::IdentityProviderUri.new(
             @provider_uri
           )
-        )
+        }
       end
 
       # Returns an mocked version of OpenIDConnect::Discovery::Provider::Config::Resource
@@ -33,7 +33,7 @@ module Authentication
       # unlikely to be a problem.
       def discover_provider
         response = @client.new(hostname: @provider_uri, ca_certificate: @ca_cert).get("#{@provider_uri}/.well-known/openid-configuration").bind do |endpoint|
-          @logger.debug(LogMessages::Authentication::OAuth::IdentityProviderDiscoverySuccess.new)
+          @logger.debug{LogMessages::Authentication::OAuth::IdentityProviderDiscoverySuccess.new}
           @client.new(hostname: endpoint['jwks_uri'], ca_certificate: @ca_cert).get(endpoint['jwks_uri']).bind do |jwks|
             return DiscoveryProvider.new(
               jwks: jwks['keys'],

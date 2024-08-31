@@ -32,18 +32,18 @@ module Authentication
 
         # return the value of the annotation if it exists, nil otherwise
         if annotation
-          @logger.debug(LogMessages::Authentication::ResourceRestrictions::RetrievedAnnotationValue.new(name))
+          @logger.debug{LogMessages::Authentication::ResourceRestrictions::RetrievedAnnotationValue.new(name)}
           annotation[:value]
         end
       end
 
       def default_authentication_container_name
-        @logger.debug(
+        @logger.debug{
           LogMessages::Authentication::ContainerNameAnnotationDefaultValue.new(
             Restrictions::AUTHENTICATION_CONTAINER_NAME,
             DEFAULT_AUTHENTICATION_CONTAINER_NAME
           )
-        )
+        }
 
         DEFAULT_AUTHENTICATION_CONTAINER_NAME
       end

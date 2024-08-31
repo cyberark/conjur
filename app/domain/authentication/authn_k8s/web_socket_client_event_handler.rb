@@ -33,9 +33,9 @@ module Authentication
           raise Errors::Authentication::AuthnK8s::WebSocketHandshakeError, handshake_error.inspect
         end
 
-        @logger.debug(
+        @logger.debug{
           LogMessages::Authentication::AuthnK8s::PodChannelOpen.new(@pod_name)
-        )
+        }
 
         return unless @stdin
 
@@ -59,27 +59,27 @@ module Authentication
 
         case msg_type
         when :binary
-          @logger.debug(
+          @logger.debug{
             LogMessages::Authentication::AuthnK8s::PodChannelData.new(
               @pod_name, ws_msg.channel_name, msg_data
             )
-          )
+          }
           @validate_message.call(ws_msg)
           @message_log.save_message(ws_msg)
         when :close
-          @logger.debug(
+          @logger.debug{
             LogMessages::Authentication::AuthnK8s::PodMessageData.new(
               @pod_name, "close", msg_data
             )
-          )
+          }
           @ws_client.close
         end
       end
 
       def on_close
-        @logger.debug(
+        @logger.debug{
           LogMessages::Authentication::AuthnK8s::PodChannelClosed.new(@pod_name)
-        )
+        }
 
         # The value itself doesn't matter, so we just use nil
         @close_event_queue << nil
@@ -87,9 +87,9 @@ module Authentication
 
       def on_error(err)
         error_info = err.inspect
-        @logger.debug(
+        @logger.debug{
           LogMessages::Authentication::AuthnK8s::PodError.new(@pod_name, error_info)
-        )
+        }
         @message_log.save_error_string(error_info)
 
         # The value itself doesn't matter, so we just use nil

@@ -35,7 +35,7 @@ module Authentication
         private
 
         def discover_provider
-          @logger.debug(LogMessages::Authentication::AuthnJwt::FetchingJwksFromProvider.new(@provider_uri))
+          @logger.debug{LogMessages::Authentication::AuthnJwt::FetchingJwksFromProvider.new(@provider_uri)}
           discovered_provider
         end
 
@@ -48,7 +48,7 @@ module Authentication
 
         def fetch_provider_keys
           keys = { keys: discovered_provider.jwks }
-          @logger.debug(LogMessages::Authentication::OAuth::FetchProviderKeysSuccess.new)
+          @logger.debug{LogMessages::Authentication::OAuth::FetchProviderKeysSuccess.new}
           keys
         rescue => e
           raise Errors::Authentication::OAuth::FetchProviderKeysFailed.new(

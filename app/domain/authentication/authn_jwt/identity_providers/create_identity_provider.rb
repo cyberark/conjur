@@ -26,7 +26,7 @@ module Authentication
         private
 
         def create_identity_provider
-          @logger.debug(LogMessages::Authentication::AuthnJwt::SelectingIdentityProviderInterface.new)
+          @logger.debug{LogMessages::Authentication::AuthnJwt::SelectingIdentityProviderInterface.new}
 
           if identity_should_be_in_token? and !identity_should_be_in_url?
             return identity_from_decoded_token_provider
@@ -50,11 +50,11 @@ module Authentication
         end
 
         def identity_from_decoded_token_provider
-          @logger.debug(
+          @logger.debug{
             LogMessages::Authentication::AuthnJwt::SelectedIdentityProviderInterface.new(
               TOKEN_IDENTITY_PROVIDER_INTERFACE_NAME
             )
-          )
+          }
 
           @identity_from_decoded_token_class.new(
             jwt_authenticator_input: @jwt_authenticator_input
@@ -66,11 +66,11 @@ module Authentication
         end
 
         def identity_from_url_provider
-          @logger.debug(
+          @logger.debug{
             LogMessages::Authentication::AuthnJwt::SelectedIdentityProviderInterface.new(
               URL_IDENTITY_PROVIDER_INTERFACE_NAME
             )
-          )
+          }
 
           @identity_from_url_provider_class.new(
             jwt_authenticator_input: @jwt_authenticator_input

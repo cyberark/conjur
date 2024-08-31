@@ -55,16 +55,16 @@ module Util
 
     def recalculate(args, cache_key)
       if too_many_requests?(cache_key)
-        @logger.debug(
+        @logger.debug{
           LogMessages::Util::RateLimitedCacheLimitReached.new(
             @refreshes_per_interval,
             @rate_limit_interval
           )
-        )
+        }
         return
       end
       @cache[cache_key] = @target.call(**args)
-      @logger.debug(LogMessages::Util::RateLimitedCacheUpdated.new)
+      @logger.debug{LogMessages::Util::RateLimitedCacheUpdated.new}
       @refresh_history[cache_key].push(@time.now)
     end
 
@@ -72,11 +72,11 @@ module Util
       if args.key?(:cache_key)
         cache_key = args.fetch(:cache_key)
         args.delete(:cache_key)
-        @logger.debug(
+        @logger.debug{
           LogMessages::Util::RateLimitedCacheKeyRetrieved.new(
             cache_key
           )
-        )
+        }
       else
         cache_key = args
       end

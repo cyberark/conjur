@@ -288,7 +288,7 @@ class AuthenticateController < ApplicationController
   def render_authn_token(authn_token)
     content_type = :json
     if encoded_response?
-      logger.debug(LogMessages::Authentication::EncodedJWTResponse.new)
+      logger.debug{LogMessages::Authentication::EncodedJWTResponse.new}
       content_type = :plain
       authn_token = ::Base64.strict_encode64(authn_token.to_json)
       response.set_header("Content-Encoding", "base64")
@@ -372,7 +372,7 @@ class AuthenticateController < ApplicationController
   end
 
   def status_failure_response(error)
-    logger.debug("Status check failed with error: #{error.inspect}")
+    logger.debug{"Status check failed with error: #{error.inspect}"}
 
     payload = {
       status: "error",

@@ -18,7 +18,7 @@ module Authentication
         def_delegators(:@jwt_authenticator_input, :service_id, :authenticator_name, :account)
 
         def call
-          @logger.debug(LogMessages::Authentication::AuthnJwt::FetchingClaimAliases.new)
+          @logger.debug{LogMessages::Authentication::AuthnJwt::FetchingClaimAliases.new}
           
           return empty_claim_aliases unless claim_aliases_resource_exists?
 
@@ -29,7 +29,7 @@ module Authentication
         private
 
         def empty_claim_aliases
-          @logger.debug(LogMessages::Authentication::AuthnJwt::NotConfiguredClaimAliases.new)
+          @logger.debug{LogMessages::Authentication::AuthnJwt::NotConfiguredClaimAliases.new}
           @empty_claim_aliases ||= {}
         end
 
@@ -65,7 +65,7 @@ module Authentication
           return @claim_aliases if @claim_aliases
 
           @claim_aliases ||= @parse_claim_aliases.call(claim_aliases: claim_aliases_secret_value)
-          @logger.debug(LogMessages::Authentication::AuthnJwt::FetchedClaimAliases.new(@claim_aliases))
+          @logger.debug{LogMessages::Authentication::AuthnJwt::FetchedClaimAliases.new(@claim_aliases)}
 
           @claim_aliases
         end

@@ -19,7 +19,7 @@ class EdgeSecretsController < RestController
 
   # Return a specific secret
   def specific_secret
-    logger.debug(LogMessages::Endpoints::EndpointRequested.new("specific_secret replication for edge '#{Edge.get_name_by_hostname(current_user.role_id)}'"))
+    logger.debug{LogMessages::Endpoints::EndpointRequested.new("specific_secret replication for edge '#{Edge.get_name_by_hostname(current_user.role_id)}'")}
 
     allowed_params = %i[account variable_id]
     options = params.permit(*allowed_params).slice(*allowed_params).to_h.symbolize_keys
@@ -38,17 +38,17 @@ class EdgeSecretsController < RestController
       if failed.empty?
         limit = 1
         offset = 0
-        logger.debug(LogMessages::Util::FailedSerializationOfResources.new(
+        logger.debug{LogMessages::Util::FailedSerializationOfResources.new(
           "single secrets replication for edge '#{Edge.get_name_by_hostname(current_user.role_id)}'",
           limit,
           offset,
           failed.size,
           failed.first
-        ))
+        )}
       end
       render(json: { "secrets": results, "failed": failed })
-      logger.debug(LogMessages::Endpoints::EndpointFinishedSuccessfully.new(
-        "specific_secret replication for edge '#{Edge.get_name_by_hostname(current_user.role_id)}'"))
+      logger.debug{LogMessages::Endpoints::EndpointFinishedSuccessfully.new(
+        "specific_secret replication for edge '#{Edge.get_name_by_hostname(current_user.role_id)}'")}
     rescue => e
       raise ApplicationController::InternalServerError, e.message
     end
@@ -56,8 +56,8 @@ class EdgeSecretsController < RestController
 
   # Return all secrets within offset-limit frame. Default is 0-1000
   def all_secrets
-    logger.debug(LogMessages::Endpoints::EndpointRequested.new(
-      "all_secrets replication for edge '#{Edge.get_name_by_hostname(current_user.role_id)}'"))
+    logger.debug{LogMessages::Endpoints::EndpointRequested.new(
+      "all_secrets replication for edge '#{Edge.get_name_by_hostname(current_user.role_id)}'")}
 
     allowed_params = %i[account limit offset]
     options = params.permit(*allowed_params)
@@ -112,27 +112,27 @@ class EdgeSecretsController < RestController
     results, failed = replicate_secrets(limit, offset, options, accepts_base64,selective_enabled)
 
     render(json: { "secrets": results, "failed": failed, "timestamp":  sync_time})
-    logger.debug(LogMessages::Endpoints::EndpointFinishedSuccessfullyWithLimitAndOffset.new(
+    logger.debug{LogMessages::Endpoints::EndpointFinishedSuccessfullyWithLimitAndOffset.new(
       "all_secrets replication for edge '#{Edge.get_name_by_hostname(current_user.role_id)}'",
       limit,
       offset
-    ))
+    )}
     if failed.size > 0
-      logger.debug(LogMessages::Util::FailedSerializationOfResources.new(
+      logger.debug{LogMessages::Util::FailedSerializationOfResources.new(
         "all_secrets replication for edge '#{Edge.get_name_by_hostname(current_user.role_id)}'",
         limit,
         offset,
         failed.size,
         failed.first
-      ))
+      )}
     end
   end
 
   def generate_count_response(sumItems)
     results = { count: sumItems }
     render(json: results)
-    logger.debug(LogMessages::Endpoints::EndpointFinishedSuccessfully.new(
-      "all_secrets:count replication for edge '#{Edge.get_name_by_hostname(current_user.role_id)}'"))
+    logger.debug{LogMessages::Endpoints::EndpointFinishedSuccessfully.new(
+      "all_secrets:count replication for edge '#{Edge.get_name_by_hostname(current_user.role_id)}'")}
   end
 
   def do_count_selective(options)

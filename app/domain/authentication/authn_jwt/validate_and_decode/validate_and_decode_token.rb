@@ -18,13 +18,13 @@ module Authentication
         extend(Forwardable)
 
         def call
-          @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatingToken.new)
+          @logger.debug{LogMessages::Authentication::AuthnJwt::ValidatingToken.new}
           validate_token_exists
           fetch_signing_key
           validate_signature
           fetch_jwt_claims_to_validate
           validate_claims
-          @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatedToken.new)
+          @logger.debug{LogMessages::Authentication::AuthnJwt::ValidatedToken.new}
 
           decoded_and_validated_token_with_claims
         end
@@ -45,22 +45,22 @@ module Authentication
           @jwks = signing_key_provider.call(
             force_fetch: force_fetch
           )
-          @logger.debug(LogMessages::Authentication::AuthnJwt::SigningKeysFetchedFromCache.new)
+          @logger.debug{LogMessages::Authentication::AuthnJwt::SigningKeysFetchedFromCache.new}
         end
 
         def validate_signature
-          @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatingTokenSignature.new)
+          @logger.debug{LogMessages::Authentication::AuthnJwt::ValidatingTokenSignature.new}
           ensure_keys_are_fresh
           fetch_decoded_token_for_signature_only
-          @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatedTokenSignature.new)
+          @logger.debug{LogMessages::Authentication::AuthnJwt::ValidatedTokenSignature.new}
         end
 
         def ensure_keys_are_fresh
           fetch_decoded_token_for_signature_only
         rescue
-          @logger.debug(
+          @logger.debug{
             LogMessages::Authentication::AuthnJwt::ValidateSigningKeysAreUpdated.new
-          )
+          }
           # maybe failed due to keys rotation. Force cache to read it again
           fetch_signing_key(force_fetch: true)
         end
@@ -99,7 +99,7 @@ module Authentication
         end
 
         def validate_claims
-          @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatingTokenClaims.new)
+          @logger.debug{LogMessages::Authentication::AuthnJwt::ValidatingTokenClaims.new}
 
           claims_to_validate.each do |jwt_claim|
             claim_name = jwt_claim.name
@@ -112,7 +112,7 @@ module Authentication
           end
 
           validate_token_with_claims
-          @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatedTokenClaims.new)
+          @logger.debug{LogMessages::Authentication::AuthnJwt::ValidatedTokenClaims.new}
         end
 
         def add_to_verification_options_with_claims(verification_option)

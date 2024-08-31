@@ -67,7 +67,7 @@ module Authentication
             authenticator_input: @authenticator_input,
             jwt_token: jwt_token
           )
-          @logger.debug(LogMessages::Authentication::AuthnJwt::CreatingJWTAuthenticationInputObject.new)
+          @logger.debug{LogMessages::Authentication::AuthnJwt::CreatingJWTAuthenticationInputObject.new}
           @jwt_authenticator_input = @jwt_authenticator_input_class.new(
             authenticator_input: @authenticator_input,
             decoded_token: decoded_token
@@ -116,9 +116,9 @@ module Authentication
         end
 
         def validate_resource_restrictions
-          @logger.debug(LogMessages::Authentication::AuthnJwt::CreateJwtRestrictionsValidatorInstance.new)
+          @logger.debug{LogMessages::Authentication::AuthnJwt::CreateJwtRestrictionsValidatorInstance.new}
           @validate_resource_restrictions ||= @validate_resource_restrictions_class.new(extract_resource_restrictions: extract_resource_restrictions)
-          @logger.debug(LogMessages::Authentication::AuthnJwt::CreatedJwtRestrictionsValidatorInstance.new)
+          @logger.debug{LogMessages::Authentication::AuthnJwt::CreatedJwtRestrictionsValidatorInstance.new}
           @validate_resource_restrictions
         end
       end

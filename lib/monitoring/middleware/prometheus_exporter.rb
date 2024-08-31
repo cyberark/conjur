@@ -72,7 +72,7 @@ module Monitoring
           loggerTime = 0
         end
 
-        Rails.logger.debug("Telemetry data: #{response}")
+        Rails.logger.debug{"Telemetry data: #{response}"}
 
         currentTime = Time.now.to_f
         if (currentTime - loggerTime > 1800)

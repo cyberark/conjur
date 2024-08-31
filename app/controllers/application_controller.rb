@@ -330,7 +330,7 @@ class ApplicationController < ActionController::API
   end
 
   def render_secret_not_found e
-    logger.debug(e.to_s)
+    logger.debug{e.to_s}
     render(json: {
       error: {
         code: "not_found",
@@ -340,7 +340,7 @@ class ApplicationController < ActionController::API
   end
 
   def render_record_not_found e
-    logger.debug(e.to_s)
+    logger.debug{e.to_s}
     render(json: {
       error: {
         code: "not_found",

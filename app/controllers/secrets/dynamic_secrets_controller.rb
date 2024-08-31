@@ -7,7 +7,7 @@ class DynamicSecretsController < V2RestController
     branch = params[:branch]
     secret_name = params[:name]
     log_message = "Create Dynamic Secret #{branch}/#{secret_name}"
-    logger.debug(LogMessages::Endpoints::EndpointRequested.new(log_message))
+    logger.debug{LogMessages::Endpoints::EndpointRequested.new(log_message)}
 
     # Create the dynamic type class
     dynamic_secret = Secrets::SecretTypes::DynamicSecretTypeFactory.new.create_dynamic_secret_type(params[:method])
@@ -24,7 +24,7 @@ class DynamicSecretsController < V2RestController
     # Create variable resource
     created_secret = dynamic_secret.create_secret(branch, secret_name, params)
 
-    logger.debug(LogMessages::Endpoints::EndpointFinishedSuccessfully.new(log_message))
+    logger.debug{LogMessages::Endpoints::EndpointFinishedSuccessfully.new(log_message)}
     render(json: created_secret, status: :created)
     send_success_audit('secret',"create", branch, secret_name, request.path, body_payload)
   rescue => e
@@ -37,7 +37,7 @@ class DynamicSecretsController < V2RestController
     secret_name = params[:name]
 
     log_message = "Replace Dynamic Secret #{branch}/#{secret_name}"
-    logger.debug(LogMessages::Endpoints::EndpointRequested.new(log_message))
+    logger.debug{LogMessages::Endpoints::EndpointRequested.new(log_message)}
 
     dynamic_secret = Secrets::SecretTypes::DynamicSecretTypeFactory.new.create_dynamic_secret_type(params[:method])
 
@@ -53,7 +53,7 @@ class DynamicSecretsController < V2RestController
     # Update secret
     updated_secret = dynamic_secret.replace_secret(branch, secret_name, secret, params)
 
-    logger.debug(LogMessages::Endpoints::EndpointFinishedSuccessfully.new(log_message))
+    logger.debug{LogMessages::Endpoints::EndpointFinishedSuccessfully.new(log_message)}
     render(json: updated_secret, status: :ok)
     send_success_audit('secret',"change", branch, secret_name, request.path, body_payload)
   rescue => e
@@ -67,7 +67,7 @@ class DynamicSecretsController < V2RestController
     secret_name = request.params[:name]
 
     get_secret_log_message = "Get Dynamic Secret #{branch}/#{secret_name}"
-    logger.debug(LogMessages::Endpoints::EndpointRequested.new(get_secret_log_message))
+    logger.debug{LogMessages::Endpoints::EndpointRequested.new(get_secret_log_message)}
 
     dynamic_secret = Secrets::SecretTypes::DynamicSecretType.new
     variable = dynamic_secret.get_input_validation(request.params)
@@ -75,7 +75,7 @@ class DynamicSecretsController < V2RestController
     check_read_permissions(dynamic_secret, variable)
 
     response = dynamic_secret.as_json(branch, secret_name, variable)
-    logger.debug(LogMessages::Endpoints::EndpointFinishedSuccessfully.new(get_secret_log_message))
+    logger.debug{LogMessages::Endpoints::EndpointFinishedSuccessfully.new(get_secret_log_message)}
     render(json: response, status: :ok)
     send_success_audit('secret',"get", branch, secret_name, request.path, nil)
   rescue => e
