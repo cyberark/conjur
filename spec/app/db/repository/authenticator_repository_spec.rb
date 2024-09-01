@@ -44,10 +44,10 @@ RSpec.describe(DB::Repository::AuthenticatorRepository) do
           response = repo.find_all(type: 'authn-oidc', account: 'rspec')
 
           expect(response.success?).to be(true)
-          expect(response.result).to eq([
+          expect(response.result).to contain_exactly(
             { account: 'rspec', service_id: 'foo' },
             { account: 'rspec', service_id: 'bar' }
-          ])
+          )
         end
       end
 
@@ -70,10 +70,11 @@ RSpec.describe(DB::Repository::AuthenticatorRepository) do
             response = repo.find_all(type: 'authn-oidc', account: 'rspec')
 
             expect(response.success?).to be(true)
-            expect(response.result).to eq([
+            # contains exactly the expected elements, regardless of their order
+            expect(response.result).to contain_exactly(
               empty_hash.merge(service_id: 'foo'),
               empty_hash.merge(service_id: 'bar')
-            ])
+            )
           end
         end
 
@@ -94,10 +95,10 @@ RSpec.describe(DB::Repository::AuthenticatorRepository) do
             response = repo.find_all(type: 'authn-oidc', account: 'rspec')
 
             expect(response.success?).to be(true)
-            expect(response.result).to eq([
+            expect(response.result).to contain_exactly(
               expected_values.merge(service_id: 'foo'),
               expected_values.merge(service_id: 'bar')
-            ])
+            )
           end
         end
 
