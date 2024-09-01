@@ -355,7 +355,7 @@ module Loader
 
       def verify(role, member)
         unless %w[user host group layer].include?(member.role.role_kind) and %w[group layer].include?(role.role_kind)
-          raise Exceptions::InvalidPolicyObject.new(role.id, message: "Type #{member.role.role_kind} cannot be a member of #{role.role_kind}")
+          raise Exceptions::InvalidPolicyObject.new(role.id, message: "'#{member.role.role_kind}' cannot be a member of '#{role.role_kind}'")
         end
       end
     end
@@ -431,7 +431,6 @@ module Loader
       end
 
       def delete_recursive!(record_id)
-        verify(record_id)
         # First delete all resources and roles that are owned by this resource
         ::Resource.where(owner_id: record_id).each do |resource|
           delete_recursive!(resource.resource_id)
@@ -452,12 +451,6 @@ module Loader
         role.destroy if role
       end
 
-      def verify(record_id)
-        return if current_user.identifier == 'admin'
-        if record_id.ends_with?(":group:data/authn-admins") or record_id.ends_with?(":group:data/issuer-admins")
-          raise Exceptions::InvalidPolicyObject.new(record_id, message: "group #{record_id} is forbidden for deletion")
-        end
-      end
     end
   end
 end
