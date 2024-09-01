@@ -9,7 +9,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
-## [1.0.40-cloud] - 2024-09-17
+## [1.0.40-cloud] - 2024-09-29
+### Added
+- Cache role membership in edge replication for Atlantis
+
 ### Fixed
 - Fixed assume role when credentials expired
 

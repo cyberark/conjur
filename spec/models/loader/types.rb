@@ -283,26 +283,28 @@ describe Loader::Types::Variable do
   end
 end
 describe Loader::Types::Delete do
+  let(:policy_record) { double(PolicyVersion) }
+  let(:record) { double("record") }
+  let(:user_owner_id) { 'rspec:user:admin' }
+
+  before do
+    Role.find_or_create(role_id: user_owner_id)
+    allow(policy_record).to receive(:record).and_return(record)
+  end
+
+  subject { described_class.new(policy_record) }
+
   context "Delete from Redis" do
 
     let(:account) { "rspec" }
     let(:data_var_id) { "#{account}:variable:data/conjur_secret" }
     let(:my_host) { "#{account}:host:data/my-host" }
-    let(:user_owner_id) { 'rspec:user:admin' }
-    let(:policy_record) { double(PolicyVersion) }
-    let(:record) { double("record") }
-
-    before do
-      Role.find_or_create(role_id: user_owner_id)
-      allow(policy_record).to receive(:record).and_return(record)
-    end
-
-    subject { described_class.new(policy_record) }
 
     it "Variable is deleted from Redis on !delete" do
       Resource.create(resource_id: data_var_id, owner_id: user_owner_id)
       allow(record).to receive(:resourceid).and_return(data_var_id)
       expect(Rails.cache).to receive(:delete).with(data_var_id)
+      expect(Rails.cache).to receive(:delete).with(Secrets::RedisHandler::PREFIXES[:resource] + data_var_id)
       subject.delete!
     end
 
@@ -310,7 +312,7 @@ describe Loader::Types::Delete do
       Resource.create(resource_id: my_host, owner_id: user_owner_id)
       Role.find_or_create(role_id: my_host)
       allow(record).to receive(:resourceid).and_return(my_host)
-      expect(Rails.cache).to_not receive(:delete)
+      expect(Rails.cache).to_not receive(:delete).with(data_var_id)
       subject.delete!
     end
 
@@ -320,18 +322,45 @@ describe Loader::Types::Delete do
       expect{ subject.delete! }.to_not raise_error
     end
   end
+
+  context "delete!" do
+    let(:my_group) { 'rspec:group:my_group' }
+    it "calls clean_membership_cache" do
+      allow(record).to receive(:roleid).and_return(my_group)
+
+      expect(subject).to receive(:clean_membership_cache).and_call_original
+
+      subject.delete!
+    end
+  end
 end
 
 describe Loader::Types::Grant do
   let(:policy_record) { double(PolicyVersion) }
-  subject { described_class.new(policy_record) }
-  context "verify types" do
+  let(:role) { double(Conjur::PolicyParser::Types::Role)}
+  let(:member_role) {double(Conjur::PolicyParser::Types::Role)}
+  let(:member) { double(Conjur::PolicyParser::Types::Member).tap do |m|
+    allow(m).to receive(:role).and_return(member_role)
+  end}
 
-    let(:role) { double(Conjur::PolicyParser::Types::Role)}
-    let(:member_role) {double(Conjur::PolicyParser::Types::Role)}
-    let(:member) { double(Conjur::PolicyParser::Types::Member).tap do |m|
-      allow(m).to receive(:role).and_return(member_role)
-    end}
+  subject { described_class.new(policy_record) }
+
+  context "create!" do
+    it "calls clean_membership_cache" do
+      allow(policy_record).to receive(:roles).and_return([Conjur::PolicyParser::Types::Group.new('rspec:group:my_group')])
+      allow(policy_record).to receive(:members).and_return([Conjur::PolicyParser::Types::Member.new(
+        Conjur::PolicyParser::Types::Host.new('rspec:host:my_host'))])
+      allow(RoleMembership).to receive(:create)
+      allow(subject).to receive(:find_roleid)
+      allow(subject).to receive(:verify).and_return(true)
+
+      expect(subject).to receive(:clean_membership_cache).and_call_original
+
+      subject.create!
+    end
+  end
+
+  context "verify types" do
     it "does not raise error for valid types" do
       %w[group layer].each do |r|
         %w[user host group layer].each do |m|
@@ -355,5 +384,48 @@ describe Loader::Types::Grant do
       end
     end
   end
+end
+
+describe Loader::Types::Policy do
+  let(:policy_record) { double(PolicyVersion) }
+  let(:role) { Conjur::PolicyParser::Types::User.new('rspec:user:admin') }
+  let(:resource) { Conjur::PolicyParser::Types::Resource.new('rspec:policy:my_branch') }
+
+  subject { described_class.new(policy_record) }
+
+  it "calls clean_membership_cache" do
+    allow(policy_record).to receive(:role).and_return(role)
+    allow(policy_record).to receive(:resource).and_return(resource)
+    allow(policy_record).to receive(:body).and_return(nil)
+    allow_any_instance_of(Loader::Types::User).to receive(:create!)
+    allow_any_instance_of(Loader::Types::Resource).to receive(:create!)
+
+    expect(subject).to receive(:clean_membership_cache).and_call_original
+
+    subject.create!
+  end
+end
+
+describe Loader::Types::Revoke do
+  let(:policy_record) { double(PolicyVersion) }
+  let(:external_handler) { double('externalHandler') }
+
+  subject { described_class.new(policy_record, external_handler) }
+
+  context "delete!" do
+    it "calls clean_membership_cache" do
+      allow(policy_record).to receive(:role).and_return(Conjur::PolicyParser::Types::Group.new('rspec:group:my_group'))
+      allow(policy_record).to receive(:member).and_return(Conjur::PolicyParser::Types::Host.new('rspec:host:my_host'))
+      allow(RoleMembership).to receive(:destroy)
+      allow(subject).to receive(:find_roleid)
+      allow(external_handler).to receive(:policy_id).and_return('rspec:policy:my_branch')
+
+      expect(subject).to receive(:clean_membership_cache).and_call_original
+
+      subject.delete!
+    end
+  end
+
+
 end
 

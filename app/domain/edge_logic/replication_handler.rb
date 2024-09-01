@@ -1,4 +1,5 @@
 module ReplicationHandler
+  include Secrets::RedisHandler
 
   def replicate_hosts(scope)
     results = []
@@ -16,12 +17,16 @@ module ReplicationHandler
         host_to_return[:api_key] = Base64.strict_encode64(hmac_api_key(host.api_key, salt))
         host_to_return[:salt] = Base64.strict_encode64(salt)
       end
-      all_roles = host.all_roles
-      if Rails.application.config.conjur_config.try(:conjur_edge_rep_only_host_members)
-        # Filter out memberships to host, which probably indicates ownership rather than real membership
-        all_roles = all_roles.where(~:role_id.like('%:host:%'))
+      membership_proc = Proc.new do
+        all_roles = host.all_roles
+        if Rails.application.config.conjur_config.try(:conjur_edge_is_atlantis)
+          # Filter out memberships to host, which probably indicates ownership rather than real membership
+          all_roles = all_roles.where(~:role_id.like('%:host:%'))
+        end
+        all_roles.all.select { |h| h[:role_id] != (host[:role_id]) }
       end
-      host_to_return[:memberships] = all_roles.all.select { |h| h[:role_id] != (host[:role_id]) }
+      host_to_return[:memberships] = Rails.application.config.conjur_config.try(:conjur_edge_is_atlantis) ?
+                                       get_role_membership(host[:role_id], &membership_proc) : membership_proc.call
       host_to_return[:annotations] = host[:annotations] == "[null]" ? [] : JSON.parse(host[:annotations])
       results << host_to_return
     end
