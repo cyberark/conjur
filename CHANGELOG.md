@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Fixed pubsub scheduler to not hit CPU, removed rake and calling the code itself
 - Fixed debug log sent DB queries, change debug logs in conjur to logger.debug{} 
 - Change the way to fetch Edge attribute name from .name to [:name]
+
 ## [1.0.36-cloud] - 2024-09-01
 ### Added
 - Restrict grant only to appropriate types 
