@@ -17,16 +17,16 @@ module Conjur
         @logger = logger
         @implementations = implementations.to_set
 
-        @logger.debug(
+        @logger.debug{
           "Extension::Extension - Using extension classes: " \
           "#{@implementations.map(&:name).join(', ')}"
-        )
+        }
       end
 
       def call(method, **kwargs)
-        @logger.debug(
+        @logger.debug{
           "Extension::Extension - Calling #{method}"
-        )
+        }
 
         @implementations.each do |implementation|
           implementation.call(method, **kwargs)

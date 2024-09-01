@@ -28,12 +28,12 @@ module Authentication
           raise Errors::Authentication::Jwt::TokenClaimNotFoundOrEmpty, token_claim
         end
 
-        @logger.debug(
+        @logger.debug{
           LogMessages::Authentication::Jwt::ExtractedClaimFromToken.new(
             token_claim,
             token_claim_value
           )
-        )
+        }
         token_claim_value
       end
     end

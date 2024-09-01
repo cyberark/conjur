@@ -13,7 +13,7 @@ class StaticSecretsController < V2RestController
     branch = params[:branch]
     secret_name = params[:name]
     log_message = "Create Static Secret #{branch}/#{secret_name}"
-    logger.debug(LogMessages::Endpoints::EndpointRequested.new(log_message))
+    logger.debug{LogMessages::Endpoints::EndpointRequested.new(log_message)}
 
     # Create the secret type class
     static_secret = Secrets::SecretTypes::StaticSecretType.new
@@ -30,7 +30,7 @@ class StaticSecretsController < V2RestController
     # Create variable resource
     created_secret = static_secret.create_secret(branch, secret_name, params)
 
-    logger.debug(LogMessages::Endpoints::EndpointFinishedSuccessfully.new(log_message))
+    logger.debug{LogMessages::Endpoints::EndpointFinishedSuccessfully.new(log_message)}
     render(json: created_secret, status: :created)
     send_success_audit('secret',"create", branch, secret_name, request.path, body_payload)
   rescue => e
@@ -44,7 +44,7 @@ class StaticSecretsController < V2RestController
     secret_name = request.params[:name]
 
     get_secret_log_message = "Get Static Secret #{branch}/#{secret_name}"
-    logger.debug(LogMessages::Endpoints::EndpointRequested.new(get_secret_log_message))
+    logger.debug{LogMessages::Endpoints::EndpointRequested.new(get_secret_log_message)}
 
     secret_type_handler = Secrets::SecretTypes::StaticSecretType.new
     variable = secret_type_handler.get_input_validation(request.params)
@@ -52,7 +52,7 @@ class StaticSecretsController < V2RestController
     check_read_permissions(secret_type_handler, variable)
 
     response = secret_type_handler.as_json(branch, secret_name, variable)
-    logger.debug(LogMessages::Endpoints::EndpointFinishedSuccessfully.new(get_secret_log_message))
+    logger.debug{LogMessages::Endpoints::EndpointFinishedSuccessfully.new(get_secret_log_message)}
     render(json: response, status: :ok)
     send_success_audit('secret',"get", branch, secret_name, request.path, nil)
   rescue => e
@@ -66,7 +66,7 @@ class StaticSecretsController < V2RestController
     secret_name = params[:name]
 
     log_message = "Replace Static Secret #{branch}/#{secret_name}"
-    logger.debug(LogMessages::Endpoints::EndpointRequested.new(log_message))
+    logger.debug{LogMessages::Endpoints::EndpointRequested.new(log_message)}
 
     static_secret = Secrets::SecretTypes::StaticSecretType.new
 
@@ -82,7 +82,7 @@ class StaticSecretsController < V2RestController
     # Update secret
     updated_secret = static_secret.replace_secret(branch, secret_name, secret, params)
 
-    logger.debug(LogMessages::Endpoints::EndpointFinishedSuccessfully.new(log_message))
+    logger.debug{LogMessages::Endpoints::EndpointFinishedSuccessfully.new(log_message)}
     render(json: updated_secret, status: :ok)
     send_success_audit('secret',"change", branch, secret_name, request.path, body_payload)
   rescue => e

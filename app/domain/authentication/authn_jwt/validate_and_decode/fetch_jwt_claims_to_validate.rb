@@ -17,14 +17,14 @@ module Authentication
         inputs: %i[authenticator_input decoded_token]
       ) do
         def call
-          @logger.debug(LogMessages::Authentication::AuthnJwt::FetchingJwtClaimsToValidate.new)
+          @logger.debug{LogMessages::Authentication::AuthnJwt::FetchingJwtClaimsToValidate.new}
           validate_decoded_token_exists
           fetch_jwt_claims_to_validate
-          @logger.debug(
+          @logger.debug{
             LogMessages::Authentication::AuthnJwt::FetchedJwtClaimsToValidate.new(
               jwt_claims_names_to_validate
             )
-          )
+          }
 
           jwt_claims_to_validate
         end
@@ -55,14 +55,14 @@ module Authentication
 
         def add_optional_claims_to_jwt_claims_list
           OPTIONAL_CLAIMS.each do |optional_claim|
-            @logger.debug(LogMessages::Authentication::AuthnJwt::CheckingJwtClaimToValidate.new(optional_claim))
+            @logger.debug{LogMessages::Authentication::AuthnJwt::CheckingJwtClaimToValidate.new(optional_claim)}
 
             add_to_jwt_claims_list(optional_claim) if @decoded_token[optional_claim]
           end
         end
 
         def add_to_jwt_claims_list(claim)
-          @logger.debug(LogMessages::Authentication::AuthnJwt::AddingJwtClaimToValidate.new(claim))
+          @logger.debug{LogMessages::Authentication::AuthnJwt::AddingJwtClaimToValidate.new(claim)}
 
           jwt_claims_to_validate.push(
             @jwt_claim_class.new(

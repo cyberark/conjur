@@ -35,12 +35,12 @@ module Authentication
         aws_role_name = arn_parts[5].split('/')[1]
         host_to_match = "#{host_prefix}/#{aws_account}/#{aws_role_name}"
 
-        @logger.debug(
+        @logger.debug{
           LogMessages::Authentication::AuthnIam::AttemptToMatchHost.new(
             login,
             host_to_match
           )
-        )
+        }
 
         login.eql?(host_to_match)
       end
@@ -62,7 +62,7 @@ module Authentication
       
         # If the discovered region is `us-east-1`, fallback to the global endpoint
         if region == 'us-east-1'
-          @logger.debug(LogMessages::Authentication::AuthnIam::RetryWithGlobalEndpoint.new)
+          @logger.debug{LogMessages::Authentication::AuthnIam::RetryWithGlobalEndpoint.new}
           fallback_response = aws_call(region: 'global', headers: signed_headers)
           return fallback_response if fallback_response.code.to_i == 200
         end

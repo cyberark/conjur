@@ -46,14 +46,14 @@ class ConjurDynamicEngineClient
     request_body[:issuer]["data"].delete("secret_access_key")
     request_to_log = request_body.to_json
     # Send the request and get the response
-    @logger.debug(LogMessages::Secrets::DynamicSecretRequestBody.new(@request_id, request_to_log))
+    @logger.debug{LogMessages::Secrets::DynamicSecretRequestBody.new(@request_id, request_to_log)}
     begin
       response = @client.request(secret_request)
     rescue => e
       @logger.error(LogMessages::Secrets::DynamicSecretRemoteRequestFailure.new(@request_id, e.message))
       raise ApplicationController::InternalServerError, e.message
     end
-    @logger.debug(LogMessages::Secrets::DynamicSecretRemoteResponse.new(@request_id, response.code))
+    @logger.debug{LogMessages::Secrets::DynamicSecretRemoteResponse.new(@request_id, response.code)}
 
     case response.code.to_i
     when 200..299

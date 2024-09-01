@@ -11,11 +11,11 @@ module Authentication
         inputs: %i[claim_name]
       ) do
         def call
-          @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatingClaimName.new(@claim_name))
+          @logger.debug{LogMessages::Authentication::AuthnJwt::ValidatingClaimName.new(@claim_name)}
           validate_claim_name_exists
           validate_claim_name_value
           validate_claim_is_allowed
-          @logger.debug(LogMessages::Authentication::AuthnJwt::ValidatedClaimName.new(@claim_name))
+          @logger.debug{LogMessages::Authentication::AuthnJwt::ValidatedClaimName.new(@claim_name)}
         end
 
         private
@@ -38,7 +38,7 @@ module Authentication
         end
         
         def validate_claim_is_allowed
-          @logger.debug(LogMessages::Authentication::AuthnJwt::ClaimsDenyListValue.new(@deny_claims_list_value))
+          @logger.debug{LogMessages::Authentication::AuthnJwt::ClaimsDenyListValue.new(@deny_claims_list_value)}
           return if @deny_claims_list_value.blank?
 
           if @deny_claims_list_value.include?(@claim_name)

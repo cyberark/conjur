@@ -96,7 +96,7 @@ class PolicyVersion < Sequel::Model(:policy_versions)
 
   def log_versions_to_expire
     expired_versions.all.each do |policy_version|
-      Rails.logger.debug(
+      Rails.logger.debug{
         "Deleting policy version: #{policy_version.slice(
           :version,
           :resource_id,
@@ -104,7 +104,7 @@ class PolicyVersion < Sequel::Model(:policy_versions)
           :created_at,
           :client_ip
         )}]"
-      )
+      }
     end
   end
 

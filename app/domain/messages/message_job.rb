@@ -26,10 +26,10 @@ class MessageJob
 
   def handle_process_message(lock_acquired)
     if lock_acquired
-      @logger.debug("Acquired lock with id #{get_lock_identifier}, starting processing message.")
+      @logger.debug{"Acquired lock with id #{get_lock_identifier}, starting processing message."}
       process_message
     else
-      @logger.debug("Could not acquire lock with id #{get_lock_identifier}")
+      @logger.debug{"Could not acquire lock with id #{get_lock_identifier}"}
     end
   end
 

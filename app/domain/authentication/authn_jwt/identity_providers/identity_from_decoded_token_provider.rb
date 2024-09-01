@@ -15,11 +15,11 @@ module Authentication
         inputs: %i[jwt_authenticator_input]
       ) do
         def call
-          @logger.debug(
+          @logger.debug{
             LogMessages::Authentication::AuthnJwt::FetchingIdentityByInterface.new(
               TOKEN_IDENTITY_PROVIDER_INTERFACE_NAME
             )
-          )
+          }
 
           # Ensures token has id claim, and stores its value in @id_from_token.
           fetch_id_from_token
@@ -36,12 +36,12 @@ module Authentication
           #     File.join('/a/b/', '/c/d/', '/e') => "/a/b/c/d/e"
           full_host_id = File.join(host_prefix, id_path, @id_from_token)
 
-          @logger.debug(
+          @logger.debug{
             LogMessages::Authentication::AuthnJwt::FetchedIdentityByInterface.new(
               full_host_id,
               TOKEN_IDENTITY_PROVIDER_INTERFACE_NAME
             )
-          )
+          }
 
           full_host_id
         end
@@ -51,20 +51,20 @@ module Authentication
         def fetch_id_from_token
           return @id_from_token if @id_from_token
 
-          @logger.debug(
+          @logger.debug{
             LogMessages::Authentication::AuthnJwt::CheckingIdentityFieldExists.new(id_claim_key)
-          )
+          }
 
           @id_from_token = id_claim_value
           id_claim_value_not_empty
           id_claim_value_is_string
 
-          @logger.debug(
+          @logger.debug{
             LogMessages::Authentication::AuthnJwt::FoundJwtFieldInToken.new(
               id_claim_key,
               @id_from_token
             )
-          )
+          }
 
           @id_from_token
         end

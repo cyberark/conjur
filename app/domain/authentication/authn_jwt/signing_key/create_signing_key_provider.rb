@@ -24,7 +24,7 @@ module Authentication
         inputs: %i[authenticator_input]
       ) do
         def call
-          @logger.debug(LogMessages::Authentication::AuthnJwt::SelectingSigningKeyInterface.new)
+          @logger.debug{LogMessages::Authentication::AuthnJwt::SelectingSigningKeyInterface.new}
           build_signing_key_settings
           create_signing_key_provider
         end
@@ -61,9 +61,9 @@ module Authentication
         end
 
         def fetch_provider_uri_signing_key
-          @logger.debug(
+          @logger.debug{
             LogMessages::Authentication::AuthnJwt::SelectedSigningKeyInterface.new(PROVIDER_URI_INTERFACE_NAME)
-          )
+          }
           @fetch_provider_uri_signing_key ||= @fetch_provider_uri_signing_key_class.new(
             provider_uri: signing_key_settings.uri,
             ca_certificate: signing_key_settings.ca_cert,
@@ -72,9 +72,9 @@ module Authentication
         end
 
         def fetch_jwks_uri_signing_key
-          @logger.debug(
+          @logger.debug{
             LogMessages::Authentication::AuthnJwt::SelectedSigningKeyInterface.new(JWKS_URI_INTERFACE_NAME)
-          )
+          }
           @fetch_jwks_uri_signing_key ||= @fetch_jwks_uri_signing_key_class.new(
             jwks_uri: signing_key_settings.uri,
             cert_store: signing_key_settings.cert_store,
@@ -83,9 +83,9 @@ module Authentication
         end
 
         def fetch_public_keys_signing_key
-          @logger.debug(
+          @logger.debug{
             LogMessages::Authentication::AuthnJwt::SelectedSigningKeyInterface.new(PUBLIC_KEYS_INTERFACE_NAME)
-          )
+          }
           @fetch_public_keys_signing_key ||= @fetch_public_keys_signing_key_class.new(
             signing_keys: signing_key_settings.signing_keys
           )

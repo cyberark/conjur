@@ -29,7 +29,7 @@ module Authentication
         end
 
         def get_verification_option_by_jwt_claim
-          @logger.debug(LogMessages::Authentication::AuthnJwt::ConvertingJwtClaimToVerificationOption.new(claim_name))
+          @logger.debug{LogMessages::Authentication::AuthnJwt::ConvertingJwtClaimToVerificationOption.new(claim_name)}
 
           case claim_name
           when EXP_CLAIM_NAME, NBF_CLAIM_NAME
@@ -48,12 +48,12 @@ module Authentication
             raise Errors::Authentication::AuthnJwt::UnsupportedClaim, claim_name
           end
 
-          @logger.debug(
+          @logger.debug{
             LogMessages::Authentication::AuthnJwt::ConvertedJwtClaimToVerificationOption.new(
               claim_name,
               @verification_option.to_s
             )
-          )
+          }
 
           @verification_option
         end

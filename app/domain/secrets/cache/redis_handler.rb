@@ -38,9 +38,9 @@ module Secrets
     def delete_redis_secret(key)
       return unless secret_applicable?(key)
 
-      Rails.logger.debug(LogMessages::Redis::RedisAccessStart.new('Delete'))
+      Rails.logger.debug{LogMessages::Redis::RedisAccessStart.new('Delete')}
       response = Rails.cache.delete(key)
-      Rails.logger.debug(LogMessages::Redis::RedisAccessEnd.new('Delete', "Deleted #{response} items"))
+      Rails.logger.debug{LogMessages::Redis::RedisAccessEnd.new('Delete', "Deleted #{response} items")}
     rescue => e
       Rails.logger.error(LogMessages::Redis::RedisAccessFailure.new('Delete', e.message))
       raise e
@@ -64,9 +64,9 @@ module Secrets
 
     def delete_redis_resource(resource_id)
       return unless redis_configured?
-      Rails.logger.debug(LogMessages::Redis::RedisAccessStart.new('Delete'))
+      Rails.logger.debug{LogMessages::Redis::RedisAccessStart.new('Delete')}
       response = Rails.cache.delete(resource_id)
-      Rails.logger.debug(LogMessages::Redis::RedisAccessEnd.new('Delete', "Deleted #{response} items"))
+      Rails.logger.debug{LogMessages::Redis::RedisAccessEnd.new('Delete', "Deleted #{response} items")}
     rescue => e
       Rails.logger.error(LogMessages::Redis::RedisAccessFailure.new('Delete resource', e.message))
       raise e
@@ -86,17 +86,17 @@ module Secrets
     end
 
     def write_user(key, value)
-      Rails.logger.debug(LogMessages::Redis::RedisAccessStart.new('Write'))
+      Rails.logger.debug{LogMessages::Redis::RedisAccessStart.new('Write')}
       response = Rails.cache.write(USER_PATTERN + key, value)
-      Rails.logger.debug(LogMessages::Redis::RedisAccessEnd.new('write user', response))
+      Rails.logger.debug{LogMessages::Redis::RedisAccessEnd.new('write user', response)}
       response
     end
 
     def read_user(key)
-      Rails.logger.debug(LogMessages::Redis::RedisAccessStart.new('Read'))
+      Rails.logger.debug{LogMessages::Redis::RedisAccessStart.new('Read')}
       value = Rails.cache.read(USER_PATTERN + key)
       is_found = value.nil? ? "not " : ""
-      Rails.logger.debug(LogMessages::Redis::RedisAccessEnd.new('Read', "User #{key} was #{is_found} in Redis"))
+      Rails.logger.debug{LogMessages::Redis::RedisAccessEnd.new('Read', "User #{key} was #{is_found} in Redis")}
       value
     end
     def get_redis_user(role_id)
@@ -114,34 +114,34 @@ module Secrets
     end
 
     def read_secret(key)
-      Rails.logger.debug(LogMessages::Redis::RedisAccessStart.new('Read'))
+      Rails.logger.debug{LogMessages::Redis::RedisAccessStart.new('Read')}
       value = Rails.cache.read(key)&.
         yield_self {|res| Slosilo::EncryptedAttributes.decrypt(res, aad: key)}
       is_found = value.nil? ? "not " : ""
-      Rails.logger.debug(LogMessages::Redis::RedisAccessEnd.new('Read', "Secret #{key} was #{is_found} in Redis"))
+      Rails.logger.debug{LogMessages::Redis::RedisAccessEnd.new('Read', "Secret #{key} was #{is_found} in Redis")}
       value
     end
 
     def read_resource(key)
-      Rails.logger.debug(LogMessages::Redis::RedisAccessStart.new('Read'))
+      Rails.logger.debug{LogMessages::Redis::RedisAccessStart.new('Read')}
       value = Rails.cache.read(RESOURCE_PREFIX + key)
       is_found = value.nil? ? "not " : ""
-      Rails.logger.debug(LogMessages::Redis::RedisAccessEnd.new('Read', "Resource #{key} was #{is_found} in Redis"))
+      Rails.logger.debug{LogMessages::Redis::RedisAccessEnd.new('Read', "Resource #{key} was #{is_found} in Redis")}
       value
     end
 
     def write_resource(key, value)
-      Rails.logger.debug(LogMessages::Redis::RedisAccessStart.new('Write'))
+      Rails.logger.debug{LogMessages::Redis::RedisAccessStart.new('Write')}
       response = Rails.cache.write(RESOURCE_PREFIX + key, value)
-      Rails.logger.debug(LogMessages::Redis::RedisAccessEnd.new('write resource', response))
+      Rails.logger.debug{LogMessages::Redis::RedisAccessEnd.new('write resource', response)}
       response
     end
 
     def write_secret(key, value)
-      Rails.logger.debug(LogMessages::Redis::RedisAccessStart.new('Write'))
+      Rails.logger.debug{LogMessages::Redis::RedisAccessStart.new('Write')}
       response = Slosilo::EncryptedAttributes.encrypt(value, aad: key)
                                              .yield_self {|val| Rails.cache.write(key, val)}
-      Rails.logger.debug(LogMessages::Redis::RedisAccessEnd.new('write secret', response))
+      Rails.logger.debug{LogMessages::Redis::RedisAccessEnd.new('write secret', response)}
       response
     end
 

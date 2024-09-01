@@ -93,9 +93,9 @@ module Conjur
         return false unless exist?(extension_path)
 
         # Load the extension source file
-        @logger.debug(
+        @logger.debug{
           "Extension::Repository - Loading extension from '#{extension_path}'"
-        )
+        }
         return false unless load(extension_path, wrap: true)
 
         # Record that we've loaded this extension
@@ -121,10 +121,10 @@ module Conjur
         self.class.registered_extension_classes
           .select { |ext| ext.kind == kind }
           .map do |ext|
-            @logger.debug(
+            @logger.debug{
               "Extension::Repository - Initializing extension " \
               "#{ext.implementation_class.name}"
-            )
+            }
 
             @implementation_cls.from_class(
               ext.implementation_class,
@@ -145,10 +145,10 @@ module Conjur
       def already_loaded?(name)
         return false unless self.class.loaded_extensions.include?(name)
 
-        @logger.debug(
+        @logger.debug{
           "Extension::Repository - Extension " \
           "'#{name}' is already loaded"
-        )
+        }
 
         true
       end
@@ -156,21 +156,21 @@ module Conjur
       def exist?(path)
         dir = File.dirname(path)
         unless File.directory?(dir)
-          @logger.debug(
+          @logger.debug{
             "Extension::Repository - Expected extension " \
             "directory at '#{dir}', but this path does not exist " \
             "or is not a directory"
-          )
+          }
 
           return false
         end
 
         unless File.file?(path)
-          @logger.debug(
+          @logger.debug{
             "Extension::Repository - Expected extension " \
             "file at '#{path}', but this path does not exist or is " \
             "not a file"
-          )
+          }
 
           return false
         end

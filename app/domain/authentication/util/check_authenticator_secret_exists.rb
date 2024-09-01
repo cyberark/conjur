@@ -19,7 +19,7 @@ module Authentication
       private
 
       def check_authenticator_secret_exists
-        @logger.debug(LogMessages::Util::CheckingResourceExists.new(resource_id))
+        @logger.debug{LogMessages::Util::CheckingResourceExists.new(resource_id)}
         resource ? true : false
       end
 

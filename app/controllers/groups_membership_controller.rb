@@ -8,9 +8,11 @@ class GroupsMembershipController < V2RestController
   NUM_OF_ADD_DATA_PARAMS = 7
   NUM_OF_REMOVE_DATA_PARAMS = 6
 
+  def log_message_add(params)
+    "Add member #{params[:kind]}:#{params[:id]} to group #{params[:branch]}/#{params[:group_name]}"
+  end
   def add_member
-    log_message = "Add member #{params[:kind]}:#{params[:id]} to group #{params[:branch]}/#{params[:group_name]}"
-    logger.debug(LogMessages::Endpoints::EndpointRequested.new(log_message))
+    logger.debug{LogMessages::Endpoints::EndpointRequested.new(log_message_add(params))}
     action = :update
 
     group, member, member_id, member_kind = input_validation(action, NUM_OF_ADD_DATA_PARAMS)
@@ -21,7 +23,7 @@ class GroupsMembershipController < V2RestController
       raise Errors::Group::DuplicateMember.new(member_id, member_kind, group[:role_id])
     end
 
-    logger.debug(LogMessages::Endpoints::EndpointFinishedSuccessfully.new(log_message))
+    logger.debug{LogMessages::Endpoints::EndpointFinishedSuccessfully.new(log_message_add(params))}
     render(json: {
       kind: member_kind,
       id: member_id
@@ -32,9 +34,12 @@ class GroupsMembershipController < V2RestController
     raise e
   end
 
+  def log_message_remove(params)
+    "Remove member #{params[:kind]}:#{params[:id]} from group #{params[:branch]}/#{params[:group_name]}"
+  end
+
   def remove_member
-    log_message = "Remove member #{params[:kind]}:#{params[:id]} from group #{params[:branch]}/#{params[:group_name]}"
-    logger.debug(LogMessages::Endpoints::EndpointRequested.new(log_message))
+    logger.debug{LogMessages::Endpoints::EndpointRequested.new(log_message_remove(params))}
     action = :update
 
     group, member, member_id, member_kind = input_validation(action, NUM_OF_REMOVE_DATA_PARAMS)
@@ -46,7 +51,7 @@ class GroupsMembershipController < V2RestController
       raise Errors::Group::ResourceNotMember.new(member_id, member_kind, group[:role_id])
     end
 
-    logger.debug(LogMessages::Endpoints::EndpointFinishedSuccessfully.new(log_message))
+    logger.debug{LogMessages::Endpoints::EndpointFinishedSuccessfully.new(log_message_remove(params))}
     head(204)
     audit_success(membership, :remove)
   rescue => e

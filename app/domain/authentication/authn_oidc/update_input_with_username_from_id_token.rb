@@ -116,12 +116,12 @@ module Authentication
           raise Errors::Authentication::AdminAuthenticationDenied, authenticator_name
         end
 
-        @logger.debug(
+        @logger.debug{
           LogMessages::Authentication::AuthnOidc::ExtractedUsernameFromIDToken.new(
             conjur_username,
             id_token_username_field
           )
-        )
+        }
       end
 
       def conjur_username

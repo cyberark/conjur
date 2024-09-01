@@ -60,18 +60,18 @@ module Conjur
       # extension classes.
       def call(method, **kwargs)
         unless @implementation_object.respond_to?(method)
-          @logger.debug(
+          @logger.debug{
             "Extension::Implementation#call - " \
             "'#{implementation_class_name}' doesn't respond to " \
             "'#{method}'"
-          )
+          }
           return
         end
 
-        @logger.debug(
+        @logger.debug{
           "Extension::Implementation#call - Calling '#{method}' on " \
           "'#{implementation_class_name}'"
-        )
+        }
         begin
           ImplementationMethod.new(
             implementation_object: @implementation_object,

@@ -12,7 +12,7 @@ module Authentication
     def call
       raise Errors::Authentication::InvalidOrigin unless role.valid_origin?(@client_ip)
 
-      @logger.debug(LogMessages::Authentication::OriginValidated.new.to_s)
+      @logger.debug{LogMessages::Authentication::OriginValidated.new.to_s}
     end
 
     private

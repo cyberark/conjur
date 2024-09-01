@@ -39,10 +39,10 @@ module Authentication
       def connect_proxy_socket
         # We log the proxy host and port specifically because the full URI may
         # contain authorization fields.
-        @logger.debug(
+        @logger.debug{
           "Connecting to '#{@destination_host}:#{@destination_port}' " \
           "through proxy server: '#{@proxy_uri.host}:#{@proxy_uri.port}'"
-        )
+        }
 
         @proxy_socket = TCPSocket.new(
           @proxy_uri.host,

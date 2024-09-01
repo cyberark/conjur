@@ -51,7 +51,7 @@ module Authentication
 
         if optional_token_claim_value.nil? || optional_token_claim_value.empty?
           optional_token_claim_value = nil
-          @logger.debug(LogMessages::Authentication::Jwt::OptionalTokenClaimNotFoundOrEmpty.new(optional_token_claim))
+          @logger.debug{LogMessages::Authentication::Jwt::OptionalTokenClaimNotFoundOrEmpty.new(optional_token_claim)}
         else
           log_claim_extracted_from_token(optional_token_claim, optional_token_claim_value)
         end
@@ -65,12 +65,12 @@ module Authentication
       end
 
       def log_claim_extracted_from_token(token_claim, token_claim_value)
-        @logger.debug(
+        @logger.debug{
           LogMessages::Authentication::Jwt::ExtractedClaimFromToken.new(
             token_claim,
             token_claim_value
           )
-        )
+        }
       end
     end
   end

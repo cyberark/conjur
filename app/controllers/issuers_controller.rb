@@ -22,7 +22,7 @@ class IssuersController < RestController
   SENSITIVE_DATA_MASK = "*****"
 
   def update
-    logger.debug(LogMessages::Endpoints::EndpointRequested.new("PATCH issuers/#{params[:account]}/update/#{params[:identifier]}"))
+    logger.debug{LogMessages::Endpoints::EndpointRequested.new("PATCH issuers/#{params[:account]}/update/#{params[:identifier]}")}
 
     action = :update
     authorize(action, resource)
@@ -49,7 +49,7 @@ class IssuersController < RestController
   end
 
   def create
-    logger.debug(LogMessages::Endpoints::EndpointRequested.new("POST issuers/#{params[:account]}"))
+    logger.debug{LogMessages::Endpoints::EndpointRequested.new("POST issuers/#{params[:account]}")}
     action = :create
     authorize(action, resource)
 
@@ -76,7 +76,7 @@ class IssuersController < RestController
     json_response = mask_sensitive_data_in_response(issuer.as_json)
     render(json: json_response, status: :created)
 
-    logger.debug(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("POST issuers/#{params[:account]}"))
+    logger.debug{LogMessages::Endpoints::EndpointFinishedSuccessfully.new("POST issuers/#{params[:account]}")}
   rescue Exceptions::RecordNotFound => e
     logger.warn(LogMessages::Issuers::IssuerEndpointForbidden.new("create"))
     audit_failure(e, action)
@@ -100,7 +100,7 @@ class IssuersController < RestController
   end
 
   def delete
-    logger.debug(LogMessages::Endpoints::EndpointRequested.new("DELETE issuers/#{params[:account]}/#{params[:identifier]}"))
+    logger.debug{LogMessages::Endpoints::EndpointRequested.new("DELETE issuers/#{params[:account]}/#{params[:identifier]}")}
     action = :update
     authorize(action, resource)
 
@@ -126,7 +126,7 @@ class IssuersController < RestController
       raise Exceptions::RecordNotFound.new(params[:identifier], message: ISSUER_NOT_FOUND)
     end
 
-    logger.debug(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("DELETE issuers/#{params[:account]}/#{params[:identifier]}"))
+    logger.debug{LogMessages::Endpoints::EndpointFinishedSuccessfully.new("DELETE issuers/#{params[:account]}/#{params[:identifier]}")}
   rescue Exceptions::RecordNotFound => e
     logger.warn(LogMessages::Issuers::IssuerPolicyNotFound.new(resource_id))
     audit_failure(e, action)
@@ -140,7 +140,7 @@ class IssuersController < RestController
   end
 
   def get
-    logger.debug(LogMessages::Endpoints::EndpointRequested.new("GET issuers/#{params[:account]}/#{params[:identifier]}"))
+    logger.debug{LogMessages::Endpoints::EndpointRequested.new("GET issuers/#{params[:account]}/#{params[:identifier]}")}
     minimum_request = is_minimum_request(params)
     if minimum_request
       # If there is use permissions I can see the minimum info
@@ -170,7 +170,7 @@ class IssuersController < RestController
       raise Exceptions::RecordNotFound.new(params[:identifier], message: ISSUER_NOT_FOUND)
     end
 
-    logger.debug(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("GET issuers/#{params[:account]}/#{params[:identifier]}"))
+    logger.debug{LogMessages::Endpoints::EndpointFinishedSuccessfully.new("GET issuers/#{params[:account]}/#{params[:identifier]}")}
   rescue Exceptions::RecordNotFound => e
     issuer_audit_failure(params[:account], params[:identifier], "fetch", ISSUER_NOT_FOUND)
     logger.warn(LogMessages::Issuers::IssuerPolicyNotFound.new(resource_id))
@@ -183,7 +183,7 @@ class IssuersController < RestController
   end
 
   def list
-    logger.debug(LogMessages::Endpoints::EndpointRequested.new("GET issuers/#{params[:account]}"))
+    logger.debug{LogMessages::Endpoints::EndpointRequested.new("GET issuers/#{params[:account]}")}
     # If I can update the issuer policy, it means I am allowed to view it as well
     action = :update
     authorize(action, resource)
@@ -199,7 +199,7 @@ class IssuersController < RestController
     json_response = mask_sensitive_data_in_response(results)
     render(json: { issuers: json_response}, status: :ok)
 
-    logger.debug(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("GET issuers/#{params[:account]}"))
+    logger.debug{LogMessages::Endpoints::EndpointFinishedSuccessfully.new("GET issuers/#{params[:account]}")}
   rescue Exceptions::RecordNotFound => e
     logger.warn(LogMessages::Issuers::IssuerEndpointForbidden.new("list"))
     issuer_audit_failure(params[:account], "*", "list", e.message)

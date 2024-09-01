@@ -106,11 +106,11 @@ module Slosilo
       def write_redis_slosilo(id, value)
         return OK unless redis_configured?
         begin
-          Rails.logger.debug(LogMessages::Redis::RedisAccessStart.new('Write'))
+          Rails.logger.debug{LogMessages::Redis::RedisAccessStart.new('Write')}
           redis_id = "slosilo/#{id}"
           response = Slosilo::EncryptedAttributes.encrypt(value, aad: redis_id)
                                                  .yield_self { |val| Rails.cache.write(redis_id, val) }
-          Rails.logger.debug(LogMessages::Redis::RedisAccessEnd.new('Write', "Successfully wrote slosilo key for #{id} with response #{response}"))
+          Rails.logger.debug{LogMessages::Redis::RedisAccessEnd.new('Write', "Successfully wrote slosilo key for #{id} with response #{response}")}
         rescue Exception => e
           Rails.logger.error(LogMessages::Redis::RedisAccessFailure.new('Write', e.message))
         end
@@ -123,11 +123,11 @@ module Slosilo
       def get_redis_slosilo(id)
         return nil unless redis_configured?
         begin
-          Rails.logger.debug(LogMessages::Redis::RedisAccessStart.new('Read'))
+          Rails.logger.debug{LogMessages::Redis::RedisAccessStart.new('Read')}
           redis_id = "slosilo/#{id}"
           stored = Rails.cache.read(redis_id)&.
             yield_self { |res| Slosilo::EncryptedAttributes.decrypt(res, aad: redis_id) }
-          Rails.logger.debug(LogMessages::Redis::RedisAccessEnd.new('Read', "Successfully read slosilo key for #{id}"))
+          Rails.logger.debug{LogMessages::Redis::RedisAccessEnd.new('Read', "Successfully read slosilo key for #{id}")}
         rescue Exception => e
           Rails.logger.error(LogMessages::Redis::RedisAccessFailure.new('Read', e.message))
           return nil

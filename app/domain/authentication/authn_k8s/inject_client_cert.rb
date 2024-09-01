@@ -38,11 +38,11 @@ module Authentication
       # that happens in the "authenticate" request will work, as the signed certificate
       # contains the full host-id.
       def update_csr_common_name
-        @logger.debug(
+        @logger.debug{
           LogMessages::Authentication::AuthnK8s::SetCommonName.new(
             full_host_name
           )
-        )
+        }
         smart_csr.common_name = full_host_name
       end
 
@@ -69,14 +69,14 @@ module Authentication
         pod_namespace  = spiffe_id.namespace
         pod_name       = spiffe_id.name
         cert_file_path = "/etc/conjur/ssl/client.pem"
-        @logger.debug(
+        @logger.debug{
           LogMessages::Authentication::AuthnK8s::CopySSLToPod.new(
             container_name,
             cert_file_path,
             pod_namespace,
             pod_name
           )
-        )
+        }
 
         @copy_text_to_file_in_container.call(
           webservice: webservice,
@@ -88,7 +88,7 @@ module Authentication
           mode: "644"
         )
 
-        @logger.debug(LogMessages::Authentication::AuthnK8s::InitializeCopySSLToPodSuccess.new)
+        @logger.debug{LogMessages::Authentication::AuthnK8s::InitializeCopySSLToPodSuccess.new}
       end
 
       def pod_request

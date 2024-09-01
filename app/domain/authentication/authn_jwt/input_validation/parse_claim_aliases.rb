@@ -13,11 +13,11 @@ module Authentication
         inputs: %i[claim_aliases]
       ) do
         def call
-          @logger.debug(LogMessages::Authentication::AuthnJwt::ParsingClaimAliases.new(@claim_aliases))
+          @logger.debug{LogMessages::Authentication::AuthnJwt::ParsingClaimAliases.new(@claim_aliases)}
           validate_claim_aliases_secret_value_exists
           validate_claim_aliases_value_string
           validate_claim_aliases_list_values
-          @logger.debug(LogMessages::Authentication::AuthnJwt::ParsedClaimAliases.new(alias_hash))
+          @logger.debug{LogMessages::Authentication::AuthnJwt::ParsedClaimAliases.new(alias_hash)}
           alias_hash
         end
 
@@ -100,7 +100,7 @@ module Authentication
           raise Errors::Authentication::AuthnJwt::ClaimAliasDuplicationError.new('claim name', claim_name) unless
             value_set.add?(claim_name)
 
-          @logger.debug(LogMessages::Authentication::AuthnJwt::ClaimMapDefinition.new(annotation_name, claim_name))
+          @logger.debug{LogMessages::Authentication::AuthnJwt::ClaimMapDefinition.new(annotation_name, claim_name)}
           alias_hash[annotation_name] = claim_name
         end
 

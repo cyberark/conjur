@@ -57,7 +57,7 @@ module Monitoring
           duration: duration
         )
       rescue => e
-        Rails.logger.debug(LogMessages::Monitoring::ExceptionDuringRequestRecording.new(e.inspect))
+        Rails.logger.debug{LogMessages::Monitoring::ExceptionDuringRequestRecording.new(e.inspect)}
       end
 
       def find_operation(method, path)

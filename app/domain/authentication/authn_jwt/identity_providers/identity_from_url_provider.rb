@@ -14,19 +14,19 @@ module Authentication
         def_delegators(:@jwt_authenticator_input, :username)
 
         def call
-          @logger.debug(
+          @logger.debug{
             LogMessages::Authentication::AuthnJwt::FetchingIdentityByInterface.new(
               URL_IDENTITY_PROVIDER_INTERFACE_NAME
             )
-          )
+          }
           raise Errors::Authentication::AuthnJwt::IdentityMisconfigured unless username_exists?
 
-          @logger.debug(
+          @logger.debug{
             LogMessages::Authentication::AuthnJwt::FetchedIdentityByInterface.new(
               username,
               URL_IDENTITY_PROVIDER_INTERFACE_NAME
             )
-          )
+          }
 
           username
         end
