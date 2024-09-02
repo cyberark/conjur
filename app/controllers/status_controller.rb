@@ -6,8 +6,6 @@ class StatusController < ApplicationController
   include TokenUser
 
   def run_with_transaction(&block)
-    Rails.logger.info("++++++++++++ my run_with_transaction")
-    #Sequel::Model.db.transaction(&block)
   end
 
   def index
