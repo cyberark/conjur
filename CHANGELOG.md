@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
-## [1.0.37-cloud] - 2024-09-08
+## [1.0.38-cloud] - 2024-09-15
 ### Added
 - conjur sync version 13.3 - part 3 (continues from 1.0.36v)
 - switch OIDC tests to use @skip with yaml instead of Before hook
