@@ -17,19 +17,19 @@ module Authentication
       inputs: %i[authenticator_name service_id role_name account]
     ) do
       def call
-        @logger.debug(
+        @logger.debug{
           LogMessages::Authentication::ResourceRestrictions::ExtractingRestrictionsFromResource.new(
             @authenticator_name,
             @role_name
           )
-        )
+        }
 
         fetch_resource_annotations
         extract_resource_restrictions_from_annotations
         create_resource_restrictions_object
         validate_restriction_configuration
 
-        @logger.debug(LogMessages::Authentication::ResourceRestrictions::ExtractedResourceRestrictions.new(resource_restrictions.names))
+        @logger.debug{LogMessages::Authentication::ResourceRestrictions::ExtractedResourceRestrictions.new(resource_restrictions.names)}
 
         resource_restrictions
       end
@@ -71,7 +71,7 @@ module Authentication
         # General restriction should not override existing restriction
         return if is_general_restriction && resource_restrictions_hash.include?(restriction_name)
 
-        @logger.debug(LogMessages::Authentication::ResourceRestrictions::RetrievedAnnotationValue.new(annotation_name))
+        @logger.debug{LogMessages::Authentication::ResourceRestrictions::RetrievedAnnotationValue.new(annotation_name)}
 
         resource_restrictions_hash[restriction_name] = annotation_value
       end
@@ -89,7 +89,7 @@ module Authentication
       def validate_restriction_configuration
         return unless @restriction_configuration_validator
 
-        @logger.debug(LogMessages::Authentication::ResourceRestrictions::ValidatingRestrictionConfiguration.new)
+        @logger.debug{LogMessages::Authentication::ResourceRestrictions::ValidatingRestrictionConfiguration.new}
 
         resource_restrictions.each do |restriction|
           @restriction_configuration_validator.call(
@@ -97,7 +97,7 @@ module Authentication
           )
         end
 
-        @logger.debug(LogMessages::Authentication::ResourceRestrictions::ValidatedRestrictionConfigurationSuccessfully.new)
+        @logger.debug{LogMessages::Authentication::ResourceRestrictions::ValidatedRestrictionConfigurationSuccessfully.new}
       end
     end
   end

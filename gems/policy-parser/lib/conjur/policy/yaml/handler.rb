@@ -411,7 +411,9 @@ module Conjur
         end
         
         def log(&block)
-          logger.debug('conjur/policy/handler', &block)
+          if logger.debug?
+            logger.debug('conjur/policy/handler', &block)
+          end
         end
         
         def indent

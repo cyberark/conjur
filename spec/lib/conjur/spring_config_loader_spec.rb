@@ -49,5 +49,12 @@ describe Anyway::Loaders::SpringConfigLoader do
       expect(Net::HTTP).to receive(:get).with(any_args, {'X-token' => 'token'}).and_return(config_response([{source: {"feature" => "great_feature"}}]))
       expect(described_class.fetch_configs).to eq({'feature' => 'great_feature'})
     end
+
+    it "integrates with real config server" do
+      WebMock.allow_net_connect!
+      config = described_class.fetch_configs
+      expect(config.empty?).to be_falsey
+      WebMock.disallow_net_connect!
+    end
   end
 end

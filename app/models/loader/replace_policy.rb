@@ -18,9 +18,11 @@ module Loader
       
       @loader.delete_shadowed_and_duplicate_rows
 
-      @loader.update_changed
+      @loader.upsert_policy_records
 
-      @loader.store_policy_in_db
+      @loader.clean_db
+
+      @loader.store_auxiliary_data
 
       @loader.release_db_connection
     end
@@ -32,13 +34,13 @@ module Loader
     def self.authorize(current_user, resource)
       return if current_user.policy_permissions?(resource, 'update')
 
-      Rails.logger.debug(
+      Rails.logger.debug{
         Errors::Authentication::Security::RoleNotAuthorizedOnPolicyDescendants.new(
           current_user.role_id,
           'update',
           resource.resource_id
         )
-      )
+      }
       raise ApplicationController::Forbidden
     end
   end

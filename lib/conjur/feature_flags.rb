@@ -30,17 +30,17 @@ module Conjur
       #
       # @return [Boolean]
       def enabled?(feature_name)
-        @logger.debug(
+        @logger.debug{
           "Conjur::FeatureFlags::Features#enabled? " \
           "- feature flag name: '#{feature_name.inspect}'"
-        )
+        }
 
         validate(feature_name)
         result = @enabled_features[feature_name]
 
-        @logger.debug(
+        @logger.debug{
           "Conjur::FeatureFlags::Features#enabled? result: '#{result}'"
-        )
+        }
 
         result
       end
@@ -79,24 +79,24 @@ module Conjur
           # We only care about specific 'true' or 'false' values
           case env[env_key].to_s.downcase
           when 'true'
-            @logger.debug(
+            @logger.debug{
               "Feature '#{feature}' enabled via " \
               "environment variable '#{env_key}'"
-            )
+            }
 
             next [feature, true]
           when 'false'
-            @logger.debug(
+            @logger.debug{
               "Feature '#{feature}' disabled via " \
               "environment variable '#{env_key}'"
-            )
+            }
 
             next [feature, false]
           end
 
           # Only log for default state if the flag is enabled by default
           if default_value
-            @logger.debug("Feature '#{feature}' enabled by default")
+            @logger.debug{"Feature '#{feature}' enabled by default"}
           end
 
           [feature, default_value]

@@ -247,6 +247,34 @@ pipeline {
           steps {
            script {
               INFRAPOOL_EXECUTORV2_AGENT_0.agentSh 'ci/test rspec'
+              INFRAPOOL_EXECUTORV2_AGENT_0.agentStash(
+                name: 'rspecTestResult',
+                includes: '''
+                  container_logs/*/*
+                '''
+              )
+            }
+          }
+          post {
+            always {
+              script {
+                INFRAPOOL_EXECUTORV2_AGENT_0.agentStash(
+                  name: 'rspecTestResult',
+                  includes: '''
+                    container_logs/*/*
+                  '''
+                )
+              }
+              script {
+                dir('rspec-test') {
+                  INFRAPOOL_EXECUTORV2_AGENT_0.agentUnstash 'rspecTestResult'
+                }
+              }
+              archiveArtifacts(
+                artifacts: "rspec-test/container_logs/*/*",
+                fingerprint: false,
+                allowEmptyArchive: true
+              )
             }
           }
         }

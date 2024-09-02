@@ -21,7 +21,7 @@ module EdgeValidator
       role = Role[options[:account] + ':group:edge/edge-hosts']
       unless role&.ancestor_of?(current_user)
         raise_excep = true
-        msg = "Curren user is: #{current_user}. should be member of #{role}"
+        msg = "Current user is: #{current_user}. should be member of #{role}"
       end
     end
 

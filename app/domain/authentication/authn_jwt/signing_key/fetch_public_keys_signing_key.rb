@@ -13,10 +13,10 @@ module Authentication
         end
 
         def call(*)
-          @logger.debug(LogMessages::Authentication::AuthnJwt::ParsingStaticSigningKeys.new)
+          @logger.debug{LogMessages::Authentication::AuthnJwt::ParsingStaticSigningKeys.new}
           public_signing_keys = Authentication::AuthnJwt::SigningKey::PublicSigningKeys.new(JSON.parse(@signing_keys))
           public_signing_keys.validate!
-          @logger.debug(LogMessages::Authentication::AuthnJwt::ParsedStaticSigningKeys.new)
+          @logger.debug{LogMessages::Authentication::AuthnJwt::ParsedStaticSigningKeys.new}
           { keys: JSON::JWK::Set.new(public_signing_keys.value) }
         end
       end

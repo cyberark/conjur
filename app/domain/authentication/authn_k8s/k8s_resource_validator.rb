@@ -16,18 +16,18 @@ module Authentication
       end
 
       def valid_resource?(type:, name:)
-        @logger.debug(LogMessages::Authentication::AuthnK8s::ValidatingK8sResource.new(type, name))
+        @logger.debug{LogMessages::Authentication::AuthnK8s::ValidatingK8sResource.new(type, name)}
 
         k8s_resource = retrieve_k8s_resource(type, name)
         validate(k8s_resource, type, name)
 
-        @logger.debug(LogMessages::Authentication::AuthnK8s::ValidatedK8sResource.new(type, name))
+        @logger.debug{LogMessages::Authentication::AuthnK8s::ValidatedK8sResource.new(type, name)}
       end
 
       # Validates label selector and creates a hash
       # In the spirit of https://github.com/kubernetes/apimachinery/blob/master/pkg/labels/selector.go
       def valid_namespace?(label_selector:)
-        @logger.debug(LogMessages::Authentication::AuthnK8s::ValidatingK8sResourceLabel.new('namespace', namespace, label_selector))
+        @logger.debug{LogMessages::Authentication::AuthnK8s::ValidatingK8sResourceLabel.new('namespace', namespace, label_selector)}
 
         if label_selector.length == 0
           raise Errors::Authentication::AuthnK8s::InvalidLabelSelector.new(label_selector)
@@ -58,7 +58,7 @@ module Authentication
           raise Errors::Authentication::AuthnK8s::LabelSelectorMismatch.new('namespace', namespace, label_selector)
         end
 
-        @logger.debug(LogMessages::Authentication::AuthnK8s::ValidatedK8sResourceLabel.new('namespace', namespace, label_selector))
+        @logger.debug{LogMessages::Authentication::AuthnK8s::ValidatedK8sResourceLabel.new('namespace', namespace, label_selector)}
         return true
       end
 

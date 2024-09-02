@@ -26,7 +26,7 @@ module Authentication
         end
 
         def create_jwks_from_http_response
-          @logger.debug(LogMessages::Authentication::AuthnJwt::CreatingJwksFromHttpResponse.new)
+          @logger.debug{LogMessages::Authentication::AuthnJwt::CreatingJwksFromHttpResponse.new}
           parse_jwks_response
         end
 
@@ -50,7 +50,7 @@ module Authentication
           end
 
           validate_keys_not_empty(keys, encoded_body)
-          @logger.debug(LogMessages::Authentication::AuthnJwt::CreatedJwks.new)
+          @logger.debug{LogMessages::Authentication::AuthnJwt::CreatedJwks.new}
           { keys: @jwk_set_class.new(keys) }
         end
 

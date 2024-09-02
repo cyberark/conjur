@@ -46,7 +46,7 @@ module Authentication
 
         def claim_name(annotation_name)
           claim_name = @aliased_claims.fetch(annotation_name, annotation_name)
-          @logger.debug(LogMessages::Authentication::AuthnJwt::ClaimMapUsage.new(annotation_name, claim_name)) unless
+          @logger.debug{LogMessages::Authentication::AuthnJwt::ClaimMapUsage.new(annotation_name, claim_name)} unless
             annotation_name == claim_name
           claim_name
         end

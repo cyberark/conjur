@@ -7,6 +7,7 @@ module Authentication
         def initialize(
           provider_uri:,
           fetch_signing_key:,
+          ca_certificate: nil,
           discover_identity_provider: Authentication::OAuth::DiscoverIdentityProvider.new,
           logger: Rails.logger
         )
@@ -14,6 +15,7 @@ module Authentication
           @discover_identity_provider = discover_identity_provider
 
           @provider_uri = provider_uri
+          @ca_certificate = ca_certificate
           @fetch_signing_key = fetch_signing_key
         end
 
@@ -33,20 +35,20 @@ module Authentication
         private
 
         def discover_provider
-          @logger.debug(LogMessages::Authentication::AuthnJwt::FetchingJwksFromProvider.new(@provider_uri))
+          @logger.debug{LogMessages::Authentication::AuthnJwt::FetchingJwksFromProvider.new(@provider_uri)}
           discovered_provider
         end
 
         def discovered_provider
           @discovered_provider ||= @discover_identity_provider.call(
             provider_uri: @provider_uri,
-            ca_cert: nil
+            ca_cert: @ca_certificate
           )
         end
 
         def fetch_provider_keys
           keys = { keys: discovered_provider.jwks }
-          @logger.debug(LogMessages::Authentication::OAuth::FetchProviderKeysSuccess.new)
+          @logger.debug{LogMessages::Authentication::OAuth::FetchProviderKeysSuccess.new}
           keys
         rescue => e
           raise Errors::Authentication::OAuth::FetchProviderKeysFailed.new(

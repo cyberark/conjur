@@ -56,7 +56,7 @@
 
 ## Useful links
 
-- [PRD](https://cyberark365.sharepoint.com/sites/Conjur/Shared%20Documents/DAP/PRDs/%5bPRD%5d%20JWT%20Authenticator.docx?web=1)
+- PRD (Sharepoint - JWT Authenticator)
 - Feature doc (Confluence - Conjur JWT Authenticator)
 - [JWT claims](https://auth0.com/docs/tokens/json-web-tokens/json-web-token-claims)
 

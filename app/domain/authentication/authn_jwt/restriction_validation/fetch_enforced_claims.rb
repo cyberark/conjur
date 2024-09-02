@@ -18,7 +18,7 @@ module Authentication
         def_delegators(:@jwt_authenticator_input, :service_id, :authenticator_name, :account)
 
         def call
-          @logger.debug(LogMessages::Authentication::AuthnJwt::FetchingEnforcedClaims.new)
+          @logger.debug{LogMessages::Authentication::AuthnJwt::FetchingEnforcedClaims.new}
           
           return empty_enforced_claims unless enforced_claims_resource_exists?
 
@@ -40,7 +40,7 @@ module Authentication
         end
         
         def empty_enforced_claims
-          @logger.debug(LogMessages::Authentication::AuthnJwt::NotConfiguredEnforcedClaims.new)
+          @logger.debug{LogMessages::Authentication::AuthnJwt::NotConfiguredEnforcedClaims.new}
           @empty_enforced_claims ||= []
         end
         
@@ -61,7 +61,7 @@ module Authentication
           return @parse_enforced_claims_secret_value if @parse_enforced_claims_secret_value
 
           @parse_enforced_claims_secret_value ||= @parse_enforced_claims.call(enforced_claims: enforced_claims_secret_value)
-          @logger.debug(LogMessages::Authentication::AuthnJwt::FetchedEnforcedClaims.new(@parse_enforced_claims_secret_value))
+          @logger.debug{LogMessages::Authentication::AuthnJwt::FetchedEnforcedClaims.new(@parse_enforced_claims_secret_value)}
           
           @parse_enforced_claims_secret_value
         end

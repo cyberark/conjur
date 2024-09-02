@@ -17,6 +17,12 @@ main() {
 
 # internal functions
 
+COMPOSE="docker compose"
+if grep -m 1 'Red Hat' /etc/os-release; then
+  COMPOSE="docker-compose"
+fi
+export COMPOSE
+
 build() {
   $COMPOSE build --pull
 }

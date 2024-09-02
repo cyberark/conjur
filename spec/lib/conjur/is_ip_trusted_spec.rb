@@ -4,7 +4,11 @@ require 'spec_helper'
 
 describe Conjur::IsIpTrusted do
 
-  let(:config) { Conjur::ConjurConfig.new(trusted_proxies: '127.0.0.1') }
+  let(:config) { Conjur::ConjurConfig.new(trusted_proxies: '127.0.0.1,::1') }
+
+  before do
+    allow(Anyway::Loaders::SpringConfigLoader).to receive(:fetch_configs).and_return({})
+  end
 
   it "does not raise an exception when created with valid IP addresses" do
     expect {

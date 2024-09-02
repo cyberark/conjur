@@ -12,7 +12,7 @@ module TrustedProxies
   
   def trusted_proxies
     @trusted_proxies || ENV['TRUSTED_PROXIES'].try do |proxies|
-      cidrs = Set.new(proxies.split(',') + ['127.0.0.1'])
+      cidrs = Set.new(proxies.split(',') + ['127.0.0.1', '::1'])
       @trusted_proxies = cidrs.collect {|cidr| IPAddr.new(cidr) }
     end
   end

@@ -11,7 +11,7 @@ class LicenseController < RestController
   def show
     allowed_params = %i[language]
     options = params.permit(*allowed_params).to_h.symbolize_keys
-    logger.debug(LogMessages::Endpoints::EndpointRequested.new("GET /license/conjur#{options[:language]}"))
+    logger.debug{LogMessages::Endpoints::EndpointRequested.new("GET /license/conjur#{options[:language]}")}
 
     unless options[:language] == 'english'
       raise Errors::Conjur::ParameterValueInvalid.new("language", "#{options[:language]} is not supported")
@@ -20,7 +20,7 @@ class LicenseController < RestController
     validate_user_is_in_admin_group
     count = count_workloads_in_use
     response = construct_response(count) 
-    logger.debug(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("GET /license/conjur#{options[:language]}"))
+    logger.debug{LogMessages::Endpoints::EndpointFinishedSuccessfully.new("GET /license/conjur#{options[:language]}")}
     render(json: response, status: :ok)
   end
 

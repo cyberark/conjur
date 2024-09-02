@@ -33,7 +33,19 @@ RSpec.describe MessageJob do
 
       filled_events = message_job.send(:fill_events_hash, events)
       expect(filled_events).to all(include('id', 'time', 'type'))
-      expect(filled_events.first['id']).to eq(events.first[:event_id])
+      expect(filled_events.first['id']).to eq(events.first[:event_id].to_s)
+      expect(filled_events.first['type']).to eq(events.first[:event_type])
+      expect(filled_events.first['time']).to eq(events.first[:created_at].iso8601(3))
+    end
+    it 'fills the event hash with additional fields secret service' do
+      events = [
+        { event_id: 1, created_at: Time.now, event_type: 'conjur.secret.created', event_value: '{"key":"value1"}' },
+        { event_id: 2, created_at: Time.now, event_type: 'conjur.host.created', event_value: '{"key":"value2"}' }
+      ]
+
+      filled_events = message_job.send(:fill_events_hash, events)
+      expect(filled_events).to all(include('id', 'time', 'type'))
+      expect(filled_events.first['id']).to eq(events.first[:event_id].to_s)
       expect(filled_events.first['type']).to eq(events.first[:event_type])
       expect(filled_events.first['time']).to eq(events.first[:created_at].iso8601(3))
     end
@@ -99,10 +111,17 @@ RSpec.describe MessageJob do
     end
   end
   describe '#run' do
+    let(:account) { 'rspec' }
+    let(:secret_id) { "#{account}:variable:data/my_secret"}
+    let(:secret_value) { "my_password" }
+    let(:owner_id) { "#{account}:user:my_admin" }
     it 'processes and deletes events grouped by transaction_id' do
       # Setup: Create events grouped by a transaction_id
+      Role.create(role_id: owner_id)
+      Resource.create(resource_id: secret_id, owner_id: owner_id)
       event1 = Event.create_event(event_type: 'test_event1', event_value: '{"key":"value1"}')
       Event.create_event(event_type: 'test_event2', event_value: '{"key":"value2"}')
+      DB::Service::SecretService.instance.secret_value_change(secret_id,secret_value)
 
       transaction_id = event1[:transaction_id]
       # Ensure events are present before running the method
@@ -245,7 +264,7 @@ RSpec.describe MessageJob do
     end
 
     before(:each) do
-      SnsClient.instance.sns_client.subscribe(topic_arn: ENV['TOPIC_ARN'], protocol: 'sqs', endpoint: queue_arn)
+      SnsClient.instance.sns_client.subscribe(topic_arn: Rails.application.config.conjur_config.conjur_pubsub_sns_topic, protocol: 'sqs', endpoint: queue_arn)
     end
 
     after(:each) do

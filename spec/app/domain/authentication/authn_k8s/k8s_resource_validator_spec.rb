@@ -26,7 +26,7 @@ RSpec.describe(Authentication::AuthnK8s::K8sResourceValidator) do
 
   let(:pod) {
     double("pod").tap { |d|
-      d.stub_chain("metadata.namespace").and_return("namespace_name")
+      allow(d).to receive_message_chain("metadata.namespace").and_return("namespace_name")
     }
   }
 
@@ -101,7 +101,7 @@ RSpec.describe(Authentication::AuthnK8s::K8sResourceValidator) do
     end
 
     it 'logs before label-selector validation begins, but not after failure' do
-      expect { subject.valid_namespace?(label_selector: "key1=notvalue") }.to raise_error
+      expect { subject.valid_namespace?(label_selector: "key1=notvalue") }.to raise_error(Errors::Authentication::AuthnK8s::LabelSelectorMismatch)
 
       expect(log_output.string.split("\n")).to include(
         "DEBUG,CONJ00145D Validating K8s resource using label selector. Type:'namespace', Name:'namespace_name', Label:'key1=notvalue'",

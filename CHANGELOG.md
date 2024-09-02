@@ -9,7 +9,24 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
-## [1.0.35-cloud] - 2024-08-18
+## [1.0.38-cloud] - 2024-09-15
+### Added
+- conjur sync version 13.3 - part 3 (continues from 1.0.36v)
+- switch OIDC tests to use @skip with yaml instead of Before hook
+
+### Fixed
+- Fixed pubsub scheduler to not hit CPU, removed rake and calling the code itself
+- Fixed debug log sent DB queries, change debug logs in conjur to logger.debug{} 
+
+## [1.0.36-cloud] - 2024-09-01
+### Added
+- Restrict grant only to appropriate types 
+- conjur sync version 13.3 - part 2 (continues from 1.0.29v)
+
+### Changed
+- Consume Pubsub configurations from CM
+
+## [1.0.35-cloud] - 2024-08-25
 ### Added
 - Integration with Configuration Manager (disabled by default)
 - Added sending messages to sns topic

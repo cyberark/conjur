@@ -425,7 +425,7 @@ Feature: JWT Authenticator - Check registered claim
     Then the HTTP response status code is 401
     And The following appears in the log after my savepoint:
     """
-    CONJ00011E Failed to discover Identity Provider (Provider URI: 'incorrect.com'). Reason: '#<AttrRequired::AttrMissing: 'host' required.>'
+    CONJ00011E Failed to discover Identity Provider (Provider URI: 'incorrect.com')
     """
 
   @negative @acceptance

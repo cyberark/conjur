@@ -15,7 +15,7 @@ class EdgeCreationController < RestController
   def generate_install_token
     allowed_params = %i[account edge_name]
     options = params.permit(*allowed_params).to_h.symbolize_keys
-    logger.debug(LogMessages::Endpoints::EndpointRequested.new("edge/edge-creds/#{options[:account]}/#{options[:edge_name]}"))
+    logger.debug{LogMessages::Endpoints::EndpointRequested.new("edge/edge-creds/#{options[:account]}/#{options[:edge_name]}")}
     audit_params = { edge_name: options[:edge_name], user: current_user.role_id, client_ip: request.ip }
     begin
       validate_conjur_admin_group(options[:account])
@@ -27,10 +27,10 @@ class EdgeCreationController < RestController
 
       response.set_header("Content-Encoding", "base64")
       render(plain: Base64.strict_encode64(edge_host_name + ":" + installer_token))
-      logger.debug(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("edge/edge-creds/#{options[:account]}/#{options[:edge_name]}"))
+      logger.debug{LogMessages::Endpoints::EndpointFinishedSuccessfully.new("edge/edge-creds/#{options[:account]}/#{options[:edge_name]}")}
     rescue => e
       audit_params[:error_message] = e.message
-      logger.error(LogMessages::Conjur::GeneralError.new(e.message))
+      logger.error{LogMessages::Conjur::GeneralError.new(e.message)}
       raise e
     ensure
       Audit.logger.log(Audit::Event::CredsGeneration.new(**audit_params))
@@ -39,7 +39,7 @@ class EdgeCreationController < RestController
 
   #this endpoint loads a policy with the edge host values + adds the edge name to Edge table
   def create_edge
-    logger.debug(LogMessages::Endpoints::EndpointRequested.new("create edge #{params[:edge_name]}"))
+    logger.debug{LogMessages::Endpoints::EndpointRequested.new("create edge #{params[:edge_name]}")}
     allowed_params = %i[account edge_name edge_id]
     url_params = params.permit(*allowed_params)
     validate_conjur_admin_group(url_params[:account])
@@ -56,7 +56,7 @@ class EdgeCreationController < RestController
       add_edge_host_policy(edge[:id])
 
       head :created
-      logger.debug(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("create edge #{url_params[:edge_name]}"))
+      logger.debug{LogMessages::Endpoints::EndpointFinishedSuccessfully.new("create edge #{url_params[:edge_name]}")}
     rescue => e
       @error_message = e.message
       logger.error(LogMessages::Conjur::GeneralError.new(e.message))

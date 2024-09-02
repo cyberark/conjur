@@ -342,6 +342,7 @@ module Loader
       def create!
         Array(roles).each do |r|
           Array(members).each do |m|
+            verify(r, m)
             ::RoleMembership.create(
               role_id: find_roleid(r.roleid),
               member_id: find_roleid(m.role.roleid),
@@ -349,6 +350,12 @@ module Loader
               ownership: false
             )
           end
+        end
+      end
+
+      def verify(role, member)
+        unless %w[user host group layer].include?(member.role.role_kind) and %w[group layer].include?(role.role_kind)
+          raise Exceptions::InvalidPolicyObject.new(role.id, message: "'#{member.role.role_kind}' cannot be a member of '#{role.role_kind}'")
         end
       end
     end
@@ -413,6 +420,7 @@ module Loader
 
     class Delete < Deletion
       include Secrets::RedisHandler
+      include CurrentUser
       def delete!
         if policy_object.record.respond_to?(:roleid)
           delete_recursive!(policy_object.record.roleid)
@@ -442,6 +450,7 @@ module Loader
         role = ::Role[record_id]
         role.destroy if role
       end
+
     end
   end
 end

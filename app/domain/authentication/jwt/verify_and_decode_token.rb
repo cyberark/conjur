@@ -40,12 +40,12 @@ module Authentication
           @verification_options
         ).first
 
-        @logger.debug(LogMessages::Authentication::Jwt::TokenDecodeSuccess.new)
+        @logger.debug{LogMessages::Authentication::Jwt::TokenDecodeSuccess.new}
         @verified_and_decoded_token
       rescue JWT::ExpiredSignature
         raise Errors::Authentication::Jwt::TokenExpired
       rescue JWT::DecodeError => e
-        @logger.debug(LogMessages::Authentication::Jwt::TokenDecodeFailed.new(e.inspect))
+        @logger.debug{LogMessages::Authentication::Jwt::TokenDecodeFailed.new(e.inspect)}
         raise Errors::Authentication::Jwt::TokenDecodeFailed, e.inspect
       rescue => e
         raise Errors::Authentication::Jwt::TokenVerificationFailed, e.inspect

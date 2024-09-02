@@ -87,11 +87,11 @@ module Authentication
 
         @conjur_username = audience_parts[2]
 
-        @logger.debug(
+        @logger.debug{
           LogMessages::Authentication::Jwt::ExtractedUsernameFromToken.new(
             conjur_username
           )
-        )
+        }
         @conjur_username
       end
 

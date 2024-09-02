@@ -27,12 +27,9 @@ RSpec.describe('Authentication::AuthnJwt::SigningKey::SigningKeySettingsBuilder'
     "When public-keys and provider-uri signing key properties are define":
       [ { "provider-uri" => provider_uri, "public-keys" => public_keys },
         "public-keys and provider-uri cannot be defined simultaneously" ],
-    "When ca-cert is defined with provider-uri":
-      [ { "provider-uri" => provider_uri, "ca-cert" => "some value" },
-        "ca-cert can only be defined together with jwks-uri" ],
     "When ca-cert is defined with public-keys":
       [ { "public-keys" => public_keys, "ca-cert" => "some value" },
-        "ca-cert can only be defined together with jwks-uri" ],
+        "ca-cert can only be defined together with jwks-uri or provider-uri" ],
     "When issuer is not set with public-keys":
       [ { "public-keys" => public_keys },
         "issuer is mandatory when public-keys is defined" ]

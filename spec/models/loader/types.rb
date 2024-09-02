@@ -281,44 +281,79 @@ describe Loader::Types::Variable do
       end
     end
   end
+end
+describe Loader::Types::Delete do
+  context "Delete from Redis" do
 
-  describe Loader::Types::Delete do
-    context "Delete from Redis" do
+    let(:account) { "rspec" }
+    let(:data_var_id) { "#{account}:variable:data/conjur_secret" }
+    let(:my_host) { "#{account}:host:data/my-host" }
+    let(:user_owner_id) { 'rspec:user:admin' }
+    let(:policy_record) { double(PolicyVersion) }
+    let(:record) { double("record") }
 
-      let(:account) { "rspec" }
-      let(:data_var_id) { "#{account}:variable:data/conjur_secret" }
-      let(:my_host) { "#{account}:host:data/my-host" }
-      let(:user_owner_id) { 'rspec:user:admin' }
-      let(:policy_record) { double(PolicyVersion) }
-      let(:record) { double("record") }
+    before do
+      Role.find_or_create(role_id: user_owner_id)
+      allow(policy_record).to receive(:record).and_return(record)
+    end
 
-      before do
-        Role.find_or_create(role_id: user_owner_id)
-        allow(policy_record).to receive(:record).and_return(record)
+    subject { described_class.new(policy_record) }
+
+    it "Variable is deleted from Redis on !delete" do
+      Resource.create(resource_id: data_var_id, owner_id: user_owner_id)
+      allow(record).to receive(:resourceid).and_return(data_var_id)
+      expect(Rails.cache).to receive(:delete).with(data_var_id)
+      subject.delete!
+    end
+
+    it "Non variable resource does not invoke redis" do
+      Resource.create(resource_id: my_host, owner_id: user_owner_id)
+      Role.find_or_create(role_id: my_host)
+      allow(record).to receive(:resourceid).and_return(my_host)
+      expect(Rails.cache).to_not receive(:delete)
+      subject.delete!
+    end
+
+    it "Variable that doesn't exist in Resource table" do
+      allow(record).to receive(:resourceid).and_return(data_var_id)
+      expect(Rails.cache).to_not receive(:delete).with(data_var_id)
+      expect{ subject.delete! }.to_not raise_error
+    end
+  end
+end
+
+describe Loader::Types::Grant do
+  let(:policy_record) { double(PolicyVersion) }
+  subject { described_class.new(policy_record) }
+  context "verify types" do
+
+    let(:role) { double(Conjur::PolicyParser::Types::Role)}
+    let(:member_role) {double(Conjur::PolicyParser::Types::Role)}
+    let(:member) { double(Conjur::PolicyParser::Types::Member).tap do |m|
+      allow(m).to receive(:role).and_return(member_role)
+    end}
+    it "does not raise error for valid types" do
+      %w[group layer].each do |r|
+        %w[user host group layer].each do |m|
+          allow(role).to receive(:role_kind).and_return(r)
+          allow(member_role).to receive(:role_kind).and_return(m)
+
+          expect{ subject.verify(role, member) }.to_not raise_error
+        end
       end
+    end
 
-      subject { described_class.new(policy_record) }
+    it "raises error for invalid types" do
+      %w[policy user host].each do |r|
+        %w[policy variable].each do |m|
+          allow(role).to receive(:role_kind).and_return(r)
+          allow(role).to receive(:id).and_return("id")
+          allow(member_role).to receive(:role_kind).and_return(m)
 
-      it "Variable is deleted from Redis on !delete" do
-        Resource.create(resource_id: data_var_id, owner_id: user_owner_id)
-        allow(record).to receive(:resourceid).and_return(data_var_id)
-        expect(Rails.cache).to receive(:delete).with(data_var_id)
-        subject.delete!
-      end
-
-      it "Non variable resource does not invoke redis" do
-        Resource.create(resource_id: my_host, owner_id: user_owner_id)
-        Role.find_or_create(role_id: my_host)
-        allow(record).to receive(:resourceid).and_return(my_host)
-        expect(Rails.cache).to_not receive(:delete)
-        subject.delete!
-      end
-
-      it "Variable that doesn't exist in Resource table" do
-        allow(record).to receive(:resourceid).and_return(data_var_id)
-        expect(Rails.cache).to_not receive(:delete).with(data_var_id)
-        expect{ subject.delete! }.to_not raise_error
+          expect{ subject.verify(role, member) }.to raise_error(Exceptions::InvalidPolicyObject)
+        end
       end
     end
   end
 end
+

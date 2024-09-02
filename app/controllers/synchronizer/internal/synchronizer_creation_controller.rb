@@ -10,7 +10,7 @@ class SynchronizerCreationController < V2RestController
   include HostAuthentication
 
   def generate_install_token
-    logger.debug(LogMessages::Endpoints::EndpointRequested.new("synchronizer/installer-creds endpoint started"))
+    logger.debug{LogMessages::Endpoints::EndpointRequested.new("synchronizer/installer-creds endpoint started")}
     validate_conjur_admin_group(account)
     synchronizer_uuid = tenant_id
     begin
@@ -26,7 +26,7 @@ class SynchronizerCreationController < V2RestController
       synchronizer_host_resource_id = "host/synchronizer/synchronizer-#{synchronizer_uuid}/synchronizer-host-#{synchronizer_uuid}"
 
       render(plain: Base64.strict_encode64(synchronizer_host_resource_id + ":" + installer_token))
-      logger.debug(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("synchronizer/installer-creds endpoint succeeded"))
+      logger.debug{LogMessages::Endpoints::EndpointFinishedSuccessfully.new("synchronizer/installer-creds endpoint succeeded")}
     rescue => e
       @error_message = e.message
       logger.error(LogMessages::Conjur::GeneralError.new(e.message))
@@ -36,7 +36,7 @@ class SynchronizerCreationController < V2RestController
     end
   end
   def create_synchronizer
-    logger.debug(LogMessages::Endpoints::EndpointRequested.new("create synchronizer endpoint"))
+    logger.debug{LogMessages::Endpoints::EndpointRequested.new("create synchronizer endpoint")}
     validate_conjur_admin_group(account)
     synchronizer_uuid = tenant_id
 
@@ -47,7 +47,7 @@ class SynchronizerCreationController < V2RestController
       add_synchronizer_host_policy(synchronizer_uuid)
 
       head :created
-      logger.debug(LogMessages::Endpoints::EndpointFinishedSuccessfully.new("synchronizer created - #{synchronizer_uuid}"))
+      logger.debug{LogMessages::Endpoints::EndpointFinishedSuccessfully.new("synchronizer created - #{synchronizer_uuid}")}
 
     rescue Exceptions::RecordExists => e
       logger.warn(LogMessages::Conjur::AlreadyExists.new(synchronizer_uuid, e.message))

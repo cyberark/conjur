@@ -7,6 +7,6 @@ RUN gem install -N sinatra
 
 COPY inventory.rb usr/src/inventory.rb
 
-env PORT 80
+ENV PORT 80
 
 CMD [ "ruby", "/usr/src/inventory.rb" ]

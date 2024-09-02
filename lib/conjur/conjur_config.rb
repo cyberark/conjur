@@ -186,9 +186,9 @@ module Conjur
       # It may be expected that the config directory not exist, so this is
       # a log message for debugging the Conjur config, rather than alerting the
       # user to an issue.
-      @logger.debug(
+      @logger.debug{
         LogMessages::Config::DirectoryDoesNotExist.new(config_directory).to_s
-      )
+      }
       false
     end
 
@@ -212,9 +212,9 @@ module Conjur
 
       # Similar to the directory, if the config file doesn't exist, this becomes
       # debugging information.
-      @logger.debug(
+      @logger.debug{
         LogMessages::Config::FileDoesNotExist.new(config_path).to_s
-      )
+      }
 
       false
     end

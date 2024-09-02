@@ -7,9 +7,12 @@ class EdgeHandlerController < RestController
   include EdgeValidator
   include ExtractEdgeResources
   include GroupMembershipValidator
+
+  def log_message(role_id)
+    "edge telemetry for edge '#{Edge.get_name_by_hostname(role_id)}'"
+  end
   def report_edge_data
-    log_message = "edge telemetry for edge '#{Edge.get_name_by_hostname(current_user.role_id)}'"
-    logger.debug(LogMessages::Endpoints::EndpointRequested.new(log_message))
+    logger.debug{LogMessages::Endpoints::EndpointRequested.new(log_message(current_user.role_id))}
 
     allowed_params = %i[account data_type]
     url_params = params.permit(*allowed_params)
@@ -20,7 +23,7 @@ class EdgeHandlerController < RestController
 
     handler.new(logger).call(params, current_user.role_id, request.ip)
 
-    logger.debug(LogMessages::Endpoints::EndpointFinishedSuccessfully.new(log_message))
+    logger.debug{LogMessages::Endpoints::EndpointFinishedSuccessfully.new(log_message(current_user.role_id))}
   end
 
 end

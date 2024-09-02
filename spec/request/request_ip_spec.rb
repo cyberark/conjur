@@ -71,6 +71,16 @@ RSpec.describe("request IP address determination", type: :request) do
     expect(request.remote_ip).to eq('3.3.3.3')
   end
 
+  it 'trusts the ipv6 loopback address by default to provide XFF' do
+    expect(
+      request_ip(
+        remote_addr: '::1',
+        x_forwarded_for: '3.3.3.3'
+      )
+    ).to eq('3.3.3.3')
+    expect(request.remote_ip).to eq('3.3.3.3')
+  end
+
   it 'does not trust other non-routable addresses by default to provide XFF' do
     expect(
       request_ip(

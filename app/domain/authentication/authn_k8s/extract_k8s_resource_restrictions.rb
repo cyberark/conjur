@@ -33,11 +33,11 @@ module Authentication
         resource_restrictions = restrictions_from_annotations.except(Restrictions::AUTHENTICATION_CONTAINER_NAME)
         return resource_restrictions if resource_restrictions.any?
 
-        @logger.debug(LogMessages::Authentication::AuthnK8s::ExtractingRestrictionsFromHostId.new(@role_name))
+        @logger.debug{LogMessages::Authentication::AuthnK8s::ExtractingRestrictionsFromHostId.new(@role_name)}
 
         resource_restrictions = resource_restrictions_from_host_id
 
-        @logger.debug(LogMessages::Authentication::ResourceRestrictions::ExtractedResourceRestrictions.new(resource_restrictions.names))
+        @logger.debug{LogMessages::Authentication::ResourceRestrictions::ExtractedResourceRestrictions.new(resource_restrictions.names)}
 
         resource_restrictions
       end
