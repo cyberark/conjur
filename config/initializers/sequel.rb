@@ -29,7 +29,7 @@ Rails.application.configure do
   # Defaults to false in production and test, true otherwise.
   config.sequel.schema_dump = false
 
-  config.reaping_frequency = 60
+  config.reaping_frequency = 300
 
   # Max Postgres connections should be no less than the number of threads
   # available to the web worker to avoid pool timeouts.
