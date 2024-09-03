@@ -9,7 +9,6 @@ Then(/^the error message is "([^"]*)"$/) do |message|
 end
 
 Then(/^the error message includes "([^"]*)"$/) do |message|
-  $stderr.puts("Got message field: #{@error['message']}")
   expect(@error['message']).to include(message)
 end
 

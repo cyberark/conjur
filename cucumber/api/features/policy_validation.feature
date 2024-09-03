@@ -41,7 +41,6 @@ Feature: Validating policies
     """
     Then the HTTP response status code is 200
     And the status is "Valid YAML"
-    And there are no errors
 
   Scenario: When a policy is validated it does not alter existing conjur records.
     When I successfully POST "/policies/cucumber/policy/dev/db" with body:

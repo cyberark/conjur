@@ -3,15 +3,12 @@
 require 'spec_helper'
 require 'spec_helper_policy'
 
-# This is intended as regression testing for the validation feature, not as a comprehensive test
-# of policy cases.  Enough policy cases are included to exercise all the policy parsing error sources
-# (YAML, resolving, conjur policy, and difficult cases).
-# So that this won't become brittle the expectations follow these guidelines:
-# - Include just enough error text to uniquely match
-# - Use 'match' to expect the error_text string
-# - Use explanation string expectation mainly to confirm that it is provided.  By matching as little as possible
-#   of the advice string the text can be maintained or improved with some possibility of not breaking
-#   its test.
+# This is a companion to the policy_validation_spec.  It features the same policies so that we
+# can zoom in on issues where a policy validates / dry-runs but won't load, and vice versa.
+
+# This is intended as a sampled regression test for the validation feature, covering errors by category,
+# not comprehensively.
+
 
 def validation_status
   body = JSON.parse(response.body)
@@ -28,6 +25,7 @@ def validation_explanation
   body = JSON.parse(response.body)
   msg = body['errors'][0]['message']
   adv = msg.match(/^[^\n]*\n{1,1}(.*)$/).to_s
+  expect(blarf).to be("un")
   adv
 end
 
@@ -43,7 +41,7 @@ describe PoliciesController, type: :request do
           )
           expect(response.code).to match(/20\d/)
           body = JSON.parse(response.body)
-          expect(validation_status).to match("Valid YAML")
+          expect(body['status']).to match("Valid YAML")
         end
       end
     end
