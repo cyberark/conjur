@@ -89,6 +89,14 @@ describe AuthenticateController, :type => :request do
         expect(response).to have_valid_token_for(login)
       end
 
+      context 'when API key is invalid' do
+        it "fails" do
+          post(authenticate_url, env: { 'RAW_POST_DATA' => 'foo-bar-baz' })
+          expect(response.code).to eq("401")
+          expect(response.body).to eq("")
+        end
+      end
+
       it "is fast", :performance do
         expect{ invoke }.to handle(30).requests_per_second
       end
