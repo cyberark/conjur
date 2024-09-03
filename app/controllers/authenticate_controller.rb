@@ -46,10 +46,7 @@ class AuthenticateController < ApplicationController
     logger.info("Exception: #{response.exception.class.name}: #{response.exception.message}")
     [*response.exception.backtrace].each { |line| logger.info(line) }
 
-    render(
-      json: { error: response.exception.message },
-      status: response.status
-    )
+    head response.status
   end
 
   def oidc_authenticate_code_redirect
