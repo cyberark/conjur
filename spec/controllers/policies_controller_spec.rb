@@ -174,10 +174,13 @@ describe PoliciesController, type: :request do
       end
 
       it "validates the policy without changing data" do
+        allow(Audit.logger).to receive(:log)
+
         validate_policy(policy: good_policy)
         expect(response.status).to eq(200)
         expect(user('alice')).not_to be
         expect(user('bob')).not_to be
+        expect(Audit.logger).to have_received(:log)
       end
 
       it "rolls back a valid dry-run policy (existing version does not change)" do
@@ -242,12 +245,15 @@ describe PoliciesController, type: :request do
       end
 
       it "returns error, including advice" do
+        allow(Audit.logger).to receive(:log)
+    
         validate_policy(policy: policy_with_missing_colon)
         expect(response.status).to eq(422)
         msg = "could not find expected ':' while scanning a simple key"
         advice = "This error can occur when you have a missing ':' or missing space after ':'"
         expect(error_msg_for_validate(response)).to include(msg)
-        # expect(advice_msg_for_validate(response)).to include(advice)
+        expect(advice_msg_for_validate(response)).to include(advice)
+        expect(Audit.logger).to have_received(:log)
       end
     end
 
