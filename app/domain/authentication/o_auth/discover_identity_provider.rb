@@ -1,4 +1,3 @@
-require 'uri'
 module Authentication
   module OAuth
     # Object to match the previously used `OpenIDConnect::Discovery::Provider::Config::Resource`
@@ -33,11 +32,8 @@ module Authentication
       # is used is inside of FetchProviderKeys. This is unlikely to change, and hence
       # unlikely to be a problem.
       def discover_provider
-        @logger.info{"!!! - Discovering provider at #{@provider_uri}"}
-        @logger.info{URI.join(@provider_uri.to_s, ".well-known/openid-configuration").to_s}
-        @logger.info{"#{@provider_uri}/.well-known/openid-configuration"}
-
-        response = @client.new(hostname: @provider_uri, ca_certificate: @ca_cert).get("#{@provider_uri}/.well-known/openid-configuration").bind do |endpoint|
+        well_known_stub = @provider_uri[-1] == "/" ? ".well-known/openid-configuration" : "/.well-known/openid-configuration"
+        response = @client.new(hostname: @provider_uri, ca_certificate: @ca_cert).get("#{@provider_uri}#{well_known_stub}").bind do |endpoint|
           @logger.debug{LogMessages::Authentication::OAuth::IdentityProviderDiscoverySuccess.new}
           @client.new(hostname: endpoint['jwks_uri'], ca_certificate: @ca_cert).get(endpoint['jwks_uri']).bind do |jwks|
             return DiscoveryProvider.new(
@@ -45,9 +41,6 @@ module Authentication
               supported_algorithms: endpoint['id_token_signing_alg_values_supported']
             )
           end
-        end
-        if response.is_a?(SuccessResponse)
-          return response 
         end
 
         if response.exception.is_a?(Errno::ETIMEDOUT)
