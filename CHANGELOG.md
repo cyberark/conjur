@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - switch OIDC tests to use @skip with yaml instead of Before hook
 - Failed authentication requests now return no body, only and error code.
     ONYX-60466
+- Failed cli users authentication fix ONYX-60467
 
 ### Fixed
 - Fixed pubsub scheduler to not hit CPU, removed rake and calling the code itself
