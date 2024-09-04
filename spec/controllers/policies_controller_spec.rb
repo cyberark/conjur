@@ -272,4 +272,30 @@ describe PoliciesController, type: :request do
       end
     end
   end
+
+  context 'when loading a policy on a read-only database replica' do
+    let(:mock_policy_version) { instance_double('PolicyVersion') }
+    let(:permission_error) { PG::InsufficientPrivilege.new('ERROR: permission denied for table policy_versions') }
+
+    before do
+      allow(PolicyVersion).to receive(:new).and_return(mock_policy_version)
+      allow(mock_policy_version).to receive(:delete_permitted=).with(false)
+      
+      allow(mock_policy_version).to receive(:save).and_raise(permission_error)
+    end
+
+    it 'returns an HTTP 405 when the database is read-only' do
+      apply_policy(
+        action: :post,
+        policy: <<~TEMPLATE
+                  - !user charlie
+                TEMPLATE
+      )
+
+      expect(PolicyVersion).to have_received(:new)
+      expect(mock_policy_version).to have_received(:save)
+      expect(response).to have_http_status(405)
+      expect(response.body).to include('Write operations are not allowed')
+    end
+  end  
 end
