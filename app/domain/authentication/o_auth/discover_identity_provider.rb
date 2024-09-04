@@ -42,6 +42,9 @@ module Authentication
             )
           end
         end
+        if response.is_a?(SuccessResponse)
+          return response 
+        end
 
         if response.exception.is_a?(Errno::ETIMEDOUT)
           raise Errors::Authentication::OAuth::ProviderDiscoveryTimeout.new(
