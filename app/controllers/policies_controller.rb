@@ -178,6 +178,9 @@ class PoliciesController < RestController
 
     else # :orchestration
       save_submitted_policy(policy_result, delete_permitted) unless policy_erred.call
+
+      raise policy_result.error if policy_erred.call
+
       evaluate_policy.call(Loader::Orchestrate)
 
     end

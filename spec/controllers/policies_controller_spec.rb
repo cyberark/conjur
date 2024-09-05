@@ -279,18 +279,19 @@ describe PoliciesController, type: :request do
     end
   end
 
-  context 'when loading a policy on a read-only database replica' do
+  context 'when a policy is loaded on a read-only database replica' do
     let(:mock_policy_version) { instance_double('PolicyVersion') }
     let(:permission_error) { PG::InsufficientPrivilege.new('ERROR: permission denied for table policy_versions') }
+    let(:evaluate_policy) { instance_double('Proc') }
 
     before do
       allow(PolicyVersion).to receive(:new).and_return(mock_policy_version)
       allow(mock_policy_version).to receive(:delete_permitted=).with(false)
-      
       allow(mock_policy_version).to receive(:save).and_raise(permission_error)
+      allow(evaluate_policy).to receive(:call).with(Loader::Orchestrate)
     end
 
-    it 'returns an HTTP 405 when the database is read-only' do
+    it 'returns an HTTP 405' do
       apply_policy(
         action: :post,
         policy: <<~TEMPLATE
@@ -302,6 +303,7 @@ describe PoliciesController, type: :request do
       expect(mock_policy_version).to have_received(:save)
       expect(response).to have_http_status(405)
       expect(response.body).to include('Write operations are not allowed')
+      expect(evaluate_policy).not_to have_received(:call).with(Loader::Orchestrate)
     end
-  end  
+  end
 end
