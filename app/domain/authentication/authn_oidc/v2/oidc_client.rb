@@ -45,17 +45,17 @@ module Authentication
         def exchange_code_for_token(code:, nonce:, code_verifier: nil)
           args = {
             grant_type: 'authorization_code',
-            scope: true,
+            scope: @authenticator.scope,
             code: code,
             nonce: nonce
           }
           args[:code_verifier] = code_verifier if code_verifier.present?
-          args[:redirect_uri] = ERB::Util.url_encode(@authenticator.redirect_uri) if @authenticator.redirect_uri.present?
+          args[:redirect_uri] = @authenticator.redirect_uri if @authenticator.redirect_uri.present?
 
           oidc_configuration.bind do |config|
             response = @client.post(
               path: config['token_endpoint'],
-              body: args.map { |k, v| "#{k}=#{v}" }.join('&'),
+              body: args,
               basic_auth: [@authenticator.client_id, @authenticator.client_secret],
               headers: { 'Content-Type' => 'application/x-www-form-urlencoded' }
             ).bind do |token|

@@ -35,9 +35,12 @@ module Authentication
         end
       end
 
-      def post(path:, body: '', basic_auth: [], headers: {})
+      # Possible types are :form and :json. Default is :form.
+      #   If type is :json, the body expected to be a hash. It is converted to JSON and the Content-Type header is set to 'application/json'
+      #   If type is :form, the body expected to be a hash. It is converted to form data and the Content-Type header is set to 'application/x-www-form-urlencoded'.
+      def post(path:, body: '', basic_auth: [], headers: {}, type: :form)
         as_response do
-          post_request(path: path, body: body, basic_auth: basic_auth, headers: headers)
+          post_request(path: path, body: body, basic_auth: basic_auth, headers: headers, type: type)
         end
       end
 
@@ -62,12 +65,20 @@ module Authentication
         end
       end
 
-      def post_request(path:, body: '', basic_auth: [], headers: {})
+      # Body parameter accepts a hash or a string. Hashes are converted to form data.
+      def post_request(path:, body: '', type: :form, basic_auth: [], headers: {})
         http_client.start do |http|
           request = @http_post.new(URI(path).path)
-          request.body = body
           headers.each do |key, value|
             request[key] = value
+          end
+          if body.is_a?(Hash) && type == :form
+            request.set_form_data(body)
+          elsif body.is_a?(Hash) && type == :json
+            request.body = body.to_json
+            request['Content-Type'] = 'application/json'
+          else
+            request.body = body
           end
           request.basic_auth(*basic_auth) unless basic_auth.empty?
           http.request(request)
