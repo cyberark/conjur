@@ -38,4 +38,26 @@ describe "EdgeObject" do
       expect { Edge.new_edge(name: "edgy2", id: 2, version: "1.1.1", platform: "podman", installation_date: Time.at(111111111), last_sync: Time.at(222222222)) }.to raise_error(ArgumentError)
     end
   end
+
+  context "get_name_by_hostname" do
+    it "logs KeyError and returns empty string" do
+      hostname = "test-hostname"
+      edge_mock = double("Edge")
+      allow(Edge).to receive(:get_by_hostname).with(hostname).and_return(edge_mock)
+      allow(edge_mock).to receive(:[]).with(:name).and_raise(KeyError, "key not found: :name")
+
+      result = Edge.get_name_by_hostname(hostname)
+      expect(result).to eq("")
+    end
+
+    it "returns the name when present" do
+      hostname = "test-hostname"
+      edge_mock = double("Edge", name: "Edgy")
+      allow(Edge).to receive(:get_by_hostname).with(hostname).and_return(edge_mock)
+      allow(edge_mock).to receive(:[]).with(:name).and_return("Edgy")
+
+      result = Edge.get_name_by_hostname(hostname)
+      expect(result).to eq("Edgy")
+    end
+  end
 end
