@@ -32,6 +32,17 @@ RSpec.describe(Authentication::AuthnOidc::V2::OidcClient) do
     instance_double(::Authentication::Util::NetworkTransporter)
   end
 
+  let(:transport_post_form_data) do
+    {
+      code: "-QGREc_SONbbJIKdbpyYudA13c9PZlgqdxowkf45LOw",
+      code_verifier: "c1de7f1251849accd99d4839d79a637561b1181b909ed7dc1d",
+      grant_type: "authorization_code",
+      nonce: "7efcbba36a9b96fdb5285a159665c3d382abd8b6b3288fcc8d",
+      redirect_uri: authenticator_args[:redirect_uri],
+      scope: "openid email profile"
+    }
+  end
+
   let(:auth_time) { Time.parse('2022-09-30 17:02:17 +0000') }
 
   # rubocop:disable Layout:LineLength
@@ -80,7 +91,7 @@ RSpec.describe(Authentication::AuthnOidc::V2::OidcClient) do
           allow(double).to receive(:post)
             .with(
               path: 'https://dev-92899796.okta.com/oauth2/default/v1/token',
-              body: 'grant_type=authorization_code&scope=true&code=-QGREc_SONbbJIKdbpyYudA13c9PZlgqdxowkf45LOw&nonce=7efcbba36a9b96fdb5285a159665c3d382abd8b6b3288fcc8d&code_verifier=c1de7f1251849accd99d4839d79a637561b1181b909ed7dc1d&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fauthn-oidc%2Fokta%2Fcucumber%2Fauthenticate',
+              body: transport_post_form_data,
               basic_auth: %w[super-secret-client-id super-secret-client-secret],
               headers: { 'Content-Type' => 'application/x-www-form-urlencoded' }
             )
@@ -119,11 +130,12 @@ RSpec.describe(Authentication::AuthnOidc::V2::OidcClient) do
           end
           # rubocop:disable Layout:LineLength
           before do
+            transport_post_form_data.delete(:redirect_uri)
             transport.tap do |double|
               allow(double).to receive(:post)
                 .with(
                   path: 'https://dev-92899796.okta.com/oauth2/default/v1/token',
-                  body: 'grant_type=authorization_code&scope=true&code=-QGREc_SONbbJIKdbpyYudA13c9PZlgqdxowkf45LOw&nonce=7efcbba36a9b96fdb5285a159665c3d382abd8b6b3288fcc8d&code_verifier=c1de7f1251849accd99d4839d79a637561b1181b909ed7dc1d',
+                  body: transport_post_form_data,
                   basic_auth: %w[super-secret-client-id super-secret-client-secret],
                   headers: { 'Content-Type' => 'application/x-www-form-urlencoded' }
                 )
@@ -156,11 +168,12 @@ RSpec.describe(Authentication::AuthnOidc::V2::OidcClient) do
         context 'when code verifier is not used' do
           before do
             transport.tap do |double|
+              transport_post_form_data.delete(:code_verifier)
               # rubocop:disable Layout:LineLength
               allow(double).to receive(:post)
                 .with(
                   path: 'https://dev-92899796.okta.com/oauth2/default/v1/token',
-                  body: 'grant_type=authorization_code&scope=true&code=-QGREc_SONbbJIKdbpyYudA13c9PZlgqdxowkf45LOw&nonce=7efcbba36a9b96fdb5285a159665c3d382abd8b6b3288fcc8d&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fauthn-oidc%2Fokta%2Fcucumber%2Fauthenticate',
+                  body: transport_post_form_data,
                   basic_auth: %w[super-secret-client-id super-secret-client-secret],
                   headers: { 'Content-Type' => 'application/x-www-form-urlencoded' }
                 )
@@ -208,13 +221,12 @@ RSpec.describe(Authentication::AuthnOidc::V2::OidcClient) do
       end
     end
     context 'token response is empty' do
-      # rubocop:disable Layout:LineLength
       before do
         transport.tap do |double|
           allow(double).to receive(:post)
             .with(
               path: 'https://dev-92899796.okta.com/oauth2/default/v1/token',
-              body: 'grant_type=authorization_code&scope=true&code=-QGREc_SONbbJIKdbpyYudA13c9PZlgqdxowkf45LOw&nonce=7efcbba36a9b96fdb5285a159665c3d382abd8b6b3288fcc8d&code_verifier=c1de7f1251849accd99d4839d79a637561b1181b909ed7dc1d&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fauthn-oidc%2Fokta%2Fcucumber%2Fauthenticate',
+              body: transport_post_form_data,
               basic_auth: %w[super-secret-client-id super-secret-client-secret],
               headers: { 'Content-Type' => 'application/x-www-form-urlencoded' }
             )
@@ -223,7 +235,6 @@ RSpec.describe(Authentication::AuthnOidc::V2::OidcClient) do
             )
         end
       end
-      # rubocop:enable Layout:LineLength
       it 'is unsuccessful' do
         response =
           travel_to(auth_time) do
@@ -241,13 +252,12 @@ RSpec.describe(Authentication::AuthnOidc::V2::OidcClient) do
       end
     end
     context 'token does not have a valid bearer token' do
-      # rubocop:disable Layout:LineLength
       before do
         transport.tap do |double|
           allow(double).to receive(:post)
             .with(
               path: 'https://dev-92899796.okta.com/oauth2/default/v1/token',
-              body: 'grant_type=authorization_code&scope=true&code=-QGREc_SONbbJIKdbpyYudA13c9PZlgqdxowkf45LOw&nonce=7efcbba36a9b96fdb5285a159665c3d382abd8b6b3288fcc8d&code_verifier=c1de7f1251849accd99d4839d79a637561b1181b909ed7dc1d&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fauthn-oidc%2Fokta%2Fcucumber%2Fauthenticate',
+              body: transport_post_form_data,
               basic_auth: %w[super-secret-client-id super-secret-client-secret],
               headers: { 'Content-Type' => 'application/x-www-form-urlencoded' }
             )
@@ -258,7 +268,6 @@ RSpec.describe(Authentication::AuthnOidc::V2::OidcClient) do
             )
         end
       end
-      # rubocop:enable Layout:LineLength
       it 'is unsuccessful' do
         response =
           travel_to(auth_time) do

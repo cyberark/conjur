@@ -181,15 +181,47 @@ RSpec.describe(Authentication::Util::NetworkTransporter) do
       end
     end
     context 'with a body' do
-      it 'adds the provided body' do
-        # Spies
-        expect(post).to receive(:body=).with('foo=bar&baz=bing')
+      context 'when the body is a string' do
+        it 'adds the provided body' do
+          body = 'send this body'
+          # Spies
+          expect(post).to receive(:body=).with(body)
 
-        response = transport.post(
-          path: 'https://accounts.google.com/o/oauth2/v2/auth',
-          body: 'foo=bar&baz=bing'
-        )
-        expect(response.success?).to be(true)
+          response = transport.post(
+            path: 'https://accounts.google.com/o/oauth2/v2/auth',
+            body: body
+          )
+          expect(response.success?).to be(true)
+        end
+      end
+      context 'when the body is a hash' do
+        context 'when we want to send the body as a form' do
+          it 'adds the provided body' do
+            # Spies
+            expect(post).to receive(:set_form_data).with({ baz: "bing", foo: "bar" })
+
+            response = transport.post(
+              path: 'https://accounts.google.com/o/oauth2/v2/auth',
+              body: { foo: 'bar', baz: 'bing' }
+            )
+            expect(response.success?).to be(true)
+          end
+        end
+        context 'when we want to send the body as JSON' do
+          it 'adds the provided body' do
+            body = { foo: 'bar', baz: 'bing' }
+            # Spies
+            expect(post).to receive(:body=).with(body.to_json)
+            expect(post).to receive(:[]=).with('Content-Type', 'application/json')# { baz: "bing", foo: "bar" })
+
+            response = transport.post(
+              path: 'https://accounts.google.com/o/oauth2/v2/auth',
+              body: body,
+              type: :json
+            )
+            expect(response.success?).to be(true)
+          end
+        end
       end
     end
     context 'with basic auth' do
