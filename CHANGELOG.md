@@ -11,16 +11,18 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [1.0.38-cloud] - 2024-09-15
 ### Added
-- conjur sync version 13.3 - part 3 (continues from 1.0.36v)
+- conjur sync version 13.3 - part 3 (continues from 1.0.36v). Includes:
+  - Policy Factories CNJR-3859  
+  - Authenticator Refactor CNJR-3264
 - switch OIDC tests to use @skip with yaml instead of Before hook
-- Failed authentication requests now return no body, only and error code.
-    ONYX-60466
-- Failed cli users authentication fix ONYX-60467
 
 ### Fixed
 - Fixed pubsub scheduler to not hit CPU, removed rake and calling the code itself
 - Fixed debug log sent DB queries, change debug logs in conjur to logger.debug{} 
 - Change the way to fetch Edge attribute name from .name to [:name]
+- Failed authentication requests now return no body, only and error code.
+  ONYX-60466
+- Failed cli users authentication fix ONYX-60467
 
 ## [1.0.36-cloud] - 2024-09-01
 ### Added
