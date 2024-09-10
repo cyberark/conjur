@@ -27,12 +27,13 @@ module Authentication
         }
       end
 
-      # Returns an mocked version of OpenIDConnect::Discovery::Provider::Config::Resource
+      # Returns a mocked version of OpenIDConnect::Discovery::Provider::Config::Resource
       # instance. While this leaks 3rd party code into ours, the only time this Resource
       # is used is inside of FetchProviderKeys. This is unlikely to change, and hence
       # unlikely to be a problem.
       def discover_provider
-        response = @client.new(hostname: @provider_uri, ca_certificate: @ca_cert).get("#{@provider_uri}/.well-known/openid-configuration").bind do |endpoint|
+        well_known_stub = @provider_uri[-1] == "/" ? ".well-known/openid-configuration" : "/.well-known/openid-configuration"
+        response = @client.new(hostname: @provider_uri, ca_certificate: @ca_cert).get("#{@provider_uri}#{well_known_stub}").bind do |endpoint|
           @logger.debug{LogMessages::Authentication::OAuth::IdentityProviderDiscoverySuccess.new}
           @client.new(hostname: endpoint['jwks_uri'], ca_certificate: @ca_cert).get(endpoint['jwks_uri']).bind do |jwks|
             return DiscoveryProvider.new(

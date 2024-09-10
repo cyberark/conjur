@@ -1,0 +1,65 @@
+@startuml factory-create-request
+start
+:Identify Factory\nvariable based\non request params;
+if (Does factory variable exist?) then (<color:green>yes)
+  if (Can role load factory variable?) then (<color:green>yes)
+    if (Does factory variable have a value?) then (<color:green>yes)
+      :Load Factory;
+      :Extract Schema from Factory Variable;
+      :Parse [POST] JSON Request body;
+      ' :Extract Schema from Factory;
+      if (Parse JSON body?) then (<color:green>yes)
+        if (Required keys missing?) then (<color:red>no)
+          #pink: Missing Keys;
+          kill
+        else (<color:green>yes)
+          if (required values empty?) then (<color:red>no)
+            #pink: Missing Values;
+            kill
+          else (<color:green>yes)
+            if (Policy rendered?) then (<color:green>yes)
+              if (Policy namespace path rendered?) then (<color:green>yes)
+                if (Policy successfully applied) then (<color:green>yes)
+                  if (Factory has variables?) then (<color:green>yes)
+                    if (Variable successfully set?) then (<color:green>yes)
+                      #lightgreen: Return policy response;
+                      end
+                    else (<color:red>no)
+                      #pink: Setting Variable(s) not Permitted;
+                      kill
+                    endif
+                  else (<color:red>no)
+                    #lightgreen: Return policy response;
+                    kill
+                  endif
+                else (<color:red>no)
+                  #pink: Policy Creation not Permitted;
+                  kill
+                endif
+              else (<color:red>no)
+                #pink: Invalid Policy Namespace ERB;
+                kill
+              endif
+            else (<color:red>no)
+              #pink: Invalid Policy ERB;
+              kill
+            endif
+          endif
+        endif
+      else (<color:red>no)
+        #pink: Malformed JSON;
+        kill
+      endif
+    else (<color:red>no)
+      #pink: Factory Variable empty;
+      kill
+    endif
+  else (<color:red>no)
+    #pink: Factory not available;
+    kill
+  endif
+else (<color:red>no)
+  #pink: Factory Variable not present;
+  kill
+endif
+@enduml

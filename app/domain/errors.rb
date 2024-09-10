@@ -840,6 +840,34 @@ module Errors
     )
   end
 
+  module Factories
+
+    FactoryNotFound = ::Util::TrackableErrorClass.new(
+      msg: "No Factory found for '{0-factory-name}'",
+      code: 'CONJ00157E'
+    )
+
+    FactoryGeneratedPolicyNotFound = ::Util::TrackableErrorClass.new(
+      msg: "No policy found for Factory generated resource: '{0-policy-identifier}'",
+      code: 'CONJ00158E'
+    )
+
+    MissingFactoryAnnotation = ::Util::TrackableErrorClass.new(
+      msg: "No factory annotation found for policy: '{0-policy-identifier}'",
+      code: 'CONJ00159E'
+    )
+
+    InvalidAction = ::Util::TrackableErrorClass.new(
+      msg: "Invalid action: '{0-action}', only {1-allowed} are allowed",
+      code: 'CONJ00160E'
+    )
+
+    NoVariablesFound = ::Util::TrackableErrorClass.new(
+      msg: "No variables found for Factory created resource: '{0-policy-path}'",
+      code: 'CONJ00161E'
+    )
+  end
+
   module Edge
 
     MaxEdgeAllowedNotFound = ::Util::TrackableErrorClass.new(

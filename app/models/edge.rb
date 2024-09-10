@@ -35,7 +35,11 @@ class Edge < Sequel::Model
 
     def get_name_by_hostname(hostname)
       begin
-        get_by_hostname(hostname).name
+        get_by_hostname(hostname)[:name]
+      rescue KeyError => e
+        # Only happens if there issue with ORM, happened to us in production when we used as a method .name instead of [:name]
+        Rails.logger.error("Didn't find attribute name in edge: #{e.message}")
+        ""
       rescue Exceptions::RecordNotFound
         ""  # Return empty string in case the edge instance is not in DB
       end

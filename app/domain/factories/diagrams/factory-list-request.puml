@@ -1,0 +1,23 @@
+@startuml factory-list-request
+start
+:Gather factories the role is able to view;
+partition "For each Factory Version" {
+  repeat
+    if ("Factory is present?") then (<color:green>yes)
+      if ("Is Factory format is valid?") then (<color:green>yes)
+        if ("Is Factory Schema is valid?") then (<color:green>yes)
+          :Display Factory details and Schema;
+        else
+          #pink:[Error] Invalid Factory Schema;
+        endif
+      else
+        #pink:[Error] Invalid Factory Format;
+      endif
+    else
+      #pink:[Error] Factory not Defined;
+    endif
+  backward: Next Factory;
+  repeat while (More Factories?)
+}
+:Return JSON Summary;
+@enduml

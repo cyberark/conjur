@@ -1,0 +1,25 @@
+@startuml factory-info-request
+(*) --> "Identify target Factory based on request params"
+if "Does Factory exist?" then
+  --> [<color:green>yes] if "Role has permission to view factory" then
+    --> [<color:green>yes] if "Factory is present?" then
+      --> "Load Factory"
+      --> [<color:green>yes] if "Factory format is valid?" then
+        --> [<color:green>yes] if "Factory Schema is valid?" then
+          --> "<color:green>Return Schema"
+        else
+          --> [<color:red>no] "<color:red>[Error] Invalid Factory Schema"
+        endif
+      else
+        --> [<color:red>no] "<color:red>[Error] Invalid Factory Format"
+      endif
+    else
+      --> [<color:red>no] "<color:red>[Error] Factory not Defined"
+    endif
+  else
+    --> [<color:red>no] "<color:red>[Error] Factory not Available"
+  endif
+else
+  --> [<color:red>no] "<color:red>[Error] Factory not Found"
+endif
+@enduml
