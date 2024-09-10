@@ -14,6 +14,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Fixed
 - Updates OIDC Authenticator to use the scope defined in configuration.
   CNJR-6393
+- Failed authentication requests now return without a body, only an error code.
+  ONYX-60466
 
 ## [1.21.1] - 2024-06-03
 
