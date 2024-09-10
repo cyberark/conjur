@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
+## [1.0.39-cloud] - 2024-09-10
+### Added
+- changing status controller to work without transaction
+- adding closing timeout for unused DB Connections
+
 ## [1.0.38-cloud] - 2024-09-15
 ### Added
 - conjur sync version 13.3 - part 3 (continues from 1.0.36v). Includes:
@@ -18,7 +23,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Fixed
 - Fixed pubsub scheduler to not hit CPU, removed rake and calling the code itself
-- Fixed debug log sent DB queries, change debug logs in conjur to logger.debug{} 
+- Fixed debug log sent DB queries, change debug logs in conjur to logger.debug{}
 - Change the way to fetch Edge attribute name from .name to [:name]
 - Failed authentication requests now return no body, only and error code.
   ONYX-60466
@@ -26,7 +31,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [1.0.36-cloud] - 2024-09-01
 ### Added
-- Restrict grant only to appropriate types 
+- Restrict grant only to appropriate types
 - conjur sync version 13.3 - part 2 (continues from 1.0.29v)
 
 ### Changed
@@ -40,8 +45,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [1.0.34-cloud] - 2024-08-11
 ### Fixed
-- Improve policy load performance (Cherry Pick form conjur-OSS) 
-- Improve is_allowed_to DB query (Cherry Pick form conjur-OSS) 
+- Improve policy load performance (Cherry Pick form conjur-OSS)
+- Improve is_allowed_to DB query (Cherry Pick form conjur-OSS)
 
 ## [1.0.33-cloud] - 2024-07-28
 ### Fixed
@@ -69,7 +74,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - change minimal flag to projection flag in get issuer api
 
 ### Security
-- Upgraded Rails to 6.1.7.8, to resolve CVE-2023-22796 
+- Upgraded Rails to 6.1.7.8, to resolve CVE-2023-22796
 - Upgrade Nokogiri, actionpack, json-jwt to to solve vulnerabilities
 
 ### Fixed
@@ -94,8 +99,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Update issuer can now update TTL or data field as seperate request
 - Issuer API will not return secret_access_key anymore, instead they will return '*****'
 - First part of the sync with conjur enterprise V13.3 includes:  
-  - support for arm64 
-  - cli version 8 
+  - support for arm64
+  - cli version 8
   - Update authn_k8s test server fixture file names
   - [SECURITY] Upgrade rack to 2.2.8.1 and Upgrade puma to 6.4.2
 
