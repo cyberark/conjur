@@ -2,7 +2,7 @@
 
 require 'date'
 
-class StatusController < ApplicationController
+class StatusController < ActionController::API
   include TokenUser
 
   def index
