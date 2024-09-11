@@ -12,11 +12,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [1.0.40-cloud] - 2024-09-29
 ### Added
 - Cache role membership in edge replication for Atlantis
+- Added scaffolds for add permission event
 
 ### Fixed
 - Fixed assume role when credentials expired
 
-## [1.0.39-cloud] - 2024-09-10
+## [1.0.39-cloud] - 2024-09-22
 ### Added
 - changing status controller to work without transaction
 - adding closing timeout for unused DB Connections
