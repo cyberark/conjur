@@ -131,7 +131,7 @@ if [[ "${PROMOTE}" = true ]]; then
   # Push latest, 1.x.y, 1.x, and 1 images
   readarray -t prefix_versions < <(gen_versions "${VERSION}")
 
-  for version in latest "${prefix_versions[@]}"; do
+  for version in "${prefix_versions[@]}"; do
     echo "Pushing images for tag: $version-${ARCH}"
 
     tag_and_push "${version}-${ARCH}" "registry.tld/${IMAGE_NAME}:${LOCAL_TAG}-${ARCH}" "registry.tld/${IMAGE_NAME}"
@@ -150,13 +150,13 @@ if [[ "${REDHAT}" = true ]]; then
   # Publish only the tag version to the Redhat container registry
   if docker login "${REDHAT_REGISTRY}" -u "${REDHAT_USER}" -p "${REDHAT_API_KEY}"; then
     # push image to red hat
-    tag_and_push "${VERSION}" "${RH_LOCAL_IMAGE}" "${REDHAT_REMOTE_IMAGE}"
+    tag_and_push "${VERSION}" "${RH_LOCAL_IMAGE}-${ARCH}" "${REDHAT_REMOTE_IMAGE}"
 
     # scan image with preflight tool
     scan_redhat_image "${REDHAT_REMOTE_IMAGE}:${VERSION}" "${REDHAT_CERT_PID}"
 
     # push latest tag to RH
-    tag_and_push "latest" "${RH_LOCAL_IMAGE}" "${REDHAT_REMOTE_IMAGE}"
+    tag_and_push "${RH_LOCAL_IMAGE}-${ARCH}" "${REDHAT_REMOTE_IMAGE}"
   else
     echo 'Failed to log in to quay.io'
     exit 1
