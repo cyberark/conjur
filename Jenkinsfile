@@ -130,7 +130,7 @@ if (params.MODE == "PROMOTE") {
       summon -f ./secrets.yml ./publish-images.sh --promote --base-version=${sourceVersion} --version=${targetVersion} --arch=arm64
       
       # Promote manifest that links above images
-      summon -f ./secrets.yml ./publish-manifest.sh --promote --base-version=${sourceVersion} --version=${targetVersion}
+      summon -f ./secrets.yml ./publish-manifest.sh --promote --dockerhub --base-version=${sourceVersion} --version=${targetVersion}
     """
 
     // TODO: In talking to Neil King, this likely won't work until conjurops is migrated over

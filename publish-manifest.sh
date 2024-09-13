@@ -22,6 +22,7 @@ function print_help() {
 PUBLISH_EDGE=false
 PUBLISH_INTERNAL=false
 PROMOTE=false
+DOCKERHUB=false
 VERSION=$(<VERSION)
 
 LOCAL_TAG="$(version_tag)"
@@ -38,6 +39,10 @@ for arg in "$@"; do
       ;;
     --promote )
       PROMOTE=true
+      shift
+      ;;
+    --dockerhub )
+      DOCKERHUB=true
       shift
       ;;
     --version=* )
@@ -86,6 +91,14 @@ if [[ "${PUBLISH_EDGE}" = true ]]; then
   # Push manifest to internal registry
   prepare_manifest "registry.tld/${IMAGE_NAME}" "edge"
   prepare_manifest "registry.tld/conjur-ubi" "edge"
+
+  # Publish manifests to dockerhub
+  if [[ "${DOCKERHUB}" = true ]]; then
+    echo "Pushing to DockerHub"
+
+    prepare_manifest "${IMAGE_NAME}" "${VERSION}"
+    prepare_manifest "${IMAGE_NAME}" "edge"
+  fi
 fi
 
 if [[ "${PROMOTE}" = true ]]; then
@@ -99,5 +112,12 @@ if [[ "${PROMOTE}" = true ]]; then
       
     prepare_manifest "registry.tld/${IMAGE_NAME}" "${version}"
     prepare_manifest "registry.tld/conjur-ubi" "${version}"
+
+    # Publish manifests to dockerhub
+    if [[ "${DOCKERHUB}" = true ]]; then
+      echo "Pushing to DockerHub"
+
+      prepare_manifest "${IMAGE_NAME}" "${version}"
+    fi
   done
 fi
