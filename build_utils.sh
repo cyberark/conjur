@@ -25,7 +25,7 @@ function tag_and_push() {
 
   for image in "$@"; do
     local target=$image:$tag
-    echo "Tagging and pushing $target..."
+    echo "Tagging $source as $target and pushing..."
     docker tag "$source" "$target"
     docker push "$target"
   done
