@@ -4,6 +4,7 @@ require './app/domain/resources/resources_handler'
 
 class SecretEventInput < EventInput
   include ResourcesHandler
+  include RolesHandler
 
   CREATE = :create
   DELETE = :delete
@@ -27,8 +28,9 @@ class SecretEventInput < EventInput
     args[:version] = db_obj.version.to_i if data.members.include?(:version)
 
     if data.members.include?(:owner)
-      resource = db_obj.resource
-      args[:owner] = { kind: resource.kind, id: resource.identifier }
+      resource = db_obj
+      kind, id = parse_role_id(resource[:owner_id], v2_syntax: true).values_at(:type, :id)
+      args[:owner] = { kind: kind, id: id }
     end
     dict = {}
     dict[:data] = data.new(args).to_h

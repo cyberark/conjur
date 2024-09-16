@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - Cache role membership in edge replication for Atlantis
 - Added scaffolds for add and remove permission event
+- Added scaffolds for create/delete secret event
 
 ### Fixed
 - Fixed assume role when credentials expired
