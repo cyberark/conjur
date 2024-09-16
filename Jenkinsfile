@@ -133,12 +133,12 @@ if (params.MODE == "PROMOTE") {
       summon -f ./secrets.yml ./publish-manifest.sh --promote --dockerhub --base-version=${sourceVersion} --version=${targetVersion}
     """
 
-    // TODO: In talking to Neil King, this likely won't work until conjurops is migrated over
-    // to github enterprise. In the absence of promoting an OSS conjur release, though, we haven't
-    // tried it since the Conjur repo migrated over.
-    // Trigger Conjurops build to push newly promoted releases of conjur to ConjurOps Staging
+    // Ensure the working directory is a safe git directory for the subsequent
+    // promotion operations after this block.
+    sh 'git config --global --add safe.directory "$(pwd)"'
+
     build(
-      job:'../conjurinc--conjurops/master',
+      job: 'Conjur-Enterprise/Conjur-Enterprise-conjurops/main/Conjur-Enterprise-conjurops-main-full/master',
       parameters:[
         string(name: 'conjur_oss_source_image', value: "cyberark/conjur:${targetVersion}")
       ],
