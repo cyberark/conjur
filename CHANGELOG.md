@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - changing status controller to work without transaction
 - adding closing timeout for unused DB Connections
+- Adding requests telemetry
 
 ## [1.0.38-cloud] - 2024-09-15
 ### Added
