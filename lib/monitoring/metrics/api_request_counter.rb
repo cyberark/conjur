@@ -27,8 +27,7 @@ module Monitoring
 
       def refresh(registry)
         @metric_name = :conjur_requests_total
-        #operation = "getSecret"
-
+        
         LOGGED_OPERATIONS.each do |id, operation|
           key = operation + "/counter"
           time_hour_key = operation + "/time_hour"
