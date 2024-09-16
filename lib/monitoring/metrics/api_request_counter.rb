@@ -27,25 +27,27 @@ module Monitoring
 
       def refresh(registry)
         @metric_name = :conjur_requests_total
-        operation = "getSecret"
-        key = operation + "/counter"
-        time_hour_key = operation + "/time_hour"
+        
+        LOGGED_OPERATIONS.each do |id, operation|
+          key = operation + "/counter"
+          time_hour_key = operation + "/time_hour"
 
-        last_time_hour = Util::RedisCache.read_from(time_hour_key)
-        current_time_hour = Time.now.hour
-        if (current_time_hour != last_time_hour)
-          Util::RedisCache.write_to(time_hour_key, current_time_hour, key)
-        end
-        val = Util::RedisCache.read_count_from(key)
-        # labels should be only in alphabetic order
-        update_labels = {
-          environment: ENV['TENANT_ENV'],
-          operation: operation,
-          tenant_id: ENV['TENANT_ID']
-        }
-        metric = registry.get(metric_name)
-        unless (metric.nil?)
-          metric.set(val, labels: update_labels)
+          last_time_hour = Util::RedisCache.read_from(time_hour_key)
+          current_time_hour = Time.now.hour
+          if (current_time_hour != last_time_hour)
+            Util::RedisCache.write_to(time_hour_key, current_time_hour, key)
+          end
+          val = Util::RedisCache.read_count_from(key)
+          # labels should be only in alphabetic order
+          update_labels = {
+            environment: ENV['TENANT_ENV'],
+            operation: operation,
+            tenant_id: ENV['TENANT_ID']
+          }
+          metric = registry.get(metric_name)
+          unless (metric.nil?)
+            metric.set(val, labels: update_labels)
+          end
         end
       end
 
