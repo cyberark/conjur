@@ -35,22 +35,7 @@ RSpec.describe('aws::SnsClient') do
     end
   end
 
-  context 'when credentials are expired' do
-    it 'retries with new credentials and publishes successfully' do
-      expired_credentials = double('Credentials', access_key_id: 'key', secret_access_key: 'secret', session_token: 'token', expiration: Time.now - 3600)
-      valid_credentials = double('Credentials', access_key_id: 'key', secret_access_key: 'secret', session_token: 'token', expiration: Time.now + 3600)
 
-      # Mock assume_role to return expired credentials first, then valid credentials
-      allow_any_instance_of(Aws::STS::Client).to receive(:assume_role).and_return(
-        double('AssumeRoleResponse', credentials: expired_credentials),
-        double('AssumeRoleResponse', credentials: valid_credentials)
-      )
-
-      response = sns_client_instance.publish(message, message_attributes)
-      expect(response.data).to be_a(Aws::SNS::Types::PublishResponse)
-      expect(response.message_id).not_to be_empty
-    end
-  end
 
   context 'when publish raises a generic StandardError' do
     it 'raises the StandardError' do
@@ -117,4 +102,28 @@ RSpec.describe('aws::SnsClient') do
     end
   end
 
+  context 'when duration_seconds is set to 1' do
+    it 'obtains new credentials after one second' do
+      SnsClient.reset_instance
+      sns_client_instance = SnsClient.send(:new, duration_seconds: 1)
+      SnsClient.instance_variable_set(:@singleton__instance__, sns_client_instance)
+
+      sns_client_instance.instance_variable_set(:@duration_seconds, 1)
+
+      # Call assume_role and create_sns_client before the first publish
+      sns_client_instance.send(:assume_role)
+      sns_client_instance.instance_variable_set(:@sns_client, sns_client_instance.send(:create_sns_client, sns_client_instance.instance_variable_get(:@credentials)))
+
+      # First call should use expired credentials
+      sns_client_instance.publish(message, message_attributes)
+      first_creds = sns_client_instance.instance_variable_get(:@credentials)
+      # Wait for 2 seconds to ensure the credentials expire
+      sleep 2
+
+      # Second call should obtain new credentials
+      sns_client_instance.publish(message, message_attributes)
+      second_creds = sns_client_instance.instance_variable_get(:@credentials)
+      expect(second_creds).not_to eq(first_creds)
+    end
+  end
 end
