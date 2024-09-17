@@ -1173,9 +1173,9 @@ pipeline {
         script {
           release(INFRAPOOL_EXECUTORV2_AGENT_0) { billOfMaterialsDirectory, assetDirectory ->
             // Publish docker images
-            // INFRAPOOL_EXECUTORV2_AGENT_0.agentSh './publish-images.sh --edge --dockerhub'
-            // INFRAPOOL_EXECUTORV2ARM_AGENT_0.agentSh './publish-images.sh --edge --arch=arm64'
-            // INFRAPOOL_EXECUTORV2_AGENT_0.agentSh './publish-manifest.sh --edge'
+            INFRAPOOL_EXECUTORV2_AGENT_0.agentSh './publish-images.sh --edge'
+            INFRAPOOL_EXECUTORV2ARM_AGENT_0.agentSh './publish-images.sh --edge --arch=arm64'
+            INFRAPOOL_EXECUTORV2_AGENT_0.agentSh './publish-manifest.sh --edge'
 
             // Create deb and rpm packages (ARM64)
             INFRAPOOL_EXECUTORV2ARM_AGENT_0.agentSh 'echo "CONJUR_VERSION=5" >> debify.env'
