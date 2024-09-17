@@ -96,4 +96,8 @@ gem/slosilo/.idea
 # Rufus scheduler lock file
 .slosilo-rotation-rufus-scheduler.lock
 
+# Ignore localstack's cache
+dev/localstack/cache/**
+
+
 VERSION
