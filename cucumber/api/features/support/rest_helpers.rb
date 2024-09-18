@@ -14,6 +14,7 @@ module RestHelpers
   def post_json path, body, options = {}
     path = denormalize(path)
     body = denormalize(body)
+    @headers = options[:headers] if options.key?(:headers)
     result = rest_resource(options)[path].post(body)
     set_result(result)
   end
