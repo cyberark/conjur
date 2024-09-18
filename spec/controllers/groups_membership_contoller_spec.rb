@@ -88,6 +88,7 @@ describe GroupsMembershipController, type: :request do
         BODY
       end
       it 'Host was added to group' do
+        expect_any_instance_of(described_class).to receive(:clean_membership_cache).and_call_original
         post("/groups/data/delegation/consumers/members",
              env: token_auth_header(role: alice_user).merge(v2_api_header).merge(
                {
@@ -216,6 +217,7 @@ describe GroupsMembershipController, type: :request do
         BODY
       end
       it 'Group was added to group' do
+        expect_any_instance_of(described_class).to receive(:clean_membership_cache).and_call_original
         post("/groups/data/delegation/consumers/members",
              env: token_auth_header(role: alice_user).merge(v2_api_header).merge(
                {
@@ -263,6 +265,7 @@ describe GroupsMembershipController, type: :request do
         BODY
       end
       it '404 error returned' do
+        expect_any_instance_of(described_class).to_not receive(:clean_membership_cache).and_call_original
         post("/groups/data/consumers/members",
              env: token_auth_header(role: alice_user).merge(v2_api_header).merge(
                {
@@ -517,6 +520,7 @@ describe GroupsMembershipController, type: :request do
         # Host is a member of group
         expect(RoleMembership.where(role_id: "rspec:group:data/delegation/consumers",member_id:"rspec:host:data/delegation/host1").all.empty?).to eq false
         # Remove member from group
+        expect_any_instance_of(described_class).to receive(:clean_membership_cache).and_call_original
         delete("/groups/data/delegation/consumers/members/host/data/delegation/host1",
              env: token_auth_header(role: alice_user).merge(v2_api_header)
         )
@@ -577,6 +581,7 @@ describe GroupsMembershipController, type: :request do
         )
         assert_response :created
         # Remove member from group
+        expect_any_instance_of(described_class).to receive(:clean_membership_cache).and_call_original
         delete("/groups/data/delegation/consumers/members/group/data/testGroup",
                env: token_auth_header(role: alice_user).merge(v2_api_header)
         )

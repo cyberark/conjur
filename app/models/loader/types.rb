@@ -211,6 +211,7 @@ module Loader
     end
 
     class Group < Record
+      include Secrets::RedisHandler
       def_delegators :@policy_object, :gidnumber
 
       def verify; end
@@ -220,6 +221,7 @@ module Loader
         self.annotations["conjur/gidnumber"] ||= self.gidnumber if self.gidnumber
 
         super
+        clean_membership_cache
       end
     end
 
@@ -337,6 +339,7 @@ module Loader
     end
 
     class Grant < Types::Base
+      include Secrets::RedisHandler
       def_delegators :@policy_object, :roles, :members
 
       def create!
@@ -351,6 +354,7 @@ module Loader
             )
           end
         end
+        clean_membership_cache
       end
 
       def verify(role, member)
@@ -379,6 +383,7 @@ module Loader
     end
 
     class Policy < Types::Base
+      include Secrets::RedisHandler
       def_delegators :@policy_object, :role, :resource, :body
 
       def create!
@@ -386,6 +391,8 @@ module Loader
         Types.wrap(self.resource, external_handler).create!
 
         Array(body).map(&:create!)
+
+        clean_membership_cache
       end
     end
 
@@ -408,6 +415,7 @@ module Loader
     end
 
     class Revoke < Deletion
+      include Secrets::RedisHandler
       def delete!
         Array(policy_object.role).each do |r|
           Array(policy_object.member).each do |m|
@@ -415,6 +423,7 @@ module Loader
             membership.destroy if membership
           end
         end
+        clean_membership_cache
       end
     end
 
@@ -428,6 +437,7 @@ module Loader
         if policy_object.record.respond_to?(:resourceid)
           delete_recursive!(policy_object.record.resourceid)
         end
+        clean_membership_cache
       end
 
       def delete_recursive!(record_id)
@@ -441,11 +451,11 @@ module Loader
         if resource
           resource.destroy
           ## remove role (user or host)
-          delete_redis_resource(USER_PATTERN + resource.id) if resource.kind == 'user' || resource.kind == 'host'
+          delete_redis_user(resource.id) if resource.kind == 'user' || resource.kind == 'host'
           ## remove secret
           delete_redis_secret(resource.id) if resource.kind == 'variable'
           ## remove resource_id for variable in show endpoint
-          delete_redis_resource(RESOURCE_PREFIX + resource.id) if resource.kind == 'variable'
+          delete_redis_resource(resource.id) if resource.kind == 'variable'
         end
         role = ::Role[record_id]
         role.destroy if role

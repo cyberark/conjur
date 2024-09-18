@@ -4,6 +4,7 @@ class GroupsMembershipController < V2RestController
   include AuthorizeResource
   include BodyParser
   include GroupMembershipValidator
+  include Secrets::RedisHandler
 
   NUM_OF_ADD_DATA_PARAMS = 7
   NUM_OF_REMOVE_DATA_PARAMS = 6
@@ -22,6 +23,8 @@ class GroupsMembershipController < V2RestController
     unless (membership = group.grant_to(member))
       raise Errors::Group::DuplicateMember.new(member_id, member_kind, group[:role_id])
     end
+
+    clean_membership_cache
 
     logger.debug{LogMessages::Endpoints::EndpointFinishedSuccessfully.new(log_message_add(params))}
     render(json: {
@@ -47,6 +50,7 @@ class GroupsMembershipController < V2RestController
     membership = ::RoleMembership[role_id: group[:role_id], member_id: member[:role_id]]
     if membership
       membership.destroy
+      clean_membership_cache
     else  #If the resource is not a member raise an error
       raise Errors::Group::ResourceNotMember.new(member_id, member_kind, group[:role_id])
     end

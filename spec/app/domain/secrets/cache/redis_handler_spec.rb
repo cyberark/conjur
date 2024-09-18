@@ -84,6 +84,33 @@ describe Secrets::RedisHandler do
     end
   end
 
+  context "Role membership" do
+    let(:membership_prefix) { "{role_membership}/rspec:host:my_host_"}
+    let(:user_prefix) { "user/rspec:user:my_user_"}
+    before do
+      Rails.cache.clear
+    end
+    
+    it "cleans nothing when flag is off" do
+      (1..10).each { |i| Rails.cache.write(membership_prefix + i.to_s, "value") }
+
+      controller.clean_membership_cache
+
+      (1..10).each {|i | expect(Rails.cache.read(membership_prefix + i.to_s)).to_not be_nil }
+    end
+
+    it "cleans role_membership when flag is on" do
+      allow(Rails.application.config.conjur_config).to receive(:try).with(:conjur_edge_is_atlantis).and_return(true)
+      (1..10).each { |i| Rails.cache.write(membership_prefix + i.to_s, "value") }
+      (1..10).each { |i| Rails.cache.write(user_prefix + i.to_s, "value") }
+
+      controller.clean_membership_cache
+
+      (1..10).each { |i | expect(Rails.cache.read(membership_prefix + i.to_s)).to be_nil }
+      (1..10).each { |i | expect(Rails.cache.read(user_prefix + i.to_s)).to_not be_nil }
+    end
+  end
+
   class Controller
     include Secrets::RedisHandler
   end
