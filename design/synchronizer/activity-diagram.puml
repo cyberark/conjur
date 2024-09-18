@@ -1,0 +1,18 @@
+@startuml
+start
+repeat
+  if (am leader?) then (yes)
+    :update `leader-expiration` to future time (1);
+  else (no)
+    if (`leader-expiration` time has passed (2)?) then (yes)
+      :delete leader host (3);
+      :create leader host (4);
+      if (host create includes API key?) then (yes)
+        :update `leader-expiration` to future time (5);
+      else (no)
+      endif
+    else (no)
+    endif
+  endif
+repeat while (sleep)
+@enduml
