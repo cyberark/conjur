@@ -54,7 +54,7 @@ class SecretsController < RestController
     resource_from_cache = get_redis_resource(resource_id)
     if resource_from_cache.nil?
       resource_object = skip_auth ? resource! : resource
-      create_redis_resource(resource_id, resource_object.to_hash!)
+      create_redis_resource(resource_id, resource_object.to_hash!) if resource_object
     else
       resource_object = Resource.new
       resource_object.from_hash!(resource_from_cache)
@@ -62,7 +62,7 @@ class SecretsController < RestController
         raise Exceptions::RecordNotFound, resource_id unless resource_object.visible_to?(current_user)
       end
     end
-    resource_object
+    resource_object || raise(Exceptions::RecordNotFound.new(resource_id))
   end
 
   def show
