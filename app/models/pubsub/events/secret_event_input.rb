@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
+require './app/domain/resources/resources_handler'
+
 class SecretEventInput < EventInput
+  include ResourcesHandler
 
   CREATE = :create
   DELETE = :delete
@@ -16,7 +19,7 @@ class SecretEventInput < EventInput
     input = INPUTS[operation]
     event_type = get_event_type(input[:event_op])
 
-    branch, _, name = db_obj.resource_id.rpartition(':')[2].rpartition('/')
+    branch, name = parse_resource_id(db_obj.resource_id).values_at(:branch, :name)
     data = input[:data]
     args = { branch: branch,
              name: name }
