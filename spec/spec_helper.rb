@@ -115,8 +115,26 @@ def create_sns_topic
       'ContentBasedDeduplication' => 'true'
     }
   )
-  Rails.application.config.conjur_config.conjur_pubsub_sns_topic = response.topic_arn
   Rails.application.config.conjur_config.conjur_pubsub_iam_role =  "arn:aws:iam::0000000000000:role/developer"
+  policy = {
+    Version: '2012-10-17',
+    Statement: [
+      {
+        Effect: 'Allow',
+        Principal: {
+          AWS: Rails.application.config.conjur_config.conjur_pubsub_iam_role
+        },
+        Action: 'SNS:Publish',
+        Resource: response.topic_arn
+      }
+    ]
+  }.to_json
+  sns.set_topic_attributes(
+    topic_arn: response.topic_arn,
+    attribute_name: 'Policy',
+    attribute_value: policy
+  )
+  Rails.application.config.conjur_config.conjur_pubsub_sns_topic = response.topic_arn
 end
 
 def delete_sns_topic
