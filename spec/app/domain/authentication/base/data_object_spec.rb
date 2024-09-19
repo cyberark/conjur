@@ -53,7 +53,7 @@ RSpec.describe(Authentication::Base::DataObject) do
 
   describe '.token_ttl', type: 'unit' do
     context 'with default initializer' do
-      it { expect(api_key.token_ttl).to eq(8.minutes) }
+      it { expect(api_key.token_ttl).to eq(nil) }
       context 'when authenticator overrides the default' do
         it { expect(oidc.token_ttl).to eq(1.hour) }
       end

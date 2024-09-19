@@ -35,8 +35,11 @@ module Authentication
       end
 
       def token_ttl
-        ttl = @token_ttl.present? ? @token_ttl : 'PT8M'
-        ActiveSupport::Duration.parse(ttl.to_s)
+        return ActiveSupport::Duration.parse(@token_ttl.to_s).to_i if @token_ttl.to_s.present?
+
+        # If token TTL has not been set on the authenticator, return nil so that it
+        # can be set using the configured user/host TTL values downstream.
+        nil
       rescue ActiveSupport::Duration::ISO8601Parser::ParsingError
         raise Errors::Authentication::DataObjects::InvalidTokenTTL.new(resource_id, @token_ttl)
       end

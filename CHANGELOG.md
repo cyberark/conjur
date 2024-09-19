@@ -9,13 +9,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
-## [1.21.2] - 2024-09-03
+## [1.21.2] - 2024-09-10
 
 ### Fixed
 - Updates OIDC Authenticator to use the scope defined in configuration.
   CNJR-6393
 - Failed authentication requests now return without a body, only an error code.
   ONYX-60466
+- Fixed the ability to define Auth Token TTL in the configuration.
+  CNJR-6388
 
 ## [1.21.1] - 2024-06-03
 
