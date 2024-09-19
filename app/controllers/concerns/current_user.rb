@@ -27,7 +27,7 @@ module CurrentUser
     user_in_cache = get_redis_user(token_user.roleid)
     if user_in_cache.nil?
       current_user = Role[token_user.roleid]
-      create_redis_user(token_user.roleid, current_user.to_hash!)
+      create_redis_user(token_user.roleid, current_user.to_hash!) if current_user
     else
       current_user = Role.new
       current_user.from_hash!(user_in_cache)

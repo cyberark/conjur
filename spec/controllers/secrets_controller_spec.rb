@@ -350,6 +350,7 @@ describe SecretsController, type: :request do
     let(:secret_resource) { "#{account}:variable:data/my_secret" }
     let(:edge_host_id) {"#{account}:host:edge/edge-1234/edge-host-1234"}
     let(:secret_resource) { "#{account}:variable:data/my_secret" }
+    let(:missing_resource) { "#{account}/variable/non-existing"}
     let(:other_edge_host_id) {"#{account}:host:data/other"}
     let(:my_host) { Role.find_or_create(role_id: edge_host_id) }
 
@@ -375,6 +376,12 @@ describe SecretsController, type: :request do
         expect(response.code).to eq("200")
         expect(response.body).to eq("secret")
       end
+
+      it "secret is missing returns Not-Found" do
+        get("/secrets/#{missing_resource}", env: token_auth_header(role: @current_user, is_user: false))
+        expect(response.code).to eq("404")
+        expect(read_from_redis(missing_resource)).to be_nil
+      end
     end
 
     context "and the edge is invalid and tries to get secret" do
@@ -386,39 +393,34 @@ describe SecretsController, type: :request do
         expect(response.code).to eq("404")
       end
     end
+  end
 
-    context "get resource object handling" do
-      let(:secret_resource) { "#{account}:variable:data/my_secret2" }
-      let(:current_user) { Role.find_or_create(role_id: 'rspec:user:alice') }
-      let(:host_id) {"#{account}:host:data/other1"}
+  context "get resource object handling" do
+    let(:secret_resource) { "#{account}:variable:data/my_secret2" }
+    let(:current_user) { Role.find_or_create(role_id: 'rspec:user:alice') }
+    let(:host_id) {"#{account}:host:data/other1"}
 
-      before do
-        init_slosilo_keys(account)
-        @current_user = create_host(host_id, admin_user)
-        Secret.create(resource_id: secret_resource, value: 'secret')
-        Permission.create(
-          resource_id: secret_resource,
-          privilege: "read",
-          role_id: host_id
-        )
-
-      end
-
-      context 'when resource is not visible to current user' do
-        it 'raises an Exceptions::RecordNotFound error' do
-          write_into_redis(secret_resource, 'secret')
-          get("/secrets/#{secret_resource.gsub(':', '/')}", env: token_auth_header(role: current_user))
-
-          expect(response.code).to eq("404")
-        end
-      end
-
+    before do
+      init_slosilo_keys(account)
+      @current_user = create_host(host_id, admin_user)
+      Resource.create(resource_id: secret_resource, owner_id: user_owner_id)
+      Secret.create(resource_id: secret_resource, value: 'secret')
+      Permission.create(
+        resource_id: secret_resource,
+        privilege: "read",
+        role_id: host_id
+      )
 
     end
 
+    context 'when resource is not visible to current user' do
+      it 'raises an Exceptions::RecordNotFound error' do
+        write_into_redis(secret_resource, 'secret')
+        get("/secrets/#{secret_resource.gsub(':', '/')}", env: token_auth_header(role: current_user))
 
-
-
+        expect(response.code).to eq("404")
+      end
+    end
   end
 
   context "Telemetry is called for get secret" do
