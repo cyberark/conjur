@@ -128,6 +128,81 @@ describe DB::Service::PermissionService do
     end
   end
 
+  context 'Delete User Permission' do
+    role_id =  'rspec:user:my_admin'
+    policy_id =  'rspec:policy:my_policy'
+    privilege ='read'
+    resource_id ='rspec:variable:my_secret'
+    non_existing_resource_id ='rspec:variable:no_in_db'
+
+    before do
+      Role.create(role_id: role_id)
+      Resource.create(resource_id: resource_id, owner_id: role_id)
+      Resource.create(resource_id: policy_id, owner_id: role_id)
+      subject.create_permission(resource_id, privilege, role_id, policy_id)
+    end
+
+    it 'delete permission successfully when all fields are provided' do
+      subject.delete_permission(resource_id, privilege, role_id, policy_id)
+
+      db_object = ::Permission[resource_id: resource_id]
+      expect(db_object).to be_nil
+    end
+
+    it 'delete permission successfully with only resource id' do
+      subject.delete_permission(resource_id)
+
+      db_object = ::Permission[resource_id: resource_id]
+      expect(db_object).to be_nil
+    end
+
+    it 'delete permission successfully with only resource id and privilege' do
+      subject.delete_permission(resource_id, privilege)
+
+      db_object = ::Permission[resource_id: resource_id]
+      expect(db_object).to be_nil
+    end
+
+    it 'delete permission successfully with only resource id, privilege and role id' do
+      subject.delete_permission(resource_id, privilege, role_id)
+
+      db_object = ::Permission[resource_id: resource_id]
+      expect(db_object).to be_nil
+    end
+
+    it 'does nothing if the permission is nil' do
+      subject.delete_permission(nil)
+
+      db_object = ::Permission[resource_id: resource_id]
+      expect(db_object).not_to be_nil 
+    end
+
+    it 'does nothing if the permission does not exists' do
+      subject.delete_permission(non_existing_resource_id)
+
+      db_object = ::Permission[resource_id: resource_id]
+      expect(db_object).not_to be_nil 
+    end
+
+    it 'sends event' do
+      allow(Rails.application.config.conjur_config).to receive(:conjur_pubsub_enabled).and_return(true)
+      subject.delete_permission(resource_id, privilege, role_id, policy_id)
+      events = Event.all
+
+      expect(events.size).to eq(1)
+      event = events[0]
+
+      expected_params = { event_type: 'conjur.secret.permission.deleted',
+                          branch: 'root',
+                          name: 'my_secret',
+                          privilege: 'read',
+                          id: 'my_admin',
+                          kind: 'user' }
+
+      verify_permission_event(event, expected_params)
+    end
+  end
+
   def verify_permission_event(event, expected_params) 
     event_value = JSON.parse(event.event_value) 
     expect(event_value['specversion']).to eq('1.0')

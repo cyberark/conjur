@@ -5,9 +5,11 @@ class PermissionEventInput < EventInput
   include RolesHandler
 
   CREATED = :create
+  DELETED = :delete
 
   INPUTS = {
-    CREATED => { event_op: 'created', data: Struct.new(:branch, :name, :permission, keyword_init: true) }.freeze
+    CREATED => { event_op: 'created', data: Struct.new(:branch, :name, :permission, keyword_init: true) }.freeze,
+    DELETED => { event_op: 'deleted', data: Struct.new(:branch, :name, :permission, keyword_init: true) }.freeze
   }.freeze
 
   def get_event_input(operation, db_obj)
