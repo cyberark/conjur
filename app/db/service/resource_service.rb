@@ -6,15 +6,17 @@ module DB
     class ResourceService < AbstractService
       include ::Secrets::RedisHandler
 
+      # Creates a new resource and handles specific resource types. Returns nil if creation fails.
+      # Currently only variable resource type is handled.
       def create_resource(resource_id, owner_id, policy_id)
         resource = Resource.create(resource_id: resource_id, owner_id: owner_id, policy_id: policy_id)
         if resource.nil?
-          Rails.logger.error("Resource creation failed for resource_id: #{resource_id} owner_id: #{owner_id} policy_id: #{policy_id}")
+          @logger.error("Resource creation failed for resource_id: #{resource_id} owner_id: #{owner_id} policy_id: #{policy_id}")
+          return nil
         end
-        if resource.kind == 'variable'
-          ::DB::Service::Types::VariableType.instance.create(resource)
-        end
-        return resource
+        handler = self.class.resource_handlers[resource.kind]
+        handler.create(resource) if handler
+        resource
       end
 
       # In policy controller if resource is not found, it will not raise error.
@@ -23,13 +25,18 @@ module DB
         resource = ::Resource[resource_id]
         if resource
           resource.destroy
-          ## remove role (user or host)
-          delete_redis_user(resource.id) if resource.kind == 'user' || resource.kind == 'host'
-           if resource.kind == 'variable'
-             ::DB::Service::Types::VariableType.instance.delete(resource)
-           end
+          handler = self.class.resource_handlers[resource.kind]
+          handler.delete(resource) if handler
         end
-        return resource
+        resource
+      end
+
+      def self.resource_handlers
+        {
+          'host' => ::DB::Service::Types::WorkloadType.instance,
+          'user' => ::DB::Service::Types::UserType.instance,
+          'variable' => ::DB::Service::Types::VariableType.instance
+        }
       end
 
     end

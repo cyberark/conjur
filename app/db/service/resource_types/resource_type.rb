@@ -7,6 +7,10 @@ module DB
       class ResourceType
         include Singleton
 
+        def initialize(logger = Rails.logger)
+          @logger = logger
+        end
+
         def create(resource)
           raise NotImplementedError
         end
