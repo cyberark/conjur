@@ -149,36 +149,15 @@ describe DB::Service::PermissionService do
       expect(db_object).to be_nil
     end
 
-    it 'delete permission successfully with only resource id' do
-      subject.delete_permission(resource_id)
-
-      db_object = ::Permission[resource_id: resource_id]
-      expect(db_object).to be_nil
-    end
-
-    it 'delete permission successfully with only resource id and privilege' do
-      subject.delete_permission(resource_id, privilege)
-
-      db_object = ::Permission[resource_id: resource_id]
-      expect(db_object).to be_nil
-    end
-
-    it 'delete permission successfully with only resource id, privilege and role id' do
-      subject.delete_permission(resource_id, privilege, role_id)
-
-      db_object = ::Permission[resource_id: resource_id]
-      expect(db_object).to be_nil
-    end
-
     it 'does nothing if the permission is nil' do
-      subject.delete_permission(nil)
+      subject.delete_permission(nil, privilege, role_id, policy_id)
 
       db_object = ::Permission[resource_id: resource_id]
       expect(db_object).not_to be_nil 
     end
 
-    it 'does nothing if the permission does not exists' do
-      subject.delete_permission(non_existing_resource_id)
+    it 'does nothing if the resource does not exists' do
+      subject.delete_permission(non_existing_resource_id, privilege, role_id, policy_id)
 
       db_object = ::Permission[resource_id: resource_id]
       expect(db_object).not_to be_nil 
