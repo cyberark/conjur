@@ -65,21 +65,10 @@ Rails.application.routes.draw do
         put  '/:authenticator/:account/api_key'  => 'credentials#rotate_api_key'
       end
 
-      # # Factories
-      #
-      # # Trip or reenable the factory resource's circuit breaker
-      # # These need to be ahead of the create route below to allow it to match
-      # post    "/factory-resources/:account/:policy_identifier/disable" => "policy_factory_resources#disable"
-      # post    "/factory-resources/:account/:policy_identifier/enable" => "policy_factory_resources#enable"
-      #
-      # # Endpoints for managing Policy Factory created resources
-      # get     "/factory-resources/:account" => "policy_factory_resources#index"
-      # get     "/factory-resources/:account/:policy_identifier" => "policy_factory_resources#show"
-      # match   "/factory-resources/:account/:kind/(:version)/:id" => "policy_factory_resources#create", via: [:post, :patch]
-      #
-      # # Endpoints related to viewing factories
-      # get     "/factories/:account/:kind/(:version)/:id" => "policy_factories#show"
-      # get     "/factories/:account" => "policy_factories#index"
+      # Factories
+      post "/factories/:account/:kind/(:version)/:id" => "policy_factories#create"
+      get "/factories/:account/:kind/(:version)/:id" => "policy_factories#show"
+      get "/factories/:account" => "policy_factories#index"
 
       # Roles
       get     "/roles/:account/:kind/*identifier" => "roles#graph", :constraints => QueryParameterActionRecognizer.new("graph")
