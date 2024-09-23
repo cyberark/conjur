@@ -371,10 +371,11 @@ module Loader
         Array(resources).each do |r|
           Array(privileges).each do |p|
             Array(roles).each do |m|
-              ::Permission.create(
-                resource_id: find_resourceid(r.resourceid),
-                privilege: p,
-                role_id: find_roleid(m.roleid)
+              ::DB::Service::PermissionService.instance.create_permission(
+                find_resourceid(r.resourceid),
+                p,
+                find_roleid(m.roleid),
+                policy_id
               )
             end
           end
@@ -406,8 +407,12 @@ module Loader
         Array(policy_object.resource).each do |r|
           Array(policy_object.privilege).each do |p|
             Array(policy_object.role).each do |m|
-              permission = ::Permission[role_id: m.roleid, privilege: p, resource_id: r.resourceid, policy_id: policy_id]
-              permission.destroy if permission
+              ::DB::Service::PermissionService.instance.delete_permission(
+                r.resourceid,
+                p,
+                m.roleid,
+                policy_id
+              )
             end
           end
         end
