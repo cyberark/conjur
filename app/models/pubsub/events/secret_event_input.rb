@@ -28,8 +28,7 @@ class SecretEventInput < EventInput
     args[:version] = db_obj.version.to_i if data.members.include?(:version)
 
     if data.members.include?(:owner)
-      resource = db_obj
-      kind, id = parse_role_id(resource[:owner_id], v2_syntax: true).values_at(:type, :id)
+      kind, id = parse_role_id(db_obj[:owner_id], v2_syntax: true).values_at(:type, :id)
       args[:owner] = { kind: kind, id: id }
     end
     dict = {}

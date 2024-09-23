@@ -30,7 +30,21 @@ describe DB::Service::ResourceService do
         subject.create_resource(resource_id, owner_id, policy_id)
       end
     end
+    context 'when resource creation fails' do
+      it 'logs an error and returns nil' do
+        allow(Resource).to receive(:create).and_return(nil)
+        result = subject.create_resource(resource_id, owner_id, policy_id)
+        expect(result).to be_nil
+      end
 
+      it 'fails on create same resource twice' do
+         subject.create_resource(resource_id, owner_id, policy_id)
+        expect {
+          subject.create_resource(resource_id, owner_id, policy_id)
+        }.to raise_error(Sequel::UniqueConstraintViolation)
+
+      end
+    end
   end
 
   describe '#delete_resource' do
@@ -38,6 +52,24 @@ describe DB::Service::ResourceService do
       it 'deletes the resource and returns it' do
         resource = Resource.create(resource_id: resource_id, owner_id: owner_id, policy_id: policy_id)
         expect(DB::Service::Types::VariableType.instance).to receive(:delete)
+        deleted_resource = subject.delete_resource(resource_id)
+        expect(deleted_resource).to eq(resource)
+        result = Resource[resource_id]
+        expect(result).to be_nil
+      end
+      it 'Workload deleted' do
+        resource_id = 'rspec:host:data/my_workload'
+        resource = Resource.create(resource_id: resource_id, owner_id: owner_id)
+        expect(Rails.cache).to receive(:delete).with("user/#{resource_id}")
+        deleted_resource = subject.delete_resource(resource_id)
+        expect(deleted_resource).to eq(resource)
+        result = Resource[resource_id]
+        expect(result).to be_nil
+      end
+      it 'user deleted' do
+        resource_id = 'rspec:user:data/my_user'
+        resource = Resource.create(resource_id: resource_id, owner_id: owner_id)
+        expect(Rails.cache).to receive(:delete).with("user/#{resource_id}")
         deleted_resource = subject.delete_resource(resource_id)
         expect(deleted_resource).to eq(resource)
         result = Resource[resource_id]
