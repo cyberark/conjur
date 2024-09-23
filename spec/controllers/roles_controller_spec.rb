@@ -21,9 +21,6 @@ describe RolesController, type: :request do
     )
     assert_response :success
   end
-  after do
-    Resource[ADMIN_HOST_ID]&.delete
-  end
 
   # The test policy consists of four Groups in a topology that allows us to
   # test various scenarios around retrieving the members and memberships for

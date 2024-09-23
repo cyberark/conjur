@@ -49,8 +49,7 @@ module Conjur
       # conjur_pubsub_iam_role: 'arn:aws:iam::123456789012:role/conjur-pubsub-role',
       # conjur_pubsub_sns_topic: "arn:aws:sns:us-east-1:000000000000:MyDeveloperTopic.fifo",
       tenant_env: @tenant_env,
-      tenant_region: @tenant_region,
-      policy_factories_path: 'conjur/factories'
+      tenant_region: @tenant_region
     )
 
     def initialize(
