@@ -128,10 +128,10 @@ fi
 if [[ "${PROMOTE}" = true ]]; then
   echo "Promoting image to ${VERSION}-${ARCH}"
   
-  # Push latest, 1.x.y, 1.x, and 1 images
+  # Push edge, latest, 1.x.y, 1.x, and 1 images
   readarray -t prefix_versions < <(gen_versions "${VERSION}")
 
-  for version in latest "${prefix_versions[@]}"; do
+  for version in edge latest "${prefix_versions[@]}"; do
     echo "Pushing images for tag: $version-${ARCH}"
 
     tag_and_push "${version}-${ARCH}" "registry.tld/${IMAGE_NAME}:${LOCAL_TAG}-${ARCH}" "registry.tld/${IMAGE_NAME}"

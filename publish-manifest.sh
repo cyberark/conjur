@@ -104,10 +104,10 @@ fi
 if [[ "${PROMOTE}" = true ]]; then
   echo "Promoting image to ${VERSION}"
 
-  # Push latest, 1.x.y, 1.x, and 1 manifests
+  # Push edge, latest, 1.x.y, 1.x, and 1 manifests
   readarray -t prefix_versions < <(gen_versions "${VERSION}")
 
-  for version in latest "${prefix_versions[@]}"; do
+  for version in edge latest "${prefix_versions[@]}"; do
     echo "Preparing manifests for tag: $version"
       
     prepare_manifest "registry.tld/${IMAGE_NAME}" "${version}"
