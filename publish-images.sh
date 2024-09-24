@@ -90,7 +90,7 @@ if [[ "${PUBLISH_ECR}" = true ]]; then
   aws ecr get-login-password --region "${ECR_REGION}" | docker login --username AWS --password-stdin "${ECR_REGISTRY}"
 
   # Set tags based on branch name
-  if [[ "${BRANCH_NAME}" == 'conjur-cloud' ]]; then
+  if [[ "${BRANCH_NAME}" == 'ONYX-60667' ]]; then
     TAG="${VERSION}"
     TAG_LATEST=true
   else
@@ -105,8 +105,8 @@ if [[ "${PUBLISH_ECR}" = true ]]; then
   if [[ "${TAG_LATEST}" = true ]]; then
     MANIFEST=$(aws ecr batch-get-image --region "${ECR_REGION}" --repository-name "${ECR_REPO_NAME}" --image-ids imageTag="${TAG}" --output text --query 'images[].imageManifest')
     echo "Manifest: ${MANIFEST}"
-    aws ecr put-image --region "${ECR_REGION}" --repository-name "${ECR_REPO_NAME}" --image-tag "latest" --image-manifest "${MANIFEST}"
-    aws ecr describe-images --region "${ECR_REGION}" --repository-name "${ECR_REPO_NAME}" --image-ids imageTag="latest"
+    aws ecr put-image --region "${ECR_REGION}" --repository-name "${ECR_REPO_NAME}" --image-tag "ldtest" --image-manifest "${MANIFEST}"
+    aws ecr describe-images --region "${ECR_REGION}" --repository-name "${ECR_REPO_NAME}" --image-ids imageTag="ldtest"
   fi
 
   # Clean up by unsetting the temporary credentials

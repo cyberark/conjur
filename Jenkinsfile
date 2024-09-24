@@ -49,6 +49,10 @@ These are defined in runConjurTests, and also include the one-offs
 @Library("conjur-shared-library") _2
 
 isStartedByTimer = currentBuild.getBuildCauses()[0]["shortDescription"].matches("Started by timer")
+def devEcr = conjurCloudUtils.generateRepositoryDetails("dev", "conjur", "dev").get("repoName")
+def mainEcr = conjurCloudUtils.generateRepositoryDetails("dev", "conjur", "main").get("repoName")
+def isConjurCloud = (env.BRANCH_NAME == 'ONYX-60667')
+def conjurVersion
 
 // Break the total number of tests into a subset of tests.
 // This will give 3 nested lists of tests to run, which is
@@ -869,12 +873,49 @@ pipeline {
               withCredentials([
               conjurSecretCredential(credentialsId: "RnD-Global-Conjur-Ent-Conjur_dev-conjur-ci-user-conjur_awsaccesskeyid", variable: 'AWS_ACCESS_KEY_ID'),
               conjurSecretCredential(credentialsId: "RnD-Global-Conjur-Ent-Conjur_dev-conjur-ci-user-conjur_password", variable: 'AWS_SECRET_ACCESS_KEY')]) {
-                INFRAPOOL_EXECUTORV2_AGENT_0.agentGet(from: 'VERSION', to: 'VERSION')
-                def conjurVersion = readFile('VERSION').trim().split("-")[0]
+                // INFRAPOOL_EXECUTORV2_AGENT_0.agentGet(from: 'VERSION', to: 'VERSION')
+                // def conjurVersion = readFile('VERSION').trim().split("-")[0]
+                conjurVersion = versionsUtils.getNextVersion("minor")
+                echo "LDTEST Conjur version: ${conjurVersion}"
                 env.INFRAPOOL_AWS_ACCESS_KEY_ID = env.AWS_ACCESS_KEY_ID
                 env.INFRAPOOL_AWS_SECRET_ACCESS_KEY = env.AWS_SECRET_ACCESS_KEY
-                INFRAPOOL_EXECUTORV2_AGENT_0.agentSh "./publish-images.sh --ecr --version=${conjurVersion}"
+                // INFRAPOOL_EXECUTORV2_AGENT_0.agentSh "./publish-images.sh --ecr --version=${conjurVersion}"
               }
+            }
+          }
+        }
+      
+        stage('Promote image to staging') {
+          when {
+            expression { isConjurCloud }
+            expression { !isStartedByTimer}
+          }
+          steps {
+            script {
+              withCredentials([
+              conjurSecretCredential(credentialsId: "RnD-Global-Conjur-Ent-Conjur_dev-conjur-ci-user-conjur_awsaccesskeyid", variable: 'AWS_ACCESS_KEY_ID'),
+              conjurSecretCredential(credentialsId: "RnD-Global-Conjur-Ent-Conjur_dev-conjur-ci-user-conjur_password", variable: 'AWS_SECRET_ACCESS_KEY')]) {
+                // INFRAPOOL_EXECUTORV2_AGENT_0.agentGet(from: 'VERSION', to: 'VERSION')
+                // def conjurVersion = readFile('VERSION').trim().split("-")[0]
+                // env.INFRAPOOL_AWS_ACCESS_KEY_ID = env.AWS_ACCESS_KEY_ID
+                // env.INFRAPOOL_AWS_SECRET_ACCESS_KEY = env.AWS_SECRET_ACCESS_KEY
+                echo "LDTEST Conjur version: ${conjurVersion}"
+                echo "LDTEST mainEcr: ${mainEcr}"
+                echo "LDTEST devEcr: ${devEcr}"
+                // conjurCloudCiManager.promoteImage(devEcr, mainEcr, conjurVersion)
+              }
+            }
+          }
+        }
+
+        stage("Tag conjur-cloud branch") {
+          when {
+            expression { isConjurCloud }
+            expression { !isStartedByTimer}
+          }
+          steps {
+            script {
+              versionsUtils.tagNextVersion("minor")
             }
           }
         }
