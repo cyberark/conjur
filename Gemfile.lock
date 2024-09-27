@@ -307,6 +307,7 @@ GEM
     minitest (5.22.2)
     multi_json (1.15.0)
     multi_test (0.1.2)
+    mustache (1.1.1)
     net-imap (0.3.7)
       date
       net-protocol
@@ -585,6 +586,7 @@ DEPENDENCIES
   kubeclient
   listen
   loofah (>= 2.2.3)
+  mustache
   net-ldap
   net-ssh
   nokogiri (>= 1.8.2)
