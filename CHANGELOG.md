@@ -19,6 +19,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Fixed the ability to define Auth Token TTL in the configuration.
   CNJR-6388
 
+### Fixed
+- Update webrick to 1.8.2 to resolve CVE-2024-47220.
+  CONJSE-1907
+
 ## [1.21.1] - 2024-06-03
 
 ### Added
