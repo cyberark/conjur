@@ -36,6 +36,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   CNJR-2040
 - Ensure logging of all HTTP status codes during authentication.
   CNJR-232
+- Adds the Policy Syntax Validation feature, an option of the Policy REST API enabled when new query parameter
+  `dryRun` is true, that will only validate the syntax of a provided policy instead of loading it.
+  CNJR-3433
 
 ### Fixed
 - Dedicated user identifier resolver allowing the user identifiers work like any other resource id. The Conjur internal
