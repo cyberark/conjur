@@ -5,8 +5,10 @@ require 'English'
 class SecretsController < RestController
   include FindResource
   include AuthorizeResource
+  extend ReadOnlyPrepender
 
   before_action :current_user
+  write_protected :create, :expire
 
   def create
     authorize(:update)

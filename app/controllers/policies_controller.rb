@@ -5,8 +5,11 @@ require 'exceptions/enhanced_policy'
 class PoliciesController < RestController
   include FindResource
   include AuthorizeResource
+  extend ReadOnlyPrepender
+
   before_action :current_user
   before_action :find_or_create_root_policy
+  write_protected :put, :patch, :post
   after_action :publish_event, if: -> { response.successful? }
 
   rescue_from Sequel::UniqueConstraintViolation, with: :concurrent_load
