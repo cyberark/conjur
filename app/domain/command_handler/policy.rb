@@ -3,9 +3,11 @@ module CommandHandler
     def initialize(
       rbac: RBAC::Permission.new,
       resource_repository: ::Resource,
-      logger: Rails.logger
+      logger: Rails.logger,
+      audit_logger: Audit.logger
     )
       @logger = logger
+      @audit_logger = audit_logger
       @rbac = rbac
       @resource_repository = resource_repository
 
@@ -53,7 +55,7 @@ module CommandHandler
 
     def audit_success(policy)
       policy.policy_log.lazy.map(&:to_audit_event).each do |event|
-        Audit.logger.log(event)
+        @audit_logger.log(event)
       end
     end
 

@@ -9,11 +9,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
-## [1.21.2] - 2024-09-03
+## [1.21.2] - 2024-10-28
 
 ### Changed
 - Replaces ERB template engine with Mustache when rendering Factory templates
   CNJR-6700
+
+### Fixed
+- Updates audit events generated during Policy Factory usage.
+  CNJR-6891
 
 ### Fixed
 - Updates OIDC Authenticator to use the scope defined in configuration.

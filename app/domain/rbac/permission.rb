@@ -12,8 +12,8 @@ module RBAC
 
     # Accepts both `role` and `role_id` to provide flexibility of lookup.
     # Note that `role` is taken ahead of `role_id`.
-    def permitted?(resource_id:, privilege:, role: nil, role_id: nil)
-      resource = @resource_library[resource_id]
+    def permitted?(privilege:, resource_id: nil, resource: nil, role: nil, role_id: nil)
+      resource ||= @resource_library[resource_id]
 
       unless resource.present?
         return @failure.new(
@@ -29,13 +29,14 @@ module RBAC
       if role.present? && role.allowed_to?(privilege, resource)
         @success.new(role)
       else
+
         @failure.new(
           role || role_id,
           status: :forbidden,
           exception: Errors::Authentication::Security::RoleNotAuthorizedOnResource.new(
             [role.try(:kind), role.try(:identifier)].join('/'),
             privilege,
-            resource_id
+            resource.try(:id)
           )
         )
       end
