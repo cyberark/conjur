@@ -6,12 +6,13 @@ require './app/domain/responses'
 class PolicyFactoriesController < RestController
   include AuthorizeResource
   include PolicyFactory
+  include RequestContext
 
   before_action :current_user
 
   def index
     response = DB::Repository::PolicyFactoryRepository.new.find_all(
-      role: current_user,
+      context: context,
       account: params[:account]
     )
     render_response(response) do
@@ -23,7 +24,7 @@ class PolicyFactoriesController < RestController
   def show
     allowed_params = %i[account kind version id]
     response = DB::Repository::PolicyFactoryRepository.new.find(
-      role: current_user,
+      context: context,
       **relevant_params(allowed_params)
     )
 

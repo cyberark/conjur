@@ -103,7 +103,7 @@ module Factories
       end
     end
 
-    def set_factory_variables(schema_variables:, factory_variables:, variable_path:, role:, account:)
+    def set_factory_variables(schema_variables:, factory_variables:, variable_path:, context:, account:)
       # Only set secrets defined in the policy and present in factory payload
       new_variables = {}.tap do |variables|
         (schema_variables.keys & factory_variables.keys).each do |schema_variable|
@@ -119,7 +119,7 @@ module Factories
       end
       @secrets_repository.update(
         account: account,
-        role: role,
+        context: context,
         variables: new_variables
       ).bind do
         return @success.new('Variables successfully set')

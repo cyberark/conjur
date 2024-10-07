@@ -16,7 +16,7 @@ module DB
         @failure = ::FailureResponse
       end
 
-      def find_all(account:, variables:, role:, policy_path: nil)
+      def find_all(account:, variables:, context:, policy_path: nil)
         response = {}.tap do |result|
           variables_to_resource_ids(
             account: account,
@@ -36,17 +36,17 @@ module DB
           @failure.new(
             'No variable secrets were found',
             status: :not_found,
-            exception: Errors::Authorization::InsufficientResourcePrivileges.new(role, joined_variables)
+            exception: Errors::Authorization::InsufficientResourcePrivileges.new(context.role.role_id, joined_variables)
           )
         else
           @success.new(response)
         end
       end
 
-      def update(account:, variables:, role:, policy_path: nil)
+      def update(account:, variables:, context:, policy_path: nil)
         variables_to_resource_ids(account: account, variables: variables, policy_path: policy_path).bind do |resource_ids|
           resource_ids.each do |resource_id, value|
-            permitted = @rbac.permitted?(resource_id: resource_id, privilege: :update, role: role)
+            permitted = @rbac.permitted?(resource_id: resource_id, privilege: :update, role: context.role)
             permitted.bind do
               unless value.to_s.strip.present?
                 @logger.info("Variable '#{resource_id}' has not been set. The provided value is empty.")

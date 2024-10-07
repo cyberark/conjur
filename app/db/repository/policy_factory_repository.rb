@@ -40,14 +40,14 @@ module DB
         @failure = ::FailureResponse
       end
 
-      def find_all(account:, role:)
-        factories = @resource.visible_to(role).where(
+      def find_all(account:, context:)
+        factories = @resource.visible_to(context.role).where(
           Sequel.like(
             :resource_id,
             "#{account}:variable:#{@policy_factories_path}/%"
           )
         ).order(:resource_id).all
-          .select { |factory| role.allowed_to?(:execute, factory) }
+          .select { |factory| context.role.allowed_to?(:execute, factory) } # TODO - replace with RBAC permissions check
           .select { |factory| factory_version(factory.id).positive? }
           .group_by do |item|
             # form is: 'conjur/factories/core/v1/groups'
@@ -73,7 +73,7 @@ module DB
         @success.new(factories)
       end
 
-      def find(kind:, id:, account:, role: nil, version: nil)
+      def find(kind:, id:, account:, context:, version: nil, check_roll_permission: true)
         factory = if version.present?
           @resource["#{account}:variable:#{@policy_factories_path}/#{kind}/#{version}/#{id}"]
         else
@@ -98,7 +98,9 @@ module DB
         # Allows us to retrieve a factory for role that does not have permission to view
         # the factory. This should only be used to retrieve the schema for a factory on a
         # GET request.
-        elsif role && !role.allowed_to?(:execute, factory)
+        #
+        # TODO replace this role level check to use the RBAC interface.
+        elsif check_roll_permission && !context.role.allowed_to?(:execute, factory)
           @failure.new(
             { resource: resource_id, message: 'Requested Policy Factory is not available' },
             status: :forbidden

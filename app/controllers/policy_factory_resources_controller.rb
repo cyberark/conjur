@@ -7,6 +7,7 @@ require './app/domain/responses'
 class PolicyFactoryResourcesController < RestController
   include AuthorizeResource
   include PolicyFactory
+  include RequestContext
 
   before_action :current_user
 
@@ -15,7 +16,7 @@ class PolicyFactoryResourcesController < RestController
     available_params = relevant_params(%i[account kind version id])
 
     response = DB::Repository::PolicyFactoryRepository.new.find(
-      role: current_user,
+      context: context,
       kind: available_params[:kind],
       account: available_params[:account],
       id: available_params[:id],
@@ -25,40 +26,12 @@ class PolicyFactoryResourcesController < RestController
         account: available_params[:account],
         factory_template: factory,
         request_body: request.body.read,
-        role: current_user,
-        request_ip: request.remote_ip,
+        context: context,
         request_method: request.request_method
       )
     end
-
     render_response(response) do
       render(json: response.result, status: :created)
     end
   end
-<<<<<<< HEAD
-
-  def enable
-    toggle_factory_circuit_breaker('enable')
-  end
-
-  def disable
-    toggle_factory_circuit_breaker('disable')
-  end
-
-  private
-
-  def toggle_factory_circuit_breaker(action)
-    response = Factories::ResourceCircuitBreaker.new.call(
-      account: params[:account],
-      policy_identifier: params[:policy_identifier],
-      action: action,
-      role: current_user,
-      request_ip: request.remote_ip
-    )
-    render_response(response) do
-      render(json: response.result)
-    end
-  end
-=======
->>>>>>> 0874e903e (Remove all experimental/partially implemented features)
 end

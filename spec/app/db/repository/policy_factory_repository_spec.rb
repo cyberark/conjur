@@ -23,6 +23,13 @@ RSpec.describe(DB::Repository::PolicyFactoryRepository) do
     ::Resource['rspec:variable:conjur/factories/core/v1/bad']&.destroy
   end
   subject { DB::Repository::PolicyFactoryRepository.new }
+  let(:role_id) { 'rspec:group:conjur/policy-factory-users' }
+  let(:context) do
+    RequestContext::Context.new(
+      role: ::Role[role_id],
+      request_ip: '127.0.0.1'
+    )
+  end
 
   describe '.find_all' do
     context 'when no factories exist' do
@@ -35,7 +42,7 @@ RSpec.describe(DB::Repository::PolicyFactoryRepository) do
       it 'returns an error' do
         response = subject.find_all(
           account: 'foo-bar',
-          role: ::Role['rspec:group:conjur/policy-factory-users']
+          context: context
         )
         expect(response.success?).to eq(false)
         expect(response.status).to eq(:forbidden)
@@ -78,7 +85,7 @@ RSpec.describe(DB::Repository::PolicyFactoryRepository) do
         it 'returns an error' do
           response = subject.find_all(
             account: 'rspec',
-            role: ::Role[role_id]
+            context: context
           )
           expect(response.success?).to eq(false)
           expect(response.status).to eq(:forbidden)
@@ -108,7 +115,7 @@ RSpec.describe(DB::Repository::PolicyFactoryRepository) do
         it 'returns permitted factories' do
           response = subject.find_all(
             account: 'rspec',
-            role: ::Role[role_id]
+            context: context
           )
           expect(response.success?).to eq(true)
           expect(response.result.count).to eq(1)
@@ -136,7 +143,7 @@ RSpec.describe(DB::Repository::PolicyFactoryRepository) do
         it 'returns all factories' do
           response = subject.find_all(
             account: 'rspec',
-            role: ::Role[role_id]
+            context: context
           )
           expect(response.success?).to eq(true)
           expect(response.result.count).to eq(2)
@@ -166,7 +173,7 @@ RSpec.describe(DB::Repository::PolicyFactoryRepository) do
         it 'returns the latest version' do
           response = subject.find_all(
             account: 'rspec',
-            role: ::Role[role_id]
+            context: context
           )
           expect(response.success?).to eq(true)
           expect(response.result.count).to eq(1)
@@ -178,7 +185,7 @@ RSpec.describe(DB::Repository::PolicyFactoryRepository) do
           it 'returns the latest version' do
             response = subject.find_all(
               account: 'rspec',
-              role: ::Role[role_id]
+              context: context
             )
             expect(response.success?).to eq(true)
             expect(response.result.count).to eq(1)
@@ -202,7 +209,7 @@ RSpec.describe(DB::Repository::PolicyFactoryRepository) do
         it 'does not return empty factories' do
           response = subject.find_all(
             account: 'rspec',
-            role: ::Role[role_id]
+            context: context
           )
           expect(response.success?).to eq(true)
           expect(response.result.count).to eq(1)
@@ -221,7 +228,7 @@ RSpec.describe(DB::Repository::PolicyFactoryRepository) do
         it 'does not return any factories' do
           response = subject.find_all(
             account: 'rspec',
-            role: ::Role[role_id]
+            context: context
           )
           expect(response.success?).to eq(false)
           expect(response.status).to eq(:forbidden)
@@ -249,7 +256,7 @@ RSpec.describe(DB::Repository::PolicyFactoryRepository) do
           it 'does not return the bad factory' do
             response = subject.find_all(
               account: 'rspec',
-              role: ::Role[role_id]
+              context: context
             )
             expect(response.success?).to eq(true)
             expect(response.result.count).to eq(2)
@@ -264,7 +271,7 @@ RSpec.describe(DB::Repository::PolicyFactoryRepository) do
           it 'does not return the bad factory' do
             response = subject.find_all(
               account: 'rspec',
-              role: ::Role[role_id]
+              context: context
             )
             expect(response.success?).to eq(true)
             expect(response.result.count).to eq(2)
@@ -289,7 +296,7 @@ RSpec.describe(DB::Repository::PolicyFactoryRepository) do
           kind: 'foo',
           id: 'bar',
           account: 'foo-bar',
-          role: ::Role['rspec:group:conjur/policy-factory-users']
+          context: context
         )
         expect(response.success?).to eq(false)
         expect(response.status).to eq(:not_found)
@@ -320,7 +327,7 @@ RSpec.describe(DB::Repository::PolicyFactoryRepository) do
             kind: 'core',
             id: 'group',
             account: 'rspec',
-            role: ::Role[role_id]
+            context: context
           )
           expect(response.success?).to eq(false)
           expect(response.status).to eq(:forbidden)
@@ -349,7 +356,7 @@ RSpec.describe(DB::Repository::PolicyFactoryRepository) do
               kind: 'core',
               id: 'group',
               account: 'rspec',
-              role: ::Role[role_id]
+              context: context
             )
             expect(response.success?).to eq(false)
             expect(response.status).to eq(:bad_request)
@@ -380,7 +387,7 @@ RSpec.describe(DB::Repository::PolicyFactoryRepository) do
               kind: 'core',
               id: 'group',
               account: 'rspec',
-              role: ::Role[role_id]
+              context: context
             )
             expect(response.success?).to eq(true)
             expect(response.result.class).to eq(DB::Repository::DataObjects::PolicyFactory)
@@ -404,7 +411,7 @@ RSpec.describe(DB::Repository::PolicyFactoryRepository) do
                 kind: 'core',
                 id: 'group',
                 account: 'rspec',
-                role: ::Role[role_id]
+                context: context
               )
               expect(response.success?).to eq(true)
               expect(response.result.description).to eq('')
@@ -435,7 +442,7 @@ RSpec.describe(DB::Repository::PolicyFactoryRepository) do
                   kind: 'core',
                   id: 'group',
                   account: 'rspec',
-                  role: ::Role[role_id]
+                  context: context
                 )
                 expect(response.success?).to eq(true)
                 expect(response.result.version).to eq('v3')
@@ -447,7 +454,7 @@ RSpec.describe(DB::Repository::PolicyFactoryRepository) do
                   kind: 'core',
                   id: 'group',
                   account: 'rspec',
-                  role: ::Role[role_id],
+                  context: context,
                   version: 'v1'
                 )
                 expect(response.success?).to eq(true)
@@ -462,7 +469,7 @@ RSpec.describe(DB::Repository::PolicyFactoryRepository) do
                   kind: 'core',
                   id: 'group',
                   account: 'rspec',
-                  role: ::Role[role_id]
+                  context: context
                 )
                 expect(response.success?).to eq(true)
                 expect(response.result.version).to eq('v10')
@@ -486,7 +493,7 @@ RSpec.describe(DB::Repository::PolicyFactoryRepository) do
                   kind: 'core',
                   id: 'bad',
                   account: 'rspec',
-                  role: ::Role[role_id]
+                  context: context
                 )
                 expect(response.success?).to eq(false)
                 expect(response.status).to eq(:service_unavailable)
@@ -502,7 +509,7 @@ RSpec.describe(DB::Repository::PolicyFactoryRepository) do
                   kind: 'core',
                   id: 'bad',
                   account: 'rspec',
-                  role: ::Role[role_id]
+                  context: context
                 )
                 expect(response.success?).to eq(false)
                 expect(response.status).to eq(:service_unavailable)
@@ -530,7 +537,7 @@ RSpec.describe(DB::Repository::PolicyFactoryRepository) do
               kind: 'core',
               id: 'group',
               account: 'rspec',
-              role: ::Role[role_id]
+              context: context
             )
             expect(response.success?).to eq(false)
             expect(response.status).to eq(:not_found)
