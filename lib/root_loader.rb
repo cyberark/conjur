@@ -2,6 +2,8 @@
 
 require 'json'
 require 'logs'
+require 'app/db/repository/policy_repository'
+require 'app/domain/responses'
 require 'app/models/loader/orchestrate'
 require 'app/domain/logs'
 

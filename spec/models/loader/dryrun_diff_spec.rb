@@ -4,15 +4,10 @@ require 'spec_helper'
 require 'spec_helper_policy'
 
 # Borrowed from spec/models/loader/validate_spec.rb
-# rubocop:disable Metrics/LineLength
-# rubocop:disable Metrics/BlockLength
-# rubocop:disable Metrics/MethodLength
 # rubocop:disable Layout/ClosingHeredocIndentation
 # rubocop:disable Layout/CommentIndentation
-# rubocop:disable Layout/IndentHeredoc
 
 describe Loader::DryRun do
-
   def find_or_create_root_policy(account)
     Loader::Types.find_or_create_root_policy(account)
   end
@@ -35,15 +30,15 @@ describe Loader::DryRun do
   # on an API response.
 
   def raw_diff_wrapper(
-        policy_result:,
-        test_policy:,
-        test_loader:,
-        test_delete_permitted:,
-        test_account:,
-        test_user:,
-        test_ip:,
-        apply_policy: false
-      )
+    policy_result:,
+    test_policy:,
+    test_loader:,
+    test_delete_permitted:,
+    test_account:,
+    test_user:,
+    test_ip:,
+    apply_policy: false
+  )
 
     test_resource = Loader::Types.find_or_create_root_policy(test_account)
     test_loader.authorize(test_user, test_resource)
@@ -82,8 +77,7 @@ describe Loader::DryRun do
       policy_result.policy_version,
       apply_policy ? Loader::Orchestrate : Loader::DryRun
     )
-    response = loader.call_pr(policy_result)
-
+    loader.call_pr(policy_result)
   end
 
   # ----------------------------------------------------- #
@@ -100,9 +94,6 @@ describe Loader::DryRun do
   user_role = ::Role[user_id] || ::Role.create(role_id: user_id)
   test_current_user = user_role
 
-  test_loader = Loader::CreatePolicy
-  test_delete_permitted = false
-
   # ----------------------------------------------------- #
 
   # Policies
@@ -115,30 +106,30 @@ describe Loader::DryRun do
 
   # empty policy, differences will all be created
   base_simple_example =
-        <<~POLICY
-           #
+    <<~POLICY
+      #
            POLICY
 
   # dry-run-policies/00-empty.yml
   diff_simple_example =
-        <<~POLICY
-- !policy
-  id: example
-  body:
-    - !user
-      id: barrett
-      restricted_to: [ "127.0.0.1" ]
-      annotations:
-        key: value
-    - !variable
-      id: secret01
-      annotations:
-        key: value
-    - !permit
-      role: !user barrett
-      privileges: [ read, execute ]
-      resources:
-        - !variable secret01
+    <<~POLICY
+      - !policy
+        id: example
+        body:
+          - !user
+            id: barrett
+            restricted_to: [ "127.0.0.1" ]
+            annotations:
+              key: value
+          - !variable
+            id: secret01
+            annotations:
+              key: value
+          - !permit
+            role: !user barrett
+            privileges: [ read, execute ]
+            resources:
+              - !variable secret01
            POLICY
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - #
@@ -147,88 +138,88 @@ describe Loader::DryRun do
 
   # dry-run-policies/00-empty.yml
   base_complex_example =
-        <<~POLICY
-           #
+    <<~POLICY
+      #
            POLICY
 
   # from SD, "Complex Examples: Raw Diff, Mapper, DTOs"
 
   diff_complex_example =
       # from SD, "Complex Examples: Raw Diff, Mapper, DTOs"
-      dryrun_test_policy =
-        <<~POLICY
-- !policy
-  id: example
-  body:
-    - !user
-      id: alice
-      annotations:
-        key: value
-    - !user
-      id: annie
-      annotations:
-        key: value
-    - !user
-      id: bob
-      annotations:
-        key: value
-    - !user
-      id: barrett
-      restricted_to: [ "127.0.0.1" ]
-      annotations:
-        key: value
-    - !user
-      id: carson
-      annotations:
-        key: value
-    - !policy
-      id: alpha
-      owner: !user alice
-      body:
-        - &alpha_variables
-          - !variable
-            id: secret01
-            annotations:
-              key: value
-          - !variable
-            id: secret02
-            annotations:
-              key: value
-        - !group
-          id: secret-users
-          annotations:
-            key: value
-        - !grant
-          role: !group secret-users
-          member: !user /example/annie
-        - !permit
-          role: !group secret-users
-          privileges: [ read, execute ]
-          resources: *alpha_variables
-    - !policy
-      id: omega
-      owner: !user bob
-      body:
-        - &omega_variables
-          - !variable
-            id: secret01
-            annotations:
-              key: value
-          - !variable
-            id: secret02
-            annotations:
-              key: value
-        - !group
-          id: secret-users
-          annotations:
-            key: value
-        - !grant
-          role: !group secret-users
-          member: !user /example/barrett
-        - !permit
-          role: !group secret-users
-          privileges: [ read, execute ]
-          resources: *omega_variables
+    dryrun_test_policy =
+      <<~POLICY
+        - !policy
+          id: example
+          body:
+            - !user
+              id: alice
+              annotations:
+                key: value
+            - !user
+              id: annie
+              annotations:
+                key: value
+            - !user
+              id: bob
+              annotations:
+                key: value
+            - !user
+              id: barrett
+              restricted_to: [ "127.0.0.1" ]
+              annotations:
+                key: value
+            - !user
+              id: carson
+              annotations:
+                key: value
+            - !policy
+              id: alpha
+              owner: !user alice
+              body:
+                - &alpha_variables
+                  - !variable
+                    id: secret01
+                    annotations:
+                      key: value
+                  - !variable
+                    id: secret02
+                    annotations:
+                      key: value
+                - !group
+                  id: secret-users
+                  annotations:
+                    key: value
+                - !grant
+                  role: !group secret-users
+                  member: !user /example/annie
+                - !permit
+                  role: !group secret-users
+                  privileges: [ read, execute ]
+                  resources: *alpha_variables
+            - !policy
+              id: omega
+              owner: !user bob
+              body:
+                - &omega_variables
+                  - !variable
+                    id: secret01
+                    annotations:
+                      key: value
+                  - !variable
+                    id: secret02
+                    annotations:
+                      key: value
+                - !group
+                  id: secret-users
+                  annotations:
+                    key: value
+                - !grant
+                  role: !group secret-users
+                  member: !user /example/barrett
+                - !permit
+                  role: !group secret-users
+                  privileges: [ read, execute ]
+                  resources: *omega_variables
            POLICY
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - #
@@ -236,43 +227,43 @@ describe Loader::DryRun do
   # it verifies diff resulting from Update Role Memberships
 
   base_update_role_memberships =
-        <<~POLICY
-- !policy
-  id: foo-bar
-  body:
-  - !user
-    id: alice
-    annotations:
-      alpha: the first letter of the Greek alphabet
-    restricted_to: [ "127.0.0.1", "10.0.0.0/24" ]
-  - &variables
-    - !variable
-      id: secret01
-      annotations:
-        alpha: the first letter of the Greek alphabet
-  - !group
-    id: secret-users
-    annotations:
-      alpha: the first letter of the Greek alphabet
-  - !grant
-    role: !group secret-users
-    members:
-    - !user alice
-  - !permit
-    role: !group secret-users
-    privileges: [ read, execute ]
-    resources: *variables
+    <<~POLICY
+      - !policy
+        id: foo-bar
+        body:
+        - !user
+          id: alice
+          annotations:
+            alpha: the first letter of the Greek alphabet
+          restricted_to: [ "127.0.0.1", "10.0.0.0/24" ]
+        - &variables
+          - !variable
+            id: secret01
+            annotations:
+              alpha: the first letter of the Greek alphabet
+        - !group
+          id: secret-users
+          annotations:
+            alpha: the first letter of the Greek alphabet
+        - !grant
+          role: !group secret-users
+          members:
+          - !user alice
+        - !permit
+          role: !group secret-users
+          privileges: [ read, execute ]
+          resources: *variables
            POLICY
 
   # PATCH root "policies/dry-run-policies/examples/update/input/01.02-update_role_memberships.yml"
   diff_update_role_memberships =
-        <<~POLICY
-- !policy
-  id: foo-bar
-  body:
-  - !revoke
-    role: !group secret-users
-    member: !user alice
+    <<~POLICY
+      - !policy
+        id: foo-bar
+        body:
+        - !revoke
+          role: !group secret-users
+          member: !user alice
            POLICY
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - #
@@ -281,46 +272,46 @@ describe Loader::DryRun do
 
   # PUT "policies/dry-run-policies/examples/update/input/00-base.yml"
   base_update_delete_role =
-        <<~POLICY
-- !policy
-  id: foo-bar
-  body:
-  - !user
-    id: alice
-    annotations:
-      description: I made Bob the fall guy
-  - !user
-    id: bob
-    annotations:
-      alpha: the first letter of the Greek alphabet
-    restricted_to: [ "127.0.0.1", "10.0.0.0/24" ]
-  - &variables
-    - !variable
-      id: secret01
-      annotations:
-        alpha: the first letter of the Greek alphabet
-  - !group
-    id: secret-users
-    annotations:
-      alpha: the first letter of the Greek alphabet
-  - !grant
-    role: !group secret-users
-    members:
-    - !user alice
-  - !permit
-    role: !group secret-users
-    privileges: [ read, execute ]
-    resources: *variables
+    <<~POLICY
+      - !policy
+        id: foo-bar
+        body:
+        - !user
+          id: alice
+          annotations:
+            description: I made Bob the fall guy
+        - !user
+          id: bob
+          annotations:
+            alpha: the first letter of the Greek alphabet
+          restricted_to: [ "127.0.0.1", "10.0.0.0/24" ]
+        - &variables
+          - !variable
+            id: secret01
+            annotations:
+              alpha: the first letter of the Greek alphabet
+        - !group
+          id: secret-users
+          annotations:
+            alpha: the first letter of the Greek alphabet
+        - !grant
+          role: !group secret-users
+          members:
+          - !user alice
+        - !permit
+          role: !group secret-users
+          privileges: [ read, execute ]
+          resources: *variables
            POLICY
 
   # PATCH "policies/dry-run-policies/examples/update/input/01.03-delete_role.yml"
   diff_update_delete_role =
-        <<~POLICY
-- !policy
-  id: foo-bar
-  body:
-  - !delete
-    record: !user bob
+    <<~POLICY
+      - !policy
+        id: foo-bar
+        body:
+        - !delete
+          record: !user bob
            POLICY
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - #
@@ -329,63 +320,63 @@ describe Loader::DryRun do
 
   # dry-run-policies/examples/replace/input/00-base.yml
   base_replace_policy =
-        <<~POLICY
-- !policy
-  id: foo-bar
-  body:
-  - !user
-    id: alice
-    annotations:
-      alpha: the first letter of the Greek alphabet
-    restricted_to: [ "127.0.0.1", "10.0.0.0/24" ]
-  - &variables
-    - !variable
-      id: secret01
-      annotations:
-
-        alpha: the first letter of the Greek alphabet
-  - !group
-    id: secret-users
-    annotations:
-      alpha: the first letter of the Greek alphabet
-  - !grant
-    role: !group secret-users
-    members:
-    - !user alice
-  - !permit
-    role: !group secret-users
-    privileges: [ read, execute ]
-    resources: *variables
+    <<~POLICY
+      - !policy
+        id: foo-bar
+        body:
+        - !user
+          id: alice
+          annotations:
+            alpha: the first letter of the Greek alphabet
+          restricted_to: [ "127.0.0.1", "10.0.0.0/24" ]
+        - &variables
+          - !variable
+            id: secret01
+            annotations:
+      
+              alpha: the first letter of the Greek alphabet
+        - !group
+          id: secret-users
+          annotations:
+            alpha: the first letter of the Greek alphabet
+        - !grant
+          role: !group secret-users
+          members:
+          - !user alice
+        - !permit
+          role: !group secret-users
+          privileges: [ read, execute ]
+          resources: *variables
            POLICY
 
   # dry-run-policies/examples/replace/raw_diff/01.01-existing_roles_and_groups.json
   diff_replace_policy =
-        <<~POLICY
-- !policy
-  id: foo-bar
-  body:
-  - !user
-    id: bob
-    annotations:
-      alpha: the first letter of the Greek alphabet
-    restricted_to: [ "127.0.0.1", "10.0.0.0/24" ]
-  - &variables
-    - !variable
-      id: secret01
-      annotations:
-        alpha: the first letter of the Greek alphabet
-  - !group
-    id: secret-users
-    annotations:
-      alpha: the first letter of the Greek alphabet
-  - !grant
-    role: !group secret-users
-    members:
-    - !user bob
-  - !permit
-    role: !group secret-users
-    privileges: [ read, execute ]
-    resources: *variables
+    <<~POLICY
+      - !policy
+        id: foo-bar
+        body:
+        - !user
+          id: bob
+          annotations:
+            alpha: the first letter of the Greek alphabet
+          restricted_to: [ "127.0.0.1", "10.0.0.0/24" ]
+        - &variables
+          - !variable
+            id: secret01
+            annotations:
+              alpha: the first letter of the Greek alphabet
+        - !group
+          id: secret-users
+          annotations:
+            alpha: the first letter of the Greek alphabet
+        - !grant
+          role: !group secret-users
+          members:
+          - !user bob
+        - !permit
+          role: !group secret-users
+          privileges: [ read, execute ]
+          resources: *variables
            POLICY
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - #
@@ -394,60 +385,58 @@ describe Loader::DryRun do
 
   # dry-run-policies/update-01.yml
   base_delete_all =
-        <<~POLICY
-- !policy
-  id: foo-bar
-  body:
-  - !user
-    id: alice
-    annotations:
-      alpha: the first letter of the Greek alphabet
-    restricted_to: [ "127.0.0.1", "10.0.0.0/24" ]
-  - &variables
-    - !variable
-      id: secret01
-      annotations:
-        alpha: the first letter of the Greek alphabet
-  - !group
-    id: secret-users
-    annotations:
-      alpha: the first letter of the Greek alphabet
-  - !grant
-    role: !group secret-users
-    members:
-    - !user alice
-  - !permit
-    role: !group secret-users
-    privileges: [ read, execute ]
-    resources: *variables
+    <<~POLICY
+      - !policy
+        id: foo-bar
+        body:
+        - !user
+          id: alice
+          annotations:
+            alpha: the first letter of the Greek alphabet
+          restricted_to: [ "127.0.0.1", "10.0.0.0/24" ]
+        - &variables
+          - !variable
+            id: secret01
+            annotations:
+              alpha: the first letter of the Greek alphabet
+        - !group
+          id: secret-users
+          annotations:
+            alpha: the first letter of the Greek alphabet
+        - !grant
+          role: !group secret-users
+          members:
+          - !user alice
+        - !permit
+          role: !group secret-users
+          privileges: [ read, execute ]
+          resources: *variables
            POLICY
 
   # dry-run-policies/update-03.yml
   diff_delete_all =
-        <<~POLICY
-- !policy
-  id: foo-bar
-  body:
-  - !revoke
-    role: !group secret-users
-    member: !user bob
+    <<~POLICY
+      - !policy
+        id: foo-bar
+        body:
+        - !revoke
+          role: !group secret-users
+          member: !user bob
            POLICY
 
   # ----------------------------------------------------- #
 
   context "when using test cases from the Policy DryRun Solution Design" do
-
     # Each "it" example uses 2 policies to set up a testable diff.
 
     # ----------------------------------------------------- #
 
     it 'it verifies against the Simple Examples: Raw Diff -- Roles' do
-
       base_test_policy = base_simple_example
 
       policy_result = PolicyResult.new
 
-      response = raw_diff_wrapper(
+      raw_diff_wrapper(
         policy_result: policy_result,
         test_policy: base_test_policy,
         test_loader: Loader::ReplacePolicy,
@@ -459,8 +448,6 @@ describe Loader::DryRun do
       )
       # Confirm that it was not rejected
       expect(policy_result.error).to be(nil)
-
-      policy_result = nil
 
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - #
 
@@ -498,13 +485,12 @@ describe Loader::DryRun do
       expect(diff[:deleted].credentials.length).to be == 0
 
       # allow GC to reclaim it
-      policy_result = nil
+      nil
     end
 
     # ----------------------------------------------------- #
 
     it 'it verifies against the Complex Examples: Raw Diff -- Resources' do
-
       base_test_policy = base_complex_example
 
       policy_result = PolicyResult.new
@@ -521,8 +507,6 @@ describe Loader::DryRun do
 
       expect(response).to_not be(nil)
       expect(policy_result.error).to be(nil)
-
-      policy_result = nil
 
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - #
 
@@ -561,18 +545,24 @@ describe Loader::DryRun do
       expect(diff[:deleted].roles.length).to be == 0
       expect(diff[:deleted].credentials.length).to be == 0
 
-      policy_result = nil
+      expect(diff[:updated].annotations.length).to be == 0
+      expect(diff[:updated].permissions.length).to be == 0
+      expect(diff[:updated].resources.length).to be == 0
+      expect(diff[:updated].role_memberships.length).to be == 1
+      expect(diff[:updated].roles.length).to be == 1
+      expect(diff[:updated].credentials.length).to be == 0
+
+      nil
     end
 
     # ----------------------------------------------------- #
 
     it 'it verifies diff resulting from Update Role Memberships' do
-
       base_test_policy = base_update_role_memberships
 
       policy_result = PolicyResult.new
 
-      response = raw_diff_wrapper(
+      raw_diff_wrapper(
         policy_result: policy_result,
         test_policy: base_test_policy,
         test_loader: Loader::CreatePolicy,
@@ -584,8 +574,6 @@ describe Loader::DryRun do
       )
 
       expect(policy_result.error).to be(nil)
-
-      policy_result = nil
 
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - #
 
@@ -626,7 +614,14 @@ describe Loader::DryRun do
       expect(diff[:deleted].credentials.length).to be == 0
       expect(diff[:deleted].role_memberships[0][:role_id]).to match("rspec:group:foo-bar/secret-users")
 
-      policy_result = nil
+      expect(diff[:updated].annotations.length).to be == 2
+      expect(diff[:updated].permissions.length).to be == 2
+      expect(diff[:updated].resources.length).to be == 2
+      expect(diff[:updated].role_memberships.length).to be == 3
+      expect(diff[:updated].roles.length).to be == 2
+      expect(diff[:updated].credentials.length).to be == 1
+
+      nil
     end
 
     # ----------------------------------------------------- #
@@ -641,7 +636,7 @@ describe Loader::DryRun do
 
       policy_result = PolicyResult.new
 
-      response = raw_diff_wrapper(
+      raw_diff_wrapper(
         policy_result: policy_result,
         test_policy: base_test_policy,
         test_loader: Loader::ReplacePolicy,
@@ -653,8 +648,6 @@ describe Loader::DryRun do
       )
 
       expect(policy_result.error).to be(nil)
-
-      policy_result = nil
 
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - #
 
@@ -691,6 +684,13 @@ describe Loader::DryRun do
       expect(diff[:deleted].roles.length).to be == 1
       expect(diff[:deleted].credentials.length).to be == 1
 
+      expect(diff[:updated].annotations.length).to be == 1
+      expect(diff[:updated].permissions.length).to be == 0
+      expect(diff[:updated].resources.length).to be == 2
+      expect(diff[:updated].role_memberships.length).to be == 4
+      expect(diff[:updated].roles.length).to be == 2
+      expect(diff[:updated].credentials.length).to be == 1
+
       expect(diff[:deleted].annotations[0][:resource_id]).to match("rspec:user:bob@foo-bar")
       expect(diff[:deleted].annotations[0][:name]).to match("alpha")
       expect(diff[:deleted].resources[0][:resource_id]).to match("rspec:user:bob@foo-bar")
@@ -705,19 +705,18 @@ describe Loader::DryRun do
       expect(diff[:deleted].roles[0][:policy_id]).to match("rspec:policy:root")
       expect(diff[:deleted].credentials[0][:role_id]).to match("rspec:user:bob@foo-bar")
 
-      policy_result = nil
+      nil
     end
 
     # ----------------------------------------------------- #
 
     it 'it verifies diff resulting from Replace policy operations' do
-
       # dry-run-policies/examples/replace/input/00-base.yml
       base_test_policy = base_replace_policy
 
       policy_result = PolicyResult.new
 
-      response = raw_diff_wrapper(
+      raw_diff_wrapper(
         policy_result: policy_result,
         test_policy: base_test_policy,
         test_loader: Loader::ReplacePolicy,
@@ -729,8 +728,6 @@ describe Loader::DryRun do
       )
 
       expect(policy_result.error).to be(nil)
-
-      policy_result = nil
 
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - #
 
@@ -771,6 +768,13 @@ describe Loader::DryRun do
       expect(diff[:deleted].roles.length).to be == 1
       expect(diff[:deleted].credentials.length).to be == 1
 
+      expect(diff[:updated].annotations.length).to be == 2
+      expect(diff[:updated].permissions.length).to be == 2
+      expect(diff[:updated].resources.length).to be == 3
+      expect(diff[:updated].role_memberships.length).to be == 4
+      expect(diff[:updated].roles.length).to be == 3
+      expect(diff[:updated].credentials.length).to be == 1
+
       # Verify some content of the replaced elements:
       # (there's only one element in each set so we can reference it at known index)
       expect(diff[:deleted].annotations[0][:resource_id]).to match("rspec:user:alice@foo-bar")
@@ -784,19 +788,18 @@ describe Loader::DryRun do
       expect(diff[:created].credentials[0][:role_id]).to match("rspec:user:bob@foo-bar")
 
       # allow GC to reclaim it
-      policy_result = nil
+      nil
     end
 
     # ----------------------------------------------------- #
 
     it 'it verifies diff with no created items and all types of deleted items' do
-
       # dry-run-policies/update-01.yml
       base_test_policy = base_delete_all
 
       policy_result = PolicyResult.new
 
-      response = raw_diff_wrapper(
+      raw_diff_wrapper(
         policy_result: policy_result,
         test_policy: base_test_policy,
         test_loader: Loader::ReplacePolicy,
@@ -808,8 +811,6 @@ describe Loader::DryRun do
       )
 
       expect(policy_result.error).to be(nil)
-
-      policy_result = nil
 
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - #
 
@@ -849,18 +850,23 @@ describe Loader::DryRun do
       expect(diff[:deleted].roles.length).to be == 2
       expect(diff[:deleted].credentials.length).to be == 1
 
+      expect(diff[:updated].annotations.length).to be == 3
+      expect(diff[:updated].permissions.length).to be == 2
+      expect(diff[:updated].resources.length).to be == 4
+      expect(diff[:updated].role_memberships.length).to be == 4
+      expect(diff[:updated].roles.length).to be == 3
+      expect(diff[:updated].credentials.length).to be == 1
     end
 
     # ----------------------------------------------------- #
 
     it 'it verifies diff with no net change in policy' do
-
       # policy that creates all types
       base_test_policy = diff_complex_example
 
       policy_result = PolicyResult.new
 
-      response = raw_diff_wrapper(
+      raw_diff_wrapper(
         policy_result: policy_result,
         test_policy: base_test_policy,
         test_loader: Loader::ReplacePolicy,
@@ -872,8 +878,6 @@ describe Loader::DryRun do
       )
 
       expect(policy_result.error).to be(nil)
-
-      policy_result = nil
 
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - #
 
@@ -913,9 +917,14 @@ describe Loader::DryRun do
       expect(diff[:deleted].roles.length).to be == 0
       expect(diff[:deleted].credentials.length).to be == 0
 
+      expect(diff[:updated].annotations.length).to be == 0
+      expect(diff[:updated].permissions.length).to be == 0
+      expect(diff[:updated].resources.length).to be == 0
+      expect(diff[:updated].role_memberships.length).to be == 0
+      expect(diff[:updated].roles.length).to be == 0
+      expect(diff[:updated].credentials.length).to be == 0
     end
 
     # ----------------------------------------------------- #
-
   end
 end

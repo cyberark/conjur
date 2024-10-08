@@ -40,15 +40,7 @@ module Loader
 
     # For the Validate interpreter all of these are no-op because we perform no db operations.
 
-    def snapshot_public_schema_before
-      # No-op.
-    end
-
-    def drop_snapshot_public_schema_before
-      # No-op.
-    end
-
-    def get_diff
+    def diff_schema_name
       # No-op.
     end
 
