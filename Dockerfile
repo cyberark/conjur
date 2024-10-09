@@ -1,4 +1,4 @@
-FROM cyberark/ubuntu-ruby-builder:latest as builder
+FROM cyberark/ubuntu-ruby-builder:latest AS builder
 
 ENV CONJUR_HOME=/opt/conjur-server
 
