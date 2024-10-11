@@ -56,16 +56,7 @@ Rails.application.routes.draw do
       end
 
       # Factories
-
-      # Trip or reenable the factory resource's circuit breaker
-      # These need to be ahead of the create route below to allow it to match
-      post    "/factory-resources/:account/:policy_identifier/disable" => "policy_factory_resources#disable"
-      post    "/factory-resources/:account/:policy_identifier/enable" => "policy_factory_resources#enable"
-
-      # Endpoints for managing Policy Factory created resources
-      get     "/factory-resources/:account" => "policy_factory_resources#index"
-      get     "/factory-resources/:account/:policy_identifier" => "policy_factory_resources#show"
-      match   "/factory-resources/:account/:kind/(:version)/:id" => "policy_factory_resources#create", via: [:post, :patch]
+      post   "/factory-resources/:account/:kind/(:version)/:id" => "policy_factory_resources#create"
 
       # Endpoints related to viewing factories
       get     "/factories/:account/:kind/(:version)/:id" => "policy_factories#show"
