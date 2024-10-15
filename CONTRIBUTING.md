@@ -74,7 +74,8 @@ Follow this [link](https://github.com/cyberark/community/blob/master/Conjur/conv
 It's easy to get started with Conjur and Docker:
 
 1. Install dependencies (as above)
-1. Clone this repository
+1. Clone this repository (on Windows use WSL to ensure line endings remain lf, github 
+desktop will change line endings)
 1. Run the build script in your terminal:
 
    ```sh-session
