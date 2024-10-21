@@ -9,7 +9,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
-## [1.21.2] - 2024-09-10
+## [1.21.2] - 2024-09-03
+
+### Changed
+- Replaces ERB template engine with Mustache when rendering Factory templates
+  CNJR-6700
 
 ### Fixed
 - Updates OIDC Authenticator to use the scope defined in configuration.
@@ -18,8 +22,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   ONYX-60466
 - Fixed the ability to define Auth Token TTL in the configuration.
   CNJR-6388
-
-### Fixed
 - Update webrick to 1.8.2 to resolve CVE-2024-47220.
   CONJSE-1907
 
