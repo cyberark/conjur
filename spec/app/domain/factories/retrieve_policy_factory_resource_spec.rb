@@ -101,6 +101,7 @@ RSpec.describe(Factories::RetrievePolicyFactoryResource) do
           end
           context 'when a policy only has the factory annotation' do
             it 'returns a success response' do
+              # file deepcode ignore HardcodedCredential: This is a test code, not an actual credential
               response = subject.call(account: 'default', policy_identifier: 'foo-bar', current_user: 'foo-bar')
               expect(response.success?).to eq(true)
               expect(response.result).to eq(

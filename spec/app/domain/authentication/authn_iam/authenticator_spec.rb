@@ -159,6 +159,7 @@ RSpec.describe(Authentication::AuthnIam::Authenticator) do
   context 'for different roles' do
     context 'when login is a User' do
       let(:payload) do
+        # file deepcode ignore HardcodedCredential: This is a test code, not an actual credential
         double('AuthenticationParameters', username: 'foo/bar/baz/188945769008/conjur-role', credentials: valid_global_headers)
       end
       it 'succeeds', vcr: 'authenticators/authn-iam/valid-global-headers' do

@@ -110,6 +110,7 @@ RSpec.describe(Authentication::CommandHandlers::Authentication) do
             instance_double(TokenFactory).tap do |double|
               allow(double).to receive(:signed_token).with(
                 account: 'rspec',
+                # file deepcode ignore HardcodedCredential: This is a test code, not an actual credential
                 username: 'foo-bar',
                 host_ttl: host_ttl,
                 user_ttl: user_ttl

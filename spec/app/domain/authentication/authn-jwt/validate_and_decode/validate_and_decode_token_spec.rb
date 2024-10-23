@@ -10,6 +10,7 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeTo
       authenticator_name: "dummy",
       service_id: "dummy",
       account: "dummy",
+      # file deepcode ignore HardcodedCredential: This is a test code, not an actual credential
       username: "dummy",
       credentials: "dummy",
       client_ip: "dummy",

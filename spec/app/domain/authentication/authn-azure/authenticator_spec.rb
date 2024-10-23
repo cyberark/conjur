@@ -77,6 +77,7 @@ RSpec.describe('Authentication::AuthnAzure::Authenticator') do
               authenticator_name: authenticator_name,
               service_id: service,
               account: account,
+              # file deepcode ignore HardcodedCredential: This is a test code, not an actual credential
               username: 'my-user',
               credentials: request_body(authenticate_azure_token_request),
               client_ip: '127.0.0.1',

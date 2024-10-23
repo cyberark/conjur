@@ -15,6 +15,7 @@ RSpec.describe('Authentication::AuthnJwt::ValidateStatus') do
       authenticator_name: authenticator_name,
       service_id: service_id,
       account: account,
+      # file deepcode ignore HardcodedCredential: This is a test code, not an actual credential
       username: "dummy_identity",
       client_ip: "dummy",
       credentials: nil,

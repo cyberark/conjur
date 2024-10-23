@@ -120,6 +120,7 @@ describe RolesController, type: :request do
     # Test cases
     [
       {
+        # file deepcode ignore HardcodedCredential: This is a test code, not an actual credential
         user_id: ADMIN_HOST_ID,
         role_url: ADMIN_HOST_URL,
         expected_response: :not_found

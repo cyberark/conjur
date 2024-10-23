@@ -13,6 +13,7 @@ describe ::Audit::Event::Authn::RoleId do
 
   it 'constructs "role id" from account/username when role is missing' do
     subj = ::Audit::Event::Authn::RoleId.new(
+      # file deepcode ignore HardcodedCredential: This is a test code, not an actual credential
       role: nil, account: 'my_account', username: 'my_username'
     )
     expect(subj.to_s).to eq('my_account:user:my_username')
