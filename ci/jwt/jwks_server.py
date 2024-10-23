@@ -16,6 +16,8 @@ JWKS_KEYS_KEY = 'keys'
 
 keys = {}
 
+# Pylint raises a warning for too many arguments in logging functions when using formatted strings
+# pylint: disable=logging-too-many-args
 
 def get_key(key_name, alg):
     '''
@@ -74,7 +76,7 @@ def base64_padding(value):
 
 def decode_token(token):
     '''Returns header and body part of JWT token as objects'''
-    head_b64, payl_b64, sig = token.split(".", 3)
+    head_b64, payl_b64, _ = token.split(".", 3)
     head = base64.urlsafe_b64decode(base64_padding(head_b64))
     payl = base64.urlsafe_b64decode(base64_padding(payl_b64))
     head_dict = json.loads(head, object_pairs_hook=OrderedDict)
@@ -92,7 +94,7 @@ class JWKSRequestHandler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(response.encode('utf-8'))
 
-    def do_GET(self):
+    def do_GET(self): # pylint: disable=invalid-name
         '''Handles GET requests'''
         logging.info("GET: %s", str(self.path))
         parts = self.path.strip('/').split('/')
@@ -105,7 +107,7 @@ class JWKSRequestHandler(BaseHTTPRequestHandler):
             resp = jwks_json_with_all_keys()
         self.reply(resp)
 
-    def do_POST(self):
+    def do_POST(self): # pylint: disable=invalid-name
         '''Handles POST requests'''
         logging.info("POST %s", str(self.path))
 
@@ -124,7 +126,7 @@ class JWKSRequestHandler(BaseHTTPRequestHandler):
         token.make_signed_token(key)
         self.reply(token.serialize())
 
-    def do_DELETE(self):
+    def do_DELETE(self): # pylint: disable=invalid-name
         '''Handles DELETE requests'''
         logging.info("DELETE %s", str(self.path))
         parts = self.path.strip('/').split('/')
