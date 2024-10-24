@@ -1,4 +1,4 @@
-FROM cyberark/ubuntu-ruby-builder:latest as builder
+FROM cyberark/ubuntu-ruby-builder:latest AS builder
 
 RUN mkdir -p /src/conjur-server
 WORKDIR /src/conjur-server
@@ -42,8 +42,8 @@ RUN ln -sf /src/conjur-server/bin/conjurctl /usr/local/bin/
 # Stop Syslog-NG from starting
 # RUN touch /etc/service/syslog-ng/down
 
-ENV PORT 3000
-ENV TERM xterm
+ENV PORT=3000
+ENV TERM=xterm
 
 EXPOSE 3000
 
