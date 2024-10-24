@@ -27,14 +27,14 @@ module DataObjects
     :owner,
     :policy,
     :permitted,
-    :annotations,
+    :annotations
   ) do
   end
 
   class DataValidator
 
     def validate_fields(db_row)
-      required_fields = ["resource_id", "owner_id", "policy_id"]
+      required_fields = %w[resource_id owner_id policy_id]
       required_fields.each do |field|
         unless db_row.key?(field.to_s) || db_row.key?(field.to_sym)
           raise ArgumentError, "#{field} is required, but is missing"
@@ -52,8 +52,8 @@ module DataObjects
   end
 
   class DTOFactory
-    ROLE_TYPES = ['group', 'host', 'layer', 'policy', 'user']
-    RESOURCE_TYPES = ['variable', 'webservice']
+    ROLE_TYPES = %w[group host layer policy user]
+    RESOURCE_TYPES = %w[variable webservice]
 
     def self.create_DTO_from_hash(db_row)
       dv = DataValidator.new
@@ -82,7 +82,7 @@ module DataObjects
       end
 
       annotations = if db_row.key?(:annotations)
-        Hash[db_row[:annotations].map { |ann_hash| [ann_hash[:name], ann_hash[:value]] } ]
+        Hash[db_row[:annotations].map { |ann_hash| [ann_hash[:name], ann_hash[:value]] }]
       else
         {}
       end
@@ -138,11 +138,11 @@ module DataObjects
     end
 
     def self.create_DTO(db_row)
-      self.create_DTO_from_hash(db_row)
+      create_DTO_from_hash(db_row)
     end
 
     def self.create_DTOs(rows)
-      rows.map { |row| self.create_DTO(row) }
+      rows.map { |row| create_DTO(row) }
     end
 
   end
