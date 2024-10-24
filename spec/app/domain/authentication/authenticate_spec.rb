@@ -123,6 +123,7 @@ RSpec.describe('Authentication::Authenticate') do
             authenticator_name: 'authn-always-pass',
             service_id: nil,
             account: 'my-acct',
+            # file deepcode ignore HardcodedCredential: This is a test code, not an actual credential
             username: 'my-user',
             credentials: 'my-pw',
             client_ip: '127.0.0.1',

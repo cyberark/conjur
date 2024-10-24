@@ -41,6 +41,7 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::IdentityProviderFac
         authenticator_name: authenticator_name,
         service_id: service_id,
         account: account,
+        # file deepcode ignore HardcodedCredential: This is a test code, not an actual credential
         username: "dummy_identity",
         credentials: "dummy",
         client_ip: "dummy",

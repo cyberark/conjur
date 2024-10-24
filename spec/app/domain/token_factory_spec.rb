@@ -31,6 +31,7 @@ describe TokenFactory  do
     context 'with default settings' do
       it 'uses the default user ttl' do
         freeze_time do
+          # file deepcode ignore HardcodedCredential: This is a test code, not an actual credential
           token = token_factory.signed_token(account: "cucumber", username: "myuser")
           expect(token.claims[:exp]).to eq((Time.now + 8 * 60).to_i)
         end

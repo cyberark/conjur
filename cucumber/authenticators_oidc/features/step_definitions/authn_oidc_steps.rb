@@ -42,6 +42,7 @@ Given(/I fetch a code for username "([^"]*)" and password "([^"]*)" from "([^"]*
   # Enable SSL support
   http.use_ssl = true
   # Don't verify (to simplify self-signed certificate)
+  # file deepcode ignore SSLVerificationBypass: This is a test code. It is used to simplify self-signed cert
   http.verify_mode = OpenSSL::SSL::VERIFY_NONE
   request = Net::HTTP::Get.new("#{redirect_uri.path}?#{redirect_uri.query}")
   response = http.request(request)

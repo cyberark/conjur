@@ -469,6 +469,8 @@ RSpec.describe(Factories::CreateFromPolicyFactory) do
       let(:rendered_policy_body) { "- !policy\n  id: bar\n  annotations:\n    factory: connections/v1/database\n  body:\n  - &variables\n    - !variable url\n    - !variable port\n    - !variable username\n    - !variable password\n    - !variable ssl-certificate\n    - !variable ssl-key\n    - !variable ssl-ca-certificate\n\n  - !group consumers\n  - !group administrators\n\n  - !permit\n    resource: *variables\n    privileges: [ read, execute ]\n    role: !group consumers\n\n  - !permit\n    resource: *variables\n    privileges: [ update ]\n    role: !group administrators\n\n  - !grant\n    member: !group administrators\n    role: !group consumers\n" }
       # rubocop:enable Layout/LineLength
       context 'when request body is missing values' do
+        # file deepcode ignore HardcodedPassword
+        # file deepcode ignore HardcodedCredential: This is a test code, not an actual credential
         let(:variables) { { port: '1234', url: 'http://localhost', username: 'super-user' } }
         it 'returns a failure response' do
           expect(subject.success?).to be(false)

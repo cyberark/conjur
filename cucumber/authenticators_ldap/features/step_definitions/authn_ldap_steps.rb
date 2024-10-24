@@ -26,6 +26,7 @@ end
 
 When(/my LDAP password is wrong for authorized user "(\S+)"/) do |username|
   login_with_ldap(service_id: 'test', account: 'cucumber', 
+                  # file deepcode ignore HardcodedPassword: This is a test code, not an actual credential
                   username: username, password: 'BAD_PASSWORD')
 end
 

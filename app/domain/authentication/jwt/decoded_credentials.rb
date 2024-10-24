@@ -3,6 +3,7 @@ module Authentication
 
     class DecodedCredentials
 
+      # deepcode ignore HardcodedNonCryptoSecret: This is a field name, not an actual credential
       JWT_REQUEST_BODY_FIELD_NAME = "jwt".freeze
       # https://datatracker.ietf.org/doc/html/rfc4648#section-5
       # jwt token is 3 blocks of base64url encoded strings separated by period '.'

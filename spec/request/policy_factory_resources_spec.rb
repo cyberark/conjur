@@ -275,6 +275,8 @@ describe PolicyFactoryResourcesController, type: :request do
           variables: {
             url: 'https://foo.bar.baz.com',
             port: '5432',
+            # file deepcode ignore HardcodedPassword
+            # file deepcode ignore HardcodedCredential: This is a test code, not an actual credential
             username: 'foo-bar',
             password: 'bar-baz'
           }
