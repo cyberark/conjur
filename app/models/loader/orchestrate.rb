@@ -255,15 +255,7 @@ module Loader
       store_restricted_to
     end
 
-    def snapshot_public_schema_before
-      # No-op.
-    end
-
-    def drop_snapshot_public_schema_before
-      # No-op.
-    end
-
-    def get_diff
+    def diff_schema_name
       # No-op.
     end
 

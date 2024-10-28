@@ -864,49 +864,48 @@ resources_dto_complex = [
 ]
 
 describe 'DataObjects::DTOFactory' do
-
   context "when passed a database row as a hash" do
     dto1a = DataObjects::DTOFactory.create_DTO_from_hash(mapped_roles_simple[0])
     dto1b = DataObjects::DTOFactory.create_DTO_from_hash(mapped_roles_simple[1])
     dto2a = DataObjects::DTOFactory.create_DTO_from_hash(mapped_resources_simple[0])
     it 'should return a RoleDTO or a ResourceDTO' do
-      expect(dto1a.class).to be DataObjects::RoleDTO
-      expect(dto1b.class).to be DataObjects::RoleDTO
-      expect(dto2a.class).to be DataObjects::ResourceDTO
+      expect(dto1a.class).to be(DataObjects::RoleDTO)
+      expect(dto1b.class).to be(DataObjects::RoleDTO)
+      expect(dto2a.class).to be(DataObjects::ResourceDTO)
     end
     it 'should have the correct attributes for identifier, id, type, owner and policy' do
-      expect(dto1a.identifier).to eq "cucumber:policy:example"
-      expect(dto1a.type).to eq "policy"
-      expect(dto1a.id).to eq "example"
-      expect(dto1a.owner).to eq "cucumber:user:admin"
-      expect(dto1a.policy).to eq "cucumber:policy:root"
-      expect(dto2a.identifier).to eq "cucumber:variable:example/secret01"
-      expect(dto2a.type).to eq "variable"
-      expect(dto2a.id).to eq "example/secret01"
-      expect(dto2a.owner).to eq "cucumber:policy:example"
-      expect(dto2a.policy).to eq "cucumber:policy:root"
-      expect(dto1b.identifier).to eq "cucumber:user:barrett@example"
-      expect(dto1b.type).to eq "user"
-      expect(dto1b.id).to eq "barrett@example"
-      expect(dto1b.owner).to eq "cucumber:policy:example"
-      expect(dto1b.policy).to eq "cucumber:policy:root"
+      expect(dto1a.identifier).to eq("cucumber:policy:example")
+      expect(dto1a.type).to eq("policy")
+      expect(dto1a.id).to eq("example")
+      expect(dto1a.owner).to eq("cucumber:user:admin")
+      expect(dto1a.policy).to eq("cucumber:policy:root")
+      expect(dto2a.identifier).to eq("cucumber:variable:example/secret01")
+      expect(dto2a.type).to eq("variable")
+      expect(dto2a.id).to eq("example/secret01")
+      expect(dto2a.owner).to eq("cucumber:policy:example")
+      expect(dto2a.policy).to eq("cucumber:policy:root")
+      expect(dto1b.identifier).to eq("cucumber:user:barrett@example")
+      expect(dto1b.type).to eq("user")
+      expect(dto1b.id).to eq("barrett@example")
+      expect(dto1b.owner).to eq("cucumber:policy:example")
+      expect(dto1b.policy).to eq("cucumber:policy:root")
     end
 
     it 'should build the correct arrays for members, memberships, and restricted_to' do
-      expect(dto1a.members).to eq ["cucumber:user:admin"]
-      expect(dto1a.memberships).to eq ["cucumber:user:barrett@example"]
-      expect(dto1a.restricted_to).to eq []
-      expect(dto1b.members).to eq ["cucumber:policy:example"]
-      expect(dto1b.memberships).to eq []
-      expect(dto1b.restricted_to).to eq ["127.0.0.1"]
+      expect(dto1a.members).to eq(["cucumber:user:admin"])
+      expect(dto1a.memberships).to eq(["cucumber:user:barrett@example"])
+      expect(dto1a.restricted_to).to eq([])
+      expect(dto1b.members).to eq(["cucumber:policy:example"])
+      expect(dto1b.memberships).to eq([])
+      expect(dto1b.restricted_to).to eq(["127.0.0.1"])
     end
 
     it 'should build the correct hashes for permissions/permitted and annotations' do
-      expect(dto1a.permissions).to eq Hash(nil)
-      expect(dto1a.annotations).to eq Hash(nil)
-      expect(dto1b.permissions).to match a_hash_including("execute" => ["cucumber:variable:example/secret01"],
-        "read" => ["cucumber:variable:example/secret01"])
-      expect(dto1b.annotations).to match a_hash_including("key" => "value")
+      expect(dto1a.permissions).to eq(Hash(nil))
+      expect(dto1a.annotations).to eq(Hash(nil))
+      expect(dto1b.permissions).to match(a_hash_including("execute" => ["cucumber:variable:example/secret01"],
+                                                          "read" => ["cucumber:variable:example/secret01"]))
+      expect(dto1b.annotations).to match(a_hash_including("key" => "value"))
     end
   end
 
@@ -914,42 +913,42 @@ describe 'DataObjects::DTOFactory' do
     bad_data_1 = { "resource_id": "cucumber:policy:example", "owner_id": nil, "created_at": nil, "policy_id": nil }
     bad_data_2 = { "resource_id": nil, "owner_id": nil, "created_at": nil, "policy_id": nil }
     it 'should raise an error for nil content in required fields' do
-      expect { DataObjects::DTOFactory.create_DTO_from_hash(bad_data_1) }.to raise_error ArgumentError
-      expect { DataObjects::DTOFactory.create_DTO_from_hash(bad_data_2) }.to raise_error ArgumentError
+      expect { DataObjects::DTOFactory.create_DTO_from_hash(bad_data_1) }.to raise_error(ArgumentError)
+      expect { DataObjects::DTOFactory.create_DTO_from_hash(bad_data_2) }.to raise_error(ArgumentError)
     end
     bad_data_3 = { "resource_id": "cucumber:policy:example" }
     it 'should raise an error for missing required fields ' do
-      expect { DataObjects::DTOFactory.create_DTO_from_hash(bad_data_3) }.to raise_error ArgumentError
+      expect { DataObjects::DTOFactory.create_DTO_from_hash(bad_data_3) }.to raise_error(ArgumentError)
     end
   end
 
   context 'when passed several role entries as an array of hashes' do
     dtos = DataObjects::DTOFactory.create_DTOs(mapped_roles_complex)
     it 'should return an array of RoleDTO structs' do
-      expect(dtos.class).to be Array
+      expect(dtos.class).to be(Array)
       dtos.each do |dto|
-        expect(dto.class).to be DataObjects::RoleDTO
+        expect(dto.class).to be(DataObjects::RoleDTO)
       end
     end
     it 'should build identically when called in an array or individually ' do
-      dtos.each_with_index {
-        |dto, idx| expect(dto).to eq DataObjects::DTOFactory.create_DTO_from_hash(mapped_roles_complex[idx])
-      }
+      dtos.each_with_index do |dto, idx|
+        expect(dto).to eq(DataObjects::DTOFactory.create_DTO_from_hash(mapped_roles_complex[idx]))
+      end
     end
     it 'should return an array of RoleDTO structs with the correct attributes' do
       dtos.each_with_index do |dto, idx|
         dto_as_hash = dto.to_h
         expected_hash = roles_dto_complex[idx]
-        expect(dto_as_hash.keys).to match expected_hash.keys
-        ['identifier', 'id', 'type', 'owner', 'policy'].each { |key|
+        expect(dto_as_hash.keys).to match(expected_hash.keys)
+        %w[identifier id type owner policy].each do |key|
           expect(dto_as_hash[key]).to eq(expected_hash[key])
-        }
-        ['members', 'memberships'].each { |key|
+        end
+        %w[members memberships].each do |key|
           expect(dto_as_hash[key]).to match_array(expected_hash[key]) if expected_hash.key?(key)
-        }
-        ['annotations', 'permissions'].each { |key|
+        end
+        %w[annotations permissions].each do |key|
           expect(dto_as_hash[key]).to match(expected_hash[key]) if expected_hash.key?(key)
-        }
+        end
       end
     end
   end
@@ -957,29 +956,28 @@ describe 'DataObjects::DTOFactory' do
   context 'when passed several resource entries as an array of hashes' do
     dtos = DataObjects::DTOFactory.create_DTOs(mapped_resources_complex)
     it 'should return an array of ResourceDTO structs' do
-      expect(dtos.class).to be Array
+      expect(dtos.class).to be(Array)
       dtos.each do |dto|
-        expect(dto.class).to be DataObjects::ResourceDTO
+        expect(dto.class).to be(DataObjects::ResourceDTO)
       end
     end
     it 'should build identically when called in an array or individually ' do
       dtos.each_with_index do |dto, idx|
-        expect(dto).to eq DataObjects::DTOFactory.create_DTO_from_hash(mapped_resources_complex[idx])
+        expect(dto).to eq(DataObjects::DTOFactory.create_DTO_from_hash(mapped_resources_complex[idx]))
       end
     end
     it 'should return an array of ResourceDTO structs with the correct attributes' do
       dtos.each_with_index do |dto, idx|
         dto_as_hash = dto.to_h
         expected_hash = resources_dto_complex[idx]
-        expect(dto_as_hash.keys).to match expected_hash.keys
-        ['identifier', 'id', 'type', 'owner', 'policy'].each { |key|
+        expect(dto_as_hash.keys).to match(expected_hash.keys)
+        %w[identifier id type owner policy].each do |key|
           expect(dto_as_hash[key]).to eq(expected_hash[key])
-        }
-        ['annotations', 'permitted'].each { |key|
+        end
+        %w[annotations permitted].each do |key|
           expect(dto_as_hash[key]).to match(expected_hash[key]) if expected_hash.key?(key)
-        }
+        end
       end
     end
   end
-
 end
