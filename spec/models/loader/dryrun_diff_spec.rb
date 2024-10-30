@@ -684,7 +684,7 @@ describe Loader::DryRun do
 
       expect(diff[:updated].annotations.length).to be == 1
       expect(diff[:updated].permissions.length).to be == 0
-      expect(diff[:updated].resources.length).to be == 2
+      expect(diff[:updated].resources.length).to be == 1
       expect(diff[:updated].role_memberships.length).to be == 4
       expect(diff[:updated].roles.length).to be == 2
       expect(diff[:updated].credentials.length).to be == 1
@@ -766,7 +766,7 @@ describe Loader::DryRun do
 
       expect(diff[:updated].annotations.length).to be == 2
       expect(diff[:updated].permissions.length).to be == 2
-      expect(diff[:updated].resources.length).to be == 3
+      expect(diff[:updated].resources.length).to be == 2
       expect(diff[:updated].role_memberships.length).to be == 4
       expect(diff[:updated].roles.length).to be == 3
       expect(diff[:updated].credentials.length).to be == 1
@@ -845,7 +845,7 @@ describe Loader::DryRun do
 
       expect(diff[:updated].annotations.length).to be == 3
       expect(diff[:updated].permissions.length).to be == 2
-      expect(diff[:updated].resources.length).to be == 4
+      expect(diff[:updated].resources.length).to be == 1
       expect(diff[:updated].role_memberships.length).to be == 4
       expect(diff[:updated].roles.length).to be == 3
       expect(diff[:updated].credentials.length).to be == 1

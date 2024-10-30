@@ -54,9 +54,6 @@ Feature: Dry Run Policies
     And the validation error includes "did not find expected whitespace or line break"
     And the enhanced error includes "Only one node can be defined per line."
 
-  # This needs to be updated when these go in:
-  # - CNJR-5841 (creates resources)
-  # - CNJR-6108 (updates resources)
   Scenario: When a valid policy is loaded the status is reported as Valid YAML.
     When I dry run POST "/policies/cucumber/policy/dev/db?dryRun=true" with body:
     """
@@ -75,33 +72,99 @@ Feature: Dry Run Policies
       "created": {
         "items": [
           {
-            "annotations": {
-            },
-            "id": "bob@dev-db",
             "identifier": "cucumber:user:bob@dev-db",
+            "id": "bob@dev-db",
+            "type": "user",
+            "owner": "cucumber:policy:dev/db",
+            "policy": "cucumber:policy:dev/db",
+            "permissions": {},
+            "annotations": {},
             "members": [
               "cucumber:policy:dev/db"
             ],
-            "memberships": [
-
-            ],
-            "owner": "cucumber:policy:dev/db",
-            "permissions": {
-            },
-            "policy": "cucumber:policy:dev/db",
-            "restricted_to": [
-
-            ],
-            "type": "user"
+            "memberships": [],
+            "restricted_to": []
           }
         ]
       },
       "updated": {
         "before": {
-          "items": []
+          "items": [
+            {
+              "identifier": "cucumber:policy:dev/db",
+              "id": "dev/db",
+              "type": "policy",
+              "owner": "cucumber:policy:dev",
+              "policy": "cucumber:policy:root",
+              "permissions": {},
+              "annotations": {},
+              "members": [
+                "cucumber:policy:dev"
+              ],
+              "memberships": [
+                "cucumber:user:existing-user-for-create@dev-db",
+                "cucumber:user:existing-user-for-replace@dev-db",
+                "cucumber:user:existing-user-for-update@dev-db"
+              ],
+              "restricted_to": []
+            },
+            {
+              "identifier": "cucumber:user:existing-user-for-create@dev-db",
+              "id": "existing-user-for-create@dev-db",
+              "type": "user",
+              "owner": "cucumber:policy:dev/db",
+              "policy": "cucumber:policy:dev/db",
+              "permissions": {},
+              "annotations": {
+                "description": "This is an existing user for the create scenario"
+              },
+              "members": [
+                "cucumber:policy:dev/db"
+              ],
+              "memberships": [],
+              "restricted_to": []
+            }
+          ]
         },
         "after": {
-          "items": []
+          "items": [
+            {
+              "identifier": "cucumber:policy:dev/db",
+              "id": "dev/db",
+              "type": "policy",
+              "owner": "cucumber:policy:dev",
+              "policy": "cucumber:policy:root",
+              "permissions": {},
+              "annotations": {},
+              "members": [
+                "cucumber:policy:dev"
+              ],
+              "memberships": [
+                "cucumber:user:existing-user-for-create@dev-db",
+                "cucumber:user:existing-user-for-replace@dev-db",
+                "cucumber:user:existing-user-for-update@dev-db",
+                "cucumber:user:bob@dev-db"
+              ],
+              "restricted_to": []
+            },
+            {
+              "identifier": "cucumber:user:existing-user-for-create@dev-db",
+              "id": "existing-user-for-create@dev-db",
+              "type": "user",
+              "owner": "cucumber:policy:dev/db",
+              "policy": "cucumber:policy:dev/db",
+              "permissions": {},
+              "annotations": {
+                "description": "This is an existing user for the create scenario",
+                "new_annotation": "This is a new annotation on an existing user"
+              },
+              "members": [
+                "cucumber:policy:dev/db"
+              ],
+              "memberships": [],
+              "restricted_to": []
+            }
+          ]
         }
       },
       "deleted": {
@@ -137,9 +200,7 @@ Feature: Dry Run Policies
     Then the resource list should not contain "variable" "dev/db/DoesNotTouch"
 
   # This needs to be updated when these go in:
-  # - CNJR-5841 (creates resources)
-  # - CNJR-6108 (updates resources)
-  # - CNJR-6109 (deletes resources)
+  # - CNJR-6108 (deletes resources)
   Scenario: When a valid policy is updated the status is reported as Valid YAML.
     When I successfully PATCH "/policies/cucumber/policy/dev/db?dryRun=true" with body:
     """
@@ -167,18 +228,11 @@ Feature: Dry Run Policies
       "created": {
         "items": [
           {
-            "annotations": {
-            },
-            "id": "dev/db/new-group-for-update",
             "identifier": "cucumber:group:dev/db/new-group-for-update",
-            "members": [
-              "cucumber:policy:dev/db",
-              "cucumber:user:existing-user-for-update@dev-db"
-            ],
-            "memberships": [
-
-            ],
+            "id": "dev/db/new-group-for-update",
+            "type": "group",
             "owner": "cucumber:policy:dev/db",
+            "policy": "cucumber:policy:dev/db",
             "permissions": {
               "delete": [
                 "cucumber:variable:dev/db/new-variable-for-update"
@@ -190,18 +244,20 @@ Feature: Dry Run Policies
                 "cucumber:variable:dev/db/new-variable-for-update"
               ]
             },
-            "policy": "cucumber:policy:dev/db",
-            "restricted_to": [
-
+            "annotations": {},
+            "members": [
+              "cucumber:policy:dev/db",
+              "cucumber:user:existing-user-for-update@dev-db"
             ],
-            "type": "group"
+            "memberships": [],
+            "restricted_to": []
           },
           {
-            "annotations": {
-            },
-            "id": "dev/db/new-variable-for-update",
             "identifier": "cucumber:variable:dev/db/new-variable-for-update",
+            "id": "dev/db/new-variable-for-update",
+            "type": "variable",
             "owner": "cucumber:policy:dev/db",
+            "policy": "cucumber:policy:dev/db",
             "permitted": {
               "delete": [
                 "cucumber:group:dev/db/new-group-for-update"
@@ -213,17 +269,89 @@ Feature: Dry Run Policies
                 "cucumber:group:dev/db/new-group-for-update"
               ]
             },
-            "policy": "cucumber:policy:dev/db",
-            "type": "variable"
+            "annotations": {}
           }
         ]
       },
       "updated": {
         "before": {
-          "items": []
+          "items": [
+            {
+              "identifier": "cucumber:policy:dev/db",
+              "id": "dev/db",
+              "type": "policy",
+              "owner": "cucumber:policy:dev",
+              "policy": "cucumber:policy:root",
+              "permissions": {},
+              "annotations": {},
+              "members": [
+                "cucumber:policy:dev"
+              ],
+              "memberships": [
+                "cucumber:user:existing-user-for-create@dev-db",
+                "cucumber:user:existing-user-for-replace@dev-db",
+                "cucumber:user:existing-user-for-update@dev-db"
+              ],
+              "restricted_to": []
+            },
+            {
+              "identifier": "cucumber:user:existing-user-for-update@dev-db",
+              "id": "existing-user-for-update@dev-db",
+              "type": "user",
+              "owner": "cucumber:policy:dev/db",
+              "policy": "cucumber:policy:dev/db",
+              "permissions": {},
+              "annotations": {
+                "description": "This is an existing user for the update scenario"
+              },
+              "members": [
+                "cucumber:policy:dev/db"
+              ],
+              "memberships": [],
+              "restricted_to": []
+            }
+          ]
         },
         "after": {
-          "items": []
+          "items": [
+            {
+              "identifier": "cucumber:policy:dev/db",
+              "id": "dev/db",
+              "type": "policy",
+              "owner": "cucumber:policy:dev",
+              "policy": "cucumber:policy:root",
+              "permissions": {},
+              "annotations": {},
+              "members": [
+                "cucumber:policy:dev"
+              ],
+              "memberships": [
+                "cucumber:user:existing-user-for-create@dev-db",
+                "cucumber:user:existing-user-for-replace@dev-db",
+                "cucumber:user:existing-user-for-update@dev-db",
+                "cucumber:group:dev/db/new-group-for-update"
+              ],
+              "restricted_to": []
+            },
+            {
+              "identifier": "cucumber:user:existing-user-for-update@dev-db",
+              "id": "existing-user-for-update@dev-db",
+              "type": "user",
+              "owner": "cucumber:policy:dev/db",
+              "policy": "cucumber:policy:dev/db",
+              "permissions": {},
+              "annotations": {
+                "description": "This is an updated description"
+              },
+              "members": [
+                "cucumber:policy:dev/db"
+              ],
+              "memberships": [
+                "cucumber:group:dev/db/new-group-for-update"
+              ],
+              "restricted_to": []
+            }
+          ]
         }
       },
       "deleted": {
@@ -233,9 +361,7 @@ Feature: Dry Run Policies
     """
 
   # This needs to be updated when these go in:
-  # - CNJR-5841 (creates resources)
-  # - CNJR-6108 (updates resources)
-  # - CNJR-6109 (deletes resources)
+  # - CNJR-6108 (deletes resources)
   Scenario: When a valid policy is replaced the status is reported as Valid YAML.
     When I successfully PUT "/policies/cucumber/policy/dev/db?dryRun=true" with body:
     """
@@ -263,18 +389,11 @@ Feature: Dry Run Policies
       "created": {
         "items": [
           {
-            "annotations": {
-            },
-            "id": "dev/db/new-group-for-replace",
             "identifier": "cucumber:group:dev/db/new-group-for-replace",
-            "members": [
-              "cucumber:policy:dev/db",
-              "cucumber:user:existing-user-for-replace@dev-db"
-            ],
-            "memberships": [
-
-            ],
+            "id": "dev/db/new-group-for-replace",
+            "type": "group",
             "owner": "cucumber:policy:dev/db",
+            "policy": "cucumber:policy:dev/db",
             "permissions": {
               "delete": [
                 "cucumber:variable:dev/db/new-variable-for-replace"
@@ -286,18 +405,20 @@ Feature: Dry Run Policies
                 "cucumber:variable:dev/db/new-variable-for-replace"
               ]
             },
-            "policy": "cucumber:policy:dev/db",
-            "restricted_to": [
-
+            "annotations": {},
+            "members": [
+              "cucumber:policy:dev/db",
+              "cucumber:user:existing-user-for-replace@dev-db"
             ],
-            "type": "group"
+            "memberships": [],
+            "restricted_to": []
           },
           {
-            "annotations": {
-            },
-            "id": "dev/db/new-variable-for-replace",
             "identifier": "cucumber:variable:dev/db/new-variable-for-replace",
+            "id": "dev/db/new-variable-for-replace",
+            "type": "variable",
             "owner": "cucumber:policy:dev/db",
+            "policy": "cucumber:policy:dev/db",
             "permitted": {
               "delete": [
                 "cucumber:group:dev/db/new-group-for-replace"
@@ -309,17 +430,87 @@ Feature: Dry Run Policies
                 "cucumber:group:dev/db/new-group-for-replace"
               ]
             },
-            "policy": "cucumber:policy:dev/db",
-            "type": "variable"
+            "annotations": {}
           }
         ]
       },
       "updated": {
         "before": {
-          "items": []
+          "items": [
+            {
+              "identifier": "cucumber:policy:dev/db",
+              "id": "dev/db",
+              "type": "policy",
+              "owner": "cucumber:policy:dev",
+              "policy": "cucumber:policy:root",
+              "permissions": {},
+              "annotations": {},
+              "members": [
+                "cucumber:policy:dev"
+              ],
+              "memberships": [
+                "cucumber:user:existing-user-for-create@dev-db",
+                "cucumber:user:existing-user-for-replace@dev-db",
+                "cucumber:user:existing-user-for-update@dev-db"
+              ],
+              "restricted_to": []
+            },
+            {
+              "identifier": "cucumber:user:existing-user-for-replace@dev-db",
+              "id": "existing-user-for-replace@dev-db",
+              "type": "user",
+              "owner": "cucumber:policy:dev/db",
+              "policy": "cucumber:policy:dev/db",
+              "permissions": {},
+              "annotations": {
+                "description": "This is an existing user for the replace scenario"
+              },
+              "members": [
+                "cucumber:policy:dev/db"
+              ],
+              "memberships": [],
+              "restricted_to": []
+            }
+          ]
         },
         "after": {
-          "items": []
+          "items": [
+            {
+              "identifier": "cucumber:policy:dev/db",
+              "id": "dev/db",
+              "type": "policy",
+              "owner": "cucumber:policy:dev",
+              "policy": "cucumber:policy:root",
+              "permissions": {},
+              "annotations": {},
+              "members": [
+                "cucumber:policy:dev"
+              ],
+              "memberships": [
+                "cucumber:user:existing-user-for-replace@dev-db",
+                "cucumber:group:dev/db/new-group-for-replace"
+              ],
+              "restricted_to": []
+            },
+            {
+              "identifier": "cucumber:user:existing-user-for-replace@dev-db",
+              "id": "existing-user-for-replace@dev-db",
+              "type": "user",
+              "owner": "cucumber:policy:dev/db",
+              "policy": "cucumber:policy:dev/db",
+              "permissions": {},
+              "annotations": {
+                "description": "This is an updated description"
+              },
+              "members": [
+                "cucumber:policy:dev/db"
+              ],
+              "memberships": [
+                "cucumber:group:dev/db/new-group-for-replace"
+              ],
+              "restricted_to": []
+            }
+          ]
         }
       },
       "deleted": {

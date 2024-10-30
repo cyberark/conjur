@@ -54,7 +54,7 @@ module DataObjects
 
           # Yup, insert the new row of attribute(s) into that Item
           items[id][primitive_attribute] ||= []
-          items[id][primitive_attribute] |= [obj]
+          items[id][primitive_attribute] << obj
         end
       end
 
@@ -89,7 +89,7 @@ module DataObjects
           next unless items.key?(id)
 
           items[id][primitive_attribute] ||= []
-          items[id][primitive_attribute] |= [obj]
+          items[id][primitive_attribute] << obj
         end
       end
       items
