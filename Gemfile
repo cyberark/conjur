@@ -36,7 +36,7 @@ gem 'base32-crockford'
 gem 'bcrypt'
 gem 'gli', require: false
 gem 'listen'
-gem 'rexml', '~> 3.2'
+gem 'rexml', '~> 3.3.9'
 gem 'slosilo', '~> 3.0'
 
 # Explicitly required as there are vulnerabilities in older versions
