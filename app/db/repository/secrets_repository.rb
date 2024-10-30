@@ -5,18 +5,20 @@ module DB
         resource_repository: ::Resource,
         secret_repository: ::Secret,
         logger: Rails.logger,
+        audit_logger: Audit.logger,
         rbac: RBAC::Permission.new
       )
         @resource_repository = resource_repository
         @secret_repository = secret_repository
         @rbac = rbac
         @logger = logger
+        @audit_logger = audit_logger
 
         @success = ::SuccessResponse
         @failure = ::FailureResponse
       end
 
-      def find_all(account:, variables:, role:, policy_path: nil)
+      def find_all(account:, variables:, context:, policy_path: nil)
         response = {}.tap do |result|
           variables_to_resource_ids(
             account: account,
@@ -24,10 +26,36 @@ module DB
             policy_path: policy_path
           ).bind do |resource_ids|
             @resource_repository.where(resource_id: resource_ids).eager(:secrets).all.each do |variable|
-              @rbac.permitted?(resource_id: variable.resource_id, privilege: :execute, role: role).bind do
-                result[variable.resource_id.split(':')[-1]] = variable.secret&.value
+              is_allowed = @rbac.permitted?(resource_id: variable.resource_id, privilege: :execute, role: context.role)
+              if is_allowed.success?
+                is_allowed.bind do
+                  @audit_logger.log(
+                    Audit::Event::Fetch.new(
+                      resource_id: variable.resource_id,
+                      version: nil,
+                      user: context.role,
+                      client_ip: context.request_ip,
+                      operation: "fetch",
+                      success: true
+                    )
+                  )
+
+                  result[variable.resource_id.split(':')[-1]] = variable.secret&.value
+                end
+              else
+                @audit_logger.log(
+                  Audit::Event::Fetch.new(
+                    resource_id: variable.resource_id,
+                    version: nil,
+                    user: context.role,
+                    client_ip: context.request_ip,
+                    operation: "fetch",
+                    success: false,
+                    error_message: 'Forbidden'
+                  )
+                )
+                @logger.info("Role '#{context.role}' does not have permission to retrieve variable '#{variable.resource_id}'")
               end
-              @logger.info("Role '#{role}' does not have permission to retrieve variable '#{variable.resource_id}'")
             end
           end
         end
@@ -36,46 +64,70 @@ module DB
           @failure.new(
             'No variable secrets were found',
             status: :not_found,
-            exception: Errors::Authorization::InsufficientResourcePrivileges.new(role, joined_variables)
+            exception: Errors::Authorization::InsufficientResourcePrivileges.new(context.role.role_id, joined_variables)
           )
         else
           @success.new(response)
         end
       end
 
-      def update(account:, variables:, role:, policy_path: nil)
+      # For the provided set of variables:
+      #   - Update if variable exists and role has update permission
+      #   - Skip (with audit) if the role does not have update permission
+      #   - Skip (with log message) if variable does not exist
+      # Method returns a success response if all variables have been updated,
+      #   otherwise, it returns a failure response with an array of update responses
+      def update(account:, variables:, context:, policy_path: nil)
         variables_to_resource_ids(account: account, variables: variables, policy_path: policy_path).bind do |resource_ids|
-          resource_ids.each do |resource_id, value|
-            permitted = @rbac.permitted?(resource_id: resource_id, privilege: :update, role: role)
-            permitted.bind do
-              unless value.to_s.strip.present?
-                @logger.info("Variable '#{resource_id}' has not been set. The provided value is empty.")
-                next
-              end
+          results = resource_ids.map { |resource_id, value| update_variable(resource_id: resource_id, value: value, context: context) }
+          return @success.new('Variables have been updated') if results.all?(&:success?)
 
-              variable = @resource_repository[resource_id]
-              if variable.nil?
-                @logger.info("Variable '#{resource_id}' does not exist")
-                next
-              end
-
-              @secret_repository.create(resource_id: variable.id, value: value)
-              variable.enforce_secrets_version_limit
-              next
-            end
-            unless permitted.success?
-              return @failure.new(
-                "Role '#{role}' does not have permission to set the value of '#{resource_id}'",
-                status: :unauthorized,
-                exception: Errors::Authorization::InsufficientResourcePrivileges.new(role, resource_id)
-              )
-            end
+          results.each do |result|
+            @logger.send(result.level, result.message) unless result.success?
           end
-          @success.new('Variables have been updated')
+
+          return @failure.new(results)
         end
       end
 
       private
+
+      def update_variable(resource_id:, value:, context:)
+        unless value.to_s.strip.present?
+          return @failure.new(
+            "Variable '#{resource_id}' has not been set. The provided value is empty.",
+            level: :info
+          )
+        end
+
+        variable = @resource_repository[resource_id]
+        if variable.nil?
+          return @failure.new("Variable '#{resource_id}' does not exist", level: :info)
+        end
+
+        permitted = @rbac.permitted?(resource_id: resource_id, privilege: :update, role: context.role)
+        @secret_repository.create(resource_id: variable.id, value: value) if permitted.success?
+
+        @audit_logger.log(
+          Audit::Event::Update.new(
+            resource: variable,
+            user: context.role,
+            client_ip: context.request_ip,
+            operation: "update",
+            success: permitted
+          )
+        )
+
+        unless permitted.success?
+          return @failure.new(
+            "Role: '#{context.role.id}' does not have permission to update variable '#{variable.id}'",
+            exception: Errors::Authorization::InsufficientResourcePrivileges.new(context.role.role_id, variable.id),
+            status: :not_found
+          )
+        end
+
+        permitted
+      end
 
       def to_variable_id(account:, policy_path:, variable:)
         "#{account}:variable:#{[policy_path, variable].compact.join('/')}"

@@ -1,10 +1,20 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
+require 'audit_spec_helper'
 
 DatabaseCleaner.strategy = :truncation
 
 describe PolicyFactoriesController, type: :request do
+  let(:log_output) { StringIO.new }
+  let(:mocked_audit_logger) do
+    Audit::Log::SyslogAdapter.new(
+      Logger.new(log_output).tap do |logger|
+        logger.formatter = Logger::Formatter::RFC5424Formatter
+      end
+    )
+  end
+
   before(:all) do
     Slosilo["authn:rspec"] ||= Slosilo::Key.new
     Role.find_or_create(role_id: 'rspec:user:admin')
@@ -77,8 +87,9 @@ describe PolicyFactoriesController, type: :request do
   end
 
   describe 'GET #index' do
-    context 'when role is permitted' do
-      it 'retrieves all policy factories' do
+    context 'when role is permitted to view factories' do
+      it 'retrieves all visible policy factories' do
+        allow(Audit).to receive(:logger).and_return(mocked_audit_logger)
         get('/factories/rspec', env: request_env)
         response_json = JSON.parse(response.body)
 
@@ -116,13 +127,35 @@ describe PolicyFactoriesController, type: :request do
             }
           ]
         })
+        expect(log_output.string.split("\n").count).to eq(4)
+        expect_audit(
+          message: 'rspec:user:admin fetched rspec:variable:conjur/factories/connections/v1/database',
+          result: 'success',
+          operation: 'fetch'
+        )
+        expect_audit(
+          message: 'rspec:user:admin fetched rspec:variable:conjur/factories/core/v1/group',
+          result: 'success',
+          operation: 'fetch'
+        )
+        expect_audit(
+          message: 'rspec:user:admin fetched rspec:variable:conjur/factories/core/v1/policy',
+          result: 'success',
+          operation: 'fetch'
+        )
+        expect_audit(
+          message: 'rspec:user:admin fetched rspec:variable:conjur/factories/core/v1/user',
+          result: 'success',
+          operation: 'fetch'
+        )
       end
     end
   end
   describe 'GET #show' do
-    context 'when role is permitted' do
+    context 'when role is permitted to view factories' do
       context 'when the factory is "simple"' do
         it 'retrieves the details for a policy factory' do
+          allow(Audit).to receive(:logger).and_return(mocked_audit_logger)
           get('/factories/rspec/core/v1/user', env: request_env)
           response_json = JSON.parse(response.body)
 
@@ -158,10 +191,18 @@ describe PolicyFactoriesController, type: :request do
             },
             "required" => %w[branch id]
           })
+
+          expect(log_output.string.split("\n").count).to eq(1)
+          expect_audit(
+            message: 'rspec:user:admin fetched rspec:variable:conjur/factories/core/v1/user',
+            result: 'success',
+            operation: 'fetch'
+          )
         end
       end
       context 'when the factory is "complex"' do
         it 'retrieves the details for a policy factory' do
+          allow(Audit).to receive(:logger).and_return(mocked_audit_logger)
           get('/factories/rspec/connections/v1/database', env: request_env)
           response_json = JSON.parse(response.body)
 
@@ -219,6 +260,13 @@ describe PolicyFactoriesController, type: :request do
             },
             "required" => %w[branch id variables]
           })
+
+          expect(log_output.string.split("\n").count).to eq(1)
+          expect_audit(
+            message: 'rspec:user:admin fetched rspec:variable:conjur/factories/connections/v1/database',
+            result: 'success',
+            operation: 'fetch'
+          )
         end
       end
     end

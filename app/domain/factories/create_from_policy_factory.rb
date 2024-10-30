@@ -11,7 +11,7 @@ module Factories
       @failure = ::FailureResponse
     end
 
-    def call(factory_template:, request_body:, account:, role:, request_ip:, request_method: 'POST', identifier: nil)
+    def call(factory_template:, request_body:, account:, context:, request_method: 'POST', identifier: nil)
       @base.validate_and_transform_request(
         schema: factory_template.schema,
         params: request_body,
@@ -28,8 +28,7 @@ module Factories
                 policy_template: factory_template.policy,
                 variables: template_variables.select { |k, _| valid_variables.include?(k) },
                 account: account,
-                request_ip: request_ip,
-                role: role,
+                context: context,
                 apply_policy_via: request_method
               ).bind do |result|
                 return @success.new(result) unless factory_template.schema['properties'].key?('variables')
@@ -41,10 +40,10 @@ module Factories
                 @base.renderer.render(template: variables_path.join('/'), variables: template_variables)
                   .bind do |variable_path|
                     @base.set_factory_variables(
+                      context: context,
                       schema_variables: factory_template.schema['properties']['variables']['properties'],
                       factory_variables: template_variables['variables'],
                       variable_path: variable_path,
-                      role: role,
                       account: account
                     )
                   end
@@ -90,7 +89,7 @@ module Factories
       @success.new(template_variables)
     end
 
-    def render_and_apply_policy(policy_load_path:, policy_template:, variables:, account:, role:, request_ip:, apply_policy_via:)
+    def render_and_apply_policy(policy_load_path:, policy_template:, variables:, account:, context:, apply_policy_via:)
       @base.renderer.render(
         template: policy_template,
         variables: variables
@@ -106,11 +105,10 @@ module Factories
         end
         @base.policy_loader.call(
           target_policy_id: "#{account}:policy:#{policy_load_path}",
-          request_ip: request_ip,
+          context: context,
           policy: rendered_policy,
           loader: @policy_sub_loader,
-          request_type: apply_policy_via,
-          role: role
+          request_type: apply_policy_via
         ).bind do |result|
           return @success.new(result)
         end

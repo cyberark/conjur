@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
+require 'audit_spec_helper'
 
 # Factories generated from the Factory
 def user_factory
@@ -16,26 +17,43 @@ def group_factory
 end
 
 RSpec.describe(DB::Repository::PolicyFactoryRepository) do
-  # Ensure the variables below have not been set in previous tests
-  before(:all) do
-    ::Resource['rspec:variable:conjur/factories/core/v1/group']&.destroy
-    ::Resource['rspec:variable:conjur/factories/core/v1/user']&.destroy
-    ::Resource['rspec:variable:conjur/factories/core/v1/bad']&.destroy
+  let(:log_output) { StringIO.new }
+  let(:audit_logger) do
+    Audit::Log::SyslogAdapter.new(
+      Logger.new(log_output).tap do |logger|
+        logger.formatter = Logger::Formatter::RFC5424Formatter
+      end
+    )
   end
-  subject { DB::Repository::PolicyFactoryRepository.new }
+
+  let(:factory_users_group) { 'rspec:group:conjur/policy-factory-users' }
+  let(:context) do
+    RequestContext::Context.new(
+      role: ::Role[factory_users_group],
+      request_ip: '127.0.0.1'
+    )
+  end
+
+  before(:each) do
+    ::Role.create(role_id: factory_users_group)
+  end
+  after(:each) do
+    ::Role[factory_users_group].destroy
+  end
+
+  subject { DB::Repository::PolicyFactoryRepository.new(audit_logger: audit_logger) }
 
   describe '.find_all' do
     context 'when no factories exist' do
-      before(:each) do
-        ::Role.create(role_id: 'rspec:group:conjur/policy-factory-users')
-      end
-      after(:each) do
-        ::Role['rspec:group:conjur/policy-factory-users'].destroy
-      end
       it 'returns an error' do
         response = subject.find_all(
           account: 'foo-bar',
-          role: ::Role['rspec:group:conjur/policy-factory-users']
+          context: context
+        )
+        expect_audit(
+          result: 'failure',
+          operation: 'fetch',
+          message: 'rspec:group:conjur/policy-factory-users tried to fetch <unknown>: Role does not have permission to use Factories, or, no Factories are available'
         )
         expect(response.success?).to eq(false)
         expect(response.status).to eq(:forbidden)
@@ -43,28 +61,26 @@ RSpec.describe(DB::Repository::PolicyFactoryRepository) do
       end
     end
     context 'when factories exist' do
-      let(:role_id) { 'rspec:group:conjur/policy-factory-users' }
-      let(:owner_id) { role_id }
+      let(:owner_id) { factory_users_group }
       let(:factory1) { 'rspec:variable:conjur/factories/core/v1/group' }
       let(:factory2) { 'rspec:variable:conjur/factories/core/v1/user' }
+      let(:admin_group) { 'rspec:group:admin' }
 
       before(:each) do
-        ::Role.create(role_id: role_id)
+        ::Role.create(role_id: admin_group)
       end
       after(:each) do
-        ::Role[role_id].destroy
+        ::Role[admin_group].destroy
       end
 
       context 'when role does not have execute permission on any factories' do
-        let(:owner_id) { 'rspec:group:admin' }
         before(:each) do
-          ::Role.create(role_id: owner_id)
-          ::Resource.create(resource_id: factory1, owner_id: owner_id)
+          ::Resource.create(resource_id: factory1, owner_id: admin_group)
           ::Secret.create(
             resource_id: factory1,
             value: group_factory
           )
-          ::Resource.create(resource_id: factory2, owner_id: owner_id)
+          ::Resource.create(resource_id: factory2, owner_id: admin_group)
           ::Secret.create(
             resource_id: factory2,
             value: user_factory
@@ -73,12 +89,16 @@ RSpec.describe(DB::Repository::PolicyFactoryRepository) do
         after(:each) do
           ::Resource[factory1].destroy
           ::Resource[factory2].destroy
-          ::Role[owner_id].destroy
         end
         it 'returns an error' do
           response = subject.find_all(
             account: 'rspec',
-            role: ::Role[role_id]
+            context: context
+          )
+          expect_audit(
+            result: 'failure',
+            operation: 'fetch',
+            message: 'rspec:group:conjur/policy-factory-users tried to fetch <unknown>: Role does not have permission to use Factories, or, no Factories are available'
           )
           expect(response.success?).to eq(false)
           expect(response.status).to eq(:forbidden)
@@ -86,15 +106,13 @@ RSpec.describe(DB::Repository::PolicyFactoryRepository) do
         end
       end
       context 'when role has execute permission on some factories' do
-        let(:owner_id) { 'rspec:group:admin' }
         before(:each) do
-          ::Role.create(role_id: owner_id)
-          ::Resource.create(resource_id: factory1, owner_id: role_id)
+          ::Resource.create(resource_id: factory1, owner_id: factory_users_group)
           ::Secret.create(
             resource_id: factory1,
             value: group_factory
           )
-          ::Resource.create(resource_id: factory2, owner_id: owner_id)
+          ::Resource.create(resource_id: factory2, owner_id: admin_group)
           ::Secret.create(
             resource_id: factory2,
             value: user_factory
@@ -103,12 +121,16 @@ RSpec.describe(DB::Repository::PolicyFactoryRepository) do
         after(:each) do
           ::Resource[factory1].destroy
           ::Resource[factory2].destroy
-          ::Role[owner_id].destroy
         end
         it 'returns permitted factories' do
           response = subject.find_all(
             account: 'rspec',
-            role: ::Role[role_id]
+            context: context
+          )
+          expect_audit(
+            result: 'success',
+            operation: 'fetch',
+            message: 'rspec:group:conjur/policy-factory-users fetched rspec:variable:conjur/factories/core/v1/group'
           )
           expect(response.success?).to eq(true)
           expect(response.result.count).to eq(1)
@@ -118,12 +140,12 @@ RSpec.describe(DB::Repository::PolicyFactoryRepository) do
       end
       context 'when role has execute permission on all factories' do
         before(:each) do
-          ::Resource.create(resource_id: factory1, owner_id: role_id)
+          ::Resource.create(resource_id: factory1, owner_id: factory_users_group)
           ::Secret.create(
             resource_id: factory1,
             value: group_factory
           )
-          ::Resource.create(resource_id: factory2, owner_id: role_id)
+          ::Resource.create(resource_id: factory2, owner_id: factory_users_group)
           ::Secret.create(
             resource_id: factory2,
             value: user_factory
@@ -136,7 +158,17 @@ RSpec.describe(DB::Repository::PolicyFactoryRepository) do
         it 'returns all factories' do
           response = subject.find_all(
             account: 'rspec',
-            role: ::Role[role_id]
+            context: context
+          )
+          expect_audit(
+            result: 'success',
+            operation: 'fetch',
+            message: 'rspec:group:conjur/policy-factory-users fetched rspec:variable:conjur/factories/core/v1/group'
+          )
+          expect_audit(
+            result: 'success',
+            operation: 'fetch',
+            message: 'rspec:group:conjur/policy-factory-users fetched rspec:variable:conjur/factories/core/v1/user'
           )
           expect(response.success?).to eq(true)
           expect(response.result.count).to eq(2)
@@ -148,12 +180,12 @@ RSpec.describe(DB::Repository::PolicyFactoryRepository) do
         let(:factory1) { 'rspec:variable:conjur/factories/core/v1/group' }
         let(:factory2) { 'rspec:variable:conjur/factories/core/v2/group' }
         before(:each) do
-          ::Resource.create(resource_id: factory1, owner_id: role_id)
+          ::Resource.create(resource_id: factory1, owner_id: factory_users_group)
           ::Secret.create(
             resource_id: factory1,
             value: group_factory
           )
-          ::Resource.create(resource_id: factory2, owner_id: role_id)
+          ::Resource.create(resource_id: factory2, owner_id: factory_users_group)
           ::Secret.create(
             resource_id: factory2,
             value: group_factory
@@ -166,7 +198,17 @@ RSpec.describe(DB::Repository::PolicyFactoryRepository) do
         it 'returns the latest version' do
           response = subject.find_all(
             account: 'rspec',
-            role: ::Role[role_id]
+            context: context
+          )
+          expect_audit(
+            result: 'success',
+            operation: 'fetch',
+            message: 'rspec:group:conjur/policy-factory-users fetched rspec:variable:conjur/factories/core/v1/group'
+          )
+          expect_audit(
+            result: 'success',
+            operation: 'fetch',
+            message: 'rspec:group:conjur/policy-factory-users fetched rspec:variable:conjur/factories/core/v2/group'
           )
           expect(response.success?).to eq(true)
           expect(response.result.count).to eq(1)
@@ -178,7 +220,17 @@ RSpec.describe(DB::Repository::PolicyFactoryRepository) do
           it 'returns the latest version' do
             response = subject.find_all(
               account: 'rspec',
-              role: ::Role[role_id]
+              context: context
+            )
+            expect_audit(
+              result: 'success',
+              operation: 'fetch',
+              message: 'rspec:group:conjur/policy-factory-users fetched rspec:variable:conjur/factories/core/v9/group'
+            )
+            expect_audit(
+              result: 'success',
+              operation: 'fetch',
+              message: 'rspec:group:conjur/policy-factory-users fetched rspec:variable:conjur/factories/core/v10/group'
             )
             expect(response.success?).to eq(true)
             expect(response.result.count).to eq(1)
@@ -188,8 +240,8 @@ RSpec.describe(DB::Repository::PolicyFactoryRepository) do
       end
       context 'when some factories are empty' do
         before(:each) do
-          ::Resource.create(resource_id: factory1, owner_id: role_id)
-          ::Resource.create(resource_id: factory2, owner_id: role_id)
+          ::Resource.create(resource_id: factory1, owner_id: factory_users_group)
+          ::Resource.create(resource_id: factory2, owner_id: factory_users_group)
           ::Secret.create(
             resource_id: factory2,
             value: user_factory
@@ -202,7 +254,17 @@ RSpec.describe(DB::Repository::PolicyFactoryRepository) do
         it 'does not return empty factories' do
           response = subject.find_all(
             account: 'rspec',
-            role: ::Role[role_id]
+            context: context
+          )
+          expect_audit(
+            result: 'success',
+            operation: 'fetch',
+            message: 'rspec:group:conjur/policy-factory-users fetched rspec:variable:conjur/factories/core/v1/group'
+          )
+          expect_audit(
+            result: 'success',
+            operation: 'fetch',
+            message: 'rspec:group:conjur/policy-factory-users fetched rspec:variable:conjur/factories/core/v1/user'
           )
           expect(response.success?).to eq(true)
           expect(response.result.count).to eq(1)
@@ -211,8 +273,8 @@ RSpec.describe(DB::Repository::PolicyFactoryRepository) do
       end
       context 'when all factories are empty' do
         before(:each) do
-          ::Resource.create(resource_id: factory1, owner_id: role_id)
-          ::Resource.create(resource_id: factory2, owner_id: role_id)
+          ::Resource.create(resource_id: factory1, owner_id: factory_users_group)
+          ::Resource.create(resource_id: factory2, owner_id: factory_users_group)
         end
         after(:each) do
           ::Resource[factory1].destroy
@@ -221,7 +283,22 @@ RSpec.describe(DB::Repository::PolicyFactoryRepository) do
         it 'does not return any factories' do
           response = subject.find_all(
             account: 'rspec',
-            role: ::Role[role_id]
+            context: context
+          )
+          expect_audit(
+            result: 'success',
+            operation: 'fetch',
+            message: 'rspec:group:conjur/policy-factory-users fetched rspec:variable:conjur/factories/core/v1/user'
+          )
+          expect_audit(
+            result: 'success',
+            operation: 'fetch',
+            message: 'rspec:group:conjur/policy-factory-users fetched rspec:variable:conjur/factories/core/v1/group'
+          )
+          expect_audit(
+            result: 'success',
+            operation: 'fetch',
+            message: 'rspec:group:conjur/policy-factory-users tried to fetch <unknown>: Role does not have permission to use Factories, or, no Factories are available'
           )
           expect(response.success?).to eq(false)
           expect(response.status).to eq(:forbidden)
@@ -231,11 +308,11 @@ RSpec.describe(DB::Repository::PolicyFactoryRepository) do
       context 'when a factory variables contain invalid values' do
         let(:bad_factory) { 'rspec:variable:conjur/factories/core/v1/bad' }
         before(:each) do
-          ::Resource.create(resource_id: factory1, owner_id: role_id)
+          ::Resource.create(resource_id: factory1, owner_id: factory_users_group)
           ::Secret.create(resource_id: factory1, value: group_factory)
-          ::Resource.create(resource_id: factory2, owner_id: role_id)
+          ::Resource.create(resource_id: factory2, owner_id: factory_users_group)
           ::Secret.create(resource_id: factory2, value: user_factory)
-          ::Resource.create(resource_id: bad_factory, owner_id: role_id)
+          ::Resource.create(resource_id: bad_factory, owner_id: factory_users_group)
         end
         after(:each) do
           ::Resource[factory1].destroy
@@ -249,7 +326,22 @@ RSpec.describe(DB::Repository::PolicyFactoryRepository) do
           it 'does not return the bad factory' do
             response = subject.find_all(
               account: 'rspec',
-              role: ::Role[role_id]
+              context: context
+            )
+            expect_audit(
+              result: 'success',
+              operation: 'fetch',
+              message: 'rspec:group:conjur/policy-factory-users fetched rspec:variable:conjur/factories/core/v1/user'
+            )
+            expect_audit(
+              result: 'success',
+              operation: 'fetch',
+              message: 'rspec:group:conjur/policy-factory-users fetched rspec:variable:conjur/factories/core/v1/group'
+            )
+            expect_audit(
+              result: 'success',
+              operation: 'fetch',
+              message: 'rspec:group:conjur/policy-factory-users fetched rspec:variable:conjur/factories/core/v1/bad'
             )
             expect(response.success?).to eq(true)
             expect(response.result.count).to eq(2)
@@ -264,7 +356,22 @@ RSpec.describe(DB::Repository::PolicyFactoryRepository) do
           it 'does not return the bad factory' do
             response = subject.find_all(
               account: 'rspec',
-              role: ::Role[role_id]
+              context: context
+            )
+            expect_audit(
+              result: 'success',
+              operation: 'fetch',
+              message: 'rspec:group:conjur/policy-factory-users fetched rspec:variable:conjur/factories/core/v1/user'
+            )
+            expect_audit(
+              result: 'success',
+              operation: 'fetch',
+              message: 'rspec:group:conjur/policy-factory-users fetched rspec:variable:conjur/factories/core/v1/group'
+            )
+            expect_audit(
+              result: 'success',
+              operation: 'fetch',
+              message: 'rspec:group:conjur/policy-factory-users fetched rspec:variable:conjur/factories/core/v1/bad'
             )
             expect(response.success?).to eq(true)
             expect(response.result.count).to eq(2)
@@ -278,18 +385,17 @@ RSpec.describe(DB::Repository::PolicyFactoryRepository) do
 
   describe '.find' do
     context 'when factory does not exist' do
-      before(:each) do
-        ::Role.create(role_id: 'rspec:group:conjur/policy-factory-users')
-      end
-      after(:each) do
-        ::Role['rspec:group:conjur/policy-factory-users'].destroy
-      end
       it 'returns an error' do
         response = subject.find(
           kind: 'foo',
           id: 'bar',
           account: 'foo-bar',
-          role: ::Role['rspec:group:conjur/policy-factory-users']
+          context: context
+        )
+        expect_audit(
+          result: 'failure',
+          operation: 'fetch',
+          message: "rspec:group:conjur/policy-factory-users tried to fetch foo-bar:variable:conjur/factories/foo/v1/bar: Variable 'conjur/factories/foo/v1/bar' not found in account 'foo-bar'"
         )
         expect(response.success?).to eq(false)
         expect(response.status).to eq(:not_found)
@@ -302,25 +408,28 @@ RSpec.describe(DB::Repository::PolicyFactoryRepository) do
       end
     end
     context 'when factory exists' do
+      let(:factory) { 'rspec:variable:conjur/factories/core/v1/group' }
       context 'when requesting role does not have permission' do
-        let(:role_id) { 'rspec:group:conjur/policy-factory-users' }
-        let(:resource_id) { 'rspec:variable:conjur/factories/core/v1/group' }
+        let(:policy_admin) { 'rspec:user:policy_admin' }
         before(:each) do
-          ::Role.create(role_id: role_id)
-          admin = ::Role.create(role_id: 'rspec:user:policy_admin')
-          ::Resource.create(resource_id: resource_id, owner: admin)
+          admin = ::Role.create(role_id: policy_admin)
+          ::Resource.create(resource_id: factory, owner: admin)
         end
         after(:each) do
-          ::Role[role_id].destroy
-          ::Resource[resource_id].destroy
-          ::Role['rspec:user:policy_admin'].destroy
+          ::Resource[factory].destroy
+          ::Role[policy_admin].destroy
         end
         it 'returns an error' do
           response = subject.find(
             kind: 'core',
             id: 'group',
             account: 'rspec',
-            role: ::Role[role_id]
+            context: context
+          )
+          expect_audit(
+            result: 'failure',
+            operation: 'fetch',
+            message: "rspec:group:conjur/policy-factory-users tried to fetch rspec:variable:conjur/factories/core/v1/group: Forbidden"
           )
           expect(response.success?).to eq(false)
           expect(response.status).to eq(:forbidden)
@@ -331,25 +440,50 @@ RSpec.describe(DB::Repository::PolicyFactoryRepository) do
             }
           )
         end
+        context 'when role permission is not checked' do
+          before(:each) do
+            ::Secret.create(
+              resource_id: factory,
+              value: group_factory
+            )
+          end
+
+          it 'is successful' do
+            response = subject.find(
+              kind: 'core',
+              id: 'group',
+              account: 'rspec',
+              context: context,
+              check_role_permission: false
+            )
+            expect_audit(
+              result: 'success',
+              operation: 'fetch',
+              message: "rspec:group:conjur/policy-factory-users fetched rspec:variable:conjur/factories/core/v1/group"
+            )
+            expect(response.success?).to eq(true)
+          end
+        end
       end
       context 'when the requesting role has permission' do
-        let(:role_id) { 'rspec:group:conjur/policy-factory-users' }
-        let(:resource_id) { 'rspec:variable:conjur/factories/core/v1/group' }
+        before(:each) do
+          ::Resource.create(resource_id: factory, owner_id: factory_users_group)
+        end
+        after(:each) do
+          ::Resource[factory].destroy
+        end
         context 'when factory is empty' do
-          before(:each) do
-            ::Role.create(role_id: role_id)
-            ::Resource.create(resource_id: resource_id, owner_id: role_id)
-          end
-          after(:each) do
-            ::Resource[resource_id].destroy
-            ::Role[role_id].destroy
-          end
           it 'returns an error' do
             response = subject.find(
               kind: 'core',
               id: 'group',
               account: 'rspec',
-              role: ::Role[role_id]
+              context: context
+            )
+            expect_audit(
+              result: 'success',
+              operation: 'fetch',
+              message: 'rspec:group:conjur/policy-factory-users fetched rspec:variable:conjur/factories/core/v1/group'
             )
             expect(response.success?).to eq(false)
             expect(response.status).to eq(:bad_request)
@@ -361,26 +495,24 @@ RSpec.describe(DB::Repository::PolicyFactoryRepository) do
             )
           end
         end
-        context 'when the factory is present' do
-          let(:resource_id) { 'rspec:variable:conjur/factories/core/v1/group' }
+        context 'when the factory is set' do
           before(:each) do
-            ::Role.create(role_id: role_id)
-            ::Resource.create(resource_id: resource_id, owner_id: role_id)
             ::Secret.create(
-              resource_id: resource_id,
+              resource_id: factory,
               value: group_factory
             )
-          end
-          after(:each) do
-            ::Resource[resource_id].destroy
-            ::Role[role_id].destroy
           end
           it 'returns the policy factory' do
             response = subject.find(
               kind: 'core',
               id: 'group',
               account: 'rspec',
-              role: ::Role[role_id]
+              context: context
+            )
+            expect_audit(
+              result: 'success',
+              operation: 'fetch',
+              message: 'rspec:group:conjur/policy-factory-users fetched rspec:variable:conjur/factories/core/v1/group'
             )
             expect(response.success?).to eq(true)
             expect(response.result.class).to eq(DB::Repository::DataObjects::PolicyFactory)
@@ -395,7 +527,7 @@ RSpec.describe(DB::Repository::PolicyFactoryRepository) do
               decoded_data['schema'].delete('description')
 
               ::Secret.create(
-                resource_id: resource_id,
+                resource_id: factory,
                 value: Base64.encode64(decoded_data.to_json)
               )
             end
@@ -404,7 +536,12 @@ RSpec.describe(DB::Repository::PolicyFactoryRepository) do
                 kind: 'core',
                 id: 'group',
                 account: 'rspec',
-                role: ::Role[role_id]
+                context: context
+              )
+              expect_audit(
+                result: 'success',
+                operation: 'fetch',
+                message: 'rspec:group:conjur/policy-factory-users fetched rspec:variable:conjur/factories/core/v1/group'
               )
               expect(response.success?).to eq(true)
               expect(response.result.description).to eq('')
@@ -414,12 +551,12 @@ RSpec.describe(DB::Repository::PolicyFactoryRepository) do
             let(:version1) { 'rspec:variable:conjur/factories/core/v2/group' }
             let(:version2) { 'rspec:variable:conjur/factories/core/v3/group' }
             before(:each) do
-              ::Resource.create(resource_id: version1, owner_id: role_id)
+              ::Resource.create(resource_id: version1, owner_id: factory_users_group)
               ::Secret.create(
                 resource_id: version1,
                 value: group_factory
               )
-              ::Resource.create(resource_id: version2, owner_id: role_id)
+              ::Resource.create(resource_id: version2, owner_id: factory_users_group)
               ::Secret.create(
                 resource_id: version2,
                 value: group_factory
@@ -435,7 +572,12 @@ RSpec.describe(DB::Repository::PolicyFactoryRepository) do
                   kind: 'core',
                   id: 'group',
                   account: 'rspec',
-                  role: ::Role[role_id]
+                  context: context
+                )
+                expect_audit(
+                  result: 'success',
+                  operation: 'fetch',
+                  message: 'rspec:group:conjur/policy-factory-users fetched rspec:variable:conjur/factories/core/v1/group'
                 )
                 expect(response.success?).to eq(true)
                 expect(response.result.version).to eq('v3')
@@ -447,8 +589,13 @@ RSpec.describe(DB::Repository::PolicyFactoryRepository) do
                   kind: 'core',
                   id: 'group',
                   account: 'rspec',
-                  role: ::Role[role_id],
+                  context: context,
                   version: 'v1'
+                )
+                expect_audit(
+                  result: 'success',
+                  operation: 'fetch',
+                  message: 'rspec:group:conjur/policy-factory-users fetched rspec:variable:conjur/factories/core/v1/group'
                 )
                 expect(response.success?).to eq(true)
                 expect(response.result.version).to eq('v1')
@@ -462,7 +609,12 @@ RSpec.describe(DB::Repository::PolicyFactoryRepository) do
                   kind: 'core',
                   id: 'group',
                   account: 'rspec',
-                  role: ::Role[role_id]
+                  context: context
+                )
+                expect_audit(
+                  result: 'success',
+                  operation: 'fetch',
+                  message: 'rspec:group:conjur/policy-factory-users fetched rspec:variable:conjur/factories/core/v1/group'
                 )
                 expect(response.success?).to eq(true)
                 expect(response.result.version).to eq('v10')
@@ -472,7 +624,7 @@ RSpec.describe(DB::Repository::PolicyFactoryRepository) do
           context 'when factory variable data is not a valid factory' do
             let(:bad_factory) { 'rspec:variable:conjur/factories/core/v1/bad' }
             before(:each) do
-              ::Resource.create(resource_id: bad_factory, owner_id: role_id)
+              ::Resource.create(resource_id: bad_factory, owner_id: factory_users_group)
             end
             after(:each) do
               ::Resource[bad_factory].destroy
@@ -486,7 +638,12 @@ RSpec.describe(DB::Repository::PolicyFactoryRepository) do
                   kind: 'core',
                   id: 'bad',
                   account: 'rspec',
-                  role: ::Role[role_id]
+                  context: context
+                )
+                expect_audit(
+                  result: 'success',
+                  operation: 'fetch',
+                  message: 'rspec:group:conjur/policy-factory-users fetched rspec:variable:conjur/factories/core/v1/bad'
                 )
                 expect(response.success?).to eq(false)
                 expect(response.status).to eq(:service_unavailable)
@@ -502,7 +659,12 @@ RSpec.describe(DB::Repository::PolicyFactoryRepository) do
                   kind: 'core',
                   id: 'bad',
                   account: 'rspec',
-                  role: ::Role[role_id]
+                  context: context
+                )
+                expect_audit(
+                  result: 'success',
+                  operation: 'fetch',
+                  message: 'rspec:group:conjur/policy-factory-users fetched rspec:variable:conjur/factories/core/v1/bad'
                 )
                 expect(response.success?).to eq(false)
                 expect(response.status).to eq(:service_unavailable)
@@ -511,32 +673,35 @@ RSpec.describe(DB::Repository::PolicyFactoryRepository) do
             end
           end
         end
-        context 'when a factory variable does not include a version' do
-          let(:resource_id) { 'rspec:variable:conjur/factories/core/group' }
-          before(:each) do
-            ::Role.create(role_id: role_id)
-            ::Resource.create(resource_id: resource_id, owner_id: role_id)
-            ::Secret.create(
-              resource_id: resource_id,
-              value: group_factory
-            )
-          end
-          after(:each) do
-            ::Resource[resource_id].destroy
-            ::Role[role_id].destroy
-          end
-          it 'does not show up in results' do
-            response = subject.find(
-              kind: 'core',
-              id: 'group',
-              account: 'rspec',
-              role: ::Role[role_id]
-            )
-            expect(response.success?).to eq(false)
-            expect(response.status).to eq(:not_found)
-          end
-        end
       end
+    end
+  end
+  context 'when a factory variable does not include a version' do
+    let(:bad_factory) { 'rspec:variable:conjur/factories/core/group' }
+    before(:each) do
+      ::Resource.create(resource_id: bad_factory, owner_id: factory_users_group)
+      ::Secret.create(
+        resource_id: bad_factory,
+        value: group_factory
+      )
+    end
+    after(:each) do
+      ::Resource[bad_factory].destroy
+    end
+    it 'does not show up in results' do
+      response = subject.find(
+        kind: 'core',
+        id: 'group',
+        account: 'rspec',
+        context: context
+      )
+      expect_audit(
+        result: 'failure',
+        operation: 'fetch',
+        message: "rspec:group:conjur/policy-factory-users tried to fetch rspec:variable:conjur/factories/core/v1/group: Variable 'conjur/factories/core/v1/group' not found in account 'rspec'"
+      )
+      expect(response.success?).to eq(false)
+      expect(response.status).to eq(:not_found)
     end
   end
 end

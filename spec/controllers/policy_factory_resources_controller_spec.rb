@@ -65,6 +65,7 @@ describe PolicyFactoryResourcesController, type: :request do
   end
 
   let(:current_user) { Role.find_or_create(role_id: 'rspec:user:admin') }
+  let(:context) { RequestContext::Context.new(role: current_user, request_ip: '127.0.0.1') }
 
   describe '#create' do
     context 'when a factory exists' do
@@ -102,9 +103,8 @@ describe PolicyFactoryResourcesController, type: :request do
               classification: 'core'
             ),
             request_body: { id: 'test-user-1', branch: 'root' }.to_json,
-            request_ip: '127.0.0.1',
-            request_method: 'POST',
-            role: current_user
+            context: context,
+            request_method: 'POST'
           })
           expect(response.code).to eq('201')
           # This response is mocked. We're not really returning this in real life.

@@ -8,9 +8,8 @@ RSpec.describe(Factories::CreateFromPolicyFactory) do
     {
       loader: Loader::CreatePolicy,
       request_type: 'POST',
-      role: 'foo-bar',
+      context: context,
       policy: "- !user\n  id: foo\n  annotations:\n    factory: core/v1/user\n",
-      request_ip: '127.0.0.1',
       target_policy_id: "rspec:policy:bar"
     }
   end
@@ -33,6 +32,7 @@ RSpec.describe(Factories::CreateFromPolicyFactory) do
     )
   end
   let(:request_method) { 'POST' }
+  let(:context) { RequestContext::Context.new(role: double(::Role), request_ip: '127.0.0.1') }
 
   subject do
     Factories::CreateFromPolicyFactory
@@ -41,8 +41,7 @@ RSpec.describe(Factories::CreateFromPolicyFactory) do
         factory_template: factory_template,
         request_body: request,
         account: 'rspec',
-        role: 'foo-bar',
-        request_ip: '127.0.0.1',
+        context: context,
         request_method: request_method
       )
   end
@@ -516,7 +515,7 @@ RSpec.describe(Factories::CreateFromPolicyFactory) do
           )
           expect(secrets_repository).to have_received(:update).with(
             account: 'rspec',
-            role: 'foo-bar',
+            context: context,
             variables: {
               'foo/bar/port' => '1234',
               'foo/bar/url' => 'http://localhost',
@@ -537,7 +536,7 @@ RSpec.describe(Factories::CreateFromPolicyFactory) do
             )
             expect(secrets_repository).to have_received(:update).with(
               account: 'rspec',
-              role: 'foo-bar',
+              context: context,
               variables: {
                 'bar/port' => '1234',
                 'bar/url' => 'http://localhost',
@@ -560,7 +559,7 @@ RSpec.describe(Factories::CreateFromPolicyFactory) do
           )
           expect(secrets_repository).to have_received(:update).with(
             account: 'rspec',
-            role: 'foo-bar',
+            context: context,
             variables: {
               'foo/bar/port' => '1234',
               'foo/bar/url' => 'http://localhost',
@@ -584,7 +583,7 @@ RSpec.describe(Factories::CreateFromPolicyFactory) do
           )
           expect(secrets_repository).to have_received(:update).with(
             account: 'rspec',
-            role: 'foo-bar',
+            context: context,
             variables: {
               'foo/bar/port' => '1234',
               'foo/bar/url' => 'http://localhost',
@@ -609,7 +608,7 @@ RSpec.describe(Factories::CreateFromPolicyFactory) do
             )
             expect(secrets_repository).to have_received(:update).with(
               account: 'rspec',
-              role: 'foo-bar',
+              context: context,
               variables: {
                 'foo/bar/port' => '1234',
                 'foo/bar/url' => 'http://localhost',
@@ -646,7 +645,7 @@ RSpec.describe(Factories::CreateFromPolicyFactory) do
                 )
                 expect(secrets_repository).to have_received(:update).with(
                   account: 'rspec',
-                  role: 'foo-bar',
+                  context: context,
                   variables: {
                     'foo/bar/port' => '1234',
                     'foo/bar/url' => 'http://localhost',
@@ -669,7 +668,7 @@ RSpec.describe(Factories::CreateFromPolicyFactory) do
                 )
                 expect(secrets_repository).to have_received(:update).with(
                   account: 'rspec',
-                  role: 'foo-bar',
+                  context: context,
                   variables: {
                     'foo/bar/port' => '1234',
                     'foo/bar/url' => 'http://localhost',

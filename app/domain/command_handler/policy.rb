@@ -3,9 +3,11 @@ module CommandHandler
     def initialize(
       rbac: RBAC::Permission.new,
       resource_repository: ::Resource,
-      logger: Rails.logger
+      logger: Rails.logger,
+      audit_logger: Audit.logger
     )
       @logger = logger
+      @audit_logger = audit_logger
       @rbac = rbac
       @resource_repository = resource_repository
 
@@ -14,10 +16,10 @@ module CommandHandler
       @failure = ::FailureResponse
     end
 
-    def call(target_policy_id:, request_ip:, policy:, loader:, request_type:, role:)
+    def call(target_policy_id:, context:, policy:, loader:, request_type:)
       response = request_type_to_action(request_type).bind do |action|
-        permitted?(target_policy_id: target_policy_id, role: role, privilege: action, loader: loader).bind do |target_policy|
-          save_policy(role: role, policy: policy, request_ip: request_ip, delete_permitted: action == :update, target_policy: target_policy).bind do |policy_version|
+        permitted?(target_policy_id: target_policy_id, role: context.role, privilege: action, loader: loader).bind do |target_policy|
+          save_policy(context: context, policy: policy, delete_permitted: action == :update, target_policy: target_policy).bind do |policy_version|
             apply_policy(loader: loader, policy_version: policy_version).bind do |loaded_policy|
               create_roles(loaded_policy).bind do |created_roles|
                 audit_success(policy_version)
@@ -32,20 +34,20 @@ module CommandHandler
       end
 
       request_type_to_action(request_type).bind do |action|
-        audit_failure(response.exception, action, role, request_ip)
+        audit_failure(response.exception, action, context)
       end
       response
     end
 
     private
 
-    def audit_failure(err, operation, current_user, request_ip)
-      Audit.logger.log(
+    def audit_failure(err, operation, context)
+      @audit_logger.log(
         Audit::Event::Policy.new(
           operation: operation,
           subject: {}, # Subject is empty because no role/resource has been impacted
-          user: current_user,
-          client_ip: request_ip,
+          user: context.role,
+          client_ip: context.request_ip,
           error_message: err.message
         )
       )
@@ -53,7 +55,7 @@ module CommandHandler
 
     def audit_success(policy)
       policy.policy_log.lazy.map(&:to_audit_event).each do |event|
-        Audit.logger.log(event)
+        @audit_logger.log(event)
       end
     end
 
@@ -89,12 +91,12 @@ module CommandHandler
       @failure.new(e.message, exception: e)
     end
 
-    def save_policy(role:, policy:, request_ip:, delete_permitted:, target_policy:)
+    def save_policy(context:, policy:, delete_permitted:, target_policy:)
       policy_version = PolicyVersion.new(
-        role: role,
+        role: context.role,
         policy: target_policy,
         policy_text: policy,
-        client_ip: request_ip
+        client_ip: context.request_ip
       )
       policy_version.delete_permitted = delete_permitted
       policy_version.save
