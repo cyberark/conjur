@@ -34,7 +34,9 @@ module DataObjects
   class DataValidator
 
     def validate_fields(db_row)
-      required_fields = %w[resource_id owner_id policy_id]
+      # policy_id does not exist on root / admin user resources
+      # (e.g. is nullable)
+      required_fields = %w[resource_id owner_id]
       required_fields.each do |field|
         unless db_row.key?(field.to_s) || db_row.key?(field.to_sym)
           raise ArgumentError, "#{field} is required, but is missing"
