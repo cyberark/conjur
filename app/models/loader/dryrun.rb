@@ -32,14 +32,57 @@ module Loader
     end
     # rubocop:enable Style/UnpackFirst
 
+    # Maps elements from the Diff Stage to Conjur Resource DTOs.
+    # DTOs are defined in the DryRun SD and can transform to Conjur Primitives.
+    def map_diffs_to_dtos(diff_dto)
+      results = {
+        dtos: {
+          created: {
+            items: []
+          },
+          deleted: {
+            items: []
+          }
+        }
+      }
+      return results if diff_dto.nil?
+
+      # TODO: :delete action to be implemented in CNJR-6369
+      actions = [:created ] # , :deleted]
+      actions.each do |action|
+        # Deserialize a set of rows from Diff Stage
+        diff_elements = diff_dto[action].all_elements
+
+        # Map Role type rows to items to DTOs
+        items = DataObjects::Mapper.map_roles(diff_elements)
+        items.values.each do |item|
+          dto = DataObjects::DTOFactory.create_DTO_from_hash(item).to_h
+          results[:dtos][action][:items].push(dto)
+        end
+
+        # Map Resource type rows to items to DTOs
+        items = DataObjects::Mapper.map_resources(diff_elements)
+        items.values.each do |item|
+          dto = DataObjects::DTOFactory.create_DTO_from_hash(item).to_h
+          results[:dtos][action][:items].push(dto)
+        end
+      end
+
+      results
+    end
+
     # Returns the syntax / business logic validation report interface
     # (This method will condense once when the feature slices are completed,
     # and several rubocop warnings should vanish.)
     def report(policy_result)
       error = policy_result.error
+      diff = policy_result.diff
+
       status = error ? "Invalid YAML" : "Valid YAML"
       # Includes enhanced error info
       errors = error ? [error.as_validation] : []
+
+      results = map_diffs_to_dtos(diff)
 
       items = []
 
@@ -49,12 +92,13 @@ module Loader
       final = {
         "items" => items.length ? items : []
       }
-      created = {
-        "items" => items.length ? items : []
-      }
       updated = {
         "before" => initial,
         "after" => final
+      }
+
+      created = {
+        "items" => items.length ? items : []
       }
       deleted = {
         "items" => items.length ? items : []
