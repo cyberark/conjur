@@ -2,10 +2,26 @@
 
 require 'spec_helper'
 
-DatabaseCleaner.strategy = :truncation
+# This test has been observed to leave resources from
+# the 'rootpolicy' that interfered with other tests.
+# Two approaches have been added to clean those up:
+# - Instead of simply forcing :truncation strategy, the existing
+#   DatabaseCleaner strategy is saved, then set to :truncation
+#   for this test, then restored upon exit
+# - Also before exit, an empty base policy is applied to root branch.
+#
+# DatabaseCleaner.strategy = :truncation
 
 describe PoliciesController, type: :request do
   before(:all) do
+    # there doesn't seem to be a sane way to get this
+    @original_database_cleaner_strategy =
+      DatabaseCleaner.connections.first.strategy
+        .class.name.downcase[/[^:]+$/].intern
+
+    # we need truncation here because the tests span many transactions
+    DatabaseCleaner.strategy = :truncation
+
     Slosilo["authn:rspec"] ||= Slosilo::Key.new
     Role.find_or_create(role_id: 'rspec:user:admin')
 
@@ -189,6 +205,13 @@ describe PoliciesController, type: :request do
     # TEMPLATE
     #
     # patch('/policies/rspec/policy/root', params: base_policy, env: request_env)
+
+    base_policy = <<~TEMPLATE
+      #
+    TEMPLATE
+    put('/policies/rspec/policy/root', params: base_policy, env: request_env)
+
+    DatabaseCleaner.strategy = @original_database_cleaner_strategy
   end
 
   def request_env(role: 'admin')

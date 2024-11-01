@@ -8,6 +8,11 @@ require 'spec_helper_policy'
 # rubocop:disable Layout/CommentIndentation
 
 describe Loader::DryRun do
+  before(:all) do
+    Slosilo["authn:rspec"] ||= Slosilo::Key.new
+    Role.find_or_create(role_id: 'rspec:user:admin')
+  end
+
   def find_or_create_root_policy(account)
     Loader::Types.find_or_create_root_policy(account)
   end
@@ -483,9 +488,6 @@ describe Loader::DryRun do
       expect(diff[:deleted].role_memberships.length).to be == 0
       expect(diff[:deleted].roles.length).to be == 0
       expect(diff[:deleted].credentials.length).to be == 0
-
-      # allow GC to reclaim it
-      nil
     end
 
     # ----------------------------------------------------- #
@@ -551,8 +553,6 @@ describe Loader::DryRun do
       expect(diff[:updated].role_memberships.length).to be == 1
       expect(diff[:updated].roles.length).to be == 1
       expect(diff[:updated].credentials.length).to be == 0
-
-      nil
     end
 
     # ----------------------------------------------------- #
@@ -620,8 +620,6 @@ describe Loader::DryRun do
       expect(diff[:updated].role_memberships.length).to be == 3
       expect(diff[:updated].roles.length).to be == 2
       expect(diff[:updated].credentials.length).to be == 1
-
-      nil
     end
 
     # ----------------------------------------------------- #
@@ -704,8 +702,6 @@ describe Loader::DryRun do
       expect(diff[:deleted].roles[0][:role_id]).to match("rspec:user:bob@foo-bar")
       expect(diff[:deleted].roles[0][:policy_id]).to match("rspec:policy:root")
       expect(diff[:deleted].credentials[0][:role_id]).to match("rspec:user:bob@foo-bar")
-
-      nil
     end
 
     # ----------------------------------------------------- #
@@ -786,9 +782,6 @@ describe Loader::DryRun do
 
       expect(diff[:deleted].credentials[0][:role_id]).to match("rspec:user:alice@foo-bar")
       expect(diff[:created].credentials[0][:role_id]).to match("rspec:user:bob@foo-bar")
-
-      # allow GC to reclaim it
-      nil
     end
 
     # ----------------------------------------------------- #

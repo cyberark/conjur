@@ -25,8 +25,8 @@ describe Loader::Validate do
       )
       response = mode.report(policy_result)
 
-      # TODO: _not because details not quite right yet...
-      expect(response).to_not match("Invalid YAML.\n#{adhoc_err}")
+      expect(response['status']).to match("Invalid YAML")
+      expect(response['errors'][0][:message]).to match(/fake error.*/)
     end
   end
 
@@ -40,8 +40,7 @@ describe Loader::Validate do
       )
       response = mode.report(policy_result)
 
-      # TODO: _not because details not quite right yet...
-      expect(response).to_not match("Valid YAML []")
+      expect(response['status']).to match("Valid YAML")
     end
   end
 end
