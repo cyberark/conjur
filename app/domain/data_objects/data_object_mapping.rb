@@ -20,7 +20,8 @@ module DataObjects
       diff_data[:resources].each do |obj|
         resource_type = obj[:resource_id].split(':')[1]
         next unless role_types.include?(resource_type)
-        items[obj[:resource_id]] = obj
+
+        items[obj[:resource_id]] = obj.clone
       end
 
       # Now map attributes, such as annotations, role_memberships, credentials,
@@ -53,7 +54,7 @@ module DataObjects
 
           # Yup, insert the new row of attribute(s) into that Item
           items[id][primitive_attribute] ||= []
-          items[id][primitive_attribute] << obj
+          items[id][primitive_attribute] |= [obj]
         end
       end
 
@@ -68,7 +69,8 @@ module DataObjects
       diff_data[:resources].each do |obj|
         resource_type = obj[:resource_id].split(':')[1]
         next unless resource_types.include?(resource_type)
-        items[obj[:resource_id]] = obj
+
+        items[obj[:resource_id]] = obj.clone
       end
 
       # [schema_attribute, primitive_attribute, primitive_id]
@@ -87,7 +89,7 @@ module DataObjects
           next unless items.key?(id)
 
           items[id][primitive_attribute] ||= []
-          items[id][primitive_attribute] << obj
+          items[id][primitive_attribute] |= [obj]
         end
       end
       items
