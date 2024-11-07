@@ -37,25 +37,27 @@ module Authentication
             identifier: full_role_id
           )
           if @role[full_role_id].nil?
+            exception = Errors::Authentication::Security::RoleNotFound.new(role_id)
             return @failure.new(
-              role_identifier,
-              exception: Errors::Authentication::Security::RoleNotFound.new(role_id)
+              exception.message,
+              exception: exception
             )
           end
 
           role_credentials = @credentials[full_role_id]
           if role_credentials.nil?
+            exception = Errors::Authentication::RoleHasNoCredentials.new(role_id)
             return @failure.new(
-              role_identifier,
-              exception: Errors::Authentication::RoleHasNoCredentials.new(role_id)
+              exception.message,
+              exception: exception
             )
           end
 
           return @success.new(role_identifier) if role_credentials.valid_api_key?(api_key)
-
+          exception = Errors::Authentication::InvalidCredentials.new
           @failure.new(
-            role_identifier,
-            exception: Errors::Conjur::ApiKeyNotFound.new(role_id)
+            exception.message,
+            exception: exception
           )
         end
 

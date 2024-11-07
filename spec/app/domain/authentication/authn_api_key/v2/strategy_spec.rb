@@ -65,11 +65,9 @@ RSpec.describe(Authentication::AuthnApiKey::V2::Strategy) do
               response = strategy.callback(request_body: request_body, parameters: parameters)
 
               expect(response.success?).to eq(false)
-              expect(response.message.class).to eq(Authentication::RoleIdentifier)
-              expect(response.message.identifier).to eq(conjur_role_identifier)
-              expect(response.message.annotations).to eq({})
+              expect(response.message).to eq("CONJ00002E Invalid credentials")
               expect(response.status).to eq(:unauthorized)
-              expect(response.exception.class).to eq(Errors::Conjur::ApiKeyNotFound)
+              expect(response.exception.class).to eq(Errors::Authentication::InvalidCredentials)
             end
           end
         end
@@ -82,9 +80,7 @@ RSpec.describe(Authentication::AuthnApiKey::V2::Strategy) do
             response = strategy.callback(request_body: request_body, parameters: parameters)
 
             expect(response.success?).to eq(false)
-            expect(response.message.class).to eq(Authentication::RoleIdentifier)
-            expect(response.message.identifier).to eq(conjur_role_identifier)
-            expect(response.message.annotations).to eq({})
+            expect(response.message).to eq("CONJ00120E Role 'foo-bar' has no credentials")
             expect(response.status).to eq(:unauthorized)
             expect(response.exception.class).to eq(Errors::Authentication::RoleHasNoCredentials)
           end
@@ -99,9 +95,7 @@ RSpec.describe(Authentication::AuthnApiKey::V2::Strategy) do
           response = strategy.callback(request_body: request_body, parameters: parameters)
 
           expect(response.success?).to eq(false)
-          expect(response.message.class).to eq(Authentication::RoleIdentifier)
-          expect(response.message.identifier).to eq(conjur_role_identifier)
-          expect(response.message.annotations).to eq({})
+          expect(response.message).to eq("CONJ00007E 'foo-bar' not found")
           expect(response.status).to eq(:unauthorized)
           expect(response.exception.class).to eq(Errors::Authentication::Security::RoleNotFound)
         end
@@ -152,11 +146,9 @@ RSpec.describe(Authentication::AuthnApiKey::V2::Strategy) do
               response = strategy.callback(request_body: request_body, parameters: parameters)
 
               expect(response.success?).to eq(false)
-              expect(response.message.class).to eq(Authentication::RoleIdentifier)
-              expect(response.message.identifier).to eq(conjur_role_identifier)
-              expect(response.message.annotations).to eq({})
+              expect(response.message).to eq("CONJ00002E Invalid credentials")
               expect(response.status).to eq(:unauthorized)
-              expect(response.exception.class).to eq(Errors::Conjur::ApiKeyNotFound)
+              expect(response.exception.class).to eq(Errors::Authentication::InvalidCredentials)
             end
           end
         end
@@ -169,9 +161,7 @@ RSpec.describe(Authentication::AuthnApiKey::V2::Strategy) do
             response = strategy.callback(request_body: request_body, parameters: parameters)
 
             expect(response.success?).to eq(false)
-            expect(response.message.class).to eq(Authentication::RoleIdentifier)
-            expect(response.message.identifier).to eq(conjur_role_identifier)
-            expect(response.message.annotations).to eq({})
+            expect(response.message).to eq("CONJ00120E Role 'host/foo-bar' has no credentials")
             expect(response.status).to eq(:unauthorized)
             expect(response.exception.class).to eq(Errors::Authentication::RoleHasNoCredentials)
           end
@@ -186,9 +176,7 @@ RSpec.describe(Authentication::AuthnApiKey::V2::Strategy) do
           response = strategy.callback(request_body: request_body, parameters: parameters)
 
           expect(response.success?).to eq(false)
-          expect(response.message.class).to eq(Authentication::RoleIdentifier)
-          expect(response.message.identifier).to eq(conjur_role_identifier)
-          expect(response.message.annotations).to eq({})
+          expect(response.message).to eq("CONJ00007E 'host/foo-bar' not found")
           expect(response.status).to eq(:unauthorized)
           expect(response.exception.class).to eq(Errors::Authentication::Security::RoleNotFound)
         end
