@@ -9,11 +9,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
-## [1.21.2] - 2024-10-28
+## [1.21.2] - 2024-11-05
 
 ### Changed
 - Replaces ERB template engine with Mustache when rendering Factory templates
   CNJR-6700
+- Modifies the REST API response of a Policy load command, when called with the
+  `dryRun` parameter, to report policy attributes that would be created by the 
+  submitted policy.
+  CNJR-6999
 
 ### Fixed
 - Updates audit events generated during Policy Factory usage.

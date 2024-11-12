@@ -561,6 +561,7 @@ RSpec.describe(Loader::ReplacePolicy) do
   
         before do
           allow(policy_result).to receive(:diff).and_return(nil)
+          allow(policy_result).to receive(:policy_parse).and_return(nil)
           allow(policy_loader).to receive(:load_records).and_return(nil)
           allow(policy_loader).to receive(:report).and_call_original
         end
@@ -580,9 +581,9 @@ RSpec.describe(Loader::ReplacePolicy) do
           it 'reports an error' do
             result = subject.report(policy_result)
             expect(result).to be_a(Hash)
-            expect(result).to include('errors', 'status')
-            expect(result['errors'].length).to eq(1)
-            expect(result['status']).to eq("Invalid YAML")
+            expect(result).to include(:errors, :status)
+            expect(result[:errors].length).to eq(1)
+            expect(result[:status]).to eq("Invalid YAML")
           end
         end
   
@@ -596,12 +597,12 @@ RSpec.describe(Loader::ReplacePolicy) do
           it 'reports successfully' do
             result = subject.report(policy_result)
             expect(result).to be_a(Hash)
-            expect(result).to include('created', 'deleted', 'updated')
-            expect(result['status']).to eq("Valid YAML")
-            expect(result['created']['items'].length).to eq(0)
-            expect(result['deleted']['items'].length).to eq(0)
-            expect(result['updated']['before']['items'].length).to eq(0)
-            expect(result['updated']['after']['items'].length).to eq(0)        
+            expect(result).to include(:created, :deleted, :updated)
+            expect(result[:status]).to eq("Valid YAML")
+            expect(result[:created][:items].length).to eq(0)
+            expect(result[:deleted][:items].length).to eq(0)
+            expect(result[:updated][:before][:items].length).to eq(0)
+            expect(result[:updated][:after][:items].length).to eq(0)        
           end
         end
       end

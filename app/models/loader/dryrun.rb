@@ -35,17 +35,15 @@ module Loader
     # Maps elements from the Diff Stage to Conjur Resource DTOs.
     # DTOs are defined in the DryRun SD and can transform to Conjur Primitives.
     def map_diffs_to_dtos(diff_dto)
-      results = {
-        dtos: {
-          created: {
-            items: []
-          },
-          deleted: {
-            items: []
-          }
+      result = {
+        created: {
+          items: []
+        },
+        deleted: {
+          items: []
         }
       }
-      return results if diff_dto.nil?
+      return result if diff_dto.nil?
 
       # TODO: :delete action to be implemented in CNJR-6369
       actions = [:created ] # , :deleted]
@@ -57,18 +55,18 @@ module Loader
         items = DataObjects::Mapper.map_roles(diff_elements)
         items.values.each do |item|
           dto = DataObjects::DTOFactory.create_DTO_from_hash(item).to_h
-          results[:dtos][action][:items].push(dto)
+          result[action][:items].push(dto)
         end
 
         # Map Resource type rows to items to DTOs
         items = DataObjects::Mapper.map_resources(diff_elements)
         items.values.each do |item|
           dto = DataObjects::DTOFactory.create_DTO_from_hash(item).to_h
-          results[:dtos][action][:items].push(dto)
+          result[action][:items].push(dto)
         end
       end
 
-      results
+      result
     end
 
     # Returns the syntax / business logic validation report interface
@@ -76,47 +74,47 @@ module Loader
     # and several rubocop warnings should vanish.)
     def report(policy_result)
       error = policy_result.error
-      diff = policy_result.diff
-
       status = error ? "Invalid YAML" : "Valid YAML"
-      # Includes enhanced error info
-      errors = error ? [error.as_validation] : []
-
-      results = map_diffs_to_dtos(diff)
-
-      items = []
-
-      initial = {
-        "items" => items.length ? items : []
-      }
-      final = {
-        "items" => items.length ? items : []
-      }
-      updated = {
-        "before" => initial,
-        "after" => final
-      }
-
-      created = {
-        "items" => items.length ? items : []
-      }
-      deleted = {
-        "items" => items.length ? items : []
-      }
 
       if error
-        {
-          "status" => status,
-          "errors" => errors
+        errors = error ? [error.as_validation] : []
+
+        response = {
+          status: status,
+          errors: errors
         }
       else
-        {
-          "status" => status,
-          "created" => created,
-          "updated" => updated,
-          "deleted" => deleted
+        diff_result = map_diffs_to_dtos(policy_result.diff)
+        created = if diff_result.nil?
+          {
+            items: []
+          }
+        else
+          diff_result[:created]
+        end
+
+        initial = {
+          items: []
+        }
+        final = {
+          items: []
+        }
+        updated = {
+          before: initial,
+          after: final
+        }
+        deleted = {
+          items: []
+        }
+
+        response = {
+          status: status,
+          created: created,
+          updated: updated,
+          deleted: deleted
         }
       end
+      response
     end
   end
 end

@@ -73,7 +73,28 @@ Feature: Dry Run Policies
     {
       "status": "Valid YAML",
       "created": {
-        "items": []
+        "items": [
+          {
+            "annotations": {
+            },
+            "id": "bob@dev-db",
+            "identifier": "cucumber:user:bob@dev-db",
+            "members": [
+              "cucumber:policy:dev/db"
+            ],
+            "memberships": [
+
+            ],
+            "owner": "cucumber:policy:dev/db",
+            "permissions": {
+            },
+            "policy": "cucumber:policy:dev/db",
+            "restricted_to": [
+
+            ],
+            "type": "user"
+          }
+        ]
       },
       "updated": {
         "before": {
@@ -120,7 +141,7 @@ Feature: Dry Run Policies
   # - CNJR-6108 (updates resources)
   # - CNJR-6109 (deletes resources)
   Scenario: When a valid policy is updated the status is reported as Valid YAML.
-    When I successfully PUT "/policies/cucumber/policy/dev/db?dryRun=true" with body:
+    When I successfully PATCH "/policies/cucumber/policy/dev/db?dryRun=true" with body:
     """
     - !user
         id: existing-user-for-update
@@ -144,7 +165,58 @@ Feature: Dry Run Policies
     {
       "status": "Valid YAML",
       "created": {
-        "items": []
+        "items": [
+          {
+            "annotations": {
+            },
+            "id": "dev/db/new-group-for-update",
+            "identifier": "cucumber:group:dev/db/new-group-for-update",
+            "members": [
+              "cucumber:policy:dev/db",
+              "cucumber:user:existing-user-for-update@dev-db"
+            ],
+            "memberships": [
+
+            ],
+            "owner": "cucumber:policy:dev/db",
+            "permissions": {
+              "delete": [
+                "cucumber:variable:dev/db/new-variable-for-update"
+              ],
+              "execute": [
+                "cucumber:variable:dev/db/new-variable-for-update"
+              ],
+              "read": [
+                "cucumber:variable:dev/db/new-variable-for-update"
+              ]
+            },
+            "policy": "cucumber:policy:dev/db",
+            "restricted_to": [
+
+            ],
+            "type": "group"
+          },
+          {
+            "annotations": {
+            },
+            "id": "dev/db/new-variable-for-update",
+            "identifier": "cucumber:variable:dev/db/new-variable-for-update",
+            "owner": "cucumber:policy:dev/db",
+            "permitted": {
+              "delete": [
+                "cucumber:group:dev/db/new-group-for-update"
+              ],
+              "execute": [
+                "cucumber:group:dev/db/new-group-for-update"
+              ],
+              "read": [
+                "cucumber:group:dev/db/new-group-for-update"
+              ]
+            },
+            "policy": "cucumber:policy:dev/db",
+            "type": "variable"
+          }
+        ]
       },
       "updated": {
         "before": {
@@ -189,7 +261,58 @@ Feature: Dry Run Policies
     {
       "status": "Valid YAML",
       "created": {
-        "items": []
+        "items": [
+          {
+            "annotations": {
+            },
+            "id": "dev/db/new-group-for-replace",
+            "identifier": "cucumber:group:dev/db/new-group-for-replace",
+            "members": [
+              "cucumber:policy:dev/db",
+              "cucumber:user:existing-user-for-replace@dev-db"
+            ],
+            "memberships": [
+
+            ],
+            "owner": "cucumber:policy:dev/db",
+            "permissions": {
+              "delete": [
+                "cucumber:variable:dev/db/new-variable-for-replace"
+              ],
+              "execute": [
+                "cucumber:variable:dev/db/new-variable-for-replace"
+              ],
+              "read": [
+                "cucumber:variable:dev/db/new-variable-for-replace"
+              ]
+            },
+            "policy": "cucumber:policy:dev/db",
+            "restricted_to": [
+
+            ],
+            "type": "group"
+          },
+          {
+            "annotations": {
+            },
+            "id": "dev/db/new-variable-for-replace",
+            "identifier": "cucumber:variable:dev/db/new-variable-for-replace",
+            "owner": "cucumber:policy:dev/db",
+            "permitted": {
+              "delete": [
+                "cucumber:group:dev/db/new-group-for-replace"
+              ],
+              "execute": [
+                "cucumber:group:dev/db/new-group-for-replace"
+              ],
+              "read": [
+                "cucumber:group:dev/db/new-group-for-replace"
+              ]
+            },
+            "policy": "cucumber:policy:dev/db",
+            "type": "variable"
+          }
+        ]
       },
       "updated": {
         "before": {
