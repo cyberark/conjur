@@ -51,8 +51,7 @@ module Loader
       }
       return result if diff_dto.nil?
 
-      # TODO: :delete action to be implemented in CNJR-6369
-      actions = %i[created updated final]
+      actions = %i[created deleted updated final]
       actions.each do |action|
         # Deserialize a set of rows from Diff Stage
         diff_elements = diff_dto[action].all_elements

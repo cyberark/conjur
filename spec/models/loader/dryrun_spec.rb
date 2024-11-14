@@ -154,6 +154,7 @@ describe PoliciesController, type: :request do
       expect(json_response["created"]["items"].length).to be(7)
       expect(json_response["updated"]["before"]["items"].length).to be(0)
       expect(json_response["updated"]["after"]["items"].length).to be(0)
+      expect(json_response["deleted"]["items"].length).to be(0)
 
       # Assert the properties and values on each resource
       # We'll assert the full interface on a single role and resource below
@@ -264,6 +265,7 @@ describe PoliciesController, type: :request do
         expect(json_response["created"]["items"].length).to be(0)
         expect(json_response["updated"]["before"]["items"].length).to be(1)
         expect(json_response["updated"]["after"]["items"].length).to be(1)
+        expect(json_response["deleted"]["items"].length).to be(0)
 
         # Assert the properties and values on each resource
         target_resource = "rspec:user:barrett@example"
@@ -306,6 +308,7 @@ describe PoliciesController, type: :request do
         expect(json_response["created"]["items"].length).to be(0)
         expect(json_response["updated"]["before"]["items"].length).to be(1)
         expect(json_response["updated"]["after"]["items"].length).to be(1)
+        expect(json_response["deleted"]["items"].length).to be(0)
 
         # Assert the properties and values on each resource
         target_resource = "rspec:user:barrett@example"
@@ -352,6 +355,7 @@ describe PoliciesController, type: :request do
         expect(json_response["created"]["items"].length).to be(0)
         expect(json_response["updated"]["before"]["items"].length).to be(3)
         expect(json_response["updated"]["after"]["items"].length).to be(3)
+        expect(json_response["deleted"]["items"].length).to be(0)
 
         # Assert the properties and values on each resource
         target_resource = "rspec:user:barrett@example"
@@ -425,6 +429,7 @@ describe PoliciesController, type: :request do
         expect(json_response["created"]["items"].length).to be(0)
         expect(json_response["updated"]["before"]["items"].length).to be(2)
         expect(json_response["updated"]["after"]["items"].length).to be(2)
+        expect(json_response["deleted"]["items"].length).to be(0)
 
         # Assert the properties and values on each resource
         target_resource = "rspec:variable:example/secret01"
@@ -452,6 +457,85 @@ describe PoliciesController, type: :request do
         expect(json_response["updated"]["after"]["items"][target_resource_index]["permissions"]).to match({
           "update" => contain_exactly("rspec:variable:example/secret01")
         })
+      end
+    end
+
+    context 'delete the policy' do
+      let(:dryrun_policy) do
+        <<~YAML
+          - !delete
+            record: !policy example
+        YAML
+      end
+
+      context 'when using PATCH' do
+        let(:http_method) { :patch }
+
+        it 'deletes the roles and resources and the policy itself' do
+          validate_policy(
+            action: :patch,
+            policy: dryrun_policy
+          )
+          expect(response.code).to match(/20\d/)
+
+          json_response = JSON.parse(response.body)
+          deleted_items_hash = json_response["deleted"]["items"].each_with_index.to_h { |item, index| [item["identifier"], index] }
+
+          # Assert the number of changed items
+          expect(json_response["status"]).to match("Valid YAML")
+          expect(json_response["created"]["items"].length).to be(0)
+          expect(json_response["updated"]["before"]["items"].length).to be(0)
+          expect(json_response["updated"]["after"]["items"].length).to be(0)
+          expect(json_response["deleted"]["items"].length).to be(4)
+
+          # Assert these resources are deleted
+          target_resource = "rspec:variable:example/secret01"
+          expect(deleted_items_hash).to have_key(target_resource)
+
+          target_resource = "rspec:user:barrett@example"
+          expect(deleted_items_hash).to have_key(target_resource)
+
+          target_resource = "rspec:group:example/secret-users"
+          expect(deleted_items_hash).to have_key(target_resource)
+
+          target_resource = "rspec:policy:example"
+          expect(deleted_items_hash).to have_key(target_resource)
+        end
+      end
+
+      context 'when using PUT' do
+        let(:http_method) { :put }
+
+        it 'deletes the roles and resources and the policy itself' do
+          validate_policy(
+            action: :put,
+            policy: dryrun_policy
+          )
+          expect(response.code).to match(/20\d/)
+  
+          json_response = JSON.parse(response.body)
+          deleted_items_hash = json_response["deleted"]["items"].each_with_index.to_h { |item, index| [item["identifier"], index] }
+  
+          # Assert the number of changed items
+          expect(json_response["status"]).to match("Valid YAML")
+          expect(json_response["created"]["items"].length).to be(0)
+          expect(json_response["updated"]["before"]["items"].length).to be(0)
+          expect(json_response["updated"]["after"]["items"].length).to be(0)
+          expect(json_response["deleted"]["items"].length).to be(4)
+  
+          # Assert these resources are deleted
+          target_resource = "rspec:variable:example/secret01"
+          expect(deleted_items_hash).to have_key(target_resource)
+  
+          target_resource = "rspec:user:barrett@example"
+          expect(deleted_items_hash).to have_key(target_resource)
+  
+          target_resource = "rspec:group:example/secret-users"
+          expect(deleted_items_hash).to have_key(target_resource)
+  
+          target_resource = "rspec:policy:example"
+          expect(deleted_items_hash).to have_key(target_resource)
+        end
       end
     end
   end
@@ -517,6 +601,7 @@ describe PoliciesController, type: :request do
       expect(json_response["created"]["items"].length).to be(1)
       expect(json_response["updated"]["before"]["items"].length).to be(1)
       expect(json_response["updated"]["after"]["items"].length).to be(1)
+      expect(json_response["deleted"]["items"].length).to be(0)
 
       # Assert things about alice
       target_resource = "rspec:user:alice"
@@ -591,6 +676,7 @@ describe PoliciesController, type: :request do
       expect(json_response["created"]["items"].length).to be(0)
       expect(json_response["updated"]["before"]["items"].length).to be(2)
       expect(json_response["updated"]["after"]["items"].length).to be(2)
+      expect(json_response["deleted"]["items"].length).to be(0)
 
       # Assert things about the changed resources
       target_resource = "rspec:user:barrett@example"
@@ -673,6 +759,7 @@ describe PoliciesController, type: :request do
       expect(json_response["created"]["items"].length).to be(0)
       expect(json_response["updated"]["before"]["items"].length).to be(2)
       expect(json_response["updated"]["after"]["items"].length).to be(2)
+      expect(json_response["deleted"]["items"].length).to be(0)
 
       # Assert things about the changed resources
       target_resource = "rspec:group:example/secret-users"
