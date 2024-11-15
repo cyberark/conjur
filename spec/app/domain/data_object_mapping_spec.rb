@@ -1133,6 +1133,14 @@ describe 'DataObjects::Mapper' do
         expect(subject.values).to eq(mapped_roles_simple)
         expect(subject.length).to eq(2)
       end
+
+      it 'should not mutate the input' do
+        target_resource_id = "cucumber:user:barrett@example"
+        found_object = rawdiff_data[:resources].find { |resource| resource[:resource_id] == target_resource_id }
+
+        expect(subject.values).to eq(mapped_roles_simple)
+        expect(subject[target_resource_id].object_id).to_not eq(found_object.object_id)
+      end
     end
 
     context "then when mapping resources" do
@@ -1141,6 +1149,14 @@ describe 'DataObjects::Mapper' do
       it 'should extract resources from given row elements' do
         expect(subject.values).to eq(mapped_resources_simple)
         expect(subject.length).to eq(1)
+      end
+
+      it 'should not mutate the input' do
+        target_resource_id = "cucumber:variable:example/secret01"
+        found_object = rawdiff_data[:resources].find { |resource| resource[:resource_id] == target_resource_id }
+
+        expect(subject.values).to eq(mapped_resources_simple)
+        expect(subject[target_resource_id].object_id).to_not eq(found_object.object_id)
       end
     end
   end

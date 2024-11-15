@@ -41,12 +41,18 @@ module Loader
         },
         deleted: {
           items: []
+        },
+        updated: {
+          items: []
+        },
+        final: {
+          items: []
         }
       }
       return result if diff_dto.nil?
 
       # TODO: :delete action to be implemented in CNJR-6369
-      actions = [:created ] # , :deleted]
+      actions = %i[created updated final]
       actions.each do |action|
         # Deserialize a set of rows from Diff Stage
         diff_elements = diff_dto[action].all_elements
@@ -65,7 +71,6 @@ module Loader
           result[action][:items].push(dto)
         end
       end
-
       result
     end
 
@@ -85,27 +90,12 @@ module Loader
         }
       else
         diff_result = map_diffs_to_dtos(policy_result.diff)
-        created = if diff_result.nil?
-          {
-            items: []
-          }
-        else
-          diff_result[:created]
-        end
-
-        initial = {
-          items: []
-        }
-        final = {
-          items: []
-        }
+        created = diff_result[:created]
         updated = {
-          before: initial,
-          after: final
+          before: diff_result[:updated],
+          after: diff_result[:final]
         }
-        deleted = {
-          items: []
-        }
+        deleted = diff_result[:deleted]
 
         response = {
           status: status,

@@ -132,19 +132,6 @@ RSpec.describe(Loader::ReplacePolicy) do
     end
   end
 
-  let(:diff_response) do
-    ::SuccessResponse.new(
-      DB::Repository::DataObjects::DiffElements.new(
-        annotations: annotations,
-        credentials: credentials,
-        permissions: permissions,
-        resources: resources,
-        role_memberships: role_memberships,
-        roles: roles
-      )
-    )
-  end
-
   let(:policy_repository) do
     DB::Repository::PolicyRepository.new(db: db).tap do |repo|
       allow(repo).to receive(:find_created_elements)
@@ -159,8 +146,31 @@ RSpec.describe(Loader::ReplacePolicy) do
     end
   end
 
+  let(:diff_response) do
+    DB::Repository::DataObjects::DiffElements.new(
+      annotations: annotations,
+      credentials: credentials,
+      permissions: permissions,
+      resources: resources,
+      role_memberships: role_memberships,
+      roles: roles
+    )
+  end
+
+  let(:policy_diff_response) do
+    ::SuccessResponse.new({
+      created: diff_response,
+      deleted: diff_response,
+      updated: diff_response,
+      final: diff_response
+    })
+  end
+
   let(:policy_diff) do
-    CommandHandler::PolicyDiff.new(policy_repository: policy_repository)
+    CommandHandler::PolicyDiff.new(policy_repository: policy_repository).tap do |mock|
+      allow(mock).to receive(:call)
+        .and_return(policy_diff_response)
+    end
   end
 
   describe '.call' do
@@ -194,7 +204,7 @@ RSpec.describe(Loader::ReplacePolicy) do
           let(:role_memberships) { [] }
           let(:roles) { [] }
 
-          it 'the diff diff result does not include annotations' do
+          it 'the diff result includes the annotations' do
             result = subject.call
 
             # The PoliyResult is valid
@@ -243,7 +253,7 @@ RSpec.describe(Loader::ReplacePolicy) do
           let(:role_memberships) { [] }
           let(:roles) { [] }
 
-          it 'the diff result does not include credentials' do
+          it 'the diff result includes the credentials' do
             result = subject.call
 
             # The PoliyResult is valid
@@ -292,7 +302,7 @@ RSpec.describe(Loader::ReplacePolicy) do
           let(:role_memberships) { [] }
           let(:roles) { [] }
 
-          it 'the diff result does not include permissions' do
+          it 'the diff result includes the permissions' do
             result = subject.call
 
             # The PoliyResult is valid
@@ -341,7 +351,7 @@ RSpec.describe(Loader::ReplacePolicy) do
           let(:role_memberships) { [] }
           let(:roles) { [] }
 
-          it 'the diff result does not include resources' do
+          it 'the diff result includes the resources' do
             result = subject.call
 
             # The PoliyResult is valid
@@ -390,7 +400,7 @@ RSpec.describe(Loader::ReplacePolicy) do
           let(:resources) { [] }
           let(:roles) { [] }
 
-          it 'the diff result does not include role memberships' do
+          it 'the diff result includes the role memberships' do
             result = subject.call
 
             # The PoliyResult is valid
@@ -439,7 +449,7 @@ RSpec.describe(Loader::ReplacePolicy) do
           let(:resources) { [] }
           let(:role_memberships) { [] }
 
-          it 'the diff result does not include roles' do
+          it 'the diff result includes the roles' do
             result = subject.call
 
             # The PoliyResult is valid
@@ -497,30 +507,30 @@ RSpec.describe(Loader::ReplacePolicy) do
 
             expect(result.diff[:created])
               .to be_a(DB::Repository::DataObjects::DiffElements)
-            expect(result.diff[:created].annotations.length).to eq(1)  
-            expect(result.diff[:created].credentials.length).to eq(1)  
-            expect(result.diff[:created].permissions.length).to eq(1)  
-            expect(result.diff[:created].resources.length).to eq(1)  
-            expect(result.diff[:created].role_memberships.length).to eq(1)  
-            expect(result.diff[:created].roles.length).to eq(1)  
+            expect(result.diff[:created].annotations.length).to eq(1)
+            expect(result.diff[:created].credentials.length).to eq(1)
+            expect(result.diff[:created].permissions.length).to eq(1)
+            expect(result.diff[:created].resources.length).to eq(1)
+            expect(result.diff[:created].role_memberships.length).to eq(1)
+            expect(result.diff[:created].roles.length).to eq(1)
 
             expect(result.diff[:deleted])
               .to be_a(DB::Repository::DataObjects::DiffElements)
-            expect(result.diff[:deleted].annotations.length).to eq(1)  
-            expect(result.diff[:deleted].credentials.length).to eq(1)  
-            expect(result.diff[:deleted].permissions.length).to eq(1)  
-            expect(result.diff[:deleted].resources.length).to eq(1)  
-            expect(result.diff[:deleted].role_memberships.length).to eq(1)  
-            expect(result.diff[:deleted].roles.length).to eq(1)  
+            expect(result.diff[:deleted].annotations.length).to eq(1)
+            expect(result.diff[:deleted].credentials.length).to eq(1)
+            expect(result.diff[:deleted].permissions.length).to eq(1)
+            expect(result.diff[:deleted].resources.length).to eq(1)
+            expect(result.diff[:deleted].role_memberships.length).to eq(1)
+            expect(result.diff[:deleted].roles.length).to eq(1)
 
             expect(result.diff[:updated])
               .to be_a(DB::Repository::DataObjects::DiffElements)
-            expect(result.diff[:updated].annotations.length).to eq(1)  
-            expect(result.diff[:updated].credentials.length).to eq(1)  
-            expect(result.diff[:updated].permissions.length).to eq(1)  
-            expect(result.diff[:updated].resources.length).to eq(1)  
-            expect(result.diff[:updated].role_memberships.length).to eq(1)  
-            expect(result.diff[:updated].roles.length).to eq(1)  
+            expect(result.diff[:updated].annotations.length).to eq(1)
+            expect(result.diff[:updated].credentials.length).to eq(1)
+            expect(result.diff[:updated].permissions.length).to eq(1)
+            expect(result.diff[:updated].resources.length).to eq(1)
+            expect(result.diff[:updated].role_memberships.length).to eq(1)
+            expect(result.diff[:updated].roles.length).to eq(1)
           end
         end
       end
@@ -602,7 +612,7 @@ RSpec.describe(Loader::ReplacePolicy) do
             expect(result[:created][:items].length).to eq(0)
             expect(result[:deleted][:items].length).to eq(0)
             expect(result[:updated][:before][:items].length).to eq(0)
-            expect(result[:updated][:after][:items].length).to eq(0)        
+            expect(result[:updated][:after][:items].length).to eq(0)      
           end
         end
       end
