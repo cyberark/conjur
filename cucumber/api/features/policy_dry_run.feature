@@ -355,7 +355,19 @@ Feature: Dry Run Policies
         }
       },
       "deleted": {
-        "items": []
+        "items": [
+          {
+            "identifier": "cucumber:variable:dev/db/existing-variable-for-update",
+            "id": "dev/db/existing-variable-for-update",
+            "type": "variable",
+            "owner": "cucumber:policy:dev/db",
+            "policy": "cucumber:policy:dev/db",
+            "permitted": {},
+            "annotations": {
+              "description": "This is an existing variable for the update scenario"
+            }
+          }
+        ]
       }
     }
     """
@@ -514,7 +526,82 @@ Feature: Dry Run Policies
         }
       },
       "deleted": {
-        "items": []
+        "items": [
+          {
+            "identifier": "cucumber:user:existing-user-for-create@dev-db",
+            "id": "existing-user-for-create@dev-db",
+            "type": "user",
+            "owner": "cucumber:policy:dev/db",
+            "policy": "cucumber:policy:dev/db",
+            "permissions": {},
+            "annotations": {
+              "description": "This is an existing user for the create scenario"
+            },
+            "members": [
+              "cucumber:policy:dev/db"
+            ],
+            "memberships": [],
+            "restricted_to": []
+          },
+          {
+            "identifier": "cucumber:user:existing-user-for-update@dev-db",
+            "id": "existing-user-for-update@dev-db",
+            "type": "user",
+            "owner": "cucumber:policy:dev/db",
+            "policy": "cucumber:policy:dev/db",
+            "permissions": {},
+            "annotations": {
+              "description": "This is an existing user for the update scenario"
+            },
+            "members": [
+              "cucumber:policy:dev/db"
+            ],
+            "memberships": [],
+            "restricted_to": []
+          },
+          {
+            "identifier": "cucumber:variable:dev/db/a",
+            "id": "dev/db/a",
+            "type": "variable",
+            "owner": "cucumber:policy:dev/db",
+            "policy": "cucumber:policy:dev/db",
+            "permitted": {},
+            "annotations": {}
+          },
+          {
+            "identifier": "cucumber:variable:dev/db/b",
+            "id": "dev/db/b",
+            "type": "variable",
+            "owner": "cucumber:policy:dev/db",
+            "policy": "cucumber:policy:dev/db",
+            "permitted": {},
+            "annotations": {
+              "conjur/kind": "password"
+            }
+          },
+          {
+            "identifier": "cucumber:variable:dev/db/existing-variable-for-replace",
+            "id": "dev/db/existing-variable-for-replace",
+            "type": "variable",
+            "owner": "cucumber:policy:dev/db",
+            "policy": "cucumber:policy:dev/db",
+            "permitted": {},
+            "annotations": {
+              "description": "This is an existing variable for the replace scenario"
+            }
+          },
+          {
+            "identifier": "cucumber:variable:dev/db/existing-variable-for-update",
+            "id": "dev/db/existing-variable-for-update",
+            "type": "variable",
+            "owner": "cucumber:policy:dev/db",
+            "policy": "cucumber:policy:dev/db",
+            "permitted": {},
+            "annotations": {
+              "description": "This is an existing variable for the update scenario"
+            }
+          }
+        ]
       }
     }
     """

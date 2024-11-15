@@ -22,6 +22,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   `dryRun` parameter, to report policy attributes that would be updated by the 
   submitted policy.
   CNJR-6109
+- Modifies the REST API response of a Policy load command, when called with the
+  `dryRun` parameter, to report policy attributes that would be deleted by the 
+  submitted policy.
+  CNJR-6108
 
 ### Fixed
 - Updates audit events generated during Policy Factory usage.
