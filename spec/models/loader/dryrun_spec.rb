@@ -473,7 +473,7 @@ describe PoliciesController, type: :request do
 
         it 'deletes the roles and resources and the policy itself' do
           validate_policy(
-            action: :patch,
+            action: http_method,
             policy: dryrun_policy
           )
           expect(response.code).to match(/20\d/)
@@ -508,12 +508,13 @@ describe PoliciesController, type: :request do
 
         it 'deletes the roles and resources and the policy itself' do
           validate_policy(
-            action: :put,
+            action: http_method,
             policy: dryrun_policy
           )
           expect(response.code).to match(/20\d/)
   
           json_response = JSON.parse(response.body)
+          puts JSON.pretty_generate(json_response)
           deleted_items_hash = json_response["deleted"]["items"].each_with_index.to_h { |item, index| [item["identifier"], index] }
   
           # Assert the number of changed items
@@ -606,18 +607,18 @@ describe PoliciesController, type: :request do
       # Assert things about alice
       target_resource = "rspec:user:alice"
       expect(created_items_hash).to have_key(target_resource)
-      expect(json_response["created"]["items"][created_items_hash[target_resource]]["members"]).to eq(["rspec:user:admin"])
+      expect(json_response["created"]["items"][created_items_hash[target_resource]]["members"]).to eq(["rspec:user:[REDACTED]"])
 
       # Assert that the policy owner was changed
       target_resource = "rspec:policy:example"
       target_resource_index = updated_before_items_hash[target_resource]
       expect(updated_before_items_hash).to have_key(target_resource)
-      expect(json_response["created"]["items"][target_resource_index]["members"]).to eq(["rspec:user:admin"])
-      expect(json_response["created"]["items"][target_resource_index]["owner"]).to eq("rspec:user:admin")
+      expect(json_response["created"]["items"][target_resource_index]["members"]).to eq(["rspec:user:[REDACTED]"])
+      expect(json_response["created"]["items"][target_resource_index]["owner"]).to eq("rspec:user:[REDACTED]")
 
       target_resource_index = updated_after_items_hash[target_resource]
       expect(updated_after_items_hash).to have_key(target_resource)
-      expect(json_response["updated"]["before"]["items"][target_resource_index]["members"]).to eq(["rspec:user:admin"])
+      expect(json_response["updated"]["before"]["items"][target_resource_index]["members"]).to eq(["rspec:user:[REDACTED]"])
       expect(json_response["updated"]["after"]["items"][target_resource_index]["members"]).to eq(["rspec:user:alice"])
     end
   end
@@ -668,7 +669,6 @@ describe PoliciesController, type: :request do
       expect(response.code).to match(/20\d/)
 
       json_response = JSON.parse(response.body)
-      json_response["updated"]["before"]["items"].each_with_index.to_h { |item, index| [item["identifier"], index] }
       updated_after_items_hash = json_response["updated"]["after"]["items"].each_with_index.to_h { |item, index| [item["identifier"], index] }
 
       # Assert the number of changed items
@@ -750,7 +750,6 @@ describe PoliciesController, type: :request do
       expect(response.code).to match(/20\d/)
 
       json_response = JSON.parse(response.body)
-      json_response["created"]["items"].each_with_index.to_h { |item, index| [item["identifier"], index] }
       updated_before_items_hash = json_response["updated"]["before"]["items"].each_with_index.to_h { |item, index| [item["identifier"], index] }
       updated_after_items_hash = json_response["updated"]["after"]["items"].each_with_index.to_h { |item, index| [item["identifier"], index] }
 
@@ -783,6 +782,314 @@ describe PoliciesController, type: :request do
       expect(json_response["updated"]["after"]["items"][target_resource_index]["permitted"]).to match({
         "read" => contain_exactly("rspec:group:example/secret-users")
       })
+    end
+  end
+
+  # There are edge cases where the role that executes a dryrun may see
+  # details about Roles/Resources that they should not normally be able to see.
+  #
+  # For example
+  #
+  # 1. If a resource is not explicitly visible to the user, the object should be
+  #    masked
+  # 2. If they've updated a group, they need to be informed that the
+  #    group was updated without exposing details amout references they cannot
+  #    see
+  #
+  context 'dryrun a policy that contains masked resources' do
+    context 'when roles are created by bob' do
+      let(:base_policy) do
+        <<~YAML
+          # Bob cannot see himself
+          - !user
+            id: bob
+          - !policy
+            id: example
+            body: []
+          # Allow bob to manage this policy
+          - !permit
+            role: !user bob
+            privileges: [ create, update ]
+            resources: !policy example
+        YAML
+      end
+  
+      let(:dryrun_policy) do
+        <<~YAML
+          # Create a user bob can see
+          - !user
+            id: bob-can-see
+          - !permit
+            role: !user /bob
+            privileges: [ read ]
+            resources:
+              - !user bob-can-see
+          # Bob cannot see this user by default, even though he can create them
+          # because he can update this policy branch
+          - !user
+            id: bob-cannot-see
+        YAML
+      end
+  
+      context "with POST" do
+        let(:http_action) { :post }
+
+        it 'the response contains only records bob can see' do
+          # Apply the base policy
+          apply_policy(
+            action: :post,
+            policy: base_policy
+          )
+          expect(response.code).to match(/20\d/)
+    
+          validate_policy(
+            action: http_action,
+            policy: dryrun_policy,
+            policy_branch: "example",
+            role: "bob"
+          )
+          json_response = JSON.parse(response.body)
+          puts JSON.pretty_generate(json_response)
+          expect(response.code).to match(/20\d/)
+  
+          created_items_hash = json_response["created"]["items"].each_with_index.to_h { |item, index| [item["identifier"], index] }
+          updated_before_items_hash = json_response["updated"]["before"]["items"].each_with_index.to_h { |item, index| [item["identifier"], index] }
+          updated_after_items_hash = json_response["updated"]["after"]["items"].each_with_index.to_h { |item, index| [item["identifier"], index] }
+    
+          expect(json_response["status"]).to match("Valid YAML")
+          expect(json_response["created"]["items"].length).to be(2)
+          expect(json_response["updated"]["before"]["items"].length).to be(2)
+          expect(json_response["updated"]["after"]["items"].length).to be(2)
+          expect(json_response["deleted"]["items"].length).to be(0)
+    
+          # Assert things about the created resources
+          expect(created_items_hash).to_not have_key("rspec:user:bob-cannot-see@example")
+  
+          target_resource = "rspec:user:bob-can-see@example"
+          expect(created_items_hash).to have_key(target_resource)
+  
+          target_resource = "rspec:user:[REDACTED]"
+          expect(created_items_hash).to have_key(target_resource)
+  
+          # Assert things about the updated resources (before)
+          target_resource = "rspec:policy:example"
+          target_resource_index = updated_before_items_hash[target_resource]
+          expect(updated_before_items_hash).to have_key(target_resource)
+          expect(json_response["updated"]["before"]["items"][target_resource_index]["memberships"]).to eq([])
+  
+          # Assert things about the updated resources (after)
+          target_resource = "rspec:policy:example"
+          target_resource_index = updated_after_items_hash[target_resource]
+          expect(updated_after_items_hash).to have_key(target_resource)
+          expect(json_response["updated"]["after"]["items"][target_resource_index]["memberships"]).to match([
+            "rspec:user:[REDACTED]",
+            "rspec:user:bob-can-see@example"
+          ])
+        end
+      end
+
+      context "with PUT" do
+        let(:http_action) { :patch }
+
+        it 'the response contains only records bob can see' do
+          # Apply the base policy
+          apply_policy(
+            action: :post,
+            policy: base_policy
+          )
+          expect(response.code).to match(/20\d/)
+    
+          validate_policy(
+            action: http_action,
+            policy: dryrun_policy,
+            policy_branch: "example",
+            role: "bob"
+          )
+          json_response = JSON.parse(response.body)
+          puts JSON.pretty_generate(json_response)
+          expect(response.code).to match(/20\d/)
+  
+          created_items_hash = json_response["created"]["items"].each_with_index.to_h { |item, index| [item["identifier"], index] }
+          updated_before_items_hash = json_response["updated"]["before"]["items"].each_with_index.to_h { |item, index| [item["identifier"], index] }
+          updated_after_items_hash = json_response["updated"]["after"]["items"].each_with_index.to_h { |item, index| [item["identifier"], index] }
+    
+          expect(json_response["status"]).to match("Valid YAML")
+          expect(json_response["created"]["items"].length).to be(2)
+          expect(json_response["updated"]["before"]["items"].length).to be(2)
+          expect(json_response["updated"]["after"]["items"].length).to be(2)
+          expect(json_response["deleted"]["items"].length).to be(0)
+    
+          # Assert things about the created resources
+          expect(created_items_hash).to_not have_key("rspec:user:bob-cannot-see@example")
+  
+          target_resource = "rspec:user:bob-can-see@example"
+          expect(created_items_hash).to have_key(target_resource)
+  
+          target_resource = "rspec:user:[REDACTED]"
+          expect(created_items_hash).to have_key(target_resource)
+  
+          # Assert things about the updated resources (before)
+          target_resource = "rspec:policy:example"
+          target_resource_index = updated_before_items_hash[target_resource]
+          expect(updated_before_items_hash).to have_key(target_resource)
+          expect(json_response["updated"]["before"]["items"][target_resource_index]["memberships"]).to eq([])
+  
+          # Assert things about the updated resources (after)
+          target_resource = "rspec:policy:example"
+          target_resource_index = updated_after_items_hash[target_resource]
+          expect(updated_after_items_hash).to have_key(target_resource)
+          expect(json_response["updated"]["after"]["items"][target_resource_index]["memberships"]).to match([
+            "rspec:user:[REDACTED]",
+            "rspec:user:bob-can-see@example"
+          ])
+        end
+      end
+    end
+
+    context 'when users are created with permissions on a resource' do
+      let(:base_policy) do
+        <<~YAML
+          # Bob cannot see himself
+          - !user
+            id: bob
+          - !policy
+            id: example
+            body:
+            # Bob cannot see the group or resources
+            - !group secret-users
+            - !variable secret01
+            - !permit
+              role: !group secret-users
+              privileges: [ read, execute ]
+              resources:
+                - !variable secret01
+            # Allow bob to read this group
+            - !permit
+              role: !user /bob
+              privileges: [ read ]
+              resources: !group secret-users
+          # Allow bob to manage this policy
+          - !permit
+            role: !user bob
+            privileges: [ create, update ]
+            resources: !policy example
+        YAML
+      end
+
+      let(:dryrun_policy) do
+        <<~YAML
+          # Create a user bob can see
+          - !user
+            id: bob-can-see
+          - !permit
+            role: !user /bob
+            privileges: [ read ]
+            resources:
+              - !user bob-can-see
+          # Bob cannot see this user by default, even though he can create them
+          # because he can update this policy branch
+          - !user
+            id: bob-cannot-see
+          # Bob should not be able to see either group or resource in the
+          # newly created users
+          - !grant
+            role: !group secret-users
+            members:
+              - !user bob-can-see
+              - !user bob-cannot-see
+        YAML
+      end
+
+      context "with PATCH" do
+        let(:http_action) { :patch }
+
+        it 'the response contains redacted permissions' do
+          # Apply the base policy
+          apply_policy(
+            action: :post,
+            policy: base_policy
+          )
+          expect(response.code).to match(/20\d/)
+    
+          validate_policy(
+            action: http_action,
+            policy: dryrun_policy,
+            policy_branch: "example",
+            role: "bob"
+          )
+          json_response = JSON.parse(response.body)
+          puts JSON.pretty_generate(json_response)
+          expect(response.code).to match(/20\d/)
+  
+          created_items_hash = json_response["created"]["items"].each_with_index.to_h { |item, index| [item["identifier"], index] }
+          updated_before_items_hash = json_response["updated"]["before"]["items"].each_with_index.to_h { |item, index| [item["identifier"], index] }
+          updated_after_items_hash = json_response["updated"]["after"]["items"].each_with_index.to_h { |item, index| [item["identifier"], index] }
+    
+          expect(json_response["status"]).to match("Valid YAML")
+          expect(json_response["created"]["items"].length).to be(2)
+          expect(json_response["updated"]["before"]["items"].length).to be(3)
+          expect(json_response["updated"]["after"]["items"].length).to be(3)
+          expect(json_response["deleted"]["items"].length).to be(0)
+    
+          # Assert things about the created resources
+          expect(created_items_hash).to_not have_key("rspec:user:bob-cannot-see@example")
+  
+          target_resource = "rspec:user:bob-can-see@example"
+          target_resource_index = created_items_hash[target_resource]
+          expect(created_items_hash).to have_key(target_resource)
+          expect(json_response["created"]["items"][target_resource_index]["owner"]).to eq("rspec:policy:example")
+          expect(json_response["created"]["items"][target_resource_index]["policy"]).to eq("rspec:policy:example")
+          expect(json_response["created"]["items"][target_resource_index]["memberships"]).to eq(["rspec:group:example/secret-users"])
+  
+          target_resource = "rspec:user:[REDACTED]"
+          target_resource_index = created_items_hash[target_resource]
+          expect(created_items_hash).to have_key(target_resource)
+          expect(json_response["created"]["items"][target_resource_index]).to_not have_key("id")
+          expect(json_response["created"]["items"][target_resource_index]).to_not have_key("owner")
+          expect(json_response["created"]["items"][target_resource_index]).to_not have_key("policy")
+          expect(json_response["created"]["items"][target_resource_index]).to_not have_key("permissions")
+          expect(json_response["created"]["items"][target_resource_index]).to_not have_key("annotations")
+          expect(json_response["created"]["items"][target_resource_index]).to_not have_key("members")
+          expect(json_response["created"]["items"][target_resource_index]).to_not have_key("memberships")
+          expect(json_response["created"]["items"][target_resource_index]).to_not have_key("restricted_to")
+  
+          # Assert things about the updated resources (before)
+          target_resource = "rspec:user:[REDACTED]"
+          expect(updated_before_items_hash).to have_key(target_resource)
+
+          target_resource = "rspec:group:example/secret-users"
+          target_resource_index = updated_before_items_hash[target_resource]
+          expect(updated_before_items_hash).to have_key(target_resource)
+          expect(json_response["updated"]["before"]["items"][target_resource_index]["members"]).to eq([
+            "rspec:policy:example"
+          ])
+          expect(json_response["updated"]["before"]["items"][target_resource_index]["memberships"]).to eq([])
+          expect(json_response["updated"]["before"]["items"][target_resource_index]["permissions"]).to match({
+            "execute" => contain_exactly("rspec:variable:[REDACTED]"),
+            "read" => contain_exactly("rspec:variable:[REDACTED]")
+          })
+  
+          # Assert things about the updated resources (after)
+          target_resource = "rspec:user:[REDACTED]"
+          expect(updated_after_items_hash).to have_key(target_resource)
+
+          target_resource = "rspec:group:example/secret-users"
+          target_resource_index = updated_after_items_hash[target_resource]
+          expect(updated_after_items_hash).to have_key(target_resource)
+          expect(json_response["updated"]["after"]["items"][target_resource_index]["members"]).to eq([
+            "rspec:policy:example",
+            "rspec:user:[REDACTED]",
+            "rspec:user:bob-can-see@example"
+          ])
+          expect(json_response["updated"]["after"]["items"][target_resource_index]["permissions"]).to match({
+            "execute" => contain_exactly("rspec:variable:[REDACTED]"),
+            "read" => contain_exactly("rspec:variable:[REDACTED]")
+          })
+        end
+      end
+    end
+
+    context 'when a policy is deleted created' do
     end
   end
 end

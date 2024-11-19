@@ -5,7 +5,7 @@ class Resource < Sequel::Model
 
   unrestrict_primary_key
 
-  one_to_many :permissions, reciprocal: :resource, order: [:role_id, :privilege]
+  one_to_many :permissions, reciprocal: :resource, order: %i[role_id privilege]
   one_to_many :annotations, reciprocal: :resource, order: :name
   one_to_many :secrets, reciprocal: :resource
   one_to_many :policy_versions, reciprocal: :resource, order: :version

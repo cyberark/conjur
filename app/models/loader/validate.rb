@@ -27,10 +27,12 @@ module Loader
       # ...
       policy_parse:,
       policy_version:,
+      primitive_factory: DataObjects::PrimitiveFactory,
       logger: Rails.logger
     )
       @policy_parse = policy_parse
       @policy_version = policy_version
+      @primitive_factory = primitive_factory
       @logger = logger
     end
 

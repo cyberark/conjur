@@ -20,7 +20,7 @@ module CommandHandler
       response = request_type_to_action(request_type).bind do |action|
         permitted?(target_policy_id: target_policy_id, role: context.role, privilege: action, loader: loader).bind do |target_policy|
           save_policy(context: context, policy: policy, delete_permitted: action == :update, target_policy: target_policy).bind do |policy_version|
-            apply_policy(loader: loader, policy_version: policy_version).bind do |loaded_policy|
+            apply_policy(loader: loader, policy_version: policy_version, role: context.role).bind do |loaded_policy|
               create_roles(loaded_policy).bind do |created_roles|
                 audit_success(policy_version)
                 return @success.new({
@@ -79,12 +79,13 @@ module CommandHandler
       @failure.new(e.message, exception: e)
     end
 
-    def apply_policy(loader:, policy_version:)
+    def apply_policy(role:, loader:, policy_version:)
       @success.new(
         loader.from_policy(
           policy_version.policy_parse,
           policy_version,
-          Loader::Orchestrate
+          Loader::Orchestrate,
+          role
         )
       )
     rescue => e

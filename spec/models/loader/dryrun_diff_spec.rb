@@ -59,7 +59,8 @@ describe Loader::DryRun do
     loader = test_loader.from_policy(
       policy_result.policy_parse,
       nil,
-      Loader::Validate
+      Loader::Validate,
+      test_user
     )
     loader.call_pr(policy_result)
 
@@ -80,7 +81,8 @@ describe Loader::DryRun do
     loader = test_loader.from_policy(
       policy_result.policy_parse,
       policy_result.policy_version,
-      apply_policy ? Loader::Orchestrate : Loader::DryRun
+      apply_policy ? Loader::Orchestrate : Loader::DryRun,
+      test_user
     )
     loader.call_pr(policy_result)
   end

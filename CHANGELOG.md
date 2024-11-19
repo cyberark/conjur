@@ -26,6 +26,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   `dryRun` parameter, to report policy attributes that would be deleted by the 
   submitted policy.
   CNJR-6108
+- Redact sensitive information in the dryrun REST API response
+  (Roles and Resources not visible to the authenticated user). CNJR-6547
 
 ### Fixed
 - Updates audit events generated during Policy Factory usage.

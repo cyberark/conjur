@@ -6,7 +6,7 @@ module DataObjects
   # row elements from policy schema results into sets of Conjur primitives
   # related by a common resource_id value.  These results are an intermediate
   # data product, a step in the process of being further transformed into DTOs
-  # by the DataObjects::DTOFactory.
+  # by the DataObjects::PrimitiveFactory.
   # See the Policy Dry Run v2 Solution Design for a full presentation.
   #
   class Mapper

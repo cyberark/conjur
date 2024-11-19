@@ -3,16 +3,23 @@
 require 'spec_helper'
 
 RSpec.describe(Loader::ModifyPolicy) do
+  let(:current_user) { Role.find_or_create(role_id: 'rspec:user:admin') }
   # When a Loader is called, a PolicyResult is returned.
   let(:policy_result) { ::PolicyResult }
   let(:policy_version) { nil }
   let(:logger) { nil }
+
+  before(:all) do
+    Slosilo["authn:rspec"] ||= Slosilo::Key.new
+    Role.find_or_create(role_id: 'rspec:user:admin')
+  end
 
   let(:subject) do
     Loader::ModifyPolicy.from_policy(
       policy_parse,
       policy_version,
       policy_loader_class,
+      current_user,
       policy_diff: policy_diff,
       policy_repository: policy_repository,
       policy_result: policy_result,
@@ -543,20 +550,26 @@ RSpec.describe(Loader::ModifyPolicy) do
         let(:mock_policy_result_output) do
           double(
             created_roles: %w[role1 role2],
-            diff: diff_response
+            diff: diff_response,
+            visible_resources_before: { some_key: 'some_value' },
+            visible_resources_after: { some_key: 'some_value' }
           )
         end
   
         before do
           allow(mock_policy_result_input).to receive(:created_roles=).and_return(nil)
           allow(mock_policy_result_input).to receive(:diff=).and_return(nil)
+          allow(mock_policy_result_input).to receive(:visible_resources_before=).and_return(nil)
+          allow(mock_policy_result_input).to receive(:visible_resources_after=).and_return(nil)
         end
-      
+  
         it 'receives .call and assigns created_roles and diff' do
           expect(subject).to receive(:call).and_return(mock_policy_result_output)
           expect(mock_policy_result_input).to receive(:created_roles=).with(%w[role1 role2])
           expect(mock_policy_result_input).to receive(:diff=).with(diff_response)
-      
+          expect(mock_policy_result_input).to receive(:visible_resources_before=).with(hash_including(:some_key))
+          expect(mock_policy_result_input).to receive(:visible_resources_after=).with(hash_including(:some_key))
+  
           subject.call_pr(mock_policy_result_input)
         end
       end
@@ -600,6 +613,8 @@ RSpec.describe(Loader::ModifyPolicy) do
   
           before do
             allow(policy_result).to receive(:error).and_return(validation_error)
+            allow(policy_result).to receive(:visible_resources_before).and_return(nil)
+            allow(policy_result).to receive(:visible_resources_after).and_return(nil)
           end
   
           it 'reports successfully' do

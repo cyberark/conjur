@@ -135,7 +135,8 @@ class PoliciesController < RestController
       policy_mode = mode_class.from_policy(
         policy_result.policy_parse,
         policy_result.policy_version,
-        strategy_class
+        strategy_class,
+        current_user
       )
     }
   
