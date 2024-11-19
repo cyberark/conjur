@@ -65,6 +65,7 @@ services:
     ports:
       - "3000:3000"
       - "1234:1234"
+      - "12345:12345" # Debug port for rdbg
     expose:
       - "3000"
     volumes:

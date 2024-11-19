@@ -1,0 +1,15 @@
+{
+    // See CONTRIBUTING.md for more details on debugging Conjur in VSCode
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "rdbg",
+            "request": "attach",
+            "name": "Attach with rdbg (tcp 12345)",
+            "debugPort": "127.0.0.1:12345",
+            "localfsMap": "/src/conjur-server:${workspaceFolder}"
+            // In the conjur container, run:
+            // bundle exec rdbg --open --port=12345 --host=0.0.0.0 -c -- rails server -b 0.0.0.0 -u webrick
+        },
+    ]
+}
