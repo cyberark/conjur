@@ -12,10 +12,9 @@ For general contribution and community guidelines, please see the [community rep
     - [Prevent Secret Leaks](#prevent-secret-leaks)
   - [Build Conjur as a Docker image](#build-conjur-as-a-docker-image)
   - [Set up a development environment](#set-up-a-development-environment)
-      - [LDAP Authentication](#ldap-authentication)
-      - [Google Cloud Platform (GCP) Authentication](#google-cloud-platform-gcp-authentication)
-      - [RubyMine IDE Debugging](#rubymine-ide-debugging)
-      - [Visual Studio Code IDE Debugging](#visual-studio-code-ide-debugging)
+    - [LDAP Authentication](#ldap-authentication)
+    - [Google Cloud Platform (GCP) Authentication](#google-cloud-platform-gcp-authentication)
+    - [Visual Studio Code IDE Debugging](#visual-studio-code-ide-debugging)
     - [Development CLI](#development-cli)
       - [Step into the running Conjur container](#step-into-the-running-conjur-container)
       - [View the admin user's API key](#view-the-admin-users-api-key)
@@ -89,9 +88,6 @@ It's easy to get started with Conjur and Docker:
 
 ## Set up a development environment
 
-**Note**: If you are going to debug Conjur using [RubyMine IDE](https://www.jetbrains.com/ruby/) or [Visual Studio Code IDE](https://code.visualstudio.com),
-see [RubyMine IDE Debugging](#rubymine-ide-debugging) or [Visual Studio Code IDE debugging](#visual-studio-code-ide-debugging) respectively before setting up the development environment.
-
 The `dev` directory contains a `docker-compose` file which creates a development
 environment with a database container (`pg`, short for *postgres*), and a
 `conjur` server container with source code mounted into the directory
@@ -135,12 +131,11 @@ To use it:
    * find or create the token-signing key
    * start the web server
 
-   You may choose to debug Conjur using `pry.byebug`, RubyMine or Visual Studio Code IDEs. This will
+   You may choose to debug Conjur using `pry.byebug` or the Visual Studio Code IDE. This will
    allow you to work in the debugger without the server timing out. To do so,
    run the following command instead of `conjurctl server`:
    - `pry.byebug`: `rails server -b 0.0.0.0 webrick`
-   - RubyMine and VS Code IDE, make sure you are in `/src/conjur-server` and run the following command: `rdebug-ide --port 1234 --dispatcher-port 26162 --host 0.0.0.0 -- bin/rails s -b 0.0.0.0 -u webrick`
-      - Now that the server is listening, debug the code via [RubyMine's](#rubymine-ide-debugging) or [VC Code's](#visual-studio-code-ide-debugging) debuggers.
+   - VS Code: See [Visual Studio Code IDE Debugging](#visual-studio-code-ide-debugging)
 
 1. Cleanup
 
@@ -176,55 +171,23 @@ $ curl -v -k -X POST -d "alice" http://localhost:3000/authn-ldap/test/cucumber/a
 To enable a host to log into Conjur using GCP identity token, run `start` with the `--authn-gcp` flag.
 Form more information on how to setup Conjur Google Cloud (GCP) authenticator, follow the official [documentation](https://www.conjur.org/). 
 
-#### RubyMine IDE Debugging
-
-If you are going to be debugging Conjur using [RubyMine IDE](https://www.jetbrains.com/ruby/), follow
-these steps:
-
-   1. Add a debug configuration
-      1. Go to: Run -> Edit Configurations
-      1. In the Run/Debug Configuration dialog, click + on the toolbar and
-      choose “Ruby remote debug”
-      1. Specify a name for this configuration (i.e “debug Conjur server”)
-      1. Specify these parameters:
-         - Remote host - the address of Conjur. if it's a local docker environment the address
-         should be `localhost`, otherwise enter the address of Conjur
-         - Remote port - the port which RubyMine will try to connect to for its debugging protocol.
-         The convention is `1234`. If you changing this, remember to change also the exposed port in
-         `docker-compose.yml` & in the `rdebug-ide` command when running the server
-         - Remote root folder: `/src/conjur-server`
-         - Local port: 26162
-         - Local root folder: `/local/path/to/conjur/repository`
-      1. Click "OK"
-
-   1. Create remote SDK
-      1. Go to Preferences -> Ruby SDK and Gems
-      1. In the Ruby SDK and Gems dialog, click + on the toolbar
-      and choose “New remote...”
-      1. Choose “Docker Compose” and specify these parameters:
-         - Server: Docker
-            - If Docker isn't configured, click "New..." and configure it.
-         - Configuration File(s): `./dev/docker-compose.yml`
-            - Note: remove other `docker-compose` files if present.
-         - Service: conjur
-         - Environment variables: This can be left blank
-         - Ruby or version manager path: ruby
-      1. Click "OK"
-
 #### Visual Studio Code IDE Debugging
 
-If you are going to be debugging Conjur using [VS Code IDE](https://code.visualstudio.com), follow
+To debug Conjur using [VS Code IDE](https://code.visualstudio.com), follow
 these steps:
 
-   1. Go to: Debugger view
-   1. Choose Ruby -> Listen for rdebug-ide from the prompt window, then you'll get the sample launch configuration in `.vscode/launch.json`.
-   1. Edit "Listen for rdebug-ide" configuration in the `launch.json` file:
-      - remoteHost - the address of Conjur. if it's a local docker environment the address
-      should be `localhost`, otherwise enter the address of Conjur
-      - remotePort - the port which VS Code will try to connect to for its debugging protocol.
-      The convention is `1234`. If you changing this, remember to change also the exposed port in
-      `docker-compose.yml` & in the `rdebug-ide` command when running the server
-      - remoteWorkspaceRoot: `/src/conjur-server`
+   1. Ensure you have the "Ruby LSP" and "rdbg" extensions installed in VSCode
+   1. Start or enter the development container.
+   1. Instead of running `conjurctl server`, run the following command to start the server
+      with the debugger:
+
+      ```sh-session
+      bundle exec rdbg --open --port=12345 --host=0.0.0.0 -c -- rails server -b 0.0.0.0 -u webrick
+      ```
+
+   1. Go to the "Run and Debug" tab in VS Code and click the "Start Debugging" button with the
+      "Attach with rdbg (tcp 12345)" configuration selected.
+      You should now be able to debug normally using breakpoints and the debug console.
 
 ### Development CLI
 

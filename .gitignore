@@ -48,7 +48,8 @@ api.html
 
 brakeman-output.*
 .idea
-.vscode
+.vscode/*
+!.vscode/launch.json
 TEMP_NOTES.txt
 awstest
 
