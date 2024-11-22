@@ -332,7 +332,7 @@ GEM
       net-protocol
     net-ssh (7.1.0)
     netrc (0.11.0)
-    nio4r (2.5.9)
+    nio4r (2.7.4)
     nokogiri (1.15.4)
       mini_portile2 (~> 2.8.2)
       racc (~> 1.4)
@@ -367,7 +367,7 @@ GEM
       pry (>= 0.10.4)
     psych (3.3.2)
     public_suffix (6.0.1)
-    puma (6.4.2)
+    puma (6.4.3)
       nio4r (~> 2.0)
     racc (1.7.1)
     rack (2.2.8.1)
@@ -612,7 +612,7 @@ DEPENDENCIES
   pry-byebug
   pry-rails
   psych (= 3.3.2)
-  puma (~> 6, >= 6.4.2)
+  puma (~> 6)
   rack (~> 2.2, >= 2.2.8.1)
   rack-rewrite
   rails (~> 6.1, >= 6.1.7.8)
