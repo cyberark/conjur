@@ -514,7 +514,6 @@ describe PoliciesController, type: :request do
           expect(response.code).to match(/20\d/)
   
           json_response = JSON.parse(response.body)
-          puts JSON.pretty_generate(json_response)
           deleted_items_hash = json_response["deleted"]["items"].each_with_index.to_h { |item, index| [item["identifier"], index] }
   
           # Assert the number of changed items
@@ -536,6 +535,372 @@ describe PoliciesController, type: :request do
   
           target_resource = "rspec:policy:example"
           expect(deleted_items_hash).to have_key(target_resource)
+        end
+      end
+    end
+  end
+
+  context 'dryrun a policy to delete resources' do
+    let(:base_policy) do
+      <<~YAML
+        - !policy
+          id: example
+          body:
+            - !user alice
+            - !host server01
+            - !group users
+            - !layer servers
+            - !webservice service01
+            - !variable secret01
+      YAML
+    end
+
+    before(:each) do
+      apply_policy(
+        action: :put,
+        policy: base_policy
+      )
+    end
+
+    context 'when using PATCH' do
+      let(:http_method) { :patch }
+
+      context 'when deleting a user' do
+        let(:dryrun_policy) do
+          <<~YAML
+            - !policy
+              id: example
+              body:
+                - !delete
+                  record: !user alice
+          YAML
+        end
+
+        it 'the user is deleted'  do
+          validate_policy(
+            action: http_method,
+            policy: dryrun_policy
+          )
+          expect(response.code).to match(/20\d/)
+    
+          json_response = JSON.parse(response.body)
+    
+          # Assert the number of changed items
+          expect(json_response["status"]).to match("Valid YAML")
+          expect(json_response["created"]["items"].length).to be(0)
+          expect(json_response["updated"]["before"]["items"].length).to be(1)
+          expect(json_response["updated"]["after"]["items"].length).to be(1)
+          expect(json_response["deleted"]["items"].length).to be(1)
+
+          # Asert the properties and values on the updated resources
+          expect(json_response["updated"]["before"]["items"][0]["identifier"]).to eq("rspec:policy:example")
+          expect(json_response["updated"]["before"]["items"][0]["memberships"]).to eq([
+            "rspec:group:example/users",
+            "rspec:host:example/server01",
+            "rspec:layer:example/servers",
+            "rspec:user:alice@example"
+          ])
+          expect(json_response["updated"]["after"]["items"][0]["identifier"]).to eq("rspec:policy:example")
+          expect(json_response["updated"]["after"]["items"][0]["memberships"]).to eq([
+            "rspec:group:example/users",
+            "rspec:host:example/server01",
+            "rspec:layer:example/servers"
+          ])
+
+          # Asert the properties and values on the deleted resource
+          expect(json_response["deleted"]["items"][0]["identifier"]).to eq("rspec:user:alice@example")
+        end
+      end
+
+      context 'when deleting a host' do
+        let(:dryrun_policy) do
+          <<~YAML
+            - !policy
+              id: example
+              body:
+                - !delete
+                  record: !host server01
+          YAML
+        end
+
+        it 'the host is deleted'  do
+          validate_policy(
+            action: http_method,
+            policy: dryrun_policy
+          )
+          expect(response.code).to match(/20\d/)
+    
+          json_response = JSON.parse(response.body)
+    
+          # Assert the number of changed items
+          expect(json_response["status"]).to match("Valid YAML")
+          expect(json_response["created"]["items"].length).to be(0)
+          expect(json_response["updated"]["before"]["items"].length).to be(1)
+          expect(json_response["updated"]["after"]["items"].length).to be(1)
+          expect(json_response["deleted"]["items"].length).to be(1)
+
+          # Asert the properties and values on the updated resources
+          expect(json_response["updated"]["before"]["items"][0]["identifier"]).to eq("rspec:policy:example")
+          expect(json_response["updated"]["before"]["items"][0]["memberships"]).to eq([
+            "rspec:group:example/users",
+            "rspec:host:example/server01",
+            "rspec:layer:example/servers",
+            "rspec:user:alice@example"
+          ])
+          expect(json_response["updated"]["after"]["items"][0]["identifier"]).to eq("rspec:policy:example")
+          expect(json_response["updated"]["after"]["items"][0]["memberships"]).to eq([
+            "rspec:group:example/users",
+            "rspec:layer:example/servers",
+            "rspec:user:alice@example"
+          ])
+
+          # Asert the properties and values on the deleted resource
+          expect(json_response["deleted"]["items"][0]["identifier"]).to eq("rspec:host:example/server01")
+        end
+      end
+
+      context 'when deleting a group' do
+        let(:dryrun_policy) do
+          <<~YAML
+            - !policy
+              id: example
+              body:
+                - !delete
+                  record: !group users
+          YAML
+        end
+
+        it 'the group is deleted'  do
+          validate_policy(
+            action: http_method,
+            policy: dryrun_policy
+          )
+          expect(response.code).to match(/20\d/)
+    
+          json_response = JSON.parse(response.body)
+    
+          # Assert the number of changed items
+          expect(json_response["status"]).to match("Valid YAML")
+          expect(json_response["created"]["items"].length).to be(0)
+          expect(json_response["updated"]["before"]["items"].length).to be(1)
+          expect(json_response["updated"]["after"]["items"].length).to be(1)
+          expect(json_response["deleted"]["items"].length).to be(1)
+
+          # Asert the properties and values on the updated resources
+          expect(json_response["updated"]["before"]["items"][0]["identifier"]).to eq("rspec:policy:example")
+          expect(json_response["updated"]["before"]["items"][0]["memberships"]).to eq([
+            "rspec:group:example/users",
+            "rspec:host:example/server01",
+            "rspec:layer:example/servers",
+            "rspec:user:alice@example"
+          ])
+          expect(json_response["updated"]["after"]["items"][0]["identifier"]).to eq("rspec:policy:example")
+          expect(json_response["updated"]["after"]["items"][0]["memberships"]).to eq([
+            "rspec:host:example/server01",
+            "rspec:layer:example/servers",
+            "rspec:user:alice@example"
+          ])
+
+          # Asert the properties and values on the deleted resource
+          expect(json_response["deleted"]["items"][0]["identifier"]).to eq("rspec:group:example/users")
+        end
+      end
+
+      context 'when deleting a layer' do
+        let(:dryrun_policy) do
+          <<~YAML
+            - !policy
+              id: example
+              body:
+                - !delete
+                  record: !layer servers
+          YAML
+        end
+
+        it 'the layer is deleted'  do
+          validate_policy(
+            action: http_method,
+            policy: dryrun_policy
+          )
+          expect(response.code).to match(/20\d/)
+    
+          json_response = JSON.parse(response.body)
+    
+          # Assert the number of changed items
+          expect(json_response["status"]).to match("Valid YAML")
+          expect(json_response["created"]["items"].length).to be(0)
+          expect(json_response["updated"]["before"]["items"].length).to be(1)
+          expect(json_response["updated"]["after"]["items"].length).to be(1)
+          expect(json_response["deleted"]["items"].length).to be(1)
+
+          # Asert the properties and values on the updated resources
+          expect(json_response["updated"]["before"]["items"][0]["identifier"]).to eq("rspec:policy:example")
+          expect(json_response["updated"]["before"]["items"][0]["memberships"]).to eq([
+            "rspec:group:example/users",
+            "rspec:host:example/server01",
+            "rspec:layer:example/servers",
+            "rspec:user:alice@example"
+          ])
+          expect(json_response["updated"]["after"]["items"][0]["identifier"]).to eq("rspec:policy:example")
+          expect(json_response["updated"]["after"]["items"][0]["memberships"]).to eq([
+            "rspec:group:example/users",
+            "rspec:host:example/server01",
+            "rspec:user:alice@example"
+          ])
+
+          # Asert the properties and values on the deleted resource
+          expect(json_response["deleted"]["items"][0]["identifier"]).to eq("rspec:layer:example/servers")
+        end
+      end
+
+      context 'when deleting a variable' do
+        let(:dryrun_policy) do
+          <<~YAML
+            - !policy
+              id: example
+              body:
+                - !delete
+                  record: !variable secret01
+          YAML
+        end
+
+        it 'the variable is deleted'  do
+          validate_policy(
+            action: http_method,
+            policy: dryrun_policy
+          )
+          expect(response.code).to match(/20\d/)
+    
+          json_response = JSON.parse(response.body)
+    
+          # Assert the number of changed items
+          expect(json_response["status"]).to match("Valid YAML")
+          expect(json_response["created"]["items"].length).to be(0)
+          expect(json_response["updated"]["before"]["items"].length).to be(0)
+          expect(json_response["updated"]["after"]["items"].length).to be(0)
+          expect(json_response["deleted"]["items"].length).to be(1)
+
+          # Asert the properties and values on the deleted resource
+          expect(json_response["deleted"]["items"][0]["identifier"]).to eq("rspec:variable:example/secret01")
+        end
+      end
+
+      context 'when deleting a webservice' do
+        let(:dryrun_policy) do
+          <<~YAML
+            - !policy
+              id: example
+              body:
+                - !delete
+                  record: !webservice service01
+          YAML
+        end
+
+        it 'the webservice is deleted'  do
+          validate_policy(
+            action: http_method,
+            policy: dryrun_policy
+          )
+          expect(response.code).to match(/20\d/)
+    
+          json_response = JSON.parse(response.body)
+    
+          # Assert the number of changed items
+          expect(json_response["status"]).to match("Valid YAML")
+          expect(json_response["created"]["items"].length).to be(0)
+          expect(json_response["updated"]["before"]["items"].length).to be(0)
+          expect(json_response["updated"]["after"]["items"].length).to be(0)
+          expect(json_response["deleted"]["items"].length).to be(1)
+
+          # Asert the properties and values on the deleted resource
+          expect(json_response["deleted"]["items"][0]["identifier"]).to eq("rspec:webservice:example/service01")
+        end
+      end
+
+      context 'when deleting a policy' do
+        let(:dryrun_policy) do
+          <<~YAML
+            - !delete
+              record: !policy example
+          YAML
+        end
+
+        it 'the policy and its resources are deleted'  do
+          validate_policy(
+            action: http_method,
+            policy: dryrun_policy
+          )
+          expect(response.code).to match(/20\d/)
+    
+          json_response = JSON.parse(response.body)
+    
+          # Assert the number of changed items
+          expect(json_response["status"]).to match("Valid YAML")
+          expect(json_response["created"]["items"].length).to be(0)
+          expect(json_response["updated"]["before"]["items"].length).to be(0)
+          expect(json_response["updated"]["after"]["items"].length).to be(0)
+          expect(json_response["deleted"]["items"].length).to be(7)
+
+          # Asert the properties and values on the deleted resource
+          deleted_items_hash = json_response["deleted"]["items"].each_with_index.to_h { |item, index| [item["identifier"], index] }
+          expect(deleted_items_hash).to have_key("rspec:group:example/users")
+          expect(deleted_items_hash).to have_key("rspec:host:example/server01")
+          expect(deleted_items_hash).to have_key("rspec:layer:example/servers")
+          expect(deleted_items_hash).to have_key("rspec:policy:example")
+          expect(deleted_items_hash).to have_key("rspec:user:alice@example")
+          expect(deleted_items_hash).to have_key("rspec:variable:example/secret01")
+          expect(deleted_items_hash).to have_key("rspec:webservice:example/service01")
+        end
+      end
+    end
+
+    context 'when using PUT' do
+      let(:http_method) { :put }
+
+      context 'when replacing a policy with an empty policy' do
+        let(:dryrun_policy) do
+          <<~YAML
+            - !policy
+              id: example
+              body: []
+          YAML
+        end
+
+        it 'the policy is updated and its resources are deleted' do
+          validate_policy(
+            action: http_method,
+            policy: dryrun_policy
+          )
+          expect(response.code).to match(/20\d/)
+    
+          json_response = JSON.parse(response.body)
+    
+          # Assert the number of changed items
+          expect(json_response["status"]).to match("Valid YAML")
+          expect(json_response["created"]["items"].length).to be(0)
+          expect(json_response["updated"]["before"]["items"].length).to be(1)
+          expect(json_response["updated"]["after"]["items"].length).to be(1)
+          expect(json_response["deleted"]["items"].length).to be(6)
+
+          # Asert the properties and values on the updated resource
+          expect(json_response["updated"]["before"]["items"][0]["identifier"]).to eq("rspec:policy:example")
+          expect(json_response["updated"]["before"]["items"][0]["memberships"]).to eq([
+            "rspec:group:example/users",
+            "rspec:host:example/server01",
+            "rspec:layer:example/servers",
+            "rspec:user:alice@example"
+          ])
+          expect(json_response["updated"]["after"]["items"][0]["identifier"]).to eq("rspec:policy:example")
+          expect(json_response["updated"]["after"]["items"][0]["memberships"]).to eq([])
+
+          # Asert the properties and values on the deleted resource
+          deleted_items_hash = json_response["deleted"]["items"].each_with_index.to_h { |item, index| [item["identifier"], index] }
+          expect(deleted_items_hash).to have_key("rspec:group:example/users")
+          expect(deleted_items_hash).to have_key("rspec:host:example/server01")
+          expect(deleted_items_hash).to have_key("rspec:layer:example/servers")
+          expect(deleted_items_hash).to have_key("rspec:user:alice@example")
+          expect(deleted_items_hash).to have_key("rspec:variable:example/secret01")
+          expect(deleted_items_hash).to have_key("rspec:webservice:example/service01")
         end
       end
     end
@@ -849,7 +1214,6 @@ describe PoliciesController, type: :request do
             role: "bob"
           )
           json_response = JSON.parse(response.body)
-          puts JSON.pretty_generate(json_response)
           expect(response.code).to match(/20\d/)
   
           created_items_hash = json_response["created"]["items"].each_with_index.to_h { |item, index| [item["identifier"], index] }
@@ -906,7 +1270,6 @@ describe PoliciesController, type: :request do
             role: "bob"
           )
           json_response = JSON.parse(response.body)
-          puts JSON.pretty_generate(json_response)
           expect(response.code).to match(/20\d/)
   
           created_items_hash = json_response["created"]["items"].each_with_index.to_h { |item, index| [item["identifier"], index] }
@@ -1018,7 +1381,6 @@ describe PoliciesController, type: :request do
             role: "bob"
           )
           json_response = JSON.parse(response.body)
-          puts JSON.pretty_generate(json_response)
           expect(response.code).to match(/20\d/)
   
           created_items_hash = json_response["created"]["items"].each_with_index.to_h { |item, index| [item["identifier"], index] }
