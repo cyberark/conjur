@@ -30,6 +30,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Fixed
 - Updates audit events generated during Policy Factory usage.
   CNJR-6891
+- Update audit events on local authn failures and ip restriction fail.
+  CNJR-7074
 
 ### Fixed
 - Updates OIDC Authenticator to use the scope defined in configuration.

@@ -113,10 +113,11 @@ module Authentication
           @logger.debug(LogMessages::Authentication::OriginValidated.new.to_s)
           @success.new(role)
         else
+          exception = Errors::Authentication::InvalidOrigin.new
           @failure.new(
-            role,
+            exception.message,
             status: :unauthorized,
-            exception: Errors::Authentication::InvalidOrigin.new
+            exception: exception
           )
         end
       end

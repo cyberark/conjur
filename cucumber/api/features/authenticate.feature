@@ -146,7 +146,7 @@ Feature: Exchange a role's API key for a signed authentication token
       [auth@43868 user="cucumber:user:alice" authenticator="authn" service="cucumber:webservice:conjur/authn"]
       [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
       [action@43868 result="failure" operation="authenticate"]
-      cucumber:user:alice failed to authenticate with authenticator authn
+      cucumber:user:alice failed to authenticate with authenticator authn service cucumber:webservice:conjur/authn: CONJ00002E Invalid credentials
     """
 
   @negative @acceptance
@@ -161,7 +161,7 @@ Feature: Exchange a role's API key for a signed authentication token
       [auth@43868 user="cucumber:host:app" authenticator="authn" service="cucumber:webservice:conjur/authn"]
       [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
       [action@43868 result="failure" operation="authenticate"]
-      cucumber:host:app failed to authenticate with authenticator authn
+      cucumber:host:app failed to authenticate with authenticator authn service cucumber:webservice:conjur/authn: CONJ00002E Invalid credentials
     """
 
   @negative @acceptance
@@ -176,7 +176,7 @@ Feature: Exchange a role's API key for a signed authentication token
       [auth@43868 user="cucumber:user:alice" authenticator="authn" service="cucumber:webservice:conjur/authn"]
       [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
       [action@43868 result="failure" operation="authenticate"]
-      cucumber:user:alice failed to authenticate with authenticator authn
+      cucumber:user:alice failed to authenticate with authenticator authn service cucumber:webservice:conjur/authn: CONJ00002E Invalid credentials
     """
 
   @negative @acceptance
@@ -219,5 +219,5 @@ Feature: Exchange a role's API key for a signed authentication token
     """
     And The following appears in the audit log after my savepoint:
     """
-    cucumber:user:non-existing failed to authenticate with authenticator authn
+    cucumber:user:non-existing failed to authenticate with authenticator authn service cucumber:webservice:conjur/authn: CONJ00007E 'non-existing' not found
     """
