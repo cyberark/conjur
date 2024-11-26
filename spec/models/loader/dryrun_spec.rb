@@ -56,7 +56,7 @@ def validation_error_text
 end
 
 describe PoliciesController, type: :request do
-  context 'Invalid Policy ' do
+  context 'dryrun a policy with invalid syntax' do
     it 'returns only status and error, no dry-run fields' do
       validate_policy(
         action: :put,
@@ -139,7 +139,7 @@ describe PoliciesController, type: :request do
       YAML
     end
 
-    it 'returns new resources' do
+    it 'creates new resources' do
       validate_policy(
         action: :post,
         policy: base_policy
@@ -236,7 +236,7 @@ describe PoliciesController, type: :request do
       )
     end
 
-    context 'dryrun a policy with annotations' do
+    context 'update a role annotations' do
       let(:dryrun_policy) do
         <<~YAML
           - !policy
@@ -280,7 +280,7 @@ describe PoliciesController, type: :request do
       end
     end
 
-    context 'dryrun a policy that adds restricted_to' do
+    context 'dryrun a policy that adds restricted_to to a role' do
       let(:dryrun_policy) do
         <<~YAML
           - !policy
@@ -292,7 +292,7 @@ describe PoliciesController, type: :request do
         YAML
       end
 
-      it 'returns a user with a new restricted_to' do  
+      it 'returns a role with a new restricted_to' do  
         validate_policy(
           action: :patch,
           policy: dryrun_policy
@@ -1309,7 +1309,7 @@ describe PoliciesController, type: :request do
       end
     end
 
-    context 'when users are created with permissions on a resource' do
+    context 'when a role is created with permissions on a resource' do
       let(:base_policy) do
         <<~YAML
           # Bob cannot see himself
