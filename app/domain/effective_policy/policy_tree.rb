@@ -2,9 +2,9 @@
 
 require_relative('pathing/res_pathing')
 require_relative('pathing/user_pathing')
-require_relative('tree/policy_tree_permit')
 require_relative('tag/policy_tree_tag')
 require_relative('tag/policy_tree_tag_making')
+require_relative('tree/policy_tree_permit')
 
 module EffectivePolicy
   class BuildPolicyTree
@@ -50,13 +50,26 @@ module EffectivePolicy
     end
 
     def make_and_store_permits(policies_cache, par_pol, res)
+      res_par_identifier = policies_cache.parent_identifier(res.identifier)
+
       permissions_with_proper_id = res.permissions.map do |perm|
-        perm[:proper_role_id] = policies_cache.id(identifier(perm[:role_id]))
+        role_identifier = identifier(perm[:role_id])
+        perm[:proper_role_id] = determine_perm_role_id(policies_cache, res_par_identifier, role_identifier)
         perm[:proper_resource_id] = policies_cache.id(identifier(perm[:resource_id]))
         perm
       end
       permits = make_permits(permissions_with_proper_id)
       add_to_policy(par_pol, *permits)
+    end
+
+    def determine_perm_role_id(policies_cache, res_par_identifier, role_identifier)
+      role_par_identifier = policies_cache.parent_identifier(role_identifier)
+
+      if res_par_identifier == role_par_identifier
+        policies_cache.id(role_identifier)
+      else
+        "/#{role_identifier}"
+      end
     end
 
     def par_pol_identifier(identifier)
