@@ -8,9 +8,7 @@ module EffectivePolicy
         permits_cache = {}
         # reducing permissions to permits and combining privileges in an array
         permissions.each_with_object([]) do |perm, permits|
-
           permit = get_or_init(permits_cache, perm)
-
           privileges_arr = get_privileges_arr(permit)
 
           # first privilege entry for the resource
