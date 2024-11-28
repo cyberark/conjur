@@ -72,52 +72,15 @@ module Loader
       #   tech debt inherited in order to make the dryrun process more testable
       # 
 
-      if @loader.diff_schema_name
-        @policy_repository.setup_schema_for_dryrun_diff(
-          diff_schema_name: @loader.diff_schema_name
-        )
-      end
-
-      visible_resource_hash_before = \
-        if @loader.diff_schema_name
-          @resource.visible_to(@current_user).each_with_object({}) do |obj, hash|
-            hash[obj[:resource_id]] = true
-          end
-        end || {}
-
-      @loader.setup_db_for_new_policy
-      @loader.delete_shadowed_and_duplicate_rows
-      @loader.store_policy_in_db
-
-      diff = if @loader.diff_schema_name
-        @policy_diff.call(
-          diff_schema_name: @loader.diff_schema_name
-        ).result
-      end
-
-      visible_resource_hash_after = \
-        if @loader.diff_schema_name
-          @resource.visible_to(@current_user).each_with_object({}) do |obj, hash|
-            hash[obj[:resource_id]] = true
-          end
-        end || {}
-
-      # Destroy the temp schema used for diffing
-      if @loader.diff_schema_name
-        @policy_repository.drop_diff_schema_for_dryrun(
-          diff_schema_name: @loader.diff_schema_name
-        )
-      end
-
-      @loader.release_db_connection
+      @loader.create_policy(current_user: @current_user)
 
       @policy_result.new(
         policy_parse: @loader.policy_parse,
         policy_version: @loader.policy_version,
         created_roles: credential_roles,
-        diff: diff,
-        visible_resources_before: visible_resource_hash_before,
-        visible_resources_after: visible_resource_hash_after
+        diff: @loader.diff,
+        visible_resources_before: @loader.visible_resource_hash_before,
+        visible_resources_after: @loader.visible_resource_hash_after
       )
     end
 

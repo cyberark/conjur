@@ -5,18 +5,51 @@ module Loader
   # but interpreting it to produce a dry-run simulation of what the
   # resulting policy would be.
   #
-  class DryRun < Orchestrate
+  class DryRun
     def initialize(
       policy_parse:,
       policy_version:,
+      base: nil,
       primitive_factory: DataObjects::PrimitiveFactory,
       logger: Rails.logger
     )
-      super
+      @base = base || Loader::Orchestrate.new(
+        dryrun: true,
+        policy_parse: policy_parse,
+        policy_version: policy_version,
+        logger: logger
+      )
       @policy_parse = policy_parse
       @policy_version = policy_version
       @primitive_factory = primitive_factory
       @logger = logger
+    end
+
+    attr_reader :policy_parse, :policy_version
+
+    def visible_resource_hash_before
+      @base.visible_resource_hash_before
+    end
+
+    def visible_resource_hash_after
+      @base.visible_resource_hash_after
+    end
+
+    def diff
+      @base.diff
+    end
+
+    def new_roles
+      @base.new_roles
+    end
+
+    # Roles
+    def actor_roles(roles)
+      @base.actor_roles(roles)
+    end
+
+    def credential_roles(actor_roles)
+      @base.credential_roles(actor_roles)
     end
 
     # TODO: this responsibility can be moved into the PolicyRepository as part
@@ -26,13 +59,21 @@ module Loader
     # ("before" meaning, before application of the dry-run policy)
     #
     # (The .first method is NOT wanted, and breaks the function)
-    # rubocop:disable Style/UnpackFirst
     def diff_schema_name
-      @random ||= Random.new
-      rnd = @random.bytes(8).unpack('h*').first
-      @diff_schema_name ||= "policy_loader_before_#{rnd}"
+      # No-op. This is now defined in the Orchestrate class.
     end
-    # rubocop:enable Style/UnpackFirst
+
+    def create_policy(current_user:)
+      @base.create_policy(current_user: current_user)
+    end
+
+    def modify_policy(current_user:)
+      @base.modify_policy(current_user: current_user)
+    end
+
+    def replace_policy(current_user:)
+      @base.replace_policy(current_user: current_user)
+    end
 
     # Returns the syntax / business logic validation report interface
     # (This method will condense once when the feature slices are completed,

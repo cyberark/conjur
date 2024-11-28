@@ -60,7 +60,15 @@ module Loader
     include Handlers::Password
     include Handlers::PublicKey
 
-    attr_reader :policy_parse, :policy_version, :create_records, :delete_records, :new_roles, :schemata
+    attr_reader :policy_parse,
+                :policy_version,
+                :create_records,
+                :delete_records,
+                :new_roles,
+                :schemata,
+                :visible_resource_hash_before,
+                :visible_resource_hash_after,
+                :diff
 
     TABLES = %i[roles role_memberships resources permissions annotations]
 
@@ -76,17 +84,27 @@ module Loader
     def initialize(
       policy_parse:,
       policy_version:,
+      dryrun: false,
       extension_repository: Conjur::Extension::Repository.new,
       feature_flags: Rails.application.config.feature_flags,
+      policy_diff: CommandHandler::PolicyDiff.new,
+      policy_repository: DB::Repository::PolicyRepository.new,
       primitive_factory: DataObjects::PrimitiveFactory,
+      resource: ::Resource,
       logger: Rails.logger
     )
       @logger = logger
       @policy_parse = policy_parse
       @policy_version = policy_version
+      @dryrun = dryrun
       @schemata = Schemata.new
       @feature_flags = feature_flags
+      @policy_diff = policy_diff
+      @policy_repository = policy_repository
+      @resource = resource
       @primitive_factory = primitive_factory
+      @visible_resource_hash_before = {}
+      @visible_resource_hash_after = {}
 
       # Only attempt to load policy load extensions if the feature is enabled
       @extensions =
@@ -106,6 +124,173 @@ module Loader
     # Gets the id of the policy being loaded.
     def policy_id
       policy_version.policy.id
+    end
+
+    def create_policy(current_user:)
+      return dryrun_create_policy(current_user) if @dryrun 
+
+      setup_db_for_new_policy
+      delete_shadowed_and_duplicate_rows
+      store_policy_in_db
+      release_db_connection
+    end
+
+    def modify_policy(current_user:)
+      return dryrun_modify_policy(current_user) if @dryrun
+
+      setup_db_for_new_policy
+      delete_shadowed_and_duplicate_rows
+      upsert_policy_records
+      clean_db
+      store_auxiliary_data
+      release_db_connection
+    end
+
+    def replace_policy(current_user:)
+      return dryrun_replace_policy(current_user) if @dryrun
+
+      setup_db_for_new_policy
+      delete_removed
+      delete_shadowed_and_duplicate_rows
+      upsert_policy_records
+      clean_db
+      store_auxiliary_data
+      release_db_connection
+    end
+
+    def actor_roles(roles)
+      roles.select do |role|
+        %w[user host].member?(role.kind)
+      end
+    end
+
+    def credential_roles(actor_roles)
+      actor_roles.each_with_object({}) do |role, memo|
+        credentials = Credentials[role: role] || Credentials.create(role: role)
+        role_id = role.id
+        memo[role_id] = { id: role_id, api_key: credentials.api_key }
+      end
+    end
+
+    def report(policy_result)
+      error = policy_result.error
+
+      if error
+        # The failure report identifies the error
+        @logger.debug("#{error}\n")
+
+        response = {
+          error: error
+        }
+
+      else
+        # The success report lists the roles
+        response = {
+          created_roles: policy_result.created_roles,
+          version: @policy_version[:version]
+        }
+
+      end
+
+      response
+    end
+
+    private
+
+    def dryrun_create_policy(current_user)
+      @policy_repository.setup_schema_for_dryrun_diff(
+        diff_schema_name: diff_schema_name
+      )
+
+      @visible_resource_hash_before = @resource.visible_to(current_user).each_with_object({}) do |obj, hash|
+        hash[obj[:resource_id]] = true
+      end || {}
+
+      setup_db_for_new_policy
+      delete_shadowed_and_duplicate_rows
+      store_policy_in_db
+
+      @diff = @policy_diff.call(
+        diff_schema_name: diff_schema_name
+      ).result
+
+      @visible_resource_hash_after = @resource.visible_to(current_user).each_with_object({}) do |obj, hash|
+        hash[obj[:resource_id]] = true
+      end || {}
+
+      # Destroy the temp schema used for diffing
+      @policy_repository.drop_diff_schema_for_dryrun(
+        diff_schema_name: diff_schema_name
+      )
+
+      release_db_connection
+    end
+    
+    def dryrun_modify_policy(current_user)
+      # TODO: A refactor is pending for CNJR-6965 to improve testability of the
+      # policy loading process. See app/models/loader/create_policy.rb.
+      @policy_repository.setup_schema_for_dryrun_diff(
+        diff_schema_name: diff_schema_name
+      )
+
+      @visible_resource_hash_before = @resource.visible_to(current_user).each_with_object({}) do |obj, hash|
+        hash[obj[:resource_id]] = true
+      end
+
+      setup_db_for_new_policy
+      delete_shadowed_and_duplicate_rows
+      upsert_policy_records
+      clean_db
+      store_auxiliary_data
+
+      @diff = @policy_diff.call(
+        diff_schema_name: diff_schema_name
+      ).result
+
+      @visible_resource_hash_after = @resource.visible_to(current_user).each_with_object({}) do |obj, hash|
+        hash[obj[:resource_id]] = true
+      end
+
+      # Destroy the temp schema used for diffing
+      @policy_repository.drop_diff_schema_for_dryrun(
+        diff_schema_name: diff_schema_name
+      )
+
+      release_db_connection
+    end
+
+    def dryrun_replace_policy(current_user)
+      # TODO: A refactor is pending for CNJR-6965 to improve testability of the
+      # policy loading process. See app/models/loader/create_policy.rb.
+      @policy_repository.setup_schema_for_dryrun_diff(
+        diff_schema_name: diff_schema_name
+      )
+
+      @visible_resource_hash_before = @resource.visible_to(current_user).each_with_object({}) do |obj, hash|
+        hash[obj[:resource_id]] = true
+      end
+
+      setup_db_for_new_policy
+      delete_removed
+      delete_shadowed_and_duplicate_rows
+      upsert_policy_records
+      clean_db
+      store_auxiliary_data
+
+      @diff = @policy_diff.call(
+        diff_schema_name: diff_schema_name
+      ).result
+
+      @visible_resource_hash_after = @resource.visible_to(current_user).each_with_object({}) do |obj, hash|
+        hash[obj[:resource_id]] = true
+      end
+
+      # Destroy the temp schema used for diffing
+      @policy_repository.drop_diff_schema_for_dryrun(
+        diff_schema_name: diff_schema_name
+      )
+
+      release_db_connection
     end
 
     def setup_db_for_new_policy
@@ -258,7 +443,9 @@ module Loader
     end
 
     def diff_schema_name
-      # No-op.
+      @random ||= Random.new
+      rnd = @random.bytes(8).unpack('h*').first
+      @diff_schema_name ||= "policy_loader_before_#{rnd}"
     end
 
     def table_data schema = ""
@@ -601,44 +788,6 @@ module Loader
     def release_db_connection
       Sequel::Model.db.disconnect
     end
-
-    def actor_roles(roles)
-      roles.select do |role|
-        %w[user host].member?(role.kind)
-      end
-    end
-
-    def credential_roles(actor_roles)
-      actor_roles.each_with_object({}) do |role, memo|
-        credentials = Credentials[role: role] || Credentials.create(role: role)
-        role_id = role.id
-        memo[role_id] = { id: role_id, api_key: credentials.api_key }
-      end
-    end
-
-    def report(policy_result)
-      error = policy_result.error
-
-      if error
-        # The failure report identifies the error
-        @logger.debug("#{error}\n")
-
-        response = {
-          error: error
-        }
-
-      else
-        # The success report lists the roles
-        response = {
-          created_roles: policy_result.created_roles,
-          version: @policy_version[:version]
-        }
-
-      end
-
-      response
-    end
-
   end
   # rubocop:enable Metrics/ClassLength
 end
