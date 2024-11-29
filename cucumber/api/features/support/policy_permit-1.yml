@@ -1,0 +1,26 @@
+- !group delegation/consumers
+- !group delegation/viewers
+
+- !policy
+  id: account1
+  body:
+    - &variables
+      - !variable
+        id: username
+        annotations:
+          cyberark-vault: 'false'
+          cyberark-vault/accounts: 'account1'
+      - !variable
+        id: password
+        annotations:
+          cyberark-vault: 'false'
+          cyberark-vault/accounts: 'account1'
+- !permit
+  role: !group delegation/consumers
+  privileges: [execute]
+  resource: *variables
+- !permit
+  role: !group delegation/viewers
+  privileges: [read]
+  resource: *variables
+
