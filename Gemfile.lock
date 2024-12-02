@@ -315,7 +315,6 @@ GEM
       mime-types-data (~> 3.2015)
     mime-types-data (3.2024.1001)
     mini_mime (1.1.2)
-    mini_portile2 (2.8.8)
     minitest (5.25.1)
     multi_json (1.15.0)
     multi_test (0.1.2)
@@ -333,8 +332,13 @@ GEM
     net-ssh (7.1.0)
     netrc (0.11.0)
     nio4r (2.5.9)
-    nokogiri (1.15.4)
-      mini_portile2 (~> 2.8.2)
+    nokogiri (1.16.8-aarch64-linux)
+      racc (~> 1.4)
+    nokogiri (1.16.8-arm64-darwin)
+      racc (~> 1.4)
+    nokogiri (1.16.8-x86_64-darwin)
+      racc (~> 1.4)
+    nokogiri (1.16.8-x86_64-linux)
       racc (~> 1.4)
     openid_connect (2.2.0)
       activemodel
@@ -369,7 +373,7 @@ GEM
     public_suffix (6.0.1)
     puma (6.4.2)
       nio4r (~> 2.0)
-    racc (1.7.1)
+    racc (1.8.1)
     rack (2.2.8.1)
     rack-oauth2 (2.2.0)
       activesupport
@@ -404,9 +408,9 @@ GEM
       activesupport (>= 5.0.0)
       minitest
       nokogiri (>= 1.6)
-    rails-html-sanitizer (1.6.0)
+    rails-html-sanitizer (1.6.1)
       loofah (~> 2.21)
-      nokogiri (~> 1.14)
+      nokogiri (>= 1.15.7, != 1.16.7, != 1.16.6, != 1.16.5, != 1.16.4, != 1.16.3, != 1.16.2, != 1.16.1, != 1.16.0.rc1, != 1.16.0)
     rails_12factor (0.0.3)
       rails_serve_static_assets
       rails_stdout_logging
