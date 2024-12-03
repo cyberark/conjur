@@ -5,15 +5,19 @@ module Loader
   class ModifyPolicy
     def initialize(
       loader:,
+      current_user:,
       policy_diff: CommandHandler::PolicyDiff.new,
       policy_repository: DB::Repository::PolicyRepository.new,
       policy_result: ::PolicyResult,
+      resource: ::Resource,
       logger: Rails.logger
     )
       @loader = loader
+      @current_user = current_user
       @policy_diff = policy_diff
       @policy_repository = policy_repository
       @policy_result = policy_result
+      @resource = resource
       @logger = logger
     end
 
@@ -21,9 +25,11 @@ module Loader
       policy_parse,
       policy_version,
       production_class,
+      current_user,
       policy_diff: CommandHandler::PolicyDiff.new,
       policy_repository: DB::Repository::PolicyRepository.new,
       policy_result: ::PolicyResult,
+      resource: ::Resource,
       logger: Rails.logger
     )
       ModifyPolicy.new(
@@ -35,6 +41,8 @@ module Loader
         policy_diff: policy_diff,
         policy_repository: policy_repository,
         policy_result: policy_result,
+        current_user: current_user,
+        resource: resource,
         logger: logger
       )
     end
@@ -43,6 +51,8 @@ module Loader
       result = call
       policy_result.created_roles = (result.created_roles)
       policy_result.diff = (result.diff)
+      policy_result.visible_resources_before = (result.visible_resources_before)
+      policy_result.visible_resources_after = (result.visible_resources_after)
     end
 
     def call
@@ -54,6 +64,13 @@ module Loader
         )
       end
 
+      visible_resource_hash_before = \
+        if @loader.diff_schema_name
+          @resource.visible_to(@current_user).each_with_object({}) do |obj, hash|
+            hash[obj[:resource_id]] = true
+          end
+        end || {}
+
       @loader.setup_db_for_new_policy
       @loader.delete_shadowed_and_duplicate_rows
       @loader.upsert_policy_records
@@ -64,7 +81,15 @@ module Loader
         @policy_diff.call(
           diff_schema_name: @loader.diff_schema_name
         ).result
+
       end
+
+      visible_resource_hash_after = \
+        if @loader.diff_schema_name
+          @resource.visible_to(@current_user).each_with_object({}) do |obj, hash|
+            hash[obj[:resource_id]] = true
+          end
+        end || {}
 
       # Destroy the temp schema used for diffing
       if @loader.diff_schema_name
@@ -78,8 +103,10 @@ module Loader
         policy_parse: @loader.policy_parse,
         policy_version: @loader.policy_version,
         created_roles: credential_roles,
-        diff: diff
-      )
+        diff: diff,
+        visible_resources_before: visible_resource_hash_before,
+        visible_resources_after: visible_resource_hash_after
+        )
     end
 
     def new_roles

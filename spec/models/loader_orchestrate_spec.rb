@@ -20,7 +20,10 @@ describe Loader::Orchestrate do
       policy: Loader::Types.find_or_create_root_policy(account)
     )
 
-    policy_action = Loader::ReplacePolicy.new(loader: loader(policy_ver))
+    policy_action = Loader::ReplacePolicy.new(
+      loader: loader(policy_ver),
+      current_user: role_user_admin
+    )
     policy_action.call
   end
 
@@ -39,13 +42,19 @@ describe Loader::Orchestrate do
 
   def replace_policy_with(path)
     version = save_policy(path)
-    policy_action = Loader::ReplacePolicy.new(loader: loader(version))
+    policy_action = Loader::ReplacePolicy.new(
+      loader: loader(version),
+      current_user: role_user_admin
+    )
     policy_action.call
   end
 
   def modify_policy_with(path)
     version = save_policy(path)
-    policy_action = Loader::ModifyPolicy.new(loader: loader(version))
+    policy_action = Loader::ModifyPolicy.new(
+      loader: loader(version),
+      current_user: role_user_admin
+    )
     policy_action.call
   end
 

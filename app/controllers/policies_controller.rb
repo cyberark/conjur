@@ -20,6 +20,7 @@ class PoliciesController < RestController
     unless params[:kind] == 'policy'
       raise(Errors::EffectivePolicy::PathParamError.new(params[:kind]))
     end
+
     authorize_ownership
 
     allowed_params = %i[account kind identifier depth limit]
@@ -30,11 +31,13 @@ class PoliciesController < RestController
     resources = EffectivePolicy::GetEffectivePolicy.new(**options).verify.call
     policy_tree = EffectivePolicy::BuildPolicyTree.new.call(options[:identifier], resources)
 
-    Audit.logger.log(Audit::Event::Policy.new(
-      operation: action, subject: options,
-      user: current_user, client_ip: request.ip,
-      error_message: nil # No error message because reading was successful
-    ))
+    Audit.logger.log(
+      Audit::Event::Policy.new(
+        operation: action, subject: options,
+        user: current_user, client_ip: request.ip,
+        error_message: nil # No error message because reading was successful
+      )
+    )
 
     json_content_type = 'application/json'
     if request.headers["Content-Type"] == json_content_type
@@ -42,7 +45,6 @@ class PoliciesController < RestController
     else
       render(plain: policy_tree.to_yaml, content_type: "application/x-yaml")
     end
-
   rescue Errors::EffectivePolicy::NumberParamError, Errors::EffectivePolicy::PathParamError => e
     audit_failure(e, action)
     raise ApplicationController::BadRequest, e.message
@@ -125,8 +127,8 @@ class PoliciesController < RestController
     # Has a policy error been encountered yet?
     policy_erred = lambda {
       !policy_result.nil? &&
-      !policy_result.policy_parse.nil? &&
-      !policy_result.policy_parse.error.nil?
+        !policy_result.policy_parse.nil? &&
+        !policy_result.policy_parse.error.nil?
     }
 
     # policy_mode is used to call loader methods
@@ -135,7 +137,8 @@ class PoliciesController < RestController
       policy_mode = mode_class.from_policy(
         policy_result.policy_parse,
         policy_result.policy_version,
-        strategy_class
+        strategy_class,
+        current_user
       )
     }
   
@@ -206,13 +209,10 @@ class PoliciesController < RestController
   rescue Sequel::ForeignKeyConstraintViolation, Exceptions::RecordNotFound => e
     audit_failure(e, mode)
     raise e
-
   rescue => e
     original_error = e
-    if e.instance_of?(Exceptions::EnhancedPolicyError)
-      if e.original_error
+    if e.instance_of?(Exceptions::EnhancedPolicyError) && e.original_error
         original_error = e.original_error
-      end
     end
 
     audit_failure(original_error, mode)
@@ -224,7 +224,6 @@ class PoliciesController < RestController
       json: policy_mode.report(policy_result),
       status: :unprocessable_entity
     )
-
   end
 
   # Auditing

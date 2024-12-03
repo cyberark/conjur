@@ -6,36 +6,25 @@
 # to another.
 
 class PolicyResult
-  attr_reader :policy_version, :created_roles, :policy_parse, :diff
+  attr_accessor :policy_version, :created_roles, :policy_parse, :diff, :visible_resources_before, :visible_resources_after
 
   def initialize(
     policy_version: nil,
     created_roles: nil,
     policy_parse: nil,
-    diff: nil
-      )
+    diff: nil,
+    visible_resources_before: nil,
+    visible_resources_after: nil
+  )
     @policy_version = policy_version
     @created_roles = created_roles
     @policy_parse = policy_parse
     @diff = diff
+    @visible_resources_before = visible_resources_before
+    @visible_resources_after = visible_resources_after
   end
 
   # Allow individual setting of policy results as they are determined
-  def policy_version=(version)
-    @policy_version = version
-  end
-
-  def created_roles=(roles)
-    @created_roles = roles
-  end
-
-  def policy_parse=(parse)
-    @policy_parse = parse
-  end
-
-  def diff=(diff)
-    @diff = diff
-  end
 
   # Surface the parse error as the policy result error, in the future this
   # should probably return a collection of errors that include the parse and

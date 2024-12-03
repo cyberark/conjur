@@ -78,6 +78,7 @@ module Loader
       policy_version:,
       extension_repository: Conjur::Extension::Repository.new,
       feature_flags: Rails.application.config.feature_flags,
+      primitive_factory: DataObjects::PrimitiveFactory,
       logger: Rails.logger
     )
       @logger = logger
@@ -85,6 +86,7 @@ module Loader
       @policy_version = policy_version
       @schemata = Schemata.new
       @feature_flags = feature_flags
+      @primitive_factory = primitive_factory
 
       # Only attempt to load policy load extensions if the feature is enabled
       @extensions =

@@ -21,28 +21,28 @@ module CommandHandler
           @policy_repository.find_original_elements(diff_schema_name: diff_schema_name).bind do |original|
             # A hash map of resource_ids used to produce the
             # final diff.
-            created_resource_ids = created.resources.each_with_object({}) do |resource, hash|
-              hash[resource[:resource_id]] = true
+            created_resource_ids = created.resources.each_with_object({}) do |obj, hash|
+              hash[obj[:resource_id]] = true
             end
-            deleted_resource_ids = deleted.resources.each_with_object({}) do |resource, hash|
-              hash[resource[:resource_id]] = true
+            deleted_resource_ids = deleted.resources.each_with_object({}) do |obj, hash|
+              hash[obj[:resource_id]] = true
             end
-            updated_resource_ids = original.resources.each_with_object({}) do |resource, hash|
-              hash[resource[:resource_id]] = true
+            updated_resource_ids = original.resources.each_with_object({}) do |obj, hash|
+              hash[obj[:resource_id]] = true
             end
 
             # Derive the final state of the original elements using the
             # created, deleted, and original elements.
             final = find_updated_elements(created, deleted, original, updated_resource_ids)
-            final_resource_ids = final.resources.each_with_object({}) do |resource, hash|
-              hash[resource[:resource_id]] = true
+            final_resource_ids = final.resources.each_with_object({}) do |obj, hash|
+              hash[obj[:resource_id]] = true
             end
 
             # Filter out any duplicates that are present in all three states.
             created.resources = filter_resources(created.resources, created_resource_ids, deleted_resource_ids, updated_resource_ids)
             deleted.resources = filter_resources(deleted.resources, created_resource_ids, deleted_resource_ids, updated_resource_ids)
             original.resources = filter_updated_resources(original.resources, deleted_resource_ids, final_resource_ids)
-
+            
             return @success.new({
               created: created,
               deleted: deleted,

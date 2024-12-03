@@ -9,7 +9,16 @@ require 'spec_helper'
 describe Loader::Validate do
   @logger = Rails.logger
 
-  mode = Loader::CreatePolicy.from_policy(nil, nil, Loader::Validate, logger: Rails.logger)
+  let(:current_user) { Role.find_or_create(role_id: 'rspec:user:admin') }
+  let(:mode) do
+    Loader::CreatePolicy.from_policy(
+      nil,
+      nil,
+      Loader::Validate,
+      current_user,
+      logger: Rails.logger
+    )
+  end
 
   context "when the policy parsed as an error" do
     adhoc_err = Exceptions::EnhancedPolicyError.new(

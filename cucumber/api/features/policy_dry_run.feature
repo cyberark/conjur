@@ -95,7 +95,7 @@ Feature: Dry Run Policies
               "id": "dev/db",
               "type": "policy",
               "owner": "cucumber:policy:dev",
-              "policy": "cucumber:policy:root",
+              "policy": "cucumber:policy:[REDACTED]",
               "permissions": {},
               "annotations": {},
               "members": [
@@ -133,7 +133,7 @@ Feature: Dry Run Policies
               "id": "dev/db",
               "type": "policy",
               "owner": "cucumber:policy:dev",
-              "policy": "cucumber:policy:root",
+              "policy": "cucumber:policy:[REDACTED]",
               "permissions": {},
               "annotations": {},
               "members": [
@@ -281,7 +281,7 @@ Feature: Dry Run Policies
               "id": "dev/db",
               "type": "policy",
               "owner": "cucumber:policy:dev",
-              "policy": "cucumber:policy:root",
+              "policy": "cucumber:policy:[REDACTED]",
               "permissions": {},
               "annotations": {},
               "members": [
@@ -319,7 +319,7 @@ Feature: Dry Run Policies
               "id": "dev/db",
               "type": "policy",
               "owner": "cucumber:policy:dev",
-              "policy": "cucumber:policy:root",
+              "policy": "cucumber:policy:[REDACTED]",
               "permissions": {},
               "annotations": {},
               "members": [
@@ -454,7 +454,7 @@ Feature: Dry Run Policies
               "id": "dev/db",
               "type": "policy",
               "owner": "cucumber:policy:dev",
-              "policy": "cucumber:policy:root",
+              "policy": "cucumber:policy:[REDACTED]",
               "permissions": {},
               "annotations": {},
               "members": [
@@ -492,7 +492,7 @@ Feature: Dry Run Policies
               "id": "dev/db",
               "type": "policy",
               "owner": "cucumber:policy:dev",
-              "policy": "cucumber:policy:root",
+              "policy": "cucumber:policy:[REDACTED]",
               "permissions": {},
               "annotations": {},
               "members": [

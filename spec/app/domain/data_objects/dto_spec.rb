@@ -863,119 +863,274 @@ resources_dto_complex = [
   }
 ]
 
-describe 'DataObjects::DTOFactory' do
-  context "when passed a database row as a hash" do
-    dto1a = DataObjects::DTOFactory.create_DTO_from_hash(mapped_roles_simple[0])
-    dto1b = DataObjects::DTOFactory.create_DTO_from_hash(mapped_roles_simple[1])
-    dto2a = DataObjects::DTOFactory.create_DTO_from_hash(mapped_resources_simple[0])
-    it 'should return a RoleDTO or a ResourceDTO' do
-      expect(dto1a.class).to be(DataObjects::RoleDTO)
-      expect(dto1b.class).to be(DataObjects::RoleDTO)
-      expect(dto2a.class).to be(DataObjects::ResourceDTO)
-    end
-    it 'should have the correct attributes for identifier, id, type, owner and policy' do
-      expect(dto1a.identifier).to eq("cucumber:policy:example")
-      expect(dto1a.type).to eq("policy")
-      expect(dto1a.id).to eq("example")
-      expect(dto1a.owner).to eq("cucumber:user:admin")
-      expect(dto1a.policy).to eq("cucumber:policy:root")
-      expect(dto2a.identifier).to eq("cucumber:variable:example/secret01")
-      expect(dto2a.type).to eq("variable")
-      expect(dto2a.id).to eq("example/secret01")
-      expect(dto2a.owner).to eq("cucumber:policy:example")
-      expect(dto2a.policy).to eq("cucumber:policy:root")
-      expect(dto1b.identifier).to eq("cucumber:user:barrett@example")
-      expect(dto1b.type).to eq("user")
-      expect(dto1b.id).to eq("barrett@example")
-      expect(dto1b.owner).to eq("cucumber:policy:example")
-      expect(dto1b.policy).to eq("cucumber:policy:root")
+describe 'DataObjects::PrimitiveFactory' do
+  context 'when is_sensitive is false' do
+    let(:subject) { DataObjects::PrimitiveFactory.new(is_sensitive: false) }
+
+    context "when passed a database row as a hash" do
+      let(:dto1a) { subject.from_hash(hash: mapped_roles_simple[0]) }
+      let(:dto1b) { subject.from_hash(hash: mapped_roles_simple[1]) }
+      let(:dto2a) { subject.from_hash(hash: mapped_resources_simple[0]) }
+      it 'should return a RoleDTO or a ResourceDTO' do
+        expect(dto1a.class).to be(DataObjects::Role)
+        expect(dto1b.class).to be(DataObjects::Role)
+        expect(dto2a.class).to be(DataObjects::Resource)
+      end
+      it 'should have the correct attributes for identifier, id, type, owner and policy' do
+        expect(dto1a.identifier).to eq("cucumber:policy:example")
+        expect(dto1a.type).to eq("policy")
+        expect(dto1a.id).to eq("example")
+        expect(dto1a.owner).to eq("cucumber:user:admin")
+        expect(dto1a.policy).to eq("cucumber:policy:root")
+        expect(dto2a.identifier).to eq("cucumber:variable:example/secret01")
+        expect(dto2a.type).to eq("variable")
+        expect(dto2a.id).to eq("example/secret01")
+        expect(dto2a.owner).to eq("cucumber:policy:example")
+        expect(dto2a.policy).to eq("cucumber:policy:root")
+        expect(dto1b.identifier).to eq("cucumber:user:barrett@example")
+        expect(dto1b.type).to eq("user")
+        expect(dto1b.id).to eq("barrett@example")
+        expect(dto1b.owner).to eq("cucumber:policy:example")
+        expect(dto1b.policy).to eq("cucumber:policy:root")
+      end
+
+      it 'should build the correct arrays for members, memberships, and restricted_to' do
+        expect(dto1a.members).to eq(["cucumber:user:admin"])
+        expect(dto1a.memberships).to eq(["cucumber:user:barrett@example"])
+        expect(dto1a.restricted_to).to eq([])
+        expect(dto1b.members).to eq(["cucumber:policy:example"])
+        expect(dto1b.memberships).to eq([])
+        expect(dto1b.restricted_to).to eq(["127.0.0.1"])
+      end
+
+      it 'should build the correct hashes for permissions/permitted and annotations' do
+        expect(dto1a.permissions).to eq(Hash(nil))
+        expect(dto1a.annotations).to eq(Hash(nil))
+        expect(dto1b.permissions).to match(a_hash_including("execute" => ["cucumber:variable:example/secret01"],
+                                                            "read" => ["cucumber:variable:example/secret01"]))
+        expect(dto1b.annotations).to match(a_hash_including("key" => "value"))
+      end
     end
 
-    it 'should build the correct arrays for members, memberships, and restricted_to' do
-      expect(dto1a.members).to eq(["cucumber:user:admin"])
-      expect(dto1a.memberships).to eq(["cucumber:user:barrett@example"])
-      expect(dto1a.restricted_to).to eq([])
-      expect(dto1b.members).to eq(["cucumber:policy:example"])
-      expect(dto1b.memberships).to eq([])
-      expect(dto1b.restricted_to).to eq(["127.0.0.1"])
+    context 'when passed a database row as a hash without necessary info' do
+      bad_data_1 = { "resource_id": "cucumber:policy:example", "owner_id": nil, "created_at": nil, "policy_id": nil }
+      bad_data_2 = { "resource_id": nil, "owner_id": nil, "created_at": nil, "policy_id": nil }
+      it 'should raise an error for nil content in required fields' do
+        expect { subject.from_hash(hash: bad_data_1) }.to raise_error(ArgumentError)
+        expect { subject.from_hash(hash: bad_data_2) }.to raise_error(ArgumentError)
+      end
+      bad_data_3 = { "resource_id": "cucumber:policy:example" }
+      it 'should raise an error for missing required fields ' do
+        expect { subject.from_hash(hash: bad_data_3) }.to raise_error(ArgumentError)
+      end
     end
 
-    it 'should build the correct hashes for permissions/permitted and annotations' do
-      expect(dto1a.permissions).to eq(Hash(nil))
-      expect(dto1a.annotations).to eq(Hash(nil))
-      expect(dto1b.permissions).to match(a_hash_including("execute" => ["cucumber:variable:example/secret01"],
-                                                          "read" => ["cucumber:variable:example/secret01"]))
-      expect(dto1b.annotations).to match(a_hash_including("key" => "value"))
+    context 'when passed several role entries as an array of hashes' do
+      let(:dtos) { subject.from_hashes(hashes: mapped_roles_complex) }
+      it 'should return an array of RoleDTO structs' do
+        expect(dtos.class).to be(Array)
+        dtos.each do |dto|
+          expect(dto.class).to be(DataObjects::Role)
+        end
+      end
+      it 'should build identically when called in an array or individually ' do
+        dtos.each_with_index do |dto, idx|
+          expect(dto).to eq(subject.from_hash(hash: mapped_roles_complex[idx]))
+        end
+      end
+      it 'should return an array of RoleDTO structs with the correct attributes' do
+        dtos.each_with_index do |dto, idx|
+          dto_as_hash = dto.to_h
+          expected_hash = roles_dto_complex[idx]
+          expect(dto_as_hash.keys).to match(expected_hash.keys)
+          %w[identifier id type owner policy].each do |key|
+            expect(dto_as_hash[key]).to eq(expected_hash[key])
+          end
+          %w[members memberships].each do |key|
+            expect(dto_as_hash[key]).to match_array(expected_hash[key]) if expected_hash.key?(key)
+          end
+          %w[annotations permissions].each do |key|
+            expect(dto_as_hash[key]).to match(expected_hash[key]) if expected_hash.key?(key)
+          end
+        end
+      end
+    end
+
+    context 'when passed several resource entries as an array of hashes' do
+      let(:dtos) { subject.from_hashes(hashes: mapped_resources_complex) }
+      it 'should return an array of ResourceDTO structs' do
+        expect(dtos.class).to be(Array)
+        dtos.each do |dto|
+          expect(dto.class).to be(DataObjects::Resource)
+        end
+      end
+      it 'should build identically when called in an array or individually ' do
+        dtos.each_with_index do |dto, idx|
+          expect(dto).to eq(subject.from_hash(hash: mapped_resources_complex[idx]))
+        end
+      end
+      it 'should return an array of ResourceDTO structs with the correct attributes' do
+        dtos.each_with_index do |dto, idx|
+          dto_as_hash = dto.to_h
+          expected_hash = resources_dto_complex[idx]
+          expect(dto_as_hash.keys).to match(expected_hash.keys)
+          %w[identifier id type owner policy].each do |key|
+            expect(dto_as_hash[key]).to eq(expected_hash[key])
+          end
+          %w[annotations permitted].each do |key|
+            expect(dto_as_hash[key]).to match(expected_hash[key]) if expected_hash.key?(key)
+          end
+        end
+      end
     end
   end
 
-  context 'when passed a database row as a hash without necessary info' do
-    bad_data_1 = { "resource_id": "cucumber:policy:example", "owner_id": nil, "created_at": nil, "policy_id": nil }
-    bad_data_2 = { "resource_id": nil, "owner_id": nil, "created_at": nil, "policy_id": nil }
-    it 'should raise an error for nil content in required fields' do
-      expect { DataObjects::DTOFactory.create_DTO_from_hash(bad_data_1) }.to raise_error(ArgumentError)
-      expect { DataObjects::DTOFactory.create_DTO_from_hash(bad_data_2) }.to raise_error(ArgumentError)
-    end
-    bad_data_3 = { "resource_id": "cucumber:policy:example" }
-    it 'should raise an error for missing required fields ' do
-      expect { DataObjects::DTOFactory.create_DTO_from_hash(bad_data_3) }.to raise_error(ArgumentError)
-    end
-  end
+  context 'when is_sensitive is true' do
+    context 'and no visible resources are provided' do
+      let(:subject) { DataObjects::PrimitiveFactory.new(is_sensitive: true) }
+      let(:dto) { subject.from_hash(hash: mapped_roles_simple[0]) }
+    
+      it 'should return a SensitivePrimitive with a masked identifer and the correct attributes' do
+        expect(dto.class).to be(DataObjects::SensitivePrimitive)
+        expect(dto.identifier).to eq("cucumber:policy:[REDACTED]")
+        expect(dto.type).to eq("policy")
 
-  context 'when passed several role entries as an array of hashes' do
-    dtos = DataObjects::DTOFactory.create_DTOs(mapped_roles_complex)
-    it 'should return an array of RoleDTO structs' do
-      expect(dtos.class).to be(Array)
-      dtos.each do |dto|
-        expect(dto.class).to be(DataObjects::RoleDTO)
-      end
-    end
-    it 'should build identically when called in an array or individually ' do
-      dtos.each_with_index do |dto, idx|
-        expect(dto).to eq(DataObjects::DTOFactory.create_DTO_from_hash(mapped_roles_complex[idx]))
-      end
-    end
-    it 'should return an array of RoleDTO structs with the correct attributes' do
-      dtos.each_with_index do |dto, idx|
-        dto_as_hash = dto.to_h
-        expected_hash = roles_dto_complex[idx]
-        expect(dto_as_hash.keys).to match(expected_hash.keys)
-        %w[identifier id type owner policy].each do |key|
-          expect(dto_as_hash[key]).to eq(expected_hash[key])
-        end
-        %w[members memberships].each do |key|
-          expect(dto_as_hash[key]).to match_array(expected_hash[key]) if expected_hash.key?(key)
-        end
-        %w[annotations permissions].each do |key|
-          expect(dto_as_hash[key]).to match(expected_hash[key]) if expected_hash.key?(key)
-        end
-      end
-    end
-  end
+        puts dto
 
-  context 'when passed several resource entries as an array of hashes' do
-    dtos = DataObjects::DTOFactory.create_DTOs(mapped_resources_complex)
-    it 'should return an array of ResourceDTO structs' do
-      expect(dtos.class).to be(Array)
-      dtos.each do |dto|
-        expect(dto.class).to be(DataObjects::ResourceDTO)
-      end
-    end
-    it 'should build identically when called in an array or individually ' do
-      dtos.each_with_index do |dto, idx|
-        expect(dto).to eq(DataObjects::DTOFactory.create_DTO_from_hash(mapped_resources_complex[idx]))
-      end
-    end
-    it 'should return an array of ResourceDTO structs with the correct attributes' do
-      dtos.each_with_index do |dto, idx|
-        dto_as_hash = dto.to_h
-        expected_hash = resources_dto_complex[idx]
-        expect(dto_as_hash.keys).to match(expected_hash.keys)
-        %w[identifier id type owner policy].each do |key|
-          expect(dto_as_hash[key]).to eq(expected_hash[key])
+        if dto.respond_to?(:permissions)
+          expect(dto.permissions).to be_empty
         end
-        %w[annotations permitted].each do |key|
-          expect(dto_as_hash[key]).to match(expected_hash[key]) if expected_hash.key?(key)
+    
+        if dto.respond_to?(:annotations)
+          expect(dto.annotations).to be_empty
+        end
+    
+        if dto.respond_to?(:memberships)
+          expect(dto.memberships).to be_empty
+        end
+    
+        if dto.respond_to?(:restricted_to)
+          expect(dto.restricted_to).to be_empty
+        end
+      end
+    end
+
+    context 'when given a role' do
+      let(:subject) { DataObjects::PrimitiveFactory.new(is_sensitive: true, visible_resources: visible_resources) }
+      let(:dto) { subject.from_hash(hash: mapped_roles_simple[1]) }
+
+      context 'when it is visible' do
+        let(:visible_resources) do
+          {
+            "cucumber:user:barrett@example" => true
+          }
+        end
+
+        context 'when its fields are not visible' do
+          it 'its fields are redacted' do
+            expect(dto.identifier).to eq("cucumber:user:barrett@example")
+            expect(dto.owner).to eq("cucumber:policy:[REDACTED]")
+            expect(dto.policy).to eq("cucumber:policy:[REDACTED]")
+            expect(dto.permissions["execute"]).to eq(["cucumber:variable:[REDACTED]"])
+            expect(dto.permissions["read"]).to eq(["cucumber:variable:[REDACTED]"])
+            expect(dto.members).to eq(["cucumber:policy:[REDACTED]"])
+          end
+        end
+
+        context 'when its fields are visible' do
+          let(:visible_resources) do
+            {
+              "cucumber:user:barrett@example" => true,
+              "cucumber:policy:example" => true,
+              "cucumber:policy:root" => true,
+              "cucumber:variable:example/secret01" => true
+            }
+          end
+
+          it 'its fields are redacted' do
+            expect(dto.identifier).to eq("cucumber:user:barrett@example")
+            expect(dto.owner).to eq("cucumber:policy:example")
+            expect(dto.policy).to eq("cucumber:policy:root")
+            expect(dto.permissions["execute"]).to eq(["cucumber:variable:example/secret01"])
+            expect(dto.permissions["read"]).to eq(["cucumber:variable:example/secret01"])
+            expect(dto.members).to eq(["cucumber:policy:example"])
+          end
+        end
+      end
+    end
+
+    context 'when given a resource' do
+      let(:subject) { DataObjects::PrimitiveFactory.new(is_sensitive: true, visible_resources: visible_resources) }
+      let(:dto) { subject.from_hash(hash: mapped_resources_simple[0]) }
+
+      context 'when it is visible' do
+        let(:visible_resources) do
+          {
+            "cucumber:variable:example/secret01" => true
+          }
+        end
+
+        context 'when its fields are not visible' do
+          it 'is not redacted but its fields are' do
+            expect(dto.identifier).to eq("cucumber:variable:example/secret01")
+            expect(dto.owner).to eq("cucumber:policy:[REDACTED]")
+            expect(dto.policy).to eq("cucumber:policy:[REDACTED]")
+            expect(dto.permitted["execute"]).to eq(["cucumber:user:[REDACTED]"])
+            expect(dto.permitted["read"]).to eq(["cucumber:user:[REDACTED]"])
+          end
+        end
+
+        context 'when its fields are visible' do
+          let(:visible_resources) do
+            {
+              "cucumber:user:barrett@example" => true,
+              "cucumber:policy:example" => true,
+              "cucumber:policy:root" => true,
+              "cucumber:variable:example/secret01" => true
+            }
+          end
+
+          it 'is not redacted but its fields are' do
+            expect(dto.identifier).to eq("cucumber:variable:example/secret01")
+            expect(dto.owner).to eq("cucumber:policy:example")
+            expect(dto.policy).to eq("cucumber:policy:root")
+            expect(dto.permitted["execute"]).to eq(["cucumber:user:barrett@example"])
+            expect(dto.permitted["read"]).to eq(["cucumber:user:barrett@example"])
+          end
+        end
+      end
+    end
+
+    context 'and no visible resources are provided' do
+      let(:visible_resources) do
+        {
+          "cucumber:policy:example" => true
+        }
+      end
+      let(:subject) { DataObjects::PrimitiveFactory.new(is_sensitive: true) }
+      let(:dto1a) { subject.from_hash(hash: mapped_roles_simple[0]) }
+    
+      it 'should return a SensitivePrimitive with a masked identifer and the correct attributes' do
+        expect(dto1a.class).to be(DataObjects::SensitivePrimitive)
+        expect(dto1a.identifier).to eq("cucumber:policy:[REDACTED]")
+        expect(dto1a.type).to eq("policy")
+
+        puts dto1a
+
+        if dto1a.respond_to?(:permissions)
+          expect(dto1a.permissions).to be_empty
+        end
+    
+        if dto1a.respond_to?(:annotations)
+          expect(dto1a.annotations).to be_empty
+        end
+    
+        if dto1a.respond_to?(:memberships)
+          expect(dto1a.memberships).to be_empty
+        end
+    
+        if dto1a.respond_to?(:restricted_to)
+          expect(dto1a.restricted_to).to be_empty
         end
       end
     end
