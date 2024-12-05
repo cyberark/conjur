@@ -1134,5 +1134,39 @@ describe 'DataObjects::PrimitiveFactory' do
         end
       end
     end
+
+    context 'when a policy_id is nil' do
+      let(:subject) { DataObjects::PrimitiveFactory.new(is_sensitive: true) }
+      let(:hash) do
+        {
+          "resource_id": "cucumber:policy:example",
+          "owner_id": "cucumber:user:admin",
+          "created_at": "2024-09-19T21:27:33.052+00:00",
+          "policy_id": nil,
+          "memberships": [
+            {
+              "role_id": "cucumber:user:barrett@example",
+              "member_id": "cucumber:policy:example",
+              "admin_option": true,
+              "ownership": true,
+              "policy_id": nil
+            }
+          ],
+          "members": [
+            {
+              "role_id": "cucumber:policy:example",
+              "member_id": "cucumber:user:admin",
+              "admin_option": true,
+              "ownership": true,
+              "policy_id": nil
+            }
+          ]
+        }
+      end
+      
+      it 'should not raise an error' do
+        expect { subject.from_hash(hash: hash) }.not_to raise_error
+      end
+    end
   end
 end
