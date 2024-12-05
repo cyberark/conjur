@@ -186,6 +186,7 @@ module DataObjects
     # When this primitive is sensitive, mask the given id if it's
     # not visible.
     def censor_resource_id(resource_id)
+      return resource_id if resource_id.nil? || resource_id.empty?
       return resource_id unless @is_sensitive
 
       account, type, id = resource_id.split(':')
