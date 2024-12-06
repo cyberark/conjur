@@ -4,44 +4,38 @@ require 'spec_helper'
 
 RSpec.describe(CommandHandler::PolicyDiff) do
   let(:created_diff_response) do
-    ::SuccessResponse.new(
-      DB::Repository::DataObjects::DiffElements.new(
-        diff_type: 'created',
-        annotations: [],
-        permissions: [],
-        resources: [],
-        role_memberships: [],
-        roles: [],
-        credentials: []
-      )
+    DB::Repository::DataObjects::DiffElements.new(
+      diff_type: 'created',
+      annotations: [],
+      permissions: [],
+      resources: [],
+      role_memberships: [],
+      roles: [],
+      credentials: []
     )
   end
 
   let(:deleted_diff_response) do
-    ::SuccessResponse.new(
-      DB::Repository::DataObjects::DiffElements.new(
-        diff_type: 'deleted',
-        annotations: [],
-        permissions: [],
-        resources: [],
-        role_memberships: [],
-        roles: [],
-        credentials: []
-      )
+    DB::Repository::DataObjects::DiffElements.new(
+      diff_type: 'deleted',
+      annotations: [],
+      permissions: [],
+      resources: [],
+      role_memberships: [],
+      roles: [],
+      credentials: []
     )
   end
 
   let(:updated_diff_response) do
-    ::SuccessResponse.new(
-      DB::Repository::DataObjects::DiffElements.new(
-        diff_type: 'updated',
-        annotations: [],
-        permissions: [],
-        resources: [],
-        role_memberships: [],
-        roles: [],
-        credentials: []
-      )
+    DB::Repository::DataObjects::DiffElements.new(
+      diff_type: 'updated',
+      annotations: [],
+      permissions: [],
+      resources: [],
+      role_memberships: [],
+      roles: [],
+      credentials: []
     )
   end
 
@@ -53,29 +47,17 @@ RSpec.describe(CommandHandler::PolicyDiff) do
     end
   end
 
-  let(:policy_repository) do
-    instance_double('DB::Repository::PolicyRepository').tap do |repo|
-      allow(repo).to receive(:find_created_elements)
-        .with(anything)
-        .and_return(created_diff_response)
-      allow(repo).to receive(:find_deleted_elements)
-        .with(anything)
-        .and_return(deleted_diff_response)
-      allow(repo).to receive(:find_original_elements)
-        .with(anything)
-        .and_return(updated_diff_response)
-    end
-  end
-
   let(:policy_diff) do
-    CommandHandler::PolicyDiff.new(policy_repository: policy_repository)
+    CommandHandler::PolicyDiff.new
   end
 
   describe '.call' do
-    let(:diff_schema_name) { 'policy_loader_before_abcdefg' }
-
     it 'returns a response containing a diff' do
-      response = policy_diff.call(diff_schema_name: diff_schema_name)
+      response = policy_diff.call(
+        created: created_diff_response,
+        deleted: deleted_diff_response,
+        original: deleted_diff_response
+      )
       expect(response.success?).to eq(true)
       expect(response.result[:created])
         .to be_a(DB::Repository::DataObjects::DiffElements)
@@ -85,6 +67,308 @@ RSpec.describe(CommandHandler::PolicyDiff) do
         .to be_a(DB::Repository::DataObjects::DiffElements)
       expect(response.result[:final])
         .to be_a(DB::Repository::DataObjects::DiffElements)
+    end
+  end
+
+  describe '#filter_created_or_deleted_resources' do  
+    context 'when a resource exists in all three sets' do
+      let(:created_resource_ids) do
+        { "cucumber:user:alice" => true }
+      end
+  
+      let(:deleted_resource_ids) do
+        { "cucumber:user:alice" => true }
+      end
+  
+      let(:updated_resource_ids) do
+        { "cucumber:user:alice" => true }
+      end
+  
+      let(:resources) do
+        [{ resource_id: "cucumber:user:alice" }]
+      end
+  
+      it 'the resource is not returned in the final result' do
+        response = policy_diff.send(:filter_created_or_deleted_resources, resources, created_resource_ids, deleted_resource_ids, updated_resource_ids)
+        expect(response).to be_a(Array)
+        expect(response.length).to eq(0)
+      end
+    end
+  
+    context 'when a resource exists only in created set' do
+      let(:created_resource_ids) do
+        { "cucumber:user:alice" => true }
+      end
+  
+      let(:deleted_resource_ids) do
+        {}
+      end
+  
+      let(:updated_resource_ids) do
+        {}
+      end
+  
+      let(:resources) do
+        [{ resource_id: "cucumber:user:alice" }]
+      end
+  
+      it 'the resource is returned in the final result' do
+        response = policy_diff.send(:filter_created_or_deleted_resources, resources, created_resource_ids, deleted_resource_ids, updated_resource_ids)
+        expect(response).to be_a(Array)
+        expect(response.length).to eq(1)
+      end
+    end
+  
+    context 'when a resource exists only in deleted set' do
+      let(:created_resource_ids) do
+        {}
+      end
+  
+      let(:deleted_resource_ids) do
+        { "cucumber:user:alice" => true }
+      end
+  
+      let(:updated_resource_ids) do
+        {}
+      end
+  
+      let(:resources) do
+        [{ resource_id: "cucumber:user:alice" }]
+      end
+  
+      it 'the resource is returned in the final result' do
+        response = policy_diff.send(:filter_created_or_deleted_resources, resources, created_resource_ids, deleted_resource_ids, updated_resource_ids)
+        expect(response).to be_a(Array)
+        expect(response.length).to eq(1)
+      end
+    end
+  
+    context 'when a resource exists only in updated set' do
+      let(:created_resource_ids) do
+        {}
+      end
+  
+      let(:deleted_resource_ids) do
+        {}
+      end
+  
+      let(:updated_resource_ids) do
+        { "cucumber:user:alice" => true }
+      end
+  
+      let(:resources) do
+        [{ resource_id: "cucumber:user:alice" }]
+      end
+  
+      it 'the resource is returned in the final result' do
+        response = policy_diff.send(:filter_created_or_deleted_resources, resources, created_resource_ids, deleted_resource_ids, updated_resource_ids)
+        expect(response).to be_a(Array)
+        expect(response.length).to eq(1)
+      end
+    end
+  
+    context 'when a resource exists in created and deleted sets' do
+      let(:created_resource_ids) do
+        { "cucumber:user:alice" => true }
+      end
+  
+      let(:deleted_resource_ids) do
+        { "cucumber:user:alice" => true }
+      end
+  
+      let(:updated_resource_ids) do
+        {}
+      end
+  
+      let(:resources) do
+        [{ resource_id: "cucumber:user:alice" }]
+      end
+  
+      it 'the resource is not returned in the final result' do
+        response = policy_diff.send(:filter_created_or_deleted_resources, resources, created_resource_ids, deleted_resource_ids, updated_resource_ids)
+        expect(response).to be_a(Array)
+        expect(response.length).to eq(0)
+      end
+    end
+  
+    context 'when a resource exists in created and updated sets' do
+      let(:created_resource_ids) do
+        { "cucumber:user:alice" => true }
+      end
+  
+      let(:deleted_resource_ids) do
+        {}
+      end
+  
+      let(:updated_resource_ids) do
+        { "cucumber:user:alice" => true }
+      end
+  
+      let(:resources) do
+        [{ resource_id: "cucumber:user:alice" }]
+      end
+  
+      it 'the resource is not returned in the final result' do
+        response = policy_diff.send(:filter_created_or_deleted_resources, resources, created_resource_ids, deleted_resource_ids, updated_resource_ids)
+        expect(response).to be_a(Array)
+        expect(response.length).to eq(0)
+      end
+    end
+  
+    context 'when a resource exists in deleted and updated sets' do
+      let(:created_resource_ids) do
+        {}
+      end
+  
+      let(:deleted_resource_ids) do
+        { "cucumber:user:alice" => true }
+      end
+  
+      let(:updated_resource_ids) do
+        { "cucumber:user:alice" => true }
+      end
+  
+      let(:resources) do
+        [{ resource_id: "cucumber:user:alice" }]
+      end
+  
+      it 'the resource is returned in the final result' do
+        response = policy_diff.send(:filter_created_or_deleted_resources, resources, created_resource_ids, deleted_resource_ids, updated_resource_ids)
+        expect(response).to be_a(Array)
+        expect(response.length).to eq(1)
+      end
+    end
+  
+    context 'when a resource does not exist in any set' do
+      let(:created_resource_ids) do
+        {}
+      end
+  
+      let(:deleted_resource_ids) do
+        {}
+      end
+  
+      let(:updated_resource_ids) do
+        {}
+      end
+  
+      let(:resources) do
+        [{ resource_id: "cucumber:user:alice" }]
+      end
+  
+      it 'the resource is returned in the final result' do
+        response = policy_diff.send(:filter_created_or_deleted_resources, resources, created_resource_ids, deleted_resource_ids, updated_resource_ids)
+        expect(response).to be_a(Array)
+        expect(response.length).to eq(1)
+      end
+    end
+  end
+
+  describe '#filter_original_resources' do
+    context 'when a resource is marked as deleted but is in the final state' do
+      let(:deleted_resource_ids) do
+        { "cucumber:user:alice" => true }
+      end
+
+      let(:final_resource_ids) do
+        { "cucumber:user:alice" => true }
+      end
+
+      let(:resources) do
+        [{ resource_id: "cucumber:user:alice" }]
+      end
+
+      it 'the resource is returned in the final result' do
+        response = policy_diff.send(:filter_original_resources, resources, deleted_resource_ids, final_resource_ids)
+        expect(response).to be_a(Array)
+        expect(response.length).to eq(1)
+      end
+    end
+
+    context 'when a resource is marked as deleted and is not in the final state' do
+      let(:deleted_resource_ids) do
+        { "cucumber:user:alice" => true }
+      end
+
+      let(:final_resource_ids) do
+        {}
+      end
+
+      let(:resources) do
+        [{ resource_id: "cucumber:user:alice" }]
+      end
+
+      it 'the resource is not returned in the final result' do
+        response = policy_diff.send(:filter_original_resources, resources, deleted_resource_ids, final_resource_ids)
+        expect(response).to be_a(Array)
+        expect(response.length).to eq(0)
+      end
+    end
+
+    context 'when a resource is not marked as deleted but is in the final state' do
+      let(:deleted_resource_ids) do
+        {}
+      end
+
+      let(:final_resource_ids) do
+        { "cucumber:user:alice" => true }
+      end
+
+      let(:resources) do
+        [{ resource_id: "cucumber:user:alice" }]
+      end
+
+      it 'the resource is returned in the final result' do
+        response = policy_diff.send(:filter_original_resources, resources, deleted_resource_ids, final_resource_ids)
+        expect(response).to be_a(Array)
+        expect(response.length).to eq(1)
+      end
+    end
+
+    context 'when a resource is not marked as deleted and is not in the final state' do
+      let(:deleted_resource_ids) do
+        {}
+      end
+
+      let(:final_resource_ids) do
+        {}
+      end
+
+      let(:resources) do
+        [{ resource_id: "cucumber:user:alice" }]
+      end
+
+      it 'the resource is returned in the final result' do
+        response = policy_diff.send(:filter_original_resources, resources, deleted_resource_ids, final_resource_ids)
+        expect(response).to be_a(Array)
+        expect(response.length).to eq(1)
+      end
+    end
+
+    context 'when multiple resources are present with mixed states' do
+      let(:deleted_resource_ids) do
+        { "cucumber:user:alice" => true, "cucumber:user:bob" => true }
+      end
+
+      let(:final_resource_ids) do
+        { "cucumber:user:bob" => true }
+      end
+
+      let(:resources) do
+        [
+          { resource_id: "cucumber:user:alice" },
+          { resource_id: "cucumber:user:bob" },
+          { resource_id: "cucumber:user:charlie" }
+        ]
+      end
+
+      it 'only the appropriate resources are returned in the final result' do
+        response = policy_diff.send(:filter_original_resources, resources, deleted_resource_ids, final_resource_ids)
+        expect(response).to be_a(Array)
+        expect(response.length).to eq(2)
+        expect(response).to include({ resource_id: "cucumber:user:bob" })
+        expect(response).to include({ resource_id: "cucumber:user:charlie" })
+      end
     end
   end
 

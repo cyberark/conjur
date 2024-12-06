@@ -11,16 +11,12 @@ module Loader
     def initialize(
       loader:,
       current_user:,
-      policy_diff: CommandHandler::PolicyDiff.new,
-      policy_repository: DB::Repository::PolicyRepository.new,
       policy_result: ::PolicyResult,
       resource: ::Resource,
       logger: Rails.logger
     )
       @loader = loader
       @current_user = current_user
-      @policy_diff = policy_diff
-      @policy_repository = policy_repository
       @policy_result = policy_result
       @resource = resource
       @logger = logger
@@ -31,8 +27,6 @@ module Loader
       policy_version,
       production_class,
       current_user,
-      policy_diff: CommandHandler::PolicyDiff.new,
-      policy_repository: DB::Repository::PolicyRepository.new,
       policy_result: ::PolicyResult,
       resource: ::Resource,
       logger: Rails.logger
@@ -43,8 +37,6 @@ module Loader
           policy_version: policy_version,
           logger: logger
         ),
-        policy_diff: policy_diff,
-        policy_repository: policy_repository,
         policy_result: policy_result,
         current_user: current_user,
         resource: resource,

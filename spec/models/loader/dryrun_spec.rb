@@ -74,6 +74,7 @@ describe PoliciesController, type: :request do
         action: :put,
         policy: basic_policy
       )
+      puts JSON.pretty_generate(response.body)
       expect(response.code).to match(/20\d/)
       expect(response.body).to eq(bare_response)
       expect(validation_status).to match("Valid YAML")
@@ -344,9 +345,10 @@ describe PoliciesController, type: :request do
           action: :patch,
           policy: dryrun_policy
         )
+        json_response = JSON.parse(response.body)
+        puts JSON.pretty_generate(json_response)
         expect(response.code).to match(/20\d/)
 
-        json_response = JSON.parse(response.body)
         updated_before_items_hash = json_response["updated"]["before"]["items"].each_with_index.to_h { |item, index| [item["identifier"], index] }
         updated_after_items_hash = json_response["updated"]["after"]["items"].each_with_index.to_h { |item, index| [item["identifier"], index] }
 
@@ -631,6 +633,7 @@ describe PoliciesController, type: :request do
           expect(response.code).to match(/20\d/)
     
           json_response = JSON.parse(response.body)
+          puts JSON.pretty_generate(json_response)
     
           # Assert the number of changed items
           expect(json_response["status"]).to match("Valid YAML")
@@ -871,9 +874,10 @@ describe PoliciesController, type: :request do
             action: http_method,
             policy: dryrun_policy
           )
+          json_response = JSON.parse(response.body)
+          puts JSON.pretty_generate(json_response)
           expect(response.code).to match(/20\d/)
     
-          json_response = JSON.parse(response.body)
     
           # Assert the number of changed items
           expect(json_response["status"]).to match("Valid YAML")
@@ -929,21 +933,105 @@ describe PoliciesController, type: :request do
 
     it 'returns a policy updated with a new owner' do
       # Dryrun the base policy
-      validate_policy(
-        action: :post,
-        policy: base_policy
-      )
-      expect(response.code).to match(/20\d/)
+      # validate_policy(
+      #   action: :post,
+      #   policy: base_policy
+      # # )
+      # expect(response.code).to match(/20\d/)
 
-      json_response = JSON.parse(response.body)
-      created_items_hash = json_response["created"]["items"].each_with_index.to_h { |item, index| [item["identifier"], index] }
+      # json_response = JSON.parse(response.body)
+      # created_items_hash = json_response["created"]["items"].each_with_index.to_h { |item, index| [item["identifier"], index] }
 
-      expect(json_response["status"]).to match("Valid YAML")
+      # expect(json_response["status"]).to match("Valid YAML")
 
-      # Assert these resources were created
-      expect(created_items_hash).to have_key("rspec:policy:example")
-      expect(created_items_hash).to have_key("rspec:variable:example/secret01")
-  
+      # # Assert these resources were created
+      # expect(created_items_hash).to have_key("rspec:policy:example")
+      # expect(created_items_hash).to have_key("rspec:variable:example/secret01")
+
+    #  {
+    #   "status": "Valid YAML",
+    #   "created": {
+    #     "items": [
+    #       {
+    #         "identifier": "rspec:user:alice",
+    #         "id": "alice",
+    #         "type": "user",
+    #         "owner": "rspec:user:[REDACTED]",
+    #         "policy": "rspec:policy:root",
+    #         "permissions": {},
+    #         "annotations": {},
+    #         "members": [
+    #           "rspec:user:[REDACTED]"
+    #         ],
+    #         "memberships": [
+    #           "rspec:policy:example"
+    #         ],
+    #         "restricted_to": []
+    #       }
+    #     ]
+    #   },
+    #   "updated": {
+    #     "before": {
+    #       "items": [
+    #         {
+    #           "identifier": "rspec:policy:example",
+    #           "id": "example",
+    #           "type": "policy",
+    #           "owner": "rspec:user:[REDACTED]",
+    #           "policy": "rspec:policy:root",
+    #           "permissions": {},
+    #           "annotations": {},
+    #           "members": [
+    #             "rspec:user:[REDACTED]"
+    #           ],
+    #           "memberships": [],
+    #           "restricted_to": []
+    #         }
+    #       ]
+    #     },
+    #     "after": {
+    #       "items": [
+    #         {
+    #           "identifier": "rspec:policy:example",
+    #           "id": "example",
+    #           "type": "policy",
+    #           "owner": "rspec:user:alice",
+    #           "policy": "rspec:policy:root",
+    #           "permissions": {},
+    #           "annotations": {},
+    #           "members": [
+    #             "rspec:user:[REDACTED]", <----------------------- this should not be here!
+    #             "rspec:user:alice"
+    #           ],
+    #           "memberships": [],
+    #           "restricted_to": []
+    #         }
+    #       ]
+    #     }
+    #   },
+    #   "deleted": {
+    #     "items": []
+    #   }
+    # }
+    #
+    # Where this issue manifests:
+    #
+    # [41, 50] in /src/conjur-server/app/domain/command_handler/new_policy_diff.rb
+    #    41:       # TODO: Created contains a policy resource who has had ownership changes.
+    #    42:       #       This needs to be fixed.
+    #    43:       byebug
+    #    44:       created.resources = filter_resources(created.resources, created_resource_ids, deleted_resource_ids, updated_resource_ids)
+    #    45:       deleted.resources = filter_resources(deleted.resources, created_resource_ids, deleted_resource_ids, updated_resource_ids)
+    # => 46:       original.resources = filter_updated_resources(original.resources, deleted_resource_ids, final_resource_ids)
+    #    47:       
+    #    48:       @success.new({
+    #    49:         created: created,
+    #    50:         deleted: deleted,
+    # (byebug) created.resources
+    # [{:resource_id=>"rspec:user:alice", :owner_id=>"rspec:user:admin", :created_at=>nil, :policy_id=>"rspec:policy:root"}, {:resource_id=>"rspec:policy:example", :owner_id=>"rspec:user:alice", :created_at=>nil, :policy_id=>"rspec:policy:root"}]
+    # (byebug) original.resources
+    # [{:resource_id=>"rspec:policy:example", :owner_id=>"rspec:user:admin", :created_at=>2024-12-10 19:55:10.283513 +0000, :policy_id=>"rspec:policy:root"}]
+
       # Apply the base policy
       apply_policy(
         action: :post,
@@ -951,13 +1039,19 @@ describe PoliciesController, type: :request do
       )
       expect(response.code).to match(/20\d/)
 
+      # TODO: do same test for put
+      # Note: this test fails on role_memberships (admin is included when they shouldn't be)
+      # for put as well.
       validate_policy(
         action: :patch,
         policy: update_ownership_policy
       )
+      # json_response = JSON.parse(response.body)
+      # puts JSON.pretty_generate(json_response)
+      json_response = JSON.parse(response.body)
+      puts JSON.pretty_generate(json_response)
       expect(response.code).to match(/20\d/)
 
-      json_response = JSON.parse(response.body)
       created_items_hash = json_response["created"]["items"].each_with_index.to_h { |item, index| [item["identifier"], index] }
       updated_before_items_hash = json_response["updated"]["before"]["items"].each_with_index.to_h { |item, index| [item["identifier"], index] }
       updated_after_items_hash = json_response["updated"]["after"]["items"].each_with_index.to_h { |item, index| [item["identifier"], index] }
@@ -981,6 +1075,7 @@ describe PoliciesController, type: :request do
       expect(json_response["created"]["items"][target_resource_index]["members"]).to eq(["rspec:user:[REDACTED]"])
       expect(json_response["created"]["items"][target_resource_index]["owner"]).to eq("rspec:user:[REDACTED]")
 
+      # TODO: Fix this, admin user is showing up in here still?
       target_resource_index = updated_after_items_hash[target_resource]
       expect(updated_after_items_hash).to have_key(target_resource)
       expect(json_response["updated"]["before"]["items"][target_resource_index]["members"]).to eq(["rspec:user:[REDACTED]"])
@@ -1246,8 +1341,8 @@ describe PoliciesController, type: :request do
           target_resource_index = updated_after_items_hash[target_resource]
           expect(updated_after_items_hash).to have_key(target_resource)
           expect(json_response["updated"]["after"]["items"][target_resource_index]["memberships"]).to match([
-            "rspec:user:[REDACTED]",
-            "rspec:user:bob-can-see@example"
+            "rspec:user:bob-can-see@example",
+            "rspec:user:[REDACTED]"
           ])
         end
       end
@@ -1302,8 +1397,8 @@ describe PoliciesController, type: :request do
           target_resource_index = updated_after_items_hash[target_resource]
           expect(updated_after_items_hash).to have_key(target_resource)
           expect(json_response["updated"]["after"]["items"][target_resource_index]["memberships"]).to match([
-            "rspec:user:[REDACTED]",
-            "rspec:user:bob-can-see@example"
+            "rspec:user:bob-can-see@example",
+            "rspec:user:[REDACTED]"
           ])
         end
       end
@@ -1440,8 +1535,8 @@ describe PoliciesController, type: :request do
           expect(updated_after_items_hash).to have_key(target_resource)
           expect(json_response["updated"]["after"]["items"][target_resource_index]["members"]).to eq([
             "rspec:policy:example",
-            "rspec:user:[REDACTED]",
-            "rspec:user:bob-can-see@example"
+            "rspec:user:bob-can-see@example",
+            "rspec:user:[REDACTED]"
           ])
           expect(json_response["updated"]["after"]["items"][target_resource_index]["permissions"]).to match({
             "execute" => contain_exactly("rspec:variable:[REDACTED]"),

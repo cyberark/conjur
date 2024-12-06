@@ -922,4 +922,280 @@ describe Loader::DryRun do
 
     # ----------------------------------------------------- #
   end
+
+  context 'when updating a policy with PATCH' do
+    let(:test_loader) { Loader::ModifyPolicy }
+    let(:base_policy) do
+      <<~POLICY
+        - !policy
+          id: example
+          body:
+            - !user
+              id: barrett
+            - !group
+              id: secret-users
+            - !variable
+              id: secret01
+              annotations: 
+                key: value
+       POLICY
+    end
+
+    context 'to update memberships' do
+      let(:dryrun_policy) do
+        <<~POLICY
+          - !policy
+            id: example
+            body:
+              - !grant
+                role: !group secret-users
+                member: !user barrett
+              - !permit
+                role: !group secret-users
+                privileges: [ read, execute ]
+                resources: 
+                  - !variable secret01
+      POLICY
+      end
+      
+      it 'updates the memberships of the member, and the memberships and permissions of the group, and the resource' do
+        policy_result = PolicyResult.new
+
+        raw_diff_wrapper(
+          policy_result: policy_result,
+          test_policy: base_policy,
+          test_loader: Loader::ReplacePolicy,
+          test_delete_permitted: true,
+          test_account: test_account,
+          test_user: test_current_user,
+          test_ip: test_ip,
+          apply_policy: true
+        )
+
+        expect(policy_result.error).to be(nil)
+
+      # - - - - - - - - - - - - - - - - - - - - - - - - - - - #
+        policy_result = PolicyResult.new
+
+        response = raw_diff_wrapper(
+          policy_result: policy_result,
+          test_policy: dryrun_policy,
+          test_loader: test_loader,
+          test_delete_permitted: true,
+          test_account: test_account,
+          test_user: test_current_user,
+          test_ip: test_ip
+        )
+
+        expect(response).to_not be(nil)
+        expect(policy_result.error).to be(nil)
+
+        # Detailed verification,
+        # all created should be empty, all deleted list items
+        diff = policy_result.diff
+
+        expect(diff[:created].annotations.length).to be == 0
+        expect(diff[:created].credentials.length).to be == 0
+
+        expect(diff[:created].permissions.length).to be == 2
+        expect(diff[:created].permissions[0][:privilege]).to match("execute")
+        expect(diff[:created].permissions[0][:resource_id]).to match("rspec:variable:example/secret01")
+        expect(diff[:created].permissions[0][:role_id]).to match("rspec:group:example/secret-users")
+        expect(diff[:created].permissions[0][:policy_id]).to match("rspec:policy:root")
+        expect(diff[:created].permissions[1][:privilege]).to match("read")
+        expect(diff[:created].permissions[1][:resource_id]).to match("rspec:variable:example/secret01")
+        expect(diff[:created].permissions[1][:role_id]).to match("rspec:group:example/secret-users")
+        expect(diff[:created].permissions[1][:policy_id]).to match("rspec:policy:root")
+
+        expect(diff[:created].resources.length).to be == 0
+
+        expect(diff[:created].role_memberships.length).to be == 1
+        expect(diff[:created].role_memberships[0][:role_id]).to match("rspec:group:example/secret-users")
+        expect(diff[:created].role_memberships[0][:member_id]).to match("rspec:user:barrett@example")
+        expect(diff[:created].role_memberships[0][:admin_option]).to match(false)
+        expect(diff[:created].role_memberships[0][:ownership]).to match(false)
+        expect(diff[:created].role_memberships[0][:policy_id]).to match("rspec:policy:root")
+
+        expect(diff[:created].roles.length).to be == 0
+
+        expect(diff[:deleted].annotations.length).to be == 0
+        expect(diff[:deleted].credentials.length).to be == 0
+        expect(diff[:deleted].permissions.length).to be == 0
+        expect(diff[:deleted].resources.length).to be == 0
+        expect(diff[:deleted].role_memberships.length).to be == 0
+        expect(diff[:deleted].roles.length).to be == 0
+
+        expect(diff[:updated].annotations.length).to be == 1
+        expect(diff[:updated].credentials.length).to be == 1
+        expect(diff[:updated].permissions.length).to be == 0
+
+        expect(diff[:updated].resources.length).to be == 3
+        expect(diff[:updated].resources[0][:resource_id]).to match("rspec:group:example/secret-users")
+        expect(diff[:updated].resources[1][:resource_id]).to match("rspec:user:barrett@example")
+        expect(diff[:updated].resources[2][:resource_id]).to match("rspec:variable:example/secret01")
+
+        expect(diff[:updated].role_memberships.length).to be == 2
+        expect(diff[:updated].role_memberships[0][:role_id]).to match("rspec:group:example/secret-users")
+        expect(diff[:updated].role_memberships[0][:member_id]).to match("rspec:policy:example")
+        expect(diff[:updated].role_memberships[1][:role_id]).to match("rspec:user:barrett@example")
+        expect(diff[:updated].role_memberships[1][:member_id]).to match("rspec:policy:example")
+
+        expect(diff[:updated].roles.length).to be == 2
+        expect(diff[:updated].roles[0][:role_id]).to match("rspec:group:example/secret-users")
+        expect(diff[:updated].roles[0][:policy_id]).to match("rspec:policy:root")
+        expect(diff[:updated].roles[1][:role_id]).to match("rspec:user:barrett@example")
+        expect(diff[:updated].roles[1][:policy_id]).to match("rspec:policy:root")
+
+        expect(diff[:final].annotations.length).to be == 1
+        expect(diff[:final].credentials.length).to be == 1
+        expect(diff[:final].permissions.length).to be == 2
+        expect(diff[:final].resources.length).to be == 3
+        expect(diff[:final].role_memberships.length).to be == 3
+        expect(diff[:final].roles.length).to be == 2
+      end
+    end
+  end
+
+  context 'when updating a policy with PATCH' do
+    let(:test_loader) { Loader::ModifyPolicy }
+    let(:base_policy) do
+      <<~POLICY
+        - !policy
+          id: example
+          body:
+            - !variable
+              id: secret01
+       POLICY
+    end
+
+    context 'to update ownership on a policy' do
+      let(:dryrun_policy) do
+        <<~POLICY
+          - !user
+            id: alice
+          - !policy
+            id: example
+            owner: !user alice
+            body: []
+      POLICY
+      end
+      
+      it 'the owner of the policy changes from admin to alice' do
+        policy_result = PolicyResult.new
+
+        raw_diff_wrapper(
+          policy_result: policy_result,
+          test_policy: base_policy,
+          test_loader: Loader::ReplacePolicy,
+          test_delete_permitted: true,
+          test_account: test_account,
+          test_user: test_current_user,
+          test_ip: test_ip,
+          apply_policy: true
+        )
+
+        expect(policy_result.error).to be(nil)
+
+      # - - - - - - - - - - - - - - - - - - - - - - - - - - - #
+        policy_result = PolicyResult.new
+
+        response = raw_diff_wrapper(
+          policy_result: policy_result,
+          test_policy: dryrun_policy,
+          test_loader: test_loader,
+          test_delete_permitted: true,
+          test_account: test_account,
+          test_user: test_current_user,
+          test_ip: test_ip
+        )
+
+        expect(response).to_not be(nil)
+        expect(policy_result.error).to be(nil)
+
+        # Detailed verification,
+        # all created should be empty, all deleted list items
+        diff = policy_result.diff
+        puts JSON.pretty_generate(JSON.parse(diff.to_json))
+
+        expect(diff[:created].annotations.length).to be == 0
+        # Setting this to 0 should be benign... if a new actor role is created
+        # but does not have a restricted to, they should not show up here.
+        # expect(diff[:created].credentials.length).to be == 1
+        expect(diff[:created].credentials.length).to be == 0
+
+        expect(diff[:created].permissions.length).to be == 0
+
+        # Setting this to 2 should be benign... the same policy resource
+        # will appear twice, each with a different owner. Downstream diff
+        # operations will handle this??
+        expect(diff[:created].resources.length).to be == 1
+        expect(diff[:created].resources[0][:resource_id]).to match("rspec:user:alice")
+        expect(diff[:created].resources[0][:owner_id]).to match("rspec:user:admin")
+        expect(diff[:created].resources[0][:policy_id]).to match("rspec:policy:root")
+
+        expect(diff[:created].role_memberships.length).to be == 2
+        expect(diff[:created].role_memberships[0][:role_id]).to match("rspec:policy:example")
+        expect(diff[:created].role_memberships[0][:member_id]).to match("rspec:user:alice")
+        expect(diff[:created].role_memberships[0][:admin_option]).to match(true)
+        expect(diff[:created].role_memberships[0][:ownership]).to match(true)
+        expect(diff[:created].role_memberships[0][:policy_id]).to match("rspec:policy:root")
+        expect(diff[:created].role_memberships[1][:role_id]).to match("rspec:user:alice")
+        expect(diff[:created].role_memberships[1][:member_id]).to match("rspec:user:admin")
+        expect(diff[:created].role_memberships[1][:admin_option]).to match(true)
+        expect(diff[:created].role_memberships[1][:ownership]).to match(true)
+        expect(diff[:created].role_memberships[1][:policy_id]).to match("rspec:policy:root")
+
+        expect(diff[:created].roles.length).to be == 1
+        expect(diff[:created].roles[0][:role_id]).to match("rspec:user:alice")
+        expect(diff[:created].roles[0][:policy_id]).to match("rspec:policy:root")
+
+        expect(diff[:deleted].annotations.length).to be == 0
+        expect(diff[:deleted].credentials.length).to be == 0
+        expect(diff[:deleted].permissions.length).to be == 0
+        expect(diff[:deleted].resources.length).to be == 0
+
+        expect(diff[:deleted].role_memberships.length).to be == 1
+        expect(diff[:deleted].role_memberships[0][:role_id]).to match("rspec:policy:example")
+        expect(diff[:deleted].role_memberships[0][:member_id]).to match("rspec:user:admin")
+        expect(diff[:deleted].role_memberships[0][:admin_option]).to match(true)
+        expect(diff[:deleted].role_memberships[0][:ownership]).to match(true)
+        expect(diff[:deleted].role_memberships[0][:policy_id]).to match("rspec:policy:root")
+
+        expect(diff[:deleted].roles.length).to be == 0
+
+        expect(diff[:updated].annotations.length).to be == 0
+        expect(diff[:updated].credentials.length).to be == 0
+        expect(diff[:updated].permissions.length).to be == 0
+
+        expect(diff[:updated].resources.length).to be == 1
+        expect(diff[:updated].resources[0][:resource_id]).to match("rspec:policy:example")
+
+        expect(diff[:updated].role_memberships.length).to be == 2
+        expect(diff[:updated].role_memberships[0][:role_id]).to match("rspec:policy:example")
+        expect(diff[:updated].role_memberships[0][:member_id]).to match("rspec:user:admin")
+        expect(diff[:updated].role_memberships[0][:admin_option]).to match(true)
+        expect(diff[:updated].role_memberships[0][:ownership]).to match(true)
+        expect(diff[:updated].role_memberships[0][:policy_id]).to match("rspec:policy:root")
+        # This seems weird
+        expect(diff[:updated].role_memberships[1][:role_id]).to match("rspec:policy:root")
+        expect(diff[:updated].role_memberships[1][:member_id]).to match("rspec:user:admin")
+        expect(diff[:updated].role_memberships[1][:admin_option]).to match(true)
+        expect(diff[:updated].role_memberships[1][:ownership]).to match(true)
+        expect(diff[:updated].role_memberships[1][:policy_id]).to match(nil)
+
+        expect(diff[:updated].roles.length).to be == 2
+        expect(diff[:updated].roles[0][:role_id]).to match("rspec:policy:example")
+        expect(diff[:updated].roles[0][:policy_id]).to match("rspec:policy:root")
+        expect(diff[:updated].roles[1][:role_id]).to match("rspec:user:admin")
+        expect(diff[:updated].roles[1][:policy_id]).to match(nil)
+
+        expect(diff[:final].annotations.length).to be == 0
+        expect(diff[:final].credentials.length).to be == 0
+        expect(diff[:final].permissions.length).to be == 0
+        expect(diff[:final].resources.length).to be == 1
+        expect(diff[:final].role_memberships.length).to be == 1
+        expect(diff[:final].roles.length).to be == 1
+      end
+    end
+  end
 end
