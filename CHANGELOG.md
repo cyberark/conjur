@@ -9,7 +9,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
-## [1.21.3] - 2024-12-03
+## [1.21.3] - 2024-12-12
+
+### Fixed
+- Fixed an error when restoring a backup from an old version of Conjur that
+  contained orphaned roles (CNJR-7321)
 
 ### Changed
 - Redact sensitive information in the dryrun REST API response
