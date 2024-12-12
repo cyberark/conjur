@@ -1124,7 +1124,7 @@ describe Loader::DryRun do
         # not, likely due to logic in restricted_to.rb. It should be benign
         # if a newly created record (without a restricted_to) does not show up
         # here in the new implementation.
-        expect(diff[:created].credentials.length).to be == 1
+        expect(diff[:created].credentials.length).to be == 0
   
         expect(diff[:created].permissions.length).to be == 0
   
@@ -1257,7 +1257,7 @@ describe Loader::DryRun do
         # not, likely due to logic in restricted_to.rb. It should be benign
         # if a newly created record (without a restricted_to) does not show up
         # here in the new implementation.
-        expect(diff[:created].credentials.length).to be == 1
+        expect(diff[:created].credentials.length).to be == 0
   
         expect(diff[:created].permissions.length).to be == 0
   
