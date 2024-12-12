@@ -21,13 +21,16 @@ describe Conjur::ConjurConfig do
   it "uses default value if not set by environment variable or config file" do
     expect(subject.trusted_proxies).to eq([])
     expect(subject.telemetry_enabled).to eq(false)
+    expect(subject.authn_jwt_ignore_missing_issuer_claim).to eq(false)
   end
 
   it "reports the attribute source as :defaults" do
-    expect(subject.attribute_sources[:trusted_proxies]).
-      to eq(:defaults)
-    expect(subject.attribute_sources[:telemetry_enabled]).
-      to eq(:defaults)
+    expect(subject.attribute_sources[:trusted_proxies])
+      .to eq(:defaults)
+    expect(subject.attribute_sources[:telemetry_enabled])
+      .to eq(:defaults)
+    expect(subject.attribute_sources[:authn_jwt_ignore_missing_issuer_claim])
+      .to eq(:defaults)
   end
 
   context "with config file" do
@@ -36,6 +39,7 @@ describe Conjur::ConjurConfig do
         trusted_proxies:
           - 1.2.3.4
         telemetry_enabled: true
+        authn_jwt_ignore_missing_issuer_claim: true
       YAML
     end
 
@@ -63,13 +67,16 @@ describe Conjur::ConjurConfig do
     it "reads config value from file" do
       expect(subject.trusted_proxies).to eq(["1.2.3.4"])
       expect(subject.telemetry_enabled).to eq(true)
+      expect(subject.authn_jwt_ignore_missing_issuer_claim).to eq(true)
     end
 
     it "reports the attribute source as :yml" do
-      expect(subject.attribute_sources[:trusted_proxies]).
-        to eq(:yml)
-      expect(subject.attribute_sources[:telemetry_enabled]).
-        to eq(:yml)
+      expect(subject.attribute_sources[:trusted_proxies])
+        .to eq(:yml)
+      expect(subject.attribute_sources[:telemetry_enabled])
+        .to eq(:yml)
+      expect(subject.attribute_sources[:authn_jwt_ignore_missing_issuer_claim])
+        .to eq(:yml)
     end
 
     context "with a config file that is a string value" do
@@ -80,8 +87,8 @@ describe Conjur::ConjurConfig do
       end
 
       it "fails validation" do
-        expect { subject }.
-          to raise_error(Conjur::ConfigValidationError)
+        expect { subject }
+          .to raise_error(Conjur::ConfigValidationError)
       end
     end
 
@@ -94,8 +101,8 @@ describe Conjur::ConjurConfig do
       end
 
       it "fails validation" do
-        expect { subject }.
-          to raise_error(Conjur::ConfigValidationError)
+        expect { subject }
+          .to raise_error(Conjur::ConfigValidationError)
       end
     end
 
@@ -107,8 +114,8 @@ describe Conjur::ConjurConfig do
       end
 
       it "fails validation" do
-        expect { subject }.
-          to raise_error(Conjur::ConfigValidationError)
+        expect { subject }
+          .to raise_error(Conjur::ConfigValidationError)
       end
     end
 
@@ -120,8 +127,8 @@ describe Conjur::ConjurConfig do
       end
 
       it "fails validation" do
-        expect { subject }.
-          to raise_error(Conjur::ConfigValidationError, /syntax error/)
+        expect { subject }
+          .to raise_error(Conjur::ConfigValidationError, /syntax error/)
       end
     end
 
@@ -129,6 +136,7 @@ describe Conjur::ConjurConfig do
       before do
         ENV['CONJUR_TRUSTED_PROXIES'] = "5.6.7.8"
         ENV['CONJUR_TELEMETRY_ENABLED'] = "false"
+        ENV['CONJUR_AUTHN_JWT_IGNORE_MISSING_ISSUER_CLAIM'] = "false"
 
         # Anyway Config caches prefixed env vars at the class level so we must
         # clear the cache to have it pick up the new var with a reload.
@@ -138,6 +146,7 @@ describe Conjur::ConjurConfig do
       after do
         ENV.delete('CONJUR_TRUSTED_PROXIES')
         ENV.delete('CONJUR_TELEMETRY_ENABLED')
+        ENV.delete('CONJUR_AUTHN_JWT_IGNORE_MISSING_ISSUER_CLAIM')
 
         # Clear again to make sure we don't affect future tests.
         Anyway.env.clear
@@ -146,13 +155,16 @@ describe Conjur::ConjurConfig do
       it "overrides the config file value" do
         expect(subject.trusted_proxies).to eq(["5.6.7.8"])
         expect(subject.telemetry_enabled).to eq(false)
+        expect(subject.authn_jwt_ignore_missing_issuer_claim).to eq(false)
       end
 
       it "reports the attribute source as :env" do
-        expect(subject.attribute_sources[:trusted_proxies]).
-          to eq(:env)
-        expect(subject.attribute_sources[:telemetry_enabled]).
-          to eq(:env)
+        expect(subject.attribute_sources[:trusted_proxies])
+          .to eq(:env)
+        expect(subject.attribute_sources[:telemetry_enabled])
+          .to eq(:env)
+        expect(subject.attribute_sources[:authn_jwt_ignore_missing_issuer_claim])
+          .to eq(:env)
       end
     end
 
@@ -173,8 +185,8 @@ describe Conjur::ConjurConfig do
       end
 
       it "overrides the config file value" do
-        expect(subject.trusted_proxies).
-          to eq(["5.6.7.8", "9.10.11.12", "::1"])
+        expect(subject.trusted_proxies)
+          .to eq(["5.6.7.8", "9.10.11.12", "::1"])
       end
     end
   end
@@ -184,31 +196,36 @@ describe Conjur::ConjurConfig do
       {
         authenticators: "invalid-authn",
         trusted_proxies: "boop",
-        telemetry_enabled: "beep"
+        telemetry_enabled: "beep",
+        authn_jwt_ignore_missing_issuer_claim: "boop"
       }
     end
 
     it "raises error when validation fails" do
-      expect { subject }.
-        to raise_error(Conjur::ConfigValidationError)
+      expect { subject }
+        .to raise_error(Conjur::ConfigValidationError)
     end
 
     it "includes the attributes that failed validation" do
-      expect { subject }.
-        to raise_error(/trusted_proxies/)
-      expect { subject }.
-        to raise_error(/authenticators/)
-      expect { subject }.
-        to raise_error(/telemetry_enabled/)
+      expect { subject }
+        .to raise_error(/trusted_proxies/)
+      expect { subject }
+        .to raise_error(/authenticators/)
+      expect { subject }
+        .to raise_error(/telemetry_enabled/)
+      expect { subject }
+        .to raise_error(/authn_jwt_ignore_missing_issuer_claim/)
     end
 
     it "does not include the value that failed validation" do
-      expect { subject }.
-        to_not raise_error(/boop/)
-      expect { subject }.
-        to_not raise_error(/invalid-authn/)
-      expect { subject }.
-        to_not raise_error(/beep/)
+      expect { subject }
+        .to_not raise_error(/boop/)
+      expect { subject }
+        .to_not raise_error(/invalid-authn/)
+      expect { subject }
+        .to_not raise_error(/beep/)
+      expect { subject }
+        .to_not raise_error(/boop/)
     end
   end
 
@@ -264,7 +281,7 @@ describe Conjur::ConjurConfig do
       around do |example|
         with_temp_config_directory do |dir|
           @config_folder = dir
-          FileUtils.chmod(0444, @config_folder)
+          FileUtils.chmod(0o444, @config_folder)
 
           # The tests run as root, so we must drop privilege to test permission
           # checks.
@@ -288,7 +305,7 @@ describe Conjur::ConjurConfig do
         with_temp_config_directory do |dir|
           @config_folder = dir
 
-          FileUtils.chmod(0111, config_folder)
+          FileUtils.chmod(0o111, config_folder)
           FileUtils.rm_rf(config_file)
 
           example.run
@@ -308,9 +325,9 @@ describe Conjur::ConjurConfig do
       around do |example|
         with_temp_config_directory do |dir|
           @config_folder = dir
-          FileUtils.chmod(0555, @config_folder)
+          FileUtils.chmod(0o555, @config_folder)
           FileUtils.touch(config_file)
-          FileUtils.chmod(0000, config_file)
+          FileUtils.chmod(0o000, config_file)
 
           # The tests run as root, so we must drop privilege to test permission
           # checks.
@@ -353,7 +370,7 @@ def with_temp_config_directory
   Anyway::Settings.default_config_path = config_dir
 
   # Call the block
-  yield config_dir
+  yield(config_dir)
 ensure
   # Resete the config directory
   Anyway::Settings.default_config_path = prev_config_dir

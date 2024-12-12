@@ -68,7 +68,8 @@ Feature: JWT Authenticator - Fetch identity from decoded token
     """
     {
       "host":"myapp",
-      "project_id": "myproject"
+      "project_id": "myproject",
+      "iss": "jwks_py"
     }
     """
     And I save my place in the log file
@@ -99,7 +100,8 @@ Feature: JWT Authenticator - Fetch identity from decoded token
     """
     {
       "host":"myapp2",
-      "project_id": "myproject"
+      "project_id": "myproject",
+      "iss": "jwks_py"
     }
     """
     And I save my place in the log file
@@ -116,6 +118,7 @@ Feature: JWT Authenticator - Fetch identity from decoded token
     """
     {
       "project_id": "myproject",
+      "iss": "jwks_py",
       "more-claims":
       {
         "host_claim":"myapp"
@@ -136,7 +139,8 @@ Feature: JWT Authenticator - Fetch identity from decoded token
     Given I am using file "identity-from-decoded-token" and alg "RS256" for remotely issue token:
     """
     {
-      "project_id": "myproject"
+      "project_id": "myproject",
+      "iss": "jwks_py"
     }
     """
     And I save my place in the log file
@@ -167,7 +171,8 @@ Feature: JWT Authenticator - Fetch identity from decoded token
     """
     {
       "host_claim":"sub_policy/host_test_from_token",
-      "project_id": "myproject"
+      "project_id": "myproject",
+      "iss": "jwks_py"
     }
     """
     And I save my place in the log file
@@ -199,7 +204,8 @@ Feature: JWT Authenticator - Fetch identity from decoded token
     """
     {
       "host_claim":"host_test_from_token",
-      "project_id": "myproject"
+      "project_id": "myproject",
+      "iss": "jwks_py"
     }
     """
     And I save my place in the log file
@@ -225,7 +231,8 @@ Feature: JWT Authenticator - Fetch identity from decoded token
           "id": "myapp"
         }
       },
-      "project_id": "myproject"
+      "project_id": "myproject",
+      "iss": "jwks_py"
     }
     """
     And I save my place in the audit log file
@@ -251,7 +258,8 @@ Feature: JWT Authenticator - Fetch identity from decoded token
           }
         }
       ],
-      "project_id": "myproject"
+      "project_id": "myproject",
+      "iss": "jwks_py"
     }
     """
     And I save my place in the audit log file
@@ -276,7 +284,8 @@ Feature: JWT Authenticator - Fetch identity from decoded token
           "project_2"
         ]
       },
-      "project_id": "myproject"
+      "project_id": "myproject",
+      "iss": "jwks_py"
     }
     """
     And I save my place in the audit log file

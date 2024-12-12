@@ -37,7 +37,8 @@ Feature: JWT Authenticator - Configuration Check
     """
     {
       "host":"myapp",
-      "project_id": "myproject"
+      "project_id": "myproject",
+      "iss": "jwks_py"
     }
     """
     And I save my place in the audit log file
@@ -80,7 +81,8 @@ Feature: JWT Authenticator - Configuration Check
     """
     {
       "host":"myapp",
-      "project_id": "myproject"
+      "project_id": "myproject",
+      "iss": "jwks_py"
     }
     """
     And I save my place in the audit log file
@@ -131,7 +133,8 @@ Feature: JWT Authenticator - Configuration Check
     """
     {
       "host":"myapp",
-      "project_id": "myproject"
+      "project_id": "myproject",
+      "iss": "placeholder"
     }
     """
     And I save my place in the audit log file
@@ -415,7 +418,8 @@ Feature: JWT Authenticator - Configuration Check
     """
     {
       "host":"myapp",
-      "project_id": "myproject"
+      "project_id": "myproject",
+      "iss": "jwks_py"
     }
     """
     And I save my place in the log file
@@ -458,7 +462,8 @@ Feature: JWT Authenticator - Configuration Check
     """
     {
       "host":"myapp",
-      "project_id": "myproject"
+      "project_id": "myproject",
+      "iss": "jwks_py"
     }
     """
     And I save my place in the log file

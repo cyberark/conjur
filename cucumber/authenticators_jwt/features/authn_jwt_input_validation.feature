@@ -93,7 +93,8 @@ Feature: JWT Authenticator - Input Validation
     And I am using file "authn-jwt-input-validation" and alg "RS256" for remotely issue token:
     """
     {
-      "project_id": "myproject"
+      "project_id": "myproject",
+      "iss": "jwks_py"
     }
     """
     When I authenticate via authn-jwt with wrong-account account in url

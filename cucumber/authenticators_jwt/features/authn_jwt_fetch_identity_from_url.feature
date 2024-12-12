@@ -69,7 +69,8 @@ Feature: JWT Authenticator - Fetch identity from URL
     And I am using file "identity-from-url" and alg "RS256" for remotely issue token:
     """
     {
-      "project_id": "myproject"
+      "project_id": "myproject",
+      "iss": "jwks_py"
     }
     """
     And I save my place in the log file
@@ -89,7 +90,8 @@ Feature: JWT Authenticator - Fetch identity from URL
     And I am using file "identity-from-url" and alg "RS256" for remotely issue token:
     """
     {
-      "project_id": "myproject"
+      "project_id": "myproject",
+      "iss": "jwks_py"
     }
     """
     And I save my place in the log file
@@ -110,7 +112,8 @@ Feature: JWT Authenticator - Fetch identity from URL
     And I am using file "identity-from-url" and alg "RS256" for remotely issue token:
     """
     {
-      "project_id": "myproject"
+      "project_id": "myproject",
+      "iss": "jwks_py"
     }
     """
     And I save my place in the log file
@@ -130,7 +133,8 @@ Feature: JWT Authenticator - Fetch identity from URL
     And I am using file "identity-from-url" and alg "RS256" for remotely issue token:
     """
     {
-      "project_id": "myproject"
+      "project_id": "myproject",
+      "iss": "jwks_py"
     }
     """
     And I save my place in the log file
@@ -147,7 +151,8 @@ Feature: JWT Authenticator - Fetch identity from URL
     Given I am using file "identity-from-url" and alg "RS256" for remotely issue token:
     """
     {
-      "project_id": "myproject"
+      "project_id": "myproject",
+      "iss": "jwks_py"
     }
     """
     And I save my place in the log file
@@ -174,7 +179,8 @@ Feature: JWT Authenticator - Fetch identity from URL
     And I am using file "identity-from-url" and alg "RS256" for remotely issue token:
     """
     {
-      "project_id": "myproject"
+      "project_id": "myproject",
+      "iss": "jwks_py"
     }
     """
     And I save my place in the log file

@@ -86,7 +86,8 @@ Feature: JWT Authenticator - Security
     """
     {
       "host":"myapp",
-      "project_id": "myproject"
+      "project_id": "myproject",
+      "iss": "jwks_py"
     }
     """
     And I save my place in the log file
