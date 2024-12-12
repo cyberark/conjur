@@ -70,6 +70,21 @@ module CommandHandler
         created_filtered = Set.new(filter_elements(created.send(accessor_method), updated_resource_ids))
         deleted_filtered = Set.new(filter_elements(deleted.send(accessor_method), updated_resource_ids))
         
+        # Since it is possible for two with the same primary keys but with
+        # different fields (columns) to exist across either set. As we're
+        # building the final state, we prefer the record from the "created"
+        # set over the older value in the "updated" (original) set
+        #
+        # For example, when an owner_id is updated, the resource appears in
+        # these two sets (the resource appears in the "created" set with a new
+        # owner_id, and again in the "updated" (original) set with the previous
+        # value.
+        if accessor_method == :resources
+          updated_filtered.reject! do |_updated_hash|
+            created_filtered.any? { |created_hash| updated_resource_ids.key?(created_hash[:resource_id]) }
+          end
+        end
+
         # TODO: this is how admin remains after an ownership change. It
         # is because her role_membership appears in updated
         created_and_updated = updated_filtered | created_filtered

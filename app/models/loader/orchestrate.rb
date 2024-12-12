@@ -145,7 +145,7 @@ module Loader
     end
 
     def create_policy(current_user:)
-      return dryrun_create_policy(current_user) if @dryrun 
+      return dryrun_create_policy(current_user) if @dryrun
 
       setup_db_for_new_policy
       delete_shadowed_and_duplicate_rows
@@ -227,7 +227,7 @@ module Loader
 
     # The order of primary keys is not significant in the query, however, to
     # aid in readability in the case of permissions, we prefer this order.
-    def pks_preferred_order 
+    def pks_preferred_order
       %i[resource_id role_id member_id]
     end
 
@@ -267,7 +267,7 @@ module Loader
 
       release_db_connection
     end
-    
+
     def dryrun_modify_policy(current_user)
       Sequel::Model.db.transaction(savepoint: true) do
         @visible_resource_hash_before = @resource.visible_to(current_user).each_with_object({}) do |obj, hash|
@@ -356,15 +356,15 @@ module Loader
         created_ids = get_identifiers(created_records, key, fields)
         updated_ids = get_identifiers(deleted_records, key, fields)
         deleted_ids = get_identifiers(updated_records, key, fields)
-    
+
         set.merge(created_ids)
         set.merge(updated_ids)
         set.merge(deleted_ids)
       end
-    
+
       identifiers.to_a
     end
-    
+
     def get_identifiers(records, key, fields)
       records[key]&.flat_map { |record| fields.map { |field| record[field] } } || []
     end
@@ -428,12 +428,12 @@ module Loader
 
       # getting newly added roles
       new_roles_sql = <<-SQL
-          SELECT * 
+          SELECT *
           FROM #{schema_name}.roles new_roles
           WHERE NOT EXISTS (
             SELECT 1
             FROM #{primary_schema}.roles public_roles
-            WHERE ( #{join_columns} ) 
+            WHERE ( #{join_columns} )
           );
       SQL
 
@@ -462,10 +462,15 @@ module Loader
       stash_new_roles
       in_primary_schema do
         TABLES.each do |table|
+          model = model_for_table(table)
+
           # Preparation for moving newly added entries from temporary
           # schema to the public schema
-          pk_columns = Array(Sequel::Model(table).primary_key)
+          pk_columns = Array(model.primary_key)
           pk_columns_with_policy_id = pk_columns + [ :policy_id ]
+
+          # Diff data that we're taking out of this operation
+          select_cols = model.columns - (excluded_columns[table] || [])
 
           join_columns = pk_columns_with_policy_id.map do |c|
             "#{table}.#{c} = new_#{table}.#{c}"
@@ -497,7 +502,7 @@ module Loader
               FROM inserted i
               WHERE #{pk_columns.map { |c| "i.#{c} = #{table}.#{c}" }.join(' AND ')}
             ) AND #{join_columns}
-            RETURNING #{table}.*
+            RETURNING #{select_cols.map { |col| "#{table}.#{col}" }.join(', ')}
           )
           SELECT * FROM updated
           UPSERT
@@ -646,14 +651,20 @@ module Loader
 
       # Determine which roles/resources are pending deletion. This is taken
       # from delete_removed.
-      [:resources, :roles].each do |table|
+      TABLES.each do |table|
         model = model_for_table(table)
-        cols = model.columns - (excluded_columns[table] || [])            
+        cols = model.columns - (excluded_columns[table] || [])
         comparison_cols = Array(model.primary_key) + [ :policy_id ]
 
         def comparisons table, comparison_cols, existing_alias, new_alias
           comparison_cols.map do |column|
             "#{existing_alias}#{table}.#{column} = #{new_alias}#{table}.#{column}"
+          end.join(' AND ')
+        end
+
+        def join_comparisons table, comparison_cols, existing_alias, new_alias
+          comparison_cols.map do |column|
+            "#{existing_alias}#{column} = #{new_alias}#{table}.#{column}"
           end.join(' AND ')
         end
 
@@ -665,7 +676,9 @@ module Loader
             ON #{comparisons(table, comparison_cols, 'existing_', 'new_')}
           WHERE existing_#{table}.policy_id = ? AND new_#{table}.#{comparison_cols[0]} IS NULL
         )
-        SELECT #{cols.map { |col| "deleted_records.#{col}" }.join(', ')} FROM deleted_records
+        SELECT #{cols.map { |col| "deleted_from_#{table}.#{col}" }.join(', ')} FROM deleted_records AS deleted_from_#{table}
+          JOIN #{qualify_table(table)} AS existing_#{table}
+          ON #{join_comparisons(table, comparison_cols, "existing_#{table}.", 'deleted_from_')}
         DELETE
       end
 
@@ -679,12 +692,12 @@ module Loader
       # The attributes fetched do not contain the full picture of
       # roles/resources to be deleted on their own, so we merge the two results
       # together.
-      result[:annotations] = temp[:annotations]
-      result[:credentials] = temp[:credentials]
-      result[:permissions] = temp[:permissions]
+      result[:annotations] = (Set.new(temp[:annotations]) | Set.new(result[:annotations])).to_a
+      result[:credentials] = (Set.new(temp[:credentials]) | Set.new(result[:credentials])).to_a
+      result[:permissions] = (Set.new(temp[:permissions]) | Set.new(result[:permissions])).to_a
       result[:resources] = (Set.new(temp[:resources]) | Set.new(result[:resources])).to_a
-      result[:role_memberships] = temp[:role_memberships]
-      result[:credentials] = temp[:credentials]
+      result[:role_memberships] = (Set.new(temp[:role_memberships]) | Set.new(result[:role_memberships])).to_a
+      result[:credentials] = (Set.new(temp[:credentials]) | Set.new(result[:credentials])).to_a
       result[:roles] = (Set.new(temp[:roles]) | Set.new(result[:roles])).to_a
 
       result
@@ -818,14 +831,14 @@ module Loader
       pks = Array(model.primary_key)
       pks = reorder_array(array: pks, preferred_order: pks_preferred_order)
       columns = (TABLE_EQUIVALENCE_COLUMNS[table] + [ :policy_id ]).join(", ")
-    
+
       db[<<-SQL].all
         INSERT INTO #{table} ( #{columns} )
         SELECT #{columns} FROM #{schema_name}.#{table}
         ORDER BY #{pks.map(&:to_s).join(', ')}
         RETURNING *
       SQL
-      
+
     end
 
     # A random schema name.
@@ -893,7 +906,7 @@ module Loader
         resource_ids = deleted_records[:resources].map { |resource| resource[:resource_id] }
       end
 
-      # ... then get all attributes assocaited with it. This is why skipping
+      # ... then get all attributes associated with it. This is why skipping
       # deletion is important!
       implicitly_deleted_rows_by_table = fetch_dependent_attributes(resource_ids)
 
@@ -903,7 +916,7 @@ module Loader
         next unless deleted_records.key?(key) || implicitly_deleted_rows_by_table.key?(key)
 
         hash[key] = Array(deleted_records[key]) + Array(implicitly_deleted_rows_by_table[key])
-      end 
+      end
     end
 
     # Returns the rows related to the roles/resources from the original policy
@@ -911,7 +924,7 @@ module Loader
     def fetch_original_resources(created_records, deleted_records, updated_records)
       identifiers = calculate_updated_resources(created_records, deleted_records, updated_records)
       fetch_dependent_attributes(identifiers, include_roles_and_resources: true)
-      
+
     end
 
     def related_identifiers_schema
@@ -936,7 +949,7 @@ module Loader
       db.search_path = related_identifiers_schema
 
       db.execute("CREATE TABLE #{related_identifiers_schema}.#{related_identifiers_table_name} (resource_id TEXT PRIMARY KEY)")
-    
+
       # We use multi_insert to insert in a batch as opposed to one at a time.
       fully_qualified_table_name = Sequel.qualify(related_identifiers_schema, related_identifiers_table_name)
       data = identifiers.uniq.map { |id| { resource_id: id } }
@@ -997,7 +1010,7 @@ module Loader
     # This logic is nested here to take advantage of the SQL JOINs
     # on the related identifiers table.
     def fetch_dependent_attributes(identifiers, include_roles_and_resources: false)
-      result = 
+      result =
         {
           annotations: [],
           credentials: [],
@@ -1009,21 +1022,21 @@ module Loader
       fully_qualified_related_identifiers_table = "#{related_identifiers_schema}.#{related_identifiers_table_name}"
 
       create_related_identifiers_schema(identifiers)
-    
+
       filtered_tables = attribute_tables(TABLES)
       fks_by_table = fetch_foreign_keys_by_table(filtered_tables)
 
       fks_by_table.each do |table, constraints|
         model = model_for_table(table)
         result[table.to_sym] ||= []
-      
+
         conditions = extract_conditions_from_dependent_tables(constraints)
         next if conditions.empty?
-      
+
         pks = reorder_array(array: Array(model.primary_key), preferred_order: pks_preferred_order)
         cols = model.columns - (excluded_columns[table] || [])
         join_conditions = conditions.map { |constraint_key| "#{related_identifiers_table_name}.resource_id = #{table}.#{constraint_key}" }.join(' OR ')
-      
+
         sql = <<-SQL
           SELECT #{cols.map { |col| "#{table}.#{col}" }.join(', ')}
           FROM #{table}
@@ -1052,7 +1065,7 @@ module Loader
       model = model_for_table(table)
       pks = reorder_array(array: Array(model.primary_key), preferred_order: pks_preferred_order)
       cols = model.columns - (excluded_columns[table] || [])
-  
+
       sql = <<-SQL
         SELECT #{cols.map { |col| "#{table}.#{col}" }.join(', ')}
         FROM #{table}
@@ -1060,7 +1073,7 @@ module Loader
         ORDER BY #{pks.map { |pk| "#{table}.#{pk}" }.join(', ')}
       SQL
       db[sql].all
-      
+
     end
 
     # Loads the records into the temporary schema (since the schema search path
@@ -1171,7 +1184,7 @@ module Loader
         roles: filter_unique_records(created_records[:roles], :roles),
         credentials: filter_unique_records(created_records[:credentials], :credentials)
       )
-      
+
       deleted = @data_object.new(
         diff_type: 'deleted',
         annotations: filter_unique_records(deleted_records[:annotations], :annotations),
@@ -1181,7 +1194,7 @@ module Loader
         roles: filter_unique_records(deleted_records[:roles], :roles),
         credentials: filter_unique_records(deleted_records[:credentials], :credentials)
       )
-      
+
       original = @data_object.new(
         diff_type: 'original',
         annotations: filter_unique_records(original_records[:annotations], :annotations),
@@ -1206,16 +1219,16 @@ module Loader
     def release_db_connection
       Sequel::Model.db.disconnect
     end
-  
+
     # Returns a array of values in the preferred order (if they exist).
     # Missing columns are never included in the result.
     def reorder_array(array:, preferred_order:)
       # Extract the preferred elements that exist in the original array:
       preferred_elements = preferred_order & array
-    
+
       # Extract the remaining elements that are not in the preferred order
       remaining_elements = array - preferred_elements
-    
+
       # Combine the preferred elements and the remaining elements
       preferred_elements + remaining_elements
     end
