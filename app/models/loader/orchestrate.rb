@@ -281,6 +281,10 @@ module Loader
         @all_created_records = fetch_created_rows
         @all_updated_records = upsert_policy_records
 
+        # This does not account for deleted role membership records when a role's
+        # owner changes. Those are accounted for after this transaction completes
+        # and we can compare the new owner membership records to the prior data.
+        @all_deleted_records = dryrun_clean_db
 
         @all_created_records[:credentials] = store_auxiliary_data
         @visible_resource_hash_after = @resource.visible_to(current_user).each_with_object({}) do |obj, hash|
@@ -289,6 +293,11 @@ module Loader
 
         raise Sequel::Rollback
       end
+
+      # Include deleted role owner memberships in the set
+      @all_deleted_records[:role_memberships].concat(
+        deleted_role_owner_memberships(@all_created_records[:role_memberships])
+      )
 
       # It is imperative the rollback above is executed prior to this in order
       # for us to obtain these original records.
@@ -367,6 +376,43 @@ module Loader
 
     def get_identifiers(records, key, fields)
       records[key]&.flat_map { |record| fields.map { |field| record[field] } } || []
+    end
+
+    # This method returns role membership records that were deleted because
+    # they were replaced by a new role membership for a new owner.
+    def deleted_role_owner_memberships(created_role_memberships)
+      # Check to see if there were any role membership owner records created
+      role_owner_memberships_to_check = \
+        created_role_memberships
+          .select { |rm| rm[:ownership] }
+          .map { |rm| rm[:role_id] }
+
+
+      # If there were no created records, then there were no replaced (deleted)
+      # records.
+      return [] unless role_owner_memberships_to_check.any?
+
+      fully_qualified_role_owner_table = "#{role_owner_schema}.#{role_owner_table_name}"
+
+      create_role_owner_schema(role_owner_memberships_to_check)
+
+      # Query for prior owner membership records for the roles that had owner
+      # memberships created. If there are any, these were deleted when they
+      # were replaced and should be returned.
+      model = model_for_table('role_memberships')
+      pks = reorder_array(array: Array(model.primary_key), preferred_order: pks_preferred_order)
+      cols = model.columns - (excluded_columns['role_memberships'] || [])
+      sql = <<-SQL
+        SELECT #{cols.map { |col| "role_memberships.#{col}" }.join(', ')}
+        FROM role_memberships
+        JOIN #{fully_qualified_role_owner_table} ON #{fully_qualified_role_owner_table}.role_id = role_memberships.role_id
+        AND ownership is true
+        ORDER BY #{pks.map { |pk| "role_memberships.#{pk}" }.join(', ')}
+      SQL
+
+      db[sql].all
+    ensure
+      cleanup_role_owner_schema
     end
 
     def fetch_created_rows
@@ -937,6 +983,16 @@ module Loader
       "related_identifiers"
     end
 
+    def role_owner_schema
+      @random ||= Random.new
+      rnd = @random.bytes(8).unpack('h*').first
+      @role_owner_schema ||= "policy_loader_role_owners_#{rnd}"
+    end
+
+    def role_owner_table_name
+      "role_owners"
+    end
+
     # Create a temporary schema used to contain resource_ids. These are used
     # for a more performant JOIN, where the alternative is a slower WHERE IN
     # clause. This is used to derive attribute records related to a
@@ -963,9 +1019,40 @@ module Loader
     def cleanup_related_identifiers_schema
       db.execute("DROP SCHEMA IF EXISTS #{related_identifiers_schema} CASCADE")
     rescue => err
-      @log.error(
+      @logger.error(
         "Failed to cleanup temporary dry-run schema " \
         "'#{related_identifiers_schema}': #{err}"
+      )
+    end
+
+    # Create a temporary schema used to contain resource_ids for created role
+    # owner members. These are used for a more performant JOIN, where the
+    # alternative is a slower WHERE IN clause.
+    def create_role_owner_schema(identifiers)
+      original_search_path = db.search_path
+
+      db.execute("CREATE SCHEMA #{role_owner_schema}")
+
+      db.search_path = role_owner_schema
+
+      db.execute("CREATE TABLE #{role_owner_schema}.#{role_owner_table_name} (role_id TEXT PRIMARY KEY)")
+
+      # We use multi_insert to insert in a batch as opposed to one at a time.
+      fully_qualified_table_name = Sequel.qualify(role_owner_schema, role_owner_table_name)
+      data = identifiers.uniq.map { |id| { role_id: id } }
+      data.each_slice(1000) do |batch|
+        db[fully_qualified_table_name].multi_insert(batch)
+      end
+
+      db.search_path = original_search_path
+    end
+
+    def cleanup_role_owner_schema
+      db.execute("DROP SCHEMA IF EXISTS #{role_owner_schema} CASCADE")
+    rescue => err
+      @logger.error(
+        "Failed to cleanup temporary dry-run schema " \
+        "'#{role_owner_schema}': #{err}"
       )
     end
 
