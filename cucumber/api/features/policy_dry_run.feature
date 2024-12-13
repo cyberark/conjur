@@ -23,23 +23,23 @@ Feature: Dry Run Policies
       kind: password
     - !user
         id: existing-user-for-create
-        annotations: 
+        annotations:
           description: "This is an existing user for the create scenario"
     - !user
         id: existing-user-for-update
-        annotations: 
+        annotations:
           description: "This is an existing user for the update scenario"
     - !variable
         id: existing-variable-for-update
-        annotations: 
+        annotations:
           description: "This is an existing variable for the update scenario"
     - !user
         id: existing-user-for-replace
-        annotations: 
+        annotations:
           description: "This is an existing user for the replace scenario"
     - !variable
         id: existing-variable-for-replace
-        annotations: 
+        annotations:
           description: "This is an existing variable for the replace scenario"
     """
 
@@ -60,7 +60,7 @@ Feature: Dry Run Policies
     - !user bob
     - !user
         id: existing-user-for-create
-        annotations: 
+        annotations:
           new_annotation: "This is a new annotation on an existing user"
     """
     Then the HTTP response status code is 200
@@ -140,10 +140,10 @@ Feature: Dry Run Policies
                 "cucumber:policy:dev"
               ],
               "memberships": [
+                "cucumber:user:bob@dev-db",
                 "cucumber:user:existing-user-for-create@dev-db",
                 "cucumber:user:existing-user-for-replace@dev-db",
-                "cucumber:user:existing-user-for-update@dev-db",
-                "cucumber:user:bob@dev-db"
+                "cucumber:user:existing-user-for-update@dev-db"
               ],
               "restricted_to": []
             },
@@ -206,7 +206,7 @@ Feature: Dry Run Policies
     """
     - !user
         id: existing-user-for-update
-        annotations: 
+        annotations:
           description: "This is an updated description"
     - !group new-group-for-update
     - !grant
@@ -326,10 +326,10 @@ Feature: Dry Run Policies
                 "cucumber:policy:dev"
               ],
               "memberships": [
+                "cucumber:group:dev/db/new-group-for-update",
                 "cucumber:user:existing-user-for-create@dev-db",
                 "cucumber:user:existing-user-for-replace@dev-db",
-                "cucumber:user:existing-user-for-update@dev-db",
-                "cucumber:group:dev/db/new-group-for-update"
+                "cucumber:user:existing-user-for-update@dev-db"
               ],
               "restricted_to": []
             },
@@ -379,7 +379,7 @@ Feature: Dry Run Policies
     """
     - !user
         id: existing-user-for-replace
-        annotations: 
+        annotations:
           description: "This is an updated description"
     - !group new-group-for-replace
     - !grant
@@ -499,8 +499,8 @@ Feature: Dry Run Policies
                 "cucumber:policy:dev"
               ],
               "memberships": [
-                "cucumber:user:existing-user-for-replace@dev-db",
-                "cucumber:group:dev/db/new-group-for-replace"
+                "cucumber:group:dev/db/new-group-for-replace",
+                "cucumber:user:existing-user-for-replace@dev-db"
               ],
               "restricted_to": []
             },
