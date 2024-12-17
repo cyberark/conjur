@@ -2,11 +2,26 @@
 
 Policy Factories are a mechanism for creating custom bits of Conjur Policy and corresponding Conjur secrets in support of some broader outcome, like an authenticator, database, connection, PKI infrastructure, or nearly anything you can dream up.
 
+## Current Functionality
+
+* Ability to template Conjur Resources and creating Resources via an API call.
+
+* Support for:
+  * Policy Factories (Policy Only)
+  * Variable Factories (Policy and Variables)
+  * Factory Pipelines (Set of Factories)
+
+* Support for defining:
+  * Required/optional inputs
+  * Defaults values
+  * Hidden values
+  * Set of valid options
+
 ## Setup
 
 The easiest way to load Policy Factories into Conjur is via:
 
-- [Cyberark Policy Factory CLI](https://github.com/jvanderhoof/policy_factory)
+* [Cyberark Policy Factory CLI](https://github.com/jvanderhoof/policy_factory)
 
 The CLI provides a set of Factories as well as a DSL for writing your own Factories.
 

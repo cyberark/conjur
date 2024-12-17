@@ -6,8 +6,23 @@ require './app/domain/responses'
 module DB
   module Repository
     module DataObjects
+      FactoryPipeline = Struct.new(
+        :name,
+        :factory_type,
+        :classification,
+        :version,
+        :schema,
+        :factories,
+        keyword_init: true
+      ) do
+        def description
+          schema['description'].to_s
+        end
+      end
+
       PolicyFactory = Struct.new(
         :name,
+        :factory_type,
         :classification,
         :version,
         :policy,
@@ -77,7 +92,7 @@ module DB
             versions.max { |a, b| factory_version(a.id) <=> factory_version(b.id) }
           end
           .map do |factory|
-            response = secret_to_data_object(factory)
+            response = secret_to_data_object(factory, context: context)
             response.result if response.success?
           end
           .compact
@@ -174,23 +189,58 @@ module DB
           )
         )
 
-        secret_to_data_object(factory)
+        secret_to_data_object(factory, context: context)
+      end
+
+      def decode_factory(encoded_factory)
+        @success.new(JSON.parse(Base64.decode64(encoded_factory)))
+      rescue => e
+        @logger.error("Error decoding factory: #{e.message}")
+        @failure.new("Failed to decode Factory: '#{id}'", exception: e, status: :service_unavailable)
       end
 
       # This method is public simply for testing purposes. It allows us to convert
       # the encoded factory into a data object.
-      def convert_to_data_object(encoded_factory:, classification:, version:, id:)
-        decoded_factory = JSON.parse(Base64.decode64(encoded_factory))
-        @success.new(
-          @data_object.new(
-            policy: Base64.decode64(decoded_factory['policy']),
-            policy_branch: decoded_factory['policy_branch'],
-            schema: decoded_factory['schema'],
-            version: version,
-            name: id,
-            classification: classification
-          )
-        )
+      def convert_to_data_object(encoded_factory:, classification:, version:, id:, context:)
+        decode_factory(encoded_factory).bind do |decoded_factory|
+          if (factories = decoded_factory.dig('schema', 'factories'))
+            factory_pipeline_schema = {
+              'title' => decoded_factory.dig('schema', 'title'),
+              'description' => decoded_factory.dig('schema', 'description')
+            }
+            factories.each_with_index do |child_factory, index|
+              # common/bare_policy/v1",
+              child_kind, child_id, child_version = child_factory['factory'].split('/')
+
+              response = find(kind: child_kind, id: child_id, account: context.account, context: context, version: child_version)
+
+              factories[index]['factory_obj'] = response.result if response.success?
+            end
+
+            @success.new(
+              DataObjects::FactoryPipeline.new(
+                factory_type: :factory_pipeline,
+                schema: factory_pipeline_schema,
+                factories: factories,
+                version: version,
+                name: id,
+                classification: classification
+              )
+            )
+          else
+            @success.new(
+              @data_object.new(
+                policy: Base64.decode64(decoded_factory['policy']),
+                policy_branch: decoded_factory['policy_branch'],
+                schema: decoded_factory['schema'],
+                version: version,
+                name: id,
+                classification: classification,
+                factory_type: :factory
+              )
+            )
+          end
+        end
       rescue => e
         @logger.error("Error decoding factory: #{e.message}")
         @failure.new("Failed to decode Factory: '#{id}'", exception: e, status: :service_unavailable)
@@ -198,7 +248,7 @@ module DB
 
       private
 
-      def secret_to_data_object(variable)
+      def secret_to_data_object(variable, context:)
         _, _, classification, version, id = variable.resource_id.split('/')
         factory = variable.secret&.value
         if factory
@@ -206,7 +256,8 @@ module DB
             encoded_factory: factory,
             classification: classification,
             version: version,
-            id: id
+            id: id,
+            context: context
           ).bind do |data_object|
             @success.new(data_object)
           end

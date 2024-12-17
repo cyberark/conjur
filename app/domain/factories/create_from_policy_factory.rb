@@ -11,11 +11,12 @@ module Factories
       @failure = ::FailureResponse
     end
 
-    def call(factory_template:, request_body:, account:, context:, request_method: 'POST', identifier: nil)
+    def call(factory_template:, request_body:, account:, context:, request_method: 'POST', identifier: nil, additional_params: {})
       @base.validate_and_transform_request(
         schema: factory_template.schema,
         params: request_body,
-        identifier: identifier
+        identifier: identifier,
+        additional_params: additional_params
       ).bind do |body_variables|
         format_template_variables(variables: body_variables, factory: factory_template).bind do |template_variables|
           # Push rendered policy to the desired policy branch
@@ -37,16 +38,24 @@ module Factories
                 variables_path = ["{{ id }}"]
                 # If the variables are headed for the "root" namespace, we don't want the namespace in the path
                 variables_path.prepend(factory_template.policy_branch) unless policy_load_path == 'root'
-                @base.renderer.render(template: variables_path.join('/'), variables: template_variables)
-                  .bind do |variable_path|
-                    @base.set_factory_variables(
-                      context: context,
-                      schema_variables: factory_template.schema['properties']['variables']['properties'],
-                      factory_variables: template_variables['variables'],
-                      variable_path: variable_path,
-                      account: account
-                    )
+
+                factory_variables = {}.tap do |vars|
+                  template_variables['variables'].each do |variable, value|
+                    @base.renderer.render(template: value, variables: template_variables).bind do |rendered_result|
+                      vars[variable] = rendered_result
+                    end
                   end
+                end
+
+                @base.renderer.render(template: variables_path.join('/'), variables: template_variables).bind do |variable_path|
+                  @base.set_factory_variables(
+                    context: context,
+                    schema_variables: factory_template.schema['properties']['variables']['properties'],
+                    factory_variables: factory_variables,
+                    variable_path: variable_path,
+                    account: account
+                  )
+                end
                   .bind do
                     # If variables were added successfully, return the result so that
                     # we send the policy load response back to the client.

@@ -181,6 +181,23 @@ describe PolicyFactoryResourcesController, type: :request do
     )
     # rubocop:enable Layout/LineLength
 
+    pipeline_factory = Testing::Factories::FactoryBuilder.build_pipeline(
+      version: 'v1',
+      schema: {
+        title: 'Test Pipeline',
+        description: 'Pipeline Description',
+        factories: [
+          {
+            factory: 'core/user/v1',
+            args: { branch: 'test-policy' }
+          }, {
+            factory: 'connections/database/v1',
+            args: { branch: 'test-policy' }
+          }
+        ]
+      }.to_json
+    )
+
     base_policy = <<~TEMPLATE
       - !policy
         id: conjur
@@ -202,12 +219,19 @@ describe PolicyFactoryResourcesController, type: :request do
               description: "Create connections to external services"
             body:
             - !variable v1/database
+
+          - !policy
+            id: pipelines
+            body:
+            - !variable v1/pipeline
+
     TEMPLATE
 
     post('/policies/rspec/policy/root', params: base_policy, env: request_env)
     post('/secrets/rspec/variable/conjur%2Ffactories%2Fcore%2Fv1%2Fuser', params: user_factory, env: request_env)
     post('/secrets/rspec/variable/conjur%2Ffactories%2Fcore%2Fv1%2Fpolicy', params: policy_factory, env: request_env)
     post('/secrets/rspec/variable/conjur%2Ffactories%2Fconnections%2Fv1%2Fdatabase', params: database_factory, env: request_env)
+    post('/secrets/rspec/variable/conjur%2Ffactories%2Fpipelines%2Fv1%2Fpipeline', params: pipeline_factory, env: request_env)
   end
 
   after(:all) do
@@ -217,9 +241,13 @@ describe PolicyFactoryResourcesController, type: :request do
       - !delete
         record: !variable conjur/factories/core/v1/policy
       - !delete
+        record: !variable conjur/factories/pipelines/v1/pipeline
+      - !delete
         record: !policy conjur/factories/core
       - !delete
         record: !policy conjur/factories/connections
+      - !delete
+        record: !policy conjur/factories/pipelines
       - !delete
         record: !policy conjur/factories
       - !delete
@@ -276,6 +304,7 @@ describe PolicyFactoryResourcesController, type: :request do
         Resource['rspec:variable:test-database/username'].delete
         Resource['rspec:variable:test-database/password'].delete
         Role['rspec:policy:test-database'].delete
+        Resource['rspec:policy:test-database'].delete
       end
       it 'creates resources using policy factory' do
         database_params = {
@@ -310,6 +339,44 @@ describe PolicyFactoryResourcesController, type: :request do
         expect(::Resource['rspec:variable:test-database/port']&.secret&.value).to eq('5432')
         expect(::Resource['rspec:variable:test-database/username']&.secret&.value).to eq('foo-bar')
         expect(::Resource['rspec:variable:test-database/password']&.secret&.value).to eq('bar-baz')
+      end
+    end
+    context 'when a factory is a factory pipeline' do
+      after(:each) do
+        Resource['rspec:variable:test-policy/test-database/url'].delete
+        Resource['rspec:variable:test-policy/test-database/port'].delete
+        Resource['rspec:variable:test-policy/test-database/username'].delete
+        Resource['rspec:variable:test-policy/test-database/password'].delete
+        Role['rspec:user:test-database@test-policy'].delete
+        Role['rspec:policy:test-policy/test-database'].delete
+        Resource['rspec:policy:test-policy/test-database'].delete
+        Role['rspec:policy:test-policy'].delete
+        Resource['rspec:policy:test-policy'].delete
+      end
+      before(:each) do
+        # Generate policy to load the pipeline into
+        post('/factory-resources/rspec/core/policy', params: { branch: 'root', id: 'test-policy' }.to_json, env: request_env)
+      end
+      it 'creates resources using factory pipeline' do
+        params = {
+          id: 'test-database',
+          annotations: { foo: 'bar', baz: 'bang' },
+          variables: {
+            url: 'https://foo.bar.baz.com',
+            port: '5432',
+            username: 'foo-bar',
+            # file deepcode ignore HardcodedPassword: This is a test code, not an actual credential
+            password: 'bar-baz'
+          }
+        }
+        post('/factory-resources/rspec/pipelines/v1/pipeline', params: params.to_json, env: request_env)
+
+        # Verify resource values
+        expect(::Role['rspec:user:test-database@test-policy'].id).to eq('rspec:user:test-database@test-policy')
+        expect(::Resource['rspec:variable:test-policy/test-database/url']&.secret&.value).to eq('https://foo.bar.baz.com')
+        expect(::Resource['rspec:variable:test-policy/test-database/port']&.secret&.value).to eq('5432')
+        expect(::Resource['rspec:variable:test-policy/test-database/username']&.secret&.value).to eq('foo-bar')
+        expect(::Resource['rspec:variable:test-policy/test-database/password']&.secret&.value).to eq('bar-baz')
       end
     end
   end

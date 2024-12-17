@@ -130,7 +130,8 @@ module DB
       end
 
       def to_variable_id(account:, policy_path:, variable:)
-        "#{account}:variable:#{[policy_path, variable].compact.join('/')}"
+        variable_path = [policy_path, variable].compact.join('/').split('/').select(&:present?).join('/')
+        "#{account}:variable:#{variable_path}"
       end
 
       def variables_to_resource_ids(account:, variables:, policy_path:)

@@ -2,8 +2,7 @@
 
 require './app/domain/responses'
 
-# This controller is responsible for managing resources created by
-# Policy Factory templates
+# This controller is responsible for managing resources created by Factory templates
 class PolicyFactoryResourcesController < RestController
   include AuthorizeResource
   include PolicyFactory
@@ -22,13 +21,23 @@ class PolicyFactoryResourcesController < RestController
       id: available_params[:id],
       version: available_params[:version]
     ).bind do |factory|
-      Factories::CreateFromPolicyFactory.new.call(
-        account: available_params[:account],
-        factory_template: factory,
-        request_body: request.body.read,
-        context: context,
-        request_method: request.request_method
-      )
+      if factory.factory_type == :factory
+        Factories::CreateFromPolicyFactory.new.call(
+          account: available_params[:account],
+          factory_template: factory,
+          request_body: request.body.read,
+          context: context,
+          request_method: request.request_method
+        )
+      else
+        Factories::CreateFromFactoryPipeline.new.call(
+          account: available_params[:account],
+          factory_template: factory,
+          request_body: request.body.read,
+          context: context,
+          request_method: request.request_method
+        )
+      end
     end
     render_response(response) do
       render(json: response.result, status: :created)

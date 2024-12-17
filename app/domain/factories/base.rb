@@ -95,9 +95,12 @@ module Factories
       @failure.new(errors.flatten, status: :bad_request)
     end
 
-    def validate_and_transform_request(schema:, params:, identifier: nil)
+    def validate_and_transform_request(schema:, params:, identifier: nil, additional_params: {})
       parse_request(params).bind do |parsed_params|
+        parsed_params = additional_params.merge(parsed_params)
         transform_request(params: parsed_params, identifier: identifier).bind do |transformed_params|
+          # put an empty variables set in if we're attempting to set all variables from default values
+          transformed_params['variables'] ||= {} if schema['properties'].key?('variables')
           validate_request(schema: schema, params: transformed_params)
         end
       end
@@ -112,7 +115,7 @@ module Factories
           variable_id = if schema_variable == 'value'
             variable_path.to_s
           else
-            "#{variable_path}/#{schema_variable}"
+            "#{variable_path}/#{schema_variable.dasherize}"
           end
           variables[variable_id] = factory_variables[schema_variable]
         end
