@@ -4,54 +4,53 @@
 module CommandHandler
   class PolicyDiff
     def initialize(
-      policy_repository: DB::Repository::PolicyRepository.new,
       logger: Rails.logger
     )
       @logger = logger
-      @policy_repository = policy_repository
 
       # Defined here for visibility. We shouldn't need to mock these.
       @success = ::SuccessResponse
       @failure = ::FailureResponse
     end
 
-    def call(diff_schema_name:)
-      @policy_repository.find_created_elements(diff_schema_name: diff_schema_name).bind do |created|
-        @policy_repository.find_deleted_elements(diff_schema_name: diff_schema_name).bind do |deleted|
-          @policy_repository.find_original_elements(diff_schema_name: diff_schema_name).bind do |original|
-            # A hash map of resource_ids used to produce the
-            # final diff.
-            created_resource_ids = created.resources.each_with_object({}) do |obj, hash|
-              hash[obj[:resource_id]] = true
-            end
-            deleted_resource_ids = deleted.resources.each_with_object({}) do |obj, hash|
-              hash[obj[:resource_id]] = true
-            end
-            updated_resource_ids = original.resources.each_with_object({}) do |obj, hash|
-              hash[obj[:resource_id]] = true
-            end
-
-            # Derive the final state of the original elements using the
-            # created, deleted, and original elements.
-            final = find_updated_elements(created, deleted, original, updated_resource_ids)
-            final_resource_ids = final.resources.each_with_object({}) do |obj, hash|
-              hash[obj[:resource_id]] = true
-            end
-
-            # Filter out any duplicates that are present in all three states.
-            created.resources = filter_resources(created.resources, created_resource_ids, deleted_resource_ids, updated_resource_ids)
-            deleted.resources = filter_resources(deleted.resources, created_resource_ids, deleted_resource_ids, updated_resource_ids)
-            original.resources = filter_updated_resources(original.resources, deleted_resource_ids, final_resource_ids)
-            
-            return @success.new({
-              created: created,
-              deleted: deleted,
-              updated: original,
-              final: final
-            })
-          end
-        end
+    def call(created:, deleted:, original:)
+      # A hash map of resource_ids used to produce the
+      # final diff.
+      created_resource_ids = created.resources.each_with_object({}) do |obj, hash|
+        hash[obj[:resource_id]] = true
       end
+      deleted_resource_ids = deleted.resources.each_with_object({}) do |obj, hash|
+        hash[obj[:resource_id]] = true
+      end
+      updated_resource_ids = original.resources.each_with_object({}) do |obj, hash|
+        hash[obj[:resource_id]] = true
+      end
+
+      # Derive the final state of the original elements using the
+      # created, deleted, and original elements.
+      final = find_updated_elements(created, deleted, original, updated_resource_ids)
+      final_resource_ids = final.resources.each_with_object({}) do |obj, hash|
+        hash[obj[:resource_id]] = true
+      end
+
+      # Filter out any duplicates that are present in all three states.
+      # This is necessary to prevent duplicates from appearing where they should
+      # not when these diff results are mapped later by the DataObjects::Mapper.
+      # 
+      # Note: the resources field is used to derive roles/resources since a
+      # role is a resource. Therefore we only need to filter resources.
+      # Attributes that are not referenced by a resource are simply ignored by
+      # the DataObjects::Mapper. This will save on cpu cycles.
+      created.resources = filter_created_or_deleted_resources(created.resources, created_resource_ids, deleted_resource_ids, updated_resource_ids)
+      deleted.resources = filter_created_or_deleted_resources(deleted.resources, created_resource_ids, deleted_resource_ids, updated_resource_ids)
+      original.resources = filter_original_resources(original.resources, deleted_resource_ids, final_resource_ids)
+
+      @success.new({
+        created: created,
+        deleted: deleted,
+        updated: original,
+        final: final
+      })
     end
 
     private
@@ -64,12 +63,34 @@ module CommandHandler
       # The final attributes are the union of the updated and created attributes
       # (unique), minus any deleted attributes.
       final = lambda do |accessor_method|
+        # WARNING: the set does comparisions based on the entire row
+        # (hash object) and its contents so if any queries to this data contain
+        # different columns, they will appear as distinct elements!
         updated_filtered = Set.new(filter_elements(updated.send(accessor_method), updated_resource_ids))
         created_filtered = Set.new(filter_elements(created.send(accessor_method), updated_resource_ids))
         deleted_filtered = Set.new(filter_elements(deleted.send(accessor_method), updated_resource_ids))
         
+        # Since it is possible for two with the same primary keys but with
+        # different fields (columns) to exist across either set. As we're
+        # building the final state, we prefer the record from the "created"
+        # set over the older value in the "updated" (original) set
+        #
+        # For example, when an owner_id is updated, the resource appears in
+        # these two sets (the resource appears in the "created" set with a new
+        # owner_id, and again in the "updated" (original) set with the previous
+        # value.
+        if accessor_method == :resources
+          updated_filtered.reject! do |_updated_hash|
+            created_filtered.any? { |created_hash| updated_resource_ids.key?(created_hash[:resource_id]) }
+          end
+        end
+
+        # TODO: this is how admin remains after an ownership change. It
+        # is because her role_membership appears in updated
         created_and_updated = updated_filtered | created_filtered
-        (created_and_updated - deleted_filtered).to_a
+        (created_and_updated - deleted_filtered).to_a.sort_by do |item|
+          %i[resource_id role_id member_id].map { |key| item[key] }
+        end
       end
 
       DB::Repository::DataObjects::DiffElements.new(
@@ -93,32 +114,33 @@ module CommandHandler
       end
     end
 
-    # Remove resources from created/deleted that are
-    # that are present in ALL of created/update/deleted hash. Such a
-    # resource is "updated" and only appear as such. This prevents
-    # duplicates from appearing across these states, and
-    # must occur after the final result has been calculated.
+    # Remove resources from the list that are present in the created set
+    # and also present in either the deleted set or the updated set.
+    # Such a resource is considered "updated" and should not appear in only
+    # the created/deleted set. This prevents duplicates from appearing across
+    # these states.
     #
-    # For example, a duplicate can occur if
-    # a row is updated in-place (e.g. ownership of a resource).
+    # For example, a resource that is created and then immediately updated or
+    # deleted should not appear in the returned list as it is considered an
+    # update.
     #
-    def filter_resources(resources, created_resource_ids, deleted_resource_ids, updated_resource_ids)
+    def filter_created_or_deleted_resources(resources, created_resource_ids, deleted_resource_ids, updated_resource_ids)
       resources.reject do |element|
         created_resource_ids.key?(element[:resource_id]) &&
-          deleted_resource_ids.key?(element[:resource_id]) &&
-          updated_resource_ids.key?(element[:resource_id])
+          (deleted_resource_ids.key?(element[:resource_id]) ||
+          updated_resource_ids.key?(element[:resource_id]))
       end
     end
 
-    # Remove deleted resources from original that are not in the final
-    # state.
+    # Remove deleted resources from the original list that are not in the final
+    # list.
     #
-    # For example, a deleted resource can appear in the original state
-    # while it was deleted in the current policy load. When the final
-    # state is derived, we know whether or not this resource was in fact
-    # deleted or updated.
+    # For example, a resource that is marked as deleted but does not appear in
+    # the final list should be removed from the original list. This ensures
+    # that only resources that are truly deleted or updated are in the
+    # returned list.
     #
-    def filter_updated_resources(resources, deleted_resource_ids, final_resource_ids)
+    def filter_original_resources(resources, deleted_resource_ids, final_resource_ids)
       resources.reject do |element|
         deleted_resource_ids.key?(element[:resource_id]) &&
           !final_resource_ids.key?(element[:resource_id])

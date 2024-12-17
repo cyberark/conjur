@@ -17,7 +17,7 @@
 
 module Loader
   class Validate
-    attr_reader :policy_parse, :policy_version, :create_records, :delete_records, :new_roles, :schemata
+    attr_reader :policy_parse, :policy_version, :create_records, :delete_records, :new_roles, :schemata, :visible_resource_hash_before, :visible_resource_hash_after, :diff
 
     def initialize(
       # Validation doesn't use a version, we're just
@@ -43,6 +43,18 @@ module Loader
     # For the Validate interpreter all of these are no-op because we perform no db operations.
 
     def diff_schema_name
+      # No-op.
+    end
+
+    def create_policy(current_user:)
+      # No-op.
+    end
+
+    def modify_policy(current_user:)
+      # No-op.
+    end
+
+    def replace_policy(current_user:)
       # No-op.
     end
 

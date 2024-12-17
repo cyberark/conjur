@@ -353,50 +353,70 @@ module Loader
     end
 
     class Deny < Deletion
-      def delete!
+      def delete!(destroy: true)
+        deletions = []
         Array(policy_object.resource).each do |r|
           Array(policy_object.privilege).each do |p|
             Array(policy_object.role).each do |m|
               permission = ::Permission[role_id: m.roleid, privilege: p, resource_id: r.resourceid, policy_id: policy_id]
-              permission.destroy if permission
+              if permission
+                deletions << permission
+                permission.destroy if destroy
+              end
             end
           end
         end
+        deletions
       end
     end
-
+    
     class Revoke < Deletion
-      def delete!
+      def delete!(destroy: true)
+        deletions = []
         Array(policy_object.role).each do |r|
           Array(policy_object.member).each do |m|
             membership = ::RoleMembership[role_id: r.roleid, member_id: m.roleid, policy_id: policy_id]
-            membership.destroy if membership
+            if membership
+              deletions << membership
+              membership.destroy if destroy
+            end
           end
         end
+        deletions
       end
     end
-
+    
     class Delete < Deletion
-      def delete!
+      def delete!(destroy: true)
+        deletions = []
         if policy_object.record.respond_to?(:roleid)
-          delete_recursive!(policy_object.record.roleid)
+          deletions.concat(delete_recursive!(policy_object.record.roleid, destroy: destroy))
         end
         if policy_object.record.respond_to?(:resourceid)
-          delete_recursive!(policy_object.record.resourceid)
+          deletions.concat(delete_recursive!(policy_object.record.resourceid, destroy: destroy))
         end
+        deletions
       end
-
-      def delete_recursive!(record_id)
+    
+      def delete_recursive!(record_id, destroy: true)
+        deletions = []
         # First delete all resources and roles that are owned by this resource
         ::Resource.where(owner_id: record_id).each do |resource|
-          delete_recursive!(resource.resource_id)
+          deletions.concat(delete_recursive!(resource.resource_id, destroy: destroy))
         end
-
+    
         # Delete any resource or role that matches the record_id
         resource = ::Resource[record_id]
-        resource.destroy if resource
+        if resource
+          deletions << resource
+          resource.destroy if destroy
+        end
         role = ::Role[record_id]
-        role.destroy if role
+        if role
+          deletions << role
+          role.destroy if destroy
+        end
+        deletions
       end
     end
   end
