@@ -81,7 +81,8 @@ RSpec.describe(Factories::CreateFromPolicyFactory) do
           encoded_factory: user_factory,
           classification: 'core',
           version: 'v1',
-          id: 'user'
+          id: 'user',
+          context: context
         ).result
       end
       context 'when request is invalid' do
@@ -159,7 +160,8 @@ RSpec.describe(Factories::CreateFromPolicyFactory) do
                 encoded_factory: grant_factory,
                 classification: 'core',
                 version: 'v1',
-                id: 'grant'
+                id: 'grant',
+                context: context
               ).result
             end
             context 'when the request body includes a value for the default' do
@@ -206,7 +208,8 @@ RSpec.describe(Factories::CreateFromPolicyFactory) do
               encoded_factory: grant_factory,
               classification: 'core',
               version: 'v1',
-              id: 'grant'
+              id: 'grant',
+              context: context
             ).result
           end
           let(:request) do
@@ -249,7 +252,8 @@ RSpec.describe(Factories::CreateFromPolicyFactory) do
               encoded_factory: permit_factory,
               classification: 'core',
               version: 'v1',
-              id: 'permit'
+              id: 'permit',
+              context: context
             ).result
           end
           let(:request) do
@@ -460,7 +464,8 @@ RSpec.describe(Factories::CreateFromPolicyFactory) do
           encoded_factory: database_factory,
           classification: 'connections',
           version: 'v1',
-          id: 'database'
+          id: 'database',
+          context: context
         ).result
       end
       let(:request) { { id: 'bar', branch: 'foo', variables: variables }.to_json }

@@ -29,8 +29,20 @@ class PolicyFactoriesController < RestController
     )
 
     render_response(response) do
-      presenter = Presenter::PolicyFactories::Show.new(factory: response.result)
+      presenter = Presenter::PolicyFactories::Show.new(
+        factory: format_by_factory_type(response.result)
+      )
       render(json: presenter.present)
+    end
+  end
+
+  private
+
+  def format_by_factory_type(factory)
+    if factory.factory_type == :factory_pipeline
+      Factories::BuildFactoryPipelineSchema.new.build(factory)
+    else
+      factory
     end
   end
 end

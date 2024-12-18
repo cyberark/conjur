@@ -65,7 +65,7 @@ describe PolicyFactoryResourcesController, type: :request do
   end
 
   let(:current_user) { Role.find_or_create(role_id: 'rspec:user:admin') }
-  let(:context) { RequestContext::Context.new(role: current_user, request_ip: '127.0.0.1') }
+  let(:context) { RequestContext::Context.new(role: current_user, request_ip: '127.0.0.1', account: 'rspec') }
 
   describe '#create' do
     context 'when a factory exists' do
@@ -100,7 +100,8 @@ describe PolicyFactoryResourcesController, type: :request do
               schema: decoded_factory['schema'],
               version: 'v1',
               name: 'user',
-              classification: 'core'
+              classification: 'core',
+              factory_type: :factory
             ),
             request_body: { id: 'test-user-1', branch: 'root' }.to_json,
             context: context,

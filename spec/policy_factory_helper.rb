@@ -8,6 +8,17 @@ module Testing
           Base64.strict_encode64(str)
         end
 
+        def build_pipeline(version:, schema:)
+          encode(
+            {
+              version: version,
+              factory_type: 'factory-pipeline',
+              schema: JSON.parse(schema)
+            }.to_json.gsub(/\n/, '')
+          )
+
+        end
+
         def build(version:, policy:, policy_branch:, schema:)
           encode(
             {

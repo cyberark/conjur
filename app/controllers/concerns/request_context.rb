@@ -3,7 +3,7 @@
 module RequestContext
   extend ActiveSupport::Concern
 
-  Context = Struct.new(:role, :request_ip, keyword_init: true)
+  Context = Struct.new(:role, :request_ip, :account, keyword_init: true)
 
   def context
     @context ||= generate_context
@@ -14,6 +14,7 @@ module RequestContext
   def generate_context
     Context.new(
       role: current_user,
+      account: params[:account],
       request_ip: request.ip
     )
   end

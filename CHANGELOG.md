@@ -19,21 +19,24 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Redact sensitive information in the dryrun REST API response
   (Roles and Resources not visible to the authenticated user). CNJR-6547
 
+### Added
+- Adds support for Factory Pipelines
+
 ## [1.21.2] - 2024-11-20
 
 ### Changed
 - Replaces ERB template engine with Mustache when rendering Factory templates
   CNJR-6700
 - Modifies the REST API response of a Policy load command, when called with the
-  `dryRun` parameter, to report policy attributes that would be created by the 
+  `dryRun` parameter, to report policy attributes that would be created by the
   submitted policy.
   CNJR-6999
 - Modifies the REST API response of a Policy load command, when called with the
-  `dryRun` parameter, to report policy attributes that would be updated by the 
+  `dryRun` parameter, to report policy attributes that would be updated by the
   submitted policy.
   CNJR-6109
 - Modifies the REST API response of a Policy load command, when called with the
-  `dryRun` parameter, to report policy attributes that would be deleted by the 
+  `dryRun` parameter, to report policy attributes that would be deleted by the
   submitted policy.
   CNJR-6108
 
