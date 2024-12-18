@@ -251,7 +251,8 @@ Feature: JWT Authenticator - Fetch signing key
     {
       "host":"alice",
       "project_id": "myproject",
-      "email": "alice@conjur.net"
+      "email": "alice@conjur.net",
+      "iss": "jwks_py"
     }
     """
     And I save my place in the log file
@@ -308,7 +309,8 @@ Feature: JWT Authenticator - Fetch signing key
     {
       "host":"alice",
       "project_id": "myproject",
-      "email": "alice@conjur.net"
+      "email": "alice@conjur.net",
+      "iss": "jwks_py"
     }
     """
     And I save my place in the log file
@@ -475,7 +477,8 @@ Feature: JWT Authenticator - Fetch signing key
     """
     {
       "host":"myapp",
-      "project_id": "myproject"
+      "project_id": "myproject",
+      "iss": "jwks_py"
     }
     """
     And I save my place in the audit log file

@@ -49,7 +49,8 @@ Feature: JWT Authenticator - JWKs Basic sanity
     """
     {
       "user":"myapp",
-      "project_id": "myproject"
+      "project_id": "myproject",
+      "iss": "jwks_py"
     }
     """
     And I save my place in the audit log file
@@ -70,7 +71,8 @@ Feature: JWT Authenticator - JWKs Basic sanity
     """
     {
       "host":"non_existing",
-      "project_id": "myproject"
+      "project_id": "myproject",
+      "iss": "jwks_py"
     }
     """
     And I save my place in the log file

@@ -45,6 +45,9 @@ module Authentication
             add_to_jwt_claims_list(mandatory_claim)
           end
           add_to_jwt_claims_list(AUD_CLAIM_NAME) unless audience_value.blank?
+          return if Rails.application.config.conjur_config.authn_jwt_ignore_missing_issuer_claim
+
+          add_to_jwt_claims_list(ISS_CLAIM_NAME) unless issuer_value.blank?
         end
 
         def audience_value
@@ -53,7 +56,17 @@ module Authentication
           )
         end
 
+        def issuer_value
+          @issuer_value ||= @fetch_issuer_value.call(
+            authenticator_input: @authenticator_input
+          )
+        end
+
         def add_optional_claims_to_jwt_claims_list
+          optional_claims = OPTIONAL_CLAIMS.dup
+          if Rails.application.config.conjur_config.authn_jwt_ignore_missing_issuer_claim
+            optional_claims.push(ISS_CLAIM_NAME)
+          end
           OPTIONAL_CLAIMS.each do |optional_claim|
             @logger.debug(LogMessages::Authentication::AuthnJwt::CheckingJwtClaimToValidate.new(optional_claim))
 
@@ -79,9 +92,7 @@ module Authentication
         def claim_value(claim)
           case claim
           when ISS_CLAIM_NAME
-            @fetch_issuer_value.call(
-              authenticator_input: @authenticator_input
-            )
+            issuer_value
           when AUD_CLAIM_NAME
             audience_value
           else

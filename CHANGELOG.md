@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
-## [1.21.3] - 2024-12-12
+## [1.21.3] - 2024-12-16
 
 ### Fixed
 - Fixed an error when restoring a backup from an old version of Conjur that
@@ -18,6 +18,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 - Redact sensitive information in the dryrun REST API response
   (Roles and Resources not visible to the authenticated user). CNJR-6547
+
+### Security
+- Authn-JWT: Deny access when issuer claim is missing from JWT.
+  Can be disabled using the authn_jwt_ignore_missing_issuer_claim config flag.
+  (CONJSE-1920)
 
 ### Added
 - Adds support for Factory Pipelines

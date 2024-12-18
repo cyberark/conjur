@@ -53,6 +53,7 @@ Feature: JWT Authenticator - Validate restrictions
     """
     {
       "host":"myapp",
+      "iss":"jwks_py",
       "project_id": "myproject",
       "additional_data":
       {
@@ -92,6 +93,7 @@ Feature: JWT Authenticator - Validate restrictions
     """
     {
       "host":"myapp",
+      "iss":"jwks_py",
       "project_id": "myproject",
       "aud": "myaud"
     }
@@ -125,6 +127,7 @@ Feature: JWT Authenticator - Validate restrictions
     """
     {
       "host":"myapp",
+      "iss":"jwks_py",
       "project_id": "right-project-id",
       "ref": "right-ref"
     }
@@ -153,6 +156,7 @@ Feature: JWT Authenticator - Validate restrictions
     """
     {
       "host":"myapp",
+      "iss":"jwks_py",
       "project_id": "valid-project-id",
       "ref": "valid-ref"
     }
@@ -186,6 +190,7 @@ Feature: JWT Authenticator - Validate restrictions
     """
     {
       "host":"myapp",
+      "iss":"jwks_py",
       "sub": "valid-sub",
       "project_path":"valid-project-path",
       "project_id": "valid-project-id",
@@ -220,6 +225,7 @@ Feature: JWT Authenticator - Validate restrictions
     """
     {
       "host":"myapp",
+      "iss":"jwks_py",
       "sub": "valid-sub",
       "project_path":"valid-project-path",
       "ref": "valid-ref"
@@ -250,7 +256,8 @@ Feature: JWT Authenticator - Validate restrictions
     And I am using file "authn-jwt-validate-restrictions" and alg "RS256" for remotely issue token:
     """
     {
-      "host":"myapp"
+      "host":"myapp",
+      "iss":"jwks_py"
     }
     """
     And I save my place in the log file
@@ -280,6 +287,7 @@ Feature: JWT Authenticator - Validate restrictions
     """
     {
       "host":"myapp",
+      "iss":"jwks_py",
       "project_id": "myproject"
     }
     """
@@ -315,6 +323,7 @@ Feature: JWT Authenticator - Validate restrictions
     """
     {
       "host":"myapp",
+      "iss":"jwks_py",
       "project_id": "valid-project-id",
       "sub": "valid-sub",
       "namespace_id": "valid-namespace-id",
@@ -357,6 +366,7 @@ Feature: JWT Authenticator - Validate restrictions
     """
     {
       "host":"myapp",
+      "iss":"jwks_py",
       "sub": "valid-sub",
       "actions": ["GET", "POST"]
     }

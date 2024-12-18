@@ -42,7 +42,8 @@ module Conjur
       telemetry_enabled: false,
       policy_factories_path: 'conjur/factories',
       effective_policy_max_depth: 64,
-      effective_policy_max_limit: 100000
+      effective_policy_max_limit: 100000,
+      authn_jwt_ignore_missing_issuer_claim: false
     )
 
     def initialize(
@@ -90,6 +91,7 @@ module Conjur
       invalid << "trusted_proxies" unless trusted_proxies_valid?
       invalid << "authenticators" unless authenticators_valid?
       invalid << "telemetry_enabled" unless telemetry_enabled_valid?
+      invalid << "authn_jwt_ignore_missing_issuer_claim" unless authn_jwt_ignore_missing_issuer_claim_valid?
 
       unless invalid.empty?
         msg = "Invalid values for configured attributes: #{invalid.join(',')}"
@@ -238,6 +240,10 @@ module Conjur
 
     def telemetry_enabled_valid?
       [true, false].include?(telemetry_enabled)
+    end
+
+    def authn_jwt_ignore_missing_issuer_claim_valid?
+      [true, false].include?(authn_jwt_ignore_missing_issuer_claim)
     end
   end
 end

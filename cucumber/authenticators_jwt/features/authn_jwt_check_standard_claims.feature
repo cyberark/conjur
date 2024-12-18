@@ -81,8 +81,8 @@ Feature: JWT Authenticator - Check registered claim
     And I permit host "myapp" to "execute" it
     And I permit host "alice" to "execute" it
 
-  @acceptance
-  Scenario: ONYX-8727: Issuer configured with incorrect value, iss claim not exists in token, 200 ok
+  @negative @acceptance
+  Scenario: CONJSE-1920: Issuer configured with correct value, iss claim not exists in token, 401 Error
     Given I extend the policy with:
     """
     - !policy
@@ -97,7 +97,7 @@ Feature: JWT Authenticator - Check registered claim
     And I set the following conjur variables:
       | variable_id                         | default_value                                             |
       | conjur/authn-jwt/raw/jwks-uri       | http://jwks_py:8090/authn-jwt-check-standard-claims/RS256 |
-      | conjur/authn-jwt/raw/issuer         | incorrect-value                                       |
+      | conjur/authn-jwt/raw/issuer         | http://jwks                                               |
 
     And I am using file "authn-jwt-check-standard-claims" and alg "RS256" for remotely issue token:
     """
@@ -108,11 +108,10 @@ Feature: JWT Authenticator - Check registered claim
     """
     And I save my place in the audit log file
     When I authenticate via authn-jwt with raw service ID
-    Then host "myapp" has been authorized by Conjur
-    And I successfully GET "/secrets/cucumber/variable/test-variable" with authorized user
+    Then the HTTP response status code is 401
     And The following appears in the log after my savepoint:
     """
-    cucumber:host:myapp successfully authenticated with authenticator authn-jwt service cucumber:webservice:conjur/authn-jwt/raw
+    CONJ00091E Failed to validate token: mandatory claim 'iss' is missing.
     """
 
   @negative @acceptance
@@ -133,6 +132,7 @@ Feature: JWT Authenticator - Check registered claim
     """
     {
       "host":"myapp",
+      "iss": "http://jwks",
       "project_id": "myproject",
       "exp": 0
     }
@@ -163,6 +163,7 @@ Feature: JWT Authenticator - Check registered claim
     """
     {
       "host":"myapp",
+      "iss": "http://jwks",
       "project_id": "myproject"
     }
     """
@@ -192,6 +193,7 @@ Feature: JWT Authenticator - Check registered claim
     """
     {
       "host":"myapp",
+      "iss": "jwks_py",
       "project_id": "myproject",
       "iat": 7624377528
     }
@@ -222,6 +224,7 @@ Feature: JWT Authenticator - Check registered claim
     """
     {
       "host":"myapp",
+      "iss": "http://jwks",
       "project_id": "myproject",
       "nbf": 7624377528
     }
@@ -484,6 +487,7 @@ Feature: JWT Authenticator - Check registered claim
     {
       "project_id":"valid-project-id",
       "host":"aud-test-app",
+      "iss": "jwks_py",
       <aud>
     }
     """

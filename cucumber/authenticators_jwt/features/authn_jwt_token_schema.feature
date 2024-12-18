@@ -53,7 +53,8 @@ Feature: JWT Authenticator - Token Schema
     """
     {
       "ref":"valid",
-      "host":"myapp"
+      "host":"myapp",
+      "iss": "jwks_py"
     }
     """
     And I save my place in the log file
@@ -89,7 +90,8 @@ Feature: JWT Authenticator - Token Schema
     {
       "ref":"valid-ref",
       "sub":"valid-sub",
-      "host":"myapp"
+      "host":"myapp",
+      "iss": "jwks_py"
     }
     """
     And I save my place in the log file
@@ -121,7 +123,8 @@ Feature: JWT Authenticator - Token Schema
     """
     {
       "ref":"valid",
-      "host":"myapp"
+      "host":"myapp",
+      "iss": "jwks_py"
     }
     """
     And I save my place in the log file
@@ -151,7 +154,8 @@ Feature: JWT Authenticator - Token Schema
     And I am using file "authn-jwt-token-schema" and alg "RS256" for remotely issue token:
     """
     {
-      "host":"myapp"
+      "host":"myapp",
+      "iss": "jwks_py"
     }
     """
     And I save my place in the log file
@@ -181,7 +185,8 @@ Feature: JWT Authenticator - Token Schema
     And I am using file "authn-jwt-token-schema" and alg "RS256" for remotely issue token:
     """
     {
-      "host":"myapp"
+      "host":"myapp",
+      "iss": "jwks_py"
     }
     """
     And I save my place in the log file
@@ -213,7 +218,8 @@ Feature: JWT Authenticator - Token Schema
     And I am using file "authn-jwt-token-schema" and alg "RS256" for remotely issue token:
     """
     {
-      "host":"myapp"
+      "host":"myapp",
+      "iss": "jwks_py"
     }
     """
     And I save my place in the log file
@@ -248,7 +254,8 @@ Feature: JWT Authenticator - Token Schema
     """
     {
       "ref":"valid",
-      "host":"myapp"
+      "host":"myapp",
+      "iss": "jwks_py"
     }
     """
     And I save my place in the log file
@@ -280,7 +287,8 @@ Feature: JWT Authenticator - Token Schema
     {
       "sub":"valid-sub",
       "ref":"valid-ref",
-      "host":"myapp"
+      "host":"myapp",
+      "iss": "jwks_py"
     }
     """
     And I save my place in the log file
@@ -342,6 +350,7 @@ Feature: JWT Authenticator - Token Schema
     """
     {
       "host":"myapp",
+      "iss": "jwks_py",
       "project_id": "valid-project",
       "namespace_id": "valid-namespace"
     }
@@ -376,6 +385,7 @@ Feature: JWT Authenticator - Token Schema
     """
     {
       "host":"myapp",
+      "iss": "jwks_py",
       "project_id": "valid-project",
       "ref": "valid-branch"
     }
@@ -405,6 +415,7 @@ Feature: JWT Authenticator - Token Schema
     """
     {
       "host":"myapp",
+      "iss": "jwks_py",
       "ref": "valid-branch"
     }
     """
@@ -450,6 +461,7 @@ Feature: JWT Authenticator - Token Schema
     """
     {
       "host":"myapp",
+      "iss": "jwks_py",
       "ref": "valid-branch"
     }
     """
@@ -482,7 +494,8 @@ Feature: JWT Authenticator - Token Schema
     And I am using file "authn-jwt-token-schema" and alg "RS256" for remotely issue token:
     """
     {
-      "host":"myapp"
+      "host":"myapp",
+      "iss": "jwks_py"
     }
     """
     And I save my place in the log file
@@ -513,6 +526,7 @@ Feature: JWT Authenticator - Token Schema
     """
     {
       "host":"myapp",
+      "iss": "jwks_py",
       "sub":"mysub",
       "ref":"mybranch"
     }
@@ -545,7 +559,8 @@ Feature: JWT Authenticator - Token Schema
     """
     {
       "ref":"valid",
-      "host":"myapp"
+      "host":"myapp",
+      "iss": "jwks_py"
     }
     """
     And I successfully set authn-jwt "enforced-claims" variable to value "ref"
@@ -582,6 +597,7 @@ Feature: JWT Authenticator - Token Schema
     """
     {
       "host":"myapp",
+      "iss": "jwks_py",
       "claim.name": "claim.name.value",
       "claim.ant...": "claim.ant...value",
       "claim_name": "claim_name_value"
@@ -616,6 +632,7 @@ Feature: JWT Authenticator - Token Schema
     """
     {
       "host":"myapp",
+      "iss": "jwks_py",
       "sub":"mysub",
       "ref":"mybranch"
     }
@@ -655,6 +672,7 @@ Feature: JWT Authenticator - Token Schema
     """
     {
       "host":"myapp",
+      "iss": "jwks_py",
       "sub":"mysub",
       "ref":"mybranch"
     }
@@ -692,7 +710,8 @@ Feature: JWT Authenticator - Token Schema
     """
     {
       "ref":"valid",
-      "host":"myapp"
+      "host":"myapp",
+      "iss": "jwks_py"
     }
     """
     And I save my place in the log file
@@ -724,7 +743,8 @@ Feature: JWT Authenticator - Token Schema
     """
     {
       "ref":"valid",
-      "host":"myapp"
+      "host":"myapp",
+      "iss": "jwks_py"
     }
     """
     And I save my place in the log file
@@ -755,6 +775,7 @@ Feature: JWT Authenticator - Token Schema
     """
     {
       "host":"myapp",
+      "iss": "jwks_py",
       "ref": "valid-ref"
     }
     """
@@ -830,6 +851,7 @@ Feature: JWT Authenticator - Token Schema
     """
     {
       "host":"myapp",
+      "iss": "jwks_py",
       "ref": "valid-ref"
     }
     """
@@ -891,7 +913,8 @@ Feature: JWT Authenticator - Token Schema
     """
     {
       "conjur.org/enforced-property":"valid",
-      "conjur.org/host-property":"myapp-01"
+      "conjur.org/host-property":"myapp-01",
+      "iss":"jwks_py"
     }
     """
     And I save my place in the log file
@@ -926,7 +949,8 @@ Feature: JWT Authenticator - Token Schema
       "google":{
         "claim":"valid"
       },
-      "host":"myapp"
+      "host":"myapp",
+      "iss":"jwks_py"
     }
     """
     And I save my place in the log file
@@ -960,7 +984,8 @@ Feature: JWT Authenticator - Token Schema
       "google":{
         "claim":"not_valid"
       },
-      "host":"myapp"
+      "host":"myapp",
+      "iss":"jwks_py"
     }
     """
     And I save my place in the log file
@@ -996,7 +1021,8 @@ Feature: JWT Authenticator - Token Schema
       "google":{
         "claim":"valid_claim"
       },
-      "host":"myapp"
+      "host":"myapp",
+      "iss":"jwks_py"
     }
     """
     And I save my place in the log file
@@ -1030,7 +1056,8 @@ Feature: JWT Authenticator - Token Schema
       "google":{
         "claim":"valid"
       },
-      "host":"myapp"
+      "host":"myapp",
+      "iss":"jwks_py"
     }
     """
     And I save my place in the log file
