@@ -23,6 +23,13 @@ describe StatusController, :type => :controller do
           "Version #{ENV["CONJUR_VERSION_DISPLAY"]}".strip
         )
       end
+
+      it 'includes the version in JSON' do
+        get :index, format: :json
+        expect(response.body).to include(
+          "\"version\":\"#{ENV["CONJUR_VERSION_DISPLAY"]}\"".strip
+        )
+      end
     end
   end
 end

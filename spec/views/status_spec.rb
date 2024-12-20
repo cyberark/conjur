@@ -9,4 +9,18 @@ RSpec.describe("status/index") do
 
     expect(rendered).to include('Conjur Status')
   end
+
+  it "includes the version number" do
+    render
+
+    version = File.read(File.expand_path("../../VERSION", File.dirname(__FILE__)))
+    expect(rendered).to include("Version #{version}")
+  end
+
+  it "includes the version number in JSON" do
+    render template: "status/index", formats: [:json]
+
+    version = File.read(File.expand_path("../../VERSION", File.dirname(__FILE__)))
+    expect(rendered).to include("\"version\":\"#{version}\"")
+  end
 end

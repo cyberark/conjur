@@ -25,6 +25,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   (CONJSE-1920)
 
 ### Added
+- Add JSON support for the `/` endpoint that returns the Conjur version
+  (CNJR-7245)
+
+### Added
 - Adds support for Factory Pipelines
 
 ## [1.21.2] - 2024-11-20
