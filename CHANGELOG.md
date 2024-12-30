@@ -23,6 +23,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Authn-JWT: Deny access when issuer claim is missing from JWT.
   Can be disabled using the authn_jwt_ignore_missing_issuer_claim config flag.
   (CONJSE-1920)
+- Update nokogiri to 1.16.5 to address CVE-2024-34459.
+  CONJSE-1923
+- Update puma to 6.4.3 to address CVE-2024-45614.
+  CONJSE-1923
+- Update openid_connect to 2.3.1 to address CVE-2023-51774 in json-jwt.
+  CONJSE-1923
+- Update rails to 6.1.7.10 to resolve: rails-html-sanitizer to resolve
+  CVE-2024-53986, CVE-2024-53987, and CVE-2024-53988, and actionpack to resolve
+  CVE-2024-54133.
+  CONJSE-1923
 
 ### Added
 - Add JSON support for the `/` endpoint that returns the Conjur version
