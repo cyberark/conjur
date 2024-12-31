@@ -234,8 +234,8 @@ function copyConjurPolicies() {
   # Avoid using kubectl cp because it requires the `tar` command to be
   # installed on the source and destination pods. Instead, use `kubectl exec`
   # to write the policy file to the destination pod.
-  kubectl exec "$cli_pod" -- mkdir /policies
-  kubectl exec -i "$cli_pod" -- sh -c "cat - > /policies/policy.${TEMPLATE_TAG}yml" < ./dev/policies/policy.${TEMPLATE_TAG}yml
+  kubectl exec "$cli_pod" -- mkdir /tmp/policies
+  kubectl exec -i "$cli_pod" -- sh -c "cat - > /tmp/policies/policy.${TEMPLATE_TAG}yml" < ./dev/policies/policy.${TEMPLATE_TAG}yml
 }
 
 function loadConjurPolicies() {
@@ -250,7 +250,7 @@ function loadConjurPolicies() {
 
   # load policies
   wait_for_it 300 "kubectl exec $cli_pod -- \
-    conjur policy load --branch root --file /policies/policy.${TEMPLATE_TAG}yml"
+    conjur policy load --branch root --file /tmp/policies/policy.${TEMPLATE_TAG}yml"
 
   # init ca certs
   # kubectl wait not needed -- already done in launchConjurMaster.
