@@ -50,7 +50,7 @@ module Authentication
               args[:verify_iss] = true
             end
             if audience.present?
-              args[:aud] = issuer
+              args[:aud] = audience
               args[:verify_aud] = true
             end
           end
