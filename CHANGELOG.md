@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
+## [1.21.4] - 2025-01-13
+
+### Fixed
+- Attempt to authenticate using the built-in authenticator (`authn`) with a GET
+  request now results in a `404` response, rather than logging an authenticator
+  not enabled message. CNJR-5854
+
 ## [1.21.3] - 2024-12-16
 
 ### Fixed

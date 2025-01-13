@@ -37,8 +37,10 @@ Rails.application.routes.draw do
           post '/:authenticator(/:service_id)/:account/:id/authenticate' => 'authenticate#authenticate'
         end
 
-        # New OIDC endpoint
-        get '/:authenticator(/:service_id)/:account/authenticate' => 'authenticate#authenticate_via_get'
+        # New OIDC endpoint for code redirect authentication
+        constraints authenticator: /authn-oidc/ do
+          get '/:authenticator(/:service_id)/:account/authenticate' => 'authenticate#authenticate_via_get'
+        end
 
         post '/authn-gcp/:account/authenticate' => 'authenticate#authenticate_gcp'
         post '/authn-oidc(/:service_id)/:account/authenticate' => 'authenticate#authenticate_oidc'
