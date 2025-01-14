@@ -24,7 +24,7 @@ describe AuthenticateController, :type => :request do
         expect(response.body).to eq(api_key)
       end
     end
-    
+
     context "without authentication" do
       it "is unauthorized" do
         post(authenticate_url)
@@ -64,7 +64,7 @@ describe AuthenticateController, :type => :request do
 
   describe "#authenticate" do
     include_context "create user"
-    
+
     RSpec::Matchers.define(:have_valid_token_for) do |login|
       match do |response|
         expect(response).to be_ok
@@ -74,12 +74,12 @@ describe AuthenticateController, :type => :request do
         expect(token.claims).to have_key('iat')
       end
     end
-    
+
     def invoke
       payload = { 'RAW_POST_DATA' => the_user.credentials.api_key }
       post(authenticate_url, env: payload)
     end
-    
+
     context "with api key" do
       context 'when API key is valid' do
         it "succeeds" do
@@ -98,6 +98,32 @@ describe AuthenticateController, :type => :request do
 
       it "is fast", :performance do
         expect{ invoke }.to handle(30).requests_per_second
+      end
+    end
+  end
+
+  context "when incorrectly using GET method" do
+    include_context "create user"
+
+    it "does not route" do
+      payload = { 'RAW_POST_DATA' => the_user.credentials.api_key }
+
+      expect do
+      get(authenticate_url, env: payload)
+      end.to raise_error(ActionController::RoutingError, /No route matches \[GET\]/)
+    end
+
+    it "does not log that the authenticator is not enabled" do
+      allow(Rails.logger).to receive(:info)
+      payload = { 'RAW_POST_DATA' => the_user.credentials.api_key }
+
+      expect(Rails.logger).not_to receive(:info).with(/is not enabled/)
+
+      begin
+        get(authenticate_url, env: payload)
+      rescue ActionController::RoutingError
+        # This error is expected, we want to ensure the log doesn't contain
+        # the misleading message.
       end
     end
   end
