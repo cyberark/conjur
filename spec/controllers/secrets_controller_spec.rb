@@ -134,6 +134,8 @@ describe SecretsController, type: :request do
     #
     # This is not specific to this controller.
     context 'when you do not have write privlages to the database'  do
+      let(:secret) { SecureRandom.hex(8) } # assure the create will be called
+
       before do
         allow(Secret)
           .to receive(:create)
@@ -166,6 +168,27 @@ describe SecretsController, type: :request do
       load_secret
       expect(response.code).to eq("201")
     end
+
+    it 'should not increase version when value did not change' do
+      allow(Secret)
+        .to receive(:create)
+        .once
+      load_secret
+      load_secret
+    end
+
+    context 'secrets version increases' do
+      let(:secret) { SecureRandom.hex(8) }
+
+      it 'when value did change' do
+        allow(Secret)
+          .to receive(:create)
+          .twice
+        load_secret
+        load_secret
+      end
+    end
+
   end
 
   describe '#show' do
