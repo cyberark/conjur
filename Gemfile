@@ -23,6 +23,7 @@ gem 'nokogiri', '>= 1.16.5'
 gem 'puma', '~> 6', '>= 6.4.3'
 gem 'rack', '~> 2.2', '>= 2.2.8.1'
 gem 'rails', '~> 6.1', '>= 6.1.7.9'
+gem 'concurrent-ruby', '!= 1.3.5'
 gem 'rake'
 
 gem 'pg'
