@@ -39,9 +39,14 @@ module Loader
 
       attr_reader :policy_object, :external_handler
 
-      def initialize policy_object, external_handler = nil
+      def initialize(
+        policy_object,
+        external_handler = nil,
+        feature_flags: Rails.application.config.feature_flags
+      )
         @policy_object = policy_object
         @external_handler = external_handler
+        @feature_flags = feature_flags
       end
 
       def find_ownerid
@@ -105,16 +110,27 @@ module Loader
     class Record < Types::Base
       include CreateRole
       include CreateResource
+      include AuthorizeResource
 
       def verify
         message = "Verify method for entity #{self} does not exist"
         raise Exceptions::InvalidPolicyObject.new(self.id, message: message)
       end
 
+      def with_primary_schema
+        current_schema = Sequel::Model.db.search_path
+        Sequel::Model.db.search_path = "public"
+        yield
+        Sequel::Model.db.search_path = current_schema
+      end
+
       def calculate_defaults!; end
 
       def create!
-        verify
+        # Perform verification and validation in the context of the primary
+        # database schema to allow for data queries against the current
+        # database state.
+        with_primary_schema { verify }
         calculate_defaults!
         create_role! if policy_object.respond_to?(:roleid)
         create_resource! if policy_object.respond_to?(:resourceid)
@@ -283,7 +299,71 @@ module Loader
 
       def_delegators :@policy_object, :kind, :mime_type
 
-      def verify; end
+      def verify
+        verify_dynamic_secret if @feature_flags.enabled?(:dynamic_secrets)
+      end
+
+      def verify_dynamic_secret
+        if id.start_with?(Issuer::DYNAMIC_VARIABLE_PREFIX)
+          if annotations["#{Issuer::DYNAMIC_ANNOTATION_PREFIX}issuer"].nil?
+            message = "The dynamic variable '#{id}' has no issuer annotation"
+            raise Exceptions::InvalidPolicyObject.new(id, message: message)
+          else
+            issuer_id = annotations["#{Issuer::DYNAMIC_ANNOTATION_PREFIX}issuer"]
+
+            issuer = Issuer.where(
+              account: @policy_object.account,
+              issuer_id: issuer_id
+            ).first
+
+            if issuer.nil?
+              issuer_exception_id = "#{@policy_object.account}:issuer:#{issuer_id}"
+              raise Exceptions::RecordNotFound, issuer_exception_id
+            end
+
+            if annotations["#{Issuer::DYNAMIC_ANNOTATION_PREFIX}method"].nil?
+              raise Exceptions::InvalidPolicyObject.new(
+                id,
+                message:
+                  "The variable definition for dynamic secret " \
+                  "\"#{id}\" requires a 'method' annotation."
+              )
+            end
+
+            begin
+              IssuerTypeFactory.new
+                .create_issuer_type(issuer.issuer_type)
+                .validate_variable(
+                  id,
+                  annotations["#{Issuer::DYNAMIC_ANNOTATION_PREFIX}method"],
+                  annotations["#{Issuer::DYNAMIC_ANNOTATION_PREFIX}ttl"],
+                  issuer
+                )
+            rescue ArgumentError => e
+              raise Exceptions::InvalidPolicyObject.new(
+                id,
+                message: e.message
+              )
+            end
+
+            resource_id = "#{@policy_object.account}:policy:conjur/issuers/#{issuer_id}"
+            auth_issuer_resource(:use, resource_id, issuer_id, @policy_object.account)
+          end
+        elsif !annotations.nil? && \
+            !annotations["#{Issuer::DYNAMIC_ANNOTATION_PREFIX}issuer"].nil?
+
+          message = "The dynamic variable '#{id}' is not in the correct path"
+          raise Exceptions::InvalidPolicyObject.new(id, message: message)
+        end
+      end
+
+      def auth_issuer_resource(privilege, resource_id, issuer_id, account)
+        resource = ::Resource[resource_id]
+        unless current_user.allowed_to?(privilege, resource)
+          issuer_exception_id = "#{account}:issuer:#{issuer_id}"
+          raise Exceptions::RecordNotFound, issuer_exception_id
+        end
+      end
 
       def create!
         self.annotations ||= {}
@@ -369,7 +449,7 @@ module Loader
         deletions
       end
     end
-    
+
     class Revoke < Deletion
       def delete!(destroy: true)
         deletions = []
@@ -385,7 +465,7 @@ module Loader
         deletions
       end
     end
-    
+
     class Delete < Deletion
       def delete!(destroy: true)
         deletions = []
@@ -397,14 +477,14 @@ module Loader
         end
         deletions
       end
-    
+
       def delete_recursive!(record_id, destroy: true)
         deletions = []
         # First delete all resources and roles that are owned by this resource
         ::Resource.where(owner_id: record_id).each do |resource|
           deletions.concat(delete_recursive!(resource.resource_id, destroy: destroy))
         end
-    
+
         # Delete any resource or role that matches the record_id
         resource = ::Resource[record_id]
         if resource
