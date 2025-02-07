@@ -144,6 +144,5 @@ describe Loader::Types::Host do
         it { expect { host.verify }.to raise_error }
       end
     end
-
   end
 end
