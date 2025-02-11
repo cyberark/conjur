@@ -111,13 +111,13 @@ describe Loader::Types::Host do
       context 'when creating host with api-key annotation false' do
         let(:resource_id) { 'myhost@cyberark' }
         let(:api_key) { false }
-        it { expect { host.verify }.to_not raise_error(Exceptions::InvalidPolicyObject) }
+        it { expect { host.verify }.to_not raise_error }
       end
 
       context 'when creating host without api-key annotation' do
         let(:resource_id) { 'myhost@cyberark' }
         let(:api_key) { '' }
-        it { expect { host.verify }.to_not raise_error(Exceptions::InvalidPolicyObject) }
+        it { expect { host.verify }.to_not raise_error }
       end
     end
 
@@ -135,13 +135,13 @@ describe Loader::Types::Host do
       context 'when creating host with api-key annotation false' do
         let(:resource_id) { 'alice@cyberark' }
         let(:api_key) { false }
-        it { expect { host.verify }.to raise_error }
+        it { expect { host.verify }.to raise_error(Exceptions::InvalidPolicyObject) }
       end
 
       context 'when creating host without api-key annotation' do
         let(:resource_id) { 'alice@cyberark' }
         let(:api_key) { '' }
-        it { expect { host.verify }.to raise_error }
+        it { expect { host.verify }.to raise_error(Exceptions::InvalidPolicyObject) }
       end
     end
   end
