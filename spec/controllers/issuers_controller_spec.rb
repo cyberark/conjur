@@ -17,11 +17,11 @@ describe IssuersController, type: :request do
   before do
     init_slosilo_keys("rspec")
 
-    # Load the base conjur/issuers policies into Conjur
-    put(
+    # Load the users into Conjur
+    post(
       '/policies/rspec/policy/root',
       env: token_auth_header(role: admin_user).merge(
-        'RAW_POST_DATA' => data_issuers_policy
+        'RAW_POST_DATA' => data_users_policy
       )
     )
     assert_response :success
@@ -43,14 +43,26 @@ describe IssuersController, type: :request do
 
   let(:dynamic_secrets_enabled) { true }
 
-  let(:data_issuers_policy) do
+  let(:data_users_policy) do
     <<~POLICY
-      - !policy
-        id: conjur/issuers
-        body: []
-
       - !user alice
       - !user bob
+    POLICY
+  end
+
+  def load_issuers_base_policy
+    post(
+      '/policies/rspec/policy/root',
+      env: token_auth_header(role: admin_user).merge(
+        'RAW_POST_DATA' => data_issuers_policy
+      )
+    )
+    assert_response :success
+  end
+
+  let(:data_issuers_policy) do
+    <<~POLICY
+      - !policy conjur/issuers
     POLICY
   end
 
@@ -63,6 +75,10 @@ describe IssuersController, type: :request do
   let(:bob_user_id) { 'rspec:user:bob' }
 
   describe "#update" do
+    before do
+      load_issuers_base_policy
+    end
+
     describe "#aws" do
       context "when a user updates an issuer that does not exist" do
         payload_update_issuer = <<~BODY
@@ -774,6 +790,10 @@ describe IssuersController, type: :request do
         assert_response :created
     end
 
+    before do
+      load_issuers_base_policy
+    end
+
     context "when a user deletes a issuer that does not exist" do
       it 'it returns not found' do
         delete("/issuers/rspec/non-existing-issuer",
@@ -966,6 +986,10 @@ describe IssuersController, type: :request do
   end
 
   describe "#get" do
+    before do
+      load_issuers_base_policy
+    end
+
     context "aws" do
       context "when a user gets a issuer that exists" do
         let(:payload_create_issuer) do
@@ -1112,6 +1136,10 @@ describe IssuersController, type: :request do
   end
 
   describe "#list" do
+    before do
+      load_issuers_base_policy
+    end
+
     context "when a user lists the issuers with no issuers defined" do
       it 'empty list returned' do
         get("/issuers/rspec?sort=id",

@@ -77,6 +77,15 @@ class IssuersController < RestController
         "POST issuers/#{params[:account]}"
       )
     end
+
+    # If the base policy for issuers doesn't yet exist, create it as a
+    # UX convenience. It can still be pre-created with specific ownership
+    # and permissions. However, if the user is about to create an issuer and
+    # it fails because the base policy doesn't exist, the next action will
+    # be to create the base policy. So we save a try/repeat step by creating
+    # it here.
+    create_issuer_base_policy(params[:account]) unless resource_exists?
+
     action = :create
     authorize(action, resource)
 
@@ -346,6 +355,17 @@ def sort_by_key(array, key)
   end
 
   result
+end
+
+def create_issuer_base_policy(account)
+  # This command handles creating policy load audit records
+  @policy.call(
+    target_policy_id: "#{account}:policy:root",
+    context: context,
+    policy: renderer(PolicyTemplates::IssuerBase.new),
+    loader: Loader::CreatePolicy,
+    request_type: 'POST'
+  )
 end
 
 def create_issuer_policy(policy_fields)
