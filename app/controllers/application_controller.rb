@@ -52,6 +52,7 @@ class ApplicationController < ActionController::API
   rescue_from Errors::Conjur::MissingSecretValue, with: :render_secret_not_found
   rescue_from Exceptions::RecordExists, with: :record_exists
   rescue_from Exceptions::Forbidden, with: :forbidden
+  rescue_from Exceptions::MethodNotAllowed, with: :method_not_allowed
   rescue_from PG::InsufficientPrivilege, with: :not_allowed
   rescue_from BadRequest, with: :bad_request
   rescue_from BadRequestWithBody, with: :render_bad_request_with_message

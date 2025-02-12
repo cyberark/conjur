@@ -22,13 +22,11 @@ class IssuersController < RestController
   def initialize(
     *args,
     policy: CommandHandler::Policy.new,
-    feature_flags: Rails.application.config.feature_flags,
     **kwargs
   )
     super(*args, **kwargs)
 
     @policy = policy
-    @feature_flags = feature_flags
   end
 
   def update

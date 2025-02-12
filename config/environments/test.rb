@@ -68,4 +68,7 @@ Rails.application.configure do
   # We don't want to cache TRUSTED_PROXIES for tests so that these may
   # be modified for different test scenarios.
   config.conjur_disable_trusted_proxies_cache = true
+
+  config.ephemeral_secrets_service_address = 'dynamic-secrets'
+  config.ephemeral_secrets_service_port = 8080
 end

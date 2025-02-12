@@ -789,6 +789,41 @@ module LogMessages
 
   end
 
+  module Secrets
+
+    DynamicSecretRequest = ::Util::TrackableLogMessageClass.new(
+      msg: "Received a dynamic secret request. Request ID [{3}], " \
+           "Issuer ID [{0}], issuer type [{1}], dynamic method [{2}]",
+      code: "CONJ00160I"
+    )
+
+    DynamicSecretRemoteRequest = ::Util::TrackableLogMessageClass.new(
+      msg: "Calling the dynamic secrets service. Request ID [{0}]",
+      code: "CONJ00161I"
+    )
+
+    DynamicSecretRemoteResponse = ::Util::TrackableLogMessageClass.new(
+      msg: "Received the response from the dynamic secrets service. Request ID [{0}], HTTP code [{1}]",
+      code: "CONJ00161D"
+    )
+
+    DynamicSecretRemoteRequestFailure = ::Util::TrackableLogMessageClass.new(
+      msg: "Failed to send the request to the dynamic secrets service. Request ID [{0}], error: {1}",
+      code: "CONJ00162E"
+    )
+
+    DynamicSecretRemoteResponseFailure = ::Util::TrackableLogMessageClass.new(
+      msg: "Failed to create the dynamic secret. Request ID [{0}], code: {1}, message: {2}, description: {3}",
+      code: "CONJ00163E"
+    )
+
+    DynamicSecretRequestBody = ::Util::TrackableLogMessageClass.new(
+      msg: "Dynamic secret request ID [{0}], body: {1}",
+      code: "CONJ00166D"
+    )
+
+  end
+
   # This are log messages so its okay there are many
   # :reek:TooManyConstants
   module Util
