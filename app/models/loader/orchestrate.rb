@@ -1201,7 +1201,7 @@ module Loader
         db.execute("CREATE TABLE #{table} AS SELECT * FROM #{qualify_table(table)} WHERE 0 = 1")
       end
 
-      db.execute(Functions.ownership_trigger_sql)
+      db.execute(Functions.ownership_trigger_sql_orchestrate)
 
       db.execute(<<-SQL_STATEMENT)
       CREATE OR REPLACE FUNCTION account(id text) RETURNS text
