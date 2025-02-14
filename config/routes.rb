@@ -81,6 +81,16 @@ Rails.application.routes.draw do
 
       get     "/:authenticator/:account/providers"  => "providers#index"
 
+      if Rails.application.config.feature_flags.enabled?(:dynamic_secrets)
+        # Dynamic secrets
+        # Issuers
+        post    "/issuers/:account"             => 'issuers#create'
+        delete  "/issuers/:account/:identifier" => 'issuers#delete'
+        get     "/issuers/:account/:identifier" => 'issuers#get'
+        get     "/issuers/:account"             => 'issuers#list'
+        patch   "/issuers/:account/:identifier" => 'issuers#update'
+      end
+
       # NOTE: the order of these routes matters: we need the expire
       #       route to come first.
       post    "/secrets/:account/:kind/*identifier" => "secrets#expire",

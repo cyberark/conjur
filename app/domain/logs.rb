@@ -24,6 +24,25 @@ module LogMessages
       code: "CONJ00038I"
     )
 
+    GeneralError = ::Util::TrackableErrorClass.new(
+      msg: "Unexpected error occurred: {0}",
+      code: "CONJ00163E"
+    )
+
+  end
+
+  module Endpoints
+
+    EndpointRequested = ::Util::TrackableLogMessageClass.new(
+      msg: "{0} endpoint is called",
+      code: "CONJ00152D"
+    )
+
+    EndpointFinishedSuccessfully = ::Util::TrackableLogMessageClass.new(
+      msg: "{0} endpoint is finished successfully",
+      code: "CONJ00153D"
+    )
+
   end
 
   module Authentication
@@ -754,6 +773,20 @@ module LogMessages
         code: "CONJ00144D"
       )
     end
+  end
+
+  module Issuers
+
+    IssuerPolicyNotFound = ::Util::TrackableErrorClass.new(
+      msg: "The policy of issuer {0} was not found",
+      code: "CONJ00158W"
+    )
+
+    IssuerEndpointForbidden = ::Util::TrackableErrorClass.new(
+      msg: "Action {0} is not allowed on the issuers endpoint",
+      code: "CONJ00159W"
+    )
+
   end
 
   # This are log messages so its okay there are many

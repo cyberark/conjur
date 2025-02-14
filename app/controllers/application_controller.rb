@@ -24,6 +24,9 @@ class ApplicationController < ActionController::API
   class BadRequest < RuntimeError
   end
 
+  class BadRequestWithBody < RuntimeError
+  end
+
   class InternalServerError < RuntimeError
   end
 
@@ -51,6 +54,7 @@ class ApplicationController < ActionController::API
   rescue_from Exceptions::Forbidden, with: :forbidden
   rescue_from PG::InsufficientPrivilege, with: :not_allowed
   rescue_from BadRequest, with: :bad_request
+  rescue_from BadRequestWithBody, with: :render_bad_request_with_message
   rescue_from Unauthorized, with: :unauthorized
   rescue_from InternalServerError, with: :internal_server_error
   rescue_from ServiceUnavailable, with: :service_unavailable
@@ -256,6 +260,16 @@ class ApplicationController < ActionController::API
   def bad_request e
     logger.debug("#{e}\n#{e.backtrace.join("\n")}")
     head(:bad_request)
+  end
+
+  def render_bad_request_with_message e
+    logger.debug("#{e}\n#{e.backtrace.join("\n")}")
+    render(json: {
+      error: {
+        code: :bad_request,
+        message: e.message
+      }
+    }, status: :bad_request)
   end
 
   def unprocessable_entity e
