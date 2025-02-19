@@ -125,13 +125,12 @@ if (params.MODE == "PROMOTE") {
       docker pull registry.tld/conjur-ubi:${sourceVersion}-arm64
       docker tag registry.tld/conjur-ubi:${sourceVersion}-arm64 conjur-ubi:${sourceVersion}-arm64
 
-      # CONJSE-1920: This code cannot be promoted until after the security bulletin
       # Promote both images for AMD64 and ARM64
-      #summon -f ./secrets.yml ./publish-images.sh --promote --redhat --base-version=${sourceVersion} --version=${targetVersion}
-      #summon -f ./secrets.yml ./publish-images.sh --promote --base-version=${sourceVersion} --version=${targetVersion} --arch=arm64
+      summon -f ./secrets.yml ./publish-images.sh --promote --redhat --base-version=${sourceVersion} --version=${targetVersion}
+      summon -f ./secrets.yml ./publish-images.sh --promote --base-version=${sourceVersion} --version=${targetVersion} --arch=arm64
       
       # Promote manifest that links above images
-      #summon -f ./secrets.yml ./publish-manifest.sh --promote --dockerhub --base-version=${sourceVersion} --version=${targetVersion}
+      summon -f ./secrets.yml ./publish-manifest.sh --promote --dockerhub --base-version=${sourceVersion} --version=${targetVersion}
     """
 
     // Ensure the working directory is a safe git directory for the subsequent
