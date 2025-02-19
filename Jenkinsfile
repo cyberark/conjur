@@ -147,9 +147,8 @@ if (params.MODE == "PROMOTE") {
     )
   }
 
-  // CONJSE-1920: This code cannot be promoted until after the security bulletin
   // Copy Github Enterprise release to Github
-  // release.copyEnterpriseRelease(params.VERSION_TO_PROMOTE)
+  release.copyEnterpriseRelease(params.VERSION_TO_PROMOTE)
   
   return
 }
