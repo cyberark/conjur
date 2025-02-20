@@ -15,7 +15,7 @@ describe IssuersController, type: :request do
   let(:url_resource) { "/resources/rspec" }
 
   before do
-    init_slosilo_keys("rspec")
+    Slosilo["authn:rspec"] ||= Slosilo::Key.new
 
     # Load the users into Conjur
     post(

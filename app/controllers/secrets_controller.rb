@@ -30,7 +30,11 @@ class SecretsController < RestController
 
     raise ArgumentError, "'value' may not be empty" if value.blank?
 
-    Secret.create(resource_id: resource.id, value: value) unless resource.secret&.value == value
+    # Only create a new secret version if the value is changed
+    unless resource.secret&.value == value
+      Secret.create(resource_id: resource.id, value: value)
+    end
+
     resource.enforce_secrets_version_limit
 
     head(:created)
