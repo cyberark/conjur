@@ -392,6 +392,10 @@ init_ldap() {
     return
   fi
 
+  # Generate LDAP certs needed for cukes.
+  . ../ci/shared.sh
+  generate_ldap_certs
+
   services+=(ldap-server)
   env_args+=(-e "LDAP_URI=ldap://ldap-server:389")
   env_args+=(-e "LDAP_BASE=dc=conjur,dc=net")
