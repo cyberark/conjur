@@ -255,7 +255,29 @@ is_ldap_up() {
   ) >/dev/null 2>&1
 }
 
+generate_ldap_certs() {
+  local repo_root
+  repo_root=$(git rev-parse --show-toplevel)
+  
+  # Clone conjur-intro
+  git clone https://github.com/conjurdemos/conjur-intro.git || true
+  pushd conjur-intro/tools/simple-certificates || exit 1
+  
+  # Generate and copy LDAP certs
+  ./generate_certificates 3 ldap-server
+  cp -f certificates/ca-chain.cert.pem "$repo_root/ci/ldap-certs/"
+  cp -f certificates/nodes/ldap-server.mycompany.local/ldap-server.mycompany.local.cert.pem "$repo_root/ci/ldap-certs/ldap-server.cert.pem"
+  cp -f certificates/nodes/ldap-server.mycompany.local/ldap-server.mycompany.local.key.pem "$repo_root/ci/ldap-certs/ldap-server.key.pem"
+  cp -f certificates/root/certs/root.cert.pem "$repo_root/ci/ldap-certs/"
+  
+  # Cleanup
+  popd || exit 1
+  rm -rf conjur-intro
+}
+
 start_ldap_server() {
+  generate_ldap_certs
+
   # Start LDAP.
   $COMPOSE up --no-deps --detach ldap-server
 
