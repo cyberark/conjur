@@ -28,7 +28,8 @@ LABEL name="conjur-ubi" \
       version="$VERSION" \
       release="$VERSION" \
       summary="Conjur UBI-based image" \
-      description="Conjur provides secrets management and machine identity for modern infrastructure."
+      description="Conjur provides secrets management and machine identity for modern infrastructure." \
+      maintainer="CyberArk"
 
 ENV PORT=8080 \
     LOG_DIR=${CONJUR_HOME}/log \
