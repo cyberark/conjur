@@ -15,8 +15,9 @@ class ResourcesController < RestController
     # limit does not exceed the maximum.
     # The maximum limit should not be apply if this is a count request.
     if conjur_config.api_resource_list_limit_max.positive? && !params[:count]
-      # If no limit is given, default the limit to the configured maximum
-      options[:limit] = conjur_config.api_resource_list_limit_max.to_s unless options[:limit]
+      # If no limit nor offset is given, default the limit to the configured maximum
+      # When offset is given sequel will default limit to 10
+      options[:limit] = conjur_config.api_resource_list_limit_max.to_s unless options[:limit] || options[:offset]
 
       unless options[:limit].to_i <= conjur_config.api_resource_list_limit_max
         error_message = "'Limit' parameter must not exceed #{conjur_config.api_resource_list_limit_max}"

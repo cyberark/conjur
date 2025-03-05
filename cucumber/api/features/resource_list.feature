@@ -18,10 +18,10 @@ Feature: List resources with various types of filtering
     """
       <86>1 * * conjur * list
       [auth@43868 user="cucumber:user:alice"]
-      [subject@43868 account="cucumber"]
+      [subject@43868 account="cucumber" limit="1000"]
       [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
       [action@43868 result="success" operation="list"]
-      cucumber:user:alice successfully listed resources with parameters: {:account=>"cucumber"}
+      cucumber:user:alice successfully listed resources with parameters: {:account=>"cucumber", :limit=>"1000"}
     """
 
   @smoke
@@ -34,10 +34,10 @@ Feature: List resources with various types of filtering
     """
       <86>1 * * conjur * list
       [auth@43868 user="cucumber:user:alice"]
-      [subject@43868 account="cucumber" kind="custom"]
+      [subject@43868 account="cucumber" kind="custom" limit="1000"]
       [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
       [action@43868 result="success" operation="list"]
-      cucumber:user:alice successfully listed resources with parameters: {:account=>"cucumber", :kind=>"custom"}
+      cucumber:user:alice successfully listed resources with parameters: {:account=>"cucumber", :kind=>"custom", :limit=>"1000"}
     """
 
   @acceptance
@@ -50,10 +50,10 @@ Feature: List resources with various types of filtering
     """
       <86>1 * * conjur * list
       [auth@43868 user="cucumber:user:alice"]
-      [subject@43868 account="cucumber" kind="uncreated-resource-kind"]
+      [subject@43868 account="cucumber" kind="uncreated-resource-kind" limit="1000"]
       [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
       [action@43868 result="success" operation="list"]
-      cucumber:user:alice successfully listed resources with parameters: {:account=>"cucumber", :kind=>"uncreated-resource-kind"}
+      cucumber:user:alice successfully listed resources with parameters: {:account=>"cucumber", :kind=>"uncreated-resource-kind", :limit=>"1000"}
     """
 
   @smoke
@@ -66,10 +66,10 @@ Feature: List resources with various types of filtering
     """
       <86>1 * * conjur * list
       [auth@43868 user="cucumber:user:alice"]
-      [subject@43868 account="cucumber" kind="test-resource" search="target"]
+      [subject@43868 account="cucumber" kind="test-resource" search="target" limit="1000"]
       [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
       [action@43868 result="success" operation="list"]
-      cucumber:user:alice successfully listed resources with parameters: {:account=>"cucumber", :kind=>"test-resource", :search=>"target"}
+      cucumber:user:alice successfully listed resources with parameters: {:account=>"cucumber", :kind=>"test-resource", :search=>"target", :limit=>"1000"}
     """
 
   @smoke
