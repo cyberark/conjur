@@ -87,19 +87,19 @@ class Functions
       END
       $$;
 
-      CREATE TRIGGER grant_role_membership_to_owner
+      CREATE OR REPLACE TRIGGER grant_role_membership_to_owner
       BEFORE INSERT
       ON resources
       FOR EACH ROW
       EXECUTE PROCEDURE public.grant_role_membership_to_owner_trigger();
 
-      CREATE TRIGGER update_role_membership_of_owner
+      CREATE OR REPLACE TRIGGER update_role_membership_of_owner
       BEFORE UPDATE
       ON resources
       FOR EACH ROW
       EXECUTE PROCEDURE public.update_role_membership_of_owner_trigger();
 
-      CREATE TRIGGER delete_role_membership_of_owner
+      CREATE OR REPLACE TRIGGER delete_role_membership_of_owner
       BEFORE DELETE
       ON resources
       FOR EACH ROW
