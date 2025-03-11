@@ -79,6 +79,7 @@ class ApplicationController < ActionController::API
   rescue_from Errors::Authorization::AccessToResourceIsForbiddenForRole, with: :forbidden
   rescue_from Errors::Conjur::RequestedResourceNotFound, with: :resource_not_found
   rescue_from Errors::Authorization::InsufficientResourcePrivileges, with: :forbidden
+  rescue_from Errors::Conjur::APIHeaderMissing, with: :render_bad_request_with_message
 
   around_action :run_with_transaction
 
@@ -89,6 +90,16 @@ class ApplicationController < ActionController::API
   end
 
   private
+
+  def v2_header?
+    request.headers['Accept'] == V2RestController::API_V2_HEADER
+  end
+
+  def render_v2_error(status, msg = '')
+    response.headers['Content-Type'] = V2RestController::API_V2_HEADER
+    code = Rack::Utils.status_code(status)
+    msg.empty? ? head(status) : render(json: { code: code.to_s, message: msg }, status: status)
+  end
 
   # Wrap the request in a transaction.
   def run_with_transaction(&block)
@@ -102,6 +113,9 @@ class ApplicationController < ActionController::API
 
   def render_resource_not_not_found e
     logger.debug("#{e}\n#{e.backtrace.join("\n")}")
+
+    return render_v2_error(:not_found, e.message) if v2_header?
+
     render(json: {
       error: {
         code: "not_found",
@@ -231,6 +245,9 @@ class ApplicationController < ActionController::API
 
   def record_exists e
     logger.debug("#{e}\n#{e.backtrace.join("\n")}")
+
+    return render_v2_error(:conflict, e.message) if v2_header?
+
     render(json: {
       error: {
         code: "conflict",
@@ -246,6 +263,8 @@ class ApplicationController < ActionController::API
   end
 
   def forbidden e
+    return render_v2_error(:forbidden) if v2_header?
+
     logger.debug("#{e}\n#{e.backtrace.join("\n")}")
     head(:forbidden)
   end
@@ -262,6 +281,9 @@ class ApplicationController < ActionController::API
 
   def conflict e
     logger.debug("#{e}\n#{e.backtrace.join("\n")}")
+
+    return render_v2_error(:conflict, e.message) if v2_header?
+
     render(json: {
       error: {
         code: :conflict,
@@ -272,11 +294,17 @@ class ApplicationController < ActionController::API
 
   def bad_request e
     logger.debug("#{e}\n#{e.backtrace.join("\n")}")
+
+    return render_v2_error(:unprocessable_entity, e.message) if v2_header?
+
     head(:bad_request)
   end
 
   def render_bad_request_with_message e
     logger.debug("#{e}\n#{e.backtrace.join("\n")}")
+
+    return render_v2_error(:bad_request, e.message) if v2_header? || e.is_a?(Errors::Conjur::APIHeaderMissing)
+
     render(json: {
       error: {
         code: :bad_request,
@@ -287,6 +315,9 @@ class ApplicationController < ActionController::API
 
   def unprocessable_entity e
     logger.debug("#{e}\n#{e.backtrace.join("\n")}")
+
+    return render_v2_error(:unprocessable_entity, e.message) if v2_header?
+
     render(json: {
       error: {
         code: :unprocessable_entity,
@@ -307,6 +338,9 @@ class ApplicationController < ActionController::API
 
   def unauthorized e
     logger.debug("#{e}\n#{e.backtrace.join("\n")}")
+
+    return render_v2_error(:unauthorized) if v2_header?
+
     if e.return_message_in_response
       render(json: {
         error: {
@@ -382,6 +416,8 @@ class ApplicationController < ActionController::API
   end
 
   def render_record_not_found e
+    return render_v2_error(:not_found, e.message) if v2_header?
+
     render(json: {
       error: {
         code: "not_found",

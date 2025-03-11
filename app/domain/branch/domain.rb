@@ -1,0 +1,47 @@
+# frozen_string_literal: true
+
+module Domain
+
+  def root_pol_id_pattern(identifier)
+    "#{identifier == 'root' ? '%' : identifier}(|/%)"
+  end
+
+  def res_identifier(identifier)
+    root?(identifier) ? 'root' : identifier
+  end
+
+  def domain_identifier(identifier)
+    root?(identifier) ? '/' : identifier
+  end
+
+  def to_identifier(parent_identifier, identifier)
+    return identifier if root?(parent_identifier)
+
+    "#{parent_identifier}/#{identifier}"
+  end
+
+  def full_id(account, type, identifier)
+    [account, type, identifier].join(":")
+  end
+
+  def kind(full_id)
+    full_id.split(":", 3)[1]
+  end
+
+  def res_name(identifier)
+    identifier.split('/').last
+  end
+
+  def parent_identifier(identifier)
+    last_slash_idx = identifier.rindex("/")
+    last_slash_idx ? identifier[0...last_slash_idx] : '/'
+  end
+
+  def identifier(id)
+    id.split(":", 3)[2]
+  end
+
+  def root?(identifier)
+    %w[/ /root root].include?(identifier)
+  end
+end
