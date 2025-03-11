@@ -501,6 +501,7 @@ GEM
       activemodel (>= 4.0.0)
       railties (>= 4.0.0)
       sequel (>= 3.28, < 6.0)
+    sigdump (0.2.5)
     simplecov (0.22.0)
       docile (~> 1.1)
       simplecov-html (~> 0.11)
@@ -641,6 +642,7 @@ DEPENDENCIES
   sequel-pg_advisory_locking
   sequel-postgres-schemata
   sequel-rails
+  sigdump
   simplecov
   slosilo (~> 3.0)
   spring
