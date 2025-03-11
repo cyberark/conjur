@@ -379,5 +379,31 @@ RSpec.describe('Authentication::AuthnK8s::ExecuteCommandInContainer') do
         )
       end
     end
+
+    context "when a socket error occurs" do
+      let(:ws_client) { WsClientMock.new }
+
+      subject do
+        thread = subject_in_thread(
+          ws_client: ws_client,
+          timeout: 10,
+          body: nil,
+          stdin: false
+        )
+
+        ws_client.trigger_open
+        ws_client.trigger_error(StandardError.new("test error"))
+        thread.join
+        thread[:output]
+      end
+
+      it "closes the websocket" do
+        expect(ws_client).to receive(:close)
+
+        expect { subject }.to raise_error(
+          Errors::Authentication::AuthnK8s::ExecCommandError
+        )
+      end
+    end
   end
 end

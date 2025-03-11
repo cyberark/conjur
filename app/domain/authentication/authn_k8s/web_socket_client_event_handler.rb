@@ -92,6 +92,10 @@ module Authentication
         )
         @message_log.save_error_string(error_info)
 
+        # Ensure the websocket client is closed when an error occurs. Don't
+        # rely on the server sending a close message.
+        @ws_client.close
+
         # The value itself doesn't matter, so we just use nil
         @close_event_queue << nil
       end

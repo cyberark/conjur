@@ -20,8 +20,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Attempt to authenticate using the built-in authenticator (`authn`) with a GET
   request now results in a `404` response, rather than logging an authenticator
   not enabled message. CNJR-5854
-- Set the default and maximal limit value for resources list API to 1000 in order 
+- Set the default and maximal limit value for resources list API to 1000 in order
   to align with the documentation. CNJR-8485
+- Ensure Kubernetes authenticator websocket connections are closed when a
+  Kubernetes API error occurs. CNJR-8687
 
 ### Changed
 - Do not increase secret's value version in case there is no actual change in
