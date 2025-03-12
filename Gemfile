@@ -15,15 +15,15 @@ git_source(:github) { |name| "https://github.com/#{name}.git" }
 
 gem 'base58'
 gem 'command_class'
+gem 'concurrent-ruby', '!= 1.3.5'
 gem 'http', '~> 4.2.0'
 gem 'iso8601'
 gem 'jbuilder', '~> 2.7.0'
 gem 'mustache'
 gem 'nokogiri', '>= 1.16.5'
 gem 'puma', '~> 6', '>= 6.4.3'
-gem 'rack', '~> 2.2', '>= 2.2.8.1'
+gem 'rack', '~> 2.2', '>= 2.2.13'
 gem 'rails', '~> 6.1', '>= 6.1.7.9'
-gem 'concurrent-ruby', '!= 1.3.5'
 gem 'rake'
 
 gem 'pg'
