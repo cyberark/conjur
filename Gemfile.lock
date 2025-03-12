@@ -381,7 +381,7 @@ GEM
     puma (6.5.0)
       nio4r (~> 2.0)
     racc (1.8.1)
-    rack (2.2.10)
+    rack (2.2.13)
     rack-oauth2 (2.2.1)
       activesupport
       attr_required
@@ -622,7 +622,7 @@ DEPENDENCIES
   pry-rails
   psych (= 3.3.2)
   puma (~> 6, >= 6.4.3)
-  rack (~> 2.2, >= 2.2.8.1)
+  rack (~> 2.2, >= 2.2.13)
   rack-rewrite
   rails (~> 6.1, >= 6.1.7.9)
   rails-controller-testing

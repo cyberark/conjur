@@ -27,6 +27,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Do not increase secret's value version in case there is no actual change in
   the secret's value. CNJR-7680
 
+### Security
+- Update rack to 2.2.13 to address CVE-2025-27610.
+  CONJSE-1956
+
 ## [1.21.3] - 2024-12-16
 
 ### Fixed
