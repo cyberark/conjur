@@ -171,9 +171,9 @@ RSpec.describe('Authentication::AuthnK8s::ExecuteCommandInContainer') do
         URI.parse(@kube_client_api_endpoint)
       end
 
-      let(:ws_client) do 
+      let(:ws_client) do
         ws_client = WsClientMock.new(handshake_error: nil)
-        
+
         thread = subject_in_thread(
           ws_client: ws_client,
           timeout: 1,
@@ -225,7 +225,8 @@ RSpec.describe('Authentication::AuthnK8s::ExecuteCommandInContainer') do
 
     context "when the ws_client has no handshake error" do
       context "with stdin" do
-        ws_client = WsClientMock.new(handshake_error: nil)
+        let(:ws_client) { WsClientMock.new(handshake_error: nil) }
+
         subject do
           thread = subject_in_thread(
             ws_client: ws_client,
@@ -256,7 +257,7 @@ RSpec.describe('Authentication::AuthnK8s::ExecuteCommandInContainer') do
       end
 
       context "without stdin" do
-        ws_client = WsClientMock.new(handshake_error: nil)
+        let(:ws_client) { WsClientMock.new(handshake_error: nil) }
         subject do
           thread = subject_in_thread(
             ws_client: ws_client,
@@ -281,7 +282,7 @@ RSpec.describe('Authentication::AuthnK8s::ExecuteCommandInContainer') do
 
       context "where the socket is not closed in time" do
         context "and KUBE_EXEC_COMMAND_TIMEOUT is not defined in the env" do
-          ws_client = WsClientMock.new(handshake_error: nil)
+          let(:ws_client) { WsClientMock.new(handshake_error: nil) }
           subject do
             thread = subject_in_thread(
               ws_client: ws_client,
@@ -305,7 +306,8 @@ RSpec.describe('Authentication::AuthnK8s::ExecuteCommandInContainer') do
 
         context "and KUBE_EXEC_COMMAND_TIMEOUT is defined in the env" do
           context "with an integer" do
-            ws_client = WsClientMock.new(handshake_error: nil)
+            let(:ws_client) { WsClientMock.new(handshake_error: nil) }
+
             subject do
               thread = subject_in_thread(
                 ws_client: ws_client,
@@ -328,7 +330,7 @@ RSpec.describe('Authentication::AuthnK8s::ExecuteCommandInContainer') do
           end
 
           context "with a value that is not an integer" do
-            ws_client = WsClientMock.new(handshake_error: nil)
+            let(:ws_client) { WsClientMock.new(handshake_error: nil) }
             subject do
               thread = subject_in_thread(
                 ws_client: ws_client,
@@ -354,8 +356,9 @@ RSpec.describe('Authentication::AuthnK8s::ExecuteCommandInContainer') do
     end
 
     context "when the ws_client has a handshake error" do
-      handshake_error = "handshake error"
-      ws_client       = WsClientMock.new(handshake_error: handshake_error)
+      let(:handshake_error) { 'handshake error' }
+      let(:ws_client) { WsClientMock.new(handshake_error: handshake_error) }
+
       subject do
         thread = subject_in_thread(
           ws_client: ws_client,
@@ -373,6 +376,32 @@ RSpec.describe('Authentication::AuthnK8s::ExecuteCommandInContainer') do
       it "raises a WebSocketHandshakeError error" do
         expect { subject }.to raise_error(
           Errors::Authentication::AuthnK8s::WebSocketHandshakeError
+        )
+      end
+    end
+
+    context "when a socket error occurs" do
+      let(:ws_client) { WsClientMock.new }
+
+      subject do
+        thread = subject_in_thread(
+          ws_client: ws_client,
+          timeout: 10,
+          body: nil,
+          stdin: false
+        )
+
+        ws_client.trigger_open
+        ws_client.trigger_error(StandardError.new("test error"))
+        thread.join
+        thread[:output]
+      end
+
+      it "closes the websocket" do
+        expect(ws_client).to receive(:close)
+
+        expect { subject }.to raise_error(
+          Errors::Authentication::AuthnK8s::ExecCommandError
         )
       end
     end

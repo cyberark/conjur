@@ -74,8 +74,12 @@ module Authentication
         if host.present? && port.present?
           "https://#{host}:#{port}"
         else
-          @webservice.variable(VARIABLE_API_URL).secret.value
+          variable_api_url
         end
+      end
+
+      def variable_api_url
+        @variable_api_url ||= @webservice.variable(VARIABLE_API_URL).secret.value
       end
 
       # Gets the client object to the /api v1 endpoint.

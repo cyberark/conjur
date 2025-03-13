@@ -86,6 +86,10 @@ gem 'i18n', '~> 1.8.11'
 gem 'json_schemer'
 gem 'prometheus-client'
 
+# sigdump allows the Conjur server processes to respond to the SIGCONT signal
+# and produce a thread dump of the processes for support and debugging.
+gem 'sigdump', require: 'sigdump/setup'
+
 group :development, :test do
   gem 'aruba'
   gem 'ci_reporter_rspec'
