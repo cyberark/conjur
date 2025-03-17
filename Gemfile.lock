@@ -339,13 +339,13 @@ GEM
     net-ssh (7.1.0)
     netrc (0.11.0)
     nio4r (2.7.4)
-    nokogiri (1.18.1-aarch64-linux-gnu)
+    nokogiri (1.18.4-aarch64-linux-gnu)
       racc (~> 1.4)
-    nokogiri (1.18.1-arm64-darwin)
+    nokogiri (1.18.4-arm64-darwin)
       racc (~> 1.4)
-    nokogiri (1.18.1-x86_64-darwin)
+    nokogiri (1.18.4-x86_64-darwin)
       racc (~> 1.4)
-    nokogiri (1.18.1-x86_64-linux-gnu)
+    nokogiri (1.18.4-x86_64-linux-gnu)
       racc (~> 1.4)
     openid_connect (2.3.1)
       activemodel
@@ -539,7 +539,7 @@ GEM
       unf_ext
     unf_ext (0.0.9)
     unicode-display_width (2.6.0)
-    uri (1.0.2)
+    uri (1.0.3)
     validate_url (1.0.15)
       activemodel (>= 3.0.0)
       public_suffix

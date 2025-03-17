@@ -32,6 +32,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Security
 - Update rack to 2.2.13 to address CVE-2025-27610.
   CONJSE-1956
+- Update nokogiri to 1.18.4 to address GHSA-mrxw-mxhj-p664.
+  CONJSE-1959
+- Update URI to 1.0.3 to address CVE-2025-27221.
+  CONJSE-1952
 
 ## [1.21.3] - 2024-12-16
 

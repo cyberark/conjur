@@ -43,7 +43,7 @@ Section 4: MIT
 >>> https://rubygems.org/gems/listen/versions/3.8.0
 >>> https://rubygems.org/gems/loofah/versions/2.21.3
 >>> https://rubygems.org/gems/net-ldap/versions/0.18.0
->>> https://rubygems.org/gems/nokogiri/versions/1.15.3-x86_64-darwin
+>>> https://rubygems.org/gems/nokogiri/versions/1.18.4-x86_64-darwin
 >>> https://rubygems.org/gems/openid_connect/versions/2.2.0
 >>> https://rubygems.org/gems/rack-rewrite/versions/1.5.1
 >>> https://rubygems.org/gems/rails/versions/6.1.7.4
@@ -675,7 +675,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
->>> https://rubygems.org/gems/nokogiri/versions/1.15.3-x86_64-darwin
+>>> https://rubygems.org/gems/nokogiri/versions/1.18.4-x86_64-darwin
 
 Copyright 2008 -- 2018 by Aaron Patterson, Mike Dalessio, Charles Nutter, Sergio Arbeo, Patrick Mahoney, Yoko Harada, Akinori MUSHA, John Shahid, Lars Kanis
 
