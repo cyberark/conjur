@@ -96,6 +96,15 @@ describe Conjur::Rack::Authenticator do
           end
         end
 
+        context "with extra whitespace" do
+          let(:basic_64) { Base64.strict_encode64(token.to_json) + "\n" }
+
+          it 'ignores extra whitespace and launches app' do
+            expect(app).to receive(:call).with(env).and_return app
+            expect(call).to eq(app)
+          end
+        end
+
         context "of an invalid token" do
           before do
             allow(Slosilo).to receive(:token_signer).and_return(nil)

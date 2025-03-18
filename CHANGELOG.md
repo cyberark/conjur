@@ -24,6 +24,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   to align with the documentation. CNJR-8485
 - Ensure Kubernetes authenticator websocket connections are closed when a
   Kubernetes API error occurs. CNJR-8687
+- Leading or trailing newline characters in the Conjur authorization token are
+  now removed before parsing the token. CNJR-3439
 
 ### Changed
 - Do not increase secret's value version in case there is no actual change in

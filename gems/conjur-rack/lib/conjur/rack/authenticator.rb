@@ -124,8 +124,12 @@ module Conjur
       end
 
       def parsed_token
-        token = http_authorization.to_s[/^Token token="(.*)"/, 1]
-        token = token && JSON.parse(Base64.decode64(token))
+        # The 'm' option to the regex allows the . to match newline characters.
+        # These are often inadvertently added to Conjur authorization bearer
+        # tokens.
+        token = http_authorization.to_s[/^Token token="(.*)"/m, 1]
+        # Strip any whitespace from the token before we decode and parse it
+        token = token && JSON.parse(Base64.decode64(token.strip))
         token = Slosilo::JWT token rescue token
       rescue JSON::ParserError
         raise AuthorizationError.new("Malformed authorization token")
