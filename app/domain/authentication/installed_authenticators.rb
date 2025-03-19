@@ -42,7 +42,7 @@ module Authentication
         # Enabling via environment overrides enabling via CLI
         authenticators =
           Rails.application.config.conjur_config.authenticators
-        authenticators.empty? ? db_enabled_authenticators : authenticators
+        (authenticators | db_enabled_authenticators)
       end
 
       def enabled_authenticators_str
