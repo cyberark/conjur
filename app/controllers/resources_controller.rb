@@ -19,7 +19,8 @@ class ResourcesController < RestController
       # When offset is given sequel will default limit to 10
       options[:limit] = conjur_config.api_resource_list_limit_max.to_s unless options[:limit] || options[:offset]
 
-      unless options[:limit].to_i <= conjur_config.api_resource_list_limit_max
+      # Because synchronizer uses limit of 10000 we have to allow this magic value for maintaining backward compatibility
+      unless options[:limit].to_i <= conjur_config.api_resource_list_limit_max || options[:limit].to_i == 10000
         error_message = "'Limit' parameter must not exceed #{conjur_config.api_resource_list_limit_max}"
         audit_list_failure(options, error_message)
         raise ApplicationController::UnprocessableEntity, error_message
