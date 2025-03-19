@@ -146,6 +146,12 @@ describe ResourcesController, type: :request do
         list_resources(limit: 2)
         expect(response.code).to eq("422")
       end
+
+      it "should support magic value of 10k limit" do
+        Rails.application.config.conjur_config.api_resource_list_limit_max = 1
+        list_resources(limit: 10000)
+        expect(response.code).to eq("200")
+      end
     end
 
     context 'when validating count request' do
