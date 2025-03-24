@@ -39,9 +39,10 @@ module Authentication
       end
 
       def enabled_authenticators
-        # Enabling via environment overrides enabling via CLI
-        authenticators =
-          Rails.application.config.conjur_config.authenticators
+        # We want to allow authn when there is no authenticator configured
+        # so that we can still authenticate to Conjur, in case user has
+        # taken explicit decision on enablement we should respect it
+        authenticators = Rails.application.config.conjur_config.authenticators.presence || native_authenticators
         (authenticators | db_enabled_authenticators)
       end
 
@@ -56,11 +57,8 @@ module Authentication
       private
 
       def db_enabled_authenticators
-        # Always include 'authn' when enabling authenticators via CLI so that it
-        # doesn't get disabled when another authenticator is enabled
         AuthenticatorConfig.where(enabled: true)
           .map { |row| row.resource_id.split('/').drop(1).join('/') }
-          .append("authn")
       end
 
       def loaded_authenticators(authentication_module)

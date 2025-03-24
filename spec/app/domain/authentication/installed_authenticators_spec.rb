@@ -54,6 +54,17 @@ RSpec.describe Authentication::InstalledAuthenticators, type: :model do
     end
   end
 
+  describe '.enabled_authenticators_default' do
+    it 'returns authn if environment config is empty' do
+      allow(Rails.application.config.conjur_config).to receive(:authenticators).and_return([])
+      allow(described_class).to receive(:db_enabled_authenticators).and_return(['authn-oidc'])
+
+      result = described_class.enabled_authenticators
+
+      expect(result).to include('authn', 'authn-oidc')
+    end
+  end
+
   describe '.enabled_authenticators_str' do
     it 'returns enabled authenticators as a comma-separated string' do
       allow(described_class).to receive(:enabled_authenticators).and_return(['authn-ldap', 'authn-oidc'])
