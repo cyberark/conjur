@@ -30,6 +30,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 - Do not increase secret's value version in case there is no actual change in
   the secret's value. CNJR-7680
+- Use both database and environment configuration for the enabled authenticators.
+  CNJR-8724
 
 ### Security
 - Update rack to 2.2.13 to address CVE-2025-27610.
