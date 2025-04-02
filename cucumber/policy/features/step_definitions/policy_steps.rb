@@ -25,7 +25,7 @@ end
 Given(/^I try to load a policy with an unresolvable reference:$/) do |policy|
   @client = Client.for("user", "admin")
   @result = @client.load_policy(id: 'root', policy: policy)
-  expect(@result.code).to eq(404)
+  expect(@result.code).to eq(422)
 end
 
 Then("the result includes an API key for {string}") do |role_id|

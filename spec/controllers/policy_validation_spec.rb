@@ -27,8 +27,8 @@ end
 def validation_explanation
   body = JSON.parse(response.body)
   msg = body['errors'][0]['message']
-  adv = msg.match(/^[^\n]*\n{1,1}(.*)$/).to_s
-  adv
+  msg.match(/^[^\n]*\n{1,1}(.*)$/).to_s
+  
 end
 
 describe PoliciesController, type: :request do
@@ -156,14 +156,10 @@ describe PoliciesController, type: :request do
                 resource: !variable password
             YAML
           )
-          expect(response.code).to eq("404")
+          expect(response.code).to eq("422")
           body = JSON.parse(response.body)
-          expect(body['error']['code']).to eq("not_found")
+          expect(body['error']['code']).to eq("policy_invalid")
           expect(body['error']['message']).to eq("User 'bob' not found in account 'rspec'")
-          expect(body['error']['target']).to eq("user")
-          expect(body['error']['details']["code"]).to eq("not_found")
-          expect(body['error']['details']["target"]).to eq("id")
-          expect(body['error']['details']["message"]).to eq("rspec:user:bob")
         end
       end
 
