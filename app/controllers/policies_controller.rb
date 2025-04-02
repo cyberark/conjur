@@ -18,7 +18,7 @@ class PoliciesController < RestController
   def get
     action = :read
     unless params[:kind] == 'policy'
-      raise(Errors::EffectivePolicy::PathParamError.new(params[:kind]))
+      raise Errors::EffectivePolicy::PathParamError, params[:kind]
     end
 
     authorize_ownership
@@ -152,6 +152,7 @@ class PoliciesController < RestController
         get_policy_mode.call(strategy_class)
         policy_mode.call_pr(policy_result) unless policy_erred.call
       rescue => e
+        e = sql_to_policy_error(e)
         policy_result.error=(enhance_error(e))
       end
     }
@@ -212,7 +213,7 @@ class PoliciesController < RestController
   rescue => e
     original_error = e
     if e.instance_of?(Exceptions::EnhancedPolicyError) && e.original_error
-        original_error = e.original_error
+      original_error = e.original_error
     end
 
     audit_failure(original_error, mode)
@@ -336,5 +337,21 @@ class PoliciesController < RestController
 
   def publish_event
     Monitoring::PubSub.instance.publish('conjur.policy_loaded')
+  end
+
+  # This method is used to convert a Sequel::ForeignKeyConstraintViolation error
+  # into a PolicyLoadRecordNotFound error.
+  def sql_to_policy_error(exception)
+    if !exception.is_a?(Sequel::ForeignKeyConstraintViolation) ||
+        !exception.cause.is_a?(PG::ForeignKeyViolation)
+      return exception
+    end
+
+    # Try to parse the error message to find the violating key. This is based on
+    # `foreign_key_constraint_violation` in application_controller.rb.
+    return exception unless exception.cause.result.error_field(PG::PG_DIAG_MESSAGE_DETAIL) =~ /Key \(([^)]+)\)=\(([^)]+)\) is not present in table "([^"]+)"/
+
+    violating_key = ::Regexp.last_match(2)
+    Exceptions::PolicyLoadRecordNotFound.new(violating_key)
   end
 end

@@ -67,6 +67,7 @@ class ApplicationController < ActionController::API
   rescue_from Sequel::ForeignKeyConstraintViolation, with: :foreign_key_constraint_violation
   rescue_from Exceptions::EnhancedPolicyError, with: :enhanced_policy_error
   rescue_from Exceptions::InvalidPolicyObject, with: :policy_invalid
+  rescue_from Exceptions::PolicyLoadRecordNotFound, with: :policy_invalid
   rescue_from Conjur::PolicyParser::Invalid, with: :policy_invalid
   rescue_from Conjur::PolicyParser::ResolverError, with: :policy_invalid
   rescue_from NoMethodError, with: :validation_failed
@@ -138,7 +139,7 @@ class ApplicationController < ActionController::API
     if e.is_a?(Sequel::ForeignKeyConstraintViolation) &&
       e.cause.is_a?(PG::ForeignKeyViolation) &&
       (e.cause.result.error_field(PG::PG_DIAG_MESSAGE_DETAIL) =~ /Key \(([^)]+)\)=\(([^)]+)\) is not present in table "([^"]+)"/  rescue false)
-      violating_key = $2
+      violating_key = ::Regexp.last_match(2)
 
       exc = Exceptions::RecordNotFound.new(violating_key)
       render_record_not_found(exc)
@@ -178,7 +179,7 @@ class ApplicationController < ActionController::API
   def policy_invalid e
     logger.debug("#{e}\n#{e.backtrace.join("\n")}")
 
-    msg = e.message == nil ? e.to_s : e.message
+    msg = e.message.nil? ? e.to_s : e.message
     error = { code: "policy_invalid", message: msg }
 
     if e.instance_of?(Conjur::PolicyParser::Invalid)

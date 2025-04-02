@@ -269,7 +269,7 @@ describe Loader::Types::Variable do
             let(:issuer_dataset_double) { double('dataset_double', first: nil) }
 
             it 'raises an error' do
-              expect { variable.verify }.to raise_error(Exceptions::RecordNotFound)
+              expect { variable.verify }.to raise_error(Exceptions::PolicyLoadRecordNotFound)
             end
           end
 
@@ -277,7 +277,7 @@ describe Loader::Types::Variable do
             let(:current_user_allowed_to_use_issuer) { false }
 
             it 'raises an error' do
-              expect { variable.verify }.to raise_error(Exceptions::RecordNotFound)
+              expect { variable.verify }.to raise_error(Exceptions::PolicyLoadRecordNotFound)
             end
           end
 
