@@ -48,7 +48,7 @@ A policy can be reloaded using the --replace flag
       - !user developer2
     """
     Then there's an error
-    And the error code is "not_found"
+    And the error code is "policy_invalid"
     And the error message is "Group 'developers' not found in account 'cucumber'"
 
   @negative @acceptance
@@ -85,7 +85,7 @@ A policy can be reloaded using the --replace flag
       - !user developer2
     """
     Then there's an error
-    And the error code is "not_found"
+    And the error code is "policy_invalid"
     And the error message is "Group 'security-admin' not found in account 'cucumber'"
 
   @smoke
@@ -281,7 +281,7 @@ A policy can be reloaded using the --replace flag
       resource: !layer ops
     """
     Then there's an error
-    And the error code is "not_found"
+    And the error code is "policy_invalid"
     And the error message is "Layer 'ops' not found in account 'cucumber'"
 
   @acceptance

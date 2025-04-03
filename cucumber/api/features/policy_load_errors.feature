@@ -16,19 +16,13 @@ Feature: Policy loading error messages
       privilege: [ execute ]
       resource: !variable password
     """
-    Then the HTTP response status code is 404
+    Then the HTTP response status code is 422
     And the JSON response should be:
     """
     {
       "error": {
-        "code": "not_found",
-        "message": "User 'bob' not found in account 'cucumber'",
-        "target": "user",
-        "details": {
-          "code": "not_found",
-          "target": "id",
-          "message": "cucumber:user:bob"
-        }
+        "code": "policy_invalid",
+        "message": "User 'bob' not found in account 'cucumber'"
       }
     }
     """

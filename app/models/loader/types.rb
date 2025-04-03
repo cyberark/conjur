@@ -54,11 +54,11 @@ module Loader
       end
 
       def find_roleid id
-        (::Role[id] || public_roles_model[id]).try(:role_id) || raise(Exceptions::RecordNotFound, id)
+        (::Role[id] || public_roles_model[id]).try(:role_id) || raise(Exceptions::PolicyLoadRecordNotFound, id)
       end
 
       def find_resourceid id
-        (::Resource[id] || public_resources_model[id]).try(:resource_id) || raise(Exceptions::RecordNotFound, id)
+        (::Resource[id] || public_resources_model[id]).try(:resource_id) || raise(Exceptions::PolicyLoadRecordNotFound, id)
       end
 
       protected
@@ -318,7 +318,7 @@ module Loader
 
             if issuer.nil?
               issuer_exception_id = "#{@policy_object.account}:issuer:#{issuer_id}"
-              raise Exceptions::RecordNotFound, issuer_exception_id
+              raise Exceptions::PolicyLoadRecordNotFound, issuer_exception_id
             end
 
             if annotations["#{Issuer::DYNAMIC_ANNOTATION_PREFIX}method"].nil?
@@ -361,7 +361,7 @@ module Loader
         resource = ::Resource[resource_id]
         unless current_user.allowed_to?(privilege, resource)
           issuer_exception_id = "#{account}:issuer:#{issuer_id}"
-          raise Exceptions::RecordNotFound, issuer_exception_id
+          raise Exceptions::PolicyLoadRecordNotFound, issuer_exception_id
         end
       end
 
