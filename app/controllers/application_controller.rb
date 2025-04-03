@@ -108,6 +108,10 @@ class ApplicationController < ActionController::API
     msg.empty? ? head(status) : render(json: { code: code.to_s, message: msg }, status: status)
   end
 
+  def conjur_config
+    Rails.application.config.conjur_config
+  end
+
   # Wrap the request in a transaction.
   def run_with_transaction(&block)
     Sequel::Model.db.transaction(&block)

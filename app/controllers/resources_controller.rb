@@ -5,7 +5,7 @@ class ResourcesController < RestController
   include AssumedRole
 
   def index
-    # Rails 5 requires parameters to be explicitly permitted before converting 
+    # Rails 5 requires parameters to be explicitly permitted before converting
     # to Hash.  See: https://stackoverflow.com/a/46029524
     allowed_params = %i[account kind limit offset search]
     options = params.permit(*allowed_params)
@@ -126,10 +126,6 @@ class ResourcesController < RestController
         error_message: err.message
       )
     )
-  end
-
-  def conjur_config
-    Rails.application.config.conjur_config
   end
 
   private
