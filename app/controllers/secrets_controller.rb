@@ -55,7 +55,7 @@ class SecretsController < RestController
     authorize(:execute)
 
     if @feature_flags.enabled?(:dynamic_secrets) && dynamic_secret?(resource)
-      value = handle_dynamic_secret
+      value = handle_dynamic_secret(resource)
       mime_type = 'application/json'
     else
       version = params[:version]
@@ -188,28 +188,26 @@ class SecretsController < RestController
       resource_object.identifier.start_with?(Issuer::DYNAMIC_VARIABLE_PREFIX)
   end
 
-  def handle_dynamic_secret
-    account = params[:account]
-    resource_annotations = resource.annotations
+  def handle_dynamic_secret(resource)
     variable_data = {}
     request_id = request.env['action_dispatch.request_id']
 
     # Filter the issuer related annotations and remove the prefix
-    resource_annotations.each do |annotation|
+    resource.annotations.each do |annotation|
       next unless annotation.name.start_with?(Issuer::DYNAMIC_ANNOTATION_PREFIX)
 
       issuer_param = annotation.name.to_s[Issuer::DYNAMIC_ANNOTATION_PREFIX.length..-1]
       variable_data[issuer_param] = annotation.value
     end
 
-    issuer = Issuer.first(account: account, issuer_id: variable_data["issuer"])
+    issuer = Issuer.first(account: resource.account, issuer_id: variable_data["issuer"])
 
     # There shouldn't be a state where a variable belongs to an issuer that
     # doesn't exit, but we check it to be safe.
     unless issuer
       raise ApplicationController::UnprocessableEntity,
             "Issuer assigned to " \
-            "#{account}:#{params[:kind]}:#{params[:identifier]} was not found"
+            "#{resource.id} was not found"
     end
 
     logger.info(
