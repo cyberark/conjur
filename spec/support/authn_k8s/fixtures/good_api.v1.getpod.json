@@ -303,6 +303,9 @@
           {
              "name":"bash",
              "image":"debian",
+              "securityContext": {
+                "allowPrivilegeEscalation": false 
+              },
              "resources":{
                 
              },

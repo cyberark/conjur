@@ -60,6 +60,8 @@ spec:
       - image: postgres:15
         imagePullPolicy: Always
         name: postgres
+        securityContext:
+          allowPrivilegeEscalation: false
         env:
         - name: POSTGRES_HOST_AUTH_METHOD
           value: trust
@@ -84,6 +86,8 @@ spec:
       - image: {{ CONJUR_TEST_AUTHN_K8S_TAG }}
         imagePullPolicy: IfNotPresent
         name: conjur
+        securityContext:
+          allowPrivilegeEscalation: false
         command: ["conjurctl", "server"]
         env:
         - name: KUBERNETES_SERVICE_HOST
@@ -113,6 +117,7 @@ spec:
           value: authn-k8s/minikube
         volumeMounts:
           - mountPath: /run/authn-local
+            # kics-scan ignore-line
             name: authn-local
       volumes:
         - name: authn-local
@@ -140,6 +145,8 @@ spec:
         imagePullPolicy: IfNotPresent
         name: conjur
         command: ["sleep", "infinity"]
+        securityContext:
+          allowPrivilegeEscalation: false
         env:
         - name: CONJUR_APPLIANCE_URL
           value: https://nginx
@@ -175,6 +182,8 @@ spec:
       - name: conjur-cli
         image: cyberark/conjur-cli:8
         imagePullPolicy: Always
+        securityContext:
+          allowPrivilegeEscalation: false
         command: ["sleep", "infinity"]
         env:
         - name: CONJUR_APPLIANCE_URL
@@ -204,3 +213,5 @@ spec:
       - name: nginx
         image: {{ NGINX_TAG }}
         imagePullPolicy: IfNotPresent
+        securityContext:
+          allowPrivilegeEscalation: false

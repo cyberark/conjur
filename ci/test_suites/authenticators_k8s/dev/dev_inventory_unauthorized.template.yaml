@@ -7,7 +7,11 @@ spec:
   containers:
   - image: {{ INVENTORY_TAG }}
     name: inventory
+    securityContext:
+      allowPrivilegeEscalation: false
     command: ["sleep", "infinity"]
   - image: {{ INVENTORY_TAG }}
     name: authenticator
+    securityContext:
+      allowPrivilegeEscalation: false
     command: ["sleep", "infinity"]
