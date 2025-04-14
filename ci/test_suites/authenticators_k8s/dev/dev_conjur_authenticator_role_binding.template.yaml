@@ -6,6 +6,7 @@ metadata:
   namespace: {{CONJUR_AUTHN_K8S_TEST_NAMESPACE}}
 subjects:
   - kind: ServiceAccount
+    # kics-scan ignore-line
     name: default
     namespace: {{CONJUR_AUTHN_K8S_TEST_NAMESPACE}}
 roleRef:

@@ -23,6 +23,8 @@ spec:
         imagePullPolicy: Always
         name: conjur
         command: ["conjurctl", "server"]
+        securityContext:
+          allowPrivilegeEscalation: false
         env:
         - name: DATABASE_URL
           value: postgres://postgres@postgres:5432/postgres
@@ -49,6 +51,7 @@ spec:
           value: /opt/conjur/etc/ssl/
         volumeMounts:
           - mountPath: /run/authn-local
+            # kics-scan ignore-line
             name: authn-local
       volumes:
         - name: authn-local

@@ -39,6 +39,7 @@ cucumber/*/*_results.*
 
 apidocs/node_modules
 *.config
+!kics.config
 
 # Generated API docs
 api.html

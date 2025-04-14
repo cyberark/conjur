@@ -27,6 +27,10 @@ spec:
       - image: {{ INVENTORY_TAG }}
         name: inventory
         command: ["sleep", "infinity"]
+        securityContext:
+          allowPrivilegeEscalation: false
       - image: {{ INVENTORY_TAG }}
         name: authenticator
         command: ["sleep", "infinity"]
+        securityContext:
+          allowPrivilegeEscalation: false

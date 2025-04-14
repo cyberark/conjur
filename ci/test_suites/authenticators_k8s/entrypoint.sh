@@ -127,7 +127,7 @@ function buildDockerImages() {
     -f dev/Dockerfile.inventory \
     dev
 
-  docker build -t "$NGINX_TAG" -f dev/Dockerfile.nginx dev
+  docker build --platform linux/amd64 -t "$NGINX_TAG" -f dev/Dockerfile.nginx dev
   docker build -t "$TINYPROXY_TAG" -f dev/Dockerfile.tinyproxy dev
 
   docker build --build-arg OPENSHIFT_CLI_URL="$OPENSHIFT_CLI_URL" \

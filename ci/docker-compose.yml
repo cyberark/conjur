@@ -65,6 +65,7 @@ services:
     image: "conjur-test:${TAG}"
     environment:
       DATABASE_URL: postgres://postgres@pg/postgres
+      # kics-scan ignore-line
       CONJUR_ADMIN_PASSWORD: ADmin123!!!!
       CONJUR_ACCOUNT: cucumber
       CONJUR_DATA_KEY:
@@ -102,6 +103,7 @@ services:
     image: "conjur-test:${TAG}"
     environment:
       DATABASE_URL: postgres://postgres@pg2/postgres
+      # kics-scan ignore-line
       CONJUR_ADMIN_PASSWORD: ADmin123!!!!
       CONJUR_ACCOUNT: cucumber
       CONJUR_DATA_KEY:
@@ -175,6 +177,7 @@ services:
     environment:
       LDAP_ORGANISATION: CyberArk
       LDAP_DOMAIN: conjur.net
+      # kics-scan ignore-line
       LDAP_ADMIN_PASSWORD: ldapsecret
       LDAP_TLS_DH_PARAM_FILENAME: "dhparam.pem"
       LDAP_TLS_CA_CRT_FILENAME: "ca-chain.cert.pem"
@@ -193,14 +196,18 @@ services:
         hard: 6114
     environment:
       - KEYCLOAK_USER=admin
+      # kics-scan ignore-line
       - KEYCLOAK_PASSWORD=admin
       - KEYCLOAK_APP_USER=alice
+      # kics-scan ignore-line
       - KEYCLOAK_APP_USER_PASSWORD=alice
       - KEYCLOAK_APP_USER_EMAIL=alice@conjur.net
       - KEYCLOAK_SECOND_APP_USER=bob.somebody
+      # kics-scan ignore-line
       - KEYCLOAK_SECOND_APP_USER_PASSWORD=bob
       - KEYCLOAK_SECOND_APP_USER_EMAIL=bob@conjur.net
       - KEYCLOAK_NON_CONJUR_APP_USER=not_in_conjur
+      # kics-scan ignore-line
       - KEYCLOAK_NON_CONJUR_APP_USER_PASSWORD=not_in_conjur
       - KEYCLOAK_NON_CONJUR_APP_USER_EMAIL=not_in_conjur
       - DB_VENDOR=H2
@@ -271,6 +278,7 @@ services:
       - jwks_py:${HOST_IPV6:-[::1]}
     environment:
       DATABASE_URL: postgres://postgres@pg/postgres
+      # kics-scan ignore-line
       CONJUR_ADMIN_PASSWORD: ADmin123!!!!
       CONJUR_ACCOUNT: cucumber
       CONJUR_DATA_KEY:
@@ -327,14 +335,18 @@ services:
         hard: 6114
     environment:
       - KEYCLOAK_USER=admin
+      # kics-scan ignore-line
       - KEYCLOAK_PASSWORD=admin
       - KEYCLOAK_APP_USER=alice
+      # kics-scan ignore-line
       - KEYCLOAK_APP_USER_PASSWORD=alice
       - KEYCLOAK_APP_USER_EMAIL=alice@conjur.net
       - KEYCLOAK_SECOND_APP_USER=bob.somebody
+      # kics-scan ignore-line
       - KEYCLOAK_SECOND_APP_USER_PASSWORD=bob
       - KEYCLOAK_SECOND_APP_USER_EMAIL=bob@conjur.net
       - KEYCLOAK_NON_CONJUR_APP_USER=not_in_conjur
+      # kics-scan ignore-line
       - KEYCLOAK_NON_CONJUR_APP_USER_PASSWORD=not_in_conjur
       - KEYCLOAK_NON_CONJUR_APP_USER_EMAIL=not_in_conjur
       - DB_VENDOR=H2
