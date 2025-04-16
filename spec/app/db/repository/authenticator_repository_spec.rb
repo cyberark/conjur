@@ -6,48 +6,127 @@ RSpec.describe(DB::Repository::AuthenticatorRepository) do
   let(:repo) do
     described_class.new
   end
+  let(:current_user) { Role.find_or_create(role_id: 'rspec:user:admin') }
+
+  let(:services) { %w[foo bar] }
+
+  before(:all) do
+    Slosilo["authn:rspec"] ||= Slosilo::Key.new
+    Role.find_or_create(role_id: 'rspec:user:admin')
+  end
+
+  let(:variables) { {} }
+
+  let(:authenticators) do
+    [
+      { 
+        type: "oidc",
+        branch: "conjur/authn-oidc",
+        name: "bar",
+        enabled: true,
+        annotations: { "test" => "bar" },
+        owner: { id: "admin", kind: "user" },
+        data: variables 
+      },
+      { 
+        type: "oidc",
+        name: "foo",
+        branch: "conjur/authn-oidc",
+        enabled: true,
+        annotations: { "test" => "foo" },
+        owner: { id: "admin", kind: "user" },
+        data: variables 
+      }
+    ]
+  end
 
   let(:arguments) { %i[provider_uri client_id client_secret claim_mapping] }
 
   describe('#find_all') do
     context 'when webservice is not present' do
       it 'is unsuccessful' do
-        response = repo.find_all(type: 'authn-oidc', account: 'rspec')
+        response = repo.find_all_if_visible(type: 'authn-oidc', role: current_user, account: 'rspec')
 
-        expect(response.success?).to be(false)
-        expect(response.message).to eq("Failed to find any authenticators for 'authn-oidc' in account: 'rspec'")
+        expect(response.success?).to be(true)
+        expect(response.result).to eq([])
       end
     end
 
     context 'when webservices are presents' do
-      let(:services) { %w[foo bar] }
       before(:each) do
         services.each do |service|
           ::Role.create(
             role_id: "rspec:policy:conjur/authn-oidc/#{service}"
           )
+
           # Webservice for authenticator
-          ::Resource.create(
+
+          ::Annotation.create(
+            resource: ::Resource.create(
+              resource_id: "rspec:webservice:conjur/authn-oidc/#{service}",
+              owner_id: 'rspec:user:admin'
+            ),
+            name: "test",
+            value: service.to_s
+          )
+
+          ::AuthenticatorConfig.create(
             resource_id: "rspec:webservice:conjur/authn-oidc/#{service}",
-            owner_id: "rspec:policy:conjur/authn-oidc/#{service}"
+            enabled: "true"
           )
           # Webservice for authenticator status
           ::Resource.create(
             resource_id: "rspec:webservice:conjur/authn-oidc/#{service}/status",
-            owner_id: "rspec:policy:conjur/authn-oidc/#{service}"
+            owner_id: 'rspec:user:admin'
           )
+        end
+      end
+
+      context 'Type is not set' do
+        before(:each) do
+          # Webservice for authenticator
+          ::Resource.create(
+            resource_id: "rspec:webservice:conjur/authn-jwt/baz",
+            owner_id: 'rspec:user:admin'
+          )
+          ::Resource.create(
+            resource_id: "rspec:webservice:conjur/app/testapp",
+            owner_id: 'rspec:user:admin'
+          )
+          # Webservice for authenticator status
+          ::Resource.create(
+            resource_id: "rspec:webservice:conjur/authn-jwt/baz/status",
+            owner_id: 'rspec:user:admin'
+          )
+        end
+
+        it 'returns the relevant variable data' do
+          response = repo.find_all_if_visible(type: nil, role: current_user, account: 'rspec')
+          authns = authenticators.insert(0, { 
+            type: "jwt",
+            branch: "conjur/authn-jwt",
+            name: "baz",
+            enabled: false,
+            owner: { id: "admin", kind: "user" },
+            data: {} 
+          })
+
+          expect(response.success?).to be(true)
+          expect(response.result.map(&:to_h)).to eq(authns)
+        end
+        after(:each) do
+          ::Resource["rspec:webservice:conjur/authn-jwt/baz"].destroy
+          ::Resource["rspec:webservice:conjur/app/testapp"].destroy
+          ::Resource["rspec:webservice:conjur/authn-jwt/baz/status"].destroy
         end
       end
 
       context 'variables are not loaded' do
         it 'returns the identified authenticator accounts and service-ids' do
-          response = repo.find_all(type: 'authn-oidc', account: 'rspec')
-
+          response = repo.find_all_if_visible(type: 'authn-oidc', role: current_user, account: 'rspec')
+      
           expect(response.success?).to be(true)
-          expect(response.result).to eq([
-            { account: 'rspec', service_id: 'bar' },
-            { account: 'rspec', service_id: 'foo' }
-          ])
+          expect(response.result.map(&:to_h)).to eq(authenticators)
         end
       end
 
@@ -63,17 +142,20 @@ RSpec.describe(DB::Repository::AuthenticatorRepository) do
           end
         end
 
+        let(:variables)  do 
+          {
+            claim_mapping: "",
+            client_id: "",
+            client_secret: "",
+            provider_uri: ""
+          } 
+        end
+
         context 'secrets are not set' do
           it 'items are returned with values set to empty strings' do
-            empty_hash = { account: 'rspec', claim_mapping: '', client_id: '', client_secret: '', provider_uri: '' }
-
-            response = repo.find_all(type: 'authn-oidc', account: 'rspec')
-
+            response = repo.find_all_if_visible(type: 'authn-oidc', role: current_user, account: 'rspec')
             expect(response.success?).to be(true)
-            expect(response.result).to eq([
-              empty_hash.merge(service_id: 'bar'),
-              empty_hash.merge(service_id: 'foo')
-            ])
+            expect(response.result.map(&:to_h)).to eq(authenticators)
           end
         end
 
@@ -89,15 +171,13 @@ RSpec.describe(DB::Repository::AuthenticatorRepository) do
             end
           end
 
+          let(:variables) { { claim_mapping: 'claim_mapping', client_id: 'client_id', client_secret: 'client_secret', provider_uri: 'provider_uri' } }
+
           it 'returns the relevant variable data' do
-            expected_values = { account: 'rspec', claim_mapping: 'claim_mapping', client_id: 'client_id', client_secret: 'client_secret', provider_uri: 'provider_uri' }
-            response = repo.find_all(type: 'authn-oidc', account: 'rspec')
+            response = repo.find_all_if_visible(type: 'authn-oidc', role: current_user, account: 'rspec')
 
             expect(response.success?).to be(true)
-            expect(response.result).to eq([
-              expected_values.merge(service_id: 'bar'),
-              expected_values.merge(service_id: 'foo')
-            ])
+            expect(response.result.map(&:to_h)).to eq(authenticators)
           end
         end
 
