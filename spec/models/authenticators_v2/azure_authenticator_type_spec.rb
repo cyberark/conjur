@@ -14,23 +14,22 @@ describe AuthenticatorsV2::AzureAuthenticatorType, type: :model do
     context "when all data variables are missing" do
       let(:authenticator_dict) do
         {
-          type: "azure",
-          name: "auth1",
-          branch: "authn-azure",
+          type: "authn-azure",
+          service_id: "auth1",
           subtype: nil,
           enabled: true,
-          owner: "#{account}:policy:conjur/authn-azure",
-          annotations: { "description" => "this is my azure authenticator" },
+          owner_id: "#{account}:policy:conjur/authn-azure",
+          annotations: '{ "description": "this is my azure authenticator" }',
           variables: {} # No data variables
         }
       end
 
       it "includes the data key as an empty hash in json" do
-        json = authenticator.as_json
+        json = authenticator.to_h
         expected_json = {
           type: "azure",
           name: "auth1",
-          branch: "authn-azure",
+          branch: "conjur/authn-azure",
           enabled: true,
           owner: { id: "conjur/authn-azure", kind: "policy" },
           annotations: { "description" => "this is my azure authenticator" },
@@ -44,13 +43,12 @@ describe AuthenticatorsV2::AzureAuthenticatorType, type: :model do
     context "when extra unknown variables exist in data" do
       let(:authenticator_dict) do
         {
-          type: "azure",
-          name: "auth1",
-          branch: "authn-azure",
+          type: "authn-azure",
+          service_id: "auth1",
           subtype: nil,
           enabled: true,
-          owner: "#{account}:policy:conjur/authn-azure",
-          annotations: { "description" => "this is my azure authenticator" },
+          owner_id: "#{account}:policy:conjur/authn-azure",
+          annotations: '{ "description": "this is my azure authenticator" }',
           variables: {
             "#{account}:variable:conjur/authn-azure/auth1/unknown-key" => "random_value",
             "#{account}:variable:conjur/authn-azure/auth1/provider-uri" => "https://provider-uri"
@@ -59,11 +57,11 @@ describe AuthenticatorsV2::AzureAuthenticatorType, type: :model do
       end
 
       it "ignores unknown keys and includes only valid ones" do
-        json = authenticator.as_json
+        json = authenticator.to_h
         expected_json = {
           type: "azure",
           name: "auth1",
-          branch: "authn-azure",
+          branch: "conjur/authn-azure",
           enabled: true,
           owner: { id: "conjur/authn-azure", kind: "policy" },
           annotations: { "description" => "this is my azure authenticator" },
@@ -78,13 +76,12 @@ describe AuthenticatorsV2::AzureAuthenticatorType, type: :model do
     context "when only the valid variable exist" do
       let(:authenticator_dict) do
         {
-          type: "azure",
-          name: "auth1",
-          branch: "authn-azure",
+          type: "authn-azure",
+          service_id: "auth1",
           subtype: nil,
           enabled: true,
-          owner: "#{account}:policy:conjur/authn-azure",
-          annotations: { "description" => "this is my azure authenticator" },
+          owner_id: "#{account}:policy:conjur/authn-azure",
+          annotations: '{ "description": "this is my azure authenticator" }',
           variables: {
             "#{account}:variable:conjur/authn-azure/auth1/provider-uri" => "https://provider-uri"
           }
@@ -92,11 +89,11 @@ describe AuthenticatorsV2::AzureAuthenticatorType, type: :model do
       end
 
       it "includes only provider uri" do
-        json = authenticator.as_json
+        json = authenticator.to_h
         expected_json = {
           type: "azure",
           name: "auth1",
-          branch: "authn-azure",
+          branch: "conjur/authn-azure",
           enabled: true,
           owner: { id: "conjur/authn-azure", kind: "policy" },
           annotations: { "description" => "this is my azure authenticator" },

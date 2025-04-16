@@ -13,19 +13,18 @@ describe AuthenticatorsV2::AwsAuthenticatorType, type: :model do
     context "when aws dictionary received" do
       let(:authenticator_dict) do
         {
-          type: "aws",
-          name: "auth1",
-          branch: "conjur/authn-iam",
+          type: "authn-iam",
+          service_id: "auth1",
           subtype: nil,
           enabled: true,
-          owner: "#{account}:policy:conjur/authn-iam",
-          annotations: { "description" => "this is my aws authenticator" },
+          owner_id: "#{account}:policy:conjur/authn-iam",
+          annotations: '{ "description": "this is my aws authenticator" }',
           variables: {}
         }
       end
 
       it "does not include data attribute in the json" do
-        json = authenticator.as_json
+        json = authenticator.to_h
         expected_json = {
           type: "aws",
           name: "auth1",

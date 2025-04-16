@@ -8,7 +8,7 @@ module AuthenticatorsV2
 
     protected
 
-    def authenticator_name
+    def name
       GCP_DEFAULT_NAME
     end
   end

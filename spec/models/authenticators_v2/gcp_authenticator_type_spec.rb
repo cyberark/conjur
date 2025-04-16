@@ -13,19 +13,17 @@ describe AuthenticatorsV2::GcpAuthenticatorType, type: :model do
     context "when gcp dictionary received" do
       let(:authenticator_dict) do
         {
-          type: "gcp",
-          name: "default",
-          branch: "conjur/authn-gcp",
-          subtype: nil,
+          type: "authn-gcp",
+          service_id: "default",
           enabled: true,
-          owner: "#{account}:policy:conjur/authn-gcp",
-          annotations: { "description" => "this is my gcp authenticator" },
+          owner_id: "#{account}:policy:conjur/authn-gcp",
+          annotations: '{ "description": "this is my gcp authenticator" }',
           variables: {}
         }
       end
 
       it "does not include data attribute in the json" do
-        json = authenticator.as_json
+        json = authenticator.to_h
         expected_json = {
           type: "gcp",
           name: "default",

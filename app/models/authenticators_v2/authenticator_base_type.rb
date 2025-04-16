@@ -2,35 +2,44 @@
 
 module AuthenticatorsV2
   class AuthenticatorBaseType
-    attr_accessor :type, :name, :branch, :enabled, :owner,
-                  :annotations, :authenticator_variables
+    attr_accessor :type, :branch, :enabled, :owner, :name,
+                  :annotations, :variables, :account
 
     def initialize(authenticator_dict)
+      @account = authenticator_dict[:account]
       @type = authenticator_dict[:type]
-      @name = authenticator_dict[:name]
-      @branch = authenticator_dict[:branch]
+      @service_id = authenticator_dict[:service_id]
+      @name = authenticator_dict[:service_id]
       @enabled = authenticator_dict[:enabled]
-      @owner = authenticator_dict[:owner]
+      @owner = authenticator_dict[:owner_id]
       @annotations = authenticator_dict[:annotations]
-      @authenticator_variables = authenticator_dict[:variables]
+      @variables = authenticator_dict[:variables]
     end
 
-    def as_json
-      json_response = { type: type }
+    def to_h
+      res = {
+        type: format_type(type),
+        branch: "conjur/#{@type}",
+        name: authenticator_name,
+        enabled: @enabled,
+        owner: parse_owner(@owner)
+      }
+      res[:data] = add_data_params(@variables) if respond_to?(:add_data_params)
+      res[:annotations] = JSON.parse(@annotations) if @annotations.present?
 
-      json_response[:branch] = branch
-      json_response[:name] = authenticator_name
-      json_response[:enabled] = enabled
-
-      json_response[:owner] = parse_owner(owner)
-
-      json_response[:data] = add_data_params(authenticator_variables) if respond_to?(:add_data_params)
-
-      json_response[:annotations] = annotations unless annotations.nil? || annotations.empty?
-
-      json_response
+      res
+    end
+  
+    def format_type(authn_type)
+      return "aws" if authn_type == "authn-iam"
+      
+      authn_type.split("-").last
     end
 
+    def authenticator_name
+      @service_id
+    end
+    
     private
 
     # Extracts a parameter from `authenticator_params` if it exists and
@@ -53,10 +62,6 @@ module AuthenticatorsV2
       end
 
       value
-    end
-
-    def authenticator_name
-      name
     end
 
     # Parses owner string into a structured hash
