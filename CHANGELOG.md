@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   ephemeral secrets engine. CNJR-7829
 - Added the list authenticators endpoint for the V2 API's. CNJR-9137
 - Added the show authenticator endpoint for the V2 API's. CNJR-9133
+- Added the ability to create authenticators through a V2 API endpoint CNJR-9136
 
 ### Fixed
 - Attempt to authenticate using the built-in authenticator (`authn`) with a GET

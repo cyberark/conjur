@@ -68,16 +68,24 @@ module DB
         end
       end
 
+      # Takes an AuthenticatorBaseType model (or one of its children) and attempts to create
+      # an object for it in the database
+      def create(authenticator:)
+        DB::Repository::Authenticator::CreateAuthenticator.new.call(authenticator: authenticator)
+      end
+
       private
 
       def map_authenticator(identifier:,  webservice:, account:)
+        annotations = JSON.parse(webservice[:annotations]) unless webservice[:annotations].nil?
+
         @auth_type_factory.create_authenticator_type({
           type: identifier[1],
           service_id: identifier[2],
           account: account,
           resource_id: webservice[:resource_id],
           enabled: webservice[:enabled],
-          annotations: webservice[:annotations],
+          annotations: annotations,
           owner_id: webservice[:owner_id],
           variables: load_authenticator_variables(
             account: account,

@@ -31,6 +31,34 @@ class AuthenticatorController < ApplicationController
     raise e
   end
 
+  def create_authenticator
+    account = params[:account]
+    auth_json = request.body.read
+    auth = AuthenticatorsV2::AuthenticatorTypeFactory.new.create_authenticator_from_json(auth_json, account)
+    unless auth.success?
+      logger.debug("Failed to create authenticator from request params: #{auth.message}")
+      head(auth.status)
+      return
+    end
+
+    auth = auth.result
+    # Ensure owner exists & requesting user has visibility on them
+    begin
+      ensure_owner_exists(auth.owner) unless auth.owner.nil?
+    rescue Exceptions::RecordNotFound => e
+      raise ApplicationController::UnprocessableEntity, e.message
+    end
+
+    begin
+      # Attempt to create the authenticator in the database
+      authenticator = DB::Repository::AuthenticatorRepository.new.create(authenticator: auth)
+    rescue Sequel::UniqueConstraintViolation, Sequel::ConstraintViolation
+      raise ApplicationController::Conflict, "The authenticator already exists."
+    end
+
+    render(json: authenticator.to_h)
+  end
+
   def find_authenticator
     allowed_params = %i[type account service_id]
     
@@ -60,5 +88,21 @@ class AuthenticatorController < ApplicationController
   rescue => e
     log_backtrace(e)
     raise e
+  end
+
+  private
+
+  def authorize_auth_branch(auth)
+    auth_branch = "#{auth.account}:policy:#{auth.branch}"
+    resource = Resource[auth.branch]
+    raise Exceptions::RecordNotFound, auth_branch unless resource&.visible_to?(current_user)
+
+    authorize(:create, auth_branch)
+  end
+
+  def ensure_owner_exists(owner_id)
+    owner = Resource[owner_id]
+
+    raise Exceptions::RecordNotFound, owner_id unless owner&.visible_to?(current_user)
   end
 end
