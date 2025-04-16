@@ -57,6 +57,8 @@ Rails.application.routes.draw do
         post '/authn-k8s/:service_id/inject_client_cert' => 'authenticate#k8s_inject_client_cert'
       end
 
+      get '/authenticators/:account' => 'authenticator#list_authenticators'
+
       # Factories
       post   "/factory-resources/:account/:kind/(:version)/:id" => "policy_factory_resources#create"
 
