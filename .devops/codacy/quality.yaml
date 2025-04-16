@@ -1,0 +1,51 @@
+# Confluence Page Reference: https://ca-il-confluence.il.cyber-ark.com/display/DEV/Codacy+Quality+Settings
+# Codacy Quality Settings: https://api.codacy.com/api/api-docs#tocs_repositoryqualitysettings
+# Codacy Quality Gates: https://api.codacy.com/api/api-docs#tocs_qualitygate
+
+# goals
+# fileComplexityValueThreshold: 10    - Default: 20 - File will be considered complex when its complexity value is over this threshold. This value cannot be negative
+# fileDuplicationBlockThreshold: 1    - Default: 1  - File will be considered duplicated when the number of cloned blocks is over this threshold. This value cannot be negative
+# maxComplexFilesPercentage: 10       - Default: 10 - Repo will be considered unhealthy if the percentage of complexity of files is over this threshold
+# maxDuplicatedFilesPercentage: 10    - Default: 10 - Repo will be considered unhealthy if the percentage of duplication of files is over this threshold
+# maxIssuePercentage: 10              - Default: 20 - Repo will be considered unhealthy if the percentage of issues is over this threshold
+# minCoveragePercentage: 85           - Default: 60 - Repo will be considered unhealthy if the coverage percentage is under this threshold
+
+# gates:
+# complexityThreshold: 20             - Default: 20 - Quality gate will fail if the complexity value is over this threshold. This value cannot be negative
+# coverageThresholdWithDecimals: 0.00 - Default: -1 - Quality gate will fail if coverage percentage varies less than this threshold. This value should be at most 1.00
+# diffCoverageThreshold: 90           - Default: 70 - Quality gate will fail if diff coverage is under this threshold. This value should be at least 0 and at most 100
+# duplicationThreshold: 1             - Default: 1  - Quality gate will fail if there are new duplicated blocks over this threshold
+# issueThreshold:                     - Default: 0  - Quality gate will fail if there are new issues of the specified severity over this threshold (if no severity is specified all severity levels are considered). This value cannot be negative
+#   threshold: 0
+#   minimumSeverity: 'Minor'          - Default: minor - Issue severity level. (These values map to our UI as follows: Info->Minor, Warning->Medium, Error->Critical)
+# securityIssueThreshold: 0           - Default: 1 - Quality gate will fail if the number of new security issues is over this threshold. This value cannot be negative
+
+---
+goals:
+  fileComplexityValueThreshold: 10
+  fileDuplicationBlockThreshold: 1
+  maxComplexFilesPercentage: 10
+  maxDuplicatedFilesPercentage: 10
+  maxIssuePercentage: 10
+  minCoveragePercentage: 85
+gates:
+  commits:
+    complexityThreshold: 20
+    coverageThresholdWithDecimals: 0.00
+    diffCoverageThreshold: 90
+    duplicationThreshold: 1
+    # issueThreshold:
+    #   threshold: 0
+    #   minimumSeverity: 'Minor'
+    securityIssueThreshold: 0
+  pull-requests:
+    complexityThreshold: 20
+    coverageThresholdWithDecimals: 0.00
+    diffCoverageThreshold: 90
+    duplicationThreshold: 1
+    # issueThreshold:
+    #   threshold: 0
+    #   minimumSeverity: 'Minor'
+    securityIssueThreshold: 0
+
+
