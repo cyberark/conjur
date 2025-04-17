@@ -1,6 +1,3 @@
-# Confluence Page Reference: https://ca-il-confluence.il.cyber-ark.com/display/DEV/Codacy+Quality+Settings
-# Codacy Quality Settings: https://api.codacy.com/api/api-docs#tocs_repositoryqualitysettings
-# Codacy Quality Gates: https://api.codacy.com/api/api-docs#tocs_qualitygate
 
 # goals
 # fileComplexityValueThreshold: 10    - Default: 20 - File will be considered complex when its complexity value is over this threshold. This value cannot be negative
