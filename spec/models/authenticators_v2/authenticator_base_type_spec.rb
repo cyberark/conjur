@@ -9,13 +9,12 @@ describe AuthenticatorsV2::AuthenticatorBaseType, type: :model do
     let(:authenticator_dict) do
       {
         type: "base",
-        name: "auth1",
-        branch: "authn-base",
+        service_id: "auth1",
         enabled: true,
-        owner: "#{account}:policy:conjur/authn-base",
-        annotations: { "description" => "this is my base authenticator" },
+        owner_id: "#{account}:policy:conjur/base",
+        annotations: '{ "description": "this is my base authenticator" }',
         variables: {
-          "#{account}:variable:conjur/authn-base/auth1/ca-cert" => "CERT_DATA_1"
+          "#{account}:variable:conjur/base/auth1/ca-cert" => "CERT_DATA_1"
         }
       }
     end
@@ -25,28 +24,27 @@ describe AuthenticatorsV2::AuthenticatorBaseType, type: :model do
     it "initializes with correct attributes" do
       expect(authenticator.type).to eq("base")
       expect(authenticator.name).to eq("auth1")
-      expect(authenticator.branch).to eq("authn-base")
       expect(authenticator.enabled).to be(true)
-      expect(authenticator.owner).to eq("#{account}:policy:conjur/authn-base")
-      expect(authenticator.annotations).to eq({ "description" => "this is my base authenticator" })
-      expect(authenticator.authenticator_variables).to eq({ "#{account}:variable:conjur/authn-base/auth1/ca-cert" => "CERT_DATA_1" })
+      expect(authenticator.owner).to eq("#{account}:policy:conjur/base")
+      expect(authenticator.annotations).to eq('{ "description": "this is my base authenticator" }')
+      expect(authenticator.variables).to eq({ "#{account}:variable:conjur/base/auth1/ca-cert" => "CERT_DATA_1" })
     end
   end
 
-  describe "#as_json" do
+  describe "#to_h" do
     let(:authenticator) { described_class.new(authenticator_dict) }
 
     context "when all attributes are present (base type)" do
       let(:authenticator_dict) do
         {
           type: "base",
-          name: "auth1",
-          branch: "authn-base",
+          service_id: "auth1",
+          branch: "conjur/base",
           enabled: true,
-          owner: "#{account}:policy:conjur/authn-base",
-          annotations: { "description" => "this is my base authenticator" },
+          owner_id: "#{account}:policy:conjur/base",
+          annotations: '{ "description": "this is my base authenticator" }',
           variables: {
-            "#{account}:variable:conjur/authn-base/auth1/ca-cert" => "CERT_DATA_1"
+            "#{account}:variable:conjur/base/auth1/ca-cert" => "CERT_DATA_1"
           }
         }
       end
@@ -54,14 +52,14 @@ describe AuthenticatorsV2::AuthenticatorBaseType, type: :model do
       it "returns the correct JSON structure" do
         expected_json = {
           type: "base",
-          branch: "authn-base",
+          branch: "conjur/base",
           name: "auth1",
           enabled: true,
-          owner: { id: "conjur/authn-base", kind: "policy" },
+          owner: { id: "conjur/base", kind: "policy" },
           annotations: { "description" => "this is my base authenticator" }
         }
 
-        json = authenticator.as_json
+        json = authenticator.to_h
         expect(json).to eq(expected_json)
       end
     end
@@ -70,13 +68,13 @@ describe AuthenticatorsV2::AuthenticatorBaseType, type: :model do
       let(:authenticator_dict) do
         {
           type: "base",
-          name: "auth1",
-          branch: "authn-base",
+          service_id: "auth1",
+          branch: "conjur/base",
           enabled: false,
-          owner: "#{account}:host:conjur/data/host457",
-          annotations: { "description" => "this is my base authenticator" },
+          owner_id: "#{account}:host:conjur/data/host457",
+          annotations: '{ "description": "this is my base authenticator" }',
           variables: {
-            "#{account}:variable:conjur/authn-base/auth1/ca-cert" => "CERT_DATA_1"
+            "#{account}:variable:conjur/base/auth1/ca-cert" => "CERT_DATA_1"
           }
         }
       end
@@ -84,14 +82,14 @@ describe AuthenticatorsV2::AuthenticatorBaseType, type: :model do
       it "returns the correct JSON structure" do
         expected_json = {
           type: "base",
-          branch: "authn-base",
+          branch: "conjur/base",
           name: "auth1",
           enabled: false,
           owner: { id: "conjur/data/host457", kind: "host" },
           annotations: { "description" => "this is my base authenticator" }
         }
 
-        json = authenticator.as_json
+        json = authenticator.to_h
         expect(json).to eq(expected_json)
       end
     end
@@ -100,13 +98,13 @@ describe AuthenticatorsV2::AuthenticatorBaseType, type: :model do
       let(:authenticator_dict) do
         {
           type: "base",
-          name: "auth1",
-          branch: "authn-base",
+          service_id: "auth1",
+          branch: "conjur/base",
           enabled: false,
-          owner: "#{account}:group:conjur/data/group123",
-          annotations: { "description" => "this is my base authenticator" },
+          owner_id: "#{account}:group:conjur/data/group123",
+          annotations: '{ "description": "this is my base authenticator" }',
           variables: {
-            "#{account}:variable:conjur/authn-base/auth1/ca-cert" => "CERT_DATA_1"
+            "#{account}:variable:conjur/base/auth1/ca-cert" => "CERT_DATA_1"
           }
         }
       end
@@ -114,14 +112,14 @@ describe AuthenticatorsV2::AuthenticatorBaseType, type: :model do
       it "returns the correct JSON structure" do
         expected_json = {
           type: "base",
-          branch: "authn-base",
+          branch: "conjur/base",
           name: "auth1",
           enabled: false,
           owner: { id: "conjur/data/group123", kind: "group" },
           annotations: { "description" => "this is my base authenticator" }
         }
 
-        json = authenticator.as_json
+        json = authenticator.to_h
         expect(json).to eq(expected_json)
       end
     end
@@ -130,10 +128,10 @@ describe AuthenticatorsV2::AuthenticatorBaseType, type: :model do
       let(:authenticator_dict) do
         {
           type: "base",
-          name: "auth1",
-          branch: "authn-base",
+          service_id: "auth1",
+          branch: "conjur/base",
           enabled: true,
-          owner: "#{account}:policy:conjur/authn-base",
+          owner_id: "#{account}:policy:conjur/base",
           annotations: nil,
           variables: {}
         }
@@ -142,13 +140,13 @@ describe AuthenticatorsV2::AuthenticatorBaseType, type: :model do
       it "returns JSON without the annotations key" do
         expected_json = {
           type: "base",
-          branch: "authn-base",
+          branch: "conjur/base",
           name: "auth1",
           enabled: true,
-          owner: { id: "conjur/authn-base", kind: "policy" }
+          owner: { id: "conjur/base", kind: "policy" }
         }
 
-        json = authenticator.as_json
+        json = authenticator.to_h
         expect(json).to eq(expected_json)
       end
     end
@@ -157,11 +155,11 @@ describe AuthenticatorsV2::AuthenticatorBaseType, type: :model do
       let(:authenticator_dict) do
         {
           type: "base",
-          name: "auth1",
-          branch: "authn-base",
+          service_id: "auth1",
+          branch: "conjur/base",
           enabled: true,
-          owner: "#{account}:policy:conjur/authn-base",
-          annotations: {},
+          owner_id: "#{account}:policy:conjur/base",
+          annotations: "",
           variables: {}
         }
       end
@@ -169,13 +167,13 @@ describe AuthenticatorsV2::AuthenticatorBaseType, type: :model do
       it "returns JSON without the annotations key" do
         expected_json = {
           type: "base",
-          branch: "authn-base",
+          branch: "conjur/base",
           name: "auth1",
           enabled: true,
-          owner: { id: "conjur/authn-base", kind: "policy" }
+          owner: { id: "conjur/base", kind: "policy" }
         }
 
-        json = authenticator.as_json
+        json = authenticator.to_h
         expect(json).to eq(expected_json)
       end
     end

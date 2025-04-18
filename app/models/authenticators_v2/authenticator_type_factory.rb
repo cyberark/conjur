@@ -2,14 +2,20 @@
 
 module AuthenticatorsV2
   class AuthenticatorTypeFactory
+    def initialize
+      @success = ::SuccessResponse
+      @failure = ::FailureResponse
+    end
+
     # A hash that maps types to their respective classes
     AUTHENTICATOR_CLASSES = {
-      "jwt" => JwtAuthenticatorType,
-      "aws" => AwsAuthenticatorType,
-      "azure" => AzureAuthenticatorType,
-      "gcp" => GcpAuthenticatorType,
-      "ldap" => LdapAuthenticatorType,
-      "k8s" => K8sAuthenticatorType
+      "authn-jwt" => JwtAuthenticatorType,
+      "authn-iam" => AwsAuthenticatorType,
+      "authn-azure" => AzureAuthenticatorType,
+      "authn-gcp" => GcpAuthenticatorType,
+      "authn-oidc" => OidcAuthenticatorType,
+      "authn-ldap" => LdapAuthenticatorType,
+      "authn-k8s" => K8sAuthenticatorType
     }.freeze
 
     # Creates an authenticator instance based on the given type
@@ -22,14 +28,24 @@ module AuthenticatorsV2
     # @return [AzureAuthenticatorType] if type is "azure"
     # @return [GcpAuthenticatorType] if type is "gcp"
     # @raise [ApplicationController::UnprocessableEntity] if type is nil or unsupported
-    def create_authenticator_type(type, authenticator_dict)
-      raise ApplicationController::UnprocessableEntity, "Authenticator type is required" if type.nil?
-
+    def create_authenticator_type(authenticator_dict)
+      type = authenticator_dict[:type]
+      if type.nil?
+        return @failure.new(
+          "Authenticator type is required",
+          status: :unprocessable_entity,
+          exception: ApplicationController::UnprocessableEntity
+        )
+      end
       authenticator_class = AUTHENTICATOR_CLASSES[type]
 
-      return authenticator_class.new(authenticator_dict) if authenticator_class
+      return @success.new(authenticator_class.new(authenticator_dict)) if authenticator_class
 
-      raise ApplicationController::UnprocessableEntity, "'#{type}' authenticators are not supported."
+      @failure.new(
+        "'#{type}' authenticators are not supported.",
+        status: :unprocessable_entity,
+        exception: ApplicationController::UnprocessableEntity
+      )
     end
   end
 end
