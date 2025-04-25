@@ -67,34 +67,6 @@ module AuthenticatorsV2
       @type ||= self.class.to_s.split('::')[1].underscore.dasherize
     end
 
-    def identifier
-      [@type, @service_id].compact.join('/')
-    end
-
-    def provider_details
-      details = @variables
-      details[:service_id] = @service_id
-      details[:account] = @account
-
-      details
-    end
-
-    def resource_id
-      [
-        @account,
-        'webservice',
-        [
-          'conjur',
-          @type,
-          @service_id
-        ].compact.join('/')
-      ].join(':')
-    end
-
-    def variable_prefix
-      "#{@account}:variable:conjur/#{identifier}"
-    end
-
     def token_ttl
       return ActiveSupport::Duration.parse(@token_ttl.to_s).to_i if @token_ttl.to_s.present?
 

@@ -15,7 +15,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Added the dynamic secrets Issuers API and data model. CNJR-7828
 - Added support for retrieving dynamic secrets through a configured
   ephemeral secrets engine. CNJR-7829
-- Added the list authenticators endpoint for the V2 API's
+- Added the list authenticators endpoint for the V2 API's. CNJR-9137
+- Added the show authenticator endpoint for the V2 API's. CNJR-9133
 
 ### Fixed
 - Attempt to authenticate using the built-in authenticator (`authn`) with a GET

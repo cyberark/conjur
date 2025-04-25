@@ -32,7 +32,8 @@ module Authentication
           type: authenticator_status_input.authenticator_name,
           account: authenticator_status_input.account,
           service_id: authenticator_status_input.service_id
-        ).bind do |authenticator_data|
+        ).bind do |authenticator|
+          authenticator_data = authenticator.provider_details
           # check if this authenticator appears to be a Code Redirect authenticator
           if authenticator_data.key?(:client_id)
             Authentication::AuthnOidc::ValidateStatus.new(

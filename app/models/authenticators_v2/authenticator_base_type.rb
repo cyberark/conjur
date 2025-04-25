@@ -39,6 +39,38 @@ module AuthenticatorsV2
     def authenticator_name
       @service_id
     end
+
+    def provider_details
+      details = @variables
+      details[:service_id] = @service_id
+      details[:account] = @account
+
+      details
+    end
+
+    def identifier
+      [@type, @service_id].compact.join('/')
+    end
+
+    def resource_id
+      [
+        @account,
+        'webservice',
+        [
+          'conjur',
+          @type,
+          @service_id
+        ].compact.join('/')
+      ].join(':')
+    end
+    
+    def token_ttl
+      nil
+    end
+
+    def variable_prefix
+      "#{@account}:variable:conjur/#{identifier}"
+    end
     
     private
 

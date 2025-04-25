@@ -72,12 +72,6 @@ RSpec.describe(AuthenticatorsV2::OidcAuthenticatorType) do
     end
   end
 
-  describe '.resource_id', type: 'unit' do
-    context 'correctly renders' do
-      it { expect(authenticator.resource_id).to eq('rspec:webservice:conjur/authn-oidc/auth1') }
-    end
-  end
-
   describe '.response_type', type: 'unit' do
     context 'with default initializer' do
       it { expect(authenticator.response_type).to eq('code') }
@@ -115,7 +109,7 @@ RSpec.describe(AuthenticatorsV2::OidcAuthenticatorType) do
     end
   end
 
-  describe "#as_json" do
+  describe "#to_h" do
     let(:authenticator) { described_class.new(authenticator_dict) }
 
     context "when all data variables are missing" do

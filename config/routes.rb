@@ -58,6 +58,7 @@ Rails.application.routes.draw do
       end
 
       get '/authenticators/:account' => 'authenticator#list_authenticators'
+      get '/authenticators/:account/:type/:service_id' => 'authenticator#find_authenticator'
 
       # Factories
       post   "/factory-resources/:account/:kind/(:version)/:id" => "policy_factory_resources#create"

@@ -27,7 +27,7 @@ module DB
       end
 
       def find_all(account:, type: nil)
-        authenticators = authenticator_webservices(resources: @resource_repository, type: type, account: account).map do |webservice|
+        authenticators = authenticator_webservices(type: type, account: account).map do |webservice|
           identifier = id_array(webservice[:resource_id])
           begin
             auth = map_authenticator(identifier: identifier, webservice: webservice, account: account)
@@ -35,57 +35,30 @@ module DB
 
             auth.result
           rescue => e
-            @logger.info("#{type_error_message(type)} '#{identifier[2]}' due to validation failure: #{e.message}")
+            @logger.info("#{type_error_message(type)} '#{identifier[2]}' varibales due to: #{e.message}")
             nil
           end
         end.compact
-        @success.new(authenticators)
-      end
-
-      def find_all_if_visible(type:, account:, role:, options: {})
-        resources =  @resource_repository.visible_to(role).search(**options)
-        authenticators = authenticator_webservices(resources: resources, type: type, account: account).map do |webservice|
-          identifier = id_array(webservice[:resource_id])
-          begin
-            auth = map_authenticator(identifier: identifier, webservice: webservice, account: account)
-            return auth unless auth.success?
-
-            auth.result
-          rescue => e
-            @logger.info("#{type_error_message(type)} '#{identifier[2]}' due to validation failure: #{e.message}")
-            nil
-          end
-        end.compact
-
         @success.new(authenticators)
       end
 
       def find(type:, account:, service_id:)
-        identifier = [type, service_id].compact.join('/')
-
-        webservice = @resource_repository.where(
-          Sequel.like(
-            :resource_id,
-            "#{account}:webservice:conjur/#{identifier}"
-          )
-        ).first
+        webservice = authenticator_webservices(type: type, account: account, service_id: service_id).first
         unless webservice
+          resource_id = [type, service_id].compact.join('/')
           return @failure.new(
-            "Failed to find a webservice: '#{account}:webservice:conjur/#{identifier}'",
-            exception: Errors::Authentication::Security::WebserviceNotFound.new(identifier, account)
+            "Authenticator: #{service_id} not found in account '#{account}'",
+            status: :not_found,
+            exception: Errors::Authentication::Security::WebserviceNotFound.new(resource_id)
           )
         end
-
+        
         begin
-          auth = load_authenticator_variables(
-            account: account,
-            service_id: service_id,
-            type: type
+          map_authenticator(
+            identifier: id_array(webservice[:resource_id]),
+            webservice: webservice,
+            account: account
           )
-          auth[:service_id] = service_id
-          auth[:account] = account
-
-          @success.new(auth)
         rescue => e
           @failure.new(
             e.message,
@@ -98,18 +71,20 @@ module DB
       private
 
       def map_authenticator(identifier:,  webservice:, account:)
-        res = {
+        @auth_type_factory.create_authenticator_type({
           type: identifier[1],
           service_id: identifier[2],
           account: account,
           resource_id: webservice[:resource_id],
           enabled: webservice[:enabled],
           annotations: webservice[:annotations],
-          owner_id: webservice[:owner_id]
-        }
-        res[:variables] = load_authenticator_variables(account: account, service_id: identifier[2], type: identifier[1])
-        
-        @auth_type_factory.create_authenticator_type(res)
+          owner_id: webservice[:owner_id],
+          variables: load_authenticator_variables(
+            account: account,
+            service_id: identifier[2],
+            type: identifier[1]
+          )
+        })
       end
 
       def resource_type_filter(type)
@@ -129,22 +104,30 @@ module DB
         full_id.split('/')
       end
 
-      # authenticator_webservices takes a resouce repo, authn type and account 
+      def resource_description(type:, account:, service_id:)
+        base = "#{account}:webservice:conjur/"
+        return "#{base}#{type}/#{service_id}" if service_id
+
+        "#{base}#{resource_type_filter(type)}"
+      end
+
+      # authenticator_webservices takes a service_id, authn type and account 
       # to retrieve all the requested authenticators including their 
       # annotations and enabled status.
       # 
-      # @param [model] resouces can be pre-filtered by roles or search option as seen in find_all_if_visible()
+      # @param [model] service_id Set to nil by default to allow the query to search all authenticators
       # @param [symbol] type can be set to an authn-type like 'authn-oidc' or remain nil, and it will filter accordingly
-      #   with type: "cucmber:webservice:conjur/authn-oidc"
-      #   without: "cucmber:webservice:conjur/authn-"
+      #   with service_id:     "cucmber:webservice:conjur/authn-oidc/okta"
+      #   with type:           "cucmber:webservice:conjur/authn-oidc"
+      #   with just account:   "cucmber:webservice:conjur/authn-"
       # @param [symbol] account is required
       # 
       # Webserrvices are then filtered to remove any that end in status
-      def authenticator_webservices(resources:, type:, account:)
-        resources.where(
+      def authenticator_webservices(type:, account:, service_id: nil)
+        @resource_repository.where(
           Sequel.like(
             Sequel.qualify(:resources, :resource_id),
-            "#{account}:webservice:conjur/#{resource_type_filter(type)}"
+            resource_description(type: type, account: account, service_id: service_id)
           )
         )
           .left_join(:authenticator_configs, Sequel.qualify(:resources, :resource_id) => Sequel.qualify(:authenticator_configs, :resource_id))
@@ -175,7 +158,7 @@ module DB
 
       def load_authenticator_variables(type:, account:, service_id:)
         identifier = [type, service_id].compact.join('/')
-        variables = @resource_repository.where(
+        variables = Resource.where(
           Sequel.like(
             :resource_id,
             "#{account}:variable:conjur/#{identifier}/%"

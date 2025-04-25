@@ -5,15 +5,24 @@ class AuthenticatorController < ApplicationController
   include AuthorizeResource
 
   def list_authenticators
-    response = DB::Repository::AuthenticatorRepository.new.find_all_if_visible(
+    allowed_params = %i[limit offset type account name]
+    
+    relevant_params = params.permit(*allowed_params)
+      .slice(*allowed_params).to_h.symbolize_keys
+
+    response = DB::Repository::AuthenticatorRepository.new(
+      resource_repository: ::Resource.visible_to(current_user).search(
+        **relevant_params.slice(:offset, :limit)
+      )
+    ).find_all(
       account: relevant_params[:account],
-      type: relevant_params[:type],
-      role: current_user,
-      options: relevant_params.slice(:offset, :limit)
+      type: relevant_params[:type]
     ).bind do |res|
       auths = res.map(&:to_h)
-      return render(json:  { authenticators: auths, count: auths.count })
+      ::SuccessResponse.new({ authenticators: auths, count: auths.count })
     end
+
+    return render(json: response.result) if response.success?
 
     logger.debug("Exception: #{response.exception.class.name}: #{response.message}")
     head(response.status)
@@ -22,10 +31,34 @@ class AuthenticatorController < ApplicationController
     raise e
   end
 
-  def relevant_params
-    allowed_params = %i[limit offset type account]
+  def find_authenticator
+    allowed_params = %i[type account service_id]
     
-    params.permit(*allowed_params)
+    relevant_params = params.permit(*allowed_params)
       .slice(*allowed_params).to_h.symbolize_keys
+
+    response = DB::Repository::AuthenticatorRepository.new(
+      resource_repository: ::Resource.visible_to(current_user)
+    ).find(
+      account: relevant_params[:account],
+      type: relevant_params[:type],
+      service_id: relevant_params[:service_id]
+    ).bind do |res|
+      break ::SuccessResponse.new(res.to_h) if current_user.allowed_to?('read', ::Resource[res.resource_id])
+
+      ::FailureResponse.new( 
+        "Forbidden",
+        status: :forbidden,
+        exception: Errors::Authorization::AccessToResourceIsForbiddenForRole
+      )
+    end
+
+    return render(json: response.result) if response.success?
+
+    logger.debug("Exception: #{response.exception.class.name}: #{response.message}")
+    head(response.status)
+  rescue => e
+    log_backtrace(e)
+    raise e
   end
 end

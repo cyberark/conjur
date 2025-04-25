@@ -11,8 +11,7 @@ class ProvidersController < ApplicationController
     ).bind do |response|
       response.map do |authenticator|
         # perform validation on each record
-        verified_data = validator.validate(authenticator.provider_details)
-        if verified_data.success?
+        validator.validate(authenticator.provider_details).bind do
           authenticator
         end
       end.compact

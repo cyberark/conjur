@@ -29,7 +29,11 @@ Feature: Authenticator v2 Endpoints
           other: secret
 
       - !variable jwks-uri
-      - !group clients
+      - !group users
+      - !permit
+        role: !group users
+        privilege: [ authenticate ]
+        resource: !webservice
 
     - !policy
       id: conjur/authn-oidc/keycloak
@@ -51,6 +55,9 @@ Feature: Authenticator v2 Endpoints
     - !user alice
     - !grant
       role: !group conjur/authn-oidc/keycloak/users
+      member: !user alice
+    - !grant
+      role: !group conjur/authn-jwt/test-jwt1/users
       member: !user alice
 
     """
@@ -94,10 +101,58 @@ Scenario: list authenticators using the V2 Api.
     "count": 1
   }
   """
+
+  #fetchcing a single authenticator
+  Given I successfully GET "authenticators/cucumber/authn-oidc/keycloak"
+  Then the JSON should be:
+  """
+    {
+      "name": "keycloak",
+      "annotations": {
+        "description": "Authentication service for Keycloak, based on Open ID Connect."
+      },
+      "branch": "conjur/authn-oidc",
+      "data": {
+        "provider_uri": "https://test.com"
+      },
+      "enabled": false,
+      "owner": {
+        "id": "conjur/authn-oidc/keycloak",
+        "kind": "policy"
+      },
+      "type": "oidc"
+    }
+  """
+
   And I log out
 
   #  The api should only return authenticators alice has read access too
   When I login as "alice"
   When I successfully GET "authenticators/cucumber"
-  Then I receive a count of 1
+  Then I receive a count of 2
   Then the authenticators list should include "keycloak"
+  Then the authenticators list should include "test-jwt1"
+  Given I successfully GET "authenticators/cucumber/authn-oidc/keycloak"
+  Then the JSON should be:
+  """
+    {
+      "name": "keycloak",
+      "annotations": {
+        "description": "Authentication service for Keycloak, based on Open ID Connect."
+      },
+      "branch": "conjur/authn-oidc",
+      "data": {
+        "provider_uri": "https://test.com"
+      },
+      "enabled": false,
+      "owner": {
+        "id": "conjur/authn-oidc/keycloak",
+        "kind": "policy"
+      },
+      "type": "oidc"
+    }
+  """
+When I GET "authenticators/cucumber/authn-jwt/test-jwt1"
+Then the HTTP response status code is 403
+When I GET "authenticators/cucumber/authn-jwt/test-jwt2"
+Then the HTTP response status code is 404

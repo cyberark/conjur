@@ -7,15 +7,17 @@ RSpec.describe(Authentication::AuthnOidc::V2::Strategy) do
 
   let(:mapping) { 'claim_mapping' }
   let(:authenticator) do
-    Authentication::AuthnOidc::V2::DataObjects::Authenticator.new(
+    AuthenticatorsV2::OidcAuthenticatorType.new(
       account: "cucumber",
       service_id: "foo",
-      redirect_uri: "http://conjur/authn-oidc/cucumber/authenticate",
-      provider_uri: "http://test",
-      name: "foo",
-      client_id: "ConjurClient",
-      client_secret: 'client_secret',
-      claim_mapping: mapping
+      variables: {
+        redirect_uri: "http://conjur/authn-oidc/cucumber/authenticate",
+        provider_uri: "http://test",
+        name: "foo",
+        client_id: "ConjurClient",
+        client_secret: 'client_secret',
+        claim_mapping: mapping
+      }
     )
   end
 
