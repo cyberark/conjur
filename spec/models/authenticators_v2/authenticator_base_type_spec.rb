@@ -4,30 +4,43 @@ require 'spec_helper'
 
 describe AuthenticatorsV2::AuthenticatorBaseType, type: :model do
   let(:account) { "rspec" }
+  let(:default_args) {{ ca_cert: "CERT_DATA_1" }}
+  let(:args) { default_args }
+
+  let(:authenticator_dict) do
+    {
+      type: "base",
+      service_id: "auth1",
+      account: account,
+      enabled: true,
+      owner_id: "#{account}:policy:conjur/base",
+      annotations: '{ "description": "this is my base authenticator" }',
+      variables: args
+    }
+  end
+
+  let(:authenticator) { described_class.new(authenticator_dict) }
 
   describe "#initialize" do
-    let(:authenticator_dict) do
-      {
-        type: "base",
-        service_id: "auth1",
-        enabled: true,
-        owner_id: "#{account}:policy:conjur/base",
-        annotations: '{ "description": "this is my base authenticator" }',
-        variables: {
-          "#{account}:variable:conjur/base/auth1/ca-cert" => "CERT_DATA_1"
-        }
-      }
-    end
-
-    let(:authenticator) { described_class.new(authenticator_dict) }
-
     it "initializes with correct attributes" do
       expect(authenticator.type).to eq("base")
       expect(authenticator.name).to eq("auth1")
       expect(authenticator.enabled).to be(true)
       expect(authenticator.owner).to eq("#{account}:policy:conjur/base")
       expect(authenticator.annotations).to eq('{ "description": "this is my base authenticator" }')
-      expect(authenticator.variables).to eq({ "#{account}:variable:conjur/base/auth1/ca-cert" => "CERT_DATA_1" })
+      expect(authenticator.variables).to eq({ ca_cert: "CERT_DATA_1" })
+    end
+  end
+
+  describe '.token_ttl', type: 'unit' do
+    context 'with default initializer' do
+      it { expect(authenticator.token_ttl).to eq(nil) }
+    end
+  end
+
+  describe '.resource_id', type: 'unit' do
+    context 'correctly renders' do
+      it { expect(authenticator.resource_id).to eq('rspec:webservice:conjur/base/auth1') }
     end
   end
 

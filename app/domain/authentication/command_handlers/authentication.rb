@@ -167,21 +167,32 @@ module Authentication
           @success.new(@authenticator_klass.new(account: account))
         else
           # Load Authenticator policy and variables
-          @authenticator_repository.find(
+          authn = @authenticator_repository.find(
             type: @authenticator_type,
             account: account,
             service_id: service_id
-          ).bind do |authenticator_data|
+          ).bind do |authenticator|
             # validate data against authenticator specific validations
             @validator.new(@authenticator_validation)
-              .validate(authenticator_data).bind do |validated_authenticator_data|
+              .validate(authenticator.provider_details).bind do
               # Instantiate and return authenticator data object for future use
-              @success.new(@authenticator_klass.new(**validated_authenticator_data))
+              return @success.new(authenticator)
             end
           end
+        
+          case authn.exception
+          when Errors::Authentication::Security::WebserviceNotFound
+            authn.status = :unauthorized
+          end
+
+          authn
         end
       rescue => e
-        @failure.new(e.message, exception: e)
+        @failure.new(
+          e.message,
+          status: :internal_server_error,
+          exception: e
+        )
       end
 
       def log_audit_success(service:, role_id:, request_ip:, authenticator_type:)

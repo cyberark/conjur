@@ -3,6 +3,9 @@
 require 'spec_helper'
 
 RSpec.describe(DB::Repository::AuthenticatorRepository) do
+  let(:log_output) { StringIO.new }
+  let(:logger) { Logger.new(log_output) }
+
   let(:repo) do
     described_class.new
   end
@@ -45,7 +48,7 @@ RSpec.describe(DB::Repository::AuthenticatorRepository) do
   describe('#find_all') do
     context 'when webservice is not present' do
       it 'is unsuccessful' do
-        response = repo.find_all_if_visible(type: 'authn-oidc', role: current_user, account: 'rspec')
+        response = repo.find_all(type: 'authn-oidc', account: 'rspec')
 
         expect(response.success?).to be(true)
         expect(response.result).to eq([])
@@ -101,7 +104,7 @@ RSpec.describe(DB::Repository::AuthenticatorRepository) do
         end
 
         it 'returns the relevant variable data' do
-          response = repo.find_all_if_visible(type: nil, role: current_user, account: 'rspec')
+          response = repo.find_all(type: nil,  account: 'rspec')
           authns = authenticators.insert(0, { 
             type: "jwt",
             branch: "conjur/authn-jwt",
@@ -121,9 +124,41 @@ RSpec.describe(DB::Repository::AuthenticatorRepository) do
         end
       end
 
+      context 'When there is an error retriving authenticator variables' do
+        let(:auth_facotory) do
+          instance_double(AuthenticatorsV2::AuthenticatorTypeFactory).tap do |double|
+            allow(double).to receive(:create_authenticator_type).and_raise("test error")
+          end
+        end
+
+        let(:repo) do
+          ::DB::Repository::AuthenticatorRepository.new(
+            logger: logger,
+            auth_type_factory: auth_facotory
+          )
+        end
+
+        context 'when type is set' do
+          it 'logs an error' do
+            response = repo.find_all(type: 'authn-oidc', account: 'rspec')
+            expect(log_output.string).to include("failed to load 'authn-oidc' authenticator 'bar'")
+            expect(response.success?).to be(true)
+            expect(response.result).to eq([])
+          end
+        end
+        context 'when type is not set' do
+          it 'logs an error' do
+            response = repo.find_all(account: 'rspec')
+            expect(log_output.string).to include("failed to load authenticator 'bar'")
+            expect(response.success?).to be(true)
+            expect(response.result).to eq([])
+          end
+        end
+      end
+
       context 'variables are not loaded' do
         it 'returns the identified authenticator accounts and service-ids' do
-          response = repo.find_all_if_visible(type: 'authn-oidc', role: current_user, account: 'rspec')
+          response = repo.find_all(type: 'authn-oidc',  account: 'rspec')
       
           expect(response.success?).to be(true)
           expect(response.result.map(&:to_h)).to eq(authenticators)
@@ -153,7 +188,7 @@ RSpec.describe(DB::Repository::AuthenticatorRepository) do
 
         context 'secrets are not set' do
           it 'items are returned with values set to empty strings' do
-            response = repo.find_all_if_visible(type: 'authn-oidc', role: current_user, account: 'rspec')
+            response = repo.find_all(type: 'authn-oidc',  account: 'rspec')
             expect(response.success?).to be(true)
             expect(response.result.map(&:to_h)).to eq(authenticators)
           end
@@ -174,7 +209,7 @@ RSpec.describe(DB::Repository::AuthenticatorRepository) do
           let(:variables) { { claim_mapping: 'claim_mapping', client_id: 'client_id', client_secret: 'client_secret', provider_uri: 'provider_uri' } }
 
           it 'returns the relevant variable data' do
-            response = repo.find_all_if_visible(type: 'authn-oidc', role: current_user, account: 'rspec')
+            response = repo.find_all(type: 'authn-oidc',  account: 'rspec')
 
             expect(response.success?).to be(true)
             expect(response.result.map(&:to_h)).to eq(authenticators)
@@ -200,13 +235,15 @@ RSpec.describe(DB::Repository::AuthenticatorRepository) do
   end
 
   describe('#find') do
+    let(:authenticator) { {} }
+ 
     context 'when webservice is not present' do
       it 'is unsuccessful' do
         response = repo.find(type: 'authn-oidc', account: 'rspec', service_id: 'abc123')
 
         expect(response.success?).to be(false)
         expect(response.exception.class).to be(Errors::Authentication::Security::WebserviceNotFound)
-        expect(response.status).to eq(:unauthorized)
+        expect(response.status).to eq(:not_found)
       end
     end
 
@@ -221,16 +258,35 @@ RSpec.describe(DB::Repository::AuthenticatorRepository) do
         )
       end
 
+      let(:authenticator) do
+        {
+          type: "oidc",
+          branch: "conjur/authn-oidc",
+          name: "abc123",
+          enabled: false,
+          owner: { id: "conjur/authn-oidc/abc123", kind: "policy" },
+          data: variables 
+        }
+      end
+
       context 'when no variables are set' do
         it 'returns the minimum available data' do
           response = repo.find(type: 'authn-oidc', account: 'rspec', service_id: 'abc123')
 
           expect(response.success?).to be(true)
-          expect(response.result).to eq({ account: 'rspec', service_id: 'abc123' })
+          expect(response.result.to_h).to eq(authenticator)
         end
       end
 
       context 'when all variables are present' do
+        let(:variables)  do 
+          {
+            claim_mapping: "",
+            client_id: "",
+            client_secret: "",
+            provider_uri: ""
+          } 
+        end
         before(:each) do
           arguments.each do |variable|
             ::Resource.create(
@@ -245,7 +301,7 @@ RSpec.describe(DB::Repository::AuthenticatorRepository) do
             response = repo.find(type: 'authn-oidc', account: 'rspec', service_id: 'abc123')
 
             expect(response.success?).to be(true)
-            expect(response.result).to eq({ account: 'rspec', service_id: 'abc123', claim_mapping: '', client_id: '', client_secret: '', provider_uri: '' })
+            expect(response.result.to_h).to eq(authenticator)
           end
         end
 
@@ -259,18 +315,13 @@ RSpec.describe(DB::Repository::AuthenticatorRepository) do
             end
           end
 
+          let(:variables) { { claim_mapping: 'claim_mapping', client_id: 'client_id', client_secret: 'client_secret', provider_uri: 'provider_uri' } }
+
           it 'returns relevant variables and values' do
             response = repo.find(type: 'authn-oidc', account: 'rspec', service_id: 'abc123')
 
             expect(response.success?).to be(true)
-            expect(response.result).to eq({
-              account: 'rspec',
-              service_id: 'abc123',
-              claim_mapping: 'claim_mapping',
-              client_id: 'client_id',
-              client_secret: 'client_secret',
-              provider_uri: 'provider_uri'
-            })
+            expect(response.result.to_h).to eq(authenticator)
           end
         end
 

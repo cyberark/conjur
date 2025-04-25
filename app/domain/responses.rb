@@ -26,7 +26,9 @@ end
 # Responsible for handling "failed" requests.
 # Log level and Response code are both option.
 class FailureResponse
-  attr_reader :message, :status, :exception, :backtrace
+  attr_reader :message, :exception, :backtrace
+  # allows the status to be changes in certain situations
+  attr_accessor :status
 
   def initialize(message, level: :warn, status: :unauthorized, exception: nil, backtrace: nil)
     @message = message
