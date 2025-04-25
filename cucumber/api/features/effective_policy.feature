@@ -4,7 +4,7 @@ Feature: Fetching effective policy
   Background:
     Given I am the super-user
     When I can POST "/policies/cucumber/policy/root" with body from file "policy_rootpolicy.yml"
-    And I can PATCH "/policies/cucumber/policy/root" with body from file "policy_acme_root.yml":
+    And I can PATCH "/policies/cucumber/policy/root" with body from file "policy_acme_root.yml"
     And I can PATCH "/policies/cucumber/policy/rootpolicy" with body from file "policy_acme.yml"
 
   @acceptance

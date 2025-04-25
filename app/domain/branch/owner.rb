@@ -1,0 +1,46 @@
+# frozen_string_literal: true
+
+require_relative 'domain'
+require_relative 'validation'
+
+module Domain
+  class Owner
+    include ActiveModel::Validations
+    include Domain::Validation
+
+    validates :kind, presence: true, inclusion: { in: OWNER_KINDS, message: OWNER_KINDS_MSG }
+    validates :id, presence: true, format: { with: PATH_PATTERN, message: PATH_PATTERN_MSG }
+    validates :id, length: { minimum: PATH_LENGTH_MIN, maximum: PATH_LENGTH_MAX }
+
+    extend(Domain)
+    attr_reader :kind, :id
+
+    def initialize(kind = '', id = '', is_set: false)
+      @kind = kind
+      @id = id
+      @is_set = is_set
+
+      raise DomainValidationError, errors.full_messages.to_sentence if set? && invalid?
+    end
+
+    def set?
+      @is_set
+    end
+
+    def self.from_input(input)
+      new(input[:kind], input[:id], is_set: true)
+    end
+
+    def self.from_model_id(owner_id)
+      new(kind(owner_id), identifier(owner_id), is_set: true)
+    end
+
+    def as_json(options = {})
+      super(options).except("validation_context", "errors", "is_set")
+    end
+
+    def not_admin?
+      @id != 'admin' || @kind != 'user'
+    end
+  end
+end

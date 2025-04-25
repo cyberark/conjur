@@ -1,0 +1,93 @@
+- !group Conjur-Issuers-Admins
+- !group Conjur_Cloud_Admins
+- !group Conjur_Cloud_Users
+- !group
+  id: auth_admins
+  owner: !group Conjur_Cloud_Admins
+
+- !grant
+  role: !group Conjur-Issuers-Admins
+  members:
+    - !group Conjur_Cloud_Admins
+
+- !policy
+  id: data_default_owner
+
+- !policy
+  id: data
+  owner: !group /Conjur_Cloud_Admins
+  body:
+    - !host myhost
+    - !permit
+      role: !host myhost
+      privileges: [ read, update ]
+      resource: !policy safe1/branch1
+    - !group data-group
+
+    - !policy
+      id: dynamic
+      owner: !group /Conjur-Issuers-Admins
+      body:
+        []
+    # vault
+    - !group vault-admins
+    - !policy
+      id: vault
+      owner: !group vault-admins
+      body:
+        []
+    - !policy
+      id: Applications
+      body:
+        - !policy App-A
+    #
+    - !policy
+      id: safe1
+      body:
+        - !user alice
+        - !group mygroup1
+        - !policy alice-read-only
+        - !policy alice-execute-only
+        - !policy
+          id: branch1
+          owner: !group ../data-group
+          annotations:
+            branch1-ann-1: Foo bar
+            branch1-ann-2: 123
+          body:
+#            - !policy alice-hidden
+            - !variable
+              id: alice-var
+              owner: !user ../alice
+            - !policy
+              id: alice-branch
+              owner: !user ../alice
+              annotations:
+                alice-ann-1: Alice notes 1
+                alice-ann-2: Alice notes 2
+            - !permit
+              role: !user ../alice
+              privileges: [ execute ]
+              resource: !variable alice-var
+            - !permit
+              role: !user ../alice
+              privileges: [ update ]
+              resource: !policy alice-branch
+        - !permit
+          role: !user alice
+          privileges: [ create, read, update, execute ]
+          resource: !policy branch1
+        - !permit
+          role: !user alice
+          privileges: [ read ]
+          resource: !policy alice-read-only
+        - !permit
+          role: !user alice
+          privileges: [ execute ]
+          resource: !policy alice-execute-only
+        - !variable
+          id: safe1-var1
+          kind: description
+          mime_type: text/plain
+          annotations:
+            description: Desc for var 1 in safe1

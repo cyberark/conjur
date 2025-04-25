@@ -93,6 +93,13 @@ Rails.application.routes.draw do
         patch   "/issuers/:account/:identifier" => 'issuers#update'
       end
 
+      # Branch - V2
+      post "/branches/:account" => "branches#create"
+      get "/branches/:account" => "branches#index"
+      get "/branches/:account/*identifier" => "branches#show"
+      patch "/branches/:account/*identifier" => "branches#update"
+      delete "/branches/:account/*identifier" => "branches#delete"
+
       # NOTE: the order of these routes matters: we need the expire
       #       route to come first.
       post    "/secrets/:account/:kind/*identifier" => "secrets#expire",

@@ -159,6 +159,8 @@ module Conjur
         else
           path = http_path
           if optional_paths.find{|p| p.match(path)}.nil?
+            raise AuthorizationError, "" if env["HTTP_ACCEPT"] == V2RestController::API_V2_HEADER
+
             raise AuthorizationError.new("Authorization missing")
           else
             nil

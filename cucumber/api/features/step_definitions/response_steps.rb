@@ -44,6 +44,12 @@ Then(/^the result is empty$/) do
   expect(@result).to be_empty
 end
 
+Then(/^the result as json is:$/) do |value|
+  expect(@result).to be
+  puts JSON.pretty_generate(JSON.parse(@result))
+  expect(JSON.parse(@result.body)).to eq(JSON.parse(value))
+end
+
 Then(/^the text result is:$/) do |value|
   expect(@result).to be
   expect(@result.headers[:content_type]).to include("text/plain")

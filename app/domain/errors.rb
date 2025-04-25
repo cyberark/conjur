@@ -43,6 +43,11 @@ module Errors
       code: "CONJ00076E"
     )
 
+    APIHeaderMissing = ::Util::TrackableErrorClass.new(
+      msg: "The api belongs to v2 APIs but it missing the version \"{0-api-header}\" in the Accept header",
+      code: "CONJ00194W"
+    )
+
     KeyRotationNotApplicable = ::Util::TrackableErrorClass.new(
       msg: "Resource '{0-role_to_rotate}' is not applicable for key rotation",
       code: "CONJ00120E"
