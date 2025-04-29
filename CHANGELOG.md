@@ -30,6 +30,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   Kubernetes API error occurs. CNJR-8687
 - Leading or trailing newline characters in the Conjur authorization token are
   now removed before parsing the token. CNJR-3439
+- Log a warning when Kubernetes authenticator certificate injection process log directory is not writable. CNJR-7070
 
 ### Changed
 - Do not increase secret's value version in case there is no actual change in
