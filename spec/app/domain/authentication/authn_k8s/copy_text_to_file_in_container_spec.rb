@@ -65,7 +65,14 @@ RSpec.describe('Authentication::AuthnK8s::CopyTextToFileInContainer') do
         mv "path/to/file.tmp" "path/to/file"
       }
 
-      set_file_content > "${TMPDIR:-/tmp}/conjur_copy_text_output.log" 2>&1
+      # Check if log directory is writeable before attempting to log
+      if [ -w "${TMPDIR:-/tmp}" ]; then
+        set_file_content > "${TMPDIR:-/tmp}/conjur_copy_text_output.log" 2>&1
+      else
+        # Still perform the operation but echo warning to stderr
+        echo "WARNING: Log directory '${TMPDIR:-/tmp}' is not writeable. Certificate will be injected but operation logs will not be saved." >&2
+        set_file_content
+      fi
     BODY
 
     it "calls execute_command_in_container with expected parameters" do

@@ -14,7 +14,8 @@ module Authentication
       },
       inputs: %i[webservice pod_namespace pod_name container path content mode]
     ) do
-      LOG_FILE = "${TMPDIR:-/tmp}/conjur_copy_text_output.log"
+      LOG_DIR = "${TMPDIR:-/tmp}"
+      LOG_FILE = "#{LOG_DIR}/conjur_copy_text_output.log"
 
       def call
         copy_text_to_file_in_container
@@ -43,6 +44,7 @@ module Authentication
       # that will be written in its logs for supportability.
       def bash_script(path, content, mode)
         tmp_cert = "#{path}.tmp"
+
         <<~BASH_SCRIPT
           #!/bin/sh
           set -e
@@ -61,7 +63,14 @@ module Authentication
             mv "#{tmp_cert}" "#{path}"
           }
 
-          set_file_content > "#{LOG_FILE}" 2>&1
+          # Check if log directory is writeable before attempting to log
+          if [ -w "#{LOG_DIR}" ]; then
+            set_file_content > "#{LOG_FILE}" 2>&1
+          else
+            # Still perform the operation but echo warning to stderr
+            echo "WARNING: Log directory '#{LOG_DIR}' is not writeable. Certificate will be injected but operation logs will not be saved." >&2
+            set_file_content
+          fi
         BASH_SCRIPT
       end
     end
