@@ -40,6 +40,15 @@ module AuthenticatorsV2
       data_section
     end
 
+    def variable_map
+      flattened_variables = variables.dup
+      identity = flattened_variables.delete(:identity)
+
+      flattened_variables = flattened_variables.merge(identity) unless identity.nil?
+
+      flattened_variables
+    end
+
     private
 
     # Processes `enforced_claims`, ensuring uniqueness and removing whitespace.
@@ -60,11 +69,14 @@ module AuthenticatorsV2
       return {} if value.strip.empty?
 
       value.split(',', -1).each_with_object({}) do |pair, aliases_hash|
-        annotation, claim = pair.split(':', 2)
-        next if annotation.to_s.strip.empty? || claim.to_s.strip.empty?
+        key_data = pair.split(':', 2)
+        next if key_data.size != 2 || key_data[0].empty? || key_data[1].empty?
 
-        aliases_hash[annotation.to_s.strip] = claim.to_s.strip
+        annotation, claim = key_data
+
+        aliases_hash[annotation.to_sym] = claim
       end
     end
+
   end
 end

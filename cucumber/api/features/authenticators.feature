@@ -10,6 +10,7 @@ Feature: Authenticator v2 Endpoints
     Given I am the super-user
     And I successfully PUT "/policies/cucumber/policy/root" with body:
     """
+    - !policy conjur/authn-jwt
     - !policy
       id: conjur/authn-jwt/test-jwt2
       body:
@@ -124,8 +125,30 @@ Scenario: list authenticators using the V2 Api.
     }
   """
 
-  And I log out
+  Given I successfully POST "/authenticators/cucumber" with body:
+  """ 
+  {
+    "type": "jwt",
+    "name": "test-jwt3",
+    "enabled": false,
+    "data": {
+      "jwks_uri": "http://uri",
+      "identity": {
+        "token_app_property": "prop",
+        "enforced_claims": [ "test", "123" ],
+        "claim_aliases": { "myclaim": "myvalue", "second": "two" }
+      }
+    },
+    "annotations": {
+      "test": "123"
+    }
+  }
+  """
+  And I successfully GET "authenticators/cucumber"
+  Then I receive a count of 4
+  Then the authenticators list should include "test-jwt3"
 
+  And I log out
   #  The api should only return authenticators alice has read access too
   When I login as "alice"
   When I successfully GET "authenticators/cucumber"

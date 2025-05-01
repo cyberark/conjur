@@ -17,7 +17,7 @@ describe AuthenticatorsV2::GcpAuthenticatorType, type: :model do
           service_id: "default",
           enabled: true,
           owner_id: "#{account}:policy:conjur/authn-gcp",
-          annotations: '{ "description": "this is my gcp authenticator" }',
+          annotations: { description: "this is my gcp authenticator" },
           variables: {}
         }
       end
@@ -30,7 +30,7 @@ describe AuthenticatorsV2::GcpAuthenticatorType, type: :model do
           branch: "conjur/authn-gcp",
           enabled: true,
           owner: { id: "conjur/authn-gcp", kind: "policy" },
-          annotations: { "description" => "this is my gcp authenticator" }
+          annotations: { description: "this is my gcp authenticator" }
         }
         expect(json).to eq(expected_json)
       end

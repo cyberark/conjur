@@ -32,6 +32,21 @@ module Errors
       code: "CONJ00065E"
     )
 
+    ParameterTypeInvalid = ::Util::TrackableErrorClass.new(
+      msg: "The '{0}' parameter must be of 'type={1}'",
+      code: "CONJ00192W"
+    )
+
+    ParameterMissing = ::Util::TrackableErrorClass.new(
+      msg: "Missing required parameter: {0}",
+      code: "CONJ00190W"
+    )
+
+    ParameterValueInvalid = ::Util::TrackableErrorClass.new(
+      msg: "The value in the {0} parameter is not valid. Error: {1}",
+      code: "CONJ00191W"
+    )
+
     BadSecretEncoding = ::Util::TrackableErrorClass.new(
       msg: "Issue encoding secret into JSON format, try including 'Accept-Encoding: base64' " \
           "header in request.",

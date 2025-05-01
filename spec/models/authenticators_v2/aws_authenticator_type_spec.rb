@@ -18,7 +18,7 @@ describe AuthenticatorsV2::AwsAuthenticatorType, type: :model do
           subtype: nil,
           enabled: true,
           owner_id: "#{account}:policy:conjur/authn-iam",
-          annotations: '{ "description": "this is my aws authenticator" }',
+          annotations: { description: "this is my aws authenticator" },
           variables: {}
         }
       end
@@ -31,7 +31,7 @@ describe AuthenticatorsV2::AwsAuthenticatorType, type: :model do
           branch: "conjur/authn-iam",
           enabled: true,
           owner: { id: "conjur/authn-iam", kind: "policy" },
-          annotations: { "description" => "this is my aws authenticator" }
+          annotations: { description: "this is my aws authenticator" }
         }
         expect(json).to eq(expected_json)
       end

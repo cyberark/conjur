@@ -19,7 +19,7 @@ describe AuthenticatorsV2::AzureAuthenticatorType, type: :model do
           subtype: nil,
           enabled: true,
           owner_id: "#{account}:policy:conjur/authn-azure",
-          annotations: '{ "description": "this is my azure authenticator" }',
+          annotations: { description: "this is my azure authenticator" },
           variables: {} # No data variables
         }
       end
@@ -32,7 +32,7 @@ describe AuthenticatorsV2::AzureAuthenticatorType, type: :model do
           branch: "conjur/authn-azure",
           enabled: true,
           owner: { id: "conjur/authn-azure", kind: "policy" },
-          annotations: { "description" => "this is my azure authenticator" },
+          annotations: { description: "this is my azure authenticator" },
           data: {}
         }
         expect(json).to eq(expected_json)
@@ -48,7 +48,7 @@ describe AuthenticatorsV2::AzureAuthenticatorType, type: :model do
           subtype: nil,
           enabled: true,
           owner_id: "#{account}:policy:conjur/authn-azure",
-          annotations: '{ "description": "this is my azure authenticator" }',
+          annotations: { description: "this is my azure authenticator" },
           variables: {
             "#{account}:variable:conjur/authn-azure/auth1/unknown-key" => "random_value",
             "#{account}:variable:conjur/authn-azure/auth1/provider-uri" => "https://provider-uri"
@@ -64,7 +64,7 @@ describe AuthenticatorsV2::AzureAuthenticatorType, type: :model do
           branch: "conjur/authn-azure",
           enabled: true,
           owner: { id: "conjur/authn-azure", kind: "policy" },
-          annotations: { "description" => "this is my azure authenticator" },
+          annotations: { description: "this is my azure authenticator" },
           data: {
             provider_uri: "https://provider-uri"
           }
@@ -81,7 +81,7 @@ describe AuthenticatorsV2::AzureAuthenticatorType, type: :model do
           subtype: nil,
           enabled: true,
           owner_id: "#{account}:policy:conjur/authn-azure",
-          annotations: '{ "description": "this is my azure authenticator" }',
+          annotations: { description: "this is my azure authenticator" },
           variables: {
             "#{account}:variable:conjur/authn-azure/auth1/provider-uri" => "https://provider-uri"
           }
@@ -96,7 +96,7 @@ describe AuthenticatorsV2::AzureAuthenticatorType, type: :model do
           branch: "conjur/authn-azure",
           enabled: true,
           owner: { id: "conjur/authn-azure", kind: "policy" },
-          annotations: { "description" => "this is my azure authenticator" },
+          annotations: { description: "this is my azure authenticator" },
           data: {
             provider_uri: "https://provider-uri"
           }

@@ -2,8 +2,7 @@
 
 module AuthenticatorsV2
   class AuthenticatorBaseType
-    attr_accessor :type, :branch, :enabled, :owner, :name,
-                  :annotations, :variables, :account
+    attr_accessor :type, :name, :annotations, :variables, :account
 
     def initialize(authenticator_dict)
       @account = authenticator_dict[:account]
@@ -19,17 +18,17 @@ module AuthenticatorsV2
     def to_h
       res = {
         type: format_type(type),
-        branch: "conjur/#{@type}",
+        branch: branch,
         name: authenticator_name,
-        enabled: @enabled,
-        owner: parse_owner(@owner)
+        enabled: enabled,
+        owner: parse_owner(owner)
       }
       res[:data] = add_data_params(@variables) if respond_to?(:add_data_params)
-      res[:annotations] = JSON.parse(@annotations) if @annotations.present?
+      res[:annotations] = @annotations if @annotations.present?
 
       res
     end
-  
+
     def format_type(authn_type)
       return "aws" if authn_type == "authn-iam"
       
@@ -72,6 +71,26 @@ module AuthenticatorsV2
       "#{@account}:variable:conjur/#{identifier}"
     end
     
+    def variable_map
+      variables
+    end
+
+    def enabled
+      return @enabled unless @enabled.nil?
+
+      true
+    end
+
+    def branch
+      "conjur/#{type}"
+    end
+
+    def owner
+      return @owner unless @owner.nil?
+
+      "#{account}:policy:#{branch}"
+    end
+
     private
 
     # Extracts a parameter from `authenticator_params` if it exists and

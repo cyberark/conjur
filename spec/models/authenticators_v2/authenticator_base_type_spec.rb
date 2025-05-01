@@ -14,7 +14,7 @@ describe AuthenticatorsV2::AuthenticatorBaseType, type: :model do
       account: account,
       enabled: true,
       owner_id: "#{account}:policy:conjur/base",
-      annotations: '{ "description": "this is my base authenticator" }',
+      annotations: { description: "this is my base authenticator" },
       variables: args
     }
   end
@@ -27,7 +27,7 @@ describe AuthenticatorsV2::AuthenticatorBaseType, type: :model do
       expect(authenticator.name).to eq("auth1")
       expect(authenticator.enabled).to be(true)
       expect(authenticator.owner).to eq("#{account}:policy:conjur/base")
-      expect(authenticator.annotations).to eq('{ "description": "this is my base authenticator" }')
+      expect(authenticator.annotations).to eq({ description: "this is my base authenticator" })
       expect(authenticator.variables).to eq({ ca_cert: "CERT_DATA_1" })
     end
   end
@@ -55,7 +55,7 @@ describe AuthenticatorsV2::AuthenticatorBaseType, type: :model do
           branch: "conjur/base",
           enabled: true,
           owner_id: "#{account}:policy:conjur/base",
-          annotations: '{ "description": "this is my base authenticator" }',
+          annotations: { description: "this is my base authenticator" },
           variables: {
             "#{account}:variable:conjur/base/auth1/ca-cert" => "CERT_DATA_1"
           }
@@ -69,7 +69,7 @@ describe AuthenticatorsV2::AuthenticatorBaseType, type: :model do
           name: "auth1",
           enabled: true,
           owner: { id: "conjur/base", kind: "policy" },
-          annotations: { "description" => "this is my base authenticator" }
+          annotations: { description: "this is my base authenticator" }
         }
 
         json = authenticator.to_h
@@ -85,7 +85,7 @@ describe AuthenticatorsV2::AuthenticatorBaseType, type: :model do
           branch: "conjur/base",
           enabled: false,
           owner_id: "#{account}:host:conjur/data/host457",
-          annotations: '{ "description": "this is my base authenticator" }',
+          annotations: { description: "this is my base authenticator" },
           variables: {
             "#{account}:variable:conjur/base/auth1/ca-cert" => "CERT_DATA_1"
           }
@@ -99,7 +99,7 @@ describe AuthenticatorsV2::AuthenticatorBaseType, type: :model do
           name: "auth1",
           enabled: false,
           owner: { id: "conjur/data/host457", kind: "host" },
-          annotations: { "description" => "this is my base authenticator" }
+          annotations: { description: "this is my base authenticator" }
         }
 
         json = authenticator.to_h
@@ -115,7 +115,7 @@ describe AuthenticatorsV2::AuthenticatorBaseType, type: :model do
           branch: "conjur/base",
           enabled: false,
           owner_id: "#{account}:group:conjur/data/group123",
-          annotations: '{ "description": "this is my base authenticator" }',
+          annotations: { description: "this is my base authenticator" },
           variables: {
             "#{account}:variable:conjur/base/auth1/ca-cert" => "CERT_DATA_1"
           }
@@ -129,7 +129,7 @@ describe AuthenticatorsV2::AuthenticatorBaseType, type: :model do
           name: "auth1",
           enabled: false,
           owner: { id: "conjur/data/group123", kind: "group" },
-          annotations: { "description" => "this is my base authenticator" }
+          annotations: { description: "this is my base authenticator" }
         }
 
         json = authenticator.to_h

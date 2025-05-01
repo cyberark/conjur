@@ -43,6 +43,7 @@ module AuthenticatorsV2
 
       fields = %i[
         provider_uri
+        id_token_user_property
         client_id
         provider_scope
         client_secret

@@ -17,7 +17,7 @@ describe AuthenticatorsV2::K8sAuthenticatorType, type: :model do
           service_id: "auth1",
           enabled: true,
           owner_id: "#{account}:policy:conjur/authn-k8s",
-          annotations: '{ "description": "this is my k8s authenticator" }',
+          annotations: { description: "this is my k8s authenticator" },
           variables: {} # No data variables
         }
       end
@@ -30,7 +30,7 @@ describe AuthenticatorsV2::K8sAuthenticatorType, type: :model do
           branch: "conjur/authn-k8s",
           enabled: true,
           owner: { id: "conjur/authn-k8s", kind: "policy" },
-          annotations: { "description" => "this is my k8s authenticator" },
+          annotations: { description: "this is my k8s authenticator" },
           data: {}
         }
         expect(json).to eq(expected_json)
@@ -44,7 +44,7 @@ describe AuthenticatorsV2::K8sAuthenticatorType, type: :model do
           service_id: "auth1",
           enabled: true,
           owner_id: "#{account}:policy:conjur/authn-k8s",
-          annotations: '{ "description": "this is my k8s authenticator" }',
+          annotations: { description: "this is my k8s authenticator" },
           variables: {
             "#{account}:variable:conjur/authn-k8s/auth1/ca/cert" => "some-data".bytes
           }
@@ -59,7 +59,7 @@ describe AuthenticatorsV2::K8sAuthenticatorType, type: :model do
           branch: "conjur/authn-k8s",
           enabled: true,
           owner: { id: "conjur/authn-k8s", kind: "policy" },
-          annotations: { "description" => "this is my k8s authenticator" },
+          annotations: { description: "this is my k8s authenticator" },
           data: {
             "ca/cert": "some-data".bytes
           }
@@ -76,7 +76,7 @@ describe AuthenticatorsV2::K8sAuthenticatorType, type: :model do
           service_id: "auth1",
           enabled: true,
           owner_id: "#{account}:policy:conjur/authn-k8s",
-          annotations: '{ "description": "this is my k8s authenticator" }',
+          annotations: { description: "this is my k8s authenticator" },
           variables: {
             "#{account}:variable:conjur/authn-k8s/auth1/unknown-key" => "random_value",
             "#{account}:variable:conjur/authn-k8s/auth1/ca/cert" => "CERT_DATA_1"
@@ -92,7 +92,7 @@ describe AuthenticatorsV2::K8sAuthenticatorType, type: :model do
           branch: "conjur/authn-k8s",
           enabled: true,
           owner: { id: "conjur/authn-k8s", kind: "policy" },
-          annotations: { "description" => "this is my k8s authenticator" },
+          annotations: { description: "this is my k8s authenticator" },
           data: {
             "ca/cert": "CERT_DATA_1"
           }
@@ -108,7 +108,7 @@ describe AuthenticatorsV2::K8sAuthenticatorType, type: :model do
           service_id: "auth1",
           enabled: true,
           owner_id: "#{account}:policy:conjur/authn-k8s",
-          annotations: '{ "description": "this is my k8s authenticator" }',
+          annotations: { description: "this is my k8s authenticator" },
           variables: {
             "#{account}:variable:conjur/authn-k8s/auth1/ca/key" => "CERT_KEY",
             "#{account}:variable:conjur/authn-k8s/auth1/ca/cert" => "CERT_DATA_1",
@@ -127,7 +127,7 @@ describe AuthenticatorsV2::K8sAuthenticatorType, type: :model do
           branch: "conjur/authn-k8s",
           enabled: true,
           owner: { id: "conjur/authn-k8s", kind: "policy" },
-          annotations: { "description" => "this is my k8s authenticator" },
+          annotations: { description: "this is my k8s authenticator" },
           data: {
             "ca/cert": "CERT_DATA_1",
             "ca/key": "CERT_KEY",

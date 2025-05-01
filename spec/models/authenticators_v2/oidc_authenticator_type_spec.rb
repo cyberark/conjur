@@ -22,7 +22,7 @@ RSpec.describe(AuthenticatorsV2::OidcAuthenticatorType) do
       account: account,
       enabled: true,
       owner_id: "#{account}:policy:conjur/authn-oidc",
-      annotations: '{ "description": "this is my oidc authenticator" }',
+      annotations: { description: "this is my oidc authenticator" },
       variables: args # No data variables
     }
   end
@@ -119,7 +119,7 @@ RSpec.describe(AuthenticatorsV2::OidcAuthenticatorType) do
           service_id: "auth1",
           enabled: true,
           owner_id: "#{account}:policy:conjur/authn-oidc",
-          annotations: '{ "description": "this is my oidc authenticator" }',
+          annotations: { description: "this is my oidc authenticator" },
           variables: {} # No data variables
         }
       end
@@ -132,7 +132,7 @@ RSpec.describe(AuthenticatorsV2::OidcAuthenticatorType) do
           branch: "conjur/authn-oidc",
           enabled: true,
           owner: { id: "conjur/authn-oidc", kind: "policy" },
-          annotations: { "description" => "this is my oidc authenticator" },
+          annotations: { description: "this is my oidc authenticator" },
           data: {}
         }
         expect(json).to eq(expected_json)
@@ -146,7 +146,7 @@ RSpec.describe(AuthenticatorsV2::OidcAuthenticatorType) do
           service_id: "auth1",
           enabled: true,
           owner_id: "#{account}:policy:conjur/authn-oidc",
-          annotations: '{ "description": "this is my oidc authenticator" }',
+          annotations: { description: "this is my oidc authenticator" },
           variables: {
             "#{account}:variable:conjur/authn-oidc/auth1/ca-cert" => "some-data".bytes
           }
@@ -161,7 +161,7 @@ RSpec.describe(AuthenticatorsV2::OidcAuthenticatorType) do
           branch: "conjur/authn-oidc",
           enabled: true,
           owner: { id: "conjur/authn-oidc", kind: "policy" },
-          annotations: { "description" => "this is my oidc authenticator" },
+          annotations: { description: "this is my oidc authenticator" },
           data: {
             "ca_cert": "some-data".bytes
           }
@@ -177,7 +177,7 @@ RSpec.describe(AuthenticatorsV2::OidcAuthenticatorType) do
           service_id: "auth1",
           enabled: true,
           owner_id: "#{account}:policy:conjur/authn-oidc",
-          annotations: '{ "description": "this is my oidc authenticator" }',
+          annotations: { description: "this is my oidc authenticator" },
           variables: {
             "#{account}:variable:conjur/authn-oidc/auth1/unknown-key" => "random_value",
             "#{account}:variable:conjur/authn-oidc/auth1/ca-cert" => "CERT_DATA_1"
@@ -193,7 +193,7 @@ RSpec.describe(AuthenticatorsV2::OidcAuthenticatorType) do
           branch: "conjur/authn-oidc",
           enabled: true,
           owner: { id: "conjur/authn-oidc", kind: "policy" },
-          annotations: { "description" => "this is my oidc authenticator" },
+          annotations: { description: "this is my oidc authenticator" },
           data: {
             "ca_cert": "CERT_DATA_1"
           }
@@ -221,7 +221,7 @@ RSpec.describe(AuthenticatorsV2::OidcAuthenticatorType) do
           service_id: "auth1",
           enabled: true,
           owner_id: "#{account}:policy:conjur/authn-oidc",
-          annotations: '{ "description": "this is my oidc authenticator" }',
+          annotations: { description: "this is my oidc authenticator" },
           variables: args
         }
       end
@@ -234,7 +234,7 @@ RSpec.describe(AuthenticatorsV2::OidcAuthenticatorType) do
           branch: "conjur/authn-oidc",
           enabled: true,
           owner: { id: "conjur/authn-oidc", kind: "policy" },
-          annotations: { "description" => "this is my oidc authenticator" },
+          annotations: { description: "this is my oidc authenticator" },
           data: {
             provider_uri: 'https://foo.bar.com/baz',
             client_id: 'client-id-123',

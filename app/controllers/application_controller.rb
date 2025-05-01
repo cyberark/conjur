@@ -48,6 +48,9 @@ class ApplicationController < ActionController::API
   class UnprocessableEntity < RuntimeError
   end
 
+  class Conflict < RuntimeError
+  end
+
   rescue_from Exceptions::RecordNotFound, with: :record_not_found
   rescue_from Errors::Conjur::MissingSecretValue, with: :render_secret_not_found
   rescue_from Exceptions::RecordExists, with: :record_exists
@@ -65,6 +68,7 @@ class ApplicationController < ActionController::API
   rescue_from Sequel::ValidationFailed, with: :validation_failed
   rescue_from Sequel::NoMatchingRow, with: :no_matching_row
   rescue_from Sequel::ForeignKeyConstraintViolation, with: :foreign_key_constraint_violation
+  rescue_from Conflict, with: :conflict
   rescue_from Exceptions::EnhancedPolicyError, with: :enhanced_policy_error
   rescue_from Exceptions::InvalidPolicyObject, with: :policy_invalid
   rescue_from Exceptions::PolicyLoadRecordNotFound, with: :policy_invalid
@@ -80,6 +84,9 @@ class ApplicationController < ActionController::API
   rescue_from Errors::Conjur::RequestedResourceNotFound, with: :resource_not_found
   rescue_from Errors::Authorization::InsufficientResourcePrivileges, with: :forbidden
   rescue_from Errors::Conjur::APIHeaderMissing, with: :render_bad_request_with_message
+  rescue_from Errors::Conjur::ParameterMissing, with: :unprocessable_entity
+  rescue_from Errors::Conjur::ParameterValueInvalid, with: :unprocessable_entity
+  rescue_from Errors::Conjur::ParameterTypeInvalid, with: :unprocessable_entity
 
   around_action :run_with_transaction
 
