@@ -9,7 +9,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
-## [1.22.0] - 2025-01-13
+## [1.22.1] - 2025-05-02
+### Security
+- Update simpleidn to 0.2.3. CNJR-9498
+
+## [1.22.0] - 2025-04-02
 
 ### Added
 - Added the dynamic secrets Issuers API and data model. CNJR-7828
