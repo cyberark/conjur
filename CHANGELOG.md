@@ -9,7 +9,19 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
-## [1.23.0] - 2025-05-02
+## [1.23.0] - 2025-05-06
+
+### Added
+- Added the list authenticators endpoint for the V2 API's. CNJR-9137
+- Added the show authenticator endpoint for the V2 API's. CNJR-9133
+- Added the ability to create authenticators through a V2 API endpoint CNJR-9136
+
+### Fixed
+- Attempt to load a policy that references a non-existent resource now
+  results in a `422` response, rather than a `404` error. CNJR-9122
+- Log a warning when Kubernetes authenticator certificate injection process log
+  directory is not writable. CNJR-7070
+
 ### Security
 - Update simpleidn to 0.2.3. CNJR-9498
 
@@ -19,23 +31,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Added the dynamic secrets Issuers API and data model. CNJR-7828
 - Added support for retrieving dynamic secrets through a configured
   ephemeral secrets engine. CNJR-7829
-- Added the list authenticators endpoint for the V2 API's. CNJR-9137
-- Added the show authenticator endpoint for the V2 API's. CNJR-9133
-- Added the ability to create authenticators through a V2 API endpoint CNJR-9136
 
 ### Fixed
 - Attempt to authenticate using the built-in authenticator (`authn`) with a GET
   request now results in a `404` response, rather than logging an authenticator
   not enabled message. CNJR-5854
-- Attempt to load a policy that references a non-existent resource now
-  results in a `422` response, rather than a `404` error. CNJR-9122
 - Set the default and maximal limit value for resources list API to 1000 in order
   to align with the documentation. CNJR-8485
 - Ensure Kubernetes authenticator websocket connections are closed when a
   Kubernetes API error occurs. CNJR-8687
 - Leading or trailing newline characters in the Conjur authorization token are
   now removed before parsing the token. CNJR-3439
-- Log a warning when Kubernetes authenticator certificate injection process log directory is not writable. CNJR-7070
 
 ### Changed
 - Do not increase secret's value version in case there is no actual change in
