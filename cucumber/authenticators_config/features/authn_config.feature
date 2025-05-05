@@ -77,6 +77,24 @@ Feature: Authenticator configuration
     Then the HTTP response status code is 204
     And authenticator "cucumber:webservice:conjur/authn-k8s/db" is disabled
 
+  @smoke
+  Scenario: Authenticator is successfully configured using JSON
+    When I login as "authn-updater"
+    And I set the "Content-Type" header to "application/json"
+    And I successfully PATCH "/authn-k8s/db/cucumber" with body:
+    """
+    { "enabled": true }
+    """
+    Then the HTTP response status code is 204
+    And authenticator "cucumber:webservice:conjur/authn-k8s/db" is enabled
+    And I set the "Content-Type" header to "application/json"
+    When I successfully PATCH "/authn-k8s/db/cucumber" with body:
+    """
+    { "enabled": false }
+    """
+    Then the HTTP response status code is 204
+    And authenticator "cucumber:webservice:conjur/authn-k8s/db" is disabled
+
   @negative @acceptance
   Scenario: Authenticator account does not exist
     When I am the super-user
