@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
+## [1.23.0] - 2025-05-02
+### Security
+- Update simpleidn to 0.2.3. CNJR-9498
+
 ## [1.22.0] - 2025-04-02
 
 ### Added
@@ -38,8 +42,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   the secret's value. CNJR-7680
 - Use both database and environment configuration for the enabled authenticators.
   CNJR-8724
-
-### Security
 - Update rack to 2.2.13 to address CVE-2025-27610.
   CONJSE-1956
 - Update nokogiri to 1.18.4 to address GHSA-mrxw-mxhj-p664.
