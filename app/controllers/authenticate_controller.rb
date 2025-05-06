@@ -127,29 +127,29 @@ class AuthenticateController < ApplicationController
 
   def update_config
     Authentication::UpdateAuthenticatorConfig.new.(
-      update_config_input: update_config_input
+      update_config_input: update_config_input(update_config_params)
     )
     log_audit_success(
-      authn_params: update_config_input,
+      authn_params: update_config_input(update_config_params),
       audit_event_class: Audit::Event::Authn::UpdateAuthenticatorConfig
     )
     head(:no_content)
   rescue => e
     log_audit_failure(
-      authn_params: update_config_input,
+      authn_params: update_config_input(update_config_params),
       audit_event_class: Audit::Event::Authn::UpdateAuthenticatorConfig,
       error: e
     )
     handle_authentication_error(e)
   end
 
-  def update_config_input
+  def update_config_input(input)
     @update_config_input ||= Authentication::UpdateAuthenticatorConfigInput.new(
-      account: params[:account],
-      authenticator_name: params[:authenticator],
-      service_id: params[:service_id],
+      account: input[:account],
+      authenticator_name: input[:authenticator],
+      service_id: input[:service_id],
       username: ::Role.username_from_roleid(current_user.role_id),
-      enabled: Rack::Utils.parse_nested_query(request.body.read)['enabled'] || false,
+      enabled: (input[:enabled].to_s.strip.downcase == 'true').to_s,
       client_ip: request.ip
     )
   end
@@ -281,6 +281,33 @@ class AuthenticateController < ApplicationController
   end
 
   private
+
+  def update_config_params
+    body_allowed_params = %i[enabled]
+    path_allowed_params = %i[authenticator account service_id]
+    @update_config_params ||= params.permit(*path_allowed_params)
+      .slice(*path_allowed_params)
+      .to_h.symbolize_keys
+      .merge(
+        ActionController::Parameters.new(
+          case request.media_type
+          when nil, 'application/x-www-form-urlencoded'
+            Rack::Utils.parse_nested_query(request.body.read)
+          when 'application/json'
+            body = request.body.read
+            begin
+              JSON.parse(body)
+            rescue JSON::JSONError
+              raise ApplicationController::BadRequest, "Unable to parse request json body: #{body}"
+            end
+          else
+            {}
+          end
+        ).permit(*body_allowed_params)
+        .slice(*body_allowed_params)
+        .to_h.symbolize_keys
+      )
+  end
 
   def render_authn_token(authn_token)
     content_type = :json

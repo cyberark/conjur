@@ -2,13 +2,22 @@
 
 require 'spec_helper'
 
+DatabaseCleaner.strategy = :truncation
+
 describe AuthenticateController, :type => :request do
+  before(:all) do
+    DatabaseCleaner.clean_with(:truncation)
+    Role.create(role_id: 'rspec:user:admin')
+  end
+
   include_context "existing account"
 
   let(:password) { "The-Password1" }
   let(:login) { "u-#{random_hex}" }
   let(:account) { "rspec" }
+  let(:service_id) { "db" }
   let(:authenticator) { "authn" }
+
   let(:authenticate_url) do
     "/#{authenticator}/#{account}/#{login}/authenticate"
   end
@@ -134,6 +143,66 @@ describe AuthenticateController, :type => :request do
     it "is unauthorized" do
       post(authenticate_url, env: request_env)
       expect(response.code).to eq("401")
+    end
+  end
+
+  context "authenticator update action" do
+    let(:test_policy) do
+      <<~POLICY
+        - !policy
+          id: conjur/authn/db
+          body:
+          - !webservice
+  
+        - !policy
+          id: conjur/authn-k8s/db
+          body:
+          - !webservice
+      POLICY
+    end
+
+    context 'when you set authenticator to true and false' do
+      let(:admin_request_env) do
+        token = Base64.strict_encode64(Slosilo["authn:rspec"].signed_token("admin").to_json)
+        { 'HTTP_AUTHORIZATION' => "Token token=\"#{token}\"" }
+      end
+
+      def apply_root_policy(account, policy_content:, expect_success: false)
+        post("/policies/#{account}/policy/root", env: admin_request_env.merge({ 'RAW_POST_DATA' => policy_content }))
+        return unless expect_success
+
+        expect(response.code).to eq("201")
+      end
+
+      def authenticator_up_request(body, current_user, url_path)
+        patch(
+          url_path,
+          env: token_auth_header(role: current_user).merge(
+            'RAW_POST_DATA' => body,
+            'CONTENT_TYPE' => "application/json"
+          )
+        )
+      end
+
+      before do
+        apply_root_policy(account, policy_content: test_policy, expect_success: true)
+      end
+
+      let(:authenticator_up) { "authn-k8s" }
+      let(:update_authenticator_url) { "/#{authenticator_up}/#{service_id}/#{account}" }
+      let(:current_user) { Role.find_or_create(role_id: "#{account}:user:admin") }
+
+      it "is enabled" do
+        payload = { enabled: true }
+        authenticator_up_request(payload.to_json, current_user, update_authenticator_url)
+        expect(response.code).to eq('204')
+      end
+
+      it "is disabled" do
+        payload = { enabled: false }
+        authenticator_up_request(payload.to_json, current_user, update_authenticator_url)
+        expect(response.code).to eq('204')
+      end
     end
   end
 
