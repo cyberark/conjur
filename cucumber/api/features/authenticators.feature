@@ -208,6 +208,12 @@ Scenario: list authenticators using the V2 Api.
   And I successfully GET "authenticators/cucumber"
   Then I receive a count of 4
   Then the authenticators list should include "test-jwt3"
+  When I DELETE "authenticators/cucumber/authn-jwt/test-jwt3"
+  Then the HTTP response status code is 204
+  And there is an audit record matching:
+  """
+  cucumber:user:admin successfully deleted authn-jwt test-jwt3 with URI path: '/authenticators/cucumber/authn-jwt/test-jwt3'
+  """
 
   And I log out
   #  The api should only return authenticators alice has read access too
@@ -236,9 +242,15 @@ Scenario: list authenticators using the V2 Api.
       "type": "oidc"
     }
   """
-When I GET "authenticators/cucumber/authn-jwt/test-jwt2"
-Then the HTTP response status code is 404
-And there is an audit record matching:
-"""
-cucumber:user:alice failed to retrieve authn-jwt test-jwt2 with URI path: '/authenticators/cucumber/authn-jwt/test-jwt2'
-"""
+  When I GET "authenticators/cucumber/authn-jwt/test-jwt2"
+  Then the HTTP response status code is 404
+  And there is an audit record matching:
+  """
+  cucumber:user:alice failed to retrieve authn-jwt test-jwt2 with URI path: '/authenticators/cucumber/authn-jwt/test-jwt2'
+  """
+  When I DELETE "authenticators/cucumber/authn-jwt/test-jwt2"
+  Then the HTTP response status code is 404
+  And there is an audit record matching:
+  """
+  cucumber:user:alice failed to delete authn-jwt test-jwt2 with URI path: '/authenticators/cucumber/authn-jwt/test-jwt2': Authenticator: test-jwt2 not found in account 'cucumber'
+  """

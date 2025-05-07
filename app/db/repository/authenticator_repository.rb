@@ -77,7 +77,28 @@ module DB
         DB::Repository::Authenticator::CreateAuthenticator.new.call(authenticator: authenticator)
       end
 
+      def delete(policy_id:)
+        policy = @resource_repository[resource_id: policy_id]
+
+        delete_policy(policy)
+      end
+
       private
+
+      def delete_policy(resource)
+        return unless resource
+
+        # First delete all resources and roles that are owned by this resource
+        ::Resource.where(owner_id: resource.resource_id).each do |r|
+          delete_policy(r)
+        end
+
+        resource.destroy
+        resource_role = ::Role[resource.resource_id]
+        resource_role&.destroy
+
+        resource
+      end
 
       def map_authenticator(identifier:,  webservice:, account:)
         annotations = JSON.parse(webservice[:annotations]) unless webservice[:annotations].nil?

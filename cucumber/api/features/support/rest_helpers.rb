@@ -130,7 +130,7 @@ module RestHelpers
 
     @content_type = result.headers[:content_type]
     @content_encoding = result.headers[:content_encoding]
-    if /^application\/json/.match?(@content_type) || @content_type == "application/x.secretsmgr.v2beta+json"
+    if /^application\/json/.match?(@content_type) || @content_type == "application/x.secretsmgr.v2beta+json" && !result.empty?
       @result = JSON.parse(result)
       @response_api_key = @result['api_key'] if @result.is_a?(Hash)
       if @result.respond_to?(:sort!) && !@result.first.is_a?(Hash)
