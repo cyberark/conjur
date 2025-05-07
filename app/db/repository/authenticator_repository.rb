@@ -31,8 +31,11 @@ module DB
           identifier = id_array(webservice[:resource_id])
           begin
             auth = map_authenticator(identifier: identifier, webservice: webservice, account: account)
-            return auth unless auth.success?
-
+            unless auth.success? 
+              @logger.info(auth.message)
+              next
+            end
+             
             auth.result
           rescue => e
             @logger.info("#{type_error_message(type)} '#{identifier[2]}' varibales due to: #{e.message}")

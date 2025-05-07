@@ -12,7 +12,7 @@ Feature: Branches APIv2 tests - read one
     And I can GET "/branches/cucumber/root"
     Then the HTTP response status code is 200
     And the HTTP response content type is "application/x.secretsmgr.v2beta+json"
-    And the result as json is:
+    And the JSON should be:
     """
     { "name": "root",
       "branch": "/",
@@ -40,7 +40,7 @@ Feature: Branches APIv2 tests - read one
     And I GET "/branches/cucumber/data/vault"
     And the HTTP response status code is 404
     And the HTTP response content type is "application/x.secretsmgr.v2beta+json"
-    And the result as json is:
+    And the JSON should be:
     """
     { "code": "404",
       "message": "Branch 'data/vault' not found in account 'cucumber'" }
@@ -60,7 +60,7 @@ Feature: Branches APIv2 tests - read one
     And I GET "/branches/cucumber/data/safe1/branch1/not_for_branch/branch2"
     Then the HTTP response status code is 404
     And the HTTP response content type is "application/x.secretsmgr.v2beta+json"
-    And the result as json is:
+    And the JSON should be:
     """
     { "code": "404",
     "message": "Branch 'data/safe1/branch1/not_for_branch' not found in account 'cucumber'" }
@@ -72,7 +72,7 @@ Feature: Branches APIv2 tests - read one
     And I GET "/branches/cucumber/data/safe1/branch1"
     Then the HTTP response status code is 400
     And the HTTP response content type is "application/x.secretsmgr.v2beta+json"
-    And the result as json is:
+    And the JSON should be:
     """
     { "code": "400",
       "message": "CONJ00194W The api belongs to v2 APIs but it missing the version \"application/x.secretsmgr.v2beta+json\" in the Accept header" }

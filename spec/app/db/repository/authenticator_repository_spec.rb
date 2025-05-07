@@ -7,7 +7,9 @@ RSpec.describe(DB::Repository::AuthenticatorRepository) do
   let(:logger) { Logger.new(log_output) }
 
   let(:repo) do
-    described_class.new
+    described_class.new(
+      logger: logger
+    )
   end
   let(:current_user) { Role.find_or_create(role_id: 'rspec:user:admin') }
 
@@ -121,6 +123,26 @@ RSpec.describe(DB::Repository::AuthenticatorRepository) do
           ::Resource["rspec:webservice:conjur/authn-jwt/baz"].destroy
           ::Resource["rspec:webservice:conjur/app/testapp"].destroy
           ::Resource["rspec:webservice:conjur/authn-jwt/baz/status"].destroy
+        end
+      end
+
+      context 'when there is a misconfigured authenticator' do
+        before(:each) do
+          ::Resource.create(
+            resource_id: "rspec:webservice:conjur/authn-test/baz",
+            owner_id: 'rspec:user:admin'
+          )
+        end
+        it 'returns the relevant variable data' do
+          response = repo.find_all(type: nil,  account: 'rspec')
+
+          expect(log_output.string).to include("'authn-test' authenticators are not supported")
+          expect(response.success?).to be(true)
+          expect(response.result.map(&:to_h)).to eq(authenticators)
+        end
+
+        after(:each) do
+          ::Resource["rspec:webservice:conjur/authn-test/baz"].destroy
         end
       end
 

@@ -60,6 +60,7 @@ Rails.application.routes.draw do
       get '/authenticators/:account' => 'authenticator#list_authenticators'
       get '/authenticators/:account/:type/:service_id' => 'authenticator#find_authenticator'
       post '/authenticators/:account' => 'authenticator#create_authenticator'
+      patch '/authenticators/:account/:type/:service_id' => 'authenticator#authenticator_enablement'
 
       # Factories
       post   "/factory-resources/:account/:kind/(:version)/:id" => "policy_factory_resources#create"
@@ -105,7 +106,7 @@ Rails.application.routes.draw do
       # NOTE: the order of these routes matters: we need the expire
       #       route to come first.
       post    "/secrets/:account/:kind/*identifier" => "secrets#expire",
-        :constraints => QueryParameterActionRecognizer.new("expirations")
+              :constraints => QueryParameterActionRecognizer.new("expirations")
       get     "/secrets/:account/:kind/*identifier" => 'secrets#show'
       post    "/secrets/:account/:kind/*identifier" => 'secrets#create'
       get     "/secrets"                            => 'secrets#batch'
