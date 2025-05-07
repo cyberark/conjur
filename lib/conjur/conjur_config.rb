@@ -43,7 +43,11 @@ module Conjur
       policy_factories_path: 'conjur/factories',
       effective_policy_max_depth: 64,
       effective_policy_max_limit: 100000,
-      authn_jwt_ignore_missing_issuer_claim: false
+      authn_jwt_ignore_missing_issuer_claim: false,
+      # When retrieving secrets in batch, how many dynamic secrets are allowed
+      # in a single request. This is limited because these require additional
+      # network calls and are significantly slower to retrieve.
+      dynamic_secrets_per_request_max: 10
     )
 
     def initialize(

@@ -55,7 +55,7 @@ class SecretsController < RestController
     authorize(:execute)
 
     if @feature_flags.enabled?(:dynamic_secrets) && dynamic_secret?(resource)
-      value = handle_dynamic_secret
+      value = handle_dynamic_secret(resource)
       mime_type = 'application/json'
     else
       version = params[:version]
@@ -83,42 +83,63 @@ class SecretsController < RestController
   def batch
     variables = Resource.where(resource_id: variable_ids).eager(:secrets).all
 
+    # Verify permissions on all of the requested variables
+    authorize_many(variables, :execute)
+
+    # Ensure the number of dynamic secrets requested is not greater than the
+    # number allowed in the configuration
+    ensure_batch_dynamic_secrets_max(
+      variables.count { |var| dynamic_secret?(var) }
+    )
+
+    # Ensure we found all of the requested variables
     unless variable_ids.count == variables.count
       raise Exceptions::RecordNotFound,
             variable_ids.find { |r| !variables.map(&:id).include?(r) }
     end
 
-    result = {}
-
-    authorize_many(variables, :execute)
-
-    variables.each do |variable|
-      result[variable.resource_id] = get_secret_from_variable(variable)
-
+    secrets = variables.map do |variable|
       audit_fetch(variable.resource_id)
+      [variable.resource_id, fetch_secret(variable)]
+    end.to_h
+
+    # Re-encode the secrets, if requested
+    if String(request.headers['Accept-Encoding']).casecmp?('base64')
+      response.set_header("Content-Encoding", "base64")
+      secrets.transform_values! { |value| Base64.encode64(value) }
     end
 
-    render(json: result)
+    render(json: secrets)
   rescue JSON::GeneratorError
-    raise Errors::Conjur::BadSecretEncoding, result
+    raise Errors::Conjur::BadSecretEncoding, secrets
   rescue Encoding::UndefinedConversionError
-    raise Errors::Conjur::BadSecretEncoding, result
+    raise Errors::Conjur::BadSecretEncoding, secrets
   rescue Exceptions::RecordNotFound => e
     raise Errors::Conjur::MissingSecretValue, e.id
+  end
+
+  def fetch_secret(variable)
+    if dynamic_secret?(variable)
+      handle_dynamic_secret(variable)
+    else
+      get_secret_from_variable(variable)
+    end
+  end
+
+  def ensure_batch_dynamic_secrets_max(num_dynamic_secrets)
+    max_dynamic_secrets = conjur_config.dynamic_secrets_per_request_max
+    return unless num_dynamic_secrets > max_dynamic_secrets
+
+    raise ApplicationController::UnprocessableEntity,
+          "Number of dynamic secrets requested exceeds the maximum " \
+          "allowed in a single request (#{max_dynamic_secrets})"
   end
 
   def get_secret_from_variable(variable)
     secret = variable.last_secret
     raise Exceptions::RecordNotFound, variable.resource_id unless secret
 
-    secret_value = secret.value
-    accepts_base64 = String(request.headers['Accept-Encoding']).casecmp?('base64')
-    if accepts_base64
-      response.set_header("Content-Encoding", "base64")
-      Base64.encode64(secret_value)
-    else
-      secret_value
-    end
+    secret.value
   end
 
   def audit_fetch(resource_id, version: nil)
@@ -188,28 +209,26 @@ class SecretsController < RestController
       resource_object.identifier.start_with?(Issuer::DYNAMIC_VARIABLE_PREFIX)
   end
 
-  def handle_dynamic_secret
-    account = params[:account]
-    resource_annotations = resource.annotations
+  def handle_dynamic_secret(resource)
     variable_data = {}
     request_id = request.env['action_dispatch.request_id']
 
     # Filter the issuer related annotations and remove the prefix
-    resource_annotations.each do |annotation|
+    resource.annotations.each do |annotation|
       next unless annotation.name.start_with?(Issuer::DYNAMIC_ANNOTATION_PREFIX)
 
       issuer_param = annotation.name.to_s[Issuer::DYNAMIC_ANNOTATION_PREFIX.length..-1]
       variable_data[issuer_param] = annotation.value
     end
 
-    issuer = Issuer.first(account: account, issuer_id: variable_data["issuer"])
+    issuer = Issuer.first(account: resource.account, issuer_id: variable_data["issuer"])
 
     # There shouldn't be a state where a variable belongs to an issuer that
     # doesn't exit, but we check it to be safe.
     unless issuer
       raise ApplicationController::UnprocessableEntity,
             "Issuer assigned to " \
-            "#{account}:#{params[:kind]}:#{params[:identifier]} was not found"
+            "#{resource.id} was not found"
     end
 
     logger.info(
