@@ -31,7 +31,7 @@ Feature: Branches APIv2 tests - create empty
     And I can GET "/branches/cucumber/branch1"
     And the HTTP response status code is 200
     And the HTTP response content type is "application/x.secretsmgr.v2beta+json"
-    And the result as json is:
+    And the JSON should be:
     """
     { "name": "branch1",
       "branch": "/",
@@ -59,7 +59,7 @@ Feature: Branches APIv2 tests - create empty
     """
     Then the HTTP response status code is 409
     And the HTTP response content type is "application/x.secretsmgr.v2beta+json"
-    And the result as json is:
+    And the JSON should be:
     """
     { "code": "409",
       "message": "Branch \"cucumber:branch:data\" already exists" }
@@ -77,7 +77,7 @@ Feature: Branches APIv2 tests - create empty
     """
     Then the HTTP response status code is 422
     And the HTTP response content type is "application/x.secretsmgr.v2beta+json"
-    And the result as json is:
+    And the JSON should be:
     """
     { "code": "422",
       "message": "Kind can't be blank, Kind '' is not a valid owner kind, Id can't be blank, Id Wrong path '', and Id is too short (minimum is 1 character)" }
@@ -93,7 +93,7 @@ Feature: Branches APIv2 tests - create empty
     """
     Then the HTTP response status code is 422
     And the HTTP response content type is "application/x.secretsmgr.v2beta+json"
-    And the result as json is:
+    And the JSON should be:
     """
     { "code": "422",
       "message": "Name can't be blank, Name is too short (minimum is 1 character), and Name Wrong name ''" }
@@ -109,7 +109,7 @@ Feature: Branches APIv2 tests - create empty
     """
     Then the HTTP response status code is 422
     And the HTTP response content type is "application/x.secretsmgr.v2beta+json"
-    And the result as json is:
+    And the JSON should be:
     """
     { "code": "422",
       "message": "Branch can't be blank, Branch can't be blank, Branch can't be blank, Branch is too short (minimum is 1 character), and Branch Wrong path ''" }
@@ -129,7 +129,7 @@ Feature: Branches APIv2 tests - create empty
     """
     And the HTTP response status code is 201
     And the HTTP response content type is "application/x.secretsmgr.v2beta+json"
-    And the result as json is:
+    And the JSON should be:
     """
     { "name": "branch2",
       "branch": "data/safe1",
@@ -152,7 +152,7 @@ Feature: Branches APIv2 tests - create empty
     """
     Then the HTTP response status code is 422
     And the HTTP response content type is "application/x.secretsmgr.v2beta+json"
-    And the result as json is:
+    And the JSON should be:
     """
     { "code": "422",
       "message": "Branch2-ann-key1 should have string value but got 6" }
@@ -172,7 +172,7 @@ Feature: Branches APIv2 tests - create empty
     """
     Then the HTTP response status code is 404
     And the HTTP response content type is "application/x.secretsmgr.v2beta+json"
-    And the result as json is:
+    And the JSON should be:
     """
     { "code": "404",
       "message": "Branch 'data/safe2' not found in account 'cucumber'" }
@@ -190,7 +190,7 @@ Feature: Branches APIv2 tests - create empty
     """
     Then the HTTP response status code is 201
     And the HTTP response content type is "application/x.secretsmgr.v2beta+json"
-    And the result as json is:
+    And the JSON should be:
     """
     { "name": "branch2", "branch": "data/safe1",
       "owner": { "kind": "group", "id": "data/data-group" },
@@ -209,7 +209,7 @@ Feature: Branches APIv2 tests - create empty
     """
     Then the HTTP response status code is 201
     And the HTTP response content type is "application/x.secretsmgr.v2beta+json"
-    And the result as json is:
+    And the JSON should be:
     """
     { "name": "branch2", "branch": "/",
       "owner": { "kind": "user", "id": "admin" },
@@ -228,7 +228,7 @@ Feature: Branches APIv2 tests - create empty
     """
     Then the HTTP response status code is 404
     And the HTTP response content type is "application/x.secretsmgr.v2beta+json"
-    And the result as json is:
+    And the JSON should be:
     """
     { "code": "404",
       "message": "Group 'data/data-group-nope' not found in account 'cucumber'" }
@@ -241,7 +241,7 @@ Feature: Branches APIv2 tests - create empty
     And I can GET "/branches/cucumber/data/safe1/branch1"
     Then the HTTP response status code is 200
     And the HTTP response content type is "application/x.secretsmgr.v2beta+json"
-    And the result as json is:
+    And the JSON should be:
     """
     { "name": "branch1",
       "branch": "data/safe1",
@@ -274,7 +274,7 @@ Feature: Branches APIv2 tests - create empty
     """
     Then the HTTP response status code is 404
     And the HTTP response content type is "application/x.secretsmgr.v2beta+json"
-    And the result as json is:
+    And the JSON should be:
     """
     { "code": "404",
       "message": "Branch 'data/safe1/alice-read-only' not found in account 'cucumber'" }
@@ -298,7 +298,7 @@ Feature: Branches APIv2 tests - create empty
     """
     Then the HTTP response status code is 409
     And the HTTP response content type is "application/x.secretsmgr.v2beta+json"
-    And the result as json is:
+    And the JSON should be:
     """
     { "code": "409",
       "message": "Branch \"cucumber:branch:data/safe1/branch1/alice-hidden\" already exists" }
@@ -336,7 +336,7 @@ Feature: Branches APIv2 tests - create empty
       "branch": "data/safe1/branch1/not_for_branch/branch2" }
     """
     Then the HTTP response status code is 404
-    And the result as json is:
+    And the JSON should be:
     """
     { "code": "404",
       "message": "Branch 'data/safe1/branch1/not_for_branch' not found in account 'cucumber'" }
@@ -353,7 +353,7 @@ Feature: Branches APIv2 tests - create empty
     """
     Then the HTTP response status code is 400
     And the HTTP response content type is "application/x.secretsmgr.v2beta+json"
-    And the result as json is:
+    And the JSON should be:
     """
     { "code": "400",
       "message": "CONJ00194W The api belongs to v2 APIs but it missing the version \"application/x.secretsmgr.v2beta+json\" in the Accept header" }

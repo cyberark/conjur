@@ -12,7 +12,7 @@ Feature: Branches APIv2 tests - read list
     And I can GET "/branches/cucumber"
     Then the HTTP response status code is 200
     And the HTTP response content type is "application/x.secretsmgr.v2beta+json"
-    And the result as json is:
+    And the JSON should be:
     """
     { "branches": [
         { "name": "data",
@@ -78,7 +78,7 @@ Feature: Branches APIv2 tests - read list
     And I can GET "/branches/cucumber"
     Then the HTTP response status code is 200
     And the HTTP response content type is "application/x.secretsmgr.v2beta+json"
-    And the result as json is:
+    And the JSON should be:
     """
     { "branches": [
         { "name": "alice-read-only",
@@ -103,7 +103,7 @@ Feature: Branches APIv2 tests - read list
     And I can GET "/branches/cucumber?offset=2;limit=3"
     Then the HTTP response status code is 200
     And the HTTP response content type is "application/x.secretsmgr.v2beta+json"
-    And the result as json is:
+    And the JSON should be:
     """
     { "branches": [
         { "name": "App-A",
@@ -135,7 +135,7 @@ Feature: Branches APIv2 tests - read list
     And I can GET "/branches/cucumber"
     Then the HTTP response status code is 200
     And the HTTP response content type is "application/x.secretsmgr.v2beta+json"
-    And the result as json is:
+    And the JSON should be:
     """
     { "branches": [
         { "name": "data",
@@ -190,7 +190,7 @@ Feature: Branches APIv2 tests - read list
     And I GET "/branches/cucumber"
     Then the HTTP response status code is 400
     And the HTTP response content type is "application/x.secretsmgr.v2beta+json"
-    And the result as json is:
+    And the JSON should be:
     """
     { "code": "400",
       "message": "CONJ00194W The api belongs to v2 APIs but it missing the version \"application/x.secretsmgr.v2beta+json\" in the Accept header" }

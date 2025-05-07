@@ -11,7 +11,7 @@ Feature: Branches APIv2 tests - patch
     And I can GET "/branches/cucumber/data/safe1/branch1"
     Then the HTTP response status code is 200
     And the HTTP response content type is "application/x.secretsmgr.v2beta+json"
-    And the result as json is:
+    And the JSON should be:
     """
     { "name": "branch1", "branch": "data/safe1",
       "owner": { "kind": "group", "id": "data/data-group" },
@@ -26,7 +26,7 @@ Feature: Branches APIv2 tests - patch
     """
     Then the HTTP response status code is 200
     And the HTTP response content type is "application/x.secretsmgr.v2beta+json"
-    And the result as json is:
+    And the JSON should be:
     """
     { "name": "branch1",
       "branch": "data/safe1",
@@ -47,7 +47,7 @@ Feature: Branches APIv2 tests - patch
     And I can GET "/branches/cucumber/data/safe1/branch1"
     Then the HTTP response status code is 200
     And the HTTP response content type is "application/x.secretsmgr.v2beta+json"
-    And the result as json is:
+    And the JSON should be:
     """
     { "name": "branch1", "branch": "data/safe1",
       "owner": { "kind": "user", "id": "admin" },
@@ -60,7 +60,7 @@ Feature: Branches APIv2 tests - patch
     And I can GET "/branches/cucumber/data/safe1/branch1"
     Then the HTTP response status code is 200
     And the HTTP response content type is "application/x.secretsmgr.v2beta+json"
-    And the result as json is:
+    And the JSON should be:
     """
     { "name": "branch1", "branch": "data/safe1",
       "owner": { "kind": "group", "id": "data/data-group" },
@@ -75,7 +75,7 @@ Feature: Branches APIv2 tests - patch
     """
     Then the HTTP response status code is 200
     And the HTTP response content type is "application/x.secretsmgr.v2beta+json"
-    And the result as json is:
+    And the JSON should be:
     """
     { "name": "branch1",
       "branch": "data/safe1",
@@ -96,7 +96,7 @@ Feature: Branches APIv2 tests - patch
     And I can GET "/branches/cucumber/data/safe1/branch1"
     Then the HTTP response status code is 200
     And the HTTP response content type is "application/x.secretsmgr.v2beta+json"
-    And the result as json is:
+    And the JSON should be:
     """
     { "name": "branch1",
       "branch": "data/safe1",
@@ -110,7 +110,7 @@ Feature: Branches APIv2 tests - patch
     And I can GET "/branches/cucumber/data/safe1/branch1"
     Then the HTTP response status code is 200
     And the HTTP response content type is "application/x.secretsmgr.v2beta+json"
-    And the result as json is:
+    And the JSON should be:
     """
     { "name": "branch1", "branch": "data/safe1",
       "owner": { "kind": "group", "id": "data/data-group" },
@@ -126,7 +126,7 @@ Feature: Branches APIv2 tests - patch
     """
     Then the HTTP response status code is 200
     And the HTTP response content type is "application/x.secretsmgr.v2beta+json"
-    And the result as json is:
+    And the JSON should be:
     """
     { "name": "branch1",
       "branch": "data/safe1",
@@ -147,7 +147,7 @@ Feature: Branches APIv2 tests - patch
     And I can GET "/branches/cucumber/data/safe1/branch1"
     Then the HTTP response status code is 200
     And the HTTP response content type is "application/x.secretsmgr.v2beta+json"
-    And the result as json is:
+    And the JSON should be:
     """
     { "name": "branch1",
       "branch": "data/safe1",
@@ -165,7 +165,7 @@ Feature: Branches APIv2 tests - patch
     """
     Then the HTTP response status code is 422
     And the HTTP response content type is "application/x.secretsmgr.v2beta+json"
-    And the result as json is:
+    And the JSON should be:
     """
     { "code": "422",
       "message": "Unable to parse request json body: " }
@@ -182,7 +182,7 @@ Feature: Branches APIv2 tests - patch
     """
     Then the HTTP response status code is 422
     And the HTTP response content type is "application/x.secretsmgr.v2beta+json"
-    And the result as json is:
+    And the JSON should be:
     """
     { "code": "422",
       "message": "Empty request body" }
@@ -194,7 +194,7 @@ Feature: Branches APIv2 tests - patch
     And I can GET "/branches/cucumber/data/safe1/branch1"
     Then the HTTP response status code is 200
     And the HTTP response content type is "application/x.secretsmgr.v2beta+json"
-    And the result as json is:
+    And the JSON should be:
     """
     { "name": "branch1", "branch": "data/safe1",
       "owner": { "kind": "group", "id": "data/data-group" },
@@ -209,7 +209,7 @@ Feature: Branches APIv2 tests - patch
     """
     Then the HTTP response status code is 422
     And the HTTP response content type is "application/x.secretsmgr.v2beta+json"
-    And the result as json is:
+    And the JSON should be:
     """
     { "code": "422",
       "message": "Invalid input field: foo" }
@@ -221,7 +221,7 @@ Feature: Branches APIv2 tests - patch
     """
     Then the HTTP response status code is 422
     And the HTTP response content type is "application/x.secretsmgr.v2beta+json"
-    And the result as json is:
+    And the JSON should be:
     """
     { "code": "422",
       "message": "Invalid input field: foo" }
@@ -233,7 +233,7 @@ Feature: Branches APIv2 tests - patch
     """
     Then the HTTP response status code is 422
     And the HTTP response content type is "application/x.secretsmgr.v2beta+json"
-    And the result as json is:
+    And the JSON should be:
     """
     { "code": "422",
       "message": "Invalid input field: foo" }
@@ -246,7 +246,7 @@ Feature: Branches APIv2 tests - patch
     """
     Then the HTTP response status code is 422
     And the HTTP response content type is "application/x.secretsmgr.v2beta+json"
-    And the result as json is:
+    And the JSON should be:
     """
     { "code": "422",
       "message": "Invalid input field: foo" }
@@ -263,7 +263,7 @@ Feature: Branches APIv2 tests - patch
     """
     Then the HTTP response status code is 404
     And the HTTP response content type is "application/x.secretsmgr.v2beta+json"
-    And the result as json is:
+    And the JSON should be:
     """
     { "code": "404",
       "message": "Branch 'data/safe1/branch1/alice-execute-only' not found in account 'cucumber'" }
@@ -287,7 +287,7 @@ Feature: Branches APIv2 tests - patch
       "annotations": { "branch1-ann-2": "222", "branch1-ann-3": "333" } }
     """
     Then the HTTP response status code is 404
-    And the result as json is:
+    And the JSON should be:
     """
     { "code": "404",
       "message": "Branch 'data/safe1/branch1/not_for_branch' not found in account 'cucumber'" }
@@ -302,7 +302,7 @@ Feature: Branches APIv2 tests - patch
     """
     Then the HTTP response status code is 400
     And the HTTP response content type is "application/x.secretsmgr.v2beta+json"
-    And the result as json is:
+    And the JSON should be:
     """
     { "code": "400",
       "message": "CONJ00194W The api belongs to v2 APIs but it missing the version \"application/x.secretsmgr.v2beta+json\" in the Accept header" }
