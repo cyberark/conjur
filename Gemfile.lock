@@ -3,7 +3,7 @@ PATH
   specs:
     conjur-rack (5.0.0)
       conjur-api (< 6)
-      rack (~> 2)
+      rack (>= 2, < 4)
       slosilo (~> 3.0)
 
 PATH
@@ -389,7 +389,7 @@ GEM
       nio4r (~> 2.0)
     raabro (1.4.0)
     racc (1.7.1)
-    rack (2.2.9)
+    rack (2.2.14)
     rack-oauth2 (2.2.0)
       activesupport
       attr_required
@@ -638,7 +638,7 @@ DEPENDENCIES
   pry-rails
   psych (= 3.3.2)
   puma (~> 6, >= 6.4.2)
-  rack (~> 2.2, >= 2.2.8.1)
+  rack (~> 2.2)
   rack-rewrite
   rails (~> 6.1, >= 6.1.7.8)
   rails-controller-testing
