@@ -9,7 +9,8 @@ module Commands
   module Policy
     class Parse
 
-      def call(account:,
+      def call(
+        account:,
         policy_id:,
         owner_id:,
         policy_text:,

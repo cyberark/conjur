@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Added the ability to create authenticators through a V2 API endpoint CNJR-9136
 - Added the enable authenticator endpoint for the V2 API's. CNJR-9135
 - Dynamic secrets are now supported in the batch secret retrieval API. CNJR-9172
+- Added the delete authenticators endpoint for the V2 API's. CNJR-9134
 
 ### Fixed
 - Attempt to load a policy that references a non-existent resource now

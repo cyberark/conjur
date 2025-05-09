@@ -6,11 +6,17 @@ RSpec.describe(DB::Repository::AuthenticatorRepository) do
   let(:log_output) { StringIO.new }
   let(:logger) { Logger.new(log_output) }
 
+  let(:resource_repository) do
+    ::Resource
+  end
+
   let(:repo) do
     described_class.new(
-      logger: logger
+      logger: logger,
+      resource_repository: resource_repository
     )
   end
+
   let(:current_user) { Role.find_or_create(role_id: 'rspec:user:admin') }
 
   let(:services) { %w[foo bar] }
@@ -357,6 +363,81 @@ RSpec.describe(DB::Repository::AuthenticatorRepository) do
       after(:each) do
         ::Resource['rspec:webservice:conjur/authn-oidc/abc123'].destroy
         ::Role['rspec:policy:conjur/authn-oidc/abc123'].destroy
+      end
+    end
+  end
+
+  describe '#delete' do
+    let(:owner_id) { "rspec:user:my_admin" }
+    let(:policy_id) { "rspec:policy:data" }
+    let(:resource_id) { "rspec:host:data/workload" }
+    let(:secret_id) { "rspec:variable:data/secret" }
+
+    let(:role) { Role.create(role_id: owner_id) }
+    let(:resource) { Resource.create(resource_id: resource_id, owner_id: role.id) }
+    let(:secret) { Resource.create(resource_id: secret_id, owner_id: role.id) }
+
+    before do
+      allow(resource_repository).to receive(:[])
+        .with(resource_id: resource_id)
+        .and_return(resource)
+    end
+
+    context("when more than 1 resource exists") do
+      before do
+        allow(::Role).to receive(:[])
+          .with(resource_id)
+          .and_return(nil)
+        allow(::Role).to receive(:[])
+          .with(secret_id)
+          .and_return(nil)
+        allow(resource).to receive(:destroy)
+        allow(secret).to receive(:destroy)
+        allow(::Resource).to receive(:where).with(owner_id: resource_id).and_return([secret])
+        allow(::Resource).to receive(:where).with(owner_id: secret_id).and_return([])
+      end
+
+      it "deletes all owned resources and roles recursively" do
+        expect(::Resource).to receive(:where).with(owner_id: resource_id)
+        expect(::Resource).to receive(:where).with(owner_id: secret_id)
+        expect(resource).to receive(:destroy)
+        expect(secret).to receive(:destroy)
+        expect(repo.delete(policy_id: resource_id)).not_to(be_nil)
+      end
+    end
+
+    context("when resource and role exist") do
+      let(:resource_role) { Role.create(role_id: resource.id) }
+
+      before do
+        allow(resource_role).to receive(:destroy)
+        allow(::Resource).to(receive(:where).with(owner_id: resource_id).and_return([]))
+        allow(::Role).to receive(:[])
+          .with(resource_id)
+          .and_return(resource_role)
+      end
+
+      it "deletes all owned resources and roles recursively" do
+        expect(::Resource).to receive(:where).with(owner_id: resource_id)
+        expect(resource).to receive(:destroy)
+        expect(resource_role).to receive(:destroy)
+        expect(repo.delete(policy_id: resource_id)).not_to be_nil
+      end
+    end
+
+    context("when the resource doesn't own anything") do
+      before do
+        allow(resource_repository).to receive(:[])
+          .with(resource_id: resource_id)
+          .and_return(resource)
+        allow(::Resource).to receive(:where)
+          .with(owner_id: resource_id)
+          .and_return([])
+      end
+
+      it "returns nil" do
+        expect(resource).to receive(:destroy)
+        expect(repo.delete(policy_id: resource_id)).not_to be_nil
       end
     end
   end

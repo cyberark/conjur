@@ -6,10 +6,11 @@
 # Responsible for handling "successful" requests. The
 # response is returned via the `.result` method.
 class SuccessResponse
-  attr_reader :result
+  attr_reader :result, :status
 
-  def initialize(result)
+  def initialize(result, status: :ok)
     @result = result
+    @status = status
   end
 
   def success?

@@ -59,6 +59,7 @@ Rails.application.routes.draw do
 
       get '/authenticators/:account' => 'authenticator#list_authenticators'
       get '/authenticators/:account/:type/:service_id' => 'authenticator#find_authenticator'
+      delete '/authenticators/:account/:type/:service_id' => 'authenticator#delete_authenticator'
       post '/authenticators/:account' => 'authenticator#create_authenticator'
       patch '/authenticators/:account/:type/:service_id' => 'authenticator#authenticator_enablement'
 

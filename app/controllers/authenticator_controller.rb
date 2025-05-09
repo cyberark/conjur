@@ -79,6 +79,38 @@ class AuthenticatorController < V2RestController
     handle_failure_response(response)
   end
 
+  def delete_authenticator
+    relevant_params = allowed_params(%i[type account service_id])
+
+    repository = DB::Repository::AuthenticatorRepository.new(
+      resource_repository: ::Resource.visible_to(current_user)
+    )
+
+    response = repository.find(
+      type: relevant_params[:type],
+      account: relevant_params[:account],
+      service_id: relevant_params[:service_id]
+    ).bind do |auth|
+      policy_id = auth.resource_id.gsub('webservice', 'policy')
+      next ::FailureResponse.new(
+        "Unauthorized",
+        status: :forbidden,
+        exception: Exceptions::Forbidden,
+      ) unless current_user.allowed_to?('delete', ::Resource[policy_id])
+
+      policy = repository.delete(policy_id: policy_id)
+      ::SuccessResponse.new(policy, status: :no_content)
+    end
+
+    response_audit('delete', relevant_params[:type], response, resource_id: relevant_params[:service_id])
+    return head(response.status) if response.success?
+
+    handle_failure_response(response)
+  rescue => e
+    log_backtrace(e)
+    raise e
+  end
+
   private
 
   def retrieve_authenticator(relevant_params, resource_repo: ::Resource)
