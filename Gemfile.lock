@@ -304,7 +304,7 @@ GEM
     listen (3.8.0)
       rb-fsevent (~> 0.10, >= 0.10.3)
       rb-inotify (~> 0.9, >= 0.9.10)
-    logger (1.6.5)
+    logger (1.7.0)
     loofah (2.23.1)
       crass (~> 1.0.2)
       nokogiri (>= 1.12.0)
@@ -315,12 +315,12 @@ GEM
       net-smtp
     marcel (1.0.4)
     method_source (1.1.0)
-    mime-types (3.6.0)
+    mime-types (3.7.0)
       logger
-      mime-types-data (~> 3.2015)
-    mime-types-data (3.2025.0107)
+      mime-types-data (~> 3.2025, >= 3.2025.0507)
+    mime-types-data (3.2025.0507)
     mini_mime (1.1.5)
-    minitest (5.25.4)
+    minitest (5.25.5)
     multi_json (1.15.0)
     multi_test (0.1.2)
     mustache (1.1.1)
@@ -377,11 +377,11 @@ GEM
     pry-rails (0.3.9)
       pry (>= 0.10.4)
     psych (3.3.2)
-    public_suffix (6.0.1)
+    public_suffix (6.0.2)
     puma (6.5.0)
       nio4r (~> 2.0)
     racc (1.8.1)
-    rack (2.2.13)
+    rack (2.2.14)
     rack-oauth2 (2.2.1)
       activesupport
       attr_required
@@ -554,7 +554,7 @@ GEM
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.5)
     xdg (2.2.3)
-    zeitwerk (2.7.1)
+    zeitwerk (2.7.2)
 
 PLATFORMS
   aarch64-linux
@@ -619,7 +619,7 @@ DEPENDENCIES
   pry-rails
   psych (= 3.3.2)
   puma (~> 6, >= 6.4.3)
-  rack (~> 2.2, >= 2.2.13)
+  rack (>= 2.2.14)
   rack-rewrite
   rails (~> 6.1, >= 6.1.7.9)
   rails-controller-testing
@@ -651,4 +651,4 @@ DEPENDENCIES
   websocket
 
 BUNDLED WITH
-   2.4.14
+   2.4.19
