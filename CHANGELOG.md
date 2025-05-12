@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Update URI to 1.0.3 to address CVE-2025-27221.
   CONJSE-1952
 - Update simpleidn to 0.2.3. CNJR-9498
+- Update rack to 2.2.14 to address CVE-2025-46727. CONJSE-2001
 
 ## [1.21.3] - 2024-12-16
 

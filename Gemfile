@@ -22,7 +22,7 @@ gem 'jbuilder', '~> 2.7.0'
 gem 'mustache'
 gem 'nokogiri', '>= 1.16.5'
 gem 'puma', '~> 6', '>= 6.4.3'
-gem 'rack', '~> 2.2', '>= 2.2.13'
+gem 'rack', '>= 2.2.14'
 gem 'rails', '~> 6.1', '>= 6.1.7.9'
 gem 'rake'
 
