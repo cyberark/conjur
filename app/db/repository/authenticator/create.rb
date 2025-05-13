@@ -102,14 +102,14 @@ module DB
 
           set_auth_enabled(auth_webservice_id, enabled)
 
-          annotations.each do |name, value|
+          annotations&.each do |annotation_name, value|
             Annotation.create(
               resource_id: auth_webservice_id,
               policy_id: authenticator_policy_id,
-              name: name,
+              name: annotation_name,
               value: value
             )
-          end unless annotations.nil?
+          end
 
           # **Iterate over `variables` in `authenticator_dict` and create corresponding resources**
           authenticator.variable_map&.each do |key, value|
@@ -214,7 +214,6 @@ module DB
 
           perm
         end
-
 
         def full_resource_id(account, type, name)
           if name.start_with?("/")
