@@ -172,14 +172,14 @@ describe PoliciesController, type: :request do
       expect(json_response["created"]["items"][target_resource_index]["permissions"]).to eq({})
       expect(json_response["created"]["items"][target_resource_index]["policy"]).to eq("rspec:policy:root")
       expect(json_response["created"]["items"][target_resource_index]["type"]).to eq("user")
-      expect(json_response["created"]["items"][target_resource_index]["restricted_to"]).to eq(["127.0.0.1"])
+      expect(json_response["created"]["items"][target_resource_index]["restricted_to"]).to eq(["127.0.0.1/32"])
 
       target_resource = "rspec:host:example/server01"
       target_resource_index = created_items_hash[target_resource]
       expect(created_items_hash).to have_key(target_resource)
       expect(json_response["created"]["items"][target_resource_index]["annotations"]).to have_key("key")
       expect(json_response["created"]["items"][target_resource_index]["annotations"]["key"]).to eq("value")
-      expect(json_response["created"]["items"][target_resource_index]["restricted_to"]).to eq(["127.0.0.1"])
+      expect(json_response["created"]["items"][target_resource_index]["restricted_to"]).to eq(["127.0.0.1/32"])
 
       target_resource = "rspec:group:example/users"
       target_resource_index = created_items_hash[target_resource]
@@ -319,7 +319,7 @@ describe PoliciesController, type: :request do
 
         target_resource_index = updated_after_items_hash[target_resource]
         expect(updated_after_items_hash).to have_key(target_resource)
-        expect(json_response["updated"]["after"]["items"][target_resource_index]["restricted_to"]).to eq(["127.0.0.1"])
+        expect(json_response["updated"]["after"]["items"][target_resource_index]["restricted_to"]).to eq(["127.0.0.1/32"])
       end
     end
 

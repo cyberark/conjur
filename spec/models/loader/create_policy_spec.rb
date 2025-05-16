@@ -241,7 +241,7 @@ RSpec.describe(Loader::CreatePolicy) do
           it 'the diff diff result includes annotations' do
             result = subject.call
 
-            # The PoliyResult is valid
+            # The PolicyResult is valid
             expect(result.nil?).to eq(false)
             expect(result.policy_parse.nil?).to eq(true)
             expect(result.policy_version).to eq(nil)
@@ -290,7 +290,7 @@ RSpec.describe(Loader::CreatePolicy) do
           it 'the diff result includes credentials' do
             result = subject.call
 
-            # The PoliyResult is valid
+            # The PolicyResult is valid
             expect(result.nil?).to eq(false)
             expect(result.policy_parse.nil?).to eq(true)
             expect(result.policy_version).to eq(nil)
@@ -339,7 +339,7 @@ RSpec.describe(Loader::CreatePolicy) do
           it 'the diff result includes permissions' do
             result = subject.call
 
-            # The PoliyResult is valid
+            # The PolicyResult is valid
             expect(result.nil?).to eq(false)
             expect(result.policy_parse.nil?).to eq(true)
             expect(result.policy_version).to eq(nil)
@@ -388,7 +388,7 @@ RSpec.describe(Loader::CreatePolicy) do
           it 'the diff result includes resources' do
             result = subject.call
 
-            # The PoliyResult is valid
+            # The PolicyResult is valid
             expect(result.nil?).to eq(false)
             expect(result.policy_parse.nil?).to eq(true)
             expect(result.policy_version).to eq(nil)
@@ -437,7 +437,7 @@ RSpec.describe(Loader::CreatePolicy) do
           it 'the diff result includes role memberships' do
             result = subject.call
 
-            # The PoliyResult is valid
+            # The PolicyResult is valid
             expect(result.nil?).to eq(false)
             expect(result.policy_parse.nil?).to eq(true)
             expect(result.policy_version).to eq(nil)
@@ -486,7 +486,7 @@ RSpec.describe(Loader::CreatePolicy) do
           it 'the diff result includes roles' do
             result = subject.call
 
-            # The PoliyResult is valid
+            # The PolicyResult is valid
             expect(result.nil?).to eq(false)
             expect(result.policy_parse.nil?).to eq(true)
             expect(result.policy_version).to eq(nil)
@@ -529,7 +529,7 @@ RSpec.describe(Loader::CreatePolicy) do
           it 'the diff result is full' do
             result = subject.call
 
-            # The PoliyResult is valid
+            # The PolicyResult is valid
             expect(result.nil?).to eq(false)
             expect(result.policy_parse.nil?).to eq(true)
             expect(result.policy_version).to eq(nil)

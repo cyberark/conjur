@@ -52,7 +52,7 @@ HostBuilder = Struct.new(:account, :id, :owner, :layers, :options) do
       Loader::Types.wrap(obj, self).create!
     end.first
     
-    store_restricted_to
+    store_restricted_to(false)
 
     [ host, host.role.api_key ]    
   end
