@@ -205,6 +205,11 @@ Scenario: list authenticators using the V2 Api.
     }
   }
   """
+  Then there is an audit record matching:
+  """
+  cucumber:user:admin successfully created jwt test-jwt3 with URI path: '/authenticators/cucumber'
+  """
+
   And I successfully GET "authenticators/cucumber"
   Then I receive a count of 4
   Then the authenticators list should include "test-jwt3"

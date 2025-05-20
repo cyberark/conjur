@@ -4,6 +4,8 @@ require 'spec_helper'
 
 DatabaseCleaner.strategy = :truncation
 
+
+# Intergration test for thr V@ authenticator API's
 describe AuthenticateController, type: :request do
   before(:all) do
     # Start fresh
@@ -31,6 +33,36 @@ describe AuthenticateController, type: :request do
     )
   end
 
+  def create_body(id)
+    {
+      "type": "jwt",
+      "name": id,
+      "enabled": false,
+      "data": {
+        "jwks_uri": "http://uri",
+        "identity": {
+          "token_app_property": "prop",
+          "enforced_claims": %w[test 123],
+          "claim_aliases": { "myclaim": "myvalue", "second": "two" }
+        }
+      },
+      "annotations": {
+        "test": "123"
+      }
+    }
+  end
+
+  def create_request(current_user, id = "test-jwt3")
+    post(
+      "/authenticators/rspec",
+      env: token_auth_header(role: current_user).merge(
+        'RAW_POST_DATA' => create_body(id).to_json,
+        'ACCEPT' => "application/x.secretsmgr.v2beta+json",
+        'CONTENT_TYPE' => "application/json"
+      )
+    )
+  end
+
   def retrieve_authenticators(url, current_user)
     get(url, env: token_auth_header(role: current_user).merge(
       'ACCEPT' => "application/x.secretsmgr.v2beta+json"
@@ -46,6 +78,9 @@ describe AuthenticateController, type: :request do
 
   let(:test_policy) do
     <<~POLICY
+      - !policy
+        id: conjur/authn-jwt
+
       - !policy
         id: conjur/authn-jwt/test-jwt1
         body:
@@ -85,6 +120,12 @@ describe AuthenticateController, type: :request do
       - !grant
         role: !group conjur/authn-jwt/test-jwt1/users
         member: !user alice
+
+      - !permit
+        role: !user alice
+        privilege: [ read ]
+        resource: !policy conjur/authn-jwt
+
     POLICY
   end
 
@@ -188,6 +229,33 @@ describe AuthenticateController, type: :request do
             end
           end
         end
+      end
+    end
+  end
+
+  describe '#create_authenticator' do
+    before do
+      apply_root_policy("rspec", policy_content: test_policy, expect_success: true)
+    end
+    context 'when user has permission' do
+      it "returns a 200" do
+        create_request(current_user)
+        expect(response.code).to eq('200')
+        expect((JSON.parse(response.body)["name"])).to eql("test-jwt3")
+      end
+      context 'when the authenticator already exisit in the database' do
+        it "returns a 409" do
+          create_request(current_user, 'test-jwt1')
+          expect(response.code).to eq('409')
+          expect((JSON.parse(response.body)["message"])).to eql("The authenticator already exists.")
+        end
+      end
+    end
+    context 'when user does not have create permission' do
+      let(:current_user) { Role.find_or_create(role_id: 'rspec:user:alice') }
+      it "returns a 403" do
+        create_request(current_user)
+        expect(response.code).to eq('403')
       end
     end
   end
