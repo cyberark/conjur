@@ -152,3 +152,68 @@ Feature: Branches APIv2 tests - delete
     { "code": "400",
       "message": "CONJ00194W The api belongs to v2 APIs but it missing the version \"application/x.secretsmgr.v2beta+json\" in the Accept header" }
     """
+
+
+  @acceptance
+  Scenario: Deleting issuer branch
+    Given I am the super-user
+    And I successfully POST "/policies/cucumber/policy/root" with body:
+    """
+    - !policy
+      id: conjur/issuers
+      body: []
+    """
+    And I set the "Content-Type" header to "application/json"
+    And I successfully POST "/issuers/cucumber" with body:
+    """
+    {
+      "id": "aws-issuer-1",
+      "max_ttl": 3000,
+      "type": "aws",
+      "data": {
+        "access_key_id": "AKIAIOSFODNN7EXAMPLE",
+        "secret_access_key": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+      }
+    }
+    """
+    And I clear the "Content-Type" header
+    And I successfully GET "/issuers/cucumber/aws-issuer-1"
+    And the HTTP response status code is 200
+    And I set the "Accept" header to "application/x-yaml"
+    And I set the "Content-Type" header to "application/x-yaml"
+    And I can GET "/policies/cucumber/policy/conjur/issuers"
+    And the yaml result is:
+    """
+    ---
+    - !policy
+      id: issuers
+      owner: !user /admin
+      body:
+      - !policy
+        id: aws-issuer-1
+        body:
+        - !policy
+          id: delegation
+          body:
+          - !group consumers
+      - !permit
+        role: !group /conjur/issuers/aws-issuer-1/delegation/consumers
+        privileges: [read, use]
+        resource: !policy aws-issuer-1
+    """
+    And I set the "Accept" header to "application/x.secretsmgr.v2beta+json"
+    When I can DELETE "/branches/cucumber/conjur/issuers/aws-issuer-1"
+    And I clear the "Content-Type" header
+    And I GET "/issuers/cucumber/aws-issuer-1"
+    And the HTTP response status code is 404
+    And I set the "Accept" header to "application/x-yaml"
+    And I set the "Content-Type" header to "application/x-yaml"
+    And I can GET "/policies/cucumber/policy/conjur/issuers"
+    And the yaml result is:
+    """
+    ---
+    - !policy
+      id: issuers
+      owner: !user /admin
+      body: []
+    """
