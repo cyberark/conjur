@@ -19,6 +19,13 @@ module DB
         end
 
         def call
+          unless Resource[policy_branch]
+            return @failure.new(
+              "Policy '#{@branch}' is required to create a new authenticator.",
+              status: :not_found
+            ) 
+          end
+
           add_authenticator_role
           build_policy_tree
           endable_authenticator

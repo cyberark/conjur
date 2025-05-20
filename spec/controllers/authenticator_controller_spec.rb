@@ -4,7 +4,6 @@ require 'spec_helper'
 
 DatabaseCleaner.strategy = :truncation
 
-
 # Intergration test for thr V@ authenticator API's
 describe AuthenticateController, type: :request do
   before(:all) do
