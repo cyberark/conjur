@@ -117,12 +117,6 @@ Feature: Branches APIv2 tests - delete
     Then the HTTP response status code is 404
 
   @negative @acceptance
-  Scenario: Cannot delete a branch if no possibility
-    And I set the "Accept" header to "application/x.secretsmgr.v2beta+json"
-    And I DELETE "/branches/cucumber/data/safe1"
-    Then the HTTP response status code is 404
-
-  @negative @acceptance
   Scenario: Cannot delete a branch with not existing parent branch
     And I am the super-user
     And I clear the "Accept" header
@@ -134,12 +128,11 @@ Feature: Branches APIv2 tests - delete
     """
     And I set the "Accept" header to "application/x.secretsmgr.v2beta+json"
     And I DELETE "/branches/cucumber/data/safe1/branch1"
+    Then the HTTP response status code is 204
+    And I GET "/branches/cucumber/data/safe1/branch1"
     Then the HTTP response status code is 404
-    And the JSON should be:
-    """
-    { "code": "404",
-      "message": "Branch 'data/safe1/branch1/not_for_branch/branch2' not found in account 'cucumber'" }
-    """
+    And I GET "/branches/cucumber/data/safe1/branch1/not_for_branch/branch2"
+    Then the HTTP response status code is 404
 
   @acceptance
   Scenario: V2 header must be present
@@ -151,4 +144,68 @@ Feature: Branches APIv2 tests - delete
     """
     { "code": "400",
       "message": "CONJ00194W The api belongs to v2 APIs but it missing the version \"application/x.secretsmgr.v2beta+json\" in the Accept header" }
+    """
+
+  @acceptance
+  Scenario: Deleting issuer branch
+    Given I am the super-user
+    And I successfully POST "/policies/cucumber/policy/root" with body:
+    """
+    - !policy
+      id: conjur/issuers
+      body: []
+    """
+    And I set the "Content-Type" header to "application/json"
+    And I successfully POST "/issuers/cucumber" with body:
+    """
+    {
+      "id": "aws-issuer-1",
+      "max_ttl": 3000,
+      "type": "aws",
+      "data": {
+        "access_key_id": "AKIAIOSFODNN7EXAMPLE",
+        "secret_access_key": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+      }
+    }
+    """
+    And I clear the "Content-Type" header
+    And I successfully GET "/issuers/cucumber/aws-issuer-1"
+    And the HTTP response status code is 200
+    And I set the "Accept" header to "application/x-yaml"
+    And I set the "Content-Type" header to "application/x-yaml"
+    And I can GET "/policies/cucumber/policy/conjur/issuers"
+    And the yaml result is:
+    """
+    ---
+    - !policy
+      id: issuers
+      owner: !user /admin
+      body:
+      - !policy
+        id: aws-issuer-1
+        body:
+        - !policy
+          id: delegation
+          body:
+          - !group consumers
+      - !permit
+        role: !group /conjur/issuers/aws-issuer-1/delegation/consumers
+        privileges: [read, use]
+        resource: !policy aws-issuer-1
+    """
+    And I set the "Accept" header to "application/x.secretsmgr.v2beta+json"
+    When I can DELETE "/branches/cucumber/conjur/issuers/aws-issuer-1"
+    And I clear the "Content-Type" header
+    And I GET "/issuers/cucumber/aws-issuer-1"
+    And the HTTP response status code is 404
+    And I set the "Accept" header to "application/x-yaml"
+    And I set the "Content-Type" header to "application/x-yaml"
+    And I can GET "/policies/cucumber/policy/conjur/issuers"
+    And the yaml result is:
+    """
+    ---
+    - !policy
+      id: issuers
+      owner: !user /admin
+      body: []
     """

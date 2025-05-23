@@ -100,7 +100,10 @@ module Domain
     end
 
     def delete_branch(account, role, identifier)
-      resources = @res_scopes_service.resources_to_del_scope(account, identifier).all
+      resources = @res_scopes_service.resources_to_del_scope(account, identifier)
+        .order(Sequel.lit("length(resource_id)").desc)
+        .all
+
       resources.each do |res|
         raise Exceptions::RecordNotFound, full_id(account, 'branch', res.identifier) unless role.allowed_to?(:update, res)
 
