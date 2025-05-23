@@ -7,11 +7,14 @@ module DB
     # Object and Data Object Contract (for validation). Data Objects that
     # fail validation are not returned.
     #
-    # This class includes two public methods:
-    #   - `find_all` - returns all available authenticators of a specified type
-    #     from an account
+    # This class includes 4 public methods:
+    #   - `find_all` - returns all available authenticators from an account
+    #      with an optional filter by type
     #   - `find` - returns a single authenticator based on the provided type,
     #     account, and service identifier.
+    #   - 'create' - given a authenticator model, create a new authenticator
+    #      and then return that created authenticator
+    #   - 'delete' - given a policy-id, delete the associated authenticator
     #
     class AuthenticatorRepository
       def initialize(
@@ -74,7 +77,9 @@ module DB
       # Takes an AuthenticatorBaseType model (or one of its children) and attempts to create
       # an object for it in the database
       def create(authenticator:)
-        DB::Repository::Authenticator::CreateAuthenticator.new.call(authenticator: authenticator)
+        DB::Repository::Authenticator::CreateAuthenticator.new(authenticator: authenticator).call.bind do |auth| 
+          find(type: auth.type, account: auth.account, service_id: auth.name)
+        end
       end
 
       def delete(policy_id:)

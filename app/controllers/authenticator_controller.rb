@@ -4,10 +4,20 @@ class AuthenticatorController < V2RestController
   include BasicAuthenticator
   include AuthorizeResource
 
+  def initialize(
+    *args,
+    res_repo: ::Resource,
+    **kwargs
+  )
+    super(*args, **kwargs)
+
+    @res_repo = res_repo.visible_to(current_user)
+  end
+
   def list_authenticators
     relevant_params = allowed_params(%i[limit offset type account])
     response = DB::Repository::AuthenticatorRepository.new(
-      resource_repository: ::Resource.visible_to(current_user).search(
+      resource_repository: @res_repo.search(
         **relevant_params.slice(:offset, :limit)
       )
     ).find_all(
@@ -25,38 +35,29 @@ class AuthenticatorController < V2RestController
   end
 
   def create_authenticator
-    account = params[:account]
-    auth_json = request.body.read
-    auth = AuthenticatorsV2::AuthenticatorTypeFactory.new.create_authenticator_from_json(auth_json, account)
-    unless auth.success?
-      logger.debug("Failed to create authenticator from request params: #{auth.message}")
-      head(auth.status)
-      return
+    relevant_params = allowed_params(%i[account])
+    response = AuthenticatorsV2::AuthenticatorTypeFactory.new.create_authenticator_from_json(req, relevant_params[:account]).bind do |auth| 
+      validate_create_permisisons(auth).bind do |permitted_auth|
+        verify_owner(permitted_auth).bind do |auth_with_owner|
+          DB::Repository::AuthenticatorRepository.new.create(authenticator: auth_with_owner).bind do |created_auth|
+            ::SuccessResponse.new(created_auth.to_h)
+          end
+        end 
+      end
     end
 
-    auth = auth.result
-    # Ensure owner exists & requesting user has visibility on them
-    begin
-      ensure_owner_exists(auth.owner) unless auth.owner.nil?
-    rescue Exceptions::RecordNotFound => e
-      raise ApplicationController::UnprocessableEntity, e.message
-    end
+    body = JSON.parse(req)
+    response_audit('create', body["type"], response,  resource_id: body["name"])
+    return render(json: response.result) if response.success?
 
-    begin
-      # Attempt to create the authenticator in the database
-      authenticator = DB::Repository::AuthenticatorRepository.new.create(authenticator: auth)
-    rescue Sequel::UniqueConstraintViolation, Sequel::ConstraintViolation
-      raise ApplicationController::Conflict, "The authenticator already exists."
-    end
-
-    render(json: authenticator.to_h)
+    handle_failure_response(response)
   end
 
   def find_authenticator
     relevant_params = allowed_params(%i[type account service_id])
     response = retrieve_authenticator(
       relevant_params,
-      resource_repo: ::Resource.visible_to(current_user)
+      resource_repo: @res_repo
     )
 
     response_audit('get', relevant_params[:type], response,  resource_id: relevant_params[:service_id])
@@ -83,7 +84,7 @@ class AuthenticatorController < V2RestController
     relevant_params = allowed_params(%i[type account service_id])
 
     repository = DB::Repository::AuthenticatorRepository.new(
-      resource_repository: ::Resource.visible_to(current_user)
+      resource_repository: @res_repo
     )
 
     response = repository.find(
@@ -138,18 +139,36 @@ class AuthenticatorController < V2RestController
       .slice(*allowed_params).to_h.symbolize_keys
   end
 
-  def authorize_auth_branch(auth)
+  def validate_create_permisisons(auth)
     auth_branch = "#{auth.account}:policy:#{auth.branch}"
-    resource = Resource[auth.branch]
-    raise Exceptions::RecordNotFound, auth_branch unless resource&.visible_to?(current_user)
-
-    authorize(:create, auth_branch)
+    resource = Resource[auth_branch]
+    
+    unless resource&.visible_to?(current_user) 
+      ::FailureResponse.new(
+        message: "#{auth.owner} not found in account #{auth.account}",
+        exception: Exceptions::RecordNotFound.new(auth.owner),
+        status: :not_found
+      )
+    end
+    authorize(:create, resource)
+    ::SuccessResponse.new(auth) 
   end
 
-  def ensure_owner_exists(owner_id)
-    owner = Resource[owner_id]
+  def verify_owner(auth)
+    return ensure_owner_exists(auth) unless auth.owner 
 
-    raise Exceptions::RecordNotFound, owner_id unless owner&.visible_to?(current_user)
+    ::SuccessResponse.new(auth)
+  end
+
+  def ensure_owner_exists(auth)
+    owner = Resource[auth.owner]  
+    return ::SuccessResponse.new(auth) unless owner&.visible_to?(current_user) 
+
+    ::FailureResponse.new(
+      message: "#{auth.owner} not found in account #{auth.account}",
+      exception: Exceptions::RecordNotFound.new(auth.owner),
+      status: :not_found
+    )
   end
 
   def validate_request_body
