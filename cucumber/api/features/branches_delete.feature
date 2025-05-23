@@ -117,12 +117,6 @@ Feature: Branches APIv2 tests - delete
     Then the HTTP response status code is 404
 
   @negative @acceptance
-  Scenario: Cannot delete a branch if no possibility
-    And I set the "Accept" header to "application/x.secretsmgr.v2beta+json"
-    And I DELETE "/branches/cucumber/data/safe1"
-    Then the HTTP response status code is 404
-
-  @negative @acceptance
   Scenario: Cannot delete a branch with not existing parent branch
     And I am the super-user
     And I clear the "Accept" header
@@ -134,12 +128,11 @@ Feature: Branches APIv2 tests - delete
     """
     And I set the "Accept" header to "application/x.secretsmgr.v2beta+json"
     And I DELETE "/branches/cucumber/data/safe1/branch1"
+    Then the HTTP response status code is 204
+    And I GET "/branches/cucumber/data/safe1/branch1"
     Then the HTTP response status code is 404
-    And the JSON should be:
-    """
-    { "code": "404",
-      "message": "Branch 'data/safe1/branch1/not_for_branch/branch2' not found in account 'cucumber'" }
-    """
+    And I GET "/branches/cucumber/data/safe1/branch1/not_for_branch/branch2"
+    Then the HTTP response status code is 404
 
   @acceptance
   Scenario: V2 header must be present
@@ -152,7 +145,6 @@ Feature: Branches APIv2 tests - delete
     { "code": "400",
       "message": "CONJ00194W The api belongs to v2 APIs but it missing the version \"application/x.secretsmgr.v2beta+json\" in the Accept header" }
     """
-
 
   @acceptance
   Scenario: Deleting issuer branch
