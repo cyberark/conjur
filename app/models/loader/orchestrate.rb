@@ -461,8 +461,8 @@ module Loader
 
       store_public_keys
 
-      # Returns the created restricted_to recrods
-      store_restricted_to
+      # Returns the created restricted_to records
+      store_restricted_to(false)
     end
 
     def stash_new_roles
@@ -598,7 +598,7 @@ module Loader
       store_public_keys
 
       # Returns the created restricted_to records
-      store_restricted_to
+      store_restricted_to(true)
     end
 
     def diff_schema_name
