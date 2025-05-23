@@ -48,6 +48,9 @@ class ApplicationController < ActionController::API
   class UnprocessableEntity < RuntimeError
   end
 
+  class InvalidParameter < UnprocessableEntity
+  end
+
   class Conflict < RuntimeError
   end
 

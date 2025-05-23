@@ -73,6 +73,13 @@ Rails.application.routes.draw do
         post '/authenticators/:account' => 'authenticator#create_authenticator'
         patch '/authenticators/:account/:type/:service_id' => 'authenticator#authenticator_enablement'
 
+        # branch
+        post "/branches/:account" => "branches#create"
+        get "/branches/:account" => "branches#index"
+        get "/branches/:account/*identifier" => "branches#show"
+        patch "/branches/:account/*identifier" => "branches#update"
+        delete "/branches/:account/*identifier" => "branches#delete"
+
         # Factories
         post   "/factory-resources/:account/:kind/(:version)/:id" => "policy_factory_resources#create"
 
@@ -110,13 +117,6 @@ Rails.application.routes.draw do
           get     "/issuers/:account"             => 'issuers#list'
           patch   "/issuers/:account/:identifier" => 'issuers#update'
         end
-
-        # Branch - V2
-        post "/branches/:account" => "branches#create"
-        get "/branches/:account" => "branches#index"
-        get "/branches/:account/*identifier" => "branches#show"
-        patch "/branches/:account/*identifier" => "branches#update"
-        delete "/branches/:account/*identifier" => "branches#delete"
 
         # NOTE: the order of these routes matters: we need the expire
         #       route to come first.

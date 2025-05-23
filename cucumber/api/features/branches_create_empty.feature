@@ -3,20 +3,20 @@ Feature: Branches APIv2 tests - create empty
 
   Background:
     Given I am the super-user
-    And I can POST "/policies/cucumber/policy/root" with body from file "policy_cloud.yml"
+    And I can POST "/policies/cucumber/policy/root" with body from file "policy_data.yml"
 
   @acceptance
   Scenario: As admin I can create a branch with owner in root
-    When I set the "Accept" header to "application/x.secretsmgr.v2beta+json"
+    Given I set the Accept header to APIv2
     And I set the "Content-Type" header to "application/json"
     And I save my place in the audit log file for remote
-    And I can POST "/branches/cucumber" with body:
+    When I can POST "/branches/cucumber" with body:
     """
     { "name": "branch1",
       "branch": "/",
       "owner": { "kind": "user", "id": "admin" } }
     """
-    And there is an audit record matching:
+    Then there is an audit record matching:
     """
     <85>1 * * conjur * branch\s
     [auth@43868 user="cucumber:user:admin"]
@@ -25,12 +25,11 @@ Feature: Branches APIv2 tests - create empty
     [action@43868 result="success" operation="create"]\s
     cucumber:user:admin successfully created branch branch1 with URI path: '/branches/cucumber' and JSON object: {"name":"branch1","branch":"/","owner":{"kind":"user","id":"admin"}}
     """
-    Then the HTTP response status code is 201
+    And the HTTP response status code is 201
     And I clear the "Content-Type" header
-    And I save my place in the audit log file for remote
     And I can GET "/branches/cucumber/branch1"
     And the HTTP response status code is 200
-    And the HTTP response content type is "application/x.secretsmgr.v2beta+json"
+    And the HTTP response content type is APIv2
     And the JSON should be:
     """
     { "name": "branch1",
@@ -38,45 +37,80 @@ Feature: Branches APIv2 tests - create empty
       "owner": { "kind": "user", "id": "admin" },
       "annotations": {} }
     """
+
+  @acceptance
+  Scenario: As admin I can create a branch with owner
+    Given I set the Accept header to APIv2
+    And I set the "Content-Type" header to "application/json"
+    And I save my place in the audit log file for remote
+    When I can POST "/branches/cucumber" with body:
+    """
+    { "name": "branch1",
+      "branch": "/",
+      "owner": { "kind": "user", "id": "bob" } }
+    """
+    Then there is an audit record matching:
+    """
+    <85>1 * * conjur * branch\s
+    [auth@43868 user="cucumber:user:admin"]
+    [subject@43868 edge=""]
+    [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
+    [action@43868 result="success" operation="create"]\s
+    cucumber:user:admin successfully created branch branch1 with URI path: '/branches/cucumber' and JSON object: {"name":"branch1","branch":"/","owner":{"kind":"user","id":"bob"}}
+    """
+    And the HTTP response status code is 201
+    And I clear the "Content-Type" header
+    And I can GET "/branches/cucumber/branch1"
+    And the HTTP response status code is 200
+    And the HTTP response content type is APIv2
+    And the JSON should be:
+    """
+    { "name": "branch1",
+      "branch": "/",
+      "owner": { "kind": "user", "id": "bob" },
+      "annotations": {} }
+    """
+
+  @negative @acceptance
+  Scenario: Cannot create a branch using existing name
+    Given I set the Accept header to APIv2
+    And I set the Accept header to APIv2
+    And I save my place in the audit log file for remote
+    And I set the "Content-Type" header to "application/json"
+    When I POST "/branches/cucumber" with body:
+    """
+    { "name" : "data",
+      "branch": "/" }
+    """
+    Then the HTTP response status code is 409
+    And the HTTP response content type is APIv2
+    And the JSON should be:
+    """
+    { "code": "409",
+      "message": "Branch \"cucumber:branch:data\" already exists" }
+    """
     And there is an audit record matching:
     """
     <85>1 * * conjur * branch\s
     [auth@43868 user="cucumber:user:admin"]
     [subject@43868 edge=""]
     [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
-    [action@43868 result="success" operation="get"]\s
-    cucumber:user:admin successfully retrieved branch branch1 with URI path: '/branches/cucumber/branch1'
-    """
-
-  @negative @acceptance
-  Scenario: Cannot create a branch using existing name
-    When I set the "Accept" header to "application/x.secretsmgr.v2beta+json"
-    And I set the "Content-Type" header to "application/json"
-    And I POST "/branches/cucumber" with body:
-    """
-    { "name" : "data",
-      "branch": "/" }
-    """
-    Then the HTTP response status code is 409
-    And the HTTP response content type is "application/x.secretsmgr.v2beta+json"
-    And the JSON should be:
-    """
-    { "code": "409",
-      "message": "Branch \"cucumber:branch:data\" already exists" }
+    [action@43868 result="failure" operation="create"]\s
+    cucumber:user:admin failed to create branch data with URI path: '/branches/cucumber' and JSON object: {"name":"data","branch":"/"}: Branch "cucumber:branch:data" already exists
     """
 
   @negative @acceptance
   Scenario: Cannot create a branch using owner with empty string as values
-    When I set the "Accept" header to "application/x.secretsmgr.v2beta+json"
+    Given I set the Accept header to APIv2
     And I set the "Content-Type" header to "application/json"
-    And I POST "/branches/cucumber" with body:
+    When I POST "/branches/cucumber" with body:
     """
     { "name" : "data",
       "branch": "/",
       "owner": { "kind": "", "id": "" } }
     """
     Then the HTTP response status code is 422
-    And the HTTP response content type is "application/x.secretsmgr.v2beta+json"
+    And the HTTP response content type is APIv2
     And the JSON should be:
     """
     { "code": "422",
@@ -85,41 +119,58 @@ Feature: Branches APIv2 tests - create empty
 
   @negative @acceptance
   Scenario: Cannot create a branch without name
-    When I set the "Accept" header to "application/x.secretsmgr.v2beta+json"
+    Given I set the Accept header to APIv2
     And I set the "Content-Type" header to "application/json"
-    And I POST "/branches/cucumber" with body:
+    When I POST "/branches/cucumber" with body:
     """
     { "branch": "/" }
     """
     Then the HTTP response status code is 422
-    And the HTTP response content type is "application/x.secretsmgr.v2beta+json"
+    And the HTTP response content type is APIv2
     And the JSON should be:
     """
     { "code": "422",
-      "message": "Name can't be blank, Name is too short (minimum is 1 character), and Name Wrong name ''" }
+      "message": "CONJ00190W Missing required parameter: name" }
     """
 
   @negative @acceptance
   Scenario: Cannot create a branch without parent branch
-    When I set the "Accept" header to "application/x.secretsmgr.v2beta+json"
+    Given I set the Accept header to APIv2
     And I set the "Content-Type" header to "application/json"
-    And I POST "/branches/cucumber" with body:
+    When I POST "/branches/cucumber" with body:
     """
     { "name": "branch1" }
     """
     Then the HTTP response status code is 422
-    And the HTTP response content type is "application/x.secretsmgr.v2beta+json"
+    And the HTTP response content type is APIv2
     And the JSON should be:
     """
     { "code": "422",
-      "message": "Branch can't be blank, Branch can't be blank, Branch can't be blank, Branch is too short (minimum is 1 character), and Branch Wrong path ''" }
+      "message": "CONJ00190W Missing required parameter: branch" }
+    """
+
+  @negative @acceptance
+  Scenario: Cannot create a branch with wrong chars in parent branch
+    Given I set the Accept header to APIv2
+    And I set the "Content-Type" header to "application/json"
+    When I POST "/branches/cucumber" with body:
+    """
+    { "name": "branch1",
+      "branch": "data/safe1<wrong>" }
+    """
+    Then the HTTP response status code is 422
+    And the HTTP response content type is APIv2
+    And the JSON should be:
+    """
+    { "code": "422",
+      "message": "Branch Wrong path 'data/safe1<wrong>'" }
     """
 
   @acceptance
   Scenario: Creating a branch with annotation containing JSON
-    When I set the "Accept" header to "application/x.secretsmgr.v2beta+json"
+    Given I set the Accept header to APIv2
     And I set the "Content-Type" header to "application/json"
-    And I can POST "/branches/cucumber" with body:
+    When I can POST "/branches/cucumber" with body:
     """
     { "name": "branch2",
       "branch": "data/safe1",
@@ -127,8 +178,8 @@ Feature: Branches APIv2 tests - create empty
         "branch2-ann-key1": "{ \"foo\": \"bar\", \"baz\": 1 }",
         "branch2-ann-key2": "branch2-ann-val2" } }
     """
-    And the HTTP response status code is 201
-    And the HTTP response content type is "application/x.secretsmgr.v2beta+json"
+    Then the HTTP response status code is 201
+    And the HTTP response content type is APIv2
     And the JSON should be:
     """
     { "name": "branch2",
@@ -141,17 +192,16 @@ Feature: Branches APIv2 tests - create empty
 
   @negative @acceptance
   Scenario: Cannot create a branch with wrong value in annotations value
-    When I set the "Accept" header to "application/x.secretsmgr.v2beta+json"
+    Given I set the Accept header to APIv2
     And I set the "Content-Type" header to "application/json"
-    And I save my place in the audit log file for remote
-    And I POST "/branches/cucumber" with body:
+    When I POST "/branches/cucumber" with body:
     """
     { "name": "branch2",
       "branch": "data/safe2",
       "annotations": { "branch2-ann-key1": 6, "branch2-ann-key2": "branch2-ann-val2" } }
     """
     Then the HTTP response status code is 422
-    And the HTTP response content type is "application/x.secretsmgr.v2beta+json"
+    And the HTTP response content type is APIv2
     And the JSON should be:
     """
     { "code": "422",
@@ -160,7 +210,7 @@ Feature: Branches APIv2 tests - create empty
 
   @negative @acceptance
   Scenario: Cannot create a branch using not existing parent
-    When I set the "Accept" header to "application/x.secretsmgr.v2beta+json"
+    When I set the Accept header to APIv2
     And I set the "Content-Type" header to "application/json"
     And I POST "/branches/cucumber" with body:
     """
@@ -171,16 +221,77 @@ Feature: Branches APIv2 tests - create empty
         "branch2-ann-key2": "branch2-ann-val2" } }
     """
     Then the HTTP response status code is 404
-    And the HTTP response content type is "application/x.secretsmgr.v2beta+json"
+    And the HTTP response content type is APIv2
     And the JSON should be:
     """
     { "code": "404",
       "message": "Branch 'data/safe2' not found in account 'cucumber'" }
     """
 
+  @negative @acceptance
+  Scenario: Cannot create a branch using not supported param in body
+    When I set the Accept header to APIv2
+    And I set the "Content-Type" header to "application/json"
+    And I POST "/branches/cucumber" with body:
+    """
+    { "name": "branch2",
+      "branch": "data",
+      "not_supported1": "should be error1!",
+      "not_supported2": "should be error2!",
+      "annotations": {
+        "branch2-ann-key1": "branch2-ann-val1",
+        "branch2-ann-key2": "branch2-ann-val2" } }
+    """
+    Then the HTTP response status code is 422
+    And the HTTP response content type is APIv2
+    And the JSON should be:
+    """
+    { "code": "422",
+      "message": "Unexpected parameters: not_supported1, not_supported2" }
+    """
+
+  @negative @acceptance
+  Scenario: Cannot create a branch using not supported param in query
+    When I set the Accept header to APIv2
+    And I set the "Content-Type" header to "application/json"
+    And I POST "/branches/cucumber?notpermitted=foobar" with body:
+    """
+    { "name": "branch2",
+      "branch": "data",
+      "annotations": {
+        "branch2-ann-key1": "branch2-ann-val1",
+        "branch2-ann-key2": "branch2-ann-val2" } }
+    """
+    Then the HTTP response status code is 422
+    And the HTTP response content type is APIv2
+    And the JSON should be:
+    """
+    { "code": "422",
+      "message": "Unexpected parameters: notpermitted" }
+    """
+
+  @negative @acceptance
+  Scenario: Cannot create a branch with missing required parameters
+    When I set the Accept header to APIv2
+    And I set the "Content-Type" header to "application/json"
+    And I POST "/branches/cucumber" with body:
+    """
+    { "owner": { "kind": "group", "id": "data/data-group" },
+      "annotations": {
+        "branch2-ann-key1": "branch2-ann-val1",
+        "branch2-ann-key2": "branch2-ann-val2" } }
+    """
+    Then the HTTP response status code is 422
+    And the HTTP response content type is APIv2
+    And the JSON should be:
+    """
+    { "code": "422",
+      "message": "CONJ00190W Missing required parameter: name, branch" }
+    """
+
   @acceptance
   Scenario: As admin I can create a branch with owner
-    When I set the "Accept" header to "application/x.secretsmgr.v2beta+json"
+    When I set the Accept header to APIv2
     And I set the "Content-Type" header to "application/json"
     And I POST "/branches/cucumber" with body:
     """
@@ -189,7 +300,7 @@ Feature: Branches APIv2 tests - create empty
       "annotations": { "mykey1": "abc", "mykeyffsdfs": "dfdsfsf" } }
     """
     Then the HTTP response status code is 201
-    And the HTTP response content type is "application/x.secretsmgr.v2beta+json"
+    And the HTTP response content type is APIv2
     And the JSON should be:
     """
     { "name": "branch2", "branch": "data/safe1",
@@ -199,7 +310,7 @@ Feature: Branches APIv2 tests - create empty
 
   @acceptance
   Scenario: As admin I can create a branch with admin owner
-    When I set the "Accept" header to "application/x.secretsmgr.v2beta+json"
+    When I set the Accept header to APIv2
     And I set the "Content-Type" header to "application/json"
     And I POST "/branches/cucumber" with body:
     """
@@ -208,7 +319,7 @@ Feature: Branches APIv2 tests - create empty
       "annotations": { "mykey1": "abc", "mykeyffsdfs": "dfdsfsf" } }
     """
     Then the HTTP response status code is 201
-    And the HTTP response content type is "application/x.secretsmgr.v2beta+json"
+    And the HTTP response content type is APIv2
     And the JSON should be:
     """
     { "name": "branch2", "branch": "/",
@@ -218,7 +329,7 @@ Feature: Branches APIv2 tests - create empty
 
   @negative @acceptance
   Scenario: As admin I cannot create a branch with not existing owner
-    When I set the "Accept" header to "application/x.secretsmgr.v2beta+json"
+    When I set the Accept header to APIv2
     And I set the "Content-Type" header to "application/json"
     And I POST "/branches/cucumber" with body:
     """
@@ -227,32 +338,35 @@ Feature: Branches APIv2 tests - create empty
       "annotations": { "mykey1": "abc", "mykeyffsdfs": "dfdsfsf" } }
     """
     Then the HTTP response status code is 404
-    And the HTTP response content type is "application/x.secretsmgr.v2beta+json"
+    And the HTTP response content type is APIv2
     And the JSON should be:
     """
     { "code": "404",
       "message": "Group 'data/data-group-nope' not found in account 'cucumber'" }
     """
 
-  @acceptance
-  Scenario: Getting the branch that the user has access to
-    When I login as "alice@data-safe1"
-    And I set the "Accept" header to "application/x.secretsmgr.v2beta+json"
-    And I can GET "/branches/cucumber/data/safe1/branch1"
-    Then the HTTP response status code is 200
-    And the HTTP response content type is "application/x.secretsmgr.v2beta+json"
+  @negative @acceptance
+  Scenario: As admin I cannot create a branch with wrong name
+    When I set the Accept header to APIv2
+    And I set the "Content-Type" header to "application/json"
+    And I POST "/branches/cucumber" with body:
+    """
+    { "name": "branch1<wrong>",
+      "branch": "/",
+      "owner": { "kind": "user", "id": "admin" } }
+    """
+    Then the HTTP response status code is 422
+    And the HTTP response content type is APIv2
     And the JSON should be:
     """
-    { "name": "branch1",
-      "branch": "data/safe1",
-      "owner": { "kind": "group", "id": "data/data-group" },
-      "annotations": { "branch1-ann-1": "Foo bar", "branch1-ann-2": "123" } }
+    { "code": "422",
+      "message": "Name Wrong name 'branch1<wrong>'" }
     """
 
   @acceptance
   Scenario: A user with permission to creation in parent can create branch in it
     When I login as "alice@data-safe1"
-    And I set the "Accept" header to "application/x.secretsmgr.v2beta+json"
+    And I set the Accept header to APIv2
     And I set the "Content-Type" header to "application/json"
     And I can POST "/branches/cucumber" with body:
     """
@@ -260,12 +374,26 @@ Feature: Branches APIv2 tests - create empty
       "branch": "data/safe1/branch1" }
     """
     Then the HTTP response status code is 201
-    And the HTTP response content type is "application/x.secretsmgr.v2beta+json"
+    And the HTTP response content type is APIv2
+
+  @acceptance
+  Scenario: A user with permission to creation in parent can create branch in it as owner
+    When I login as "alice@data-safe1"
+    And I set the Accept header to APIv2
+    And I set the "Content-Type" header to "application/json"
+    And I can POST "/branches/cucumber" with body:
+    """
+    { "name": "alicebranch",
+      "branch": "data/safe1/branch1",
+       "owner": { "kind": "user", "id": "alice@data-safe1" } }
+    """
+    Then the HTTP response status code is 201
+    And the HTTP response content type is APIv2
 
   @negative @acceptance
   Scenario: Cannot create branch without permission to the parent
     When I login as "alice@data-safe1"
-    And I set the "Accept" header to "application/x.secretsmgr.v2beta+json"
+    And I set the Accept header to APIv2
     And I set the "Content-Type" header to "application/json"
     And I POST "/branches/cucumber" with body:
     """
@@ -273,7 +401,7 @@ Feature: Branches APIv2 tests - create empty
       "branch": "data/safe1/alice-read-only" }
     """
     Then the HTTP response status code is 404
-    And the HTTP response content type is "application/x.secretsmgr.v2beta+json"
+    And the HTTP response content type is APIv2
     And the JSON should be:
     """
     { "code": "404",
@@ -283,7 +411,7 @@ Feature: Branches APIv2 tests - create empty
   @negative @acceptance
   Scenario: Cannot create branch using existing name but policy is not visible
     And I am the super-user
-    And I set the "Accept" header to "application/x.secretsmgr.v2beta+json"
+    And I set the Accept header to APIv2
     And I set the "Content-Type" header to "application/json"
     And I can POST "/branches/cucumber" with body:
     """
@@ -297,7 +425,7 @@ Feature: Branches APIv2 tests - create empty
       "branch": "data/safe1/branch1" }
     """
     Then the HTTP response status code is 409
-    And the HTTP response content type is "application/x.secretsmgr.v2beta+json"
+    And the HTTP response content type is APIv2
     And the JSON should be:
     """
     { "code": "409",
@@ -307,7 +435,7 @@ Feature: Branches APIv2 tests - create empty
   @negative @acceptance
   Scenario: Cannot create branch using not existing user
     When I log out
-    And I set the "Accept" header to "application/x.secretsmgr.v2beta+json"
+    And I set the Accept header to APIv2
     And I set the "Content-Type" header to "application/json"
     And I POST "/branches/cucumber" with body:
     """
@@ -315,7 +443,7 @@ Feature: Branches APIv2 tests - create empty
       "branch": "data/safe1" }
     """
     Then the HTTP response status code is 401
-#    And the HTTP response content type is "application/x.secretsmgr.v2beta+json"
+#    And the HTTP response content type is APIv2
     And the response is empty
 
   @negative @acceptance
@@ -328,7 +456,7 @@ Feature: Branches APIv2 tests - create empty
     ---
     - !policy not_for_branch/branch2
     """
-    And I set the "Accept" header to "application/x.secretsmgr.v2beta+json"
+    And I set the Accept header to APIv2
     And I set the "Content-Type" header to "application/json"
     And I POST "/branches/cucumber" with body:
     """
@@ -352,7 +480,24 @@ Feature: Branches APIv2 tests - create empty
       "owner": { "kind": "user", "id": "admin" } }
     """
     Then the HTTP response status code is 400
-    And the HTTP response content type is "application/x.secretsmgr.v2beta+json"
+    And the HTTP response content type is APIv2
+    And the JSON should be:
+    """
+    { "code": "400",
+      "message": "CONJ00194W The api belongs to v2 APIs but it missing the version \"application/x.secretsmgr.v2beta+json\" in the Accept header" }
+    """
+
+  @acceptance
+  Scenario: V2 header without beta is not valid
+    Given I set the "Accept" header to "application/x.secretsmgr.v2+json"
+    And I POST "/branches/cucumber" with body:
+    """
+    { "name": "branch1",
+      "branch": "/",
+      "owner": { "kind": "user", "id": "admin" } }
+    """
+    Then the HTTP response status code is 400
+    And the HTTP response content type is APIv2
     And the JSON should be:
     """
     { "code": "400",

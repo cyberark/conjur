@@ -1,54 +1,90 @@
 # frozen_string_literal: true
 
 require 'singleton'
-require_relative 'domain'
+require_relative '../domain'
 
 module Domain
   class BranchService
     include Singleton
     include Domain
+    include Logging
+
+    # rubocop:disable Metrics/ParameterLists
     def initialize(
       owner_service: OwnerService.instance,
-      ann_service: AnnotationService.instance,
+      annotation_service: AnnotationService.instance,
+      res_service: ResourceService.instance,
       res_scopes_service: ResourceScopesService.instance,
-      res_repo: ::Resource,
       role_repo: ::Role,
-      role_mbrship_repo: ::RoleMembership,
-      secret_repo: ::Secret
+      role_membership_repo: ::RoleMembership,
+      secret_repo: ::Secret,
+      logger: Rails.logger
     )
       @owner_service = owner_service
-      @ann_service = ann_service
+      @annotation_service = annotation_service
+      @res_service = res_service
       @res_scopes_service = res_scopes_service
-      @res_repo = res_repo
       @role_repo = role_repo
-      @role_mbrship_repo = role_mbrship_repo
+      @role_membership_repo = role_membership_repo
       @secret_repo = secret_repo
+      @logger = logger
+    end
+    # rubocop:enable Metrics/ParameterLists
+
+    def read_and_auth_branch(role, action, account, identifier)
+      log_debug("role = #{role.id}, action = #{action},
+        account = #{account}, identifier = #{identifier}")
+
+      policy = @res_service.read_and_auth_policy(role, action, account, identifier)
+      Branch.from_model(policy)
+    rescue Exceptions::Forbidden, Exceptions::RecordNotFound
+      raise Exceptions::RecordNotFound, full_id(account, 'branch', identifier)
+    end
+
+    def read_branch(role, account, identifier)
+      policy = @res_service.read_res(role, account, 'policy', identifier)
+      Branch.from_model(policy)
+    rescue Exceptions::Forbidden, Exceptions::RecordNotFound
+      raise Exceptions::RecordNotFound, full_id(account, 'branch', identifier)
+    end
+
+    def get_branch(account, identifier)
+      policy = @res_service.get_res(account, 'policy', identifier)
+      Branch.from_model(policy)
+    rescue Exceptions::RecordNotFound
+      raise Exceptions::RecordNotFound, full_id(account, 'branch', identifier)
+    end
+
+    def fetch_branch(account, identifier)
+      policy = @res_service.fetch_res(account, 'policy', identifier)
+      Branch.from_model(policy) unless policy.nil?
     end
 
     def check_parent_branch_exists(account, identifier)
+      log_debug("account = #{account}, identifier = #{identifier}")
+
       return if root?(identifier)
 
-      parent_identifier = parent_identifier(identifier)
-      read_branch(account, parent_identifier)
+      get_branch(account, parent_identifier(identifier))
     end
 
     def create_branch(account, branch)
+      log_debug("account = #{account}, branch = #{branch}")
+
       branch_id = full_id(account, 'policy', branch.identifier)
       owner_id = res_owner_id(account, branch.branch, branch.owner)
       policy_id = full_id(account, 'policy', res_identifier(branch.branch))
 
+      log_debug("branch_id = #{branch_id}, owner_id = #{owner_id}, policy_id = #{policy_id}")
+
       # policy
-      policy = @res_repo.create(
-        resource_id: branch_id,
-        owner_id: owner_id,
-        policy_id: policy_id
-      ).save
+      policy = @res_service.save_res(policy_id, owner_id, branch_id)
 
       # role
       @role_repo.create(role_id: branch_id, policy_id: policy_id).save
 
       # role memberships
-      @role_mbrship_repo.create(
+      @role_membership_repo.create(
         role_id: branch_id,
         member_id: owner_id,
         policy_id: policy_id,
@@ -57,35 +93,34 @@ module Domain
 
       # annotations
       branch.annotations.each do |a_key, a_value|
-        @ann_service.create_ann(branch_id, a_key, a_value, policy_id).save
+        @annotation_service.create_annotation(branch_id, a_key, a_value, policy_id).save
       end
 
       Branch.from_model(policy)
     end
 
     def update_branch(account, branch_up_part, identifier)
-      policy = read_branch_pol(account, identifier)
-      raise Exceptions::RecordNotFound, full_id(account, 'branch', identifier) if policy.nil?
+      log_debug("account = #{account}, branch_up_part = #{branch_up_part}, identifier = #{identifier}")
+
+      policy = get_branch_pol(account, identifier)
 
       update_owner(account, policy, branch_up_part.owner) if branch_up_part.owner.set?
       update_annotations(policy, branch_up_part.annotations) unless branch_up_part.annotations.empty?
-      read_branch(account, policy.identifier)
-    end
-
-    def read_branch(account, identifier)
-      policy = read_branch_pol(account, identifier)
-      raise Exceptions::RecordNotFound, full_id(account, 'branch', identifier) if policy.nil?
-
-      Branch.from_model(policy)
+      fetch_branch(account, policy.identifier)
     end
 
     def check_branch_not_conflict(account, identifier)
-      policy = read_branch_pol(account, identifier)
-      raise Exceptions::RecordExists.new('Branch', full_id(account, 'branch', identifier)) if policy
+      log_debug("account = #{account}, identifier = #{identifier}")
+
+      return if fetch_branch(account, identifier).nil?
+
+      raise Exceptions::RecordExists.new('Branch', full_id(account, 'branch', identifier))
     end
 
-    def read_branches(account, role_id, paging, identifier)
-      base_scope = @res_scopes_service.visible_branches_scope(account, role_id, identifier)
+    def read_branches(role_id, account, paging, identifier)
+      log_debug("role_id = #{role_id}, account = #{account}, paging = #{paging}, identifier = #{identifier}")
+
+      base_scope = @res_scopes_service.visible_resources_scope(account, role_id, identifier)
       total_count = base_scope.count
 
       branches = @res_scopes_service.paginate_scope(paging, base_scope)
@@ -100,6 +135,8 @@ module Domain
     end
 
     def delete_branch(account, role, identifier)
+      log_debug("account = #{account}, role = #{role.id}, identifier = #{identifier}")
+
       resources = @res_scopes_service.resources_to_del_scope(account, identifier)
         .order(Sequel.lit("length(resource_id)").desc)
         .all
@@ -109,21 +146,26 @@ module Domain
 
         res.secrets.each(&:delete)
         res.annotations.each(&:delete)
-        res.delete
+        res.destroy
       end
     end
 
     private
 
-    def read_branch_pol(account, identifier)
-      pol_id = full_id(account, 'policy', res_identifier(identifier))
-      @res_repo[pol_id]
+    def get_branch_pol(account, identifier)
+      @res_service.get_res(account, 'policy', identifier)
+    rescue Exceptions::RecordNotFound
+      raise Exceptions::RecordNotFound, full_id(account, 'branch', identifier)
     end
 
     def update_annotations(policy, annotations)
-      merged_anns = get_saved_annotations(policy).merge(annotations)
-      merged_anns.each do |ann_key, ann_value|
-        @ann_service.upsert_ann(policy.id, policy.policy_id, ann_key, ann_value)
+      log_debug("policy = #{policy}, annotations = #{annotations}")
+
+      merged_annotations = get_saved_annotations(policy).merge(annotations)
+      log_debug("merged_annotations = #{merged_annotations}")
+
+      annotations.each do |ann_key, ann_value|
+        @annotation_service.upsert_annotation(policy.id, policy.policy_id, ann_key, ann_value)
       end
     end
 
@@ -134,8 +176,12 @@ module Domain
     end
 
     def update_owner(account, policy, owner)
+      log_debug("account = #{account}, policy = #{policy.id} owner = #{owner}")
+
       parent = parent_identifier(policy.identifier)
       owner_id = res_owner_id(account, parent, owner)
+      log_debug("parent = #{parent}, owner_id = #{owner_id}")
+
       policy.update(owner_id: owner_id).save
     end
 
