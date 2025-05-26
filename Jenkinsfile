@@ -66,6 +66,12 @@ properties([
 
 // Performs release promotion.  No other stages will be run
 if (params.MODE == "PROMOTE") {
+
+  // TEMP: we need to disable the ability to publish code to public github from this pipeline
+  // since we have critical security issue and it cannot be disclosed in the public github
+  // repository until enterprise patch releases are available
+  error("Failing the PROMOTE build due to a critical security error")
+
   release.promote(params.VERSION_TO_PROMOTE) { infrapool, sourceVersion, targetVersion, assetDirectory ->
     env.INFRAPOOL_PRODUCT_NAME = "${productName}"
     env.INFRAPOOL_DD_PRODUCT_TYPE_NAME = "${productTypeName}"
