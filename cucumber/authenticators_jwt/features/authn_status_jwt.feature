@@ -443,7 +443,7 @@ Feature: JWT Authenticator - Status Check
     And I login as "alice"
     And I save my place in the log file
     When I GET "/authn-jwt/raw/cucumber/status"
-    Then the HTTP response status code is 500
+    Then the HTTP response status code is 404
     And the authenticator status check fails with error "CONJ00005E Webservice 'authn-jwt/raw/status' not found"
 
   @negative @acceptance

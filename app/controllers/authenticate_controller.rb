@@ -396,7 +396,7 @@ class AuthenticateController < ApplicationController
   end
 
   def status_failure_response(error)
-    logger.debug("Status check failed with error: #{error.inspect}")
+    logger.info("Status check failed with error: #{error.inspect}")
 
     payload = {
       status: "error",
@@ -409,7 +409,7 @@ class AuthenticateController < ApplicationController
         :forbidden
       when Errors::Authentication::StatusNotSupported
         :not_implemented
-      when Errors::Authentication::AuthenticatorNotSupported
+      when Errors::Authentication::AuthenticatorNotSupported, Errors::Authentication::Security::WebserviceNotFound
         :not_found
       else
         :internal_server_error

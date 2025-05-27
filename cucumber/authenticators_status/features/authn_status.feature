@@ -125,7 +125,7 @@ Feature: Authenticator status check
     """
     And I login as "alice"
     When I GET "/authn-oidc/keycloak/cucumber/status"
-    Then the HTTP response status code is 500
+    Then the HTTP response status code is 404
     And the authenticator status check fails with error "WebserviceNotFound: CONJ00005E"
 
   @negative @acceptance
@@ -221,7 +221,7 @@ Feature: Authenticator status check
     And I am the super-user
     And I login as "alice"
     When I GET "/authn-oidc/keycloak/cucumber/status"
-    Then the HTTP response status code is 500
+    Then the HTTP response status code is 404
     And the authenticator status check fails with error "WebserviceNotFound: CONJ00005E"
 
     # TODO: Implement this test when we have the ability to start a Conjur server from Cucumber
