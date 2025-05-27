@@ -56,6 +56,10 @@ module Authentication
       def attempt_signed_request(signed_headers)
         region = extract_sts_region(signed_headers)
 
+        # We raise error if region is invalid
+        raise Errors::Authentication::AuthnIam::InvalidAWSHeaders,
+          'Failed to extract AWS region from authorization header' unless valid_region?(region)
+
         # Attempt request using the discovered region and return immediately if successful
         response = aws_call(region: region, headers: signed_headers)
         return response if response.code.to_i == 200
@@ -76,7 +80,12 @@ module Authentication
         else
           "sts.#{region}.amazonaws.com"
         end
+
         aws_request = URI("https://#{host}/?Action=GetCallerIdentity&Version=2011-06-15")
+
+        raise Errors::Authentication::AuthnIam::InvalidAWSHeaders,
+              "Trying to call invalid sts endpoint #{aws_request.host}" unless aws_request.host&.end_with?('.amazonaws.com')
+
         begin
           @client.get_response(aws_request, headers)
         rescue StandardError => e
@@ -115,6 +124,11 @@ module Authentication
         return match.captures.first if match
 
         raise Errors::Authentication::AuthnIam::InvalidAWSHeaders, 'Failed to extract AWS region from authorization header'
+      end
+
+      def valid_region?(region)
+        return true if region == 'global'
+        /^([a-z]{2}(-gov)?-[a-z]+-\d)$/.match?(region)
       end
     end
   end
