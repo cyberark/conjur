@@ -320,4 +320,156 @@ describe PoliciesController, type: :request do
       expect(evaluate_policy).not_to have_received(:call).with(Loader::Orchestrate)
     end
   end
+
+  context "when policy annotations may conflict with known attributes" do
+    let(:conflicting_yaml) do
+      <<~YAML
+        - !policy
+          id: test
+          annotations:
+            restricted_to: "something"
+      YAML
+    end
+
+    let(:safe_yaml) do
+      <<~YAML
+        - !policy
+          id: test
+          annotations:
+            description: "A safe annotation"
+      YAML
+    end
+
+    let(:multiple_conflicts_yaml) do
+      <<~YAML
+        - !policy
+          id: test
+          annotations:
+            restricted_to: "something"
+            id: "should warn"
+      YAML
+    end
+
+    let(:no_annotations_yaml) do
+      <<~YAML
+        - !policy
+          id: test
+      YAML
+    end
+
+    def request_env(role: 'admin')
+      { 'HTTP_AUTHORIZATION' => access_token_for(role), "Content-Type" => "application/x-yaml" }
+    end
+
+    before(:each) do
+      # Ensure a clean root policy and admin user for each annotation test
+      Slosilo["authn:rspec"] ||= Slosilo::Key.new
+      Role.find_or_create(role_id: 'rspec:user:admin')
+      post "/policies/rspec/policy/root",
+        params: "- !policy\n  id: root\n",
+        env: request_env
+    end
+
+    it "returns a warning when annotation matches a known policy attribute" do
+      post "/policies/rspec/policy/root", params: conflicting_yaml, env: request_env
+      expect(response).to have_http_status(:created).or have_http_status(:ok)
+      body = JSON.parse(response.body)
+      expect(body["warnings"]).to include(
+        a_string_matching(/Annotation 'restricted_to' matches a known policy attribute/)
+      )
+    end
+
+    it "loads a policy without annotation conflicts" do
+      post "/policies/rspec/policy/root", params: safe_yaml, env: request_env
+      expect(response).to have_http_status(:created).or have_http_status(:ok)
+      body = JSON.parse(response.body)
+      expect(body["warnings"]).to be_nil
+    end
+
+    it "returns warnings for multiple conflicting annotation names" do
+      post "/policies/rspec/policy/root", params: multiple_conflicts_yaml, env: request_env
+      expect(response).to have_http_status(:created).or have_http_status(:ok)
+      body = JSON.parse(response.body)
+      expect(body["warnings"]).to include(
+        a_string_matching(/Annotation 'restricted_to'/),
+        a_string_matching(/Annotation 'id'/)
+      )
+    end
+
+    it "loads a policy with no annotations" do
+      post "/policies/rspec/policy/root", params: no_annotations_yaml, env: request_env
+      expect(response).to have_http_status(:created).or have_http_status(:ok)
+      body = JSON.parse(response.body)
+      expect(body["warnings"]).to be_nil
+    end
+
+    it "returns warnings for annotation conflicts on various resource types" do
+      yaml = <<~YAML
+        - !policy
+          id: some-policy
+          annotations:
+            id: "should warn"
+          body:
+            - !group
+              id: some-group
+              annotations:
+                restricted_to: "also should warn"
+            - !host
+              id: some-host
+              annotations:
+                privileges: "also also should warn"
+            - !user
+              id: some-user
+              annotations:
+                member: "also also also should warn"
+            - !variable
+              id: some-variable
+              annotations:
+                owner: "also also also also should warn"
+      YAML
+
+      post "/policies/rspec/policy/root", params: yaml, env: request_env
+      expect(response).to have_http_status(:created).or have_http_status(:ok)
+      body = JSON.parse(response.body)
+      expect(body["warnings"]).to include(
+        a_string_matching(/Annotation 'id'/),
+        a_string_matching(/Annotation 'restricted_to'/),
+        a_string_matching(/Annotation 'privileges'/),
+        a_string_matching(/Annotation 'member'/),
+        a_string_matching(/Annotation 'owner'/)
+      )
+    end
+    it "returns warnings only for resources with conflicting annotation names" do
+      yaml = <<~YAML
+        - !policy
+          id: test-policy
+          body:
+            - !user
+              id: user1
+              annotations:
+                member: "should warn"
+            - !user
+              id: user2
+              annotations:
+                description: "safe"
+            - !variable
+              id: var1
+              annotations:
+                owner: "should warn"
+            - !variable
+              id: var2
+              annotations:
+                something_else: "safe"
+      YAML
+
+      post "/policies/rspec/policy/root", params: yaml, env: request_env
+      expect(response).to have_http_status(:created).or have_http_status(:ok)
+      body = JSON.parse(response.body)
+      expect(body["warnings"]).to include(
+        a_string_matching(/Annotation 'member'/),
+        a_string_matching(/Annotation 'owner'/)
+      )
+      expect(body["warnings"].length).to eq(2)
+    end
+  end
 end

@@ -107,7 +107,7 @@ To use it:
    ```
 
    Once the `start` script finishes, you're in a Bash shell inside the Conjur
-   server container.  To
+   server container.
 
    After starting Conjur, your instance will be configured with the following:
    * Account: `cucumber`
