@@ -24,7 +24,7 @@ module AuthenticatorsV2
         data[key] = retrieve_authenticator_variable(authenticator_params, key)
       end.compact
 
-      identity_source = authenticator_params["identity"] || authenticator_params
+      identity_source = authenticator_params[:identity] || authenticator_params
 
       identity_section = identity_fields.each_with_object({}) do |key, identity|
         processor = processors.fetch(key, nil)
@@ -38,15 +38,6 @@ module AuthenticatorsV2
       data_section[:identity] = identity_section unless identity_section.empty?
 
       data_section
-    end
-
-    def variable_map
-      flattened_variables = variables.dup
-      identity = flattened_variables.delete(:identity)
-
-      flattened_variables = flattened_variables.merge(identity) unless identity.nil?
-
-      flattened_variables
     end
 
     private

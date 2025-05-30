@@ -12,7 +12,7 @@ module DB
           @account = authenticator.account
           @enabled = authenticator.enabled
           @branch = authenticator.branch
-          @variables = authenticator.variable_map
+          @variables = authenticator.variables
 
           @success = ::SuccessResponse
           @failure = ::FailureResponse
@@ -30,7 +30,7 @@ module DB
           build_policy_tree
           endable_authenticator
           add_annotations
-          add_varibales(@variables)
+          add_variables(@variables)
 
           @success.new(@authenticator)
         rescue Sequel::UniqueConstraintViolation, Sequel::ConstraintViolation => e
@@ -55,6 +55,10 @@ module DB
           "#{@account}:policy:#{@branch}"
         end
 
+        def authn_variables
+          "#{@account}:variable:#{@branch}/#{@service_id}"
+        end
+
         def owner_id
           policy_branch unless @owner_id
           
@@ -76,19 +80,19 @@ module DB
           end 
         end
 
-        def add_varibales(variables)
+        def add_variables(variables)
           variables&.each do |key, value|
             if key.to_s == "identity"
-              set_varibales(value)
+              add_variables(value)
             else
               Resource.create(
-                resource_id: "#{webservice}/#{key}",
+                resource_id: "#{authn_variables}/#{key.to_s.dasherize}",
                 owner_id: owner_id,
                 policy_id: policy_branch
               )
               unless value.nil?
                 ::Secret.create(
-                  resource_id: "#{webservice}/#{key}",
+                  resource_id: "#{authn_variables}/#{key.to_s.dasherize}",
                   value: value.to_s
                 ) 
               end

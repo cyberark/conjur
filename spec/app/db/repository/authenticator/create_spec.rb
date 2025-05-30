@@ -18,7 +18,7 @@ RSpec.describe(DB::Repository::Authenticator::CreateAuthenticator) do
     DB::Repository::AuthenticatorRepository.new
   end
 
-  let(:variables) { {} }
+  let(:variables) { { jwks_uri: "https://test" } }
 
   let(:authenticator_dict) do
     {
@@ -43,6 +43,7 @@ RSpec.describe(DB::Repository::Authenticator::CreateAuthenticator) do
     expect(::Resource["rspec:webservice:conjur/authn-jwt/auth1/status"]).to_not be_nil
     expect(::Resource["rspec:group:conjur/authn-jwt/auth1/apps"]).to_not be_nil
     expect(::Resource["rspec:group:conjur/authn-jwt/auth1/operators"]).to_not be_nil
+    expect(::Resource["rspec:variable:conjur/authn-jwt/auth1/jwks-uri"]).to_not be_nil
   end
 
   describe('#call') do
