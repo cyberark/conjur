@@ -9,6 +9,8 @@ class SecretsController < RestController
   before_action :current_user
 
   def create
+    raise(ArgumentError, "Invalid secret kind: #{resource.kind}") unless %w[variable public_key].include?(resource.kind)
+
     authorize(:update)
 
     value = request.raw_post
