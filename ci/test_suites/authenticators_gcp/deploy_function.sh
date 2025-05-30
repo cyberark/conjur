@@ -68,7 +68,7 @@ deploy_function() {
   cd "$GCF_SOURCE_DIR"
 
   echo "-- Deploying function: $GCF_FUNC_NAME"
-  gcloud functions deploy "$GCF_FUNC_NAME" --no-gen2 --runtime python37 --trigger-http --quiet
+  gcloud functions deploy "$GCF_FUNC_NAME" --no-gen2 --runtime python38 --trigger-http --quiet
 
   echo '-> deploy_function done'
 }
