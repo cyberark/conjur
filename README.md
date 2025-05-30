@@ -81,9 +81,11 @@ Migrating data from Conjur Open Source to Conjur EE is simple using our
 
 ## Architecture
 
-Conjur is designed to run in a Docker container(s), using Postgresql as the
-backing data store. It's easy to run both Conjur and Postgresql in Docker; see
+Conjur is designed to run in a Docker container(s), using PostgreSQL as the
+backing data store. It's easy to run both Conjur and PostgreSQL in Docker; see
 the `demo` directory for an example.
+
+- Note: Conjur is compatible with PostgreSQL 15.
 
 ### Database
 
@@ -138,7 +140,7 @@ using [Slosilo](https://github.com/conjurinc/slosilo), a library which provides:
 * symmetric encryption using AES-256-GCM
 * a Ruby class mixin for easy encryption of object attributes into the database
 * asymmetric encryption and signing
-* a keystore in a Postgresql database for easy storage and retrieval of keys
+* a keystore in a PostgreSQL database for easy storage and retrieval of keys
 
 Slosilo has been verified by a professional cryptographic audit. Ask in our
 CyberArk Commons community for more details. (You can join [here][commons].)
