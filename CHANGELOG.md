@@ -26,6 +26,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   directory is not writable. CNJR-7070
 
 ### Security
+- Improves host factory token validation to prevent creation without proper kind and id, and
+  secret validation to prevent creation unless it is of variable kind. CONJSE-2011
 - Update simpleidn to 0.2.3. CNJR-9498
 - Update rack to 2.2.14 to address CVE-2025-46727. CONJSE-2001
 - Upgrade net-imap to 0.5.8 or later to address CVE-2025-43857. CONJSE-2005
