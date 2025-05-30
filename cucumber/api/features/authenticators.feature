@@ -66,10 +66,10 @@ Feature: Authenticator v2 Endpoints
     """
     https://test.com
     """
+    And I set the "Accept" header to "application/x.secretsmgr.v2beta+json"
 
 Scenario: list authenticators using the V2 Api.
-  And I save my place in the audit log file for remote
-  And I set the "Accept" header to "application/x.secretsmgr.v2beta+json"
+  When I save my place in the audit log file for remote
   When I successfully GET "authenticators/cucumber"
   Then I receive a count of 3
   When I successfully GET "authenticators/cucumber?limit=2"
@@ -108,7 +108,10 @@ Scenario: list authenticators using the V2 Api.
   """
   cucumber:user:admin successfully listed authenticators with URI path: '/authenticators/cucumber'
   """
-  #fetchcing a single authenticator
+
+Scenario: Fetch authenticators using the V2 Api.
+  When I save my place in the audit log file for remote
+
   Given I successfully GET "authenticators/cucumber/authn-oidc/keycloak"
   Then the JSON should be:
   """
@@ -133,7 +136,11 @@ Scenario: list authenticators using the V2 Api.
   """
   cucumber:user:admin successfully retrieved authn-oidc keycloak with URI path: '/authenticators/cucumber/authn-oidc/keycloak'
   """
-  # Enable authenticator
+
+Scenario: Update authenticators using the V2 Api.
+  // We should add a check for the info endpoint here to determine if the authenticator is actually enabled
+  When I save my place in the audit log file for remote
+
   Given I PATCH "authenticators/cucumber/authn-oidc/keycloak" with body:
   """
   { "enabled": true }
@@ -161,7 +168,7 @@ Scenario: list authenticators using the V2 Api.
   """
   cucumber:user:admin successfully enabled authn-oidc keycloak with URI path: '/authenticators/cucumber/authn-oidc/keycloak' and JSON object: { "enabled": true }
   """
-  # Disable authenticator
+
   Given I PATCH "authenticators/cucumber/authn-oidc/keycloak" with body:
   """
   { "enabled": false }
@@ -185,6 +192,9 @@ Scenario: list authenticators using the V2 Api.
     "type": "oidc"
   }
   """
+
+Scenario: Create authenticators using the V2 Api.
+    When I save my place in the audit log file for remote
 
   Given I successfully POST "/authenticators/cucumber" with body:
   """ 
@@ -237,16 +247,24 @@ Scenario: list authenticators using the V2 Api.
 
   And I successfully GET "authenticators/cucumber"
   Then I receive a count of 4
-  Then the authenticators list should include "test-jwt3"
-  When I DELETE "authenticators/cucumber/authn-jwt/test-jwt3"
+
+Scenario: Delete authenticators using the V2 Api.
+  When I save my place in the audit log file for remote
+
+  When I successfully GET "authenticators/cucumber"
+  Then the authenticators list should include "test-jwt1"
+  When I DELETE "authenticators/cucumber/authn-jwt/test-jwt1"
   Then the HTTP response status code is 204
   And there is an audit record matching:
   """
-  cucumber:user:admin successfully deleted authn-jwt test-jwt3 with URI path: '/authenticators/cucumber/authn-jwt/test-jwt3'
+  cucumber:user:admin successfully deleted authn-jwt test-jwt1 with URI path: '/authenticators/cucumber/authn-jwt/test-jwt1'
   """
+  And I successfully GET "authenticators/cucumber"
+  Then the authenticators list should not include "test-jwt1"
 
-  And I log out
-  #  The api should only return authenticators alice has read access too
+Scenario: Authenticator access control
+  When I save my place in the audit log file for remote
+
   When I login as "alice"
   When I successfully GET "authenticators/cucumber"
   Then I receive a count of 2
