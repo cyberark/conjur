@@ -6,6 +6,9 @@ DatabaseCleaner.strategy = :truncation
 
 # Intergration test for thr V@ authenticator API's
 describe AuthenticateController, type: :request do
+  let(:log_output) { StringIO.new }
+  let(:logger) { Logger.new(log_output) }
+
   before(:all) do
     # Start fresh
     DatabaseCleaner.clean_with(:truncation)
@@ -132,6 +135,7 @@ describe AuthenticateController, type: :request do
 
   describe '#find_authenticator' do
     before do
+      allow(Audit).to receive(:logger).and_return(Audit::Log::RubyAdapter.new(logger))
       apply_root_policy("rspec", policy_content: test_policy, expect_success: true)
     end
     context 'when user is an admin' do
@@ -139,12 +143,23 @@ describe AuthenticateController, type: :request do
         it "returns a 404" do
           retrieve_authenticators('/authenticators/rspec/authn-jwt/foo', current_user)
           expect(response.code).to eq('404')
+          expect(log_output.string).to include("conjur: rspec:user:admin failed to retrieve authn-jwt foo with URI path: '/authenticators/rspec/authn-jwt/foo': Authenticator: foo not found in account 'rspec'\n")
         end
       end
       context 'the authenticator is loaded in policy' do
         it "returns the authenticator" do
           retrieve_authenticators('/authenticators/rspec/authn-jwt/test-jwt1', current_user)
           expect(response.code).to eq('200')
+          expect(log_output.string).to include("conjur: rspec:user:admin successfully retrieved authn-jwt test-jwt1 with URI path: '/authenticators/rspec/authn-jwt/test-jwt1'\n")
+        end
+      end
+      context 'There is an unhandled error' do
+        before do 
+          allow_any_instance_of(DB::Repository::AuthenticatorRepository).to receive(:find).and_raise("test error") 
+        end
+        it 'creates an audit log for that error' do
+          expect {  retrieve_authenticators('/authenticators/rspec/authn-jwt/test-jwt1', current_user) }.to raise_error('test error')
+          expect(log_output.string).to include("conjur: rspec:user:admin failed to retrieve authn-jwt test-jwt1 with URI path: '/authenticators/rspec/authn-jwt/test-jwt1': test error\n")
         end
       end
       context 'When current user is not an admin' do
@@ -152,17 +167,23 @@ describe AuthenticateController, type: :request do
         it "returns the authenticator when there is visibility" do
           retrieve_authenticators('/authenticators/rspec/authn-oidc/keycloak', current_user)
           expect(response.code).to eq('200')
+          expect(log_output.string).to include("conjur: rspec:user:alice successfully retrieved authn-oidc keycloak with URI path: '/authenticators/rspec/authn-oidc/keycloak'\n")
         end
       end
     end
   end
+
   describe '#list_authenticators' do
+    before do
+      allow(Audit).to receive(:logger).and_return(Audit::Log::RubyAdapter.new(logger))
+    end
     context 'when user has permission' do
       context 'no authenticators are loaded' do
         it "returns empty list of authenticators" do
           retrieve_authenticators('/authenticators/rspec/', current_user)
           expect(response.code).to eq('200')
           expect(response.body).to eql('{"authenticators":[],"count":0}')
+          expect(log_output.string).to include("conjur: rspec:user:admin successfully listed authenticators with URI path: '/authenticators/rspec'\n")
         end
       end
       context 'When authenticators are loaded' do
@@ -173,25 +194,40 @@ describe AuthenticateController, type: :request do
           retrieve_authenticators('/authenticators/rspec/', current_user)
           expect(response.code).to eq('200')
           expect(JSON.parse(response.body)["count"]).to eql(2)
+          expect(log_output.string).to include("conjur: rspec:user:admin successfully listed authenticators with URI path: '/authenticators/rspec'\n")
         end
         context 'When you filter for oidc' do
           it "returns only the oidc authenticators" do
             retrieve_authenticators('/authenticators/rspec?type=authn-oidc', current_user)
             expect(response.code).to eq('200')
             expect(JSON.parse(response.body)["count"]).to eql(1)
+            expect(log_output.string).to include("conjur: rspec:user:admin successfully listed authenticators with URI path: '/authenticators/rspec'\n")
           end
         end
+      end
+    end
+    context 'There is an unhandled error' do
+      before do 
+        allow_any_instance_of(DB::Repository::AuthenticatorRepository).to receive(:find_all).and_raise("test error") 
+      end
+      it 'creates an audit log for that error' do
+        expect {  retrieve_authenticators('/authenticators/rspec?type=authn-oidc', current_user) }.to raise_error('test error')
+        expect(log_output.string).to include("conjur: rspec:user:admin failed to list authenticators with URI path: '/authenticators/rspec': test error\n")
       end
     end
   end
 
   describe '#authenticator_enablement' do
+    before do
+      allow(Audit).to receive(:logger).and_return(Audit::Log::RubyAdapter.new(logger))
+    end
     context 'when user has permission' do
       context 'no authenticators are loaded' do
         it "returns a 404" do
           enable_request("{ \"enabled\": true }", current_user, resource_id: 'authn-jwt/foo')
           expect(response.code).to eq('404')
           expect(response.body).to eql("{\"code\":\"404\",\"message\":\"Authenticator: authn-jwt/foo not found in account 'rspec'\"}")
+          expect(log_output.string).to include("rspec:user:admin failed to enable authn-jwt foo with URI path: '/authenticators/rspec/authn-jwt/foo'")
         end
       end
       context 'When authenticators are loaded' do
@@ -209,6 +245,22 @@ describe AuthenticateController, type: :request do
             enable_request("{ \"enabled\": false }", current_user)
             expect(response.code).to eq('200')
             expect(JSON.parse(response.body)["enabled"]).to eq(false)
+            expect(log_output.string).to include(
+              "conjur: rspec:user:admin successfully enabled authn-jwt test-jwt1 with URI path: '/authenticators/rspec/authn-jwt/test-jwt1' " \
+              "and JSON object: { \"enabled\": false }\n"
+            )
+          end
+        end
+        context 'There is an unhandled error' do
+          before do 
+            allow_any_instance_of(DB::Repository::AuthenticatorRepository).to receive(:find).and_raise("test error") 
+          end
+          it 'creates an audit log for that error' do
+            expect {  enable_request("{ \"enabled\": true }", current_user) }.to raise_error('test error')
+            expect(log_output.string).to include(
+              "conjur: rspec:user:admin failed to enable authn-jwt test-jwt1 with URI path: '/authenticators/rspec/authn-jwt/test-jwt1' " \
+              "and JSON object: { \"enabled\": true }: test error\n"
+            )
           end
         end
         context 'When current user is not an admin' do
@@ -218,6 +270,10 @@ describe AuthenticateController, type: :request do
               enable_request("{\"enabled\": true }", current_user)
               expect(response.code).to eq('200')
               expect(JSON.parse(response.body)["enabled"]).to eq(true)
+              expect(log_output.string).to include(
+                "conjur: rspec:user:alice successfully enabled authn-jwt test-jwt1 with URI path: '/authenticators/rspec/authn-jwt/test-jwt1' " \
+                "and JSON object: {\"enabled\": true }\n"
+              )
             end
           end
           context 'When current user does not have update permissions' do
@@ -225,6 +281,10 @@ describe AuthenticateController, type: :request do
               enable_request("{\"enabled\": true }", current_user, resource_id: "authn-oidc/keycloak")
               expect(response.code).to eq('403')
               expect(JSON.parse(response.body)["message"]).to eq("CONJ00006E 'alice' does not have 'update' privilege on rspec:webservice:conjur/authn-oidc/keycloak")
+              expect(log_output.string).to include( 
+                "conjur: rspec:user:alice failed to enable authn-oidc keycloak with URI path: '/authenticators/rspec/authn-oidc/keycloak' " \
+                "and JSON object: {\"enabled\": true }: CONJ00006E 'alice' does not have 'update' privilege on rspec:webservice:conjur/authn-oidc/keycloak\n"
+              )
             end
           end
         end
@@ -234,6 +294,7 @@ describe AuthenticateController, type: :request do
 
   describe '#create_authenticator' do
     before do
+      allow(Audit).to receive(:logger).and_return(Audit::Log::RubyAdapter.new(logger))
       apply_root_policy("rspec", policy_content: test_policy, expect_success: true)
     end
     context 'when user has permission' do
@@ -241,12 +302,28 @@ describe AuthenticateController, type: :request do
         create_request(current_user)
         expect(response.code).to eq('200')
         expect((JSON.parse(response.body)["name"])).to eql("test-jwt3")
+        expect(log_output.string).to include("conjur: rspec:user:admin successfully created jwt test-jwt3 with URI path: '/authenticators/rspec'")
       end
       context 'when the authenticator already exisit in the database' do
         it "returns a 409" do
           create_request(current_user, 'test-jwt1')
           expect(response.code).to eq('409')
           expect((JSON.parse(response.body)["message"])).to eql("The authenticator already exists.")
+          expect(log_output.string).to include(
+            " conjur: rspec:user:admin failed to create jwt test-jwt1 with URI path: '/authenticators/rspec' and JSON object: " \
+            "{\"type\":\"jwt\",\"name\":\"test-jwt1\",\"enabled\":false,\"data\":{\"jwks_uri\":\"http://uri\",\"identity\":" \
+            "{\"token_app_property\":\"prop\",\"enforced_claims\":[\"test\",\"123\"],\"claim_aliases\":{\"myclaim\":\"myvalue\",\"second\":\"two\"}}},\"annotations\":{\"test\":\"123\"}}: " \
+            "The authenticator already exists.\n"
+          )
+        end
+      end
+      context 'There is an unhandled error' do
+        before do 
+          allow_any_instance_of(DB::Repository::AuthenticatorRepository).to receive(:create).and_raise("test error") 
+        end
+        it 'creates an audit log for that error' do
+          expect {  create_request(current_user, 'test-jwt1') }.to raise_error('test error')
+          expect(log_output.string).to include("conjur: rspec:user:admin failed to create authenticator with URI path: '/authenticators/rspec'")
         end
       end
     end
@@ -255,6 +332,7 @@ describe AuthenticateController, type: :request do
       it "returns a 403" do
         create_request(current_user)
         expect(response.code).to eq('403')
+        expect(log_output.string).to include("conjur: rspec:user:alice failed to create authenticator with URI path: '/authenticators/rspec'")
       end
     end
   end

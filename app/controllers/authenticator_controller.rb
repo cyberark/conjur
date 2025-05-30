@@ -32,6 +32,10 @@ class AuthenticatorController < V2RestController
     return render(json: response.result) if response.success?
 
     handle_failure_response(response)
+  rescue => e
+    failure_audit('list', 'authenticators', e.message)
+    log_backtrace(e)
+    raise
   end
 
   def create_authenticator
@@ -51,6 +55,10 @@ class AuthenticatorController < V2RestController
     return render(json: response.result) if response.success?
 
     handle_failure_response(response)
+  rescue => e
+    failure_audit('create', 'authenticator', e.message)
+    log_backtrace(e)
+    raise e
   end
 
   def find_authenticator
@@ -64,6 +72,10 @@ class AuthenticatorController < V2RestController
     return render(json: response.result.to_h) if response.success?
 
     handle_failure_response(response)
+  rescue => e
+    failure_audit('get', relevant_params[:type], e.message,  resource_id: relevant_params[:service_id])
+    log_backtrace(e)
+    raise
   end
 
   def authenticator_enablement
@@ -78,6 +90,10 @@ class AuthenticatorController < V2RestController
     return render(json: response.result.to_h) if response.success?
   
     handle_failure_response(response)
+  rescue => e
+    failure_audit('enable', relevant_params[:type], e.message, resource_id: relevant_params[:service_id])
+    log_backtrace(e)
+    raise
   end
 
   def delete_authenticator
@@ -108,8 +124,9 @@ class AuthenticatorController < V2RestController
 
     handle_failure_response(response)
   rescue => e
+    failure_audit('delete', relevant_params[:type], e.message, resource_id: relevant_params[:service_id])
     log_backtrace(e)
-    raise e
+    raise
   end
 
   private
@@ -287,6 +304,16 @@ class AuthenticatorController < V2RestController
       "The #{param} parameter must be of type=#{type}",
       status: :unprocessable_entity,
       exception: BadRequestWithBody
+    )
+  end
+
+  def failure_audit(operation, resource_type, error, resource_id: '')
+    audit_event(
+      operation,
+      resource_type,
+      resource_id,
+      req.present? ? req : nil,
+      error
     )
   end
 
