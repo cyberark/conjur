@@ -357,6 +357,56 @@ describe PoliciesController, type: :request do
       YAML
     end
 
+    let(:various_resource_conflicts_yaml) do
+      <<~YAML
+        - !policy
+          id: some-policy
+          annotations:
+            id: "should warn"
+          body:
+            - !group
+              id: some-group
+              annotations:
+                restricted_to: "also should warn"
+            - !host
+              id: some-host
+              annotations:
+                privileges: "also also should warn"
+            - !user
+              id: some-user
+              annotations:
+                member: "also also also should warn"
+            - !variable
+              id: some-variable
+              annotations:
+                owner: "also also also also should warn"
+      YAML
+    end
+
+    let(:mixed_conflicts_yaml) do
+      <<~YAML
+        - !policy
+          id: test-policy
+          body:
+            - !user
+              id: user1
+              annotations:
+                member: "should warn"
+            - !user
+              id: user2
+              annotations:
+                description: "safe"
+            - !variable
+              id: var1
+              annotations:
+                owner: "should warn"
+            - !variable
+              id: var2
+              annotations:
+                something_else: "safe"
+      YAML
+    end
+
     def request_env(role: 'admin')
       { 'HTTP_AUTHORIZATION' => access_token_for(role), "Content-Type" => "application/x-yaml" }
     end
@@ -404,31 +454,7 @@ describe PoliciesController, type: :request do
     end
 
     it "returns warnings for annotation conflicts on various resource types" do
-      yaml = <<~YAML
-        - !policy
-          id: some-policy
-          annotations:
-            id: "should warn"
-          body:
-            - !group
-              id: some-group
-              annotations:
-                restricted_to: "also should warn"
-            - !host
-              id: some-host
-              annotations:
-                privileges: "also also should warn"
-            - !user
-              id: some-user
-              annotations:
-                member: "also also also should warn"
-            - !variable
-              id: some-variable
-              annotations:
-                owner: "also also also also should warn"
-      YAML
-
-      post "/policies/rspec/policy/root", params: yaml, env: request_env
+      post "/policies/rspec/policy/root", params: various_resource_conflicts_yaml, env: request_env
       expect(response).to have_http_status(:created).or have_http_status(:ok)
       body = JSON.parse(response.body)
       expect(body["warnings"]).to include(
@@ -439,30 +465,9 @@ describe PoliciesController, type: :request do
         a_string_matching(/Annotation 'owner'/)
       )
     end
-    it "returns warnings only for resources with conflicting annotation names" do
-      yaml = <<~YAML
-        - !policy
-          id: test-policy
-          body:
-            - !user
-              id: user1
-              annotations:
-                member: "should warn"
-            - !user
-              id: user2
-              annotations:
-                description: "safe"
-            - !variable
-              id: var1
-              annotations:
-                owner: "should warn"
-            - !variable
-              id: var2
-              annotations:
-                something_else: "safe"
-      YAML
 
-      post "/policies/rspec/policy/root", params: yaml, env: request_env
+    it "returns warnings only for resources with conflicting annotation names" do
+      post "/policies/rspec/policy/root", params: mixed_conflicts_yaml, env: request_env
       expect(response).to have_http_status(:created).or have_http_status(:ok)
       body = JSON.parse(response.body)
       expect(body["warnings"]).to include(
