@@ -70,10 +70,6 @@ module AuthenticatorsV2
     def variable_prefix
       "#{@account}:variable:conjur/#{identifier}"
     end
-    
-    def variable_map
-      variables
-    end
 
     def enabled
       return @enabled unless @enabled.nil?

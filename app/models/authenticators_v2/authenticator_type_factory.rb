@@ -102,8 +102,9 @@ module AuthenticatorsV2
     def format_variables(auth_dict)
       return unless auth_dict[:variables]&.key?(:identity)
 
-      identity_vars = process_identity_variables(auth_dict[:variables][:identity])
-      auth_dict[:variables] = auth_dict[:variables].merge(identity_vars)
+      auth_dict[:variables][:identity] = process_identity_variables(
+        auth_dict[:variables][:identity]
+      )
     end
 
     def long_type(type)

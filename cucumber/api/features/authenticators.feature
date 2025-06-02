@@ -205,6 +205,31 @@ Scenario: list authenticators using the V2 Api.
     }
   }
   """
+
+  Then the JSON should be:
+  """
+  {
+    "type": "jwt",
+    "name": "test-jwt3",
+    "branch": "conjur/authn-jwt",
+    "enabled": false,
+    "data": {
+      "jwks_uri": "http://uri",
+      "identity": {
+        "token_app_property": "prop",
+        "enforced_claims": [ "test", "123" ],
+        "claim_aliases": { "myclaim": "myvalue", "second": "two" }
+      }
+    },
+    "owner": {
+      "id": "conjur/authn-jwt/test-jwt3",
+      "kind": "policy"
+    },
+    "annotations": {
+      "test": "123"
+    }
+  }
+  """
   Then there is an audit record matching:
   """
   cucumber:user:admin successfully created jwt test-jwt3 with URI path: '/authenticators/cucumber'
