@@ -233,11 +233,32 @@ describe Conjur::ConjurConfig do
       expect { subject }
         .to_not raise_error(/boop/)
       expect { subject }
-        .to_not raise_error(/invalid-authn/)
-      expect { subject }
         .to_not raise_error(/beep/)
       expect { subject }
         .to_not raise_error(/boop/)
+    end
+  end
+
+  describe "validation of authenticators includes suggestion" do
+    let(:config_kwargs) do
+      {
+        authenticators: "jam"
+      }
+    end
+
+    it "raises error when validation fails" do
+      expect { subject }
+        .to raise_error(Conjur::ConfigValidationError)
+    end
+
+    it "includes the attributes that failed validation" do
+      expect { subject }
+        .to raise_error(/authenticators/)
+    end
+
+    it "includes the suggested corrected authenticators that failed validation" do
+      expect { subject }
+        .to raise_error(/iam/)
     end
   end
 

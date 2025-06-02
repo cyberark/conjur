@@ -93,9 +93,10 @@ module Conjur
       invalid = []
 
       invalid << "trusted_proxies" unless trusted_proxies_valid?
-      invalid << "authenticators" unless authenticators_valid?
       invalid << "telemetry_enabled" unless telemetry_enabled_valid?
       invalid << "authn_jwt_ignore_missing_issuer_claim" unless authn_jwt_ignore_missing_issuer_claim_valid?
+      authenticators_invalid = authenticators_error_messages
+      invalid << "authenticators: #{authenticators_invalid.join('\n')}" unless authenticators_invalid.empty?
 
       unless invalid.empty?
         msg = "Invalid values for configured attributes: #{invalid.join(',')}"
@@ -229,17 +230,23 @@ module Conjur
       false
     end
 
-    def authenticators_valid?
+    def authenticators_error_messages
       # TODO: Ideally we would check against the enabled authenticators
       # in the DB. However, we need to figure out how to use code from the
       # application without introducing warnings.
       authenticators_regex =
         %r{^(authn|authn-(k8s|oidc|iam|ldap|gcp|jwt|azure)(/.+)?)$}
-      authenticators.all? do |authenticator|
-        authenticators_regex.match?(authenticator.strip)
-      end
+      authen_checker = DidYouMean::SpellChecker.new(dictionary:
+        %w[authn authn-k8s oidc iam ldap gcp jwt azure])
+
+      authenticators.filter_map { |auth|
+        unless authenticators_regex.match?(auth.strip)
+          "'#{auth}' is not a valid authenticator type. "\
+          "Did you mean '#{authen_checker.correct(auth)[0]}'?"   
+        end
+        }
     rescue
-      false
+      []
     end
 
     def telemetry_enabled_valid?
