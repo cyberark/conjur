@@ -4,12 +4,15 @@
 # host factory tokens for authorization.
 class HostFactoriesController < ApplicationController
   include BodyParser
+  include FindResource
 
   before_action :validate_token
 
   # Ask the host factory to create a host.
   # This requires the host factory's token in the Authorization header.
   def create_host
+    raise(ArgumentError, "Invalid resource kind: #{hf_token.resource.kind}") unless hf_token.resource.kind == 'host_factory'
+
     host, api_key = do_create_host
     response = host.as_json
     response['api_key'] = api_key

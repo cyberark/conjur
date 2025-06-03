@@ -47,7 +47,9 @@ module Conjur
       # When retrieving secrets in batch, how many dynamic secrets are allowed
       # in a single request. This is limited because these require additional
       # network calls and are significantly slower to retrieve.
-      dynamic_secrets_per_request_max: 10
+      dynamic_secrets_per_request_max: 10,
+      # Host factory operation can be disabled entirely
+      host_factories_enabled: true
     )
 
     def initialize(

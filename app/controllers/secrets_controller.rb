@@ -19,6 +19,8 @@ class SecretsController < RestController
   end
 
   def create
+    raise(ArgumentError, "Invalid secret kind: #{resource.kind}") unless %w[variable public_key].include?(resource.kind)
+
     authorize(:update)
 
     if @feature_flags.enabled?(:dynamic_secrets) && dynamic_secret?
