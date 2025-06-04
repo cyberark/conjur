@@ -43,7 +43,9 @@ module Conjur
       policy_factories_path: 'conjur/factories',
       effective_policy_max_depth: 64,
       effective_policy_max_limit: 100000,
-      authn_jwt_ignore_missing_issuer_claim: false
+      authn_jwt_ignore_missing_issuer_claim: false,
+      # Host factory operation can be disabled entirely
+      host_factories_enabled: true
     )
 
     def initialize(
@@ -233,7 +235,7 @@ module Conjur
         %r{^(authn|authn-(k8s|oidc|iam|ldap|gcp|jwt|azure)(/.+)?)$}
       authenticators.all? do |authenticator|
         authenticators_regex.match?(authenticator.strip)
-      end
+        end
     rescue
       false
     end

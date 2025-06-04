@@ -198,3 +198,22 @@ Feature: Adding and fetching secrets
     """
     When I GET "/secrets/cucumber/variable/probe?version=1"
     Then the HTTP response status code is 404
+
+  @negative @acceptance
+  Scenario: When creating a secret, the kind must be variable.
+    Given I save my place in the audit log file for remote
+    And I create a new "group" resource called "test-group"
+    When I POST "/secrets/cucumber/group/test-group" with body:
+    """
+    value
+    """
+    Then the HTTP response status code is 422
+    And there is an audit record matching:
+    """
+      <84>1 * * conjur * update
+      [auth@43868 user="cucumber:user:eve"]
+      [subject@43868 resource="cucumber:group:test-group"]
+      [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
+      [action@43868 result="failure" operation="update"]
+      cucumber:user:eve tried to update cucumber:group:test-group: Invalid secret kind: group
+    """

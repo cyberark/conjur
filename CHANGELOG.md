@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [1.21.4] - 2025-01-13
 ### Security
+- Improves host factory token validation to prevent creation without proper kind and id, and
+  secret validation to prevent creation unless it is of variable kind. CONJSE-2011
 - Update rack to 2.2.13 to address CVE-2025-27610.
   CONJSE-1956
 - Update nokogiri to 1.18.4 to address GHSA-mrxw-mxhj-p664.

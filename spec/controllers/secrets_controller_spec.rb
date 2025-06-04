@@ -66,6 +66,8 @@ describe SecretsController, type: :request do
         .and_return({ resource: secret_resource_id })
 
       allow(resource_double).to receive(:enforce_secrets_version_limit)
+
+      allow(resource_double).to receive(:kind).and_return('variable')
     end
   end
 

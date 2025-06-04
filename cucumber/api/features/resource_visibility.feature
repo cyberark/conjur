@@ -108,13 +108,13 @@ Feature: Rules which govern the visibility of resources to roles.
     If the user doesn't have any permission or ownership of a secret, fetching
     it should return 404 (not 403) even if it exists.
 
-    Given I create a new resource called "probe"
-    And I successfully POST "/secrets/cucumber/test-resource/probe" with body:
+    Given I create a new "variable" resource called "probe"
+    And I successfully POST "/secrets/cucumber/variable/probe" with body:
     """
     v-1
     """
     And I create a new user "alice"
 
     When I login as "alice"
-    And I GET "/secrets/cucumber/test-resource/probe"
+    And I GET "/secrets/cucumber/variable/probe"
     Then the HTTP response status code is 404

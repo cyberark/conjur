@@ -22,6 +22,7 @@ describe Conjur::ConjurConfig do
     expect(subject.trusted_proxies).to eq([])
     expect(subject.telemetry_enabled).to eq(false)
     expect(subject.authn_jwt_ignore_missing_issuer_claim).to eq(false)
+    expect(subject.host_factories_enabled).to eq(true)
   end
 
   it "reports the attribute source as :defaults" do
@@ -30,6 +31,8 @@ describe Conjur::ConjurConfig do
     expect(subject.attribute_sources[:telemetry_enabled])
       .to eq(:defaults)
     expect(subject.attribute_sources[:authn_jwt_ignore_missing_issuer_claim])
+      .to eq(:defaults)
+    expect(subject.attribute_sources[:host_factories_enabled])
       .to eq(:defaults)
   end
 
@@ -40,6 +43,7 @@ describe Conjur::ConjurConfig do
           - 1.2.3.4
         telemetry_enabled: true
         authn_jwt_ignore_missing_issuer_claim: true
+        host_factories_enabled: true
       YAML
     end
 
@@ -68,6 +72,7 @@ describe Conjur::ConjurConfig do
       expect(subject.trusted_proxies).to eq(["1.2.3.4"])
       expect(subject.telemetry_enabled).to eq(true)
       expect(subject.authn_jwt_ignore_missing_issuer_claim).to eq(true)
+      expect(subject.host_factories_enabled).to eq(true)
     end
 
     it "reports the attribute source as :yml" do
@@ -76,6 +81,8 @@ describe Conjur::ConjurConfig do
       expect(subject.attribute_sources[:telemetry_enabled])
         .to eq(:yml)
       expect(subject.attribute_sources[:authn_jwt_ignore_missing_issuer_claim])
+        .to eq(:yml)
+      expect(subject.attribute_sources[:host_factories_enabled])
         .to eq(:yml)
     end
 
@@ -137,6 +144,7 @@ describe Conjur::ConjurConfig do
         ENV['CONJUR_TRUSTED_PROXIES'] = "5.6.7.8"
         ENV['CONJUR_TELEMETRY_ENABLED'] = "false"
         ENV['CONJUR_AUTHN_JWT_IGNORE_MISSING_ISSUER_CLAIM'] = "false"
+        ENV['CONJUR_HOST_FACTORIES_ENABLED'] = "true"
 
         # Anyway Config caches prefixed env vars at the class level so we must
         # clear the cache to have it pick up the new var with a reload.
@@ -147,6 +155,7 @@ describe Conjur::ConjurConfig do
         ENV.delete('CONJUR_TRUSTED_PROXIES')
         ENV.delete('CONJUR_TELEMETRY_ENABLED')
         ENV.delete('CONJUR_AUTHN_JWT_IGNORE_MISSING_ISSUER_CLAIM')
+        ENV.delete('CONJUR_HOST_FACTORIES_ENABLED')
 
         # Clear again to make sure we don't affect future tests.
         Anyway.env.clear
@@ -156,6 +165,7 @@ describe Conjur::ConjurConfig do
         expect(subject.trusted_proxies).to eq(["5.6.7.8"])
         expect(subject.telemetry_enabled).to eq(false)
         expect(subject.authn_jwt_ignore_missing_issuer_claim).to eq(false)
+        expect(subject.host_factories_enabled).to eq(true)
       end
 
       it "reports the attribute source as :env" do
@@ -164,6 +174,8 @@ describe Conjur::ConjurConfig do
         expect(subject.attribute_sources[:telemetry_enabled])
           .to eq(:env)
         expect(subject.attribute_sources[:authn_jwt_ignore_missing_issuer_claim])
+          .to eq(:env)
+        expect(subject.attribute_sources[:host_factories_enabled])
           .to eq(:env)
       end
     end
