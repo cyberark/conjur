@@ -1,0 +1,4 @@
+d7e23f7c5c7f945224f9a5c22ac2e7d5263b1946:spec/app/domain/authentication/authn_iam/authenticator_spec.rb:generic-api-key:14
+d7e23f7c5c7f945224f9a5c22ac2e7d5263b1946:spec/app/domain/authentication/authn_iam/authenticator_spec.rb:aws-access-token:14
+d7e23f7c5c7f945224f9a5c22ac2e7d5263b1946:spec/fixtures/vcr_cassettes/authenticators/authn-iam/invalid-regional-headers-no-host.yml:aws-access-token:11
+d7e23f7c5c7f945224f9a5c22ac2e7d5263b1946:spec/fixtures/vcr_cassettes/authenticators/authn-iam/invalid-regional-headers-no-host.yml:generic-api-key:12
