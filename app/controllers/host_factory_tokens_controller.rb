@@ -8,6 +8,8 @@ class HostFactoryTokensController < RestController
   before_action :find_token, only: [ :destroy ]
 
   def create
+    raise(ArgumentError, "Invalid resource kind: #{resource.kind}") unless resource.kind == 'host_factory'
+
     authorize(:execute)
 
     (expiration = params.delete(:expiration)) || raise(ArgumentError, "expiration")

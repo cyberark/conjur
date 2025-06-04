@@ -66,3 +66,12 @@ Feature: Create a host factory token.
     Then the HTTP response status code is 422
     And there is an error
     And the error message is "Invalid IP address or CIDR range '1.895.abc.0/32'"
+
+  @negative @acceptance
+  Scenario: A host factory token cannot be created on resource which is not a host factory
+    Given I login as "alice"
+    And I create a new "group" resource called "test-group"
+    When I POST "/host_factory_tokens?host_factory=cucumber:group:test-group&expiration=2050-12-31" with in-body params
+    Then the HTTP response status code is 422
+    And there is an error
+    And the error message is "Invalid resource kind: group"

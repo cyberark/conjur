@@ -44,7 +44,7 @@ Feature: Host Factories can be managed through policies.
           layers: [ !layer ../default ]
       """
     Then there's an error
-    And the error code is "not_found"
+    And the error code is "policy_invalid"
     And the error message is "Layer 'myapp/../default' not found in account 'cucumber'"
 
   @acceptance

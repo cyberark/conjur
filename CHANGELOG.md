@@ -9,7 +9,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
-## [1.22.0] - 2025-01-13
+## [1.22.1] - 2025-05-02
+### Security
+- Improves host factory token validation to prevent creation without proper kind and id, and
+  secret validation to prevent creation unless it is of variable kind. CONJSE-2011
+- Update simpleidn to 0.2.3. CNJR-9498
+- Update rack to 2.2.14 to address CVE-2025-46727. CONJSE-2001
+- Upgrade net-imap to 0.5.8 or later to address CVE-2025-43857. CONJSE-2005
+- Improve AWS IAM STS region validation to prevent using a region that is not supported. CONJSE-2008
+
+## [1.22.0] - 2025-04-02
 
 ### Added
 - Added the dynamic secrets Issuers API and data model. CNJR-7828
@@ -20,6 +29,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Attempt to authenticate using the built-in authenticator (`authn`) with a GET
   request now results in a `404` response, rather than logging an authenticator
   not enabled message. CNJR-5854
+- Attempt to load a policy that references a non-existent resource now
+  results in a `422` response, rather than a `404` error. CNJR-9122
 - Set the default and maximal limit value for resources list API to 1000 in order
   to align with the documentation. CNJR-8485
 - Ensure Kubernetes authenticator websocket connections are closed when a
