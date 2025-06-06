@@ -20,7 +20,7 @@ Rails.application.routes.draw do
       resources :accounts, only: [ :create, :index, :destroy ]
     end
 
-    constraints account: /[^\/?]+/ do
+    constraints account: /[^(%2F)\/]+/ do
       constraints authenticator: /authn-?[^\/]*/, id: /[^\/?]+/ do
         get '/authn-jwt/:service_id/:account/status' => 'authenticate#authn_jwt_status'
         get '/:authenticator(/:service_id)/:account/status' => 'authenticate#status'
@@ -99,10 +99,10 @@ Rails.application.routes.draw do
       post    "/secrets/:account/:kind/*identifier" => 'secrets#create'
       get     "/secrets"                            => 'secrets#batch'
 
-      get     "/policies/:account/:kind/*identifier" => 'policies#get'
-      put     "/policies/:account/:kind/*identifier" => 'policies#put'
-      patch   "/policies/:account/:kind/*identifier" => 'policies#patch'
-      post    "/policies/:account/:kind/*identifier" => 'policies#post'
+      get     "/policies/:account/:kind/*identifier" => 'policies#get', constraints: { kind: /policy/ }
+      put     "/policies/:account/:kind/*identifier" => 'policies#put', constraints: { kind: /policy/ }
+      patch   "/policies/:account/:kind/*identifier" => 'policies#patch', constraints: { kind: /policy/ }
+      post    "/policies/:account/:kind/*identifier" => 'policies#post', constraints: { kind: /policy/ }
 
       get     "/public_keys/:account/:kind/*identifier" => 'public_keys#show'
 

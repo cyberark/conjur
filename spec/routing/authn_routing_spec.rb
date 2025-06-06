@@ -21,4 +21,15 @@ describe "routing for authentication", :type => :routing do
       action: 'update_password'
     )
   end
+
+  it 'routes POST /authn-k8s/meow/rspec/host%2Fh-618b9d046c6a9ab192994f17/authenticate to authenticate#authenticate' do
+    expect(post: '/authn-k8s/meow/rspec/host%2Fh-618b9d046c6a9ab192994f17/authenticate').to route_to(
+      controller: 'authenticate',
+      action: 'authenticate',
+      service_id: 'meow',
+      authenticator: 'authn-k8s',
+      id: 'host/h-618b9d046c6a9ab192994f17',
+      account: 'rspec'
+    )
+  end
 end
