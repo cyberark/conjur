@@ -19,8 +19,6 @@ class SecretsController < RestController
   end
 
   def create
-    raise(ArgumentError, "Invalid secret kind: #{resource.kind}") unless %w[variable public_key].include?(resource.kind)
-
     authorize(:update)
 
     if @feature_flags.enabled?(:dynamic_secrets) && dynamic_secret?
@@ -188,6 +186,8 @@ class SecretsController < RestController
   #       correctness in this case.
   #
   def expire
+    raise(ArgumentError, "Invalid secret kind: #{params[:kind]}") unless params[:kind] == 'variable'
+
     authorize(:update)
     Secret.update_expiration(resource.id, nil)
     head(:created)

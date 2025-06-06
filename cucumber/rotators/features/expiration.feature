@@ -26,6 +26,12 @@ Feature: Manually expiring a rotating variable
     And I add the value "secret" to variable "db-reports/password"
     And I create a db user "test" with password "secret"
 
+  @smoke @negative
+  Scenario: Cannot expire a resource of invalid kind
+    And I login as "admin"
+    And I POST "/secrets/cucumber/policy/db-reports/password?expirations"
+    Then the HTTP response status code is 422
+
   @smoke
   Scenario: Expiring causes the secret to change
 

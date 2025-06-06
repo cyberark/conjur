@@ -108,8 +108,8 @@ Rails.application.routes.draw do
       #       route to come first.
       post    "/secrets/:account/:kind/*identifier" => "secrets#expire",
               :constraints => QueryParameterActionRecognizer.new("expirations")
-      get     "/secrets/:account/:kind/*identifier" => 'secrets#show'
-      post    "/secrets/:account/:kind/*identifier" => 'secrets#create'
+      get     "/secrets/:account/:kind/*identifier" => 'secrets#show', constraints: { kind: /variable/ }
+      post    "/secrets/:account/:kind/*identifier" => 'secrets#create', constraints: { kind: /variable|public_key|user|host|layer|group|policy|webservice/ }
       get     "/secrets"                            => 'secrets#batch'
 
       get     "/policies/:account/:kind/*identifier" => 'policies#get', constraints: { kind: /policy/ }
