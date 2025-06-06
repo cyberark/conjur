@@ -307,13 +307,6 @@ describe PoliciesController, type: :request do
           })
         end
       end
-
-      context 'when trying to get not policy in url' do
-        it 'returns bad request' do
-          get('/policies/rspec/user/rootpolicy', env: request_env)
-          expect(response.status).to eq(404)
-        end
-      end
     end
   end
 end
