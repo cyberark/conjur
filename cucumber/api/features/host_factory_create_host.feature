@@ -57,3 +57,20 @@ Feature: Create a host using the host factory.
     Given I authorize the request with the host factory token
     When I POST "/host_factories/hosts"
     Then the HTTP response status code is 422
+
+  @negative @acceptance
+  Scenario: Fail to create a host with an id starting with "conjur" or "/conjur"
+
+    Given I authorize the request with the host factory token
+    When I POST "/host_factories/hosts?id=conjur/factories/malicious-template"
+    Then the HTTP response status code is 422
+    Then our JSON should be:
+    """
+    {"error": {"code": "argument_error", "message": "Invalid id: conjur/factories/malicious-template"}}
+    """
+    When I POST "/host_factories/hosts?id=/conjur/factories/malicious-template"
+    Then the HTTP response status code is 422
+    Then our JSON should be:
+    """
+    {"error": {"code": "argument_error", "message": "Invalid id: /conjur/factories/malicious-template"}}
+    """
