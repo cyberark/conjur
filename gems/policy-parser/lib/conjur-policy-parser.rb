@@ -14,7 +14,6 @@ end
 require 'conjur/policy/logger'
 require 'conjur/policy/invalid'
 require 'conjur/policy/types/base'
-require 'conjur/policy/types/include'
 require 'conjur/policy/types/records'
 require 'conjur/policy/types/delete'
 require 'conjur/policy/types/member'

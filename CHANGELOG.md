@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [1.22.1] - 2025-05-02
 ### Security
+- Remove support for !include policy syntax in the policy parser. CONJSE-2019
+- Block ability to create hosts in conjur branch in hosts factories. CONJSE-2015
+- Add kind validation to all APIs. CONJSE-2018
 - Improves host factory token validation to prevent creation without proper kind and id, and
   secret validation to prevent creation unless it is of variable kind. CONJSE-2011
 - Update simpleidn to 0.2.3. CNJR-9498

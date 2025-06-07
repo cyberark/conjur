@@ -17,9 +17,6 @@ class PoliciesController < RestController
 
   def get
     action = :read
-    unless params[:kind] == 'policy'
-      raise Errors::EffectivePolicy::PathParamError, params[:kind]
-    end
 
     authorize_ownership
 

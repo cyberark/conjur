@@ -12,31 +12,31 @@ describe "routing for resources" do
   end
 
   it "routes GET /resources/:account/:kind to resources#index" do
-    expect(get: '/resources/the-account/chunky').to route_to(
+    expect(get: '/resources/the-account/public_key').to route_to(
       account: 'the-account',
       controller: 'resources',
       action: 'index',
-      kind: 'chunky'
+      kind: 'public_key'
     )
   end
 
   it "routes GET /resources/:account/:kind/:identifier?check to resources#check_permission" do
-    expect(get: '/resources/the-account/foo/bar/baz?check').to route_to(
+    expect(get: '/resources/the-account/webservice/bar/baz?check').to route_to(
       account: 'the-account',
       controller: 'resources',
       action: 'check_permission',
-      kind: 'foo',
+      kind: 'webservice',
       identifier: 'bar/baz',
       check: nil
     )
   end
 
   it "routes GET /resources/:account/:kind/:identifier?permitted_roles to resources#permitted_roles" do
-    expect(get: '/resources/the-account/foo/bar/baz?permitted_roles&privilege=fry').to route_to(
+    expect(get: '/resources/the-account/user/bar/baz?permitted_roles&privilege=fry').to route_to(
       account: 'the-account',
       controller: 'resources',
       action: 'permitted_roles',
-      kind: 'foo',
+      kind: 'user',
       privilege: 'fry',
       identifier: 'bar/baz',
       permitted_roles: nil
@@ -44,12 +44,16 @@ describe "routing for resources" do
   end
 
   it "routes GET /resources/:account/:kind/:resource to resources#show" do
-    expect(get: '/resources/the-account/foo/bar').to route_to(
+    expect(get: '/resources/the-account/variable/bar').to route_to(
       account: 'the-account',
       controller: 'resources',
       action: 'show',
-      kind: 'foo',
+      kind: 'variable',
       identifier: 'bar'
     )
+  end
+
+  it "does not route GET /resources/:account/:kind/:identifier for invalid kind" do
+    expect(get: '/resources/the-account/invalid_kind/bar').not_to be_routable
   end
 end
