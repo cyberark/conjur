@@ -6,7 +6,7 @@ Feature: Check whether a role has a privilege on a resource
 
   Background:
     Given I am a user named "charlie"
-    Given I create a new "chunky" resource called "bacon"
+    Given I create a new "policy" resource called "bacon"
     And I create a new user "bob"
     And I permit user "bob" to "fry" it
 
@@ -15,7 +15,7 @@ Feature: Check whether a role has a privilege on a resource
     If a role is granted a privilege on a resource, then a permission check will pass.
 
     Given I save my place in the audit log file for remote
-    Then I can GET "/resources/cucumber/chunky/bacon" with parameters:
+    Then I can GET "/resources/cucumber/policy/bacon" with parameters:
     """
     check: true
     privilege: fry
@@ -24,10 +24,10 @@ Feature: Check whether a role has a privilege on a resource
     """
       <86>1 * * conjur * check
       [auth@43868 user="cucumber:user:charlie"]
-      [subject@43868 resource="cucumber:chunky:bacon" role="cucumber:user:charlie" privilege="fry"]
+      [subject@43868 resource="cucumber:policy:bacon" role="cucumber:user:charlie" privilege="fry"]
       [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
       [action@43868 result="success" operation="check"]
-      cucumber:user:charlie successfully checked if they can fry cucumber:chunky:bacon
+      cucumber:user:charlie successfully checked if they can fry cucumber:policy:bacon
     """
 
   @smoke
@@ -35,7 +35,7 @@ Feature: Check whether a role has a privilege on a resource
     If a role is granted a privilege on a resource, then a permission check will pass.
 
     Given I save my place in the audit log file for remote
-    Then I can GET "/resources/cucumber/chunky/bacon" with parameters:
+    Then I can GET "/resources/cucumber/policy/bacon" with parameters:
     """
     check: true
     role: cucumber:user:bob
@@ -45,10 +45,10 @@ Feature: Check whether a role has a privilege on a resource
     """
       <86>1 * * conjur * check
       [auth@43868 user="cucumber:user:charlie"]
-      [subject@43868 resource="cucumber:chunky:bacon" role="cucumber:user:bob" privilege="fry"]
+      [subject@43868 resource="cucumber:policy:bacon" role="cucumber:user:bob" privilege="fry"]
       [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
       [action@43868 result="success" operation="check"]
-      cucumber:user:charlie successfully checked if cucumber:user:bob can fry cucumber:chunky:bacon
+      cucumber:user:charlie successfully checked if cucumber:user:bob can fry cucumber:policy:bacon
     """
 
   @smoke
@@ -56,7 +56,7 @@ Feature: Check whether a role has a privilege on a resource
     If a role is not granted a privilege, then a permission check will fail.
 
     Given I save my place in the audit log file for remote
-    When I GET "/resources/cucumber/chunky/bacon" with parameters:
+    When I GET "/resources/cucumber/policy/bacon" with parameters:
     """
     check: true
     role: cucumber:user:bob
@@ -67,10 +67,10 @@ Feature: Check whether a role has a privilege on a resource
     """
       <84>1 * * conjur * check
       [auth@43868 user="cucumber:user:charlie"]
-      [subject@43868 resource="cucumber:chunky:bacon" role="cucumber:user:bob" privilege="freeze"]
+      [subject@43868 resource="cucumber:policy:bacon" role="cucumber:user:bob" privilege="freeze"]
       [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
       [action@43868 result="failure" operation="check"]
-      cucumber:user:charlie failed to check if cucumber:user:bob can freeze cucumber:chunky:bacon
+      cucumber:user:charlie failed to check if cucumber:user:bob can freeze cucumber:policy:bacon
     """
 
   @smoke
@@ -80,7 +80,7 @@ Feature: Check whether a role has a privilege on a resource
     has a privilege on some resource.
 
     When I login as "bob"
-    Then I can GET "/resources/cucumber/chunky/bacon" with parameters:
+    Then I can GET "/resources/cucumber/policy/bacon" with parameters:
     """
     check: true
     privilege: fry
@@ -90,7 +90,7 @@ Feature: Check whether a role has a privilege on a resource
   Scenario: I confirm that the non-existing role permission check will fail
     If a role is not existing, then a permission check will fail.
 
-    When I GET "/resources/cucumber/chunky/bacon" with parameters:
+    When I GET "/resources/cucumber/policy/bacon" with parameters:
     """
     check: true
     role: cucumber:user:bob-not-exists
@@ -103,7 +103,7 @@ Feature: Check whether a role has a privilege on a resource
 
     If permission check is for not existing variable it will fail.
 
-    When I GET "/resources/cucumber/chunky/bacon-not-exists" with parameters:
+    When I GET "/resources/cucumber/policy/bacon-not-exists" with parameters:
     """
     check: true
     role: cucumber:user:bob
@@ -115,8 +115,8 @@ Feature: Check whether a role has a privilege on a resource
   Scenario: I confirm that the role cannot perform actions on resources it doesn't have permission
 
   If a role is not granted a permission, then a permission check will fail.
-    When I create a new "chunky" resource called "bacon-no-permissions"
-    And I GET "/resources/cucumber/chunky/bacon-no-permissions" with parameters:
+    When I create a new "policy" resource called "bacon-no-permissions"
+    And I GET "/resources/cucumber/policy/bacon-no-permissions" with parameters:
     """
     check: true
     role: cucumber:user:bob

@@ -102,6 +102,28 @@ Feature: Create a new account
     """
     And I can authenticate with the admin API key for the account "new_account@example.com"
 
+  @acceptance @negative
+  Scenario: An account cannot be created with a '/' in its name
+    Given I create a new user "admin" in account "!"
+    And I permit role "!:user:admin" to "execute" resource "!:webservice:accounts"
+    And I login as "!:user:admin"
+    Then I POST "/accounts" with body:
+    """
+    id=new/account
+    """
+    Then the HTTP response status code is 422
+
+  @acceptance @negative
+  Scenario: An account cannot be created with a encoded slash in its name
+    Given I create a new user "admin" in account "!"
+    And I permit role "!:user:admin" to "execute" resource "!:webservice:accounts"
+    And I login as "!:user:admin"
+    Then I POST "/accounts" with body:
+    """
+    id=new%2Faccount
+    """
+    Then the HTTP response status code is 422
+
   @negative @acceptance
   Scenario: Creating account with : or space in the name fails
 

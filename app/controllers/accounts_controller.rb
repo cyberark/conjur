@@ -13,6 +13,8 @@ class AccountsController < ApplicationController
   def create
     authorize(:execute)
 
+
+
     api_key = Account.create(account_name, current_user.role_id)
 
     render(json: { id: account_name, api_key: api_key }, status: :created)
@@ -35,6 +37,8 @@ class AccountsController < ApplicationController
   def account_name
     # Rails 5 requires parameters to be explicitly permitted before converting 
     # to Hash.  See: https://stackoverflow.com/a/46029524
-    params.permit(:id)[:id]
+    name = params.permit(:id)[:id]
+    raise(ArgumentError, "Invalid account: #{name}") if name.include?('/')
+    name
   end
 end

@@ -128,7 +128,7 @@ module Authentication
 
       def valid_region?(region)
         return true if region == 'global'
-        /^([a-z]{2}(-gov)?-[a-z]+-\d)$/.match?(region)
+        /\A([a-z]{2}(-gov)?-[a-z]+-\d)\z/.match?(region)
       end
     end
   end

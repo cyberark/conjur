@@ -9,8 +9,6 @@ class SecretsController < RestController
   before_action :current_user
 
   def create
-    raise(ArgumentError, "Invalid secret kind: #{resource.kind}") unless %w[variable public_key].include?(resource.kind)
-
     authorize(:update)
 
     value = request.raw_post
@@ -140,6 +138,8 @@ class SecretsController < RestController
   #       correctness in this case.
   #
   def expire
+    raise(ArgumentError, "Invalid secret kind: #{params[:kind]}") unless params[:kind] == 'variable'
+
     authorize(:update)
     Secret.update_expiration(resource.id, nil)
     head(:created)
