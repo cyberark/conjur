@@ -55,14 +55,14 @@ Feature: Fetch resource details.
   @negative @acceptance
   Scenario: Trying to show a resource that does not exist
     Given I save my place in the audit log file for remote
-    When I GET "/resources/cucumber/santa/claus"
+    When I GET "/resources/cucumber/variable/claus"
     Then the HTTP response status code is 404
     And there is an audit record matching:
     """
       <84>1 * * conjur * resource
       [auth@43868 user="cucumber:user:alice"]
-      [subject@43868 resource="cucumber:santa:claus"]
+      [subject@43868 resource="cucumber:variable:claus"]
       [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
       [action@43868 result="failure" operation="get"]
-      cucumber:user:alice failed to fetch resource details: Santa 'claus' not found in account 'cucumber'
+      cucumber:user:alice failed to fetch resource details: Variable 'claus' not found in account 'cucumber'
     """

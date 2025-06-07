@@ -4,7 +4,7 @@
 #
 module AuthzHelpers
   def i_have_a_resource(kind, identifier)
-    kind        ||= "test-resource"
+    kind        ||= "variable"
     identifier  ||= random_hex
     identifier  = denormalize(identifier)
     resource_id = "cucumber:#{kind}:#{identifier}"
@@ -19,7 +19,7 @@ module AuthzHelpers
   end
 
   def i_have_a_new_resource(kind, identifier)
-    kind        ||= "test-resource"
+    kind        ||= "variable"
     identifier  ||= random_hex
     identifier  = denormalize(identifier)
     resource_id = "cucumber:#{kind}:#{identifier}"
