@@ -16,7 +16,7 @@ Given(/^I add an annotation value of(?: "([^"]*)")? to the resource$/) do |annot
 end
 
 Given(/^I create a new searchable resource(?: called "([^"]*)")?$/) do |identifier|
-  kind = "test-resource"
+  kind = "variable"
   identifier ||= random_hex
   identifier = denormalize(identifier)
 
@@ -28,7 +28,7 @@ end
 
 Given(/^I create a new resource in a foreign account$/) do
   account = random_hex
-  kind = "test-resource"
+  kind = "variable"
   identifier = random_hex
   
   @current_resource =
@@ -37,7 +37,7 @@ Given(/^I create a new resource in a foreign account$/) do
 end
 
 Given(/^I create (\d+) new resources$/) do |count|
-  kind = "test-resource"
+  kind = "variable"
 
   @resources ||= {}
   

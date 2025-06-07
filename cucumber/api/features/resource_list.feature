@@ -26,93 +26,93 @@ Feature: List resources with various types of filtering
 
   @smoke
   Scenario: The resource list can be filtered by resource kind.
-    Given I create a new "custom" resource
+    Given I create a new "variable" resource
     And I save my place in the audit log file for remote
-    When I successfully GET "/resources/cucumber/custom"
+    When I successfully GET "/resources/cucumber/variable"
     Then the resource list should include the newest resource
     And there is an audit record matching:
     """
       <86>1 * * conjur * list
       [auth@43868 user="cucumber:user:alice"]
-      [subject@43868 account="cucumber" kind="custom"]
+      [subject@43868 account="cucumber" kind="variable"]
       [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
       [action@43868 result="success" operation="list"]
-      cucumber:user:alice successfully listed resources with parameters: {:account=>"cucumber", :kind=>"custom"}
+      cucumber:user:alice successfully listed resources with parameters: {:account=>"cucumber", :kind=>"variable"}
     """
 
   @acceptance
   Scenario: The resource list, when filtered by a different resource kind, does not include the newest resource.
-    Given I create a new "custom" resource
+    Given I create a new "group" resource
     And I save my place in the audit log file for remote
-    When I successfully GET "/resources/cucumber/uncreated-resource-kind"
+    When I successfully GET "/resources/cucumber/user"
     Then the resource list should not include the newest resource
     And there is an audit record matching:
     """
       <86>1 * * conjur * list
       [auth@43868 user="cucumber:user:alice"]
-      [subject@43868 account="cucumber" kind="uncreated-resource-kind"]
+      [subject@43868 account="cucumber" kind="user"]
       [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
       [action@43868 result="success" operation="list"]
-      cucumber:user:alice successfully listed resources with parameters: {:account=>"cucumber", :kind=>"uncreated-resource-kind"}
+      cucumber:user:alice successfully listed resources with parameters: {:account=>"cucumber", :kind=>"user"}
     """
 
   @smoke
   Scenario: The resource list is searched and contains a resource with a matching resource id.
     Given I create a new resource called "target"
     And I save my place in the audit log file for remote
-    When I successfully GET "/resources/cucumber/test-resource?search=target"
+    When I successfully GET "/resources/cucumber/variable?search=target"
     Then the resource list should only include the searched resource
     And there is an audit record matching:
     """
       <86>1 * * conjur * list
       [auth@43868 user="cucumber:user:alice"]
-      [subject@43868 account="cucumber" kind="test-resource" search="target"]
+      [subject@43868 account="cucumber" kind="variable" search="target"]
       [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
       [action@43868 result="success" operation="list"]
-      cucumber:user:alice successfully listed resources with parameters: {:account=>"cucumber", :kind=>"test-resource", :search=>"target"}
+      cucumber:user:alice successfully listed resources with parameters: {:account=>"cucumber", :kind=>"variable", :search=>"target"}
     """
 
   @smoke
   Scenario: The resource list is searched and contains a resource with a matching annotation.
     Given I create a new resource
     And I add an annotation value of "target" to the resource
-    When I successfully GET "/resources/cucumber/test-resource?search=target"
+    When I successfully GET "/resources/cucumber/variable?search=target"
     Then the resource list should only include the searched resource
 
   @acceptance
   Scenario: The resource list is searched and the matched resource id contains a period.
     Given I create a new resource called "target.resource"
-    When I successfully GET "/resources/cucumber/test-resource?search=target"
+    When I successfully GET "/resources/cucumber/variable?search=target"
     Then the resource list should only include the searched resource
 
   @acceptance
   Scenario: The resource list is searched and the matched resource id contains a slash separator.
     Given I create a new resource called "target/resource"
-    When I successfully GET "/resources/cucumber/test-resource?search=target"
+    When I successfully GET "/resources/cucumber/variable?search=target"
     Then the resource list should only include the searched resource
 
   @acceptance
   Scenario: The resource list is searched and the matched resource id contains a dash separator.
     Given I create a new resource called "target-resource"
-    When I successfully GET "/resources/cucumber/test-resource?search=target"
+    When I successfully GET "/resources/cucumber/variable?search=target"
     Then the resource list should only include the searched resource
 
   @smoke
   Scenario: The resource list is searched and contains multiple resources with matching resource ids.
     Given I create a new searchable resource called "target_1"
     And I create a new searchable resource called "target_2"
-    When I successfully GET "/resources/cucumber/test-resource?search=target"
+    When I successfully GET "/resources/cucumber/variable?search=target"
     Then the resource list should only include the searched resources
 
   @smoke
   Scenario: The resource list is limited to a certain number of results.
-    When I successfully GET "/resources/cucumber/test-resource?limit=1"
+    When I successfully GET "/resources/cucumber/variable?limit=1"
     Then I receive 1 resources
 
   @negative @acceptance
   Scenario: The resource list cannot be limited with non numeric value
     Given I save my place in the audit log file for remote
-    When I GET "/resources/cucumber/test-resource?limit=abc"
+    When I GET "/resources/cucumber/variable?limit=abc"
     Then the HTTP response status code is 422
     And there is an error
     And the error message includes "'limit' contains an invalid value. 'limit' must be a positive integer."
@@ -120,17 +120,17 @@ Feature: List resources with various types of filtering
     """
       <84>1 * * conjur * list
       [auth@43868 user="cucumber:user:alice"]
-      [subject@43868 account="cucumber" kind="test-resource" limit="abc"]
+      [subject@43868 account="cucumber" kind="variable" limit="abc"]
       [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
       [action@43868 result="failure" operation="list"]
-      cucumber:user:alice failed to list resources with parameters: {:account=>"cucumber", :kind=>"test-resource", :limit=>"abc"}:
+      cucumber:user:alice failed to list resources with parameters: {:account=>"cucumber", :kind=>"variable", :limit=>"abc"}:
       'limit' contains an invalid value. 'limit' must be a positive integer
     """
 
   @negative @acceptance
   Scenario: The resource list cannot be limited with zero
     Given I save my place in the audit log file for remote
-    When I GET "/resources/cucumber/test-resource?limit=0"
+    When I GET "/resources/cucumber/variable?limit=0"
     Then the HTTP response status code is 422
     And there is an error
     And the error message includes "'limit' contains an invalid value. 'limit' must be a positive integer."
@@ -138,29 +138,29 @@ Feature: List resources with various types of filtering
     """
       <84>1 * * conjur * list
       [auth@43868 user="cucumber:user:alice"]
-      [subject@43868 account="cucumber" kind="test-resource" limit="0"]
+      [subject@43868 account="cucumber" kind="variable" limit="0"]
       [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
       [action@43868 result="failure" operation="list"]
-      cucumber:user:alice failed to list resources with parameters: {:account=>"cucumber", :kind=>"test-resource", :limit=>"0"}:
+      cucumber:user:alice failed to list resources with parameters: {:account=>"cucumber", :kind=>"variable", :limit=>"0"}:
       'limit' contains an invalid value. 'limit' must be a positive integer
     """
 
   @negative @acceptance
   Scenario: The resource list cannot be limited with negative integer
-    When I GET "/resources/cucumber/test-resource?limit=-10"
+    When I GET "/resources/cucumber/variable?limit=-10"
     Then the HTTP response status code is 422
     And there is an error
     And the error message includes "'limit' contains an invalid value. 'limit' must be a positive integer."
 
   @smoke
   Scenario: The resource list is retrieved starting from a specific offset.
-    When I successfully GET "/resources/cucumber/test-resource?offset=1"
+    When I successfully GET "/resources/cucumber/variable?offset=1"
     Then I receive 2 resources
 
   @negative @acceptance
   Scenario: The resource list cannot be retrieved starting from a specific offset with non numeric value
     Given I save my place in the audit log file for remote
-    When I GET "/resources/cucumber/test-resource?offset=abc"
+    When I GET "/resources/cucumber/variable?offset=abc"
     Then the HTTP response status code is 422
     And there is an error
     And the error message includes "'offset' contains an invalid value. 'offset' must be an integer greater than or equal to 0."
@@ -168,16 +168,16 @@ Feature: List resources with various types of filtering
     """
       <84>1 * * conjur * list
       [auth@43868 user="cucumber:user:alice"]
-      [subject@43868 account="cucumber" kind="test-resource" offset="abc"]
+      [subject@43868 account="cucumber" kind="variable" offset="abc"]
       [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
       [action@43868 result="failure" operation="list"]
-      cucumber:user:alice failed to list resources with parameters: {:account=>"cucumber", :kind=>"test-resource", :offset=>"abc"}:
+      cucumber:user:alice failed to list resources with parameters: {:account=>"cucumber", :kind=>"variable", :offset=>"abc"}:
       'offset' contains an invalid value. 'offset' must be an integer greater than or equal to 0
     """
 
   @negative @acceptance
   Scenario: The resource list cannot be retrieved starting from a specific offset with negative integer
-    When I GET "/resources/cucumber/test-resource?offset=-10"
+    When I GET "/resources/cucumber/variable?offset=-10"
     Then the HTTP response status code is 422
     And there is an error
     And the error message includes "'offset' contains an invalid value. 'offset' must be an integer greater than or equal to 0."
@@ -185,27 +185,27 @@ Feature: List resources with various types of filtering
   @smoke
   Scenario: The resource list is retrieved starting from a specific offset and is limited
     Given I save my place in the audit log file for remote
-    When I successfully GET "/resources/cucumber/test-resource?offset=1&limit=1"
+    When I successfully GET "/resources/cucumber/variable?offset=1&limit=1"
     Then I receive 1 resources
     And there is an audit record matching:
     """
       <86>1 * * conjur * list
       [auth@43868 user="cucumber:user:alice"]
-      [subject@43868 account="cucumber" kind="test-resource" limit="1" offset="1"]
+      [subject@43868 account="cucumber" kind="variable" limit="1" offset="1"]
       [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
       [action@43868 result="success" operation="list"]
-      cucumber:user:alice successfully listed resources with parameters: {:account=>"cucumber", :kind=>"test-resource", :limit=>"1", :offset=>"1"}
+      cucumber:user:alice successfully listed resources with parameters: {:account=>"cucumber", :kind=>"variable", :limit=>"1", :offset=>"1"}
     """
   @negative @acceptance
   Scenario: The resource list cannot be retrieved with non numeric limit delimiter
-    When I GET "/resources/cucumber/test-resource?offset=1&limit=abc"
+    When I GET "/resources/cucumber/variable?offset=1&limit=abc"
     Then the HTTP response status code is 422
     And there is an error
     And the error message includes "'limit' contains an invalid value. 'limit' must be a positive integer."
 
   @negative @acceptance
   Scenario: The resource list cannot be retrieved with non numeric offset delimiter
-    When I GET "/resources/cucumber/test-resource?offset=abc&limit=1"
+    When I GET "/resources/cucumber/variable?offset=abc&limit=1"
     Then the HTTP response status code is 422
     And there is an error
     And the error message includes "'offset' contains an invalid value. 'offset' must be an integer greater than or equal to 0."
@@ -213,14 +213,14 @@ Feature: List resources with various types of filtering
   @smoke
   Scenario: The resource list is counted.
     Given I save my place in the audit log file for remote
-    When I successfully GET "/resources/cucumber/test-resource?count=true"
+    When I successfully GET "/resources/cucumber/variable?count=true"
     Then I receive a count of 3
     And there is an audit record matching:
     """
       <86>1 * * conjur * list
       [auth@43868 user="cucumber:user:alice"]
-      [subject@43868 account="cucumber" kind="test-resource" count="true"]
+      [subject@43868 account="cucumber" kind="variable" count="true"]
       [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
       [action@43868 result="success" operation="list"]
-      cucumber:user:alice successfully listed resources with parameters: {:account=>"cucumber", :kind=>"test-resource", :count=>"true"}
+      cucumber:user:alice successfully listed resources with parameters: {:account=>"cucumber", :kind=>"variable", :count=>"true"}
     """

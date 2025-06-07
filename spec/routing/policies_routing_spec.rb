@@ -48,4 +48,14 @@ describe "routing from policies" do
   it "does not route GET /policies/:account/:kind/identifier for account with encoded slashes" do
     expect(get: '/policies/the%2Faccount/policy/myid').not_to be_routable
   end
+
+  it "routes GET /policies/:account/:kind/identifier for account with chars: % 2 F but not in sequence" do
+    expect(get: '/policies/the%2aFaccount/policy/myid').to route_to(
+      account: 'the*Faccount',
+      controller: 'policies',
+      action: 'get',
+      kind: 'policy',
+      identifier: 'myid',
+    )
+  end
 end

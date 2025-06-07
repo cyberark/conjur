@@ -42,4 +42,8 @@ describe "routing from roles" do
       identifier: 'admin',
       memberships: nil)
   end
+
+  it "does not route GET /roles/:account/:role?members to roles#members for invalid kind" do
+    expect(get: '/roles/the-account/variable/admin?members').not_to be_routable
+  end
 end
