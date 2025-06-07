@@ -277,6 +277,20 @@ describe PoliciesController, type: :request do
         # expect(advice_msg_for_validate(response)).to include(advice)
       end
     end
+    context 'with a policy containing the include type' do
+      let(:policy_with_include) do
+        <<~POLICY
+          - !include /some/path/policy.yml
+        POLICY
+      end
+
+      it "returns error" do
+        validate_policy(policy: policy_with_include)
+        expect(response.status).to eq(422)
+        msg = "Unrecognized data type '!include'"
+        expect(error_msg_for_validate(response)).to include(msg)
+      end
+    end
   end
 
   context 'when a policy is loaded on a read-only database replica' do

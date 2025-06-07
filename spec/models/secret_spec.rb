@@ -8,7 +8,7 @@ describe Secret, :type => :model do
   let(:login) { "u-#{random_hex}" }
     
   describe "#version" do
-    let(:resource) { Resource.create(resource_id: "rspec:test-resource:#{random_hex}", owner: the_user) }
+    let(:resource) { Resource.create(resource_id: "rspec:variable:#{random_hex}", owner: the_user) }
     it "auto-increments" do
       secret_0 = Secret.create(resource: resource, value: "value-0")
       secret_0.reload

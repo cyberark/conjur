@@ -63,9 +63,6 @@ module Conjur
                 parse_includes(record, dirname)
               when Types::Policy
                 parse_includes(record.body, dirname)
-              when Types::Include
-                included = load(File.read(File.expand_path(record.file, dirname)), record.file)
-                records[idx..idx] = included
               end
             end
           end
