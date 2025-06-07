@@ -32,4 +32,14 @@ describe "routing for authentication", :type => :routing do
       account: 'rspec'
     )
   end
+
+  it 'routes POST /authn/new_account@example.com/admin/authenticate to authenticate#authenticate' do
+    expect(post: 'authn/new_account@example.com/admin/authenticate').to route_to(
+      controller: 'authenticate',
+      action: 'authenticate_via_post',
+      account: 'new_account@example.com',
+      authenticator: 'authn',
+      id: 'admin'
+    )
+  end
 end

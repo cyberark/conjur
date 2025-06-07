@@ -86,7 +86,7 @@ Feature: Rules which govern the visibility of resources to roles.
     And I create a new resource called "probe"
 
     When I login as "bob"
-    Then I can GET "/resources/cucumber/test-resource/probe"
+    Then I can GET "/resources/cucumber/variable/probe"
     And I can GET "/resources/cucumber"
     And the resource list should include the newest resource
 
@@ -99,7 +99,7 @@ Feature: Rules which govern the visibility of resources to roles.
     And I create a new user "alice"
 
     When I login as "alice"
-    And I GET "/resources/cucumber/test-resource/probe"
+    And I GET "/resources/cucumber/variable/probe"
 
     Then the HTTP response status code is 404
 
