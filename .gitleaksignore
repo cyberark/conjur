@@ -1,1 +1,4 @@
-92e710fcdb7b17af7ce6b0260ce70f5706d012a2:spec/app/domain/authentication/authn_iam/authenticator_spec.rb:aws-access-token:15
+789e1d752e6a81676bfc7badea86f524a83e3e0d:spec/app/domain/authentication/authn_iam/authenticator_spec.rb:aws-access-token:27
+789e1d752e6a81676bfc7badea86f524a83e3e0d:spec/app/domain/authentication/authn_iam/authenticator_spec.rb:generic-api-key:27
+789e1d752e6a81676bfc7badea86f524a83e3e0d:spec/app/domain/authentication/authn_iam/authenticator_spec.rb:aws-access-token:37
+789e1d752e6a81676bfc7badea86f524a83e3e0d:spec/app/domain/authentication/authn_iam/authenticator_spec.rb:generic-api-key:37
