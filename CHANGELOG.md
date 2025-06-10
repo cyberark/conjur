@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [1.21.4] - 2025-01-13
 ### Security
+- Improve headers handling in AWS IAM authenticator. CONJSE-2023
 - Remove support for !include policy syntax in the policy parser. CONJSE-2019
 - Block ability to create hosts in conjur branch in hosts factories. CONJSE-2015
 - Add kind validation to all APIs. CONJSE-2018

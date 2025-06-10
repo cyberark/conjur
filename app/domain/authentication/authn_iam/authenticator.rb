@@ -12,9 +12,16 @@ module Authentication
         @client = client
       end
 
+      VALID_KEYS = %w[host authorization x-amz-date x-amz-security-token x-amz-content-sha256].freeze
+
       def valid?(input)
         # input.credentials is JSON holding the AWS signed headers
-        signed_aws_headers = JSON.parse(input.credentials).transform_keys(&:downcase)
+        signed_aws_headers = JSON.parse(input.credentials)
+                                 .transform_keys(&:downcase)
+                                 .select { |k, _| VALID_KEYS.include?(k) }
+        raise Errors::Authentication::AuthnIam::InvalidAWSHeaders,
+              "Headers validation failed" unless valid_headers?(signed_aws_headers)
+
         aws_response = response_from_signed_request(signed_aws_headers)
 
         iam_role_matches?(
@@ -97,7 +104,7 @@ module Authentication
       # Verify request with STS and handle response (happy or sad paths)
       def response_from_signed_request(aws_headers)
         response = attempt_signed_request(aws_headers)
-        body =  Hash.from_xml(response.body)
+        body = Hash.from_xml(response.body)
 
         return extract_relevant_data(body) if response.code.to_i == 200
 
@@ -129,6 +136,13 @@ module Authentication
       def valid_region?(region)
         return true if region == 'global'
         /\A([a-z]{2}(-gov)?-[a-z]+-\d)\z/.match?(region)
+      end
+
+      def valid_headers?(signed_aws_headers)
+        host = signed_aws_headers['host']
+        return true if host.nil? || host.empty?
+        uri = URI("https://#{host}")
+        uri.host&.end_with?('.amazonaws.com')
       end
     end
   end
