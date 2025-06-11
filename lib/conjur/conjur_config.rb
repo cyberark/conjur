@@ -52,6 +52,9 @@ module Conjur
       host_factories_enabled: true
     )
 
+    AUTHENTICATORS = %w[authn authn-k8s authn-oidc authn-iam 
+        authn-ldap authn-gcp authn-jwt authn-azure].freeze
+
     def initialize(
       *args,
       logger: Rails.logger,
@@ -236,15 +239,15 @@ module Conjur
       # TODO: Ideally we would check against the enabled authenticators
       # in the DB. However, we need to figure out how to use code from the
       # application without introducing warnings.
-      authenticators_regex =
-        %r{^(authn|authn-(k8s|oidc|iam|ldap|gcp|jwt|azure)(/.+)?)$}
-      authen_checker = DidYouMean::SpellChecker.new(dictionary:
-        %w[authn authn-k8s oidc iam ldap gcp jwt azure])
+
+      authen_checker = DidYouMean::SpellChecker.new(dictionary: AUTHENTICATORS)
 
       authenticators.filter_map { |auth|
-        unless authenticators_regex.match?(auth.strip)
+        auth_type, service_id = auth.split("/", 2)
+        suggestion = [authen_checker.correct(auth_type)[0], service_id].join("/")
+        unless AUTHENTICATORS.include?(auth_type.strip)
           "'#{auth}' is not a valid authenticator type. "\
-          "Did you mean '#{authen_checker.correct(auth)[0]}'?"   
+          "Did you mean '#{suggestion}'?"   
         end
         }
     rescue
