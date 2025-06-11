@@ -6,7 +6,7 @@
 # to another.
 
 class PolicyResult
-  attr_accessor :policy_version, :created_roles, :policy_parse, :diff, :visible_resources_before, :visible_resources_after
+  attr_accessor :policy_version, :created_roles, :policy_parse, :diff, :visible_resources_before, :visible_resources_after, :warnings
 
   def initialize(
     policy_version: nil,
@@ -14,7 +14,8 @@ class PolicyResult
     policy_parse: nil,
     diff: nil,
     visible_resources_before: nil,
-    visible_resources_after: nil
+    visible_resources_after: nil,
+    warnings: nil
   )
     @policy_version = policy_version
     @created_roles = created_roles
@@ -22,6 +23,7 @@ class PolicyResult
     @diff = diff
     @visible_resources_before = visible_resources_before
     @visible_resources_after = visible_resources_after
+    @warnings = warnings
   end
 
   # Allow individual setting of policy results as they are determined
