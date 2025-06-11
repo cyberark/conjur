@@ -86,6 +86,120 @@ Feature: Batch retrieval of secrets
     And there is an error
     And the error message is "CONJ00076E Variable cucumber:variable:secret-no-value is empty or not found."
 
+  @smoke
+  Scenario: Get batch of secrets POSTing JSON to /secrets endpoint
+    Given I save my place in the audit log file for remote
+    When I POST "/secrets" with JSON body:
+    """
+    {"variable_ids":["cucumber:variable:secret1","cucumber:variable:secret2"]}
+    """
+    Then the JSON should be:
+    """
+    { "cucumber:variable:secret1": "s1", "cucumber:variable:secret2": "s2" }
+    """
+    And there is an audit record matching:
+    """
+      <86>1 * * conjur * fetch
+      [auth@43868 user="cucumber:user:bob"]
+      [subject@43868 resource="cucumber:variable:secret1"]
+      [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
+      [action@43868 result="success" operation="fetch"]
+      cucumber:user:bob fetched cucumber:variable:secret1
+    """
+    And there is an audit record matching:
+    """
+      <86>1 * * conjur * fetch
+      [auth@43868 user="cucumber:user:bob"]
+      [subject@43868 resource="cucumber:variable:secret2"]
+      [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
+      [action@43868 result="success" operation="fetch"]
+      cucumber:user:bob fetched cucumber:variable:secret2
+    """
+
+  @negative @acceptance
+  Scenario: Fails with 422 if variable_ids param is missing from request body
+    When I POST "/secrets" with JSON body:
+    """
+    {"some_other_key":"some_other_value"}
+    """
+    Then the HTTP response status code is 422
+
+  @negative @acceptance
+  Scenario: Fails with 422 if variable_ids param in request body has only blank items
+    When I POST "/secrets" with JSON body:
+    """
+    {"variable_ids":["","",""]}
+    """
+    Then the HTTP response status code is 422
+
+  @negative @acceptance
+  Scenario: Fails with 422 if variable_ids param in request body is empty
+    When I POST "/secrets" with JSON body:
+    """
+    {"variable_ids":[]}
+    """
+    Then the HTTP response status code is 422
+
+  @negative @acceptance
+  Scenario: Fails with 400 if request body is invalid JSON
+    When I POST "/secrets" with JSON body:
+    """
+    {["foo",]}
+    """
+    Then the HTTP response status code is 400
+
+  @negative @acceptance
+  Scenario: Fails with 404 if a variable_id param in request body is of an incorrect format
+    When I POST "/secrets" with JSON body:
+    """
+    {"variable_ids":["1","2","3"]}
+    """
+    Then the HTTP response status code is 404
+    And there is an error
+    And the error message is "CONJ00076E Variable 1 is empty or not found."
+
+  @negative @acceptance
+  Scenario: Fails with 422 if a variable_id param in request body is not a list of strings
+    When I POST "/secrets" with JSON body:
+    """
+    {"variable_ids":[1,2,3]}
+    """
+    Then the HTTP response status code is 422
+
+  @negative @acceptance
+  Scenario: Fails with 404 if a resource doesn't exist
+    When I POST "/secrets" with JSON body:
+    """
+    {"variable_ids":["cucumber:variable:secret1","cucumber:variable:not-a-secret"]}
+    """
+    Then the HTTP response status code is 404
+    And there is an error
+    And the error message is "CONJ00076E Variable cucumber:variable:not-a-secret is empty or not found."
+
+  @negative @acceptance
+  Scenario: Fails with 404 if a resource doesn't have a value
+    Given I create a new "variable" resource called "secret-no-value"
+    When I POST "/secrets" with JSON body:
+    """
+    {"variable_ids":["cucumber:variable:secret1","cucumber:variable:secret-no-value"]}
+    """
+    Then the HTTP response status code is 404
+    And there is an error
+    And the error message is "CONJ00076E Variable cucumber:variable:secret-no-value is empty or not found."
+
+  # This test case passes, but we should consider if it should fail with 400.
+  # Currently the BodyParser module overwrites query params with request body params.
+  @negative @acceptance
+  Scenario: Fails with 400 if variables supplied in query and request body
+    When I POST "/secrets?variable_ids=cucumber:variable:a" with JSON body:
+    """
+    {"variable_ids":["cucumber:variable:secret1","cucumber:variable:secret2"]}
+    """
+    Then the JSON should be:
+    """
+    { "cucumber:variable:secret1": "s1", "cucumber:variable:secret2": "s2" }
+    """
+
   # This test explicitly tests an error case that was discovered in Conjur v4 where
   # resource IDs were matched with incorrect variable values in the JSON response.
   # It was fixed in: https://github.com/conjurinc/core/pull/46/files
