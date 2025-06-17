@@ -87,6 +87,7 @@ class ApplicationController < ActionController::API
   rescue_from Errors::Conjur::ParameterMissing, with: :unprocessable_entity
   rescue_from Errors::Conjur::ParameterValueInvalid, with: :unprocessable_entity
   rescue_from Errors::Conjur::ParameterTypeInvalid, with: :unprocessable_entity
+  rescue_from OpenSSL::Cipher::CipherError, with: :data_key_invalid
 
   around_action :run_with_transaction
 
@@ -445,5 +446,15 @@ class ApplicationController < ActionController::API
 
   def error_code_of_exception_class cls
     cls.to_s.underscore.split('/')[-1]
+  end
+
+  def data_key_invalid e
+    logger.debug("#{e}\n#{e.backtrace.join("\n")}")
+    render json: {
+      error: {
+        code: "data_key_invalid",
+        message: "Conjur data key is invalid or does not match encrypted data. Please check your CONJUR_DATA_KEY."
+      }
+    }, status: :unprocessable_entity
   end
 end
