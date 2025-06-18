@@ -294,7 +294,7 @@ class AuthenticatorController < V2RestController
     
     ::FailureResponse.new(
       "The following parameters were not expected: '#{extra_keys}'",
-      status: :bad_request,
+      status: :unprocessable_entity,
       exception: BadRequestWithBody
     )
   end

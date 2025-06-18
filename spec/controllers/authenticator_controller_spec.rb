@@ -368,7 +368,7 @@ describe AuthenticateController, type: :request do
         case: 'when request body has extra keys',
         body: "{ \"config\": \"test\", \"enabled\": false, \"name\": \"test-jwt1\" }",
         expected_response: "The following parameters were not expected: 'config, name'",
-        expected_code: '400'
+        expected_code: '422'
       }
     ].each do |test_case|
       context test_case[:case].to_s do
