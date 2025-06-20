@@ -9,6 +9,8 @@ RSpec.describe(DB::Repository::Authenticator::CreateAuthenticator) do
     )
   end
 
+  let(:owner) { "rspec:policy:conjur/authn-jwt/auth1" }
+
   before(:all) do
     Slosilo["authn:rspec"] ||= Slosilo::Key.new
     Role.find_or_create(role_id: 'rspec:user:admin')
@@ -27,7 +29,7 @@ RSpec.describe(DB::Repository::Authenticator::CreateAuthenticator) do
       account: 'rspec',
       branch: 'conjur/authn-jwt',
       enabled: true,
-      owner_id: "rspec:policy:conjur/authn-jwt",
+      owner_id: owner,
       annotations: { description: "this is my base authenticator" },
       variables: variables
     }
@@ -39,11 +41,26 @@ RSpec.describe(DB::Repository::Authenticator::CreateAuthenticator) do
 
   def expect_auth_in_policy?
     expect(::Resource["rspec:policy:conjur/authn-jwt/auth1"]).to_not be_nil
+
     expect(::Resource["rspec:webservice:conjur/authn-jwt/auth1"]).to_not be_nil
+    expect(::Resource["rspec:webservice:conjur/authn-jwt/auth1"].owner_id)
+      .to eq(owner)
+
     expect(::Resource["rspec:webservice:conjur/authn-jwt/auth1/status"]).to_not be_nil
+    expect(::Resource["rspec:webservice:conjur/authn-jwt/auth1/status"].owner_id)
+      .to eq(owner)
+
     expect(::Resource["rspec:group:conjur/authn-jwt/auth1/apps"]).to_not be_nil
+    expect(::Resource["rspec:group:conjur/authn-jwt/auth1/apps"].owner_id)
+      .to eq(owner)
+
     expect(::Resource["rspec:group:conjur/authn-jwt/auth1/operators"]).to_not be_nil
+    expect(::Resource["rspec:group:conjur/authn-jwt/auth1/operators"].owner_id)
+      .to eq(owner)
+
     expect(::Resource["rspec:variable:conjur/authn-jwt/auth1/jwks-uri"]).to_not be_nil
+    expect(::Resource["rspec:variable:conjur/authn-jwt/auth1/jwks-uri"].owner_id)
+      .to eq(owner)
   end
 
   describe('#call') do

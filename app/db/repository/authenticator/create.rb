@@ -87,7 +87,7 @@ module DB
             else
               Resource.create(
                 resource_id: "#{authn_variables}/#{key.to_s.dasherize}",
-                owner_id: owner_id,
+                owner_id: "#{policy_branch}/#{@service_id}",
                 policy_id: policy_branch
               )
               unless value.nil?
