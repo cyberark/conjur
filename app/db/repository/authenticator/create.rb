@@ -133,14 +133,14 @@ module DB
               id: webservice,
               owner: "#{policy_branch}/#{@service_id}",
               permissions: {
-                "#{group}/operators": %w[read authenticate],
-                "#{group}/apps": ["read"]
+                "#{group}/operators": %w[read],
+                "#{group}/apps": %w[read authenticate]
               } 
             },
             {
               id: "#{webservice}/status",
               owner: "#{policy_branch}/#{@service_id}",
-              permissions: { "#{group}/apps": ["read"] } 
+              permissions: { "#{group}/operators": ["read"] } 
             }
           ].each do |resource|
             new_resource = Resource.create(
