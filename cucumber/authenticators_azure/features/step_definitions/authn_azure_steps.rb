@@ -75,3 +75,17 @@ Given(/^I set (subscription-id|resource-group|user-assigned-identity|system-assi
   annotation_value = incorrect_value ? "some-incorrect-value" : annotation_correct_value
   set_annotation_to_resource("authn-azure/#{annotation_name}", annotation_value)
 end
+
+Given(/^I successfully initialize an Azure authenticator named "([^"]*)" via the authenticators API$/) do |service_id|
+  path = "#{conjur_hostname}/authenticators/#{ENV['CONJUR_ACCOUNT']}"
+  payload = {
+    type: "azure",
+    name: service_id,
+    enabled: true,
+    data: {
+      provider_uri: azure_provider_uri
+    }
+  }
+
+  post(path, payload.to_json, authenticated_v2_api_headers)
+end
