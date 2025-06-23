@@ -254,7 +254,7 @@ describe Conjur::ConjurConfig do
   describe "validation of authenticators includes suggestion" do
     let(:config_kwargs) do
       {
-        authenticators: "jam"
+        authenticators: "authn-jam"
       }
     end
 
@@ -270,7 +270,7 @@ describe Conjur::ConjurConfig do
 
     it "includes the suggested corrected authenticators that failed validation" do
       expect { subject }
-        .to raise_error(/iam/)
+        .to raise_error(/authn-iam/)
     end
   end
 
