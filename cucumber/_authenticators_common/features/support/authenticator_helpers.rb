@@ -42,6 +42,14 @@ module AuthenticatorHelpers
     nil
   end
 
+  def authenticated_v2_api_headers
+    { "Authorization": auth_header_for('admin'), "Accept": v2_accept_header }
+  end
+
+  def v2_accept_header
+    "application/x.secretsmgr.v2beta+json"
+  end
+
   def bad_request?
     http_status == 400
   end
@@ -129,9 +137,9 @@ module AuthenticatorHelpers
       full_username(username)
     ).rotate_api_key
     authz = Conjur::API.authenticate(username, api_key)
-    encoded_authz = Base64.strict_encode64(authz)
+    encoded_authz = Base64.strict_encode64(authz.to_json)
 
-    "Token token: #{encoded_authz}"
+    "Token token=\"#{encoded_authz}\""
   end
 
   def api_for(username, api_key = nil)

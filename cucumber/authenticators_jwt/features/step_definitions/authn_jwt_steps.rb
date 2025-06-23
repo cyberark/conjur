@@ -38,20 +38,20 @@ Given(/^I successfully set authn-jwt public-keys variable to value from remote J
 end
 
 Given(/^I successfully initialize a JWT authenticator named "([^"]*)" via the authenticators API$/) do |service_id|
-  path = "#{conjur_hostname}/authenticators/#{ACCOUNT}"
+  path = "#{conjur_hostname}/authenticators/#{ENV['CONJUR_ACCOUNT']}"
   payload = {
     type: "jwt",
-    service_id: service_id,
+    name: service_id,
     enabled: true,
     data: {
-      jwks_uri: "http://jwks_py:8090/authn-jwt-general/RS256"
+      jwks_uri: "http://jwks_py:8090/authn-jwt-general/RS256",
       identity: {
         token_app_property: "host"
       }
     }
   }
 
-  post(path, payload, opts = {headers: {Authorization: auth_header_for('admin')}})
+  post(path, payload.to_json, authenticated_v2_api_headers)
 end
 
 When(/I authenticate via authn-jwt using given ([^"]*) service ID and without account in url/) do |service_id|

@@ -1,15 +1,15 @@
 @authenticators_jwt
-Feature: JWT Authenticator - JWKs Basic sanity
-
-  In this feature we define a JWT authenticator in policy and perform authentication
-  with Conjur. In successful scenarios we will also define a variable and permit the host to
-  execute it.
+Feature: JWT Authenticator created via API
 
   Background:
+    When I load a policy:
+    """
+    - !policy conjur/authn-jwt
+    """
     Given I initialize JWKS endpoint with file "myJWKs.json"
     And I initialize remote JWKS endpoint with file "authn-jwt-general" and alg "RS256"
     Given I successfully initialize a JWT authenticator named "jwt-authenticator" via the authenticators API
-    When I load a policy:
+    When I extend the policy with:
     """
     - !host
       id: myapp
@@ -19,7 +19,7 @@ Feature: JWT Authenticator - JWKs Basic sanity
     - !grant
       role: !group conjur/authn-jwt/jwt-authenticator/apps
       member: !host myapp
-      """
+    """
 
   @acceptance
   Scenario: Authenticator is configured properly
@@ -34,4 +34,4 @@ Feature: JWT Authenticator - JWKs Basic sanity
     """
     And I save my place in the audit log file
     When I authenticate via authn-jwt with jwt-authenticator service ID
-    Then the HTTP response status code is 401
+    Then the HTTP response status code is 200
