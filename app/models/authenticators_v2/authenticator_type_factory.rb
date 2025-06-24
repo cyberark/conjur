@@ -300,15 +300,15 @@ module AuthenticatorsV2
       {
         "kubernetes/ca_cert": {
           field_info: { type: String, value: data[:"kubernetes/ca_cert"] },
-          validators: [method(:validate_field_type), method(:validate_field_required)]
+          validators: [method(:validate_field_type)]
         },
         "kubernetes/service_account_token": {
           field_info: { type: String, value: data[:"kubernetes/service_account_token"] },
-          validators: [method(:validate_field_type), method(:validate_field_required)]
+          validators: [method(:validate_field_type)]
         },
         "kubernetes/api_url": {
           field_info: { type: String, value: data[:"kubernetes/api_url"] },
-          validators: [method(:validate_field_type), method(:validate_field_required)]
+          validators: [method(:validate_field_type)]
         },
         "ca/key": {
           field_info: { type: String, value: data[:"ca/key"] },

@@ -753,52 +753,30 @@ describe AuthenticatorsV2::AuthenticatorTypeFactory do
         end
       end
 
+      describe "with kubernetes/* values missing" do
+        let(:owner) { { kind: "user", id: "some-user" } }
+        let(:annotations){ { description: "testing" } }
+        let(:data) do
+          {
+            "ca/cert": "ca-cert",
+            "ca/key": "ca-key"
+          }
+        end
+
+        it "returns the authenticator" do
+          expect(subject.result.to_h).to eq({
+            type: type,
+            branch: branch,
+            name: name,
+            enabled: enabled,
+            owner: owner,
+            annotations: annotations,
+            data: data
+          })
+        end
+      end
+
       describe "with bad data section" do
-        describe "missing kubernetes/ca_cert" do
-          let(:data) do
-            {
-              "kubernetes/service_account_token": "token",
-              "kubernetes/api_url": "https://api",
-              "ca/cert": "ca-cert",
-              "ca/key": "ca-key"
-            }
-          end
-
-          it "returns an error" do
-            expect{subject}.to raise_error(Errors::Conjur::ParameterMissing, "CONJ00190W Missing required parameter: kubernetes/ca_cert")
-          end
-        end
-
-        describe "missing kubernetes/service_account_token" do
-          let(:data) do
-            {
-              "kubernetes/ca_cert": "token",
-              "kubernetes/api_url": "https://api",
-              "ca/cert": "ca-cert",
-              "ca/key": "ca-key"
-            }
-          end
-
-          it "returns an error" do
-            expect{subject}.to raise_error(Errors::Conjur::ParameterMissing, "CONJ00190W Missing required parameter: kubernetes/service_account_token")
-          end
-        end
-
-        describe "missing kubernetes/api_url" do
-          let(:data) do
-            {
-              "kubernetes/ca_cert": "token",
-              "kubernetes/service_account_token": "https://api",
-              "ca/cert": "ca-cert",
-              "ca/key": "ca-key"
-            }
-          end
-
-          it "returns an error" do
-            expect{subject}.to raise_error(Errors::Conjur::ParameterMissing, "CONJ00190W Missing required parameter: kubernetes/api_url")
-          end
-        end
-
         describe "missing ca/cert" do
           let(:data) do
             {

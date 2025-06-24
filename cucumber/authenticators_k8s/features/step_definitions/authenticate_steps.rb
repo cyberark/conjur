@@ -101,17 +101,3 @@ Then(/^I cannot authenticate with pod matching "([^"]*)" as "([^"]*)" using a ce
 
   expect(@error.http_code).to eq(401)
 end
-
-Given(/^I successfully initialize an Azure authenticator named "([^"]*)" via the authenticators API$/) do |service_id|
-  path = "#{conjur_hostname}/authenticators/#{ENV['CONJUR_ACCOUNT']}"
-  payload = {
-    type: "azure",
-    name: service_id,
-    enabled: true,
-    data: {
-      provider_uri: azure_provider_uri,
-    }
-  }
-
-  result = post(path, payload.to_json, opts = authenticated_v2_api_headers)
-end
