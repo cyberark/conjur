@@ -76,7 +76,7 @@ Feature: OIDC Authenticator - Users can authenticate with OIDC & LDAP authentica
     Then user "alice" has been authorized by Conjur
     And I successfully GET "/secrets/cucumber/variable/test-variable" with authorized user
     # Authenticate with authn-ldap
-    When I login via LDAP as authorized Conjur user "alice"
-    And I authenticate via LDAP as authorized Conjur user "alice" using key
+    When I login via test LDAP as authorized Conjur user "alice"
+    And I authenticate via test LDAP as authorized Conjur user "alice" using key
     Then user "alice" has been authorized by Conjur
     And I successfully GET "/secrets/cucumber/variable/test-variable" with authorized user

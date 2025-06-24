@@ -63,8 +63,8 @@ Feature: Users can login with LDAP credentials from an authorized LDAP server
   @smoke
   Scenario: An LDAP user authorized in Conjur can login with a good password
     Given I save my place in the log file
-    When I login via LDAP as authorized Conjur user "alice"
-    And I authenticate via LDAP as authorized Conjur user "alice" using key
+    When I login via test LDAP as authorized Conjur user "alice"
+    And I authenticate via test LDAP as authorized Conjur user "alice" using key
     Then user "alice" has been authorized by Conjur
     And The following appears in the log after my savepoint:
     """
@@ -79,7 +79,7 @@ Feature: Users can login with LDAP credentials from an authorized LDAP server
 
   @smoke
   Scenario: An LDAP user authorized in Conjur can authenticate with a good password
-    When I authenticate via LDAP as authorized Conjur user "alice"
+    When I authenticate via test LDAP as authorized Conjur user "alice"
     Then user "alice" has been authorized by Conjur
 
   @negative @acceptance
@@ -89,12 +89,12 @@ Feature: Users can login with LDAP credentials from an authorized LDAP server
 
   @negative @acceptance
   Scenario: 'admin' cannot use LDAP authentication
-    When I login via LDAP as authorized Conjur user "admin"
+    When I login via test LDAP as authorized Conjur user "admin"
     Then it is unauthorized
 
   @negative @acceptance
   Scenario: An valid LDAP user who's not in Conjur can't login
-    When I login via LDAP as non-existent Conjur user "bob"
+    When I login via test LDAP as non-existent Conjur user "bob"
     Then it is forbidden
 
   @negative @acceptance
@@ -121,7 +121,7 @@ Feature: Users can login with LDAP credentials from an authorized LDAP server
         privilege: [ read, authenticate ]
         resource: !webservice
     """
-    When I login via LDAP as authorized Conjur user "alice"
+    When I login via test LDAP as authorized Conjur user "alice"
     Then it is forbidden
 
   # This test runs a failing authentication request that is already tested in
