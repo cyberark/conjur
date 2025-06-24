@@ -17,6 +17,22 @@ Given(/I fetch an ID Token for username "([^"]*)" and password "([^"]*)"/) do |u
   parse_oidc_id_token
 end
 
+Given(/^I successfully initialize an OIDC authenticator named "([^"]*)" via the authenticators API$/) do |service_id|
+  path = "#{conjur_hostname}/authenticators/#{ENV['CONJUR_ACCOUNT']}"
+  payload = {
+    type: "oidc",
+    name: service_id,
+    enabled: true,
+    data: {
+      provider_uri: ENV['PROVIDER_URI'],
+      id_token_user_property: ENV['ID_TOKEN_USER_PROPERTY'],
+      ca_cert: ENV['KEYCLOAK_CA_CERT']
+    }
+  }
+
+  post(path, payload.to_json, authenticated_v2_api_headers)
+end
+
 Given(/I fetch a code for username "([^"]*)" and password "([^"]*)" from "([^"]*)"/) do |username, password, service_id|
   Rails.application.config.conjur_config.authenticators = ["authn-oidc/#{service_id}"]
 

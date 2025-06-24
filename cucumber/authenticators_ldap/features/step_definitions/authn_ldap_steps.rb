@@ -3,8 +3,7 @@
 # Uses cucumber's multiline string feature: https://bit.ly/2vpzqJx
 #
 
-When(/I login via( secure)? LDAP as (?:\S)+ Conjur user "(\S+)"/) do |secure, username|
-  service_id = secure ? 'secure' : 'test'
+When(/I login via ([^"]*) LDAP as (?:\S)+ Conjur user "(\S+)"/) do |service_id, username|
   login_with_ldap(service_id: service_id, account: 'cucumber', 
                   username: username, password: username)
 end
@@ -12,9 +11,8 @@ end
 # First non-captured group allows for adjectives to clarify the
 # purpose of the test.  They aren't actually used.
 #
-When(/I authenticate via( secure)? LDAP as (?:\S)+ Conjur user "(\S+)"( using key)?/) do |secure, username, using_key|
+When(/I authenticate via ([^"]*) LDAP as (?:\S)+ Conjur user "(\S+)"( using key)?/) do |service_id, username, using_key|
   password = using_key ? ldap_auth_key : username
-  service_id = secure ? 'secure' : 'test'
   authenticate_with_ldap(service_id: service_id, account: 'cucumber', 
                          username: username, api_key: password)
 end
@@ -36,4 +34,15 @@ end
 
 Given(/^I store the LDAP CA certificate in "([^"]*)"$/) do |variable_name|
   save_variable_value('cucumber', variable_name, ldap_ca_certificate_value)
+end
+
+Given(/^I successfully initialize an LDAP authenticator named "([^"]*)" via the authenticators API$/) do |service_id|
+  path = "#{conjur_hostname}/authenticators/#{ENV['CONJUR_ACCOUNT']}"
+  payload = {
+    type: "ldap",
+    name: service_id,
+    enabled: true
+  }
+
+  post(path, payload.to_json, authenticated_v2_api_headers)
 end

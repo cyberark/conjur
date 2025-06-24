@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'base64'
+
 # Utility methods for authenticators
 #
 module AuthenticatorHelpers
@@ -38,6 +40,14 @@ module AuthenticatorHelpers
     keys.all? { |k| token.key?(k) }
   rescue
     nil
+  end
+
+  def authenticated_v2_api_headers
+    { "Authorization": auth_header_for('admin'), "Accept": v2_accept_header }
+  end
+
+  def v2_accept_header
+    "application/x.secretsmgr.v2beta+json"
   end
 
   def bad_request?
@@ -119,6 +129,17 @@ module AuthenticatorHelpers
 
   def conjur_api
     @conjur_api ||= api_for('admin', admin_api_key)
+  end
+
+  def auth_header_for(username, api_key = nil)
+    api_key = admin_api_key if username == 'admin'
+    api_key ||= Conjur::API.new_from_key('admin', admin_api_key).role(
+      full_username(username)
+    ).rotate_api_key
+    authz = Conjur::API.authenticate(username, api_key)
+    encoded_authz = Base64.strict_encode64(authz.to_json)
+
+    "Token token=\"#{encoded_authz}\""
   end
 
   def api_for(username, api_key = nil)
