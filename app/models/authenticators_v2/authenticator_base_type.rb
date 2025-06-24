@@ -77,6 +77,10 @@ module AuthenticatorsV2
       true
     end
 
+    def webservice_branch
+      "conjur/#{type}/#{@service_id}"
+    end
+
     def branch
       "conjur/#{type}"
     end

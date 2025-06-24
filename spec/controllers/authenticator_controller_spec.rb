@@ -35,8 +35,8 @@ describe AuthenticateController, type: :request do
     )
   end
 
-  def create_body(id)
-    {
+  def create_body(id, owner)
+    base_body = {
       "type": "jwt",
       "name": id,
       "enabled": false,
@@ -52,13 +52,16 @@ describe AuthenticateController, type: :request do
         "test": "123"
       }
     }
+
+    base_body["owner"] = owner unless owner.nil?
+    base_body
   end
 
-  def create_request(current_user, id = "test-jwt3")
+  def create_request(current_user, owner: nil, id: "test-jwt3")
     post(
       "/authenticators/rspec",
       env: token_auth_header(role: current_user).merge(
-        'RAW_POST_DATA' => create_body(id).to_json,
+        'RAW_POST_DATA' => create_body(id, owner).to_json,
         'ACCEPT' => "application/x.secretsmgr.v2beta+json",
         'CONTENT_TYPE' => "application/json"
       )
@@ -116,6 +119,9 @@ describe AuthenticateController, type: :request do
           resource: !webservice
 
       - !user alice
+      - !user bob
+      - !user grant
+
       - !grant
         role: !group conjur/authn-oidc/keycloak/users
         member: !user alice
@@ -128,6 +134,10 @@ describe AuthenticateController, type: :request do
         privilege: [ read ]
         resource: !policy conjur/authn-jwt
 
+      - !permit
+        role: !user grant
+        privilege: [ read, create ]
+        resource: !policy conjur/authn-jwt
     POLICY
   end
 
@@ -297,16 +307,18 @@ describe AuthenticateController, type: :request do
       allow(Audit).to receive(:logger).and_return(Audit::Log::RubyAdapter.new(logger))
       apply_root_policy("rspec", policy_content: test_policy, expect_success: true)
     end
+
     context 'when user has permission' do
-      it "returns a 200" do
+      it "returns a 201" do
         create_request(current_user)
-        expect(response.code).to eq('200')
+        expect(response.code).to eq('201')
         expect((JSON.parse(response.body)["name"])).to eql("test-jwt3")
         expect(log_output.string).to include("conjur: rspec:user:admin successfully created jwt test-jwt3 with URI path: '/authenticators/rspec'")
       end
+
       context 'when the authenticator already exisit in the database' do
         it "returns a 409" do
-          create_request(current_user, 'test-jwt1')
+          create_request(current_user, id: 'test-jwt1')
           expect(response.code).to eq('409')
           expect((JSON.parse(response.body)["message"])).to eql("The authenticator already exists.")
           expect(log_output.string).to include(
@@ -317,22 +329,56 @@ describe AuthenticateController, type: :request do
           )
         end
       end
+
       context 'There is an unhandled error' do
         before do 
           allow_any_instance_of(DB::Repository::AuthenticatorRepository).to receive(:create).and_raise("test error") 
         end
         it 'creates an audit log for that error' do
-          expect {  create_request(current_user, 'test-jwt1') }.to raise_error('test error')
+          expect {  create_request(current_user, id: 'test-jwt1') }.to raise_error('test error')
           expect(log_output.string).to include("conjur: rspec:user:admin failed to create authenticator with URI path: '/authenticators/rspec'")
         end
       end
     end
+
     context 'when user does not have create permission' do
       let(:current_user) { Role.find_or_create(role_id: 'rspec:user:alice') }
       it "returns a 403" do
         create_request(current_user)
         expect(response.code).to eq('403')
         expect(log_output.string).to include("conjur: rspec:user:alice failed to create authenticator with URI path: '/authenticators/rspec'")
+      end
+    end
+
+    context 'when user does not have visibility on auth branch' do
+      let(:current_user) { Role.find_or_create(role_id: 'rspec:user:bob') }
+
+      it "returns a 404" do
+        create_request(current_user)
+        expect(response.code).to eq('404')
+        expect(log_output.string).to include("rspec:policy:conjur/authn-jwt not found in account rspec")
+      end
+    end
+
+    context 'when user doesnt have visibility on the requested owner' do
+      let(:current_user) { Role.find_or_create(role_id: 'rspec:user:grant') }
+      let(:owner) { { id: "bob", kind: "user" } }
+
+      it "returns a 404" do
+        create_request(current_user, owner: owner)
+        expect(response.code).to eq('404')
+        expect(log_output.string).to include("rspec:user:bob not found in account rspec")
+      end
+    end
+
+    context 'when the requested owner doesnt exist' do
+      let(:current_user) { Role.find_or_create(role_id: 'rspec:user:grant') }
+      let(:owner) { { id: "bob", kind: "host" } }
+
+      it "returns a 404" do
+        create_request(current_user, owner: owner)
+        expect(response.code).to eq('404')
+        expect(log_output.string).to include("rspec:host:bob not found in account rspec")
       end
     end
   end

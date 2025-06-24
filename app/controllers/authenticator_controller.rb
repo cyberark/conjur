@@ -52,7 +52,7 @@ class AuthenticatorController < V2RestController
 
     body = JSON.parse(req)
     response_audit('create', body["type"], response,  resource_id: body["name"])
-    return render(json: response.result) if response.success?
+    return render(json: response.result, status: :created) if response.success?
 
     handle_failure_response(response)
   rescue => e
@@ -161,8 +161,8 @@ class AuthenticatorController < V2RestController
     resource = Resource[auth_branch]
     
     unless resource&.visible_to?(current_user) 
-      ::FailureResponse.new(
-        message: "#{auth.owner} not found in account #{auth.account}",
+      return ::FailureResponse.new(
+        "#{auth.owner} not found in account #{auth.account}",
         exception: Exceptions::RecordNotFound.new(auth.owner),
         status: :not_found
       )
@@ -172,17 +172,17 @@ class AuthenticatorController < V2RestController
   end
 
   def verify_owner(auth)
-    return ensure_owner_exists(auth) unless auth.owner 
+    return ensure_owner_exists(auth) unless auth.owner.nil?
 
     ::SuccessResponse.new(auth)
   end
 
   def ensure_owner_exists(auth)
-    owner = Resource[auth.owner]  
-    return ::SuccessResponse.new(auth) unless owner&.visible_to?(current_user) 
+    owner = Resource[auth.owner]
+    return ::SuccessResponse.new(auth) if owner&.visible_to?(current_user) 
 
     ::FailureResponse.new(
-      message: "#{auth.owner} not found in account #{auth.account}",
+      "#{auth.owner} not found in account #{auth.account}",
       exception: Exceptions::RecordNotFound.new(auth.owner),
       status: :not_found
     )

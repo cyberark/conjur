@@ -49,7 +49,11 @@ module DB
       end
 
       def find(type:, account:, service_id:)
-        webservice = authenticator_webservices(type: type, account: account, service_id: service_id).first
+        search_service_id = service_id
+        # GCP has no service ID because there is only one GCP authenticator allowed per account
+        search_service_id = nil if type == "authn-gcp"
+
+        webservice = authenticator_webservices(type: type, account: account, service_id: search_service_id).first
         unless webservice
           resource_id = [type, service_id].compact.join('/')
           return @failure.new(
@@ -98,11 +102,22 @@ module DB
           delete_policy(r)
         end
 
+        return resource if protected_resource?(resource)
+
         resource.destroy
         resource_role = ::Role[resource.resource_id]
         resource_role&.destroy
 
         resource
+      end
+
+      # Determines if a resource can be deleted or not with this repository
+      def protected_resource?(resource)
+        _, type, name = resource.resource_id.split(":", 3)
+
+        # Matches the authenticator base branch
+        regexp = %r{^conjur/authn-\w+$}
+        name.match?(regexp) && type == "policy"
       end
 
       def map_authenticator(identifier:,  webservice:, account:)
@@ -126,6 +141,8 @@ module DB
 
       def resource_type_filter(type)
         return "authn-%" unless type
+        # For autn-gcp there is only one authenticator with no service ID so use a special search option
+        return type if type == "authn-gcp"
   
         "#{type}/%"
       end
@@ -137,7 +154,7 @@ module DB
       end
   
       def id_array(id)
-        full_id = id.split(':').last
+        full_id = id.split(':', 3).last
         full_id.split('/')
       end
 
@@ -159,7 +176,7 @@ module DB
       #   with just account:   "cucmber:webservice:conjur/authn-"
       # @param [symbol] account is required
       # 
-      # Webserrvices are then filtered to remove any that end in status
+      # Webservices are then filtered to remove any that end in status
       def authenticator_webservices(type:, account:, service_id: nil)
         @resource_repository.where(
           Sequel.like(
@@ -189,7 +206,12 @@ module DB
             # Querying for the authenticator webservice above includes the webservices
             # for the authenticator status. The filter below removes webservices that
             # don't match the authenticator policy.
-            webservice.id.split(':').last.match?(%r{^conjur/authn-[\w-]+/[\w-]+$})
+            regexp = %r{
+              ^(conjur/authn-gcp # Capture GCP authenticators which don't include a service_id
+              | # Negative lookahead (?!gcp) prevents picking up conjur/authn-gcp/status w/this rx
+              conjur/authn-(?!gcp)[\w-]+/[\w-]+)$ 
+            }x
+            webservice.id.split(':', 3).last.match?(regexp)
           end
       end
 
@@ -209,7 +231,7 @@ module DB
             value = variable.secret ? variable.secret.value : ''
             args[variable.identifier.split('/', 4)[-1].underscore.to_sym] = value
           end
-        end  
+        end
       end
     end
   end

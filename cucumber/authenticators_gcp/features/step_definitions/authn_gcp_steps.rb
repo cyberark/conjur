@@ -131,3 +131,14 @@ Given(/I authenticate (?:(\d+) times? in (\d+) threads? )?with authn-gcp using (
     }
   )
 end
+
+Given(/^I successfully initialize the GCP authenticator via the authenticators API$/) do
+  path = "#{conjur_hostname}/authenticators/#{ENV['CONJUR_ACCOUNT']}"
+  payload = {
+    type: "gcp",
+    name: "default",
+    enabled: true
+  }
+
+  post(path, payload.to_json, authenticated_v2_api_headers)
+end

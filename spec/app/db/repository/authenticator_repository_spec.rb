@@ -406,6 +406,22 @@ RSpec.describe(DB::Repository::AuthenticatorRepository) do
       end
     end
 
+    context("When the resource is protected") do
+      let(:resource_id) { "rspec:policy:conjur/authn-gcp" }
+      before do
+        allow(::Resource).to receive(:where).with(owner_id: resource_id).and_return([secret])
+        allow(::Resource).to receive(:where).with(owner_id: secret_id).and_return([])
+      end
+
+      it "doesn't delete the protected resources" do
+        expect(::Resource).to receive(:where).with(owner_id: resource_id)
+        expect(::Resource).to receive(:where).with(owner_id: secret_id)
+        expect(resource).not_to receive(:destroy)
+        expect(secret).to receive(:destroy)
+        expect(repo.delete(policy_id: resource_id)).not_to(be_nil)
+      end
+    end
+
     context("when resource and role exist") do
       let(:resource_role) { Role.create(role_id: resource.id) }
 

@@ -6,9 +6,12 @@ module AuthenticatorsV2
   class GcpAuthenticatorType < AuthenticatorBaseType
     GCP_DEFAULT_NAME = 'default'
 
-    protected
+    def webservice_branch
+      # Return the conjur/authn-gcp branch because GCP does not include a service ID
+      branch
+    end
 
-    def name
+    def authenticator_name
       GCP_DEFAULT_NAME
     end
   end
