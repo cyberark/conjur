@@ -4,7 +4,7 @@ require 'spec_helper'
 
 DatabaseCleaner.strategy = :truncation
 
-# Intergration test for thr V@ authenticator API's
+# Integration test for the V2 authenticator API's
 describe AuthenticateController, type: :request do
   let(:log_output) { StringIO.new }
   let(:logger) { Logger.new(log_output) }
@@ -286,6 +286,7 @@ describe AuthenticateController, type: :request do
               )
             end
           end
+        
           context 'When current user does not have update permissions' do
             it "returns a 403" do
               enable_request("{\"enabled\": true }", current_user, resource_id: "oidc/keycloak")
@@ -296,6 +297,42 @@ describe AuthenticateController, type: :request do
                 "and JSON object: {\"enabled\": true }: CONJ00006E 'alice' does not have 'update' privilege on rspec:webservice:conjur/authn-oidc/keycloak\n"
               )
             end
+          end
+        end
+        context 'When missing param enablement' do
+          it "returns a 422" do
+            enable_request("{}", current_user)
+            expect(response.code).to eq('422')
+            expect(log_output.string).to include(
+              "conjur: rspec:user:admin failed to enable authn-jwt test-jwt1 with URI path: '/authenticators/rspec/jwt/test-jwt1' and JSON object: {}: Missing required parameter: enabled"
+            )
+          end
+        end
+        context 'When request body is empty' do
+          it "returns a 400" do
+            enable_request("", current_user)
+            expect(response.code).to eq('400')
+            expect(log_output.string).to include(
+              "conjur: rspec:user:admin failed to enable authn-jwt test-jwt1 with URI path: '/authenticators/rspec/jwt/test-jwt1': Request body is empty"
+            )
+          end
+        end
+        context 'When there are extra paramaters in request body' do
+          it "returns a 422" do
+            enable_request("{\"type\": \"aws\", \"enabled\": true }", current_user)
+            expect(response.code).to eq('422')
+            expect(log_output.string).to include(
+              "conjur: rspec:user:admin failed to enable authn-jwt test-jwt1 with URI path: '/authenticators/rspec/jwt/test-jwt1' and JSON object: {\"type\": \"aws\", \"enabled\": true }: The following parameters were not expected: 'type'"
+            )
+          end
+        end
+        context 'When enabled is not a boolean' do
+          it "returns a 422" do
+            enable_request("{\"enabled\": 1 }", current_user)
+            expect(response.code).to eq('422')
+            expect(log_output.string).to include(
+              "conjur: rspec:user:admin failed to enable authn-jwt test-jwt1 with URI path: '/authenticators/rspec/jwt/test-jwt1' and JSON object: {\"enabled\": 1 }: The enabled parameter must be of type=boolean"
+            )
           end
         end
       end
@@ -313,15 +350,21 @@ describe AuthenticateController, type: :request do
         create_request(current_user)
         expect(response.code).to eq('201')
         expect((JSON.parse(response.body)["name"])).to eql("test-jwt3")
-        expect(log_output.string).to include("conjur: rspec:user:admin successfully created jwt test-jwt3 with URI path: '/authenticators/rspec'")
+        expect(log_output.string).to include(
+          "conjur: rspec:user:admin successfully created jwt test-jwt3 with URI path: '/authenticators/rspec' and JSON object: " \
+          "{\"type\":\"jwt\",\"name\":\"test-jwt3\",\"enabled\":false,\"data\":{\"jwks_uri\":\"http://uri\",\"identity\":" \
+          "{\"token_app_property\":\"prop\",\"enforced_claims\":[\"test\",\"123\"],\"claim_aliases\":{\"myclaim\":\"myvalue\",\"second\":\"two\"}}},\"annotations\":{\"test\":\"123\"}}\n"
+        )
       end
-
-      context 'when the authenticator already exisit in the database' do
+      context 'when the authenticator already exists in the database' do
         it "returns a 409" do
           create_request(current_user, id: 'test-jwt1')
           expect(response.code).to eq('409')
           expect((JSON.parse(response.body)["message"])).to eql("The authenticator already exists.")
           expect(log_output.string).to include(
+            "conjur: rspec:user:admin failed to create jwt test-jwt1 with URI path: '/authenticators/rspec' and JSON object: " \
+            "{\"type\":\"jwt\",\"name\":\"test-jwt1\",\"enabled\":false,\"data\":{\"jwks_uri\":\"http://uri\",\"identity\":" \
+            "{\"token_app_property\":\"prop\",\"enforced_claims\":[\"test\",\"123\"],\"claim_aliases\":{\"myclaim\":\"myvalue\",\"second\":\"two\"}}},\"annotations\":{\"test\":\"123\"}}: " \
             "The authenticator already exists.\n"
           )
         end
@@ -344,6 +387,22 @@ describe AuthenticateController, type: :request do
         create_request(current_user)
         expect(response.code).to eq('403')
         expect(log_output.string).to include("Forbidden")
+      end
+    end
+
+    context 'when the request body is malformed JSON' do
+      it "returns a 400" do
+        post(
+          "/authenticators/rspec",
+          env: token_auth_header(role: current_user).merge(
+            'RAW_POST_DATA' => "not a valid json",
+            'ACCEPT' => "application/x.secretsmgr.v2beta+json",
+            'CONTENT_TYPE' => "application/json"
+          )
+        )
+        expect(response.code).to eq('400')
+        expect(JSON.parse(response.body)["message"]).to eq("Request JSON is malformed")
+        expect(log_output.string).to include("conjur: rspec:user:admin failed to create authenticator with URI path: '/authenticators/rspec'")
       end
     end
 
@@ -376,6 +435,21 @@ describe AuthenticateController, type: :request do
         create_request(current_user, owner: owner)
         expect(response.code).to eq('404')
         expect(log_output.string).to include("rspec:host:bob not found in account rspec")
+      end
+    end
+    context 'when the request body is malformed JSON' do
+      it "returns a 400" do
+        post(
+          "/authenticators/rspec",
+          env: token_auth_header(role: current_user).merge(
+            'RAW_POST_DATA' => "not a valid json",
+            'ACCEPT' => "application/x.secretsmgr.v2beta+json",
+            'CONTENT_TYPE' => "application/json"
+          )
+        )
+        expect(response.code).to eq('400')
+        expect(JSON.parse(response.body)["message"]).to eq("Request JSON is malformed")
+        expect(log_output.string).to include("conjur: rspec:user:admin failed to create authenticator with URI path: '/authenticators/rspec'")
       end
     end
   end

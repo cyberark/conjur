@@ -52,13 +52,12 @@ module AuthenticatorsV2
 
     def create_authenticator_from_json(auth_json, account)
       auth_dict = JSON.parse(
-        auth_json,
+        auth_json, 
         {
-          symbolize_names: true,
+          symbolize_names: true, 
           create_additions: false
         }
       )
-      
       if auth_dict[:type].nil?
         return @failure.new(
           "Authenticator type is required",
