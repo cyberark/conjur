@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
+## [1.22.2] - 2025-06-30
+### Added
+- Allow conjur administrator to enable additional signed headers for IAM authenticator. CNJR-10217
+
 ## [1.22.1] - 2025-05-02
 ### Security
 - Improve headers handling in AWS IAM authenticator. CONJSE-2023
@@ -33,8 +37,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Attempt to authenticate using the built-in authenticator (`authn`) with a GET
   request now results in a `404` response, rather than logging an authenticator
   not enabled message. CNJR-5854
-- Attempt to load a policy that references a non-existent resource now
-  results in a `422` response, rather than a `404` error. CNJR-9122
 - Set the default and maximal limit value for resources list API to 1000 in order
   to align with the documentation. CNJR-8485
 - Ensure Kubernetes authenticator websocket connections are closed when a
@@ -47,8 +49,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   the secret's value. CNJR-7680
 - Use both database and environment configuration for the enabled authenticators.
   CNJR-8724
-
-### Security
 - Update rack to 2.2.13 to address CVE-2025-27610.
   CONJSE-1956
 - Update nokogiri to 1.18.4 to address GHSA-mrxw-mxhj-p664.
