@@ -42,6 +42,7 @@ COMPOSE="docker compose"
 declare -a required_envvars
 required_envvars[identity]="IDENTITY_CLIENT_ID IDENTITY_CLIENT_SECRET IDENTITY_PROVIDER_URI"
 required_envvars[azure]="AZURE_TENANT_ID AZURE_SUBSCRIPTION_ID AZURE_RESOURCE_GROUP"
+required_envvars[iam]="AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY"
 
 main() {
   unset COMPOSE_PROJECT_NAME
@@ -163,6 +164,10 @@ check_env_vars() {
     envvars="$envvars ${required_envvars[azure]}"
   fi
 
+  if [[ $ENABLE_AUTHN_IAM = true ]]; then
+    envvars="$envvars ${required_envvars[iam]}"
+  fi
+
   IFS=' ' read -r -a envvars <<< "$envvars"
 
   envvar_message="Required environment variables not set:"
@@ -172,7 +177,7 @@ check_env_vars() {
     fi
   done
 
-  if [[ "$envvar_message" =~ .*"IDENTITY".* ]]; then
+  if [[ "$envvar_message" =~ .*(IDENTITY|AWS).* ]]; then
     echo "$envvar_message"
     exit 1
   fi
@@ -493,7 +498,6 @@ init_iam() {
   fi
   enabled_authenticators="$enabled_authenticators,authn-iam/prod"
 
-  # Using conjur policy load doesn't work here (not sure why).
   docker compose exec conjur \
     conjurctl policy load cucumber \
     "/src/conjur-server/dev/files/authn-iam/policy.yml"
