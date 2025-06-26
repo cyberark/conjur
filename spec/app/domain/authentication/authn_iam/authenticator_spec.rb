@@ -3,10 +3,17 @@
 require 'spec_helper'
 
 class ValidatingHttpClient
+  def initialize(optional_keys = '')
+    @optional_keys = optional_keys
+  end
+
   VALID_KEYS = %w[host authorization x-amz-date x-amz-security-token x-amz-content-sha256].freeze
   def get_response(uri, headers)
     header_keys = headers.keys.map(&:downcase)
-    unless (header_keys - VALID_KEYS).empty?
+    optional_keys = @optional_keys.to_s.split(';').map(&:strip).reject(&:empty?)
+    all_valid_keys = VALID_KEYS | optional_keys
+
+    unless (header_keys - all_valid_keys).empty?
       raise ArgumentError, "Invalid headers: #{header_keys - VALID_KEYS}"
     end
     Net::HTTP.get_response(uri, headers)
@@ -14,16 +21,19 @@ class ValidatingHttpClient
 end
 
 RSpec.describe(Authentication::AuthnIam::Authenticator) do
-  let(:authenticator) { Authentication::AuthnIam::Authenticator.new(env:[], client: ValidatingHttpClient.new) }
+  let(:optional_signed_headers) { nil }
+  let(:fetch_authenticator_secrets_double) { instance_double(Authentication::Util::FetchAuthenticatorSecrets, call: { 'optional-signed-headers' => optional_signed_headers }) }
+  let(:validating_client) { ValidatingHttpClient.new(optional_signed_headers) }
+  let(:authenticator) { Authentication::AuthnIam::Authenticator.new(env:[], client: validating_client, fetch_authenticator_secrets: fetch_authenticator_secrets_double) }
   let(:conjur_role) { 'host/foo/188945769008/conjur-role' }
 
   # Good headers
   let(:valid_global_headers) { '{"host":"sts.amazonaws.com","x-amz-date":"20230518T152525Z","x-amz-security-token":"IQoJb3JpZ2luX2VjEDcaDGV1LWNlbnRyYWwtMSJGMEQCIB7Inb5Q2L+Tu0nDM6KpYkqjXetnd6Eizw9gt3c27+okAiBJHE59aL6HuIszrEmk7/SaclqSmEZ5xUmEJ10Hla8PYyq8BQhgEAMaDDE4ODk0NTc2OTAwOCIMg1WLlzrcLY1FHaQKKpkFcEmdxNL2sGdxHOhoLv5hf0pQsOhWciwMgGhGpSUM7gXSG6Z8Rqv7q1rqgl04BjxLZshOOJYdIfUjUNccgiWBofjRYNH5SGeuLuu7XfrtmGmToPSejG5vY76PFXyef4bRNpgkB2aTRjRIg/fInQF0y2oILUSbX4nUcvcJJpss7VnpGRgGqGE+HtatAnfAn0cVoPHs/I2oZslP9y2IVVAEbCxKhYUcHniCJzrmTrppczyd8bwC36wdhcN88YtUES3Z0sS9Ho3JcLbxeAnoqkuPng1VYLAt5uELOqqYWSsdqVFwc+PJ5JoBAJSab1dyPp/YhTg+Lp8pYm/cgSR4lygqgeElL+30tI77GFuMdxdnWymk1mvXtcr0Q/eOMpAETohivAEW+m4CglAEF3VTdLQXODKCvxsiUmsN5AanX7eKGeHPfy/mcM/srWWkVNeRk//DLFNSgfiaeBQeUpzRDEgVpweA4tf5xjW8oUxp9hK9Q872dxgye07bFLNXbyqK9NPAGIcD4/7Tw73kPxYSvZ+7wajgkGdcuIz91GR973QG2k5e82PwiiROOm8qEJo7QzPX6hF5s//qSnKr0vGo4tBrewKvQVjhafdf+B0b44jgw7kIsUkAYz/1HY2PPQVvVn5DayO7VxCTTd+VrQScr22ExOucIKEw30j5hCkhRnUMS6MAjsYwclSbPuUeZ8rVvFQSEoC37SQZP13OVphFNUUFVhZJU5kYd9BvaFhPO0F54XJq1Gu/biMJFumHj2lz5TadSXxyJwSJkfqE53B9b6Sc1RB7O4AckozmH/pm46fJpD5sq7RLQg9YLA//fi+EoBwqbiskCz7WRsCh/Q2l/dmA9kAPPVatqkagVdcJKAJNl8W4Y9nm9MBhdFIw4PeYowY6sgF2td8Xkg0E4ClmQ3CoGWO+TTWmiWwN0BAcKD5prq3V9qmn3SXnzLUO02k0gC4RsdGUCSiByzNHL3mG+G7l8MEZ8TmZQ+ZCgtlnvLYsdECiT+7tcrwN8Zpiu0BKcAWSV8Mg5/D0HYfDTFAv7jgqXuL+uruLJw4xzZCoWc5Ru1Mhprl4NF8T9Am2RyEEEO9rjveQCWpzaZmyvx/MS4isoqhC2KGeJEyeulk2XE0mXO6TZz9c","x-amz-content-sha256":"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855","authorization":"AWS4-HMAC-SHA256 Credential=ASIASX7QLUIYGDI4QX56/20230518/us-east-1/sts/aws4_request, SignedHeaders=host;x-amz-content-sha256;x-amz-date;x-amz-security-token, Signature=81b929060b45f05470c9f542a9e46cdce51d37c1d22a58d1942b7fa175079af5"}' }
   let(:valid_regional_headers) { '{"host":"sts.eu-central-1.amazonaws.com","x-amz-date":"20230518T152442Z","x-amz-security-token":"IQoJb3JpZ2luX2VjEDcaDGV1LWNlbnRyYWwtMSJGMEQCIB7Inb5Q2L+Tu0nDM6KpYkqjXetnd6Eizw9gt3c27+okAiBJHE59aL6HuIszrEmk7/SaclqSmEZ5xUmEJ10Hla8PYyq8BQhgEAMaDDE4ODk0NTc2OTAwOCIMg1WLlzrcLY1FHaQKKpkFcEmdxNL2sGdxHOhoLv5hf0pQsOhWciwMgGhGpSUM7gXSG6Z8Rqv7q1rqgl04BjxLZshOOJYdIfUjUNccgiWBofjRYNH5SGeuLuu7XfrtmGmToPSejG5vY76PFXyef4bRNpgkB2aTRjRIg/fInQF0y2oILUSbX4nUcvcJJpss7VnpGRgGqGE+HtatAnfAn0cVoPHs/I2oZslP9y2IVVAEbCxKhYUcHniCJzrmTrppczyd8bwC36wdhcN88YtUES3Z0sS9Ho3JcLbxeAnoqkuPng1VYLAt5uELOqqYWSsdqVFwc+PJ5JoBAJSab1dyPp/YhTg+Lp8pYm/cgSR4lygqgeElL+30tI77GFuMdxdnWymk1mvXtcr0Q/eOMpAETohivAEW+m4CglAEF3VTdLQXODKCvxsiUmsN5AanX7eKGeHPfy/mcM/srWWkVNeRk//DLFNSgfiaeBQeUpzRDEgVpweA4tf5xjW8oUxp9hK9Q872dxgye07bFLNXbyqK9NPAGIcD4/7Tw73kPxYSvZ+7wajgkGdcuIz91GR973QG2k5e82PwiiROOm8qEJo7QzPX6hF5s//qSnKr0vGo4tBrewKvQVjhafdf+B0b44jgw7kIsUkAYz/1HY2PPQVvVn5DayO7VxCTTd+VrQScr22ExOucIKEw30j5hCkhRnUMS6MAjsYwclSbPuUeZ8rVvFQSEoC37SQZP13OVphFNUUFVhZJU5kYd9BvaFhPO0F54XJq1Gu/biMJFumHj2lz5TadSXxyJwSJkfqE53B9b6Sc1RB7O4AckozmH/pm46fJpD5sq7RLQg9YLA//fi+EoBwqbiskCz7WRsCh/Q2l/dmA9kAPPVatqkagVdcJKAJNl8W4Y9nm9MBhdFIw4PeYowY6sgF2td8Xkg0E4ClmQ3CoGWO+TTWmiWwN0BAcKD5prq3V9qmn3SXnzLUO02k0gC4RsdGUCSiByzNHL3mG+G7l8MEZ8TmZQ+ZCgtlnvLYsdECiT+7tcrwN8Zpiu0BKcAWSV8Mg5/D0HYfDTFAv7jgqXuL+uruLJw4xzZCoWc5Ru1Mhprl4NF8T9Am2RyEEEO9rjveQCWpzaZmyvx/MS4isoqhC2KGeJEyeulk2XE0mXO6TZz9c","x-amz-content-sha256":"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855","authorization":"AWS4-HMAC-SHA256 Credential=ASIASX7QLUIYGDI4QX56/20230518/eu-central-1/sts/aws4_request, SignedHeaders=host;x-amz-content-sha256;x-amz-date;x-amz-security-token, Signature=8e0bebec9a3ce860b4595a4b27710da558a157a711e2dcbfe3a86881af99c459"}' }
-  let(:valid_global_headers_no_host) { '{"Authorization":"AWS4-HMAC-SHA256 Credential=ASIAYNRQATHTPJYFX7PM/20230613/us-east-1/sts/aws4_request, SignedHeaders=host;x-amz-date;x-amz-security-token, Signature=e81afd905d5131d697e33ad38a5eff72789ed3e6b5e61d694212fbfe09684a73","X-Amz-Date":"20230613T204702Z","X-Amz-Security-Token":"FwoGZXIvYXdzEL7//////////wEaDG6/NsUxeWDT4wob/iKyAbExJrQ9Qr0pVX3lkwxaYwvssq/xFKk7Iu8w5uQsbsjZtqz7s8oNBfjuR/J7rRvDiFk4pyTICA9vzFEpNK1f4U3hfDslZFKhkeGgnY5jA2RLOlffE51tmvMr+KN6AJPJ+drAI5+K1Kn1G8Aiy5lsBHzEc0HR1Ji8zjujaqOWpZKYVC1MgIQt+l9eRdZTHBI/yb0fm32ZGxu/jMPZsa/kdGoDuAMd4pCZPnkaSnPgCNjJq5IoxqujpAYyLTMzCd3aidLr/ziL8UyEUbGJhglnhYEsDKp/ErjfnvoadZEuFIIpBKHbM01Igg=="}' }
-  let(:valid_regional_headers_no_host) { '{"Authorization":"AWS4-HMAC-SHA256 Credential=ASIAYNRQATHTEQFKJN2P/20230613/us-east-1/sts/aws4_request, SignedHeaders=host;x-amz-date;x-amz-security-token, Signature=38f8b60e4cbee78d55f379646e4fde87439ce0e43cd4cae38e3d2e295ebcfc58","X-Amz-Date":"20230613T204734Z","X-Amz-Security-Token":"FwoGZXIvYXdzEL7//////////wEaDAHHPZ7NyIBlfbsv4iKyATWQ4LpJCG6fsa1UR0jYrTMF0FSxCu/otBw8qZNNljSWHaEIkh/h3GfImEJjYXytE3N92XPXahQomVErEpcyOBO3M/FDbMKZ7tlTD1V5Rr8ZgMG6tOLCL4eCKq2IbugKBZo1Bw8OxC20sjZWNL44Z/8Lt6LkOsHJBiN1wEAEtT5Wrt5Jc0Qs8oU8xV6RHpQRfOOM6V1BnqDjrnJG3cUguotSpfR2RyskUZNr+lRg+MfJOJ8o5qujpAYyLew0iNCK3nlXngTuzSo6M3rPAKQhbK1tCvKSIMk6SqrHThyfAebPucCZx/XbbA=="}' }
-  let(:invalid_regional_headers_no_host) { '{"Authorization":"AWS4-HMAC-SHA256 Credential=ASIAYNRQATHTEQFKJN2P/20230613/evil.org?us-east-1/sts/aws4_request, SignedHeaders=host;x-amz-date;x-amz-security-token, Signature=38f8b60e4cbee78d55f379646e4fde87439ce0e43cd4cae38e3d2e295ebcfc58","X-Amz-Date":"20230613T204734Z","X-Amz-Security-Token":"FwoGZXIvYXdzEL7//////////wEaDAHHPZ7NyIBlfbsv4iKyATWQ4LpJCG6fsa1UR0jYrTMF0FSxCu/otBw8qZNNljSWHaEIkh/h3GfImEJjYXytE3N92XPXahQomVErEpcyOBO3M/FDbMKZ7tlTD1V5Rr8ZgMG6tOLCL4eCKq2IbugKBZo1Bw8OxC20sjZWNL44Z/8Lt6LkOsHJBiN1wEAEtT5Wrt5Jc0Qs8oU8xV6RHpQRfOOM6V1BnqDjrnJG3cUguotSpfR2RyskUZNr+lRg+MfJOJ8o5qujpAYyLew0iNCK3nlXngTuzSo6M3rPAKQhbK1tCvKSIMk6SqrHThyfAebPucCZx/XbbA=="}' }
-  let(:malicious_regional_headers_no_host) { "{\"Authorization\":\"AWS4-HMAC-SHA256 Credential=ASIAYNRQATHTEQFKJN2P/20230613/evil.org;..amazonaws.com?q=1&z=\\t\\nus-east-1/sts/aws4_request, SignedHeaders=host;x-amz-date;x-amz-security-token, Signature=38f8b60e4cbee78d55f379646e4fde87439ce0e43cd4cae38e3d2e295ebcfc58\",\"X-Amz-Date\":\"20230613T204734Z\",\"X-Amz-Security-Token\":\"FwoGZXIvYXdzEL7//////////wEaDAHHPZ7NyIBlfbsv4iKyATWQ4LpJCG6fsa1UR0jYrTMF0FSxCu/otBw8qZNNljSWHaEIkh/h3GfImEJjYXytE3N92XPXahQomVErEpcyOBO3M/FDbMKZ7tlTD1V5Rr8ZgMG6tOLCL4eCKq2IbugKBZo1Bw8OxC20sjZWNL44Z/8Lt6LkOsHJBiN1wEAEtT5Wrt5Jc0Qs8oU8xV6RHpQRfOOM6V1BnqDjrnJG3cUguotSpfR2RyskUZNr+lRg+MfJOJ8o5qujpAYyLew0iNCK3nlXngTuzSo6M3rPAKQhbK1tCvKSIMk6SqrHThyfAebPucCZx/XbbA==\"}" }
+  let(:valid_global_headers_no_host) { '{"Authorization":"AWS4-HMAC-SHA256 Credential=ASIAYNRQATHTPJYFX7PM/20230613/us-east-1/sts/aws4_request, SignedHeaders=x-amz-date;x-amz-security-token, Signature=e81afd905d5131d697e33ad38a5eff72789ed3e6b5e61d694212fbfe09684a73","X-Amz-Date":"20230613T204702Z","X-Amz-Security-Token":"FwoGZXIvYXdzEL7//////////wEaDG6/NsUxeWDT4wob/iKyAbExJrQ9Qr0pVX3lkwxaYwvssq/xFKk7Iu8w5uQsbsjZtqz7s8oNBfjuR/J7rRvDiFk4pyTICA9vzFEpNK1f4U3hfDslZFKhkeGgnY5jA2RLOlffE51tmvMr+KN6AJPJ+drAI5+K1Kn1G8Aiy5lsBHzEc0HR1Ji8zjujaqOWpZKYVC1MgIQt+l9eRdZTHBI/yb0fm32ZGxu/jMPZsa/kdGoDuAMd4pCZPnkaSnPgCNjJq5IoxqujpAYyLTMzCd3aidLr/ziL8UyEUbGJhglnhYEsDKp/ErjfnvoadZEuFIIpBKHbM01Igg=="}' }
+  let(:valid_regional_headers_no_host) { '{"Authorization":"AWS4-HMAC-SHA256 Credential=ASIAYNRQATHTEQFKJN2P/20230613/us-east-1/sts/aws4_request, SignedHeaders=x-amz-date;x-amz-security-token, Signature=38f8b60e4cbee78d55f379646e4fde87439ce0e43cd4cae38e3d2e295ebcfc58","X-Amz-Date":"20230613T204734Z","X-Amz-Security-Token":"FwoGZXIvYXdzEL7//////////wEaDAHHPZ7NyIBlfbsv4iKyATWQ4LpJCG6fsa1UR0jYrTMF0FSxCu/otBw8qZNNljSWHaEIkh/h3GfImEJjYXytE3N92XPXahQomVErEpcyOBO3M/FDbMKZ7tlTD1V5Rr8ZgMG6tOLCL4eCKq2IbugKBZo1Bw8OxC20sjZWNL44Z/8Lt6LkOsHJBiN1wEAEtT5Wrt5Jc0Qs8oU8xV6RHpQRfOOM6V1BnqDjrnJG3cUguotSpfR2RyskUZNr+lRg+MfJOJ8o5qujpAYyLew0iNCK3nlXngTuzSo6M3rPAKQhbK1tCvKSIMk6SqrHThyfAebPucCZx/XbbA=="}' }
+  let(:invalid_regional_headers_no_host) { '{"Authorization":"AWS4-HMAC-SHA256 Credential=ASIAYNRQATHTEQFKJN2P/20230613/evil.org?us-east-1/sts/aws4_request, SignedHeaders=x-amz-date;x-amz-security-token, Signature=38f8b60e4cbee78d55f379646e4fde87439ce0e43cd4cae38e3d2e295ebcfc58","X-Amz-Date":"20230613T204734Z","X-Amz-Security-Token":"FwoGZXIvYXdzEL7//////////wEaDAHHPZ7NyIBlfbsv4iKyATWQ4LpJCG6fsa1UR0jYrTMF0FSxCu/otBw8qZNNljSWHaEIkh/h3GfImEJjYXytE3N92XPXahQomVErEpcyOBO3M/FDbMKZ7tlTD1V5Rr8ZgMG6tOLCL4eCKq2IbugKBZo1Bw8OxC20sjZWNL44Z/8Lt6LkOsHJBiN1wEAEtT5Wrt5Jc0Qs8oU8xV6RHpQRfOOM6V1BnqDjrnJG3cUguotSpfR2RyskUZNr+lRg+MfJOJ8o5qujpAYyLew0iNCK3nlXngTuzSo6M3rPAKQhbK1tCvKSIMk6SqrHThyfAebPucCZx/XbbA=="}' }
+  let(:malicious_regional_headers_no_host) { "{\"Authorization\":\"AWS4-HMAC-SHA256 Credential=ASIAYNRQATHTEQFKJN2P/20230613/evil.org;..amazonaws.com?q=1&z=\\t\\nus-east-1/sts/aws4_request, SignedHeaders=x-amz-date;x-amz-security-token, Signature=38f8b60e4cbee78d55f379646e4fde87439ce0e43cd4cae38e3d2e295ebcfc58\",\"X-Amz-Date\":\"20230613T204734Z\",\"X-Amz-Security-Token\":\"FwoGZXIvYXdzEL7//////////wEaDAHHPZ7NyIBlfbsv4iKyATWQ4LpJCG6fsa1UR0jYrTMF0FSxCu/otBw8qZNNljSWHaEIkh/h3GfImEJjYXytE3N92XPXahQomVErEpcyOBO3M/FDbMKZ7tlTD1V5Rr8ZgMG6tOLCL4eCKq2IbugKBZo1Bw8OxC20sjZWNL44Z/8Lt6LkOsHJBiN1wEAEtT5Wrt5Jc0Qs8oU8xV6RHpQRfOOM6V1BnqDjrnJG3cUguotSpfR2RyskUZNr+lRg+MfJOJ8o5qujpAYyLew0iNCK3nlXngTuzSo6M3rPAKQhbK1tCvKSIMk6SqrHThyfAebPucCZx/XbbA==\"}" }
   let(:with_x_forwarded_host) { '{"X-Forwarded-Host": "evil.org","host":"sts.amazonaws.com","x-amz-date":"20230518T152525Z","x-amz-security-token":"IQoJb3JpZ2luX2VjEDcaDGV1LWNlbnRyYWwtMSJGMEQCIB7Inb5Q2L+Tu0nDM6KpYkqjXetnd6Eizw9gt3c27+okAiBJHE59aL6HuIszrEmk7/SaclqSmEZ5xUmEJ10Hla8PYyq8BQhgEAMaDDE4ODk0NTc2OTAwOCIMg1WLlzrcLY1FHaQKKpkFcEmdxNL2sGdxHOhoLv5hf0pQsOhWciwMgGhGpSUM7gXSG6Z8Rqv7q1rqgl04BjxLZshOOJYdIfUjUNccgiWBofjRYNH5SGeuLuu7XfrtmGmToPSejG5vY76PFXyef4bRNpgkB2aTRjRIg/fInQF0y2oILUSbX4nUcvcJJpss7VnpGRgGqGE+HtatAnfAn0cVoPHs/I2oZslP9y2IVVAEbCxKhYUcHniCJzrmTrppczyd8bwC36wdhcN88YtUES3Z0sS9Ho3JcLbxeAnoqkuPng1VYLAt5uELOqqYWSsdqVFwc+PJ5JoBAJSab1dyPp/YhTg+Lp8pYm/cgSR4lygqgeElL+30tI77GFuMdxdnWymk1mvXtcr0Q/eOMpAETohivAEW+m4CglAEF3VTdLQXODKCvxsiUmsN5AanX7eKGeHPfy/mcM/srWWkVNeRk//DLFNSgfiaeBQeUpzRDEgVpweA4tf5xjW8oUxp9hK9Q872dxgye07bFLNXbyqK9NPAGIcD4/7Tw73kPxYSvZ+7wajgkGdcuIz91GR973QG2k5e82PwiiROOm8qEJo7QzPX6hF5s//qSnKr0vGo4tBrewKvQVjhafdf+B0b44jgw7kIsUkAYz/1HY2PPQVvVn5DayO7VxCTTd+VrQScr22ExOucIKEw30j5hCkhRnUMS6MAjsYwclSbPuUeZ8rVvFQSEoC37SQZP13OVphFNUUFVhZJU5kYd9BvaFhPO0F54XJq1Gu/biMJFumHj2lz5TadSXxyJwSJkfqE53B9b6Sc1RB7O4AckozmH/pm46fJpD5sq7RLQg9YLA//fi+EoBwqbiskCz7WRsCh/Q2l/dmA9kAPPVatqkagVdcJKAJNl8W4Y9nm9MBhdFIw4PeYowY6sgF2td8Xkg0E4ClmQ3CoGWO+TTWmiWwN0BAcKD5prq3V9qmn3SXnzLUO02k0gC4RsdGUCSiByzNHL3mG+G7l8MEZ8TmZQ+ZCgtlnvLYsdECiT+7tcrwN8Zpiu0BKcAWSV8Mg5/D0HYfDTFAv7jgqXuL+uruLJw4xzZCoWc5Ru1Mhprl4NF8T9Am2RyEEEO9rjveQCWpzaZmyvx/MS4isoqhC2KGeJEyeulk2XE0mXO6TZz9c","x-amz-content-sha256":"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855","authorization":"AWS4-HMAC-SHA256 Credential=ASIASX7QLUIYGDI4QX56/20230518/us-east-1/sts/aws4_request, SignedHeaders=host;x-amz-content-sha256;x-amz-date;x-amz-security-token, Signature=81b929060b45f05470c9f542a9e46cdce51d37c1d22a58d1942b7fa175079af5"}' }
 
 
@@ -33,32 +43,43 @@ RSpec.describe(Authentication::AuthnIam::Authenticator) do
   let(:different_signing_request_verb) { '{"host":"sts.amazonaws.com","x-amz-date":"20230518T153042Z","x-amz-security-token":"IQoJb3JpZ2luX2VjEDcaDGV1LWNlbnRyYWwtMSJGMEQCIB7Inb5Q2L+Tu0nDM6KpYkqjXetnd6Eizw9gt3c27+okAiBJHE59aL6HuIszrEmk7/SaclqSmEZ5xUmEJ10Hla8PYyq8BQhgEAMaDDE4ODk0NTc2OTAwOCIMg1WLlzrcLY1FHaQKKpkFcEmdxNL2sGdxHOhoLv5hf0pQsOhWciwMgGhGpSUM7gXSG6Z8Rqv7q1rqgl04BjxLZshOOJYdIfUjUNccgiWBofjRYNH5SGeuLuu7XfrtmGmToPSejG5vY76PFXyef4bRNpgkB2aTRjRIg/fInQF0y2oILUSbX4nUcvcJJpss7VnpGRgGqGE+HtatAnfAn0cVoPHs/I2oZslP9y2IVVAEbCxKhYUcHniCJzrmTrppczyd8bwC36wdhcN88YtUES3Z0sS9Ho3JcLbxeAnoqkuPng1VYLAt5uELOqqYWSsdqVFwc+PJ5JoBAJSab1dyPp/YhTg+Lp8pYm/cgSR4lygqgeElL+30tI77GFuMdxdnWymk1mvXtcr0Q/eOMpAETohivAEW+m4CglAEF3VTdLQXODKCvxsiUmsN5AanX7eKGeHPfy/mcM/srWWkVNeRk//DLFNSgfiaeBQeUpzRDEgVpweA4tf5xjW8oUxp9hK9Q872dxgye07bFLNXbyqK9NPAGIcD4/7Tw73kPxYSvZ+7wajgkGdcuIz91GR973QG2k5e82PwiiROOm8qEJo7QzPX6hF5s//qSnKr0vGo4tBrewKvQVjhafdf+B0b44jgw7kIsUkAYz/1HY2PPQVvVn5DayO7VxCTTd+VrQScr22ExOucIKEw30j5hCkhRnUMS6MAjsYwclSbPuUeZ8rVvFQSEoC37SQZP13OVphFNUUFVhZJU5kYd9BvaFhPO0F54XJq1Gu/biMJFumHj2lz5TadSXxyJwSJkfqE53B9b6Sc1RB7O4AckozmH/pm46fJpD5sq7RLQg9YLA//fi+EoBwqbiskCz7WRsCh/Q2l/dmA9kAPPVatqkagVdcJKAJNl8W4Y9nm9MBhdFIw4PeYowY6sgF2td8Xkg0E4ClmQ3CoGWO+TTWmiWwN0BAcKD5prq3V9qmn3SXnzLUO02k0gC4RsdGUCSiByzNHL3mG+G7l8MEZ8TmZQ+ZCgtlnvLYsdECiT+7tcrwN8Zpiu0BKcAWSV8Mg5/D0HYfDTFAv7jgqXuL+uruLJw4xzZCoWc5Ru1Mhprl4NF8T9Am2RyEEEO9rjveQCWpzaZmyvx/MS4isoqhC2KGeJEyeulk2XE0mXO6TZz9c","x-amz-content-sha256":"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855","authorization":"AWS4-HMAC-SHA256 Credential=ASIASX7QLUIYGDI4QX56/20230518/us-east-1/sts/aws4_request, SignedHeaders=host;x-amz-content-sha256;x-amz-date;x-amz-security-token, Signature=bd7f1e549999b6854adfb7c35e344efa38d74bac1c9078fbc34f71f4ff90173b"}' }
   let(:global_non_global_signer) { '{"host":"sts.amazonaws.com","x-amz-date":"20230518T155824Z","x-amz-security-token":"IQoJb3JpZ2luX2VjEDgaDGV1LWNlbnRyYWwtMSJIMEYCIQDQLBDLt5kNEEj40A2gX/kurzw9AAwYKnJIjQSrXGynmQIhAINJPoMDfHiSe6Bjzuwc9lwbe/iUPkVUUClFbUicPhNtKrwFCGEQAxoMMTg4OTQ1NzY5MDA4IgyYkP5L6wWxumObWPQqmQXd1mkF8hU1CCkhdJdc73vLVnGFvGbqru9SpzDIkbo0/syIZR7pjEoPTw/sUxFa/jYgcRrDh9bUmTBT7zU2/HDJRrwZfNgu9PPEtRGkIUOYri8muc0X8yLnHlk/5jvpwU5RY2uUoTZt+pvgm8jOHi/lkrtPx8uiQeEOeBkKe/DA2tFfHeVrC9OPkWQkjm0k9nsDggpwy9jf+RbzeSRb6Tyg4WWplDKW+a7VhBpBs1cNGGx9um590gpgpxaC93CIAtxI+iOxreH+xofhrJAPirms1yR4f5GD+glhr/mpCdclX0Eehvb+nxosnYKMh8XvlKR1GzP/PtqGCCRMpCByPmiXtotOMEQv96QGGs0/A8vdiktjJuGbjSQxKvw1UNG5Cxrb7DRqexPoILxoZAICSiFDK2vPPl2ePTWrk3MFxBKj+UK2VihhE1fpnZ7UXrVmQAUzNtDTdaaTcWy2ZTf4oAcRkUsYUl1BOIQYEcI0LmpCkqHb51ANbPO9bFxLAGTUuV9AMSRcrEojiFlxl+yiK5lPygJzrbRQBhnh3srxoHjfN5KvgVf0PqS3HUWIX/eknhBTJbhPO9d7me1/rTudqFd1dLEEiTJbN6KGF0vZvAgnahcoA4YSxLhG/EkNdOKbS/lJOUeysN/l/3L19RuWX9gd2Pc2FD7KWM6mzNAFIi8OAIChTnhZO7a6lcYZb+5uY+5N3Oh2Qthx7cc5k0DGQXX2FGYQgQKY9MWQo6s3Z2DwfNDddgYEM2clnnNPP+lNU7evdCsDb4/QPyDv+l14Tmdz2adhcsi4hkX9YGaCko6S6tdPI1fURyTkCKfUJ643ZNXyqmx4vRPupO2ukJArh7piCas8+B4FsScjD1sD3dH9aVwa2sI1tVed9zCclpmjBjqwATqNRvOZinA+mqThE4YjTVliRSaqNG6UsCq/x3f6R5/KBMacp4f0nZuXTOfvNgiFHju/m1paGf8JwylAkKummhneSOoZAbQ16dQhDu3ejZydbj5nRkTC/1VT87SFf+S+k66J8ycfIs2nkwlIvHWo+TbD36fBcTNq69BtAvluRRIH77zXg60zBK5KmmtKUbeayHVZngjZt/u3ezrRGuLu9TUCYtWMY0VVKyYUX36MykWY","x-amz-content-sha256":"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855","authorization":"AWS4-HMAC-SHA256 Credential=ASIASX7QLUIYGFOUEXPF/20230518/eu-north-1/sts/aws4_request, SignedHeaders=host;x-amz-content-sha256;x-amz-date;x-amz-security-token, Signature=e643e2bb5d737954951f34ff67c4a11e00d022b402579f85ff9d99a5f70cbc53"}' }
   let(:regional_headers_signed_for_another_region) { '{"host":"sts.us-west-1.amazonaws.com","x-amz-date":"20230518T160804Z","x-amz-security-token":"IQoJb3JpZ2luX2VjEDgaDGV1LWNlbnRyYWwtMSJIMEYCIQDQLBDLt5kNEEj40A2gX/kurzw9AAwYKnJIjQSrXGynmQIhAINJPoMDfHiSe6Bjzuwc9lwbe/iUPkVUUClFbUicPhNtKrwFCGEQAxoMMTg4OTQ1NzY5MDA4IgyYkP5L6wWxumObWPQqmQXd1mkF8hU1CCkhdJdc73vLVnGFvGbqru9SpzDIkbo0/syIZR7pjEoPTw/sUxFa/jYgcRrDh9bUmTBT7zU2/HDJRrwZfNgu9PPEtRGkIUOYri8muc0X8yLnHlk/5jvpwU5RY2uUoTZt+pvgm8jOHi/lkrtPx8uiQeEOeBkKe/DA2tFfHeVrC9OPkWQkjm0k9nsDggpwy9jf+RbzeSRb6Tyg4WWplDKW+a7VhBpBs1cNGGx9um590gpgpxaC93CIAtxI+iOxreH+xofhrJAPirms1yR4f5GD+glhr/mpCdclX0Eehvb+nxosnYKMh8XvlKR1GzP/PtqGCCRMpCByPmiXtotOMEQv96QGGs0/A8vdiktjJuGbjSQxKvw1UNG5Cxrb7DRqexPoILxoZAICSiFDK2vPPl2ePTWrk3MFxBKj+UK2VihhE1fpnZ7UXrVmQAUzNtDTdaaTcWy2ZTf4oAcRkUsYUl1BOIQYEcI0LmpCkqHb51ANbPO9bFxLAGTUuV9AMSRcrEojiFlxl+yiK5lPygJzrbRQBhnh3srxoHjfN5KvgVf0PqS3HUWIX/eknhBTJbhPO9d7me1/rTudqFd1dLEEiTJbN6KGF0vZvAgnahcoA4YSxLhG/EkNdOKbS/lJOUeysN/l/3L19RuWX9gd2Pc2FD7KWM6mzNAFIi8OAIChTnhZO7a6lcYZb+5uY+5N3Oh2Qthx7cc5k0DGQXX2FGYQgQKY9MWQo6s3Z2DwfNDddgYEM2clnnNPP+lNU7evdCsDb4/QPyDv+l14Tmdz2adhcsi4hkX9YGaCko6S6tdPI1fURyTkCKfUJ643ZNXyqmx4vRPupO2ukJArh7piCas8+B4FsScjD1sD3dH9aVwa2sI1tVed9zCclpmjBjqwATqNRvOZinA+mqThE4YjTVliRSaqNG6UsCq/x3f6R5/KBMacp4f0nZuXTOfvNgiFHju/m1paGf8JwylAkKummhneSOoZAbQ16dQhDu3ejZydbj5nRkTC/1VT87SFf+S+k66J8ycfIs2nkwlIvHWo+TbD36fBcTNq69BtAvluRRIH77zXg60zBK5KmmtKUbeayHVZngjZt/u3ezrRGuLu9TUCYtWMY0VVKyYUX36MykWY","x-amz-content-sha256":"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855","authorization":"AWS4-HMAC-SHA256 Credential=ASIASX7QLUIYGFOUEXPF/20230518/eu-north-1/sts/aws4_request, SignedHeaders=host;x-amz-content-sha256;x-amz-date;x-amz-security-token, Signature=bfaefe50abefa68b0081af52687885a7391006f2c8b0d80b6c20beb7da808d56"}' }
-  let(:invalid_authorization_header) { '{"Authorization":"AWS4-HMAC-SHA256 Credential=bad_request, SignedHeaders=host;x-amz-date;x-amz-security-token, Signature=38f8b60e4cbee78d55f379646e4fde87439ce0e43cd4cae38e3d2e295ebcfc58","X-Amz-Date":"20230613T204734Z","X-Amz-Security-Token":"FwoGZXIvYXdzEL7//////////wEaDAHHPZ7NyIBlfbsv4iKyATWQ4LpJCG6fsa1UR0jYrTMF0FSxCu/otBw8qZNNljSWHaEIkh/h3GfImEJjYXytE3N92XPXahQomVErEpcyOBO3M/FDbMKZ7tlTD1V5Rr8ZgMG6tOLCL4eCKq2IbugKBZo1Bw8OxC20sjZWNL44Z/8Lt6LkOsHJBiN1wEAEtT5Wrt5Jc0Qs8oU8xV6RHpQRfOOM6V1BnqDjrnJG3cUguotSpfR2RyskUZNr+lRg+MfJOJ8o5qujpAYyLew0iNCK3nlXngTuzSo6M3rPAKQhbK1tCvKSIMk6SqrHThyfAebPucCZx/XbbA=="}' }
+  let(:invalid_authorization_header) { '{"Authorization":"AWS4-HMAC-SHA256 Credential=bad_request, SignedHeaders=x-amz-date;x-amz-security-token, Signature=38f8b60e4cbee78d55f379646e4fde87439ce0e43cd4cae38e3d2e295ebcfc58","X-Amz-Date":"20230613T204734Z","X-Amz-Security-Token":"FwoGZXIvYXdzEL7//////////wEaDAHHPZ7NyIBlfbsv4iKyATWQ4LpJCG6fsa1UR0jYrTMF0FSxCu/otBw8qZNNljSWHaEIkh/h3GfImEJjYXytE3N92XPXahQomVErEpcyOBO3M/FDbMKZ7tlTD1V5Rr8ZgMG6tOLCL4eCKq2IbugKBZo1Bw8OxC20sjZWNL44Z/8Lt6LkOsHJBiN1wEAEtT5Wrt5Jc0Qs8oU8xV6RHpQRfOOM6V1BnqDjrnJG3cUguotSpfR2RyskUZNr+lRg+MfJOJ8o5qujpAYyLew0iNCK3nlXngTuzSo6M3rPAKQhbK1tCvKSIMk6SqrHThyfAebPucCZx/XbbA=="}' }
   let(:invalid_host) { '{"host":"evil.org","Authorization":"AWS4-HMAC-SHA256 Credential=ASIAYNRQATHTEQFKJN2P/20230613/us-east-1/sts/aws4_request, SignedHeaders=host;x-amz-date;x-amz-security-token, Signature=38f8b60e4cbee78d55f379646e4fde87439ce0e43cd4cae38e3d2e295ebcfc58","X-Amz-Date":"20230613T204734Z","X-Amz-Security-Token":"FwoGZXIvYXdzEL7//////////wEaDAHHPZ7NyIBlfbsv4iKyATWQ4LpJCG6fsa1UR0jYrTMF0FSxCu/otBw8qZNNljSWHaEIkh/h3GfImEJjYXytE3N92XPXahQomVErEpcyOBO3M/FDbMKZ7tlTD1V5Rr8ZgMG6tOLCL4eCKq2IbugKBZo1Bw8OxC20sjZWNL44Z/8Lt6LkOsHJBiN1wEAEtT5Wrt5Jc0Qs8oU8xV6RHpQRfOOM6V1BnqDjrnJG3cUguotSpfR2RyskUZNr+lRg+MfJOJ8o5qujpAYyLew0iNCK3nlXngTuzSo6M3rPAKQhbK1tCvKSIMk6SqrHThyfAebPucCZx/XbbA=="}' }
+
+  let(:with_content_type_header) { '{"host":"sts.amazonaws.com","content-type": "application/json", "x-amz-date":"20230518T152525Z","x-amz-security-token":"security-token","x-amz-content-sha256":"sha","authorization":"AWS4-HMAC-SHA256 Credential=ASIASX7QLUIYGDI4QX56/20230518/us-east-1/sts/aws4_request, SignedHeaders=host;x-amz-content-sha256;x-amz-date;x-amz-security-token;content-type, Signature=signature"}' }
+  let(:with_content_type_header_in_signature_only) { '{"host":"sts.amazonaws.com", "x-amz-date":"20230518T152525Z","x-amz-security-token":"security-token","x-amz-content-sha256":"sha","authorization":"AWS4-HMAC-SHA256 Credential=ASIASX7QLUIYGDI4QX56/20230518/us-east-1/sts/aws4_request, SignedHeaders=host;x-amz-content-sha256;x-amz-date;x-amz-security-token;content-type, Signature=signature"}' }
+
+  let(:credentials) { '' }
+  let(:service_id) { 'prod' }
+  let(:account) { 'rspec' }
+
+  let(:payload) do
+    double('AuthenticationParameters',
+           credentials: credentials,
+           username: conjur_role,
+           service_id: service_id,
+           account: account,
+           authenticator_name: 'authn-iam'
+    )
+  end
 
   describe '.valid?' do
     context 'headers are valid' do
       context 'when using the global STS endpoint' do
         context 'with request signed by `us-east-1`' do
-          let(:payload) do
-            double('AuthenticationParameters', credentials: valid_global_headers, username: conjur_role)
-          end
+          let(:credentials) { valid_global_headers }
           it 'succeeds', vcr: 'authenticators/authn-iam/valid-global-headers' do
             expect(authenticator.valid?(payload)).to be(true)
           end
         end
         context 'with request signed by `us-east-1` and no `host` header' do
-          let(:payload) do
-            double('AuthenticationParameters', credentials: valid_global_headers_no_host, username: conjur_role)
-          end
+          let(:credentials) { valid_global_headers_no_host }
           it 'succeeds', vcr: 'authenticators/authn-iam/valid-global-headers-no-host' do
             expect(authenticator.valid?(payload)).to be(true)
           end
         end
         context 'with request signed for a non `us-east-1` region' do
-          let(:payload) do
-            double('AuthenticationParameters', credentials: global_non_global_signer, username: conjur_role)
-          end
+          let(:credentials) { global_non_global_signer }
           it 'fails', vcr: 'authenticators/authn-iam/global-sts-non-global-signer' do
             expect { authenticator.valid?(payload) }
               .to raise_error(
@@ -70,25 +91,19 @@ RSpec.describe(Authentication::AuthnIam::Authenticator) do
       end
       context 'when using the regional STS endpoint' do
         context 'when regional endpoint request was signed for that region' do
-          let(:payload) do
-            double('AuthenticationParameters', credentials: valid_regional_headers, username: conjur_role)
-          end
+          let(:credentials) { valid_regional_headers }
           it 'succeeds', vcr: 'authenticators/authn-iam/valid-regional-headers' do
             expect(authenticator.valid?(payload)).to be(true)
           end
         end
         context 'when regional endpoint request was signed for that region and no `host` header' do
-          let(:payload) do
-            double('AuthenticationParameters', credentials: valid_regional_headers_no_host, username: conjur_role)
-          end
+          let(:credentials) { valid_regional_headers_no_host }
           it 'succeeds', vcr: 'authenticators/authn-iam/valid-regional-headers-no-host' do
             expect(authenticator.valid?(payload)).to be(true)
           end
         end
         context 'when regional endpoint request was signed for that region and no `host` header with unsupported region' do
-          let(:payload) do
-            double('AuthenticationParameters', credentials: invalid_regional_headers_no_host, username: conjur_role)
-          end
+          let(:credentials) { invalid_regional_headers_no_host }
           it 'fails', vcr: 'authenticators/authn-iam/invalid-regional-headers-no-host' do
             expect { authenticator.valid?(payload) }
               .to raise_error(
@@ -98,9 +113,7 @@ RSpec.describe(Authentication::AuthnIam::Authenticator) do
           end
         end
         context 'when regional endpoint request was signed for that region and no `host` header with malicious region' do
-          let(:payload) do
-            double('AuthenticationParameters', credentials: malicious_regional_headers_no_host, username: conjur_role)
-          end
+          let(:credentials) { malicious_regional_headers_no_host }
           it 'fails', vcr: 'authenticators/authn-iam/invalid-regional-headers-no-host' do
             expect { authenticator.valid?(payload) }
               .to raise_error(
@@ -110,9 +123,7 @@ RSpec.describe(Authentication::AuthnIam::Authenticator) do
           end
         end
         context 'when regional endpoint request was signed for another region' do
-          let(:payload) do
-            double('AuthenticationParameters', credentials: regional_headers_signed_for_another_region, username: conjur_role)
-          end
+          let(:credentials) { regional_headers_signed_for_another_region }
           it 'fails', vcr: 'authenticators/authn-iam/regional-headers-signed-for-another-region' do
             expect { authenticator.valid?(payload) }
               .to raise_error(
@@ -125,9 +136,7 @@ RSpec.describe(Authentication::AuthnIam::Authenticator) do
     end
     context 'when headers are invalid' do
       context 'when headers have expired' do
-        let(:payload) do
-          double('AuthenticationParameters', credentials: expired_headers, username: conjur_role)
-        end
+        let(:credentials) { expired_headers }
         it 'fails with exception', vcr: 'authenticators/authn-iam/expired-headers' do
           expect { authenticator.valid?(payload) }
             .to raise_error(
@@ -138,9 +147,7 @@ RSpec.describe(Authentication::AuthnIam::Authenticator) do
       end
       context 'for the signing request' do
         context 'when the verb is not GET' do
-          let(:payload) do
-            double('AuthenticationParameters', credentials: different_signing_request_verb, username: conjur_role)
-          end
+          let(:credentials) { different_signing_request_verb }
           it 'fails with exception', vcr: 'authenticators/authn-iam/invalid-signing-request-verb' do
             expect { authenticator.valid?(payload) }
               .to raise_error(
@@ -150,9 +157,7 @@ RSpec.describe(Authentication::AuthnIam::Authenticator) do
           end
         end
         context 'when the signed URI is different' do
-          let(:payload) do
-            double('AuthenticationParameters', credentials: different_signing_request_uri, username: conjur_role)
-          end
+          let(:credentials) { different_signing_request_uri }
           it 'fails', vcr: 'authenticators/authn-iam/different-signing-request-url' do
             expect { authenticator.valid?(payload) }
               .to raise_error(
@@ -163,9 +168,7 @@ RSpec.describe(Authentication::AuthnIam::Authenticator) do
         end
       end
       context 'when the authorization header is invalid' do
-        let(:payload) do
-          double('AuthenticationParameters', credentials: invalid_authorization_header, username: conjur_role)
-        end
+        let(:credentials) { invalid_authorization_header }
         it 'fails' do
           expect { authenticator.valid?(payload) }
             .to raise_error(
@@ -181,12 +184,11 @@ RSpec.describe(Authentication::AuthnIam::Authenticator) do
           env: [],
           client: class_double(Net::HTTP).tap do |double|
             allow(double).to receive(:get_response).and_raise(Timeout::Error)
-          end
+          end,
+          fetch_authenticator_secrets: fetch_authenticator_secrets_double
         )
       end
-      let(:payload) do
-        double('AuthenticationParameters', credentials: valid_global_headers, username: conjur_role)
-      end
+      let(:credentials) { valid_global_headers }
       it 'fails' do
         expect { authenticator.valid?(payload) }
           .to raise_error(
@@ -198,17 +200,14 @@ RSpec.describe(Authentication::AuthnIam::Authenticator) do
   end
   context 'for different roles' do
     context 'when login is a User' do
-      let(:payload) do
-        # file deepcode ignore HardcodedCredential: This is a test code, not an actual credential
-        double('AuthenticationParameters', username: 'foo/bar/baz/188945769008/conjur-role', credentials: valid_global_headers)
-      end
+      let(:conjur_role) { 'foo/bar/baz/188945769008/conjur-role' }
+      let(:credentials) { valid_global_headers }
       it 'succeeds', vcr: 'authenticators/authn-iam/valid-global-headers' do
         expect(authenticator.valid?(payload)).to be(true)
       end
       context 'when login is in the root policy' do
-        let(:payload) do
-          double('AuthenticationParameters', username: '188945769008/conjur-role', credentials: valid_global_headers)
-        end
+        let(:conjur_role) { '188945769008/conjur-role' }
+        let(:credentials) { valid_global_headers }
         it 'fails', vcr: 'authenticators/authn-iam/valid-global-headers' do
           expect(authenticator.valid?(payload)).to be(false)
         end
@@ -216,54 +215,72 @@ RSpec.describe(Authentication::AuthnIam::Authenticator) do
     end
     context 'when login is a host' do
       context 'when role has multiple policy nestings' do
-        let(:payload) do
-          double('AuthenticationParameters', username: 'host/foo/bar/baz/188945769008/conjur-role', credentials: valid_global_headers)
-        end
+        let(:conjur_role) { 'host/foo/bar/baz/188945769008/conjur-role' }
+        let(:credentials) { valid_global_headers }
         it 'succeeds', vcr: 'authenticators/authn-iam/valid-global-headers' do
           expect(authenticator.valid?(payload)).to be(true)
         end
       end
       context 'when account-id is missing from username' do
-        let(:payload) do
-          double('AuthenticationParameters', username: 'host/foo/bar/baz/conjur-role', credentials: valid_global_headers)
-        end
+        let(:conjur_role) { 'host/foo/bar/baz/conjur-role' }
+        let(:credentials) { valid_global_headers }
         it 'fails', vcr: 'authenticators/authn-iam/valid-global-headers' do
           expect(authenticator.valid?(payload)).to be(false)
         end
       end
       context 'when login does not include an AWS resource id' do
-        let(:payload) do
-          double('AuthenticationParameters', username: 'host/foo/188945769008', credentials: valid_global_headers)
-        end
+        let(:conjur_role) { 'host/foo/188945769008' }
+        let(:credentials) { valid_global_headers }
         it 'fails', vcr: 'authenticators/authn-iam/valid-global-headers' do
           expect(authenticator.valid?(payload)).to be(false)
         end
       end
       context 'when login is in the root policy' do
-        let(:payload) do
-          double('AuthenticationParameters', username: 'host/188945769008/conjur-role', credentials: valid_global_headers)
-        end
+        let(:conjur_role) { 'host/188945769008/conjur-role' }
+        let(:credentials) { valid_global_headers }
         it 'succeeds', vcr: 'authenticators/authn-iam/valid-global-headers' do
           expect(authenticator.valid?(payload)).to be(true)
         end
       end
       context 'when invalid host is passed' do
-        let(:payload) do
-          double('AuthenticationParameters', username: 'host/foo/bar/baz/188945769008/conjur-role', credentials: invalid_host)
-        end
+        let(:credentials) { invalid_host }
         it 'fails' do
           expect { authenticator.valid?(payload) }.to raise_error(
              Errors::Authentication::AuthnIam::InvalidAWSHeaders,
-             'CONJ00018E Invalid or expired AWS headers: Headers validation failed'
+             "CONJ00018E Invalid or expired AWS headers: Host header validation failed"
           )
         end
       end
       context 'invalid headers are ignored' do
-        let(:payload) do
-          double('AuthenticationParameters', username: 'host/188945769008/conjur-role', credentials: with_x_forwarded_host)
-        end
+        let(:credentials) { with_x_forwarded_host }
         it 'succeeds', vcr: 'authenticators/authn-iam/valid-global-headers' do
           expect(authenticator.valid?(payload)).to be(true)
+        end
+      end
+      context 'when unexpected header is part of the signature' do
+        let(:credentials) { with_content_type_header }
+        it 'fails' do
+          expect { authenticator.valid?(payload) }.to raise_error(
+            Errors::Authentication::AuthnIam::InvalidAWSHeaders,
+            "CONJ00018E Invalid or expired AWS headers: Unexpected signed headers found: content-type. Please use only permitted headers in the signature. If you need to include optional headers, please ensure they are secure and then add them to the authenticator configuration."
+          )
+        end
+      end
+      context 'when allowed custom header is part of the signature' do
+        let(:optional_signed_headers) { 'content-type;content-length' }
+        let(:credentials) { with_content_type_header }
+        it 'succeeds', vcr: 'authenticators/authn-iam/valid-global-headers' do
+          expect(authenticator.valid?(payload)).to be(true)
+        end
+      end
+      context 'when allowed custom header is part of the signature' do
+        let(:optional_signed_headers) { 'content-type;content-length' }
+        let(:credentials) { with_content_type_header_in_signature_only }
+        it 'fails' do
+          expect { authenticator.valid?(payload) }.to raise_error(
+            Errors::Authentication::AuthnIam::InvalidAWSHeaders,
+            "CONJ00018E Invalid or expired AWS headers: Missing required signed headers: content-type"
+          )
         end
       end
     end
