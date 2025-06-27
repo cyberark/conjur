@@ -59,14 +59,8 @@ describe "routing from secrets" do
                                                           )
   end
 
-  it "routes POST /secrets/:account/:kind/:identifier to secrets#create for any kind" do
-    expect(post: '/secrets/the-account/policy/myid').to route_to(
-                                                            account: 'the-account',
-                                                            controller: 'secrets',
-                                                            action: 'create',
-                                                            kind: 'policy',
-                                                            identifier: 'myid'
-                                                          )
+  it "does not route POST /secrets/:account/:kind/:identifier to secrets#create for any kind" do
+    expect(post: '/secrets/the-account/policy/myid').not_to be_routable
   end
 
   it "does not route POST /secrets/:account/:kind/:identifier for unknown kind" do

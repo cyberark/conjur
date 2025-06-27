@@ -89,9 +89,9 @@ Rails.application.routes.draw do
           get     "/resources/:account/:kind/*identifier" => 'resources#permitted_roles', :constraints => QueryParameterActionRecognizer.new("permitted_roles")
           get     "/resources/:account/:kind/*identifier" => "resources#show"
           get     "/resources/:account/:kind"             => "resources#index"
+          get     "/resources/:account"                   => "resources#index"
+          get     "/resources"                            => "resources#index"
         end
-        get     "/resources/:account"                   => "resources#index"
-        get     "/resources"                            => "resources#index"
 
         get     "/:authenticator/:account/providers"  => "providers#index"
 
@@ -110,7 +110,7 @@ Rails.application.routes.draw do
         post    "/secrets/:account/:kind/*identifier" => "secrets#expire",
                 :constraints => QueryParameterActionRecognizer.new("expirations")
         get     "/secrets/:account/:kind/*identifier" => 'secrets#show', constraints: { kind: /variable/ }
-        post    "/secrets/:account/:kind/*identifier" => 'secrets#create', constraints: { kind: /variable|public_key|user|host|layer|group|policy|webservice/ }
+        post    "/secrets/:account/:kind/*identifier" => 'secrets#create', constraints: { kind: /variable|public_key/ }
         get     "/secrets"                            => 'secrets#batch'
 
         get     "/policies/:account/:kind/*identifier" => 'policies#get', constraints: { kind: /policy/ }
@@ -118,7 +118,7 @@ Rails.application.routes.draw do
         patch   "/policies/:account/:kind/*identifier" => 'policies#patch', constraints: { kind: /policy/ }
         post    "/policies/:account/:kind/*identifier" => 'policies#post', constraints: { kind: /policy/ }
 
-        get     "/public_keys/:account/:kind/*identifier" => 'public_keys#show', constraints: { kind: /variable|public_key|user|host|layer|group|policy|webservice/ }
+        get     "/public_keys/:account/:kind/*identifier" => 'public_keys#show', constraints: { kind: /public_key|user/ }
 
         post     "/ca/:account/:service_id/sign" => 'certificate_authority#sign'
       end
