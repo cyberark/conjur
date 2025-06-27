@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Dynamic secrets are now supported in the batch secret retrieval API. CNJR-9172
 - Added the delete authenticators endpoint for the V2 API's. CNJR-9134
 - Added warning for annotation keys matching known policy attribute names. CNJR-9836
+- Allow conjur administrator to enable additional signed headers for IAM authenticator. CNJR-10217
 
 ### Fixed
 - Attempt to load a policy that references a non-existent resource now
