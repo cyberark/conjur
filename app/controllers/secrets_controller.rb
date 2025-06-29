@@ -28,6 +28,8 @@ class SecretsController < RestController
 
     value = request.raw_post
 
+    validate_public_key(value) if params[:kind] == 'public_key'
+
     raise ArgumentError, "'value' may not be empty" if value.blank?
 
     # Only create a new secret version if the value is changed
@@ -194,6 +196,12 @@ class SecretsController < RestController
   end
 
   private
+
+  def validate_public_key(value)
+    unless value.match?(/\Assh-(rsa|ed25519|ecdsa-[a-z0-9-]+) [A-Za-z0-9+\/=]+ ?.*\z/)
+      raise ArgumentError, "Invalid public key format"
+    end
+  end
 
   def variable_ids
     return @variable_ids if @variable_ids

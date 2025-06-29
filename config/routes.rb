@@ -80,24 +80,24 @@ Rails.application.routes.draw do
         get     "/factories/:account/:kind/(:version)/:id" => "policy_factories#show"
         get     "/factories/:account" => "policy_factories#index"
 
-      constraints kind: /user|host|layer|group|policy|host_factory/ do
-        get     "/roles/:account/:kind/*identifier" => "roles#graph", :constraints => QueryParameterActionRecognizer.new("graph")
-        get     "/roles/:account/:kind/*identifier" => "roles#all_memberships", :constraints => QueryParameterActionRecognizer.new("all")
-        get     "/roles/:account/:kind/*identifier" => "roles#direct_memberships", :constraints => QueryParameterActionRecognizer.new("memberships")
-        get     "/roles/:account/:kind/*identifier" => "roles#members", :constraints => QueryParameterActionRecognizer.new("members")
-        post    "/roles/:account/:kind/*identifier" => "roles#add_member", :constraints => QueryParameterActionRecognizer.new("members")
-        delete  "/roles/:account/:kind/*identifier" => "roles#delete_member", :constraints => QueryParameterActionRecognizer.new("members")
-        get     "/roles/:account/:kind/*identifier" => "roles#show"
-      end
+        constraints kind: /user|host|layer|group|policy|host_factory/ do
+          get     "/roles/:account/:kind/*identifier" => "roles#graph", :constraints => QueryParameterActionRecognizer.new("graph")
+          get     "/roles/:account/:kind/*identifier" => "roles#all_memberships", :constraints => QueryParameterActionRecognizer.new("all")
+          get     "/roles/:account/:kind/*identifier" => "roles#direct_memberships", :constraints => QueryParameterActionRecognizer.new("memberships")
+          get     "/roles/:account/:kind/*identifier" => "roles#members", :constraints => QueryParameterActionRecognizer.new("members")
+          post    "/roles/:account/:kind/*identifier" => "roles#add_member", :constraints => QueryParameterActionRecognizer.new("members")
+          delete  "/roles/:account/:kind/*identifier" => "roles#delete_member", :constraints => QueryParameterActionRecognizer.new("members")
+          get     "/roles/:account/:kind/*identifier" => "roles#show"
+        end
 
-      constraints kind: /variable|public_key|user|host|layer|group|policy|webservice|host_factory/ do
-        get     "/resources/:account/:kind/*identifier" => 'resources#check_permission', :constraints => QueryParameterActionRecognizer.new("check")
-        get     "/resources/:account/:kind/*identifier" => 'resources#permitted_roles', :constraints => QueryParameterActionRecognizer.new("permitted_roles")
-        get     "/resources/:account/:kind/*identifier" => "resources#show"
-        get     "/resources/:account/:kind"             => "resources#index"
-      end
-      get     "/resources/:account"                   => "resources#index"
-      get     "/resources"                            => "resources#index"
+        constraints kind: /variable|public_key|user|host|layer|group|policy|webservice|host_factory/ do
+          get     "/resources/:account/:kind/*identifier" => 'resources#check_permission', :constraints => QueryParameterActionRecognizer.new("check")
+          get     "/resources/:account/:kind/*identifier" => 'resources#permitted_roles', :constraints => QueryParameterActionRecognizer.new("permitted_roles")
+          get     "/resources/:account/:kind/*identifier" => "resources#show"
+          get     "/resources/:account/:kind"             => "resources#index"
+          get     "/resources/:account"                   => "resources#index"
+          get     "/resources"                            => "resources#index"
+        end
 
         get     "/:authenticator/:account/providers"  => "providers#index"
 
@@ -123,7 +123,7 @@ Rails.application.routes.draw do
         post    "/secrets/:account/:kind/*identifier" => "secrets#expire",
                 :constraints => QueryParameterActionRecognizer.new("expirations")
         get     "/secrets/:account/:kind/*identifier" => 'secrets#show', constraints: { kind: /variable/ }
-        post    "/secrets/:account/:kind/*identifier" => 'secrets#create', constraints: { kind: /variable|public_key|user|host|layer|group|policy|webservice/ }
+        post    "/secrets/:account/:kind/*identifier" => 'secrets#create', constraints: { kind: /variable|public_key/ }
         get     "/secrets"                            => 'secrets#batch'
 
         get     "/policies/:account/:kind/*identifier" => 'policies#get', constraints: { kind: /policy/ }
@@ -131,7 +131,7 @@ Rails.application.routes.draw do
         patch   "/policies/:account/:kind/*identifier" => 'policies#patch', constraints: { kind: /policy/ }
         post    "/policies/:account/:kind/*identifier" => 'policies#post', constraints: { kind: /policy/ }
 
-        get     "/public_keys/:account/:kind/*identifier" => 'public_keys#show', constraints: { kind: /variable|public_key|user|host|layer|group|policy|webservice/ }
+        get     "/public_keys/:account/:kind/*identifier" => 'public_keys#show', constraints: { kind: /public_key|user/ }
 
         post     "/ca/:account/:service_id/sign" => 'certificate_authority#sign'
       end
