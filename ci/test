@@ -61,6 +61,7 @@ SUBCOMMANDS
     authenticators_azure   - Runs Cucumber Azure Authenticator features
     authenticators_config  - Runs Cucumber Authenticator configuration features
     authenticators_gcp     - Runs Cucumber GCP Authenticator features
+    authenticators_iam     - Runs Cucumber IAM Authenticator features
     authenticators_k8s     - Runs Cucumber K8s Authenticator features
     authenticators_ldap    - Runs Cucumber LDAP Authenticator features
     authenticators_oidc    - Runs Cucumber OIDC Authenticator features

@@ -6,21 +6,29 @@ module Authentication
   module AuthnIam
     class Authenticator
 
-      def initialize(env:, logger: Rails.logger, client: Net::HTTP)
+      def initialize(
+        env:,
+        logger: Rails.logger,
+        client: Net::HTTP,
+        fetch_authenticator_secrets: Authentication::Util::FetchAuthenticatorSecrets.new(
+          optional_variable_names: %w[optional-signed-headers]
+        ))
         @env = env
         @logger = logger
         @client = client
+        @fetch_authenticator_secrets = fetch_authenticator_secrets
       end
 
-      VALID_KEYS = %w[host authorization x-amz-date x-amz-security-token x-amz-content-sha256].freeze
+      REQUIRED_KEYS = %w[
+        host
+        authorization
+        x-amz-date
+        x-amz-security-token
+        x-amz-content-sha256].freeze
 
       def valid?(input)
-        # input.credentials is JSON holding the AWS signed headers
-        signed_aws_headers = JSON.parse(input.credentials)
-                                 .transform_keys(&:downcase)
-                                 .select { |k, _| VALID_KEYS.include?(k) }
-        raise Errors::Authentication::AuthnIam::InvalidAWSHeaders,
-              "Headers validation failed" unless valid_headers?(signed_aws_headers)
+        @authenticator_input = input
+        signed_aws_headers = extract_signed_headers
 
         aws_response = response_from_signed_request(signed_aws_headers)
 
@@ -78,7 +86,7 @@ module Authentication
           return fallback_response if fallback_response.code.to_i == 200
         end
 
-        return response
+        response
       end
 
       def aws_call(region:, headers:)
@@ -138,11 +146,56 @@ module Authentication
         /\A([a-z]{2}(-gov)?-[a-z]+-\d)\z/.match?(region)
       end
 
-      def valid_headers?(signed_aws_headers)
+      def valid_host_header?(signed_aws_headers)
         host = signed_aws_headers['host']
         return true if host.nil? || host.empty?
         uri = URI("https://#{host}")
         uri.host&.end_with?('.amazonaws.com')
+      end
+
+      def iam_authenticator_secrets
+        @iam_authenticator_secrets ||= @fetch_authenticator_secrets.call(
+          service_id: @authenticator_input.service_id,
+          conjur_account: @authenticator_input.account,
+          authenticator_name: @authenticator_input.authenticator_name,
+          required_variable_names: [],
+        )
+      end
+
+      def optional_signed_headers
+        @optional_signed_headers ||=
+          (iam_authenticator_secrets&.dig('optional-signed-headers')
+            &.to_s&.split(';')
+            &.map(&:downcase)
+            &.map(&:strip)) || []
+      end
+
+      def extract_signed_headers
+        input = JSON.parse(@authenticator_input.credentials).transform_keys(&:downcase)
+        match = input['authorization']&.match(%r{SignedHeaders=([A-Za-z0-9;_-]+)})
+        raise Errors::Authentication::AuthnIam::InvalidAWSHeaders,
+              "Failed to extract signed headers" unless match
+        signed_headers = match[1].split(';').map(&:downcase)
+
+        missing = signed_headers - input.keys
+        raise Errors::Authentication::AuthnIam::InvalidAWSHeaders,
+              "Missing required signed headers: #{missing.join(', ')}" unless missing.empty?
+
+        allowed_keys = REQUIRED_KEYS
+        allowed_keys = allowed_keys | optional_signed_headers unless optional_signed_headers.empty?
+
+        unexpected = signed_headers - allowed_keys
+        raise Errors::Authentication::AuthnIam::InvalidAWSHeaders,
+          "Unexpected signed headers found: #{unexpected.join(', ')}. " +
+          "Please use only permitted headers in the signature. " +
+          "If you need to include optional headers, please ensure " +
+          "they are secure and then add them to the authenticator " +
+          "configuration." unless unexpected.empty?
+
+        raise Errors::Authentication::AuthnIam::InvalidAWSHeaders,
+              "Host header validation failed" unless valid_host_header?(input)
+
+         input.select { |k, _| allowed_keys.include?(k) }
       end
     end
   end

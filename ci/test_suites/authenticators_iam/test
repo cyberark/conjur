@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+set -e
+
+# This is executed by the main "ci/test" script after cd-ing into "ci".
+# shellcheck disable=SC1091
+source "./shared.sh"
+
+# The single arg is a nameref, which this function sets to an array containing
+# items of the form "KEY=VAL".
+_hydrate_iam_env_args() {
+  # Note: Both shellcheck errors are just because arr is a nameref.
+  # shellcheck disable=SC2178
+  local -n arr=$1
+  # shellcheck disable=SC2034
+  arr=(
+    "AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY"
+    "AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID"
+    "AWS_REGION=$AWS_REGION"
+  )
+}
+
+# Load AWS secrets from summon into the current shell
+eval "$(summon -f ./test_suites/authenticators_iam/secrets.yml env | grep AWS_)"
+
+# Note: We pass the name of the function as the last arg, since we're
+# using namerefs.
+additional_services=''
+
+_run_cucumber_tests authenticators_iam "$additional_services" _hydrate_iam_env_args

@@ -200,13 +200,11 @@ Feature: Adding and fetching secrets
     Then the HTTP response status code is 404
 
   @negative @acceptance
-  Scenario: When creating a secret, the kind is not validated due to public keys feature, but reading is not allowed.
+  Scenario: Creating a secret value with kind group is not allowed.
     Given I save my place in the audit log file for remote
     And I create a new "group" resource called "test-group"
     When I POST "/secrets/cucumber/group/test-group" with body:
     """
     value
     """
-    Then the HTTP response status code is 201
-    When I GET "/secrets/cucumber/group/test-group"
     Then the HTTP response status code is 404
