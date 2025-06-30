@@ -45,6 +45,7 @@ These are defined in runConjurTests, and also include the one-offs
     conjur_rack
     azure_authenticator
     gcp_authenticator
+    iam_authenticator
 */
 @Library("product-pipelines-shared-library") _
 
@@ -1101,6 +1102,7 @@ pipeline {
                 authenticators_gcp/cucumber_results.html,
                 authenticators_status/cucumber_results.html,
                 authenticators_k8s/cucumber_results.html,
+                authenticators_iam/cucumber_results.html,
                 policy/cucumber_results.html,
                 rotators/cucumber_results.html
               ''',
@@ -1293,6 +1295,11 @@ def conjurTests(infrapool) {
     "authenticators_ldap": [
       "LDAP Authenticator - ${env.STAGE_NAME}": {
         infrapool.agentSh 'ci/test authenticators_ldap'
+      }
+    ],
+    "authenticators_iam": [
+      "IAM Authenticator - ${env.STAGE_NAME}": {
+        infrapool.agentSh 'ci/test authenticators_iam'
       }
     ],
     "api": [
