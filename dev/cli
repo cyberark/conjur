@@ -262,7 +262,7 @@ while true ; do
         --client ) container=client ; shift ;;
         * ) if [ -z "$2" ]; then shift ; else echo "$2 is not a valid option"; exit 1; fi;;
       esac
-      docker exec "${env_args[@]}" -it --detach-keys 'ctrl-\' "$(docker compose ps -q "${container:-conjur}")" bash
+      docker exec "${env_args[@]}" -e "CONJUR_AUTHN_API_KEY=$api_key" -it --detach-keys 'ctrl-\' "$(docker compose ps -q "${container:-conjur}")" bash
      shift ;;
     policy )
       case "$2" in

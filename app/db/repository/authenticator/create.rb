@@ -6,13 +6,7 @@ module DB
       class CreateAuthenticator
         def initialize(authenticator:)
           @authenticator = authenticator
-          @owner_id = authenticator.owner
           @service_id = authenticator.authenticator_name
-          @annotations = authenticator.annotations
-          @account = authenticator.account
-          @enabled = authenticator.enabled
-          @branch = authenticator.branch
-          @variables = authenticator.variables
 
           @success = ::SuccessResponse
           @failure = ::FailureResponse
@@ -21,16 +15,17 @@ module DB
         def call
           unless Resource[policy_branch]
             return @failure.new(
-              "Policy '#{@branch}' is required to create a new authenticator.",
+              "Policy '#{@authenticator.branch}' is required to create a new authenticator.",
               status: :not_found
             ) 
           end
 
           add_authenticator_role
+          create_webservice_branch
           build_policy_tree
-          endable_authenticator
+          enable_authenticator
           add_annotations
-          add_variables(@variables)
+          add_variables(@authenticator.variables)
 
           @success.new(@authenticator)
         rescue Sequel::UniqueConstraintViolation, Sequel::ConstraintViolation => e
@@ -44,33 +39,37 @@ module DB
         private
 
         def add_authenticator_role
-          Role.find_or_create(role_id: "#{policy_branch}/#{@service_id}")
+          Role.find_or_create(role_id: webservice_branch)
         end
 
-        def endable_authenticator
-          AuthenticatorConfig.find_or_create(resource_id: webservice, enabled: @enabled)
+        def enable_authenticator
+          AuthenticatorConfig.find_or_create(resource_id: webservice, enabled: @authenticator.enabled)
+        end
+
+        def webservice_branch
+          "#{@authenticator.account}:policy:#{@authenticator.webservice_branch}"
         end
 
         def policy_branch
-          "#{@account}:policy:#{@branch}"
+          "#{@authenticator.account}:policy:#{@authenticator.branch}"
         end
 
         def authn_variables
-          "#{@account}:variable:#{@branch}/#{@service_id}"
+          "#{@authenticator.account}:variable:#{@authenticator.webservice_branch}"
         end
 
         def owner_id
-          policy_branch unless @owner_id
+          policy_branch unless @authenticator.owner
           
-          @owner_id
+          @authenticator.owner
         end
 
         def group
-          "#{@account}:group:#{@branch}/#{@service_id}"
+          "#{@authenticator.account}:group:#{@authenticator.webservice_branch}"
         end
 
         def webservice
-          "#{@account}:webservice:#{@branch}/#{@service_id}"
+          "#{@authenticator.account}:webservice:#{@authenticator.webservice_branch}"
         end
 
         def add_permission(resource, permissions_map)
@@ -87,7 +86,7 @@ module DB
             else
               Resource.create(
                 resource_id: "#{authn_variables}/#{key.to_s.dasherize}",
-                owner_id: "#{policy_branch}/#{@service_id}",
+                owner_id: webservice_branch,
                 policy_id: policy_branch
               )
               unless value.nil?
@@ -101,37 +100,44 @@ module DB
         end
 
         def add_annotations
-          @annotations&.each do |name, value|
+          @authenticator.annotations&.each do |name, value|
             Annotation.create(
               resource_id: webservice,
-              policy_id: "#{policy_branch}/#{@service_id}",
+              policy_id: webservice_branch,
               name: name,
               value: value
             )
           end
         end
 
+        # Creates the webservice branch for other resources to be loaded into
+        def create_webservice_branch
+          # GCP gets loaded into the authenticator branch itself so the webservice branch already exists
+          return if @authenticator.type == "authn-gcp"
+
+          Resource.create(
+            resource_id: webservice_branch,
+            owner_id: owner_id,
+            policy_id: policy_branch
+          )
+        end
+
         # Creates the policies for the autheenticators using a table to make it clear whats being created
         def build_policy_tree
           [
             {
-              id: "#{policy_branch}/#{@service_id}",
-              owner: owner_id,
-              permissions: nil
-            },
-            {
               id: "#{group}/operators",
-              owner: "#{policy_branch}/#{@service_id}",
+              owner: webservice_branch,
               permissions: nil
             },
             {
               id: "#{group}/apps",
-              owner: "#{policy_branch}/#{@service_id}",
+              owner: webservice_branch,
               permissions: nil
             },
             {
               id: webservice,
-              owner: "#{policy_branch}/#{@service_id}",
+              owner: webservice_branch,
               permissions: {
                 "#{group}/operators": %w[read],
                 "#{group}/apps": %w[read authenticate]
@@ -139,7 +145,7 @@ module DB
             },
             {
               id: "#{webservice}/status",
-              owner: "#{policy_branch}/#{@service_id}",
+              owner: webservice_branch,
               permissions: { "#{group}/operators": ["read"] } 
             }
           ].each do |resource|
