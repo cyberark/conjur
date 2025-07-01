@@ -63,19 +63,18 @@ module DB
           )
         end
         
-        begin
-          map_authenticator(
-            identifier: id_array(webservice[:resource_id]),
-            webservice: webservice,
-            account: account
-          )
-        rescue => e
-          @failure.new(
-            e.message,
-            exception: e,
-            level: :debug
-          )
-        end
+        map_authenticator(
+          identifier: id_array(webservice[:resource_id]),
+          webservice: webservice,
+          account: account
+        )
+      rescue => e
+        @logger.info("#{type_error_message(type)} '#{service_id}' due to: #{e.message}")
+        @failure.new(
+          "Failed to retreive authenticator #{service_id} in account '#{account}'",
+          exception: e,
+          level: :debug
+        )
       end
 
       # Takes an AuthenticatorBaseType model (or one of its children) and attempts to create
@@ -121,7 +120,7 @@ module DB
       end
 
       def map_authenticator(identifier:,  webservice:, account:)
-        annotations = JSON.parse(webservice[:annotations]) unless webservice[:annotations].nil?
+        annotations =  webservice[:annotations].is_a?(String) ? JSON.parse(webservice[:annotations]) : webservice[:annotations]
 
         @auth_type_factory.create_authenticator_type({
           type: identifier[1],
