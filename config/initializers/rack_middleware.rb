@@ -33,4 +33,11 @@ Rails.application.configure do
   # (using `remote_ip`) and the audit log (using `ip`) will have the same value
   # for each request.
   config.middleware.delete(ActionDispatch::RemoteIp)
+
+  # Middleware is required to ensure consistency across our HTTP response objects.
+  # Previously due to quirks in Rack response objects 20X responses would
+  # have the content length header set and unsuccessful requests would be chunked with no
+  # content length. This ensures all responses have the content length header set and
+  # are returned as single body.
+  config.middleware.use(::Rack::ContentLength)
 end

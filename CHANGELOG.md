@@ -26,6 +26,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   results in a `422` response, rather than a `404` error. CNJR-9122
 - Log a warning when Kubernetes authenticator certificate injection process log
   directory is not writable. CNJR-7070
+- Added Content-Length header in for failure HTTP responses in which
+  it was missing. CNJR-10332
 
 ### Security
 - Improve headers handling in AWS IAM authenticator. CONJSE-2023
