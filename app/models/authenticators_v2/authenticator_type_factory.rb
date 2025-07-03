@@ -231,7 +231,7 @@ module AuthenticatorsV2
       data = params[:data]
       # Raise error for aws and azure authenticators if the request body contains a 'data' object
       type = params[:type]
-      if %w[ldap aws gcp].include?(type)
+      if %w[aws gcp].include?(type)
         if data
           raise(
             ApplicationController::UnprocessableEntity,
@@ -241,6 +241,8 @@ module AuthenticatorsV2
 
         return
       elsif data.nil? || data.empty?
+        return if type == "ldap" # LDAP is allowed to have no data block for certain configs
+
         raise(
           ApplicationController::UnprocessableEntity,
           "The 'data' object must be specified for #{type} authenticators and it must be a non-empty JSON object."
@@ -257,6 +259,8 @@ module AuthenticatorsV2
           azure_data_validators(params[:data])
         when "oidc"
           oidc_data_validators(params[:data])
+        when "ldap"
+          ldap_data_validators(params[:data])
         else
           {}
         end
@@ -265,6 +269,33 @@ module AuthenticatorsV2
       validate_identity_data(data)
       validate_data_rules(params[:type], params[:data])
       validate_no_extra_json_params(data, data_fields)
+    end
+
+    def ldap_data_validators(data)
+      # LDAP is allowed to exclude the data block for legacy configuration
+      return {} if data.nil?
+
+      validate_ldap_vars = lambda do |_, _|
+        return unless data[:bind_password].nil? && !data[:tls_ca_cert].nil?
+
+        # Using tls-ca-cert implies we are using the variable/annotation config for this authenticator
+        # which implies we require the bind-password be set
+        raise(
+          Errors::Conjur::ParameterMissing,
+          "The 'bind_password' field must be specified when the 'tls_ca_cert' field is provided."
+        )
+      end
+
+      {
+        bind_password: {
+          field_info: { type: String, value: data[:bind_password] },
+          validators: [method(:validate_field_type)]
+        },
+        tls_ca_cert: {
+          field_info: { type: String, value: data[:tls_ca_cert] },
+          validators: [method(:validate_field_type), validate_ldap_vars]
+        }
+      }
     end
 
     def jwt_data_validators(data)

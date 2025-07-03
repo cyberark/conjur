@@ -46,3 +46,26 @@ Given(/^I successfully initialize an LDAP authenticator named "([^"]*)" via the 
 
   post(path, payload.to_json, authenticated_v2_api_headers)
 end
+
+Given(/^I successfully initialize an LDAP authenticator named "([^"]*)" using variables via the authenticators API$/) do |service_id|
+  path = "#{conjur_hostname}/authenticators/#{ENV['CONJUR_ACCOUNT']}"
+  payload = {
+    type: "ldap",
+    name: service_id,
+    enabled: true,
+    data: {
+      bind_password: 'ldapsecret',
+      tls_ca_cert: ldap_ca_certificate_value
+    },
+    annotations: {
+      "ldap-authn/base_dn": "dc=conjur,dc=net",
+      "ldap-authn/bind_dn": "cn=admin,dc=conjur,dc=net",
+      "ldap-authn/connect_type": "tls",
+      "ldap-authn/host": "ldap-server",
+      "ldap-authn/port": "389",
+      "ldap-authn/filter_template": "(uid=%s)"
+    }
+  }
+
+  post(path, payload.to_json, authenticated_v2_api_headers)
+end

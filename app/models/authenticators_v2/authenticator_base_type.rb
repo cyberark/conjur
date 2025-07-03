@@ -26,7 +26,7 @@ module AuthenticatorsV2
       res[:data] = add_data_params(@variables) if respond_to?(:add_data_params)
       res[:annotations] = @annotations if @annotations.present?
 
-      res
+      res.compact
     end
 
     def format_type(authn_type)

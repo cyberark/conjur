@@ -1199,8 +1199,8 @@ describe AuthenticatorsV2::AuthenticatorTypeFactory do
       let(:type) { "ldap" }
 
       describe "with standard data values specified" do
-        let(:owner) { { kind: "user", id: "some-user" } }
         let(:annotations){ { description: "testing" } }
+        let(:owner) { { kind: "user", id: "some-user" } }
 
         it "returns the authenticator" do
           expect(subject.result.to_h).to eq({
@@ -1212,6 +1212,38 @@ describe AuthenticatorsV2::AuthenticatorTypeFactory do
             annotations: annotations
           })
         end
+
+        describe "with bind_password and tls_ca_cert specified" do
+          let(:data) { { bind_password: "password", tls_ca_cert: "cert_data" } }
+
+          it "returns the authenticator" do
+            expect(subject.result.to_h).to eq({
+              type: type,
+              branch: branch,
+              name: name,
+              enabled: enabled,
+              owner: owner,
+              annotations: annotations,
+              data: data
+            })
+          end
+        end
+
+        describe "with bind_password specified" do
+          let(:data) { { bind_password: "password" } }
+
+          it "returns the authenticator" do
+            expect(subject.result.to_h).to eq({
+              type: type,
+              branch: branch,
+              name: name,
+              enabled: enabled,
+              owner: owner,
+              annotations: annotations,
+              data: data
+            })
+          end
+        end
       end
 
       describe "with data section specified" do
@@ -1220,7 +1252,18 @@ describe AuthenticatorsV2::AuthenticatorTypeFactory do
         it "returns an error" do
           expect{subject}.to raise_error(
             ApplicationController::UnprocessableEntity,
-            "The 'data' object cannot be specified for ldap authenticators."
+            "The following parameters were not expected: some"
+          )
+        end
+      end
+
+      describe "with tls_ca_cert specified but missing bind_password" do
+        let(:data) { { tls_ca_cert: "cert_data" } }
+
+        it "returns an error" do
+          expect { subject }.to raise_error(
+            Errors::Conjur::ParameterMissing,
+            "CONJ00190W Missing required parameter: The 'bind_password' field must be specified when the 'tls_ca_cert' field is provided."
           )
         end
       end
