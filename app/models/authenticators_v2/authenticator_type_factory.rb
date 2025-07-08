@@ -100,6 +100,10 @@ module AuthenticatorsV2
     end
 
     def format_variables(auth_dict)
+      if auth_dict[:variables]&.key?(:public_keys)
+        auth_dict[:variables][:public_keys] = auth_dict[:variables][:public_keys].to_json 
+      end
+      
       return unless auth_dict[:variables]&.key?(:identity)
 
       auth_dict[:variables][:identity] = process_identity_variables(
@@ -313,8 +317,8 @@ module AuthenticatorsV2
           validators: [method(:validate_field_type), ->(_, field_info) { validate_not_allowed_chars_and_length("jwks_uri", field_info, 255) }]
         },
         public_keys: {
-          field_info: { type: String, value: data[:public_keys] },
-          validators: [method(:validate_field_type), ->(_, field_info) { validate_not_allowed_chars_and_length("public_keys", field_info, 1000) }]
+          field_info: { type: Hash, value: data[:public_keys] },
+          validators: [method(:validate_field_type), ->(_, field_info) { validate_json_max_length("public_keys", field_info, 10000) }]
         },
         issuer: {
           field_info: { type: String, value: data[:issuer] },
@@ -574,6 +578,16 @@ module AuthenticatorsV2
     def validate_id(param_name, data)
       validate_string(param_name, data[:value], /\A[a-zA-Z0-9._:-]+\z/, 60, 1,
                       "Valid characters: letters, numbers, and these special characters are allowed: . _ : -. Other characters are not allowed.")
+    end
+
+    def validate_json_max_length(param_name, data, max_length)
+      json_string = data.to_json
+      return unless json_string.length > max_length
+
+      raise(
+        ApplicationController::UnprocessableEntity,
+        "'#{param_name}' parameter length exceeded. Limit the length to #{max_length} characters"
+      )
     end
     
     def validate_string(param_name, data, regex_pattern, max_size, min_size, error_message = "")

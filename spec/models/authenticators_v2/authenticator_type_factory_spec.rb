@@ -479,6 +479,48 @@ describe AuthenticatorsV2::AuthenticatorTypeFactory do
         end
       end
 
+      describe "with public_keys specified" do
+        let(:owner) { { kind: "user", id: "some-user" } }
+        let(:annotations){ { description: "testing" } }
+        let(:data) do
+          {
+            public_keys: { "test": "value" },
+            issuer: "test",
+            ca_cert: "CERT_DATA",
+            identity: {
+              enforced_claims: [ "one", "two" ],
+              claim_aliases: {
+                a: "b"
+              }
+            },
+            audience: "aud"
+          }
+        end
+
+        it "returns the authenticator" do
+          expect(subject.result.to_h).to eq({
+            type: type,
+            branch: branch,
+            name: name,
+            enabled: enabled,
+            owner: owner,
+            annotations: annotations,
+            data: {
+              public_keys: { test: "value" },
+              issuer: "test",
+              ca_cert: "CERT_DATA",
+              identity: {
+                enforced_claims: [ "one", "two" ],
+                claim_aliases: {
+                  a: "b"
+                }
+              },
+              audience: "aud"
+            }
+          })
+        end
+      end
+
       describe "with bad data section" do
         describe "missing data" do
           it "returns an error" do
@@ -516,7 +558,7 @@ describe AuthenticatorsV2::AuthenticatorTypeFactory do
         end
 
         describe "both jwks_uri and public_keys" do
-          let(:data) { { jwks_uri: "https://", public_keys: "keys" } }
+          let(:data) { { jwks_uri: "https://", public_keys: { test: "test" } } }
 
           it "returns an error" do
             expect{subject}.to raise_error(
@@ -527,7 +569,7 @@ describe AuthenticatorsV2::AuthenticatorTypeFactory do
         end
 
         describe "public_keys with no issuer" do
-          let(:data) { { public_keys: "keys" } }
+          let(:data) { { public_keys: { test: "test" } } }
 
           it "returns an error" do
             expect{subject}.to raise_error(
@@ -549,7 +591,7 @@ describe AuthenticatorsV2::AuthenticatorTypeFactory do
           let(:data) { { public_keys: 123 } }
 
           it "returns an error" do
-            expect{subject}.to raise_error(Errors::Conjur::ParameterTypeInvalid, "CONJ00192W The 'public_keys' parameter must be of 'type=string'")
+            expect{subject}.to raise_error(Errors::Conjur::ParameterTypeInvalid, "CONJ00192W The 'public_keys' parameter must be of 'type=object'")
           end
         end
 

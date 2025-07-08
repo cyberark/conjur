@@ -21,6 +21,11 @@ module AuthenticatorsV2
       }
 
       data_section = standard_fields.each_with_object({}) do |key, data|
+        if key == :public_keys
+          data[key] = parse_public_keys(authenticator_params[key])
+          next
+        end
+
         data[key] = retrieve_authenticator_variable(authenticator_params, key)
       end.compact
 
@@ -38,6 +43,18 @@ module AuthenticatorsV2
       data_section[:identity] = identity_section unless identity_section.empty?
 
       data_section
+    end
+
+    def parse_public_keys(value)
+      return nil unless value.present?
+      
+      JSON.parse(
+        value,
+        {
+          symbolize_names: true,
+          create_additions: false
+        }
+      )
     end
 
     private
