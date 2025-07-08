@@ -47,6 +47,7 @@ describe AuthenticatorsV2::JwtAuthenticatorType, type: :model do
           owner_id: "#{account}:policy:conjur/authn-jwt",
           annotations: { description: "this is my jwt authenticator" },
           variables: {
+            public_keys: "{\"type\": \"jwks\",\"value\": {\"keys\": [{\"e\": \"AQAB\", \"kid\": \"CNv0OI3RwqlHFEVnaoMAshCH2XE\",\"x5t\": \"CNv0OI3RwqlHFEVnaoMAshCH2XE\"}]}}",
             "#{account}:variable:conjur/authn-jwt/auth1/ca-cert" => "CERT_DATA_1"
           } # No identity variables
         }
@@ -62,6 +63,7 @@ describe AuthenticatorsV2::JwtAuthenticatorType, type: :model do
           owner: { id: "conjur/authn-jwt", kind: "policy" },
           annotations: { description: "this is my jwt authenticator" },
           data: {
+            public_keys: { type: "jwks", value: { keys: [{ e: "AQAB", kid: "CNv0OI3RwqlHFEVnaoMAshCH2XE", x5t: "CNv0OI3RwqlHFEVnaoMAshCH2XE" }] } },
             ca_cert: "CERT_DATA_1"
           }
         }

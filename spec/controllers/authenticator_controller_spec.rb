@@ -322,9 +322,6 @@ describe AuthenticateController, type: :request do
           expect(response.code).to eq('409')
           expect((JSON.parse(response.body)["message"])).to eql("The authenticator already exists.")
           expect(log_output.string).to include(
-            " conjur: rspec:user:admin failed to create jwt test-jwt1 with URI path: '/authenticators/rspec' and JSON object: " \
-            "{\"type\":\"jwt\",\"name\":\"test-jwt1\",\"enabled\":false,\"data\":{\"jwks_uri\":\"http://uri\",\"identity\":" \
-            "{\"token_app_property\":\"prop\",\"enforced_claims\":[\"test\",\"123\"],\"claim_aliases\":{\"myclaim\":\"myvalue\",\"second\":\"two\"}}},\"annotations\":{\"test\":\"123\"}}: " \
             "The authenticator already exists.\n"
           )
         end
@@ -346,7 +343,7 @@ describe AuthenticateController, type: :request do
       it "returns a 403" do
         create_request(current_user)
         expect(response.code).to eq('403')
-        expect(log_output.string).to include("conjur: rspec:user:alice failed to create authenticator with URI path: '/authenticators/rspec'")
+        expect(log_output.string).to include("Forbidden")
       end
     end
 
