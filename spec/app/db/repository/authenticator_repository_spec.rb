@@ -10,9 +10,14 @@ RSpec.describe(DB::Repository::AuthenticatorRepository) do
     ::Resource
   end
 
+  let(:auth_type_factory) do
+    AuthenticatorsV2::AuthenticatorTypeFactory.new
+  end
+
   let(:repo) do
     described_class.new(
       logger: logger,
+      auth_type_factory: auth_type_factory,
       resource_repository: resource_repository
     )
   end
@@ -347,9 +352,36 @@ RSpec.describe(DB::Repository::AuthenticatorRepository) do
 
           it 'returns relevant variables and values' do
             response = repo.find(type: 'authn-oidc', account: 'rspec', service_id: 'abc123')
-
             expect(response.success?).to be(true)
             expect(response.result.to_h).to eq(authenticator)
+          end
+        end
+
+        context 'Resource Returns an error' do
+          before do
+            allow(resource_repository).to receive(:where)
+              .and_raise("repo error")
+          end
+      
+          it 'returns failure and log messsage' do
+            response = repo.find(type: 'authn-oidc', account: 'rspec', service_id: 'abc123')
+            expect(log_output.string).to include("failed to load 'authn-oidc' authenticator 'abc123' due to: repo error")
+            expect(response.success?).to be(false)
+            expect(response.status).to be(:unauthorized)
+          end
+        end
+
+        context 'auth_type_factory Returns an error' do
+          before do
+            allow(auth_type_factory).to receive(:create_authenticator_type)
+              .and_raise("repo error")
+          end
+      
+          it 'returns failure and log messsage' do
+            response = repo.find(type: 'authn-oidc', account: 'rspec', service_id: 'abc123')
+            expect(log_output.string).to include("failed to load 'authn-oidc' authenticator 'abc123' due to: repo error")
+            expect(response.success?).to be(false)
+            expect(response.status).to be(:unauthorized)
           end
         end
 
