@@ -116,12 +116,14 @@ class AuthenticatorController < V2RestController
       service_id: relevant_params[:service_id]
     ).bind do |auth|
       policy_id = auth.resource_id.gsub('webservice', 'policy')
-      next ::FailureResponse.new(
-        "Unauthorized",
-        status: :forbidden,
-        exception: Exceptions::Forbidden,
-      ) unless current_user.allowed_to?('delete', ::Resource[policy_id])
 
+      unless current_user.allowed_to?('delete', ::Resource[policy_id])
+        next ::FailureResponse.new(
+          "Unauthorized",
+          status: :forbidden,
+          exception: Exceptions::Forbidden,
+        )
+      end
       policy = repository.delete(policy_id: policy_id)
       ::SuccessResponse.new(policy, status: :no_content)
     end
