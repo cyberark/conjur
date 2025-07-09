@@ -3,16 +3,16 @@ Feature: Branches APIv2 tests - delete
 
   Background:
     Given I am the super-user
-    And I can POST "/policies/cucumber/policy/root" with body from file "policy_cloud.yml"
+    And I can POST "/policies/cucumber/policy/root" with body from file "policy_data.yml"
 
   @acceptance
   Scenario: Deleting branch
     Given I add the secret value "v1" to the resource "cucumber:variable:data/safe1/branch1/alice-var"
-    When I set the "Accept" header to "application/x.secretsmgr.v2beta+json"
+    And I set the Accept header to APIv2
     And I can GET "/branches/cucumber/data/safe1/branch1/alice-branch"
     And the HTTP response status code is 200
-    And the HTTP response content type is "application/x.secretsmgr.v2beta+json"
-    And I set the "Accept" header to "application/x.secretsmgr.v2beta+json"
+    And the HTTP response content type is APIv2
+    And I set the Accept header to APIv2
     And I can GET "/secrets/cucumber/variable/data/safe1/branch1/alice-var"
     And I clear the "Accept" header
     And I clear the "Content-Type" header
@@ -25,30 +25,30 @@ Feature: Branches APIv2 tests - delete
       privileges: [update]
       resource: !policy safe1
     """
-    And I save my place in the audit log file for remote
     And I login as "alice@data-safe1"
-    And I set the "Accept" header to "application/x.secretsmgr.v2beta+json"
-    And I can DELETE "/branches/cucumber/data/safe1/branch1"
+    And I save my place in the audit log file for remote
+    And I set the Accept header to APIv2
+    When I can DELETE "/branches/cucumber/data/safe1/branch1"
     Then the HTTP response status code is 204
-#    And there is an audit record matching:
-#    """
-#    <85>1 * * conjur * branch\s
-#    [auth@43868 user="cucumber:user:admin"]
-#    [subject@43868 edge=""]
-#    [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
-#    [action@43868 result="success" operation="delete"]\s
-#    cucumber:user:admin successfully deleted branch data with URI path: '/branches/cucumber/data'
-#    """
-    And I set the "Accept" header to "application/x.secretsmgr.v2beta+json"
+    And there is an audit record matching:
+    """
+    <85>1 * * conjur * branch\s
+    [auth@43868 user="cucumber:user:alice@data-safe1"]
+    [subject@43868 edge=""]
+    [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
+    [action@43868 result="success" operation="remove"]\s
+    cucumber:user:alice@data-safe1 successfully removed branch data/safe1/branch1 with URI path: '/branches/cucumber/data/safe1/branch1'
+    """
+    And I set the Accept header to APIv2
     And I GET "/branches/cucumber/data/safe1/branch1"
     And the HTTP response status code is 404
-    And the HTTP response content type is "application/x.secretsmgr.v2beta+json"
+    And the HTTP response content type is APIv2
     # check using effective policy
     And I am the super-user
     And I set the "Accept" header to "application/x-yaml"
     And I can GET "/policies/cucumber/policy/data/safe1/"
     And the HTTP response content type is "application/x-yaml"
-    Then the yaml result is:
+    And the yaml result is:
     """
     ---
     - !policy
@@ -82,8 +82,8 @@ Feature: Branches APIv2 tests - delete
 
   @negative @acceptance
   Scenario: Deleting branch not possible
-    And I am the super-user
-    And I set the "Accept" header to "application/x.secretsmgr.v2beta+json"
+    Given I am the super-user
+    And I set the Accept header to APIv2
     And I set the "Content-Type" header to "application/json"
     And I can POST "/branches/cucumber" with body:
     """
@@ -91,34 +91,35 @@ Feature: Branches APIv2 tests - delete
       "branch": "data/safe1/branch1" }
     """
     And I login as "alice@data-safe1"
-    And I set the "Accept" header to "application/x.secretsmgr.v2beta+json"
+    And I set the Accept header to APIv2
+    And I save my place in the audit log file for remote
     And I clear the "Content-Type" header
-    And I DELETE "/branches/cucumber/data/safe1/branch1"
+    When I DELETE "/branches/cucumber/data/safe1/branch1"
     Then the HTTP response status code is 404
-    And the HTTP response content type is "application/x.secretsmgr.v2beta+json"
-#    And there is an audit record matching:
-#    """
-#    <85>1 * * conjur * branch\s
-#    [auth@43868 user="cucumber:user:admin"]
-#    [subject@43868 edge=""]
-#    [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
-#    [action@43868 result="success" operation="delete"]\s
-#    cucumber:user:admin successfully deleted branch data with URI path: '/branches/cucumber/data'
-#    """
+    And the HTTP response content type is APIv2
+    And there is an audit record matching:
+    """
+    <85>1 * * conjur * branch\s
+    [auth@43868 user="cucumber:user:alice@data-safe1"]
+    [subject@43868 edge=""]
+    [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
+    [action@43868 result="failure" operation="remove"]\s
+    cucumber:user:alice@data-safe1 failed to remove branch data/safe1/branch1 with URI path: '/branches/cucumber/data/safe1/branch1': Branch 'data/safe1/branch1/alice-hidden' not found in account 'cucumber'
+    """
 
   @negative @acceptance
   Scenario: Cannot delete root branch if no possibility
-    And I set the "Accept" header to "application/x.secretsmgr.v2beta+json"
-    And I DELETE "/branches/cucumber"
+    Given I set the Accept header to APIv2
+    When I DELETE "/branches/cucumber"
     Then the HTTP response status code is 404
-    And I DELETE "/branches/cucumber/"
+    When I DELETE "/branches/cucumber/"
     Then the HTTP response status code is 404
-    And I DELETE "/branches/cucumber/root"
+    When I DELETE "/branches/cucumber/root"
     Then the HTTP response status code is 404
 
   @negative @acceptance
   Scenario: Cannot delete a branch with not existing parent branch
-    And I am the super-user
+    Given I am the super-user
     And I clear the "Accept" header
     And I clear the "Content-Type" header
     And I can PATCH "/policies/cucumber/policy/data/safe1/branch1" with body:
@@ -126,8 +127,8 @@ Feature: Branches APIv2 tests - delete
     ---
     - !policy not_for_branch/branch2
     """
-    And I set the "Accept" header to "application/x.secretsmgr.v2beta+json"
-    And I DELETE "/branches/cucumber/data/safe1/branch1"
+    And I set the Accept header to APIv2
+    When I DELETE "/branches/cucumber/data/safe1/branch1"
     Then the HTTP response status code is 204
     And I GET "/branches/cucumber/data/safe1/branch1"
     Then the HTTP response status code is 404
@@ -137,9 +138,9 @@ Feature: Branches APIv2 tests - delete
   @acceptance
   Scenario: V2 header must be present
     Given I clear the "Accept" header
-    And I DELETE "/branches/cucumber/data"
+    When I DELETE "/branches/cucumber/data"
     Then the HTTP response status code is 400
-    And the HTTP response content type is "application/x.secretsmgr.v2beta+json"
+    And the HTTP response content type is APIv2
     And the JSON should be:
     """
     { "code": "400",

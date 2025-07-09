@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require_relative 'domain'
-require_relative 'validation'
+require_relative '../domain'
+require_relative '../validation'
 
 module Domain
   class Branch
@@ -26,6 +26,10 @@ module Domain
       @annotations = annotations
 
       raise DomainValidationError, errors.full_messages.to_sentence if invalid?
+    end
+
+    def to_s
+      "#<Branch name=#{@name} branch=#{@branch} owner=#{@owner} annotations=#{@annotations}>"
     end
 
     def as_json(options = {})

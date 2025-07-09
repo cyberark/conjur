@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'singleton'
-require_relative 'domain'
 
 module Domain
   class ResourceScopesService
@@ -30,7 +29,7 @@ module Domain
         .where(kind_not_user)
     end
 
-    def visible_branches_scope(account, role_id, identifier)
+    def visible_resources_scope(account, role_id, identifier)
       @res_repo.select(
         Sequel.lit('resources.resource_id'),
         Sequel.lit('resources.owner_id')
@@ -72,10 +71,6 @@ module Domain
 
     def kind_policy
       Sequel.lit("kind(resources.resource_id) = 'policy'")
-    end
-
-    def max_depth(absolute_depth)
-      Sequel.lit("res_depth(resources.resource_id) <= #{absolute_depth}")
     end
 
     def kind_not_user

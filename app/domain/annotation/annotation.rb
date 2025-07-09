@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require_relative 'domain'
-require_relative 'validation'
+require_relative '../domain'
+require_relative './annotation_validator'
 
 module Domain
   class Annotations < Hash

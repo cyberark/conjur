@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require_relative 'domain'
-require_relative 'validation'
+require_relative '../domain'
+require_relative '../validation'
 
 module Domain
   class Owner
@@ -9,7 +9,8 @@ module Domain
     include Domain::Validation
 
     validates :kind, presence: true, inclusion: { in: OWNER_KINDS, message: OWNER_KINDS_MSG }
-    validates :id, presence: true, format: { with: PATH_PATTERN, message: PATH_PATTERN_MSG }
+    validates :id, presence: true, format: { with: USER_PATH_PATTERN, message: USER_PATH_PATTERN_MSG }, if: -> { kind == 'user' }
+    validates :id, presence: true, format: { with: PATH_PATTERN, message: PATH_PATTERN_MSG }, unless: -> { kind == 'user' }
     validates :id, length: { minimum: PATH_LENGTH_MIN, maximum: PATH_LENGTH_MAX }
 
     extend(Domain)
@@ -41,6 +42,10 @@ module Domain
 
     def not_admin?
       @id != 'admin' || @kind != 'user'
+    end
+
+    def to_s
+      "#<Owner kind=#{@kind} id=#{@id} set=#{@is_set}>"
     end
   end
 end

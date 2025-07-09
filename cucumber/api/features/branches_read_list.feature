@@ -3,21 +3,21 @@ Feature: Branches APIv2 tests - read list
 
   Background:
     Given I am the super-user
-    And I can POST "/policies/cucumber/policy/root" with body from file "policy_cloud.yml"
+    And I can POST "/policies/cucumber/policy/root" with body from file "policy_data.yml"
 
   @acceptance
   Scenario: As admin I can list branches from root
-    When I set the "Accept" header to "application/x.secretsmgr.v2beta+json"
+    Given I set the Accept header to APIv2
     And I save my place in the audit log file for remote
-    And I can GET "/branches/cucumber"
+    When I can GET "/branches/cucumber"
     Then the HTTP response status code is 200
-    And the HTTP response content type is "application/x.secretsmgr.v2beta+json"
+    And the HTTP response content type is APIv2
     And the JSON should be:
     """
     { "branches": [
         { "name": "data",
           "branch": "/",
-          "owner": { "kind": "group", "id": "Conjur_Cloud_Admins" },
+          "owner": { "kind": "group", "id": "Conjur_Admins" },
           "annotations": {} },
         { "name": "Applications",
           "branch": "data",
@@ -33,7 +33,7 @@ Feature: Branches APIv2 tests - read list
           "annotations": {} },
         { "name": "dynamic",
           "branch": "data",
-          "owner": { "kind": "group", "id": "Conjur-Issuers-Admins" },
+          "owner": { "kind": "group", "id": "Conjur_Issuers_Admins" },
           "annotations": {} },
         { "name": "safe1",
           "branch": "data",
@@ -61,23 +61,23 @@ Feature: Branches APIv2 tests - read list
           "annotations": {} } ],
       "count": 11 }
     """
-#    And there is an audit record matching:
-#    """
-#    <85>1 * * conjur * branch\s
-#    [auth@43868 user="cucumber:user:admin"]
-#    [subject@43868 edge=""]
-#    [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
-#    [action@43868 result="success" operation="get"]\s
-#    cucumber:user:admin successfully retrieved branch root with URI path: '/branches/cucumber/root'
-#    """
+    And there is an audit record matching:
+    """
+    <85>1 * * conjur * branch\s
+    [auth@43868 user="cucumber:user:admin"]
+    [subject@43868 edge=""]
+    [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
+    [action@43868 result="success" operation="list"]\s
+    cucumber:user:admin successfully listed branch root with URI path: '/branches/cucumber'
+    """
 
-  @negative @acceptance
+  @acceptance
   Scenario: As not admin I can list branches from root that are visible for me
-    When I login as "alice@data-safe1"
-    And I set the "Accept" header to "application/x.secretsmgr.v2beta+json"
-    And I can GET "/branches/cucumber"
+    Given I login as "alice@data-safe1"
+    And I set the Accept header to APIv2
+    When I can GET "/branches/cucumber"
     Then the HTTP response status code is 200
-    And the HTTP response content type is "application/x.secretsmgr.v2beta+json"
+    And the HTTP response content type is APIv2
     And the JSON should be:
     """
     { "branches": [
@@ -97,12 +97,11 @@ Feature: Branches APIv2 tests - read list
     """
 
   @acceptance
-  Scenario: As admin I can list branches from root
-    When I set the "Accept" header to "application/x.secretsmgr.v2beta+json"
-    And I save my place in the audit log file for remote
-    And I can GET "/branches/cucumber?offset=2;limit=3"
+  Scenario: As admin I can list branches from root using pagination
+    Given I set the Accept header to APIv2
+    When I can GET "/branches/cucumber?offset=2;limit=3"
     Then the HTTP response status code is 200
-    And the HTTP response content type is "application/x.secretsmgr.v2beta+json"
+    And the HTTP response content type is APIv2
     And the JSON should be:
     """
     { "branches": [
@@ -116,14 +115,37 @@ Feature: Branches APIv2 tests - read list
           "annotations": {} },
         { "name": "dynamic",
           "branch": "data",
-          "owner": { "kind": "group", "id": "Conjur-Issuers-Admins" },
+          "owner": { "kind": "group", "id": "Conjur_Issuers_Admins" },
           "annotations": {} } ],
       "count": 11 }
     """
 
   @negative @acceptance
-  Scenario: Cannot read branches with not existing parent branch
-    And I am the super-user
+  Scenario: Error due to wrong pagination parameters
+    Given I set the Accept header to APIv2
+    And I save my place in the audit log file for remote
+    And I save my place in the audit log file for remote
+    When I GET "/branches/cucumber?offset=2;limit=-1"
+    Then the HTTP response status code is 422
+    And the HTTP response content type is APIv2
+    And the JSON should be:
+    """
+    { "code": "422",
+      "message": "Limit must be greater than or equal to 0" }
+    """
+    And there is an audit record matching:
+    """
+    <85>1 * * conjur * branch\s
+    [auth@43868 user="cucumber:user:admin"]
+    [subject@43868 edge=""]
+    [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
+    [action@43868 result="failure" operation="list"]\s
+    cucumber:user:admin failed to list branch root with URI path: '/branches/cucumber': Limit must be greater than or equal to 0
+    """
+
+  @acceptance
+  Scenario: Cannot list branches with not existing parent branch
+    Given I am the super-user
     And I clear the "Accept" header
     And I clear the "Content-Type" header
     And I can PATCH "/policies/cucumber/policy/data/safe1/branch1" with body:
@@ -131,16 +153,16 @@ Feature: Branches APIv2 tests - read list
     ---
     - !policy not_for_branch/branch2
     """
-    And I set the "Accept" header to "application/x.secretsmgr.v2beta+json"
-    And I can GET "/branches/cucumber"
+    And I set the Accept header to APIv2
+    When I can GET "/branches/cucumber"
     Then the HTTP response status code is 200
-    And the HTTP response content type is "application/x.secretsmgr.v2beta+json"
+    And the HTTP response content type is APIv2
     And the JSON should be:
     """
     { "branches": [
         { "name": "data",
           "branch": "/",
-          "owner": { "kind": "group", "id": "Conjur_Cloud_Admins" },
+          "owner": { "kind": "group", "id": "Conjur_Admins" },
           "annotations": {} },
         { "name": "Applications",
           "branch": "data",
@@ -155,7 +177,7 @@ Feature: Branches APIv2 tests - read list
           "owner": { "kind": "user", "id": "admin" },
           "annotations": {} },
         { "name": "dynamic",
-          "branch": "data", "owner": { "kind": "group", "id": "Conjur-Issuers-Admins" },
+          "branch": "data", "owner": { "kind": "group", "id": "Conjur_Issuers_Admins" },
           "annotations": {} },
         { "name": "safe1",
           "branch": "data",
@@ -187,9 +209,9 @@ Feature: Branches APIv2 tests - read list
   @acceptance
   Scenario: V2 header must be present
     Given I clear the "Accept" header
-    And I GET "/branches/cucumber"
+    When I GET "/branches/cucumber"
     Then the HTTP response status code is 400
-    And the HTTP response content type is "application/x.secretsmgr.v2beta+json"
+    And the HTTP response content type is APIv2
     And the JSON should be:
     """
     { "code": "400",

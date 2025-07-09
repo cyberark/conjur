@@ -24,6 +24,10 @@ module Domain
     [account, type, identifier].join(":")
   end
 
+  def account_of(full_id)
+    full_id.split(":", 3)[0]
+  end
+
   def kind(full_id)
     full_id.split(":", 3)[1]
   end

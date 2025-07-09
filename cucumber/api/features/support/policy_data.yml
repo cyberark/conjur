@@ -1,21 +1,23 @@
-- !group Conjur-Issuers-Admins
-- !group Conjur_Cloud_Admins
-- !group Conjur_Cloud_Users
+- !group Conjur_Issuers_Admins
+- !group Conjur_Admins
+- !group Conjur_Users
 - !group
   id: auth_admins
-  owner: !group Conjur_Cloud_Admins
+  owner: !group Conjur_Admins
+
+- !user bob
 
 - !grant
-  role: !group Conjur-Issuers-Admins
+  role: !group Conjur_Issuers_Admins
   members:
-    - !group Conjur_Cloud_Admins
+    - !group Conjur_Admins
 
 - !policy
   id: data_default_owner
 
 - !policy
   id: data
-  owner: !group /Conjur_Cloud_Admins
+  owner: !group /Conjur_Admins
   body:
     - !host myhost
     - !permit
@@ -26,7 +28,7 @@
 
     - !policy
       id: dynamic
-      owner: !group /Conjur-Issuers-Admins
+      owner: !group /Conjur_Issuers_Admins
       body:
         []
     # vault
