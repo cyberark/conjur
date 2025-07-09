@@ -11,15 +11,39 @@ RSpec.describe(Domain::Owner) do
     end
 
     it 'raises error for invalid kind' do
-      expect { described_class.new('invalid', 'alice', is_set: true) }.to raise_error(Domain::Validation::DomainValidationError, /is not a valid owner kind/)
+      expect { described_class.new('invalid', 'alice', is_set: true) }
+        .to raise_error(Domain::Validation::DomainValidationError, /is not a valid owner kind/)
     end
 
     it 'raises error for invalid id format' do
-      expect { described_class.new('user', 'invalid id!', is_set: true) }.to raise_error(Domain::Validation::DomainValidationError, /Wrong path/)
+      expect { described_class.new('user', 'invalid id!', is_set: true) }
+        .to raise_error(Domain::Validation::DomainValidationError, /Wrong path/)
     end
 
     it 'does not raise error if not set' do
-      expect { described_class.new('user', 'alice', is_set: false) }.not_to raise_error
+      expect { described_class.new('user', 'alice', is_set: false) }
+        .not_to raise_error
+    end
+
+    it 'raises error for invalid nil id' do
+      expect { described_class.new('user', nil, is_set: true) }
+        .to raise_error(Domain::Validation::DomainValidationError, /can't be blank/)
+    end
+
+    it 'raises error for empty id' do
+      expect { described_class.new('user', '', is_set: true) }
+        .to raise_error(Domain::Validation::DomainValidationError, /can't be blank/)
+    end
+
+    it 'raises error for nil kind' do
+      expect { described_class.new(nil, 'alice', is_set: true) }
+        .to raise_error(Domain::Validation::DomainValidationError, /can't be blank/)
+    end
+
+    it 'raises error for too long kind' do
+      long_kind = 'a' * (Domain::Validation::PATH_LENGTH_MAX + 1)
+      expect { described_class.new(long_kind, 'alice', is_set: true) }
+        .to raise_error(Domain::Validation::DomainValidationError,  "Kind '#{long_kind}' is not a valid owner kind")
     end
   end
 
