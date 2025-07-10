@@ -77,7 +77,7 @@ Scenario: list authenticators using the V2 Api.
   And the authenticators list should include "test-jwt1"
   And the authenticators list should include "test-jwt2"
 
-  Given I successfully GET "authenticators/cucumber?type=authn-oidc"
+  Given I successfully GET "authenticators/cucumber?type=oidc"
   Then I receive a count of 1
   And the authenticators list should include "keycloak"
   Then the JSON should be:
@@ -112,7 +112,7 @@ Scenario: list authenticators using the V2 Api.
 Scenario: Fetch authenticators using the V2 Api.
   When I save my place in the audit log file for remote
 
-  Given I successfully GET "authenticators/cucumber/authn-oidc/keycloak"
+  Given I successfully GET "authenticators/cucumber/oidc/keycloak"
   Then the JSON should be:
   """
     {
@@ -134,14 +134,14 @@ Scenario: Fetch authenticators using the V2 Api.
   """
   And there is an audit record matching:
   """
-  cucumber:user:admin successfully retrieved authn-oidc keycloak with URI path: '/authenticators/cucumber/authn-oidc/keycloak'
+  cucumber:user:admin successfully retrieved authn-oidc keycloak with URI path: '/authenticators/cucumber/oidc/keycloak'
   """
 
 Scenario: Update authenticators using the V2 Api.
   // We should add a check for the info endpoint here to determine if the authenticator is actually enabled
   When I save my place in the audit log file for remote
 
-  Given I PATCH "authenticators/cucumber/authn-oidc/keycloak" with body:
+  Given I PATCH "authenticators/cucumber/oidc/keycloak" with body:
   """
   { "enabled": true }
   """
@@ -166,10 +166,10 @@ Scenario: Update authenticators using the V2 Api.
   """
   And there is an audit record matching:
   """
-  cucumber:user:admin successfully enabled authn-oidc keycloak with URI path: '/authenticators/cucumber/authn-oidc/keycloak' and JSON object: { "enabled": true }
+  cucumber:user:admin successfully enabled authn-oidc keycloak with URI path: '/authenticators/cucumber/oidc/keycloak' and JSON object: { "enabled": true }
   """
 
-  Given I PATCH "authenticators/cucumber/authn-oidc/keycloak" with body:
+  Given I PATCH "authenticators/cucumber/oidc/keycloak" with body:
   """
   { "enabled": false }
   """
@@ -253,11 +253,11 @@ Scenario: Delete authenticators using the V2 Api.
 
   When I successfully GET "authenticators/cucumber"
   Then the authenticators list should include "test-jwt1"
-  When I DELETE "authenticators/cucumber/authn-jwt/test-jwt1"
+  When I DELETE "authenticators/cucumber/jwt/test-jwt1"
   Then the HTTP response status code is 204
   And there is an audit record matching:
   """
-  cucumber:user:admin successfully deleted authn-jwt test-jwt1 with URI path: '/authenticators/cucumber/authn-jwt/test-jwt1'
+  cucumber:user:admin successfully deleted authn-jwt test-jwt1 with URI path: '/authenticators/cucumber/jwt/test-jwt1'
   """
   And I successfully GET "authenticators/cucumber"
   Then the authenticators list should not include "test-jwt1"
@@ -270,7 +270,7 @@ Scenario: Authenticator access control
   Then I receive a count of 2
   Then the authenticators list should include "keycloak"
   Then the authenticators list should include "test-jwt1"
-  Given I successfully GET "authenticators/cucumber/authn-oidc/keycloak"
+  Given I successfully GET "authenticators/cucumber/oidc/keycloak"
   Then the JSON should be:
   """
     {
@@ -290,15 +290,15 @@ Scenario: Authenticator access control
       "type": "oidc"
     }
   """
-  When I GET "authenticators/cucumber/authn-jwt/test-jwt2"
+  When I GET "authenticators/cucumber/jwt/test-jwt2"
   Then the HTTP response status code is 404
   And there is an audit record matching:
   """
-  cucumber:user:alice failed to retrieve authn-jwt test-jwt2 with URI path: '/authenticators/cucumber/authn-jwt/test-jwt2'
+  cucumber:user:alice failed to retrieve authn-jwt test-jwt2 with URI path: '/authenticators/cucumber/jwt/test-jwt2'
   """
-  When I DELETE "authenticators/cucumber/authn-jwt/test-jwt2"
+  When I DELETE "authenticators/cucumber/jwt/test-jwt2"
   Then the HTTP response status code is 404
   And there is an audit record matching:
   """
-  cucumber:user:alice failed to delete authn-jwt test-jwt2 with URI path: '/authenticators/cucumber/authn-jwt/test-jwt2': Authenticator: test-jwt2 not found in account 'cucumber'
+  cucumber:user:alice failed to delete authn-jwt test-jwt2 with URI path: '/authenticators/cucumber/jwt/test-jwt2': Authenticator: test-jwt2 not found in account 'cucumber'
   """

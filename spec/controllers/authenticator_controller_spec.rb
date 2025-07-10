@@ -24,7 +24,7 @@ describe AuthenticateController, type: :request do
     { 'HTTP_AUTHORIZATION' => "Token token=\"#{token}\"" }
   end
 
-  def enable_request(body, current_user, resource_id: 'authn-jwt/test-jwt1')
+  def enable_request(body, current_user, resource_id: 'jwt/test-jwt1')
     patch(
       "/authenticators/rspec/#{resource_id}",
       env: token_auth_header(role: current_user).merge(
@@ -151,16 +151,16 @@ describe AuthenticateController, type: :request do
     context 'when user is an admin' do
       context 'The authenticator does not exisit in policy' do
         it "returns a 404" do
-          retrieve_authenticators('/authenticators/rspec/authn-jwt/foo', current_user)
+          retrieve_authenticators('/authenticators/rspec/jwt/foo', current_user)
           expect(response.code).to eq('404')
-          expect(log_output.string).to include("conjur: rspec:user:admin failed to retrieve authn-jwt foo with URI path: '/authenticators/rspec/authn-jwt/foo': Authenticator: foo not found in account 'rspec'\n")
+          expect(log_output.string).to include("conjur: rspec:user:admin failed to retrieve authn-jwt foo with URI path: '/authenticators/rspec/jwt/foo': Authenticator: foo not found in account 'rspec'\n")
         end
       end
       context 'the authenticator is loaded in policy' do
         it "returns the authenticator" do
-          retrieve_authenticators('/authenticators/rspec/authn-jwt/test-jwt1', current_user)
+          retrieve_authenticators('/authenticators/rspec/jwt/test-jwt1', current_user)
           expect(response.code).to eq('200')
-          expect(log_output.string).to include("conjur: rspec:user:admin successfully retrieved authn-jwt test-jwt1 with URI path: '/authenticators/rspec/authn-jwt/test-jwt1'\n")
+          expect(log_output.string).to include("conjur: rspec:user:admin successfully retrieved authn-jwt test-jwt1 with URI path: '/authenticators/rspec/jwt/test-jwt1'\n")
         end
       end
       context 'There is an unhandled error' do
@@ -168,16 +168,16 @@ describe AuthenticateController, type: :request do
           allow_any_instance_of(DB::Repository::AuthenticatorRepository).to receive(:find).and_raise("test error") 
         end
         it 'creates an audit log for that error' do
-          expect {  retrieve_authenticators('/authenticators/rspec/authn-jwt/test-jwt1', current_user) }.to raise_error('test error')
-          expect(log_output.string).to include("conjur: rspec:user:admin failed to retrieve authn-jwt test-jwt1 with URI path: '/authenticators/rspec/authn-jwt/test-jwt1': test error\n")
+          expect {  retrieve_authenticators('/authenticators/rspec/jwt/test-jwt1', current_user) }.to raise_error('test error')
+          expect(log_output.string).to include("conjur: rspec:user:admin failed to retrieve authn-jwt test-jwt1 with URI path: '/authenticators/rspec/jwt/test-jwt1': test error\n")
         end
       end
       context 'When current user is not an admin' do
         let(:current_user) { Role.find_or_create(role_id: 'rspec:user:alice') }
         it "returns the authenticator when there is visibility" do
-          retrieve_authenticators('/authenticators/rspec/authn-oidc/keycloak', current_user)
+          retrieve_authenticators('/authenticators/rspec/oidc/keycloak', current_user)
           expect(response.code).to eq('200')
-          expect(log_output.string).to include("conjur: rspec:user:alice successfully retrieved authn-oidc keycloak with URI path: '/authenticators/rspec/authn-oidc/keycloak'\n")
+          expect(log_output.string).to include("conjur: rspec:user:alice successfully retrieved authn-oidc keycloak with URI path: '/authenticators/rspec/oidc/keycloak'\n")
         end
       end
     end
@@ -208,7 +208,7 @@ describe AuthenticateController, type: :request do
         end
         context 'When you filter for oidc' do
           it "returns only the oidc authenticators" do
-            retrieve_authenticators('/authenticators/rspec?type=authn-oidc', current_user)
+            retrieve_authenticators('/authenticators/rspec?type=oidc', current_user)
             expect(response.code).to eq('200')
             expect(JSON.parse(response.body)["count"]).to eql(1)
             expect(log_output.string).to include("conjur: rspec:user:admin successfully listed authenticators with URI path: '/authenticators/rspec'\n")
@@ -234,10 +234,10 @@ describe AuthenticateController, type: :request do
     context 'when user has permission' do
       context 'no authenticators are loaded' do
         it "returns a 404" do
-          enable_request("{ \"enabled\": true }", current_user, resource_id: 'authn-jwt/foo')
+          enable_request("{ \"enabled\": true }", current_user, resource_id: 'jwt/foo')
           expect(response.code).to eq('404')
           expect(response.body).to eql("{\"code\":\"404\",\"message\":\"Authenticator: authn-jwt/foo not found in account 'rspec'\"}")
-          expect(log_output.string).to include("rspec:user:admin failed to enable authn-jwt foo with URI path: '/authenticators/rspec/authn-jwt/foo'")
+          expect(log_output.string).to include("rspec:user:admin failed to enable authn-jwt foo with URI path: '/authenticators/rspec/jwt/foo'")
         end
       end
       context 'When authenticators are loaded' do
@@ -256,7 +256,7 @@ describe AuthenticateController, type: :request do
             expect(response.code).to eq('200')
             expect(JSON.parse(response.body)["enabled"]).to eq(false)
             expect(log_output.string).to include(
-              "conjur: rspec:user:admin successfully enabled authn-jwt test-jwt1 with URI path: '/authenticators/rspec/authn-jwt/test-jwt1' " \
+              "conjur: rspec:user:admin successfully enabled authn-jwt test-jwt1 with URI path: '/authenticators/rspec/jwt/test-jwt1' " \
               "and JSON object: { \"enabled\": false }\n"
             )
           end
@@ -268,7 +268,7 @@ describe AuthenticateController, type: :request do
           it 'creates an audit log for that error' do
             expect {  enable_request("{ \"enabled\": true }", current_user) }.to raise_error('test error')
             expect(log_output.string).to include(
-              "conjur: rspec:user:admin failed to enable authn-jwt test-jwt1 with URI path: '/authenticators/rspec/authn-jwt/test-jwt1' " \
+              "conjur: rspec:user:admin failed to enable authn-jwt test-jwt1 with URI path: '/authenticators/rspec/jwt/test-jwt1' " \
               "and JSON object: { \"enabled\": true }: test error\n"
             )
           end
@@ -281,18 +281,18 @@ describe AuthenticateController, type: :request do
               expect(response.code).to eq('200')
               expect(JSON.parse(response.body)["enabled"]).to eq(true)
               expect(log_output.string).to include(
-                "conjur: rspec:user:alice successfully enabled authn-jwt test-jwt1 with URI path: '/authenticators/rspec/authn-jwt/test-jwt1' " \
+                "conjur: rspec:user:alice successfully enabled authn-jwt test-jwt1 with URI path: '/authenticators/rspec/jwt/test-jwt1' " \
                 "and JSON object: {\"enabled\": true }\n"
               )
             end
           end
           context 'When current user does not have update permissions' do
             it "returns a 403" do
-              enable_request("{\"enabled\": true }", current_user, resource_id: "authn-oidc/keycloak")
+              enable_request("{\"enabled\": true }", current_user, resource_id: "oidc/keycloak")
               expect(response.code).to eq('403')
               expect(JSON.parse(response.body)["message"]).to eq("CONJ00006E 'alice' does not have 'update' privilege on rspec:webservice:conjur/authn-oidc/keycloak")
               expect(log_output.string).to include( 
-                "conjur: rspec:user:alice failed to enable authn-oidc keycloak with URI path: '/authenticators/rspec/authn-oidc/keycloak' " \
+                "conjur: rspec:user:alice failed to enable authn-oidc keycloak with URI path: '/authenticators/rspec/oidc/keycloak' " \
                 "and JSON object: {\"enabled\": true }: CONJ00006E 'alice' does not have 'update' privilege on rspec:webservice:conjur/authn-oidc/keycloak\n"
               )
             end

@@ -15,7 +15,8 @@ class AuthenticatorController < V2RestController
   end
 
   def list_authenticators
-    relevant_params = allowed_params(%i[limit offset type account])
+    relevant_params = parse_params(%i[limit offset type account])
+
     response = DB::Repository::AuthenticatorRepository.new(
       resource_repository: @res_repo.search(
         **relevant_params.slice(:offset, :limit)
@@ -39,7 +40,7 @@ class AuthenticatorController < V2RestController
   end
 
   def create_authenticator
-    relevant_params = allowed_params(%i[account])
+    relevant_params = parse_params(%i[account])
     response = AuthenticatorsV2::AuthenticatorTypeFactory.new.create_authenticator_from_json(req, relevant_params[:account]).bind do |auth| 
       validate_create_permisisons(auth).bind do |permitted_auth|
         verify_owner(permitted_auth).bind do |auth_with_owner|
@@ -62,7 +63,7 @@ class AuthenticatorController < V2RestController
   end
 
   def find_authenticator
-    relevant_params = allowed_params(%i[type account service_id])
+    relevant_params = parse_params(%i[type account service_id])
     response = retrieve_authenticator(
       relevant_params,
       resource_repo: @res_repo
@@ -79,7 +80,7 @@ class AuthenticatorController < V2RestController
   end
 
   def authenticator_enablement
-    relevant_params = allowed_params(%i[type account service_id])
+    relevant_params = parse_params(%i[type account service_id])
     response = validate_request_body.bind do |enablement| 
       update_config(relevant_params, enablement).bind do
         retrieve_authenticator(relevant_params)
@@ -97,7 +98,7 @@ class AuthenticatorController < V2RestController
   end
 
   def delete_authenticator
-    relevant_params = allowed_params(%i[type account service_id])
+    relevant_params = parse_params(%i[type account service_id])
 
     repository = DB::Repository::AuthenticatorRepository.new(
       resource_repository: @res_repo
@@ -151,9 +152,18 @@ class AuthenticatorController < V2RestController
     )
   end
 
-  def allowed_params(allowed_params)
-    params.permit(*allowed_params)
-      .slice(*allowed_params).to_h.symbolize_keys
+  def parse_params(allowed)
+    params = allowed_params(allowed)
+
+    # We refer to authenticators by the full authn-<type> format in code rather than the shortened form
+    params[:type] = "authn-#{params[:type]}" if params[:type]
+
+    params
+  end
+
+  def allowed_params(allowed)
+    params.permit(*allowed)
+      .slice(*allowed).to_h.symbolize_keys
   end
 
   def validate_create_permisisons(auth)
