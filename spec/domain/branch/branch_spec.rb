@@ -18,19 +18,62 @@ RSpec.describe(Domain::Branch, type: :model) do
     end
 
     it 'raises DomainValidationError when name is invalid' do
-      expect { Domain::Branch.new('', valid_branch, valid_owner, valid_annotations) }.to raise_error(Domain::Validation::DomainValidationError)
+      expect { Domain::Branch.new('', valid_branch, valid_owner, valid_annotations) }
+        .to raise_error(Domain::Validation::DomainValidationError)
     end
 
     it 'raises DomainValidationError when branch is invalid' do
-      expect { Domain::Branch.new(valid_name, '', valid_owner, valid_annotations) }.to raise_error(Domain::Validation::DomainValidationError)
+      expect { Domain::Branch.new(valid_name, '', valid_owner, valid_annotations) }
+        .to raise_error(Domain::Validation::DomainValidationError)
     end
 
     it 'raises DomainValidationError when name contains invalid characters' do
-      expect { Domain::Branch.new('test<branch>', valid_branch, valid_owner, valid_annotations) }.to raise_error(Domain::Validation::DomainValidationError)
+      expect { Domain::Branch.new('test<branch>', valid_branch, valid_owner, valid_annotations) }
+        .to raise_error(Domain::Validation::DomainValidationError)
     end
 
     it 'raises DomainValidationError when branch contains invalid characters' do
-      expect { Domain::Branch.new(valid_name, 'invalid<branch>', valid_owner, valid_annotations) }.to raise_error(Domain::Validation::DomainValidationError)
+      expect { Domain::Branch.new(valid_name, 'invalid<branch>', valid_owner, valid_annotations) }
+        .to raise_error(Domain::Validation::DomainValidationError)
+    end
+
+    it 'raises DomainValidationError when branch depth is to big' do
+      depth_branch = "data/#{'sub/' * Domain::Validation::IDENTIFIER_MAX_DEPTH}branch"
+      expect { Domain::Branch.new(valid_name, depth_branch, valid_owner, valid_annotations) }
+        .to raise_error(Domain::Validation::DomainValidationError)
+
+      depth_branch = "/data/#{'sub/' * Domain::Validation::IDENTIFIER_MAX_DEPTH}branch"
+      expect { Domain::Branch.new(valid_name, depth_branch, valid_owner, valid_annotations) }
+        .to raise_error(Domain::Validation::DomainValidationError)
+
+      depth_branch = "data/#{'sub/' * Domain::Validation::IDENTIFIER_MAX_DEPTH}branch"
+      expect { Domain::Branch.new(valid_name, depth_branch, valid_owner, valid_annotations) }
+        .to raise_error(Domain::Validation::DomainValidationError)
+
+      depth_branch = "/data/#{'sub/' * Domain::Validation::IDENTIFIER_MAX_DEPTH}branch/"
+      expect { Domain::Branch.new(valid_name, depth_branch, valid_owner, valid_annotations) }
+        .to raise_error(Domain::Validation::DomainValidationError)
+    end
+
+    it 'raises DomainValidationError when full ID exceeds maximum length' do
+      # / will be added so total length will exceed the limit by 1
+      long_branch = 'a' * (Domain::Validation::IDENTIFIER_MAX_LENGTH - valid_name.length)
+      expect { Domain::Branch.new(valid_name, long_branch, valid_owner, valid_annotations) }
+        .to raise_error(Domain::Validation::DomainValidationError)
+    end
+
+    it 'raises DomainValidationError when nil is a name' do
+      expect { Domain::Branch.new(nil, valid_branch, valid_owner, valid_annotations) }
+        .to raise_error(Domain::Validation::DomainValidationError)
+
+      expect { Domain::Branch.new(valid_name, nil, valid_owner, valid_annotations) }
+        .to raise_error(Domain::Validation::DomainValidationError)
+
+      expect { Domain::Branch.new(valid_name, valid_branch, nil, valid_annotations) }
+        .to raise_error(Domain::Validation::DomainValidationError)
+
+      expect { Domain::Branch.new(valid_name, valid_branch, valid_owner, nil) }
+        .to raise_error(Domain::Validation::DomainValidationError)
     end
   end
 
@@ -66,7 +109,7 @@ RSpec.describe(Domain::Branch, type: :model) do
       expect(branch.owner).to eq(valid_owner)
     end
 
-    it 'creates a branch with default annotations when annotations are empty' do
+    it 'creates a branch with empty annotations when annotations are empty' do
       input_without_annotations = valid_input.except(:annotations)
       allow(Domain::Owner).to receive(:from_input).and_return(valid_owner)
       allow(Domain::Annotations).to receive(:from_input).and_return({})

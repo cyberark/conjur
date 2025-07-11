@@ -100,6 +100,25 @@ Feature: Branches APIv2 tests - create empty
     """
 
   @negative @acceptance
+  Scenario: Cannot create a branch using nested parent path more than 15
+    Given I set the Accept header to APIv2
+    And I set the Accept header to APIv2
+    And I save my place in the audit log file for remote
+    And I set the "Content-Type" header to "application/json"
+    When I POST "/branches/cucumber" with body:
+    """
+    { "name" : "test-branch",
+      "branch": "/data/sub/sub/sub/sub/sub/sub/sub/sub/sub/sub/sub/sub/sub/sub/branch" }
+    """
+    Then the HTTP response status code is 422
+    And the HTTP response content type is APIv2
+    And the JSON should be:
+    """
+    { "code": "422",
+      "message": "The number of identifier nesting exceeds maximum depth of 15" }
+    """
+
+  @negative @acceptance
   Scenario: Cannot create a branch using owner with empty string as values
     Given I set the Accept header to APIv2
     And I set the "Content-Type" header to "application/json"

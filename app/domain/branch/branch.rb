@@ -10,12 +10,14 @@ module Domain
     include Domain::Validation
     include ActiveModel::Validations
 
-    validates :name, :branch, presence: true
+    validates :name, :branch, :owner,  presence: true
+    validates :annotations, exclusion: { in: [nil], message: "cannot be nil" }
     validates :name, length: { minimum: NAME_LENGTH_MIN, maximum: NAME_LENGTH_MAX }
     validates :name, format: { with: NAME_PATTERN, message: NAME_PATTERN_MSG }
     validates :branch, :branch, presence: true
-    validates :branch, length: { minimum: PATH_LENGTH_MIN, maximum: PATH_LENGTH_MAX }
+    validates :branch, length: { minimum: PATH_LENGTH_MIN }
     validates :branch, format: { with: PATH_PATTERN, message: PATH_PATTERN_MSG }
+    validate :validate_branch_and_name
 
     attr_accessor :name, :branch, :owner, :annotations
 
@@ -55,6 +57,12 @@ module Domain
 
     def identifier
       to_identifier(@branch, @name)
+    end
+
+    private
+
+    def validate_branch_and_name
+      validate_identifier(to_identifier(@branch, @name)) unless @branch.nil? || @name.nil?
     end
   end
 end

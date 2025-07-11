@@ -4,6 +4,25 @@ require 'spec_helper'
 RSpec.describe(Domain::Validation) do
   include described_class
 
+  describe 'validate_identifier' do
+    it 'validates a correct identifier' do
+      expect { validate_identifier('valid-identifier') }
+        .not_to raise_error
+    end
+
+    it 'raises error for too long identifier' do
+      long_identifier = 'a' * (Domain::Validation::IDENTIFIER_MAX_LENGTH + 1)
+      expect { validate_identifier(long_identifier) }
+        .to raise_error(Domain::Validation::DomainValidationError, Domain::Validation::IDENTIFIER_MAX_LENGTH_MSG)
+    end
+
+    it 'raises error for a identifier with too many nestings' do
+      deep_identifier = "#{'a/' * (Domain::Validation::IDENTIFIER_MAX_DEPTH + 1)}b"
+      expect { validate_identifier(deep_identifier) }
+        .to raise_error(Domain::Validation::DomainValidationError, Domain::Validation::IDENTIFIER_MAX_DEPTH_MSG)
+    end
+  end
+
   describe 'constants' do
     it 'has correct NAME_LENGTH_MIN' do
       expect(Domain::Validation::NAME_LENGTH_MIN).to eq(1)
