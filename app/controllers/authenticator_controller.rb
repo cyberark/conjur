@@ -41,18 +41,24 @@ class AuthenticatorController < V2RestController
 
   def create_authenticator
     relevant_params = parse_params(%i[account])
-    response = AuthenticatorsV2::AuthenticatorTypeFactory.new.create_authenticator_from_json(req, relevant_params[:account]).bind do |auth| 
-      validate_create_permisisons(auth).bind do |permitted_auth|
-        verify_owner(permitted_auth).bind do |auth_with_owner|
-          DB::Repository::AuthenticatorRepository.new.create(authenticator: auth_with_owner).bind do |created_auth|
-            ::SuccessResponse.new(created_auth.to_h)
-          end
-        end 
+    valid_body = nil
+    response = request_body.bind do |body|
+      valid_body = body
+      AuthenticatorsV2::AuthenticatorTypeFactory.new.create_authenticator_from_json(req, relevant_params[:account]).bind do |auth| 
+        validate_create_permisisons(auth).bind do |permitted_auth|
+          verify_owner(permitted_auth).bind do |auth_with_owner|
+            DB::Repository::AuthenticatorRepository.new.create(authenticator: auth_with_owner).bind do |created_auth|
+              ::SuccessResponse.new(created_auth.to_h)
+            end
+          end 
+        end
       end
     end
 
-    body = JSON.parse(req)
-    response_audit('create', body["type"], response,  resource_id: body["name"])
+    type = valid_body&.dig(:type) || 'authenticator'
+    name = valid_body&.dig(:name) || ''
+    response_audit('create', type, response, resource_id: name)
+
     return render(json: response.result, status: :created) if response.success?
 
     handle_failure_response(response)
@@ -201,19 +207,19 @@ class AuthenticatorController < V2RestController
   def validate_request_body
     request_body.bind do |body|
       if !required_key?(body)
-        missing_param("enabled")
-      elsif extra_keys?(body.keys, ["enabled"])
-        extra_keys(body.keys, ["enabled"])
-      elsif !bool?(body["enabled"])
+        missing_param(:enabled)
+      elsif extra_keys?(body.keys, [:enabled])
+        extra_keys(body.keys, [:enabled])
+      elsif !bool?(body[:enabled])
         mismatch_type("enabled", "boolean")
       else
-        ::SuccessResponse.new(body["enabled"])
+        ::SuccessResponse.new(body[:enabled])
       end
     end
   end
 
   def required_key?(body)
-    body.key?("enabled")
+    body.key?(:enabled)
   end
 
   def extra_keys?(keys, required)
@@ -233,7 +239,15 @@ class AuthenticatorController < V2RestController
   def request_body
     return missing_request_body unless req.present?
     
-    ::SuccessResponse.new(JSON.parse(req))
+    ::SuccessResponse.new(
+      JSON.parse(
+        req,       
+        {
+          symbolize_names: true,
+          create_additions: false
+        }
+      )
+    )
   rescue
     ::FailureResponse.new(
       "Request JSON is malformed",
@@ -283,6 +297,7 @@ class AuthenticatorController < V2RestController
   end
 
   # Request body failures
+
   def missing_param(param)
     ::FailureResponse.new(
       "Missing required parameter: #{param}",
