@@ -81,7 +81,7 @@ module DB
       # an object for it in the database
       def create(authenticator:)
         DB::Repository::Authenticator::CreateAuthenticator.new(authenticator: authenticator).call.bind do |auth| 
-          find(type: auth.type, account: auth.account, service_id: auth.name)
+          find(type: auth.type, account: auth.account, service_id: auth.service_id)
         end
       end
 

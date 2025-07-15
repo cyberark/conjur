@@ -2,7 +2,7 @@
 
 module AuthenticatorsV2
   class AuthenticatorBaseType
-    attr_accessor :type, :name, :annotations, :variables, :account
+    attr_accessor :type, :name, :annotations, :variables, :account, :service_id
 
     def initialize(authenticator_dict)
       @account = authenticator_dict[:account]
