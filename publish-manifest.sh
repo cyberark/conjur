@@ -27,6 +27,12 @@ VERSION=$(<VERSION)
 
 LOCAL_TAG="$(version_tag)"
 
+RH_LOCAL_IMAGE="registry.tld/conjur-ubi:${LOCAL_TAG}"
+REDHAT_CERT_PID="5f905d433a93dc782c77a0f9"
+REDHAT_REGISTRY="quay.io"
+REDHAT_REMOTE_IMAGE="${REDHAT_REGISTRY}/redhat-isv-containers/${REDHAT_CERT_PID}"
+REDHAT_USER="redhat-isv-containers+${REDHAT_CERT_PID}-robot"
+
 for arg in "$@"; do
   case $arg in
     --internal )
@@ -120,4 +126,23 @@ if [[ "${PROMOTE}" = true ]]; then
       prepare_manifest "${IMAGE_NAME}" "${version}"
     fi
   done
+
+  if [[ "${REDHAT}" = true ]]; then
+    echo "Publishing ${VERSION} to RedHat registry..."
+    # Publish only the tag version to the Redhat container registry
+    if docker login "${REDHAT_REGISTRY}" -u "${REDHAT_USER}" -p "${REDHAT_API_KEY}"; then
+      # push image to red hat
+      tag_and_push "${VERSION}" "${RH_LOCAL_IMAGE}" "${REDHAT_REMOTE_IMAGE}"
+
+      # scan image with preflight tool
+      scan_redhat_image "${REDHAT_REMOTE_IMAGE}:${VERSION}" "${REDHAT_CERT_PID}"
+
+      # push latest tag to RH
+      tag_and_push "latest" "${RH_LOCAL_IMAGE}" "${REDHAT_REMOTE_IMAGE}"
+    else
+      echo 'Failed to log in to quay.io'
+      exit 1
+    fi
+  fi
+
 fi
