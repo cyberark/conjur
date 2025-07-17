@@ -1180,10 +1180,17 @@ pipeline {
       steps {
         script {
           release(INFRAPOOL_EXECUTORV2_AGENT_0) { billOfMaterialsDirectory, assetDirectory ->
-            // Publish docker images
-            INFRAPOOL_EXECUTORV2_AGENT_0.agentSh './publish-images.sh --edge'
-            INFRAPOOL_EXECUTORV2ARM_AGENT_0.agentSh './publish-images.sh --edge --arch=arm64'
-            INFRAPOOL_EXECUTORV2_AGENT_0.agentSh './publish-manifest.sh --edge'
+            // Only push edge images when on master branch. This is to avoid patch releases from being the current edge image.
+            if (env.BRANCH_NAME == 'master') {
+              INFRAPOOL_EXECUTORV2_AGENT_0.agentSh './publish-images.sh --edge --release'
+              INFRAPOOL_EXECUTORV2ARM_AGENT_0.agentSh './publish-images.sh --edge --release --arch=arm64'
+              INFRAPOOL_EXECUTORV2_AGENT_0.agentSh './publish-manifest.sh --edge --release'
+            } else {
+              echo "Skipping edge image publishing - not on default branch (current branch: ${env.BRANCH_NAME})"
+              INFRAPOOL_EXECUTORV2_AGENT_0.agentSh './publish-images.sh --release'
+              INFRAPOOL_EXECUTORV2ARM_AGENT_0.agentSh './publish-images.sh --release --arch=arm64'
+              INFRAPOOL_EXECUTORV2_AGENT_0.agentSh './publish-manifest.sh --release'
+            }
 
             // Create deb and rpm packages (ARM64)
             INFRAPOOL_EXECUTORV2ARM_AGENT_0.agentSh 'echo "CONJUR_VERSION=5" >> debify.env'

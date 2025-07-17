@@ -22,6 +22,7 @@ function print_help() {
 }
 
 PUBLISH_EDGE=false
+PUBLISH_RELEASE=false
 PUBLISH_INTERNAL=false
 PROMOTE=false
 REDHAT=false
@@ -39,6 +40,10 @@ for arg in "$@"; do
       ;;
     --edge )
       PUBLISH_EDGE=true
+      shift
+      ;;
+    --release )
+      PUBLISH_RELEASE=true
       shift
       ;;
     --promote )
@@ -107,11 +112,6 @@ fi
 if [[ "${PUBLISH_EDGE}" = true ]]; then
   echo "Pushing edge versions..."
 
-  # Publish release specific versions internally
-  echo "Pushing ${VERSION}-${ARCH} to registry.tld..."
-  tag_and_push "${VERSION}-${ARCH}" "${LOCAL_IMAGE}" "registry.tld/${IMAGE_NAME}"
-  tag_and_push "${VERSION}-${ARCH}" "${RH_LOCAL_IMAGE}" "registry.tld/conjur-ubi"
-
   # Push image to internal registry
   tag_and_push "edge-${ARCH}" "${LOCAL_IMAGE}" "registry.tld/${IMAGE_NAME}"
   tag_and_push "edge-${ARCH}" "${RH_LOCAL_IMAGE}" "registry.tld/conjur-ubi"
@@ -119,9 +119,24 @@ if [[ "${PUBLISH_EDGE}" = true ]]; then
   # Publish release specific and edge tags to dockerhub
   if [[ "${DOCKERHUB}" = true ]]; then
     echo "Pushing to DockerHub"
+
+    tag_and_push "edge" "${LOCAL_IMAGE}" "${IMAGE_NAME}"
+  fi
+fi
+
+if [[ "${PUBLISH_RELEASE}" = true ]]; then
+  echo "Pushing release versions..."
+
+  # Publish release specific versions internally
+  echo "Pushing ${VERSION}-${ARCH} to registry.tld..."
+  tag_and_push "${VERSION}-${ARCH}" "${LOCAL_IMAGE}" "registry.tld/${IMAGE_NAME}"
+  tag_and_push "${VERSION}-${ARCH}" "${RH_LOCAL_IMAGE}" "registry.tld/conjur-ubi"
+
+  # Publish release specific and edge tags to dockerhub
+  if [[ "${DOCKERHUB}" = true ]]; then
+    echo "Pushing to DockerHub"
     
     tag_and_push "${VERSION}" "${LOCAL_IMAGE}" "${IMAGE_NAME}"
-    tag_and_push "edge" "${LOCAL_IMAGE}" "${IMAGE_NAME}"
   fi
 fi
 
