@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
+require 'spec_helper_policy'
 
 DatabaseCleaner.strategy = :truncation
 
@@ -156,6 +157,26 @@ describe(BranchesController, type: :request) do
   describe "#delete" do
     it "delete a branch successfully" do
       post_payload(branch_params.to_json)
+      read_one
+      assert_response :success
+      delete_one
+      assert_response :success
+      read_one
+      assert_response :not_found
+    end
+
+    it "delete a branch that is own owner successfully" do
+      post_payload(branch_params.to_json)
+      patch_payload({ owner: { id: branch_name, kind: 'policy' } }.to_json)
+      assert_response :success
+      apply_policy(
+        policy: <<~YAML
+          - !permit
+            role: !user admin
+            privilege: [ read, update, delete ]
+            resource: !policy 'test-branch'
+        YAML
+      )
       read_one
       assert_response :success
       delete_one

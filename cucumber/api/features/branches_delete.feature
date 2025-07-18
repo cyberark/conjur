@@ -80,6 +80,41 @@ Feature: Branches APIv2 tests - delete
     And I GET "/secrets/cucumber/variable/data/safe1/branch1/alice-var"
     And the HTTP response status code is 404
 
+  @acceptance
+  Scenario: Deleting branch that is own owner
+    And I login as "bob"
+    And I set the "Accept" header to "application/x-yaml"
+    And I can GET "/policies/cucumber/policy/some_branch"
+    And the HTTP response content type is "application/x-yaml"
+    And the yaml result is:
+    """
+    ---
+    - !policy
+      id: some_branch
+      owner: !user /bob
+      body:
+      - !policy
+        id: branch_own_owner
+        owner: !policy /some_branch/branch_own_owner
+        body:
+        - !host myhost
+        - !permit
+          role: !user /bob
+          privileges: [read, update]
+          resource: !host myhost
+      - !permit
+        role: !user /bob
+        privileges: [read, update]
+        resource: !policy branch_own_owner
+    """
+    And I set the Accept header to APIv2
+    When I can DELETE "/branches/cucumber/some_branch"
+    Then the HTTP response status code is 204
+    When I GET "/branches/cucumber/some_branch"
+    Then the HTTP response status code is 404
+    When I GET "/branches/cucumber/some_branch/branch_own_owner"
+    Then the HTTP response status code is 404
+
   @negative @acceptance
   Scenario: Deleting branch not possible
     Given I am the super-user
@@ -104,7 +139,7 @@ Feature: Branches APIv2 tests - delete
     [subject@43868 edge=""]
     [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
     [action@43868 result="failure" operation="remove"]\s
-    cucumber:user:alice@data-safe1 failed to remove branch data/safe1/branch1 with URI path: '/branches/cucumber/data/safe1/branch1': Branch 'data/safe1/branch1/alice-hidden' not found in account 'cucumber'
+    cucumber:user:alice@data-safe1 failed to remove branch data/safe1/branch1 with URI path: '/branches/cucumber/data/safe1/branch1': Policy 'data/safe1/branch1/alice-hidden' not found in account 'cucumber'
     """
 
   @negative @acceptance

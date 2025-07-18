@@ -41,10 +41,10 @@ RSpec.describe(Domain::BranchService) do
 
   let(:policy) do
     instance_double('Policy',
-                    id: 'policy:rspec:policy:data/branch1',
+                    id: 'rspec:policy:data/branch1',
                     identifier: 'data/branch1',
-                    owner_id: 'user:rspec:user:alice',
-                    policy_id: 'policy:rspec:policy:data',
+                    owner_id: 'rspec:user:alice',
+                    policy_id: 'rspec:policy:data',
                     annotations: [])
   end
 
@@ -166,9 +166,9 @@ RSpec.describe(Domain::BranchService) do
   end
 
   describe '#create_branch' do
-    let(:branch_id) { 'policy:rspec:policy:data/branch1' }
-    let(:owner_id) { 'user:rspec:user:alice' }
-    let(:policy_id) { 'policy:rspec:policy:data' }
+    let(:branch_id) { 'rspec:policy:data/branch1' }
+    let(:owner_id) { 'rspec:user:alice' }
+    let(:policy_id) { 'rspec:policy:data' }
     let(:role_instance) { instance_double('Role', save: true) }
     let(:role_membership_instance) { instance_double('RoleMembership', save: true) }
     let(:annotation_instance) { instance_double('Annotation', save: true) }
@@ -333,6 +333,7 @@ RSpec.describe(Domain::BranchService) do
       allow(base_scope).to receive(:all).and_return(resources)
 
       allow(policy).to receive(:secrets).and_return(secrets)
+      allow(policy).to receive(:kind).and_return('policy')
       allow(policy).to receive(:annotations).and_return(annotations_list)
       allow(policy).to receive(:destroy).and_return(true)
     end
@@ -348,7 +349,48 @@ RSpec.describe(Domain::BranchService) do
     context 'when user is not allowed to update' do
       before do
         allow(role).to receive(:allowed_to?).with(:update, policy).and_return(false)
-        allow(service).to receive(:full_id).with(account, 'branch', policy.identifier).and_return('rspec:branch:data/branch1')
+        allow(service).to receive(:full_id).with(account, 'policy', policy.identifier).and_return('rspec:branch:data/branch1')
+      end
+
+      it 'raises RecordNotFound error' do
+        expect { service.delete_branch(account, role, identifier) }.to raise_error(Exceptions::RecordNotFound)
+      end
+    end
+  end
+
+  describe '#delete_branch that has itself as owner' do
+    let(:resources) { [policy] }
+    let(:secrets) { [instance_double('Secret', delete: true)] }
+    let(:annotations_list) { [instance_double('Annotation', delete: true)] }
+    let(:base_scope) { instance_double('Sequel::Dataset') }
+
+    before do
+      allow(policy).to receive(:owner_id).and_return(policy.id)
+      allow(res_scopes_service).to receive(:resources_to_del_scope)
+        .with(account, identifier)
+        .and_return(base_scope)
+
+      allow(base_scope).to receive(:order).and_return(base_scope)
+      allow(base_scope).to receive(:all).and_return(resources)
+
+      allow(policy).to receive(:secrets).and_return(secrets)
+      allow(policy).to receive(:kind).and_return('policy')
+      allow(policy).to receive(:annotations).and_return(annotations_list)
+      allow(policy).to receive(:destroy).and_return(true)
+    end
+
+    it 'deletes the branch and associated resources' do
+      service.delete_branch(account, role, identifier)
+
+      expect(secrets.first).to have_received(:delete)
+      expect(annotations_list.first).to have_received(:delete)
+      expect(policy).to have_received(:destroy)
+    end
+
+    context 'when user is not allowed to update' do
+      before do
+        allow(role).to receive(:allowed_to?).with(:update, policy).and_return(false)
+        allow(service).to receive(:full_id).with(account, 'policy', policy.identifier).and_return('rspec:branch:data/branch1')
       end
 
       it 'raises RecordNotFound error' do

@@ -396,6 +396,20 @@ Feature: Branches APIv2 tests - create empty
     And the HTTP response content type is APIv2
 
   @acceptance
+  Scenario: Branch with a policy as owner can be created
+    When I login as "alice@data-safe1"
+    And I set the Accept header to APIv2
+    And I set the "Content-Type" header to "application/json"
+    And I can POST "/branches/cucumber" with body:
+    """
+    { "name": "alicebranch",
+      "branch": "data/safe1/branch1",
+      "owner": { "kind": "policy", "id": "data/safe1/branch1" } }
+    """
+    Then the HTTP response status code is 201
+    And the HTTP response content type is APIv2
+
+  @acceptance
   Scenario: A user with permission to creation in parent can create branch in it as owner
     When I login as "alice@data-safe1"
     And I set the Accept header to APIv2
