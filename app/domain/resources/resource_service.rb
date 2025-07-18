@@ -79,17 +79,5 @@ module Domain
       )
       raise Exceptions::Forbidden
     end
-
-    def delete_recursive(resource_id)
-      log_debug("resource_id = #{resource_id}")
-
-      @res_repo.where(owner_id: resource_id).each do |res|
-        delete_recursive(res.resource_id)
-      end
-
-      deleted = @res_repo[resource_id]&.destroy
-      @role_repo[resource_id]&.destroy
-      deleted
-    end
   end
 end

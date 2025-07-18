@@ -10,6 +10,8 @@ module Domain
     include Domain::Validation
     include ActiveModel::Validations
 
+    validates :owner, exclusion: { in: [nil], message: "cannot be nil" }
+    validates :annotations, exclusion: { in: [nil], message: "cannot be nil" }
     attr_accessor :owner, :annotations
 
     def initialize(owner, annotations)

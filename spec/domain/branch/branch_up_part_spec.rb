@@ -43,5 +43,15 @@ RSpec.describe(Domain::BranchUpPart) do
       expect(part.owner).to eq(owner_obj)
       expect(part.annotations).to eq(annotations_obj)
     end
+
+    it 'raises on nil owner' do
+      expect { described_class.new(nil, annotations) }
+        .to raise_error(Domain::Validation::DomainValidationError, "Owner cannot be nil")
+    end
+
+    it 'raises on nil annotations' do
+      expect { described_class.new(owner, nil) }
+        .to raise_error(Domain::Validation::DomainValidationError, "Annotations cannot be nil")
+    end
   end
 end

@@ -142,7 +142,7 @@ module Domain
         .all
 
       resources.each do |res|
-        raise Exceptions::RecordNotFound, full_id(account, 'branch', res.identifier) unless role.allowed_to?(:update, res)
+        raise Exceptions::RecordNotFound, full_id(account, res.kind, res.identifier) unless role.allowed_to?(:update, res)
 
         res.secrets.each(&:delete)
         res.annotations.each(&:delete)

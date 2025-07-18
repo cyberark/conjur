@@ -16,6 +16,24 @@
   id: data_default_owner
 
 - !policy
+  id: some_branch
+  owner: !user bob
+  body:
+  - !policy
+    id: branch_own_owner
+    owner: !policy branch_own_owner
+    body:
+      - !host myhost
+  - !permit
+    role: !user /bob
+    privileges: [ read, update ]
+    resource: !policy branch_own_owner
+  - !permit
+    role: !user /bob
+    privileges: [ read, update ]
+    resource: !host branch_own_owner/myhost
+
+- !policy
   id: data
   owner: !group /Conjur_Admins
   body:
