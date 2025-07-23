@@ -19,7 +19,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Dynamic secrets are now supported in the batch secret retrieval API. CNJR-9172
 - Added the delete authenticators endpoint for the V2 API's. CNJR-9134
 - Added warning for annotation keys matching known policy attribute names. CNJR-9836
-- Allow conjur administrator to enable additional signed headers for IAM authenticator. CNJR-10217
 
 ### Fixed
 - Attempt to load a policy that references a non-existent resource now
@@ -28,6 +27,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   directory is not writable. CNJR-7070
 - Added Content-Length header in for failure HTTP responses in which
   it was missing. CNJR-10332
+
+## [1.22.2] - 2025-07-23
+
+### Added
+- Allow conjur administrator to enable additional signed headers for IAM authenticator. CNJR-10217
+
+## [1.22.1] - 2025-07-15
 
 ### Security
 - Improve headers handling in AWS IAM authenticator. CONJSE-2023
@@ -1356,7 +1362,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - The first tagged version.
 
-[Unreleased]: https://github.com/cyberark/conjur/compare/v1.21.2...HEAD
+[Unreleased]: https://github.com/cyberark/conjur/compare/v1.23.0...HEAD
+[1.23.0]: https://github.com/cyberark/conjur/compare/v1.22.2...v1.23.0
+[1.22.2]: https://github.com/cyberark/conjur/compare/v1.22.1...v1.22.2
+[1.22.1]: https://github.com/cyberark/conjur/compare/v1.22.0...v1.22.1
+[1.22.0]: https://github.com/cyberark/conjur/compare/v1.21.3...v1.22.0
+[1.21.3]: https://github.com/cyberark/conjur/compare/v1.21.2...v1.21.3
 [1.21.2]: https://github.com/cyberark/conjur/compare/v1.21.1...v1.21.2
 [1.21.1]: https://github.com/cyberark/conjur/compare/v1.21.0...v1.21.1
 [1.21.0]: https://github.com/cyberark/conjur/compare/v1.20.4...v1.21.0
