@@ -30,6 +30,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Update rack to 2.2.14 to address CVE-2025-46727. CONJSE-2001
 - Upgrade net-imap to 0.5.8 or later to address CVE-2025-43857. CONJSE-2005
 - Improve AWS IAM STS region validation to prevent using a region that is not supported. CONJSE-2008
+- Bump nokogiri gem to resolve GHSA-353f-x4gh-cqq8. CONJSE-2031
 
 ## [1.22.0] - 2025-04-02
 
