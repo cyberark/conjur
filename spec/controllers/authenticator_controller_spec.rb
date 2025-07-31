@@ -5,7 +5,7 @@ require 'spec_helper'
 DatabaseCleaner.strategy = :truncation
 
 # Integration test for the V2 authenticator API's
-describe AuthenticateController, type: :request do
+describe AuthenticatorController, type: :request do
   let(:log_output) { StringIO.new }
   let(:logger) { Logger.new(log_output) }
 
