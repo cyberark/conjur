@@ -140,7 +140,7 @@ if (params.MODE == "PROMOTE") {
     sh 'git config --global --add safe.directory "$(pwd)"'
 
     build(
-      job: 'Conjur-Enterprise/Conjur-Enterprise-conjurops/main/Conjur-Enterprise-conjurops-main-full/master',
+      job: 'Conjur-Enterprise-conjurops/main/Conjur-Enterprise-conjurops-main-full/master',
       parameters:[
         string(name: 'conjur_oss_source_image', value: "cyberark/conjur:${targetVersion}")
       ],
