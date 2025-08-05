@@ -1179,12 +1179,12 @@ pipeline {
             if (env.BRANCH_NAME == 'master') {
               INFRAPOOL_EXECUTORV2_AGENT_0.agentSh './publish-images.sh --edge --release'
               INFRAPOOL_EXECUTORV2ARM_AGENT_0.agentSh './publish-images.sh --edge --release --arch=arm64'
-              INFRAPOOL_EXECUTORV2_AGENT_0.agentSh './publish-manifest.sh --edge --release'
+              INFRAPOOL_EXECUTORV2_AGENT_0.agentSh './publish-manifest.sh --edge'
             } else {
               echo "Skipping edge image publishing - not on default branch (current branch: ${env.BRANCH_NAME})"
               INFRAPOOL_EXECUTORV2_AGENT_0.agentSh './publish-images.sh --release'
               INFRAPOOL_EXECUTORV2ARM_AGENT_0.agentSh './publish-images.sh --release --arch=arm64'
-              INFRAPOOL_EXECUTORV2_AGENT_0.agentSh './publish-manifest.sh --release'
+              INFRAPOOL_EXECUTORV2_AGENT_0.agentSh './publish-manifest.sh'
             }
 
             // Create deb and rpm packages (ARM64)
