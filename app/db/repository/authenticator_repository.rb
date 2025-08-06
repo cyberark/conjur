@@ -93,21 +93,30 @@ module DB
 
       private
 
-      def delete_policy(resource)
-        return unless resource
+      def delete_policy(root_resource)
+        return unless root_resource
 
-        # First delete all resources and roles that are owned by this resource
-        ::Resource.where(owner_id: resource.resource_id).each do |r|
-          delete_policy(r)
+        visited = []
+        stack = [root_resource]
+
+        while stack.any?
+          resource = stack.pop
+          next if visited.include?(resource.resource_id)
+
+          visited.unshift(resource.resource_id)
+          # Enqueue owned resources
+          owned_resources = ::Resource.where(owner_id: resource.resource_id)
+          stack = (stack + owned_resources.to_a) unless owned_resources.empty?
+
+          next if protected_resource?(resource)
+          
+          resource.destroy if ::Resource[resource_id: resource.resource_id]
+          resource_role = ::Role[resource.resource_id]
+          resource_role&.destroy
+
         end
 
-        return resource if protected_resource?(resource)
-
-        resource.destroy
-        resource_role = ::Role[resource.resource_id]
-        resource_role&.destroy
-
-        resource
+        root_resource
       end
 
       # Determines if a resource can be deleted or not with this repository

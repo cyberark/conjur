@@ -413,6 +413,9 @@ RSpec.describe(DB::Repository::AuthenticatorRepository) do
       allow(resource_repository).to receive(:[])
         .with(resource_id: resource_id)
         .and_return(resource)
+      allow(resource_repository).to receive(:[])
+        .with(resource_id: secret_id)
+        .and_return(secret)
     end
 
     context("when more than 1 resource exists") do
@@ -486,6 +489,52 @@ RSpec.describe(DB::Repository::AuthenticatorRepository) do
       it "returns nil" do
         expect(resource).to receive(:destroy)
         expect(repo.delete(policy_id: resource_id)).not_to be_nil
+      end
+    end
+  end
+
+  # Test infinite loop
+  describe '#delete' do
+    context 'When one resource is its own owner' do
+      before(:each) do
+        # Webservice for authenticator
+        ::Role.create(
+          role_id: "rspec:webservice:conjur/authn-jwt/baz"
+        )
+        ::Role.create(
+          role_id: "rspec:group:conjur/app/testapp"
+        )
+        ::Resource.create(
+          resource_id: "rspec:webservice:conjur/authn-jwt/baz",
+          owner_id: "rspec:webservice:conjur/authn-jwt/baz"
+        )
+        ::Resource.create(
+          resource_id: "rspec:group:conjur/app/testapp",
+          owner_id: "rspec:webservice:conjur/authn-jwt/baz"
+        )
+        # Webservice for authenticator status
+        ::Resource.create(
+          resource_id: "rspec:webservice:conjur/authn-jwt/baz/status",
+          owner_id: "rspec:webservice:conjur/authn-jwt/baz"
+        )
+
+        ::Resource.create(
+          resource_id: "rspec:variable:conjur/authn-jwt/baz/stuff",
+          owner_id: "rspec:group:conjur/app/testapp"
+        )
+      end
+
+      it 'deletes the resources' do
+        response = repo.delete(policy_id: "rspec:webservice:conjur/authn-jwt/baz")
+        expect(response.resource_id).to eq("rspec:webservice:conjur/authn-jwt/baz")
+      end
+      after(:each) do
+        expect(::Role["rspec:webservice:conjur/authn-jwt/baz"]).to be_nil
+        expect(::Role["rspec:group:conjur/app/testapp"]).to be_nil
+        expect(::Resource["rspec:webservice:conjur/authn-jwt/baz/stuff"]).to be_nil
+        expect(::Resource["rspec:webservice:conjur/authn-jwt/baz"]).to be_nil
+        expect(::Resource["rspec:group:conjur/app/testapp"]).to be_nil
+        expect(::Resource["rspec:webservice:conjur/authn-jwt/baz/status"]).to be_nil
       end
     end
   end
