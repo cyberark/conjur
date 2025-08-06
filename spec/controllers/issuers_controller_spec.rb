@@ -50,6 +50,17 @@ describe IssuersController, type: :request do
     POLICY
   end
 
+  def create_issuer
+    post(
+        "/issuers/rspec",
+        env: token_auth_header(role: admin_user).merge(
+          'RAW_POST_DATA' => payload_create_issuer,
+          'CONTENT_TYPE' => "application/json"
+        )
+      )
+    assert_response(:created)
+  end
+
   def load_issuers_base_policy
     post(
       '/policies/rspec/policy/root',
@@ -57,7 +68,7 @@ describe IssuersController, type: :request do
         'RAW_POST_DATA' => data_issuers_policy
       )
     )
-    assert_response :success
+    assert_response(:success)
   end
 
   let(:data_issuers_policy) do
@@ -106,7 +117,8 @@ describe IssuersController, type: :request do
       end
 
       context "when a user updates an issuer with invalid data" do
-        payload_create_issuers = <<~BODY
+        let(:payload_create_issuer) do
+          <<~BODY
           {
             "id": "aws-issuer-1",
             "max_ttl": 3000,
@@ -117,6 +129,7 @@ describe IssuersController, type: :request do
             }
           }
         BODY
+        end
 
         payload_update_issuer = <<~BODY
           {
@@ -132,7 +145,7 @@ describe IssuersController, type: :request do
         it 'returns unprocessable entity and does not change the user' do
           post("/issuers/rspec",
                env: token_auth_header(role: admin_user).merge(
-                 'RAW_POST_DATA' => payload_create_issuers,
+                 'RAW_POST_DATA' => payload_create_issuer,
                  'CONTENT_TYPE' => "application/json"
                ))
           patch("/issuers/rspec/aws-issuer-1",
@@ -158,7 +171,8 @@ describe IssuersController, type: :request do
       end
 
       context "when a user updates an issuer with ttl change only" do
-        payload_create_issuers = <<~BODY
+        let(:payload_create_issuer) do
+          <<~BODY
           {
             "id": "aws-issuer-1",
             "max_ttl": 2000,
@@ -169,6 +183,7 @@ describe IssuersController, type: :request do
             }
           }
         BODY
+        end
 
         payload_update_issuer = <<~BODY
           {
@@ -179,7 +194,7 @@ describe IssuersController, type: :request do
         it 'updates the issuer' do
           post("/issuers/rspec",
                env: token_auth_header(role: admin_user).merge(
-                 'RAW_POST_DATA' => payload_create_issuers,
+                 'RAW_POST_DATA' => payload_create_issuer,
                  'CONTENT_TYPE' => "application/json"
                ))
           patch("/issuers/rspec/aws-issuer-1",
@@ -205,7 +220,8 @@ describe IssuersController, type: :request do
       end
 
       context "when a user updates an issuer with data only" do
-        payload_create_issuers = <<~BODY
+        let(:payload_create_issuer) do
+          <<~BODY
           {
             "id": "aws-issuer-1",
             "max_ttl": 3000,
@@ -216,6 +232,7 @@ describe IssuersController, type: :request do
             }
           }
         BODY
+        end
 
         payload_update_issuer = <<~BODY
           {
@@ -229,7 +246,7 @@ describe IssuersController, type: :request do
         it 'updates the issuer' do
           post("/issuers/rspec",
                env: token_auth_header(role: admin_user).merge(
-                 'RAW_POST_DATA' => payload_create_issuers,
+                 'RAW_POST_DATA' => payload_create_issuer,
                  'CONTENT_TYPE' => "application/json"
                ))
           patch("/issuers/rspec/aws-issuer-1",
@@ -255,7 +272,8 @@ describe IssuersController, type: :request do
       end
 
       context "when a user decrease TTL" do
-        payload_create_issuers = <<~BODY
+        let(:payload_create_issuer) do
+          <<~BODY
           {
             "id": "aws-issuer-1",
             "max_ttl": 3000,
@@ -266,6 +284,7 @@ describe IssuersController, type: :request do
             }
           }
         BODY
+        end
 
         payload_update_issuer = <<~BODY
           {
@@ -280,7 +299,7 @@ describe IssuersController, type: :request do
         it 'returns bad request and does not change the TTL' do
           post("/issuers/rspec",
                env: token_auth_header(role: admin_user).merge(
-                 'RAW_POST_DATA' => payload_create_issuers,
+                 'RAW_POST_DATA' => payload_create_issuer,
                  'CONTENT_TYPE' => "application/json"
                ))
           patch("/issuers/rspec/aws-issuer-1",
@@ -295,7 +314,8 @@ describe IssuersController, type: :request do
       end
 
       context "when a user change the acces key but no the secret" do
-        payload_create_issuers = <<~BODY
+        let(:payload_create_issuer) do
+          <<~BODY
           {
             "id": "aws-issuer-1",
             "max_ttl": 3000,
@@ -306,6 +326,7 @@ describe IssuersController, type: :request do
             }
           }
         BODY
+        end
 
         payload_update_issuer = <<~BODY
           {
@@ -318,7 +339,7 @@ describe IssuersController, type: :request do
         it 'returns 422 and does not change the issuer' do
           post("/issuers/rspec",
                env: token_auth_header(role: admin_user).merge(
-                 'RAW_POST_DATA' => payload_create_issuers,
+                 'RAW_POST_DATA' => payload_create_issuer,
                  'CONTENT_TYPE' => "application/json"
                ))
           patch("/issuers/rspec/aws-issuer-1",
@@ -333,7 +354,8 @@ describe IssuersController, type: :request do
       end
 
       context "when a user updates an issuer with valid data" do
-        payload_create_issuers = <<~BODY
+        let(:payload_create_issuer) do
+          <<~BODY
           {
             "id": "aws-issuer-1",
             "max_ttl": 3000,
@@ -344,6 +366,7 @@ describe IssuersController, type: :request do
             }
           }
         BODY
+        end
 
         payload_update_issuer = <<~BODY
           {
@@ -358,7 +381,7 @@ describe IssuersController, type: :request do
         it 'returns ok and does change the user' do
           post("/issuers/rspec",
                env: token_auth_header(role: admin_user).merge(
-                 'RAW_POST_DATA' => payload_create_issuers,
+                 'RAW_POST_DATA' => payload_create_issuer,
                  'CONTENT_TYPE' => "application/json"
                ))
           freeze_time do
@@ -777,17 +800,6 @@ describe IssuersController, type: :request do
           }
         }
       BODY
-    end
-
-    def create_issuer
-      post(
-          "/issuers/rspec",
-          env: token_auth_header(role: admin_user).merge(
-            'RAW_POST_DATA' => payload_create_issuer,
-            'CONTENT_TYPE' => "application/json"
-          )
-        )
-        assert_response :created
     end
 
     before do
