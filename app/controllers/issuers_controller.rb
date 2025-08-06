@@ -140,7 +140,7 @@ class IssuersController < RestController
   rescue => e
     issuer_audit_failure(params[:account], params[:id], "add", e.message)
     logger.error(LogMessages::Conjur::GeneralError.new(e.message))
-    head(:internal_server_error)
+    raise
   end
 
   def delete
@@ -363,7 +363,7 @@ def create_issuer_base_policy(account)
     policy: renderer(PolicyTemplates::IssuerBase.new),
     loader: Loader::CreatePolicy,
     request_type: 'POST'
-  )
+  ).bind!
 end
 
 def create_issuer_policy(policy_fields)
@@ -374,7 +374,7 @@ def create_issuer_policy(policy_fields)
     policy: renderer(PolicyTemplates::CreateIssuer.new, policy_fields),
     loader: Loader::CreatePolicy,
     request_type: 'POST'
-  )
+  ).bind!
 end
 
 def delete_issuer_policy(policy_fields)
@@ -385,7 +385,7 @@ def delete_issuer_policy(policy_fields)
     policy: renderer(PolicyTemplates::DeleteIssuer.new, policy_fields),
     loader: Loader::ModifyPolicy,
     request_type: 'PATCH'
-  )
+  ).bind!
 end
 
 def get_issuer_from_db(account, issuer_id)

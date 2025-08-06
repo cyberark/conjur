@@ -22,6 +22,13 @@ class SuccessResponse
   def bind(&_block)
     yield(result)
   end
+
+  # Escape hatch for imperative code that cannot work with railway programming.
+  # Returns the underlying result directly, allowing traditional return-value-based
+  # handling to consume monadic responses. Use sparingly to avoid mixing paradigms.
+  def bind!
+    @result
+  end
 end
 
 # Responsible for handling "failed" requests.
@@ -55,5 +62,12 @@ class FailureResponse
   # return this response again.
   def bind
     self
+  end
+
+  # Escape hatch for imperative code that cannot work with railway programming.
+  # Raises the underlying exception, allowing traditional exception-based error
+  # handling to consume monadic responses. Use sparingly to avoid mixing paradigms.
+  def bind!
+    raise @exception
   end
 end
