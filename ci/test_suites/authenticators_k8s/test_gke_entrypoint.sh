@@ -147,6 +147,7 @@ function main() {
   copyNginxSSLCert
 
   copyConjurPolicies
+  createK8sAuthViaAPI
   loadConjurPolicies
 
   launchInventoryServices
@@ -227,19 +228,50 @@ function copyNginxSSLCert() {
   kubectl cp ./nginx.crt "$cucumber_pod:/opt/conjur-server/nginx.crt"
 }
 
+function writeCreateAuthRequestBody() {
+  # Create a custom CA certificate and key instead of generating them so we can pass
+  # via the API
+  SUBJECT="/CN=conjur.authn-k8s.api/OU=Conjur Kubernetes CA/O=rspec"
+  CA_KEY="$(openssl genrsa -out - 2048)"
+  CA_CERT="$(echo -n "$CA_KEY" | openssl req -x509 -new -nodes -key - -sha256 -days 365 -out - -subj "$SUBJECT")"
+
+  json_payload=$(jq -n \
+    --arg ca_key "$CA_KEY" \
+    --arg ca_cert "$CA_CERT" \
+    '{
+      "name": "api",
+      "type": "k8s",
+      "enabled": true,
+      "data": {
+          "ca/key": $ca_key,
+          "ca/cert": $ca_cert
+      }
+  }')
+
+  mkdir -p ./dev/request_bodies
+  echo $json_payload > ./dev/request_bodies/create_auth.gke.json
+}
+
 function copyConjurPolicies() {
   cli_pod=$(retrieve_pod conjur-cli)
   kubectl wait --for=condition=Ready "pod/$cli_pod" --timeout=5m
+
+  # Creates a JSON file to be used as the request body for creating an auth via the API
+  writeCreateAuthRequestBody
 
   # Avoid using kubectl cp because it requires the `tar` command to be
   # installed on the source and destination pods. Instead, use `kubectl exec`
   # to write the policy file to the destination pod.
   kubectl exec "$cli_pod" -- mkdir /tmp/policies
+  kubectl exec "$cli_pod" -- mkdir /tmp/request_bodies
   kubectl exec -i "$cli_pod" -- sh -c "cat - > /tmp/policies/policy.${TEMPLATE_TAG}yml" < ./dev/policies/policy.${TEMPLATE_TAG}yml
+  kubectl exec -i "$cli_pod" -- sh -c "cat - > /tmp/request_bodies/create_auth.gke.json" < ./dev/request_bodies/create_auth.gke.json
+  # We need the root policy to exist so we can add an authenticator via the API
+  echo '- !policy conjur/authn-k8s' | kubectl exec -i "$cli_pod" -- sh -c "cat - > /tmp/policies/k8s-auth.yml"
 }
 
-function loadConjurPolicies() {
-  echo 'Loading the policies and data'
+function createK8sAuthViaAPI() {
+  echo 'Loading the k8s authenticator via API'
 
   # kubectl wait not needed -- already done in copyConjurPolicies.
   cli_pod=$(retrieve_pod conjur-cli)
@@ -247,6 +279,22 @@ function loadConjurPolicies() {
   kubectl exec "$cli_pod" -- conjur init --insecure --url conjur --account cucumber
   sleep 5
   kubectl exec "$cli_pod" -- conjur login --id admin --password "$API_KEY"
+
+  # load policies
+  kubectl exec $cli_pod -- conjur policy load --branch root --file /tmp/policies/k8s-auth.yml
+
+  AUTHZ_TOKEN="$(kubectl exec "$cli_pod" -- conjur authenticate -H)"
+
+  # Load authenticator via the API
+  wait_for_it 300 "kubectl exec $cli_pod -- \
+    curl -H '$AUTHZ_TOKEN' -H 'Accept: application/x.secretsmgr.v2beta+json' -d @/tmp/request_bodies/create_auth.gke.json http://conjur/authenticators/cucumber"
+}
+
+function loadConjurPolicies() {
+  echo 'Loading the policies and data'
+
+  # kubectl wait not needed -- already done in copyConjurPolicies.
+  cli_pod=$(retrieve_pod conjur-cli)
 
   # load policies
   wait_for_it 300 "kubectl exec $cli_pod -- \

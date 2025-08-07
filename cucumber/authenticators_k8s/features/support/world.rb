@@ -13,8 +13,8 @@ module AuthnK8sWorld
     k8s_object_lookup.kube_client
   end
 
-  def authn_k8s_host
-    "#{Conjur.configuration.appliance_url}/authn-k8s/minikube"
+  def authn_k8s_host(service_id="minikube")
+    "#{Conjur.configuration.appliance_url}/authn-k8s/#{service_id}"
   end
 
   def last_json
