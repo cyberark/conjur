@@ -13,7 +13,7 @@ class HostFactoriesController < ApplicationController
   def create_host
     raise(ArgumentError, "Invalid resource kind: #{hf_token.resource.kind}") unless hf_token.resource.kind == 'host_factory'
     params.require(:id)
-    raise(ArgumentError, "Invalid id: #{params[:id]}") if params[:id].start_with?('conjur', '/conjur')
+    raise(ArgumentError, "Invalid id: #{params[:id]}") if params[:id].start_with?('conjur/', '/conjur/')
 
     host, api_key = do_create_host
     response = host.as_json
