@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
+## [1.22.3] - 2025-08-12
+### Security
+- Remove the policy factory API endpoints from the config/routes.rb file to prevent
+  anyone being able to call these endpoints and trigger the marshal.load call. CONJSE-2038
+
 ## [1.22.2] - 2025-06-30
 ### Added
 - Allow conjur administrator to enable additional signed headers for IAM authenticator. CNJR-10217
