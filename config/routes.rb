@@ -65,13 +65,6 @@ Rails.application.routes.draw do
           post '/authn-k8s/:service_id/inject_client_cert' => 'authenticate#k8s_inject_client_cert'
         end
 
-        # Factories
-        post   "/factory-resources/:account/:kind/(:version)/:id" => "policy_factory_resources#create"
-
-        # Endpoints related to viewing factories
-        get     "/factories/:account/:kind/(:version)/:id" => "policy_factories#show"
-        get     "/factories/:account" => "policy_factories#index"
-
         constraints kind: /user|host|layer|group|policy|host_factory/ do
           get     "/roles/:account/:kind/*identifier" => "roles#graph", :constraints => QueryParameterActionRecognizer.new("graph")
           get     "/roles/:account/:kind/*identifier" => "roles#all_memberships", :constraints => QueryParameterActionRecognizer.new("all")
