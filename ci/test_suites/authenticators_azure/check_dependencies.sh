@@ -15,7 +15,6 @@ conjur_vars=(
 
 # These variables should come from Jenkins
 jenkins_vars=(
-  "INFRAPOOL_AZURE_AUTHN_INSTANCE_IP"
   "INFRAPOOL_SYSTEM_ASSIGNED_IDENTITY"
 )
 
