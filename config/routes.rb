@@ -80,13 +80,6 @@ Rails.application.routes.draw do
         patch "/branches/:account/*identifier" => "branches#update"
         delete "/branches/:account/*identifier" => "branches#delete"
 
-        # Factories
-        post   "/factory-resources/:account/:kind/(:version)/:id" => "policy_factory_resources#create"
-
-        # Endpoints related to viewing factories
-        get     "/factories/:account/:kind/(:version)/:id" => "policy_factories#show"
-        get     "/factories/:account" => "policy_factories#index"
-
         constraints kind: /user|host|layer|group|policy|host_factory/ do
           get     "/roles/:account/:kind/*identifier" => "roles#graph", :constraints => QueryParameterActionRecognizer.new("graph")
           get     "/roles/:account/:kind/*identifier" => "roles#all_memberships", :constraints => QueryParameterActionRecognizer.new("all")

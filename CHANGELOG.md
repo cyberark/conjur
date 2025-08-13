@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [1.23.0] - 2025-05-06
 
+### Security
+- Remove the policy factory API endpoints from the config/routes.rb file to prevent
+  anyone being able to call these endpoints and trigger the marshal.load call. CONJSE-2038
+
 ### Added
 - Added the list authenticators endpoint for the V2 API's. CNJR-9137
 - Added the show authenticator endpoint for the V2 API's. CNJR-9133
