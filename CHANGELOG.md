@@ -9,7 +9,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
-## [1.23.0] - 2025-05-06
+## [1.23.0] - 2025-08-13
+
+### Security
+- Fix unsafe shell command executions. CONJSE-2039. CONJSE-2041-2046.
 
 ### Security
 - Remove the policy factory API endpoints from the config/routes.rb file to prevent

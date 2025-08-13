@@ -19,7 +19,7 @@ module Commands
       # Ensure the database is available
       @connect_database.call
 
-      exec(%Q(rake export["#{@out_dir}","#{@label}"]))
+      Kernel.system("rake", "export[#{@out_dir},#{@label}]")
     end
   end
 end

@@ -73,11 +73,11 @@ module Commands
         # Reference: https://github.com/ruby/rake/blob/a842fb2c30cc3ca80803fba903006b1324a62e9a/lib/rake/application.rb#L163
         password = stdin_input.gsub(',', '\,')
         Kernel.system(
-          "rake 'account:create_with_password[#{@account},#{password}]'"
+          "rake", "account:create_with_password[#{@account},#{password}]"
         ) || exit(($CHILD_STATUS.exitstatus))
       else
         Kernel.system(
-          "rake 'account:create[#{@account}]'"
+          "rake", "account:create[#{@account}]"
         ) || exit(($CHILD_STATUS.exitstatus))
       end
     end
@@ -94,7 +94,7 @@ module Commands
       raise "account option is required with file option" unless @account
 
       system(
-        "rake 'policy:load[#{@account},#{@file_name}]'"
+        "rake", "policy:load[#{@account},#{@file_name}]"
       ) || exit(($CHILD_STATUS.exitstatus))
     end
 
@@ -120,9 +120,7 @@ module Commands
       Process.fork do
         puts("Conjur v#{conjur_version} starting up...")
 
-        Kernel.exec("
-          rails server -p '#{@port}' -b '#{@bind_address}'
-        ")
+        Kernel.exec("rails", "server", "-p", "#{@port}", "-b", "#{@bind_address}")
       end
     end
 
