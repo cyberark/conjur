@@ -21,7 +21,7 @@ module Commands
         # Ensure the database is available
         @connect_database.call
 
-        exec("rake 'account:delete[#{@account}]'")
+        Kernel.system("rake", "account:delete[#{@account}]")
       end
     end
   end

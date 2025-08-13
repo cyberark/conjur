@@ -19,7 +19,7 @@ module Commands
         # Ensure the database is available
         @connect_database.call
 
-        stdout, stderr, status = Open3.capture3("rake 'role:reset-password[#{@role_id}]'")
+        stdout, stderr, status = Open3.capture3("rake", "role:reset-password[#{@role_id}]")
 
         if status.success?
           # Only print last line of stdout to omit server config logging
