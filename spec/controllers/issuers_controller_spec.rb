@@ -50,6 +50,17 @@ describe IssuersController, type: :request do
     POLICY
   end
 
+  def create_issuer
+    post(
+      "/issuers/rspec",
+      env: token_auth_header(role: admin_user).merge(
+        'RAW_POST_DATA' => payload_create_issuer,
+        'CONTENT_TYPE' => "application/json"
+      )
+    )
+    assert_response(:created)
+  end
+
   def load_issuers_base_policy
     post(
       '/policies/rspec/policy/root',
@@ -57,7 +68,7 @@ describe IssuersController, type: :request do
         'RAW_POST_DATA' => data_issuers_policy
       )
     )
-    assert_response :success
+    assert_response(:success)
   end
 
   let(:data_issuers_policy) do
@@ -106,17 +117,19 @@ describe IssuersController, type: :request do
       end
 
       context "when a user updates an issuer with invalid data" do
-        payload_create_issuers = <<~BODY
-          {
-            "id": "aws-issuer-1",
-            "max_ttl": 3000,
-            "type": "aws",
-            "data": {
-              "access_key_id": "AKIAIOSFODNN7EXAMPLE",
-              "secret_access_key": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+        let(:payload_create_issuer) do
+          <<~BODY
+            {
+              "id": "aws-issuer-1",
+              "max_ttl": 3000,
+              "type": "aws",
+              "data": {
+                "access_key_id": "AKIAIOSFODNN7EXAMPLE",
+                "secret_access_key": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+              }
             }
-          }
-        BODY
+          BODY
+        end
 
         payload_update_issuer = <<~BODY
           {
@@ -132,7 +145,7 @@ describe IssuersController, type: :request do
         it 'returns unprocessable entity and does not change the user' do
           post("/issuers/rspec",
                env: token_auth_header(role: admin_user).merge(
-                 'RAW_POST_DATA' => payload_create_issuers,
+                 'RAW_POST_DATA' => payload_create_issuer,
                  'CONTENT_TYPE' => "application/json"
                ))
           patch("/issuers/rspec/aws-issuer-1",
@@ -158,17 +171,19 @@ describe IssuersController, type: :request do
       end
 
       context "when a user updates an issuer with ttl change only" do
-        payload_create_issuers = <<~BODY
-          {
-            "id": "aws-issuer-1",
-            "max_ttl": 2000,
-            "type": "aws",
-            "data": {
-              "access_key_id": "AKIAIOSFODNN7EXAMPLE",
-              "secret_access_key": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+        let(:payload_create_issuer) do
+          <<~BODY
+            {
+              "id": "aws-issuer-1",
+              "max_ttl": 2000,
+              "type": "aws",
+              "data": {
+                "access_key_id": "AKIAIOSFODNN7EXAMPLE",
+                "secret_access_key": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+              }
             }
-          }
-        BODY
+          BODY
+        end
 
         payload_update_issuer = <<~BODY
           {
@@ -179,7 +194,7 @@ describe IssuersController, type: :request do
         it 'updates the issuer' do
           post("/issuers/rspec",
                env: token_auth_header(role: admin_user).merge(
-                 'RAW_POST_DATA' => payload_create_issuers,
+                 'RAW_POST_DATA' => payload_create_issuer,
                  'CONTENT_TYPE' => "application/json"
                ))
           patch("/issuers/rspec/aws-issuer-1",
@@ -205,17 +220,19 @@ describe IssuersController, type: :request do
       end
 
       context "when a user updates an issuer with data only" do
-        payload_create_issuers = <<~BODY
-          {
-            "id": "aws-issuer-1",
-            "max_ttl": 3000,
-            "type": "aws",
-            "data": {
-              "access_key_id": "AKIAIOSFODNN7EXAMPLE",
-              "secret_access_key": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+        let(:payload_create_issuer) do
+          <<~BODY
+            {
+              "id": "aws-issuer-1",
+              "max_ttl": 3000,
+              "type": "aws",
+              "data": {
+                "access_key_id": "AKIAIOSFODNN7EXAMPLE",
+                "secret_access_key": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+              }
             }
-          }
-        BODY
+          BODY
+        end
 
         payload_update_issuer = <<~BODY
           {
@@ -229,7 +246,7 @@ describe IssuersController, type: :request do
         it 'updates the issuer' do
           post("/issuers/rspec",
                env: token_auth_header(role: admin_user).merge(
-                 'RAW_POST_DATA' => payload_create_issuers,
+                 'RAW_POST_DATA' => payload_create_issuer,
                  'CONTENT_TYPE' => "application/json"
                ))
           patch("/issuers/rspec/aws-issuer-1",
@@ -255,17 +272,19 @@ describe IssuersController, type: :request do
       end
 
       context "when a user decrease TTL" do
-        payload_create_issuers = <<~BODY
-          {
-            "id": "aws-issuer-1",
-            "max_ttl": 3000,
-            "type": "aws",
-            "data": {
-              "access_key_id": "AKIAIOSFODNN7EXAMPLE",
-              "secret_access_key": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+        let(:payload_create_issuer) do
+          <<~BODY
+            {
+              "id": "aws-issuer-1",
+              "max_ttl": 3000,
+              "type": "aws",
+              "data": {
+                "access_key_id": "AKIAIOSFODNN7EXAMPLE",
+                "secret_access_key": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+              }
             }
-          }
-        BODY
+          BODY
+        end
 
         payload_update_issuer = <<~BODY
           {
@@ -280,7 +299,7 @@ describe IssuersController, type: :request do
         it 'returns bad request and does not change the TTL' do
           post("/issuers/rspec",
                env: token_auth_header(role: admin_user).merge(
-                 'RAW_POST_DATA' => payload_create_issuers,
+                 'RAW_POST_DATA' => payload_create_issuer,
                  'CONTENT_TYPE' => "application/json"
                ))
           patch("/issuers/rspec/aws-issuer-1",
@@ -295,17 +314,19 @@ describe IssuersController, type: :request do
       end
 
       context "when a user change the acces key but no the secret" do
-        payload_create_issuers = <<~BODY
-          {
-            "id": "aws-issuer-1",
-            "max_ttl": 3000,
-            "type": "aws",
-            "data": {
-              "access_key_id": "AKIAIOSFODNN7EXAMPLE",
-              "secret_access_key": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+        let(:payload_create_issuer) do
+          <<~BODY
+            {
+              "id": "aws-issuer-1",
+              "max_ttl": 3000,
+              "type": "aws",
+              "data": {
+                "access_key_id": "AKIAIOSFODNN7EXAMPLE",
+                "secret_access_key": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+              }
             }
-          }
-        BODY
+          BODY
+        end
 
         payload_update_issuer = <<~BODY
           {
@@ -318,7 +339,7 @@ describe IssuersController, type: :request do
         it 'returns 422 and does not change the issuer' do
           post("/issuers/rspec",
                env: token_auth_header(role: admin_user).merge(
-                 'RAW_POST_DATA' => payload_create_issuers,
+                 'RAW_POST_DATA' => payload_create_issuer,
                  'CONTENT_TYPE' => "application/json"
                ))
           patch("/issuers/rspec/aws-issuer-1",
@@ -333,17 +354,19 @@ describe IssuersController, type: :request do
       end
 
       context "when a user updates an issuer with valid data" do
-        payload_create_issuers = <<~BODY
-          {
-            "id": "aws-issuer-1",
-            "max_ttl": 3000,
-            "type": "aws",
-            "data": {
-              "access_key_id": "AKIAIOSFODNN7EXAMPLE",
-              "secret_access_key": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+        let(:payload_create_issuer) do
+          <<~BODY
+            {
+              "id": "aws-issuer-1",
+              "max_ttl": 3000,
+              "type": "aws",
+              "data": {
+                "access_key_id": "AKIAIOSFODNN7EXAMPLE",
+                "secret_access_key": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+              }
             }
-          }
-        BODY
+          BODY
+        end
 
         payload_update_issuer = <<~BODY
           {
@@ -358,7 +381,7 @@ describe IssuersController, type: :request do
         it 'returns ok and does change the user' do
           post("/issuers/rspec",
                env: token_auth_header(role: admin_user).merge(
-                 'RAW_POST_DATA' => payload_create_issuers,
+                 'RAW_POST_DATA' => payload_create_issuer,
                  'CONTENT_TYPE' => "application/json"
                ))
           freeze_time do
@@ -381,6 +404,88 @@ describe IssuersController, type: :request do
             expect(created_time_from_body).to be_within(CREATE_ISSUER_TIMEOUT.second).of(Time.now)
             time_from_body = Time.parse(parsed_body["modified_at"])
             expect(time_from_body).to eq(Time.now)
+          end
+        end
+
+        context "when you do not have write privileges to the database" do
+          before do
+            create_issuer
+          end
+
+          context "when updating the issuer" do
+            before do
+              allow_any_instance_of(Issuer)
+                .to receive(:update)
+                .and_raise(PG::InsufficientPrivilege)
+            end
+
+            it "should return 405" do
+              patch("/issuers/rspec/aws-issuer-1",
+                    env: token_auth_header(role: admin_user).merge(
+                      'RAW_POST_DATA' => payload_update_issuer,
+                      'CONTENT_TYPE' => "application/json"
+                    ))
+              expect(response).to have_http_status(405)
+              expect(response.body).to include('Write operations are not allowed')
+            end
+          end
+
+          context "when saving the issuer" do
+            before do
+              allow_any_instance_of(Issuer)
+                .to receive(:save)
+                .and_raise(PG::InsufficientPrivilege)
+            end
+
+            it "should return 405" do
+              patch("/issuers/rspec/aws-issuer-1",
+                    env: token_auth_header(role: admin_user).merge(
+                      'RAW_POST_DATA' => payload_update_issuer,
+                      'CONTENT_TYPE' => "application/json"
+                    ))
+              expect(response).to have_http_status(405)
+              expect(response.body).to include('Write operations are not allowed')
+            end
+          end
+        end
+
+        context "with an unexpected error" do
+          context "when updating the issuer" do
+            before do
+              create_issuer
+              allow_any_instance_of(Issuer)
+                .to receive(:update)
+                .and_raise(ApplicationController::InternalServerError)
+            end
+
+            it 'returns a server error' do
+              patch("/issuers/rspec/aws-issuer-1",
+                    env: token_auth_header(role: admin_user).merge(
+                      'RAW_POST_DATA' => payload_update_issuer,
+                      'CONTENT_TYPE' => "application/json"
+                    ))
+              assert_response :internal_server_error
+              expect(response.body).to eq("")
+            end
+          end
+
+          context "when saving the issuer" do
+            before do
+              create_issuer
+              allow_any_instance_of(Issuer)
+                .to receive(:save)
+                .and_raise(ApplicationController::InternalServerError)
+            end
+
+            it 'returns a server error' do
+              patch("/issuers/rspec/aws-issuer-1",
+                    env: token_auth_header(role: admin_user).merge(
+                      'RAW_POST_DATA' => payload_update_issuer,
+                      'CONTENT_TYPE' => "application/json"
+                    ))
+              assert_response :internal_server_error
+              expect(response.body).to eq("")
+            end
           end
         end
       end
@@ -692,7 +797,7 @@ describe IssuersController, type: :request do
       end
     end
 
-    context "when user sends a valid creation request but without permissions" do
+    context "when user sends a valid creation request" do
       let(:payload_create_issuers_valid_input) do
         <<~BODY
           {
@@ -707,14 +812,94 @@ describe IssuersController, type: :request do
         BODY
       end
 
-      it 'returns forbidden' do
-        post("/issuers/rspec",
-             env: token_auth_header(role: alice_user).merge(
-               'RAW_POST_DATA' => payload_create_issuers_valid_input,
-               'CONTENT_TYPE' => "application/json"
-             ))
-        assert_response :forbidden
-        expect(response.body).to eq("")
+      context "but without permissions" do
+        it 'returns forbidden' do
+          post("/issuers/rspec",
+               env: token_auth_header(role: alice_user).merge(
+                 'RAW_POST_DATA' => payload_create_issuers_valid_input,
+                 'CONTENT_TYPE' => "application/json"
+               ))
+          assert_response :forbidden
+          expect(response.body).to eq("")
+        end
+      end
+
+      context "when an unexpected error occurs during creation of issuers base policy" do
+        let(:failure_response) do
+          ::FailureResponse.new(
+            "Unspecified error",
+            exception: ApplicationController::InternalServerError.new
+          )
+        end
+
+        let(:policy_command_double) do
+          double(CommandHandler::Policy, call: failure_response)
+        end
+
+        before do
+          allow(CommandHandler::Policy)
+            .to receive(:new)
+            .and_return(policy_command_double)
+        end
+
+        it "should return a server error" do
+          post("/issuers/rspec",
+               env: token_auth_header(role: admin_user).merge(
+                 'RAW_POST_DATA' => payload_create_issuers_valid_input,
+                 'CONTENT_TYPE' => "application/json"
+               ))
+          assert_response :internal_server_error
+          expect(response.body).to eq("")
+        end
+      end
+
+      context "when you do not have write privileges to the database" do
+        let(:failure_response) do
+          ::FailureResponse.new(
+            "ERROR: permission denied for table policy_versions",
+            exception: PG::InsufficientPrivilege.new
+          )
+        end
+
+        context "during policy load" do
+          let(:policy_command_double) do
+            double(CommandHandler::Policy, call: failure_response)
+          end
+
+          before do
+            allow(CommandHandler::Policy)
+              .to receive(:new)
+              .and_return(policy_command_double)
+          end
+
+          it "should return 405" do
+            post("/issuers/rspec",
+                 env: token_auth_header(role: admin_user).merge(
+                   'RAW_POST_DATA' => payload_create_issuers_valid_input,
+                   'CONTENT_TYPE' => "application/json"
+                 ))
+            expect(response).to have_http_status(405)
+            expect(response.body).to include('Write operations are not allowed')
+          end
+        end
+
+        context "when persisting issuer" do
+          before do
+            allow_any_instance_of(Issuer)
+              .to receive(:save)
+              .and_raise(PG::InsufficientPrivilege)
+          end
+
+          it "should return 405" do
+            post("/issuers/rspec",
+                 env: token_auth_header(role: admin_user).merge(
+                   'RAW_POST_DATA' => payload_create_issuers_valid_input,
+                   'CONTENT_TYPE' => "application/json"
+                 ))
+            expect(response).to have_http_status(405)
+            expect(response.body).to include('Write operations are not allowed')
+          end
+        end
       end
     end
 
@@ -762,6 +947,40 @@ describe IssuersController, type: :request do
         expect(response.body).to eq("")
       end
     end
+
+    context "when a user creates an issuer with an unexpected error" do
+      let(:payload_create_issuer) do
+        <<~BODY
+          {
+            "id": "my-new-aws-issuer",
+            "max_ttl": 2000,
+            "type": "aws",
+            "data": {
+              "access_key_id": "AKIAIOSFODNN7EXAMPLE",
+              "secret_access_key": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+            }
+          }
+        BODY
+      end
+
+      before do
+        allow_any_instance_of(Issuer)
+          .to receive(:save)
+          .and_raise(ApplicationController::InternalServerError)
+      end
+
+      it 'returns a server error' do
+        post(
+          "/issuers/rspec",
+          env: token_auth_header(role: admin_user).merge(
+            'RAW_POST_DATA' => payload_create_issuer,
+            'CONTENT_TYPE' => "application/json"
+          )
+        )
+        assert_response :internal_server_error
+        expect(response.body).to eq("")
+      end
+    end
   end
 
   describe "#delete" do
@@ -777,17 +996,6 @@ describe IssuersController, type: :request do
           }
         }
       BODY
-    end
-
-    def create_issuer
-      post(
-          "/issuers/rspec",
-          env: token_auth_header(role: admin_user).merge(
-            'RAW_POST_DATA' => payload_create_issuer,
-            'CONTENT_TYPE' => "application/json"
-          )
-        )
-        assert_response :created
     end
 
     before do
@@ -820,6 +1028,58 @@ describe IssuersController, type: :request do
         expect(RoleMembership.find(role_id: "rspec:policy:conjur/issuers/my-new-aws-issuer/delegation")).to eq(nil)
         expect(RoleMembership.find(role_id: "rspec:group:conjur/issuers/my-new-aws-issuer/delegation/consumers")).to eq(nil)
         expect(Permission.find(resource_id: "rspec:group:conjur/issuers/my-new-aws-issuer")).to eq(nil)
+      end
+
+      context "when you do not have write privileges to the database" do
+        let(:failure_response) do
+          ::FailureResponse.new(
+            "ERROR: permission denied for table policy_versions",
+            exception: PG::InsufficientPrivilege.new
+          )
+        end
+
+        let(:policy_command_double) do
+          double(CommandHandler::Policy, call: failure_response)
+        end
+
+        before do
+          create_issuer
+          allow(CommandHandler::Policy)
+            .to receive(:new)
+            .and_return(policy_command_double)
+        end
+
+        it "should return 405" do
+          delete("/issuers/rspec/my-new-aws-issuer", env: token_auth_header(role: admin_user))
+          expect(response).to have_http_status(405)
+          expect(response.body).to include('Write operations are not allowed')
+        end
+      end
+
+      context "when an unexpected error occurs during policy load" do
+        let(:failure_response) do
+          ::FailureResponse.new(
+            "Unspecified error",
+            exception: ApplicationController::InternalServerError.new
+          )
+        end
+
+        let(:policy_command_double) do
+          double(CommandHandler::Policy, call: failure_response)
+        end
+
+        before do
+          create_issuer
+          allow(CommandHandler::Policy)
+            .to receive(:new)
+            .and_return(policy_command_double)
+        end
+
+        it "should return a server error" do
+          delete("/issuers/rspec/my-new-aws-issuer", env: token_auth_header(role: admin_user))
+          assert_response :internal_server_error
+          expect(response.body).to eq("")
+        end
       end
     end
 
