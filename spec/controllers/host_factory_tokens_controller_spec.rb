@@ -202,6 +202,44 @@ describe HostFactoryTokensController, type: :request do
             expect(JSON.parse(response.body)).to eq({ "code"=>"422", "message"=>"Invalid IP address or CIDR range 'ip.address'" })
           end
         end
+        context "when count parameter is invalid" do
+          context "when count is a negative integer" do
+            let(:count) { -1 }
+
+            it "raises an argument error" do
+              create_token
+              expect(response.code).to eq("422")
+              expect(JSON.parse(response.body)).to eq({ "error"=> { "code"=>"argument_error", "message"=>"Invalid value for parameter 'count': #{count}" } })
+            end
+          end
+          context "when count is a string" do
+            let(:count) { "non-integer-input" }
+
+            it "raises an argument error" do
+              create_token
+              expect(response.code).to eq("422")
+              expect(JSON.parse(response.body)).to eq({ "error"=> { "code"=>"argument_error", "message"=>"Invalid value for parameter 'count': #{count}" } })
+            end
+          end
+          context "when count is zero" do
+            let(:count) { 0 }
+
+            it "raises an argument error" do
+              create_token
+              expect(response.code).to eq("422")
+              expect(JSON.parse(response.body)).to eq({ "error"=> { "code"=>"argument_error", "message"=>"Invalid value for parameter 'count': #{count}" } })
+            end
+          end
+          context "when count is a float" do
+            let(:count) { 1.5 }
+
+            it "raises an argument error" do
+              create_token
+              expect(response.code).to eq("422")
+              expect(JSON.parse(response.body)).to eq({ "error"=> { "code"=>"argument_error", "message"=>"Invalid value for parameter 'count': #{count}" } })
+            end
+          end
+        end
       end
     end
 

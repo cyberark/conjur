@@ -13,7 +13,10 @@ class HostFactoryTokensController < RestController
     authorize(:execute)
 
     (expiration = params.delete(:expiration)) || raise(ArgumentError, "expiration")
-    count = (params.delete(:count) || 1).to_i
+
+    count = params.delete(:count) || 1
+    raise ArgumentError, "Invalid value for parameter 'count': #{count}" unless count.is_a?(Integer) && count.positive?
+
     cidr = params.delete(:cidr)
 
     options = {
