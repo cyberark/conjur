@@ -59,7 +59,7 @@ Feature: Create a host using the host factory.
     Then the HTTP response status code is 422
 
   @negative @acceptance
-  Scenario: Fail to create a host with an id starting with "conjur" or "/conjur"
+  Scenario: Fail to create a host with an id starting with "conjur/" or "/conjur/"
 
     Given I authorize the request with the host factory token
     When I POST "/host_factories/hosts?id=conjur/factories/malicious-template"
@@ -73,4 +73,21 @@ Feature: Create a host using the host factory.
     Then our JSON should be:
     """
     {"error": {"code": "argument_error", "message": "Invalid id: /conjur/factories/malicious-template"}}
+    """
+
+  @acceptance
+  Scenario: Create a host in the root policy branch with ID prefix "conjur"
+
+    Given I authorize the request with the host factory token
+    When I successfully POST "/host_factories/hosts?id=conjur-in-root-policy-branch"
+    Then our JSON should be:
+    """
+    {
+      "annotations" : [],
+      "id": "cucumber:host:conjur-in-root-policy-branch",
+      "owner": "cucumber:host_factory:the-layer-factory",
+      "api_key": "@response_api_key@",
+      "permissions": [],
+      "restricted_to": []
+    }
     """
