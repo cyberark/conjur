@@ -28,7 +28,9 @@ module AuthnAzureHelper
   end
 
   def retrieve_azure_access_token retrieve_access_token_command
-    @azure_token = run_command_in_machine(azure_machine_ip, azure_machine_username, azure_machine_password, retrieve_access_token_command)
+    @azure_token = %x(#{retrieve_access_token_command}).strip
+    raise "Failed to fetch azure token: command returned empty result" if @azure_token.nil? || @azure_token.empty?
+    @azure_token
   rescue => e
     raise "Failed to fetch azure token with reason: #{e}"
   end
@@ -54,18 +56,6 @@ module AuthnAzureHelper
 
   def azure_provider_uri
     @azure_provider_uri ||= "https://sts.windows.net/#{validated_env_var('AZURE_TENANT_ID')}/"
-  end
-
-  def azure_machine_ip
-    @azure_machine_ip ||= validated_env_var('INFRAPOOL_AZURE_AUTHN_INSTANCE_IP')
-  end
-
-  def azure_machine_username
-    @azure_machine_username ||= validated_env_var('AZURE_AUTHN_INSTANCE_USERNAME')
-  end
-
-  def azure_machine_password
-    @azure_machine_password ||= validated_env_var('AZURE_AUTHN_INSTANCE_PASSWORD')
   end
 
   def azure_subscription_id

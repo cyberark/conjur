@@ -816,11 +816,6 @@ pipeline {
 
               environment {
                 // TODO: Move this into the authenticators_azure bash script.
-                INFRAPOOL_AZURE_AUTHN_INSTANCE_IP = INFRAPOOL_AZURE_EXECUTORV2_AGENT_0.agentSh(
-                  script: 'curl "http://checkip.amazonaws.com"',
-                  returnStdout: true
-                ).trim()
-                // TODO: Move this into the authenticators_azure bash script.
                 INFRAPOOL_SYSTEM_ASSIGNED_IDENTITY = INFRAPOOL_AZURE_EXECUTORV2_AGENT_0.agentSh(
                   script: 'ci/test_suites/authenticators_azure/get_system_assigned_identity.sh',
                   returnStdout: true
