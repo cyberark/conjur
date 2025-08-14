@@ -320,7 +320,7 @@ Randomized with seed 62317
 .............................................
 
 Finished in 3.84 seconds (files took 3.33 seconds to load)
-45 examples, 0 failures
+2252 examples, 0 failures, 3 pending
 ```
 
 ### Cucumber
