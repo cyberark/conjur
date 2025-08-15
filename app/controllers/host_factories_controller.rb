@@ -12,6 +12,7 @@ class HostFactoriesController < ApplicationController
   # This requires the host factory's token in the Authorization header.
   def create_host
     raise(ArgumentError, "Invalid resource kind: #{hf_token.resource.kind}") unless hf_token.resource.kind == 'host_factory'
+    
     params.require(:id)
     raise(ArgumentError, "Invalid id: #{params[:id]}") if params[:id].start_with?('conjur/', '/conjur/')
 
