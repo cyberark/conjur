@@ -4,14 +4,17 @@ class AuthenticatorController < V2RestController
   include BasicAuthenticator
   include AuthorizeResource
 
-  def initialize(
-    *args,
-    res_repo: ::Resource,
-    **kwargs
-  )
-    super(*args, **kwargs)
+  before_action :set_current_attributes
 
-    @res_repo = res_repo.visible_to(current_user)
+  class Current < ActiveSupport::CurrentAttributes
+    attribute :user
+    attribute :request
+    # Add other attributes as needed
+  end
+
+  def set_current_attributes 
+    Current.user = current_user
+    Current.request = request
   end
 
   def list_authenticators
