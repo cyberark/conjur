@@ -11,12 +11,12 @@ _get_token_to_files() {
   local auth_token="$4"
 
   if [ -z "$url" ]; then
-      "ERROR: url argument is missing."
+      echo "ERROR: url argument is missing."
       exit 1
   fi
 
   if [ -z "$token_prefix" ]; then
-      "ERROR: token_prefix argument is missing."
+      echo "ERROR: token_prefix argument is missing."
       exit 1
   fi
 
@@ -27,8 +27,8 @@ _get_token_to_files() {
   fi
 
   # Read the tokens definitions file
-  local tokens="$(cat $tokens_config_file)"
-
+  local tokens
+  tokens="$(cat $tokens_config_file)" || exit 1
 
   # Iterate over the tokens definitions and for each definition create a token
   # with the name, audience and format specified in the definition.
