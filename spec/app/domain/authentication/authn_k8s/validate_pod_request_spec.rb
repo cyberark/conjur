@@ -58,6 +58,9 @@ RSpec.describe(Authentication::AuthnK8s::ValidatePodRequest) do
 
   let(:authentication_request_class) { double("AuthenticationRequest") }
 
+  let(:enabled_authenticators) { "#{authenticator_name}/#{service_id}" }
+  let(:enabled_authenticators_class) { double(Authentication::InstalledAuthenticators) }
+
   before(:each) do
     allow(resource_class).to receive(:[])
       .with(host_id)
@@ -79,6 +82,8 @@ RSpec.describe(Authentication::AuthnK8s::ValidatePodRequest) do
       .and_return(true)
     allow(authentication_request_class).to receive(:new)
       .and_return(authentication_request_class)
+    allow(enabled_authenticators_class).to receive(:enabled_authenticators_str)
+      .and_return(enabled_authenticators)
   end
 
   context "A ValidatePodRequest invocation" do
@@ -89,7 +94,7 @@ RSpec.describe(Authentication::AuthnK8s::ValidatePodRequest) do
           k8s_object_lookup_class: k8s_object_lookup_class,
           validate_role_can_access_webservice: mock_validate_role_can_access_webservice(validation_succeeded: true),
           validate_webservice_is_whitelisted: mock_validate_webservice_is_whitelisted(validation_succeeded: true),
-          enabled_authenticators: "#{authenticator_name}/#{service_id}",
+          enabled_authenticators: enabled_authenticators_class,
           validate_resource_restrictions: validate_resource_restrictions,
           authentication_request_class: authentication_request_class
         ).call(
@@ -155,7 +160,7 @@ RSpec.describe(Authentication::AuthnK8s::ValidatePodRequest) do
           k8s_object_lookup_class: k8s_object_lookup_class,
           validate_role_can_access_webservice: mock_validate_role_can_access_webservice(validation_succeeded: false),
           validate_webservice_is_whitelisted: mock_validate_webservice_is_whitelisted(validation_succeeded: true),
-          enabled_authenticators: "#{authenticator_name}/#{service_id}",
+          enabled_authenticators: enabled_authenticators_class,
           validate_resource_restrictions: validate_resource_restrictions,
           authentication_request_class: authentication_request_class
         ).call(
@@ -179,7 +184,7 @@ RSpec.describe(Authentication::AuthnK8s::ValidatePodRequest) do
           k8s_object_lookup_class: k8s_object_lookup_class,
           validate_role_can_access_webservice: mock_validate_role_can_access_webservice(validation_succeeded: true),
           validate_webservice_is_whitelisted: mock_validate_webservice_is_whitelisted(validation_succeeded: false),
-          enabled_authenticators: "#{authenticator_name}/#{service_id}",
+          enabled_authenticators: enabled_authenticators_class,
           validate_resource_restrictions: validate_resource_restrictions,
           authentication_request_class: authentication_request_class
         ).call(
@@ -203,7 +208,7 @@ RSpec.describe(Authentication::AuthnK8s::ValidatePodRequest) do
           k8s_object_lookup_class: k8s_object_lookup_class,
           validate_role_can_access_webservice: mock_validate_role_can_access_webservice(validation_succeeded: true),
           validate_webservice_is_whitelisted: mock_validate_webservice_is_whitelisted(validation_succeeded: true),
-          enabled_authenticators: "#{authenticator_name}/#{service_id}",
+          enabled_authenticators: enabled_authenticators_class,
           validate_resource_restrictions: validate_resource_restrictions,
           authentication_request_class: authentication_request_class
         ).call(
