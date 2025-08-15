@@ -63,7 +63,7 @@ get_tokens_to_files() {
   local add_format="false"
 
   sh ./get_tokens_to_files.sh "$GCP_FUNC_URL" "$token_prefix" \
-  "$add_format" "$IDENTITY_TOKEN" || 1
+  "$add_format" "$IDENTITY_TOKEN" || exit 1
 
   echo '-> get_tokens_to_file done'
 }
