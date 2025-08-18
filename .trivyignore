@@ -1,0 +1,2 @@
+# We're delaying upgrading Rails until 2025 Q4, so ignoring temporarily
+CVE-2025-24293 exp:2025-10-15
