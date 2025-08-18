@@ -25,7 +25,6 @@ GEM
       actionpack (= 6.1.7.10)
       activejob (= 6.1.7.10)
       activerecord (= 6.1.7.10)
-      activestorage (= 6.1.7.10)
       activesupport (= 6.1.7.10)
       mail (>= 2.7.1)
     actionmailer (6.1.7.10)
@@ -45,7 +44,6 @@ GEM
     actiontext (6.1.7.10)
       actionpack (= 6.1.7.10)
       activerecord (= 6.1.7.10)
-      activestorage (= 6.1.7.10)
       activesupport (= 6.1.7.10)
       nokogiri (>= 1.8.5)
     actionview (6.1.7.10)
@@ -62,13 +60,6 @@ GEM
     activerecord (6.1.7.10)
       activemodel (= 6.1.7.10)
       activesupport (= 6.1.7.10)
-    activestorage (6.1.7.10)
-      actionpack (= 6.1.7.10)
-      activejob (= 6.1.7.10)
-      activerecord (= 6.1.7.10)
-      activesupport (= 6.1.7.10)
-      marcel (~> 1.0)
-      mini_mime (>= 1.1.0)
     activesupport (6.1.7.10)
       concurrent-ruby (~> 1.0, >= 1.0.2)
       i18n (>= 1.6, < 2)
@@ -313,12 +304,11 @@ GEM
       net-imap
       net-pop
       net-smtp
-    marcel (1.0.4)
     method_source (1.1.0)
     mime-types (3.7.0)
       logger
       mime-types-data (~> 3.2025, >= 3.2025.0507)
-    mime-types-data (3.2025.0722)
+    mime-types-data (3.2025.0812)
     mini_mime (1.1.5)
     minitest (5.25.5)
     multi_json (1.15.0)
@@ -402,7 +392,6 @@ GEM
       activejob (= 6.1.7.10)
       activemodel (= 6.1.7.10)
       activerecord (= 6.1.7.10)
-      activestorage (= 6.1.7.10)
       activesupport (= 6.1.7.10)
       bundler (>= 1.15.0)
       railties (= 6.1.7.10)
@@ -566,7 +555,6 @@ PLATFORMS
   x86_64-linux
 
 DEPENDENCIES
-  activesupport (~> 6.1, >= 6.1.4.6)
   anyway_config
   aruba
   aws-sdk-iam
