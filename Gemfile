@@ -5,6 +5,11 @@ source 'https://rubygems.org'
 # ruby=ruby-3.0
 # ruby-gemset=conjur
 
+require File.join(
+  Bundler::Plugin.index.load_paths('bundler-override')[0],
+  'bundler-override'
+) rescue nil
+
 # make sure to use tls for github
 git_source(:github) { |name| "https://github.com/#{name}.git" }
 
@@ -12,6 +17,10 @@ git_source(:github) { |name| "https://github.com/#{name}.git" }
 # nicely with RVM and we should be explicit since Ruby is such a fundamental
 # part of a Rails project. The Ruby version is also locked in place by the
 # Docker base image so it won't be updated with fuzzy matching.
+override 'rails', drop: 'activestorage'
+override 'actionmailbox', drop: 'activestorage'
+override 'actiontext', drop: 'activestorage'
+override 'conjur-cli', drop: 'activestorage'
 
 gem 'base58'
 gem 'command_class'
@@ -33,7 +42,6 @@ gem 'sequel-pg_advisory_locking'
 gem 'sequel-postgres-schemata', require: false
 gem 'sequel-rails'
 
-gem 'activesupport', '~> 6.1', '>= 6.1.4.6'
 gem 'base32-crockford'
 gem 'bcrypt'
 gem 'gli', require: false

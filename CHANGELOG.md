@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Remove the policy factory API endpoints from the config/routes.rb file to prevent
   anyone being able to call these endpoints and trigger the marshal.load call. CONJSE-2038
 - Bump nokogiri gem to resolve GHSA-353f-x4gh-cqq8. CONJSE-2031
+- Remove vulnerable activestorage gem from the dependencies to address CVE-2025-24293. CONJSE-2050
 
 ## [1.21.5] - 2025-06-30
 ### Added

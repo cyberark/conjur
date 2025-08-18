@@ -11,6 +11,8 @@ RUN bundle config set --local without 'test development' && \
     bundle config set --local deployment true && \
     bundle config set --local path vendor/bundle && \
     bundle config --local jobs "$(nproc --all)" && \
+    rm -rf .bundle/plugin && \
+    bundle plugin install bundler-override && \
     bundle install && \
     # Remove private keys brought in by gems in their test data
     find / -name 'openid_connect-*' -type d -exec find {} -name '*.pem' -type f -delete \; && \
