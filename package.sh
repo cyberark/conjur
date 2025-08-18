@@ -9,7 +9,7 @@ docker run --rm \
   -v "$(pwd)":"$(pwd)" \
   --workdir "$(pwd)" \
   cyberark/ubuntu-ruby-builder:latest \
-  sh -c "bundle lock --update=conjur-api"
+  sh -c "rm -rf .bundle/plugin && bundle plugin install bundler-override && bundle lock --update=conjur-api"
 
 # Create possum deb
 ./docker-debify package \

@@ -12,11 +12,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [1.23.0] - 2025-08-13
 
 ### Security
-- Fix unsafe shell command executions. CONJSE-2039. CONJSE-2041-2046.
-
-### Security
 - Remove the policy factory API endpoints from the config/routes.rb file to prevent
   anyone being able to call these endpoints and trigger the marshal.load call. CONJSE-2038
+- Fix unsafe shell command executions. CONJSE-2039. CONJSE-2041-2046.
+- Remove vulnerable activestorage gem from the dependencies to address CVE-2025-24293. CONJSE-2050
 
 ### Added
 - Added the list authenticators endpoint for the V2 API's. CNJR-9137
