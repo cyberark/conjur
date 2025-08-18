@@ -59,7 +59,7 @@ RSpec.describe(Authentication::AuthnK8s::ValidatePodRequest) do
   let(:authentication_request_class) { double("AuthenticationRequest") }
 
   let(:enabled_authenticators) { "#{authenticator_name}/#{service_id}" }
-  let(:enabled_authenticators_class) { double(Authentication::InstalledAuthenticators) }
+  let(:enabled_authenticators_class) { double(DB::Repository::AuthenticatorConfigRepository) }
 
   before(:each) do
     allow(resource_class).to receive(:[])
@@ -150,6 +150,50 @@ RSpec.describe(Authentication::AuthnK8s::ValidatePodRequest) do
 
         expect { subject }
           .to raise_error(Errors::Authentication::AuthnK8s::ContainerNotFound)
+      end
+    end
+
+    context "does not cache the enabled webservices" do
+      class EnabledAuthenticatorsMock
+        def initialize
+          @enabled_auth = ["authn-k8s/test,authn", "authn"].to_enum
+        end
+
+        def enabled_authenticators_str
+          return @enabled_auth.next
+        end
+      end
+
+      let(:service_id) { "test" }
+      let(:pod_container) { double("PodContainer", name: "authenticator") }
+      let(:whitelisted_mock) do
+        Authentication::Security::ValidateWebserviceIsWhitelisted.new(
+          validate_account_exists: mock_validate_account_exists(validation_succeeded: true)
+        )
+      end
+      subject do
+        Authentication::AuthnK8s::ValidatePodRequest.new(
+          resource_class: resource_class,
+          k8s_object_lookup_class: k8s_object_lookup_class,
+          validate_role_can_access_webservice: mock_validate_role_can_access_webservice(validation_succeeded: true),
+          validate_webservice_is_whitelisted: whitelisted_mock,
+          enabled_authenticators: EnabledAuthenticatorsMock.new,
+          validate_resource_restrictions: validate_resource_restrictions,
+          authentication_request_class: authentication_request_class
+        )
+      end
+
+      before do
+        allow(host_annotation_2).to receive(:values)
+          .and_return({ name: "notimportant" })
+      end
+
+      it 'raises PodNotFound when pod is not known' do
+        expect { subject.call(pod_request: pod_request )}.not_to raise_error
+
+        expect { subject.call(pod_request: pod_request) }.to(
+          raise_error(Errors::Authentication::Security::AuthenticatorNotWhitelisted, "CONJ00004E 'authn-k8s/test' is not enabled")
+        )
       end
     end
 

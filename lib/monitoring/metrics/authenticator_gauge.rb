@@ -4,7 +4,7 @@ module Monitoring
       attr_reader :registry, :pubsub, :metric_name, :docstring, :labels, :sub_event_name
 
       def initialize(
-        installed_authenticators: Authentication::InstalledAuthenticators,
+        installed_authenticators: DB::Repository::AuthenticatorConfigRepository.new,
         implemented_authenticators: Authentication::ImplementedAuthenticators
       )
         @metric_name = :conjur_server_authenticator

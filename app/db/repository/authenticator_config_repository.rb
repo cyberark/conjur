@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
-module Authentication
-  class InstalledAuthenticators
+module DB
+  module Repository
+    class AuthenticatorConfigRepository
 
-    AUTHN_RESOURCE_PREFIX = "conjur/authn-"
+      AUTHN_RESOURCE_PREFIX = "conjur/authn-"
 
-    class << self
       def configured_authenticators
         identifier = Sequel.function(:identifier, :resource_id)
         kind = Sequel.function(:kind, :resource_id)

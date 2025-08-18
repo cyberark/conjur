@@ -4,7 +4,7 @@ module Authentication
 
     ValidateWebserviceIsAuthenticator = CommandClass.new(
       dependencies: {
-        installed_authenticators_class: Authentication::InstalledAuthenticators
+        installed_authenticators_class: DB::Repository::AuthenticatorConfigRepository.new,
       },
       inputs: %i[webservice]
     ) do

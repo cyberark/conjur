@@ -10,19 +10,15 @@ from the version 1 architecture.
 - [Authenticators](#authenticators)
   - [Overview](#overview)
     - [Authentication Workflow Paths](#authentication-workflow-paths)
-
   - [Components](#components)
     - [Generic Components](#generic-components)
-
     - [Authenticator-specific Components](#authenticator-specific-components)
       - [Component Interfaces](#component-interfaces)
       - [Authenticator Data Object](#authenticator-data-object)
-
     - [Authenticator Validations](#authenticator-validations)
       - [Strategy](#strategy)
       - [Authenticator Repository](#authenticator-repository)
       - [Authentication Handler](#authentication-handler)
-
   - [Developing Authenticators](#developing-authenticators)
 
 ### Authentication Workflow Paths
@@ -63,7 +59,7 @@ correct authenticator namespace to load authenticators components from.
   strategy. This object includes the target Conjur role as well as any potential
   values which should be compared to the Role's annotations.
 
-- `Authentication::InstalledAuthenticators` - provides an allowlist of
+- `DB::Repository::AuthenticatorConfigRepository` - provides an allowlist of
   authenticators which have been enabled.
 
 - `RBAC::Permission` - provides a generic interface to resolve the "does 'x'

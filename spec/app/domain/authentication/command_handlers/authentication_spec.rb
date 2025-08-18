@@ -53,7 +53,7 @@ RSpec.describe(Authentication::CommandHandlers::Authentication) do
 
     context 'when authenticator is not enabled' do
       let(:available_authenticators) do
-        class_double(Authentication::InstalledAuthenticators).tap do |double|
+        double(DB::Repository::AuthenticatorConfigRepository).tap do |double|
           allow(double).to receive(:enabled_authenticators).and_return([])
           allow(double).to receive(:native_authenticators).and_return(['authn'])
         end
@@ -81,7 +81,7 @@ RSpec.describe(Authentication::CommandHandlers::Authentication) do
         end
       end
       let(:available_authenticators) do
-        class_double(Authentication::InstalledAuthenticators).tap do |double|
+        double(DB::Repository::AuthenticatorConfigRepository).tap do |double|
           # rubocop:disable Style/WordArray
           allow(double).to receive(:enabled_authenticators).and_return(['test-empty', 'authn-jwt/foo', 'test/foo', 'test-with-ttl'])
           allow(double).to receive(:native_authenticators).and_return(['test-empty', 'test-with-ttl'])
