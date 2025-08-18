@@ -419,7 +419,7 @@ class AuthenticateController < ApplicationController
   end
 
   def installed_authenticators
-    @installed_authenticators ||= Authentication::InstalledAuthenticators.authenticators(ENV)
+    @installed_authenticators ||= Authentication::ImplementedAuthenticators.authenticators(ENV)
   end
 
   def enabled_authenticators

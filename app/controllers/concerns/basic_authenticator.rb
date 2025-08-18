@@ -49,6 +49,6 @@ module BasicAuthenticator
   end
 
   def installed_login_authenticators
-    @installed_login_authenticators ||= ::Authentication::InstalledAuthenticators.login_authenticators(ENV)
+    @installed_login_authenticators ||= ::Authentication::ImplementedAuthenticators.login_authenticators(ENV)
   end
 end
