@@ -1,4 +1,21 @@
 - !policy
+  id: conjur/authn-k8s/api
+  body:
+    - !policy
+      id: apps
+      annotations:
+        description: Apps and services in the "api" Kubernetes cluster.
+      body:
+      - !host
+        id: {{CONJUR_AUTHN_K8S_TEST_NAMESPACE}}/pod/inventory-pod
+        annotations:
+          kubernetes/authentication-container-name: authenticator
+
+    - !grant
+      role: !group apps
+      member: !host apps/{{CONJUR_AUTHN_K8S_TEST_NAMESPACE}}/pod/inventory-pod
+
+- !policy
   id: conjur/authn-k8s/minikube
   body:
   # Webservice for the authentication endpoint

@@ -71,7 +71,7 @@ detectors:
     - Authentication::AuthnK8s::KubectlExec
     - Authentication::AuthnLdap::Authenticator
     - Authentication::AuthnLdap::Server
-    - Authentication::InstalledAuthenticators
+    - DB::Repository::AuthenticatorConfigRepository
     - Authentication::MemoizedRole
     - Authentication::Security
     - Authentication::Security::AccessRequest

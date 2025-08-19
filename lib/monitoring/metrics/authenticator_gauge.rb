@@ -3,13 +3,17 @@ module Monitoring
     class AuthenticatorGauge
       attr_reader :registry, :pubsub, :metric_name, :docstring, :labels, :sub_event_name
 
-      def initialize(installed_authenticators: Authentication::InstalledAuthenticators)
+      def initialize(
+        installed_authenticators: DB::Repository::AuthenticatorConfigRepository.new,
+        implemented_authenticators: Authentication::ImplementedAuthenticators
+      )
         @metric_name = :conjur_server_authenticator
         @docstring = 'Number of authenticators enabled'
         @labels = %i[type status]
         @sub_event_name = 'conjur.policy_loaded'
 
         @installed_authenticators = installed_authenticators
+        @implemented_authenticators = implemented_authenticators
       end
 
       def setup(registry, pubsub)
@@ -39,7 +43,7 @@ module Monitoring
       end
 
       def update_installed_authenticators(metric)
-        installed_authenticators = @installed_authenticators.authenticators(ENV).keys
+        installed_authenticators = @implemented_authenticators.authenticators(ENV).keys
         installed_authenticators.each do |type|
           metric.set(1, labels: { type: type, status: 'installed' })
         end

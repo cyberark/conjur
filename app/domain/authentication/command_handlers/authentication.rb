@@ -11,7 +11,7 @@ module Authentication
         logger: Rails.logger,
         audit_logger: ::Audit.logger,
         authentication_error: LogMessages::Authentication::AuthenticationError,
-        available_authenticators: ::Authentication::InstalledAuthenticators,
+        available_authenticators: ::DB::Repository::AuthenticatorConfigRepository.new,
         role_resource: ::Role,
         authorization: ::RBAC::Permission.new,
         token_factory: ::TokenFactory.new,

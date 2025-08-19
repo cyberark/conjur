@@ -35,6 +35,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Added Content-Length header in for failure HTTP responses in which
   it was missing. CNJR-10332
 - Write operations for issuers now return HTTP 405 instead of HTP 500. CNJR-10457
+- The inject client cert endpoint no longer caches enabled authenticators. CNJR-9540
 
 ## [1.22.2] - 2025-07-23
 

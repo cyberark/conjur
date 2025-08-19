@@ -12,7 +12,7 @@ RSpec.describe(Authentication::Security::ValidateWebserviceIsAuthenticator) do
   end
 
   let(:installed) do
-    double(Authentication::InstalledAuthenticators)
+    double(DB::Repository::AuthenticatorConfigRepository)
   end
   
   context "webservice is an authenticator" do

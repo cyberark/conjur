@@ -40,3 +40,8 @@ Feature: A permitted Conjur host can authenticate with a valid resource restrict
   Scenario: Authenticate without the "authentication-container-name" annotation defaults to "authenticator" and succeeds
     Given I login to pod matching "app=inventory-pod" to authn-k8s as "@namespace@/*/*" with prefix "host/host-without-container-name"
     Then I can authenticate pod matching "pod/inventory-pod" with authn-k8s as "@namespace@/*/*" with prefix "host/host-without-container-name"
+
+  @smoke
+  Scenario: Authenticate as a Pod with the API authenticator.
+    Given I login to authn-k8s as "pod/inventory-pod" with service-id "api"
+    Then I can authenticate with authn-k8s as "pod/inventory-pod" with service-id "api"

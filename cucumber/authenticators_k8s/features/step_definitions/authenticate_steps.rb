@@ -1,5 +1,5 @@
-def conjur_resource_id(namespace, resource_id)
-  "host/conjur/authn-k8s/minikube/apps/#{namespace}/#{resource_id}"
+def conjur_resource_id(namespace, resource_id, auth_name="minikube")
+  "host/conjur/authn-k8s/#{auth_name}/apps/#{namespace}/#{resource_id}"
 end
 
 def gen_cert(host_id)
@@ -34,10 +34,11 @@ Given(/^I use the IP address of(?: a pod in)? "([^"]*)"$/) do |objectid|
   @request_ip = find_matching_pod(objectid)
 end
 
-Then(/^I( can)? authenticate with authn-k8s as "([^"]*)"( without cert and key)?$/) do |success, objectid, nocertkey|
+Then(/^I( can)? authenticate with authn-k8s as "([^"]*)"( without cert and key)?( with service-id "([^"]*)")?$/) do |success, objectid, nocertkey, service_id|
+  service_id ||= "minikube"
   @request_ip ||= detect_request_ip(objectid)
 
-  conjur_id = conjur_resource_id(namespace, objectid)
+  conjur_id = conjur_resource_id(namespace, objectid, service_id)
 
   cert = nil
   unless nocertkey
@@ -48,7 +49,7 @@ Then(/^I( can)? authenticate with authn-k8s as "([^"]*)"( without cert and key)?
   key = nocertkey ? nil : @pkey
 
   begin
-    response = authenticate_k8s(authn_k8s_host, cert, key, conjur_id)
+    response = authenticate_k8s(authn_k8s_host(service_id), cert, key, conjur_id)
   rescue
     raise if success
 

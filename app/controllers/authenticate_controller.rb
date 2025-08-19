@@ -74,7 +74,7 @@ class AuthenticateController < ApplicationController
 
       # Authenticator webservices created in policy
       configured:
-        Authentication::InstalledAuthenticators.configured_authenticators.sort,
+        DB::Repository::AuthenticatorConfigRepository.new.configured_authenticators.sort,
 
       # Authenticators white-listed in CONJUR_AUTHENTICATORS
       enabled: enabled_authenticators.sort
@@ -86,7 +86,7 @@ class AuthenticateController < ApplicationController
   def status
     Authentication::ValidateStatus.new.(
       authenticator_status_input: status_input,
-      enabled_authenticators: Authentication::InstalledAuthenticators.enabled_authenticators_str
+      enabled_authenticators: enabled_authenticators_str
     )
     log_audit_success(
       authn_params: status_input,
@@ -117,7 +117,7 @@ class AuthenticateController < ApplicationController
     params[:authenticator] = "authn-jwt"
     Authentication::AuthnJwt::ValidateStatus.new.call(
       authenticator_status_input: status_input,
-      enabled_authenticators: Authentication::InstalledAuthenticators.enabled_authenticators_str
+      enabled_authenticators: enabled_authenticators_str
     )
     render(json: { status: "ok" })
   rescue => e
@@ -167,7 +167,7 @@ class AuthenticateController < ApplicationController
     params[:authenticator] = "authn-jwt"
     authn_token = Authentication::AuthnJwt::OrchestrateAuthentication.new.call(
       authenticator_input: authenticator_input_without_credentials,
-      enabled_authenticators: Authentication::InstalledAuthenticators.enabled_authenticators_str
+      enabled_authenticators: enabled_authenticators_str
     )
     render_authn_token(authn_token)
   rescue => e
@@ -220,7 +220,7 @@ class AuthenticateController < ApplicationController
     authn_token = Authentication::Authenticate.new.(
       authenticator_input: input,
       authenticators: installed_authenticators,
-      enabled_authenticators: Authentication::InstalledAuthenticators.enabled_authenticators_str
+      enabled_authenticators: enabled_authenticators_str
     )
     log_audit_success(
       authn_params: input,
@@ -419,11 +419,15 @@ class AuthenticateController < ApplicationController
   end
 
   def installed_authenticators
-    @installed_authenticators ||= Authentication::InstalledAuthenticators.authenticators(ENV)
+    @installed_authenticators ||= Authentication::ImplementedAuthenticators.authenticators(ENV)
   end
 
   def enabled_authenticators
-    Authentication::InstalledAuthenticators.enabled_authenticators
+    DB::Repository::AuthenticatorConfigRepository.new.enabled_authenticators
+  end
+
+  def enabled_authenticators_str
+    DB::Repository::AuthenticatorConfigRepository.new.enabled_authenticators_str
   end
 
   def encoded_response?
