@@ -194,13 +194,35 @@ describe HostFactoryTokensController, type: :request do
           end
         end
 
-        context "using an invalid expiration date" do
-          let(:expiration) { "non-iso-string" }
+        context "when the expiration parameter is invalid" do
+          context "using a non-ISO8601 string" do
+            let(:expiration) { "non-iso-string" }
 
-          it "returns a 422 code" do
-            create_token
-            expect(response.code).to eq("422")
-            expect(JSON.parse(response.body)).to eq({ "error"=> { "code"=> "error", "message"=> "invalid date" } })
+            it "raises an argument error" do
+              create_token
+              expect(response.code).to eq("422")
+              expect(JSON.parse(response.body)).to eq({ "error"=> { "code"=>"argument_error", "message"=>"Input is invalid ISO8601 string: #{expiration}" } })
+            end
+          end
+
+          context "using an expired date" do
+            let(:expiration) { "2017-08-04T22:27:20+00:00" }
+
+            it "raises an argument error" do
+              create_token
+              expect(response.code).to eq("422")
+              expect(JSON.parse(response.body)).to eq({ "error"=> { "code"=>"argument_error", "message"=>"Value for parameter expiration must be in the future: #{Time.iso8601(expiration)}" } })
+            end
+          end
+
+          context "using a non-string value" do
+            let(:expiration) { 12345 }
+
+            it "raises an argument error" do
+              create_token
+              expect(response.code).to eq("422")
+              expect(JSON.parse(response.body)).to eq({ "error"=> { "code"=>"argument_error", "message"=>"Input is invalid ISO8601 string: #{expiration}" } })
+            end
           end
         end
 
