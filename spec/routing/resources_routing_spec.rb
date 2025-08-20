@@ -56,4 +56,38 @@ describe "routing for resources" do
   it "does not route GET /resources/:account/:kind/:identifier for invalid kind" do
     expect(get: '/resources/the-account/invalid_kind/bar').not_to be_routable
   end
+  
+  context "for configuration kind" do
+    it "routes GET /resources/:account/:kind/:resource to resources#show" do
+      expect(get: '/resources/the-account/configuration/ldap-config').to route_to(
+        account: 'the-account',
+        controller: 'resources',
+        action: 'show',
+        kind: 'configuration',
+        identifier: 'ldap-config'
+      )
+    end
+
+    it "routes GET /resources/:account/:kind:identifier?check to resources#check_permission" do
+      expect(get: '/resources/the-account/configuration/ldap-config?check').to route_to(
+        account: 'the-account',
+        controller: 'resources',
+        action: 'check_permission',
+        kind: 'configuration',
+        identifier: 'ldap-config',
+        check: nil
+      )
+    end
+
+    it "routes GET /resources/:account/:kind/:identifier?permitted_roles to resources#permitted_roles" do
+      expect(get: '/resources/the-account/configuration/ldap-config?permitted_roles').to route_to(
+        account: 'the-account',
+        controller: 'resources',
+        action: 'permitted_roles',
+        kind: 'configuration',
+        identifier: 'ldap-config',
+        permitted_roles: nil
+      )
+    end
+  end
 end
