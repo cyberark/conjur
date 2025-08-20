@@ -10,7 +10,8 @@ COPY gems/ gems/
 # this is a workaround to allow installation of ruby-debug-ide, for unknown
 # reasons the first attempt to install it fails but the subsequent call is
 # successful, therefore we try to install again if the first invocation fails
-RUN bundle install || bundle install
+RUN bundle plugin install bundler-override && \
+    bundle install || bundle install
 
 FROM cyberark/ubuntu-ruby-postgres-fips:latest
 
