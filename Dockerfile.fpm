@@ -5,7 +5,8 @@ RUN apt-get update -y && \
     apt-get install -y zlib1g-dev \
                        liblzma-dev
 
-RUN gem install --no-document fpm
+RUN bundle plugin install bundler-override && \
+ gem install --no-document fpm
 
 RUN mkdir -p /src/opt/conjur/project
 
