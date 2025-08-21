@@ -6,9 +6,6 @@ Feature: A permitted Conjur host can authenticate with a valid resource restrict
   #  and is executed after standing up the
   #  ci/test_suites/authenticators_k8s/dev/dev_conjur_http_proxy.template.yaml file in the k8s
   #  environment to ensure the proxy and env variable are available
-  #
-  #  Skipped as a flaky test, to be resolved by issue: CNJR-1428
-  @skip
   @http_proxy
   Scenario: Authenticate as a Pod.
     Given I can login to pod matching "app=inventory-pod" to authn-k8s as "*/*"

@@ -12,7 +12,12 @@ def login username, request_ip, service_id, pkey, headers = {}
       headers: headers
     )["inject_client_cert?request_ip=#{request_ip}"].post(csr.to_pem)
 
-  @cert = pod_certificate
+  begin
+    @cert = wait_for_matching_cert(pkey)
+  rescue => e
+    warn "WARN: #{e.message}"
+    raise
+  end
 
   if @cert.to_s.empty?
     puts("WARN: Certificate is empty!")
@@ -46,6 +51,34 @@ def login_with_username request_ip, username, success, service_id = "minikube", 
   end
 
   expect(@cert).to include("BEGIN CERTIFICATE") unless @cert.to_s.empty?
+end
+
+def wait_for_matching_cert(pkey, timeout: 20, interval: 0.5)
+  deadline = Time.now + timeout
+  last_error = nil
+
+  loop do
+    cert_pem = pod_certificate
+    if cert_pem && cert_pem.include?("BEGIN CERTIFICATE")
+      begin
+        cert = OpenSSL::X509::Certificate.new(cert_pem)
+        if cert.public_key.to_pem == pkey.public_key.to_pem
+          return cert_pem
+        else
+          last_error = "Public key mismatch (cert vs generated key)"
+        end
+      rescue OpenSSL::X509::CertificateError => e
+        last_error = "Failed parsing certificate: #{e.message}"
+      end
+    else
+      last_error = "Certificate empty or not yet injected"
+    end
+
+    break if Time.now > deadline
+    sleep interval
+  end
+
+  raise "Timed out waiting for matching certificate: #{last_error}"
 end
 
 Then(/^I( can)? login to pod matching "([^"]*)" to authn-k8s as "([^"]*)"(?: with prefix "([^"]*)")?(?: with service-id "([^"]*)")?$/) do |success, objectid, host_id_suffix, host_id_prefix, service_id|
