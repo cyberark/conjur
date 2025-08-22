@@ -14,6 +14,7 @@ class ExcludeEncodedSlash
   def initialize(param)
     @param = param
   end
+
   def matches?(request)
     !request.params[@param].to_s.include?("/")
   end
@@ -90,7 +91,7 @@ Rails.application.routes.draw do
           get     "/roles/:account/:kind/*identifier" => "roles#show"
         end
 
-        constraints kind: /variable|public_key|user|host|layer|group|policy|webservice|host_factory/ do
+        constraints kind: /variable|public_key|user|host|layer|group|policy|webservice|host_factory|configuration/ do
           get     "/resources/:account/:kind/*identifier" => 'resources#check_permission', :constraints => QueryParameterActionRecognizer.new("check")
           get     "/resources/:account/:kind/*identifier" => 'resources#permitted_roles', :constraints => QueryParameterActionRecognizer.new("permitted_roles")
           get     "/resources/:account/:kind/*identifier" => "resources#show"

@@ -35,6 +35,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   it was missing. CNJR-10332
 - Write operations for issuers now return HTTP 405 instead of HTP 500. CNJR-10457
 - The inject client cert endpoint no longer caches enabled authenticators. CNJR-9540
+- Added support for reading resources with "configuration" kind. CNJR-10546
 
 ## [1.22.2] - 2025-07-23
 
