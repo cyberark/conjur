@@ -120,8 +120,19 @@ describe HostFactoryTokensController, type: :request do
         end
       end
 
-      context "when specifying count" do
+      context "when specifying count as an int" do
         let(:count) { 2 }
+
+        it "creates an array of host factory tokens" do
+          create_token
+          expect(response.code).to eq("200")
+          array = JSON.parse(response.body)
+          expect(array.size).to eq(2)
+        end
+      end
+
+      context "when specifying count as a string" do
+        let(:count) { "2" }
 
         it "creates an array of host factory tokens" do
           create_token
@@ -212,7 +223,7 @@ describe HostFactoryTokensController, type: :request do
               expect(JSON.parse(response.body)).to eq({ "error"=> { "code"=>"argument_error", "message"=>"Invalid value for parameter 'count': #{count}" } })
             end
           end
-          context "when count is a string" do
+          context "when count is a non-integer string" do
             let(:count) { "non-integer-input" }
 
             it "raises an argument error" do
@@ -232,6 +243,15 @@ describe HostFactoryTokensController, type: :request do
           end
           context "when count is a float" do
             let(:count) { 1.5 }
+
+            it "raises an argument error" do
+              create_token
+              expect(response.code).to eq("422")
+              expect(JSON.parse(response.body)).to eq({ "error"=> { "code"=>"argument_error", "message"=>"Invalid value for parameter 'count': #{count}" } })
+            end
+          end
+          context "when count is a float string" do
+            let(:count) { "1.5" }
 
             it "raises an argument error" do
               create_token
