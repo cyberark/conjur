@@ -308,7 +308,7 @@ GEM
     mime-types (3.7.0)
       logger
       mime-types-data (~> 3.2025, >= 3.2025.0507)
-    mime-types-data (3.2025.0812)
+    mime-types-data (3.2025.0826)
     mini_mime (1.1.5)
     minitest (5.25.5)
     multi_json (1.15.0)

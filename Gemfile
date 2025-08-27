@@ -5,6 +5,7 @@ source 'https://rubygems.org'
 # ruby=ruby-3.0
 # ruby-gemset=conjur
 
+plugin 'bundler-override'
 require File.join(
   Bundler::Plugin.index.load_paths('bundler-override')[0],
   'bundler-override'
@@ -17,10 +18,12 @@ git_source(:github) { |name| "https://github.com/#{name}.git" }
 # nicely with RVM and we should be explicit since Ruby is such a fundamental
 # part of a Rails project. The Ruby version is also locked in place by the
 # Docker base image so it won't be updated with fuzzy matching.
-override 'rails', drop: 'activestorage'
-override 'actionmailbox', drop: 'activestorage'
-override 'actiontext', drop: 'activestorage'
-override 'conjur-cli', drop: 'activestorage'
+if Bundler::Plugin.installed?('bundler-override')
+  override 'rails', drop: 'activestorage'
+  override 'actionmailbox', drop: 'activestorage'
+  override 'actiontext', drop: 'activestorage'
+  override 'conjur-cli', drop: 'activestorage'
+end
 
 gem 'base58'
 gem 'command_class'
