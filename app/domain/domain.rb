@@ -7,11 +7,13 @@ module Domain
   end
 
   def res_identifier(identifier)
-    root?(identifier) ? 'root' : identifier
+    root?(identifier) ? 'root' : identifier&.sub(%r{^/}, "")
   end
 
-  def domain_identifier(identifier)
-    root?(identifier) ? '/' : identifier
+  def domain_id(identifier)
+    return '/' if root?(identifier)
+
+    identifier.starts_with?('/') ? identifier : "/#{identifier}"
   end
 
   def to_identifier(parent_identifier, identifier)
@@ -20,8 +22,8 @@ module Domain
     "#{parent_identifier}/#{identifier}"
   end
 
-  def full_id(account, type, identifier)
-    [account, type, identifier].join(":")
+  def full_id(account, kind, identifier)
+    [account, kind, res_identifier(identifier)].join(":")
   end
 
   def account_of(full_id)
@@ -36,7 +38,7 @@ module Domain
     identifier.split('/').last
   end
 
-  def parent_identifier(identifier)
+  def parent_of(identifier)
     last_slash_idx = identifier.rindex("/")
     last_slash_idx ? identifier[0...last_slash_idx] : '/'
   end

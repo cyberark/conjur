@@ -41,10 +41,6 @@ RSpec.describe(Domain::Validation) do
       expect('valid/path_123').to match(Domain::Validation::PATH_PATTERN)
       expect('invalid path!').not_to match(Domain::Validation::PATH_PATTERN)
     end
-
-    it 'has correct OWNER_KINDS' do
-      expect(Domain::Validation::OWNER_KINDS).to include('user', 'host', 'group', 'policy')
-    end
   end
 
   describe Domain::Validation::DomainValidationError do

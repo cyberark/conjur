@@ -16,9 +16,23 @@ class V2RestController < RestController
   # controller, action are handled by default
   URL_REQUIRED_PARAMS = %i[account].freeze
   URL_REQUIRED_PARAMS_IDFR = (URL_REQUIRED_PARAMS + [:identifier]).freeze
+  URL_REQUIRED_PARAMS_PATH = (URL_REQUIRED_PARAMS + [:identifier, :kind, :id]).freeze
 
   before_action :validate_header, :log_debug_requested
   after_action :update_response_header, :log_debug_finished
+
+  def initialize(
+    *args,
+    branch_service: BranchService.instance,
+    logger: Rails.logger,
+
+    **kwargs
+  )
+    super(*args, **kwargs)
+
+    @branch_service = branch_service
+    @logger = logger
+  end
 
   def path_identifier
     request.params[:identifier]
@@ -29,14 +43,16 @@ class V2RestController < RestController
   end
 
   def permit_url_params(required_params = [], optional_params = [])
+    req_params = request.parameters
+    req_params.delete(controller_name.singularize.to_s)
     @permit_url_params ||= handle_parameters(required_params,
                                              optional_params,
                                              url_params_keys,
-                                             request.parameters)
+                                             req_params)
   end
 
   def permit_body_params(required_params = [], optional_params = [])
-    raise ApplicationController::UnprocessableEntity, 'Empty request body' if body_payload.empty?
+    raise ApplicationController::BadRequestWithBody, 'Empty request body' if body_payload.empty?
 
     @permit_body_params ||= handle_parameters(required_params,
                                               optional_params,
@@ -48,7 +64,7 @@ class V2RestController < RestController
     @body_payload ||= begin
       JSON.parse(body_str, symbolize_names: true)
     rescue JSON::ParserError => e
-      raise ApplicationController::UnprocessableEntity, "Invalid JSON body: #{e.message}"
+      raise ApplicationController::BadRequestWithBody, "Invalid JSON body: #{e.message}"
     end
   end
 
@@ -61,9 +77,8 @@ class V2RestController < RestController
   end
 
   def read_and_auth_parent_branch(action, identifier)
-    branch_identifier = parent_identifier(identifier)
+    branch_identifier = parent_of(identifier)
     @branch_service.read_and_auth_branch(current_user, action, account, branch_identifier)
-    branch_identifier
   end
 
   def read_and_auth_branch(action, identifier)
@@ -72,7 +87,7 @@ class V2RestController < RestController
 
   def audit_payload
     # need to have one line string in audit log
-    JSON.generate(body_payload)
+    @body_payload.nil? ? @body_str&.gsub(/\s+/, ' ')&.strip : JSON.generate(body_payload)
   end
 
   def audit_success(resource_type, operation, resource_identifier, body_json_str = nil)
@@ -120,7 +135,7 @@ class V2RestController < RestController
         request_body: body_json_str,
         user: current_user.role_id,
         client_ip: request.ip,
-        error_message: failure_message
+        error_message: failure_message&.gsub(/\s+/, ' ')&.strip
       )
     )
   end

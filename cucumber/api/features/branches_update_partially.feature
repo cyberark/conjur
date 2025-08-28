@@ -55,6 +55,55 @@ Feature: Branches APIv2 tests - patch
     """
 
   @acceptance
+  Scenario: As admin I can update owner of a branch using absolute path
+    Given I set the Accept header to APIv2
+    And I can GET "/branches/cucumber/data/safe1/branch1"
+    And the HTTP response status code is 200
+    And the HTTP response content type is APIv2
+    And the JSON should be:
+    """
+    { "name": "branch1", "branch": "data/safe1",
+      "owner": { "kind": "group", "id": "data/data-group" },
+      "annotations": { "branch1-ann-1": "Foo bar", "branch1-ann-2": "123" } }
+    """
+    And I set the Accept header to APIv2
+    And I set the "Content-Type" header to "application/json"
+    And I save my place in the audit log file for remote
+    When I can PATCH "/branches/cucumber/data/safe1/branch1" with body:
+    """
+    { "owner": { "kind": "user", "id": "/admin" } }
+    """
+    Then the HTTP response status code is 200
+    And the HTTP response content type is APIv2
+    And the JSON should be:
+    """
+    { "name": "branch1",
+      "branch": "data/safe1",
+      "owner": { "kind": "user", "id": "admin" },
+      "annotations": { "branch1-ann-1": "Foo bar", "branch1-ann-2": "123" } }
+    """
+    And there is an audit record matching:
+    """
+    <85>1 * * conjur * branch\s
+    [auth@43868 user="cucumber:user:admin"]
+    [subject@43868 edge=""]
+    [client@43868 ip="\d+\.\d+\.\d+\.\d+"]
+    [action@43868 result="success" operation="update"]\s
+    cucumber:user:admin successfully updated branch data/safe1/branch1 with URI path: '/branches/cucumber/data/safe1/branch1' and JSON object: {"owner":{"kind":"user","id":"/admin"}}
+    """
+    And I clear the "Content-Type" header
+    And I set the Accept header to APIv2
+    And I can GET "/branches/cucumber/data/safe1/branch1"
+    And the HTTP response status code is 200
+    And the HTTP response content type is APIv2
+    And the JSON should be:
+    """
+    { "name": "branch1", "branch": "data/safe1",
+      "owner": { "kind": "user", "id": "admin" },
+      "annotations": { "branch1-ann-1": "Foo bar", "branch1-ann-2": "123" } }
+    """
+
+  @acceptance
   Scenario: As admin I can update annotation for a branch
     Given I set the Accept header to APIv2
     And I can GET "/branches/cucumber/data/safe1/branch1"
@@ -142,11 +191,11 @@ Feature: Branches APIv2 tests - patch
     When I PATCH "/branches/cucumber/data/safe1/branch1" with body:
     """
     """
-    Then the HTTP response status code is 422
+    Then the HTTP response status code is 400
     And the HTTP response content type is APIv2
     And the JSON should be:
     """
-    { "code": "422",
+    { "code": "400",
       "message": "Invalid JSON body: unexpected token at ''" }
     """
 
@@ -159,11 +208,11 @@ Feature: Branches APIv2 tests - patch
     """
     { }
     """
-    Then the HTTP response status code is 422
+    Then the HTTP response status code is 400
     And the HTTP response content type is APIv2
     And the JSON should be:
     """
-    { "code": "422",
+    { "code": "400",
       "message": "Empty request body" }
     """
 

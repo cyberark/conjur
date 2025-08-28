@@ -49,10 +49,10 @@ module Domain
     end
 
     def self.from_model(model)
-      new(res_name(model.identifier),
-          domain_identifier(parent_identifier(model.identifier)),
-          Owner.from_model_id(model.owner_id),
-          ::Domain::Annotations.from_model(model.annotations))
+      new(res_name(model.identifier), # name
+          parent_of(model.identifier), # branch
+          Owner.from_model_id(model.owner_id), #owner
+          ::Domain::Annotations.from_model(model.annotations)) # annotations
     end
 
     def identifier

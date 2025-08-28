@@ -31,7 +31,7 @@ module Domain
     def check_owner_exists(account, owner)
       log_debug("account = #{account}, owner = #{owner}")
 
-      role_id = full_id(account, owner.kind, res_identifier(owner.id))
+      role_id = full_id(account, owner.kind, owner.id)
       log_debug("role_id = #{role_id}")
 
       role = @role_repository[role_id]

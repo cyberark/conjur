@@ -19,9 +19,6 @@ module Domain
     IDENTIFIER_MAX_LENGTH = 950
     IDENTIFIER_MAX_LENGTH_MSG = "Identifier exceeds maximum length of #{IDENTIFIER_MAX_LENGTH} characters"
 
-    OWNER_KINDS = %w[host user group policy].freeze
-    OWNER_KINDS_MSG = "'%{value}' is not a valid owner kind"
-
     def validate_identifier(identifier)
       depth = identifier.delete_prefix('/').delete_suffix('/').count('/') + 1
       raise DomainValidationError, IDENTIFIER_MAX_DEPTH_MSG if depth > IDENTIFIER_MAX_DEPTH

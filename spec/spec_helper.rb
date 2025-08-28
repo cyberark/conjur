@@ -168,3 +168,24 @@ def token_auth_header(role:, account: 'rspec')
 
   { 'HTTP_AUTHORIZATION' => "Token token=\"#{base64_token}\"" }
 end
+
+def verify_audit_message(audit_message)
+  message_found = false
+  expect(log_object).to have_received(:log).at_least(:once) do |log_message|
+    message_found = log_message.to_s == audit_message
+  end
+  expect(message_found).to eq(true)
+end
+
+def v2_beta_api_header
+  { 'Accept' => V2RestController::API_V2_HEADER }
+end
+
+def extract_secret_ids(string)
+  # Extract the array part from the string and parse it
+  match = string.match(/\[(.*)\]/)
+  return [] unless match
+
+  # Parse the comma-separated values and remove quotes
+  match[1].split(',').map { |id| id.strip.gsub('"', '') }
+end

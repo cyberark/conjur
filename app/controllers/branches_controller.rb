@@ -67,7 +67,7 @@ class BranchesController < V2RestController
   end
 
   def update
-    url_params = permit_url_params(URL_REQUIRED_PARAMS_IDFR, [branch: {}])
+    url_params = permit_url_params(URL_REQUIRED_PARAMS_IDFR)
     input = permit_body_params([], BRANCH_OPTIONAL_PARAMS)
     log_debug("url_params = #{url_params}, input = #{input}")
 
@@ -107,7 +107,7 @@ class BranchesController < V2RestController
   # create
 
   def permit_create_url_params
-    permit_url_params(URL_REQUIRED_PARAMS, [branch: {}])
+    permit_url_params(URL_REQUIRED_PARAMS)
   end
 
   def permit_create_body_params

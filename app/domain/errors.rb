@@ -8,6 +8,19 @@
 #
 # See also ./logs.rb
 module Errors
+
+  module Group
+    DuplicateMember = ::Util::TrackableErrorClass.new(
+      msg: "'{0}' (kind='{1}') is already a member of '{2}'",
+      code: "CONJ00180W"
+    )
+
+    ResourceNotMember = ::Util::TrackableErrorClass.new(
+      msg: "'{0}' (kind='{1}') isn't a member of '{2}'",
+      code: "CONJ00181W"
+    )
+  end
+
   module Conjur
 
     RequiredResourceMissing = ::Util::TrackableErrorClass.new(

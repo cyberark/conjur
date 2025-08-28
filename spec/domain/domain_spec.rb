@@ -24,13 +24,13 @@ RSpec.describe(Domain) do
     end
   end
 
-  describe '#domain_identifier' do
+  describe '#domain_id' do
     it 'returns / for root' do
-      expect(dummy_class.domain_identifier('root')).to eq('/')
+      expect(dummy_class.domain_id('root')).to eq('/')
     end
 
     it 'returns identifier for non-root' do
-      expect(dummy_class.domain_identifier('foo')).to eq('foo')
+      expect(dummy_class.domain_id('foo')).to eq('/foo')
     end
   end
 
@@ -70,11 +70,11 @@ RSpec.describe(Domain) do
 
   describe '#parent_identifier' do
     it 'returns parent path' do
-      expect(dummy_class.parent_identifier('foo/bar/baz')).to eq('foo/bar')
+      expect(dummy_class.parent_of('foo/bar/baz')).to eq('foo/bar')
     end
 
     it 'returns / if no slash' do
-      expect(dummy_class.parent_identifier('foo')).to eq('/')
+      expect(dummy_class.parent_of('foo')).to eq('/')
     end
   end
 

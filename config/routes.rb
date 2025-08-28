@@ -81,6 +81,10 @@ Rails.application.routes.draw do
         patch "/branches/:account/*identifier" => "branches#update"
         delete "/branches/:account/*identifier" => "branches#delete"
 
+        # groups
+        post "/groups/:account/*identifier/members" => 'group_memberships#create'
+        delete "/groups/:account/*identifier/members/:kind/(*id)" => 'group_memberships#delete'
+
         constraints kind: /user|host|layer|group|policy|host_factory/ do
           get     "/roles/:account/:kind/*identifier" => "roles#graph", :constraints => QueryParameterActionRecognizer.new("graph")
           get     "/roles/:account/:kind/*identifier" => "roles#all_memberships", :constraints => QueryParameterActionRecognizer.new("all")

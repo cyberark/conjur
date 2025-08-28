@@ -87,6 +87,7 @@ class ApplicationController < ActionController::API
   rescue_from Errors::Conjur::RequestedResourceNotFound, with: :resource_not_found
   rescue_from Errors::Authorization::InsufficientResourcePrivileges, with: :forbidden
   rescue_from Errors::Authentication::Security::RoleNotAuthorizedOnResource, with: :forbidden
+  rescue_from Errors::Group::DuplicateMember, with: :conflict
   rescue_from Errors::Conjur::APIHeaderMissing, with: :render_bad_request_with_message
   rescue_from Errors::Conjur::ParameterMissing, with: :unprocessable_entity
   rescue_from Errors::Conjur::ParameterValueInvalid, with: :unprocessable_entity

@@ -130,7 +130,7 @@ RSpec.describe(Domain::Branch, type: :model) do
 
     it 'creates a branch from model' do
       allow(Domain::Branch).to receive(:res_name).with('data/test-branch').and_return('test-branch')
-      allow(Domain::Branch).to receive(:domain_identifier).with('data').and_return('data')
+      allow(Domain::Branch).to receive(:domain_id).with('data').and_return('data')
       allow(Domain::Branch).to receive(:parent_identifier).with('data/test-branch').and_return('data')
       allow(Domain::Owner).to receive(:from_model_id).and_return(valid_owner)
       allow(Domain::Annotations).to receive(:from_model).and_return(valid_annotations)

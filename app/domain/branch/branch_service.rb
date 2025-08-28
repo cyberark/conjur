@@ -65,7 +65,7 @@ module Domain
 
       return if root?(identifier)
 
-      get_branch(account, parent_identifier(identifier))
+      get_branch(account, parent_of(identifier))
     end
 
     def create_branch(account, branch)
@@ -73,7 +73,7 @@ module Domain
 
       branch_id = full_id(account, 'policy', branch.identifier)
       owner_id = res_owner_id(account, branch.branch, branch.owner)
-      policy_id = full_id(account, 'policy', res_identifier(branch.branch))
+      policy_id = full_id(account, 'policy', branch.branch)
 
       log_debug("branch_id = #{branch_id}, owner_id = #{owner_id}, policy_id = #{policy_id}")
 
@@ -178,7 +178,7 @@ module Domain
     def update_owner(account, policy, owner)
       log_debug("account = #{account}, policy = #{policy.id} owner = #{owner}")
 
-      parent = parent_identifier(policy.identifier)
+      parent = parent_of(policy.identifier)
       owner_id = res_owner_id(account, parent, owner)
       log_debug("parent = #{parent}, owner_id = #{owner_id}")
 

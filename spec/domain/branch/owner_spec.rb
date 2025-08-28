@@ -3,6 +3,10 @@ require 'spec_helper'
 
 RSpec.describe(Domain::Owner) do
   describe '#initialize' do
+    it 'has correct OWNER_KINDS' do
+      expect(Domain::Owner::OWNER_KINDS).to include('user', 'host', 'group', 'policy')
+    end
+
     it 'creates a valid owner with allowed kind and id' do
       owner = described_class.new('user', 'alice', is_set: true)
       expect(owner.kind).to eq('user')
