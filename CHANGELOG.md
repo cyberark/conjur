@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Remove the policy factory code. CONJSE-2047
 
 ### Added
+- Added extra context (policy ID and offending lines) for API error responses caused by policy updates. CNJR-2571
 - Added the list authenticators endpoint for the V2 API's. CNJR-9137
 - Added the show authenticator endpoint for the V2 API's. CNJR-9133
 - Added the ability to create authenticators through a V2 API endpoint CNJR-9136

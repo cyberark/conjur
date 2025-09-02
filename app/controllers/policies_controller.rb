@@ -107,14 +107,27 @@ class PoliciesController < RestController
 
   private
 
-  def enhance_error(error)
+  def enhance_error(error, policy_id: nil)
+    context_policy_id = policy_id || resource&.identifier
     enhanced = error
     unless error.instance_of?(Exceptions::EnhancedPolicyError)
       enhanced = Exceptions::EnhancedPolicyError.new(
-        original_error: error
+        original_error: error,
+        additional_context: {
+          policy_id: context_policy_id,
+          offending_lines: extract_offending_lines(error)
+        }
       )
     end
     enhanced
+  end
+
+  def extract_offending_lines(error)
+    if error.respond_to?(:line)
+      [error.line]
+    else
+      []
+    end
   end
 
   # Policy processing is a function of the policy mode request (load/update/replace) and
@@ -218,8 +231,9 @@ class PoliciesController < RestController
     raise e
   rescue => e
     original_error = e
-    if e.instance_of?(Exceptions::EnhancedPolicyError) && e.original_error
-      original_error = e.original_error
+    enhanced_error = e.is_a?(Exceptions::EnhancedPolicyError) ? e : enhance_error(e)
+    if enhanced_error.instance_of?(Exceptions::EnhancedPolicyError) && enhanced_error.original_error
+      original_error = enhanced_error.original_error
     end
 
     audit_failure(original_error, mode)
@@ -227,8 +241,10 @@ class PoliciesController < RestController
     # Render Orchestration errors through ApplicationController
     raise original_error if strategy_type == :orchestration
 
+    # Render error response for validation
+    error_json = policy_mode.report(policy_result)
     render(
-      json: policy_mode.report(policy_result),
+      json: error_json,
       status: :unprocessable_entity
     )
   end
@@ -338,6 +354,11 @@ class PoliciesController < RestController
       policy_filename: nil,  # filename is historical and no longer informative
       root_policy: is_root
     )
+    # Wrap parse error with EnhancedPolicyError if present and not already wrapped
+    # Note: Parse command now adds context, so this is mainly a fallback
+    if parse.error && !parse.error.is_a?(Exceptions::EnhancedPolicyError)
+      parse.error = enhance_error(parse.error, policy_id: policy.identifier)
+    end
     policy_result.policy_parse = (parse)
 
     annotation_names = parse.records.flat_map do |rec|
