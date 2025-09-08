@@ -8,10 +8,14 @@ module Domain
     include ActiveModel::Validations
     include Domain::Validation
 
+    OWNER_KINDS = %w[host user group policy].freeze
+    OWNER_KINDS_MSG = "'%{value}' is not a valid owner kind"
+
     validates :kind, presence: true, inclusion: { in: OWNER_KINDS, message: OWNER_KINDS_MSG }
     validates :id, presence: true, format: { with: USER_PATH_PATTERN, message: USER_PATH_PATTERN_MSG }, if: -> { kind == 'user' }
     validates :id, presence: true, format: { with: PATH_PATTERN, message: PATH_PATTERN_MSG }, unless: -> { kind == 'user' }
     validates :id, length: { minimum: PATH_LENGTH_MIN, maximum: PATH_LENGTH_MAX }
+    validate :validate_id
 
     extend(Domain)
     attr_reader :kind, :id
@@ -46,6 +50,12 @@ module Domain
 
     def to_s
       "#<Owner kind=#{@kind} id=#{@id} set=#{@is_set}>"
+    end
+
+    private
+
+    def validate_id
+      validate_identifier(@id) if @kind != 'user'
     end
   end
 end

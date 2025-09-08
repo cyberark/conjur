@@ -209,6 +209,30 @@ Feature: Branches APIv2 tests - create empty
         "branch2-ann-key2": "branch2-ann-val2" } }
     """
 
+  @acceptance
+  Scenario: Creating a branch giving absolute path
+    Given I set the Accept header to APIv2
+    And I set the "Content-Type" header to "application/json"
+    When I can POST "/branches/cucumber" with body:
+    """
+    { "name": "branch2",
+      "branch": "/data/safe1",
+      "annotations": {
+        "branch2-ann-key1": "{ \"foo\": \"bar\", \"baz\": 1 }",
+        "branch2-ann-key2": "branch2-ann-val2" } }
+    """
+    Then the HTTP response status code is 201
+    And the HTTP response content type is APIv2
+    And the JSON should be:
+    """
+    { "name": "branch2",
+      "branch": "data/safe1",
+      "owner": { "kind": "policy", "id": "data/safe1" },
+      "annotations": {
+        "branch2-ann-key1": "{ \"foo\": \"bar\", \"baz\": 1 }",
+        "branch2-ann-key2": "branch2-ann-val2" } }
+    """
+
   @negative @acceptance
   Scenario: Cannot create a branch with wrong value in annotations value
     Given I set the Accept header to APIv2
