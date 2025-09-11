@@ -14,3 +14,5 @@ mkdir -p opt/conjur/etc
 cp opt/conjur/possum/distrib/conjur/etc/* opt/conjur/etc/
 
 mkdir -p opt/conjur/possum/config
+
+rm -rf opt/conjur/possum/.bundle/plugin
