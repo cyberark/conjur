@@ -31,7 +31,7 @@ _Note: our badges and social media buttons never track you._
 - [Getting Started](#getting-started)
   * [Compatibility](#compatibility)
 - [Community Support](#community-support)
-- [Migrating to Conjur EE](#migrating-to-conjur-ee)
+- [Migrating to CyberArk Secrets Manager, Self-Hosted](#migrating-to-cyberark-secrets-manager-self-hosted)
 - [Architecture](#architecture)
   * [Database](#database)
     + [DATABASE_URL environment variable](#database-url-environment-variable)
@@ -72,9 +72,9 @@ latest suite release version, please review the
 Our primary channel for support is through our CyberArk Commons community
 [here][commons]
 
-## Migrating to Conjur EE
+## Migrating to CyberArk Secrets Manager, Self-Hosted
 
-Migrating data from Conjur Open Source to Conjur EE is simple using our
+Migrating data from Conjur Open Source to CyberArk Secrets Manager, Self-Hosted is simple using our
 [migration guide][migration]
 
 [migration]: design/MIGRATION.md
