@@ -1,6 +1,6 @@
 # Migration
 
-Migrating data from Conjur Open Source to a Conjur EE appliance is simple
+Migrating data from Conjur Open Source to a CyberArk Secrets Manager, Self-Hosted appliance is simple
 using the provided export tools.
 
 #### Creating a migration archive
@@ -39,4 +39,4 @@ To create the migration data archive:
     $ docker copy conjur:/var/export ./export
     ```
 
-These files can now be used to migrate the data into a new Conjur EE appliance.
+These files can now be used to migrate the data into a new CyberArk Secrets Manager, Self-Hosted appliance.
