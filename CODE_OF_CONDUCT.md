@@ -14,10 +14,13 @@ Towards this end, certain behaviors and practices will not be tolerated.
 
 ## tl;dr
 
-* Be respectful.
-* We're here to help: <abuse@conjur.org>
-* Abusive behavior is never tolerated.
-* Violations of this code may result in swift and permanent expulsion from the
+*   Be respectful.
+
+*   We're here to help: [abuse@conjur.org](mailto:abuse@conjur.org)
+
+*   Abusive behavior is never tolerated.
+
+*   Violations of this code may result in swift and permanent expulsion from the
   Conjur community.
 
 ## Scope
@@ -62,46 +65,54 @@ private media.
 Avoid using offensive or harassing nicknames or other identifiers that might
 detract from a friendly, safe, and welcoming environment for all.
 
-
 ### Unacceptable Behavior
 
 The following behaviors are considered harassment and are unacceptable within
 our community:
 
-* Violence, threats of violence or violent language directed against another
+*   Violence, threats of violence or violent language directed against another
   person.
-* Sexist, racist, homophobic, transphobic, ableist or otherwise discriminatory
+
+*   Sexist, racist, homophobic, transphobic, ableist or otherwise discriminatory
   jokes and language.
-* Posting or displaying sexually explicit or violent material.
-* Posting or threatening to post other people’s personally identifying
+
+*   Posting or displaying sexually explicit or violent material.
+
+*   Posting or threatening to post other people’s personally identifying
   information ("doxing").
-* Personal insults, particularly those related to related to gender identity,
+
+*   Personal insults, particularly those related to related to gender identity,
   sexual orientation, ability, ethnicity, religion, age, physical appearance,
   body size, race, or similar personal characteristics.
-* Inappropriate photography or recording.
-* Inappropriate physical contact. You should have someone’s consent before
+
+*   Inappropriate photography or recording.
+
+*   Inappropriate physical contact. You should have someone’s consent before
   touching them.
-* Unwelcome sexual attention. This includes, sexualized comments or jokes;
+
+*   Unwelcome sexual attention. This includes, sexualized comments or jokes;
   inappropriate touching, groping, and unwelcomed sexual advances.
-* Deliberate intimidation, stalking or following (online or in person).
-* Advocating for, or encouraging, any of the above behavior.
-* Sustained disruption of community events, including talks and presentations.
+
+*   Deliberate intimidation, stalking or following (online or in person).
+
+*   Advocating for, or encouraging, any of the above behavior.
+
+*   Sustained disruption of community events, including talks and presentations.
 
 ## Reporting Violations of this Code of Conduct
 
 Please select the method of contact you think is most appropriate for
 the form of violation:
 
-* For urgent security issues, contact <security@conjur.org>.
+*   For urgent security issues, contact [security@conjur.org](mailto:security@conjur.org).
 
-* If you believe someone is harassing you or is demonstrating some other form of
-  malicious or inappropriate behavior, contact <abuse@conjur.org>. If this is
+*   If you believe someone is harassing you or is demonstrating some other form of
+  malicious or inappropriate behavior, contact [abuse@conjur.org](mailto:abuse@conjur.org). If this is
   the initial report of a problem, please include as much detail as possible. It
   is easiest for us to address issues when we have more context.
 
-* If you have concerns about a potential copyright violation, contact
-  <legal@cyberark.com>.
-
+*   If you have concerns about a potential copyright violation, contact
+  [legal@cyberark.com](mailto:legal@cyberark.com).
 
 ## Consequences
 
@@ -129,15 +140,13 @@ most in the interest of fostering a safe and friendly community.
 
 ## Contact Info
 
-Please contact <abuse@conjur.org> if you need to report a problem or address a
+Please contact [abuse@conjur.org](mailto:abuse@conjur.org) if you need to report a problem or address a
 grievance related to an abuse report.
 
 You are also encouraged to contact us if you are curious about something that
 might be "on the line" between appropriate and inappropriate content. We are
 happy to provide guidance to help you be a successful part of our community. Our
 [community chat][chat] is open.
-
-[chat]: https://discuss.cyberarkcommons.org/
 
 ## Credit and License
 
@@ -149,3 +158,5 @@ of Conduct](https://www.rust-lang.org/conduct.html).
 This document may be reused under a [Creative Commons
 Attribution-ShareAlike
 License](https://creativecommons.org/licenses/by-sa/4.0/).
+
+[chat]: https://discuss.cyberarkcommons.org/

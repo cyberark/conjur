@@ -77,3 +77,6 @@ dev/policies/authenticators/authn-oidc/identity-users.yml
 
 VERSION
 key.txt
+
+# Ignore node modules
+node_modules
