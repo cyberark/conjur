@@ -150,15 +150,10 @@ Given(/^I authenticate and fetch a code from Identity/) do
   resp_h = JSON.parse(resp.body)
   raise "Failed to advance authentication: #{resp_h['Message']}" unless resp_h["success"]
 
-
   # If only one challenge, then the response should contain the bearer token.
   if challenges.length == 1
-    cookies = resp.get_fields('Set-Cookie')
-    token_cookie = cookies.detect { |c| c.start_with?(".ASPXAUTH") }
-    token = token_cookie.split('; ')[0].split('=')[1]
-    if token == ""
-      raise "Failed to advance authentication: please reattempt"
-    end
+    raise "Failed to advance authentication: please reattempt" unless resp_h['Result']['Token']
+    token = resp_h['Result']['Token']
   else
     # Engaging with a Mobile Auth and polling for out-of-band authentication
     # success is included temporarily, and is required for users that are required
@@ -191,9 +186,7 @@ Given(/^I authenticate and fetch a code from Identity/) do
 
       next unless resp_h["Result"]["Summary"] == "LoginSuccess"
 
-      cookies = resp.get_fields('Set-Cookie')
-      token_cookie = cookies.detect { |c| c.start_with?(".ASPXAUTH") }
-      token = token_cookie.split('; ')[0].split('=')[1]
+      token = resp_h["Result"]["Token"]
     end
     if token == ""
       raise "Failed to advance authentication: please reattempt"
