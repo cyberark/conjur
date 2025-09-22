@@ -20,11 +20,14 @@ class HostFactoryTokensController < RestController
     end
     raise ArgumentError, "Invalid value for parameter 'count': #{countParam}" unless count&.positive?
 
+    expiration = parse_iso8601(expiration)
+    raise(ArgumentError, "Value for parameter expiration must be in the future: #{expiration}") unless expiration > Time.now
+
     cidr = params.delete(:cidr)
 
     options = {
       resource: host_factory,
-      expiration: DateTime.iso8601(expiration)
+      expiration: expiration
     }
     options[:cidr] = cidr if cidr
 
@@ -61,5 +64,11 @@ class HostFactoryTokensController < RestController
   def resource_id
     (@resource_id ||= \
        params[:host_factory]) || raise(ArgumentError, "host_factory")
+  end
+
+  def parse_iso8601(str)
+    Time.iso8601(str)
+  rescue
+    raise(ArgumentError, "Input is invalid ISO8601 string: #{str}")
   end
 end
