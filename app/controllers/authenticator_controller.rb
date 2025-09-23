@@ -17,16 +17,24 @@ class AuthenticatorController < V2RestController
   def list_authenticators
     relevant_params = parse_params(%i[limit offset type account])
 
-    response = DB::Repository::AuthenticatorRepository.new(
+    repository = DB::Repository::AuthenticatorRepository.new(
       resource_repository: @res_repo.search(
         **relevant_params.slice(:offset, :limit)
       )
-    ).find_all(
+    )
+
+    total_count = repository.count_all(
+      account: relevant_params[:account],
+      type: relevant_params[:type],
+      repo: @res_repo
+    )
+
+    response = repository.find_all(
       account: relevant_params[:account],
       type: relevant_params[:type]
     ).bind do |res|
       auths = res.map(&:to_h)
-      ::SuccessResponse.new({ authenticators: auths, count: auths.count })
+      ::SuccessResponse.new({ authenticators: auths, count: total_count })
     end
 
     response_audit('list', 'authenticators', response)
@@ -121,7 +129,7 @@ class AuthenticatorController < V2RestController
         next ::FailureResponse.new(
           "Unauthorized",
           status: :forbidden,
-          exception: Exceptions::Forbidden,
+          exception: Exceptions::Forbidden
         )
       end
       policy = repository.delete(policy_id: policy_id)

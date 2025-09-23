@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
-## [1.23.0] - 2025-09-15
+## [1.23.0] - 2025-09-23
 
 ### Changed
 - Updated documentation to align with Conjur Enterprise name change to Secrets Manager. (CNJR-10965)
@@ -28,6 +28,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Dynamic secrets are now supported in the batch secret retrieval API. CNJR-9172
 - Added the delete authenticators endpoint for the V2 API's. CNJR-9134
 - Added warning for annotation keys matching known policy attribute names. CNJR-9836
+
+### Changed
+- Changed `count` field in authenticators V2 batch retrieval endpoint to
+  reflect the total count of objects in the DB rather than in the response.
+  CNJR-9525
 
 ### Fixed
 - Attempt to load a policy that references a non-existent resource now

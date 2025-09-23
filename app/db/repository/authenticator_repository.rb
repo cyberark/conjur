@@ -48,6 +48,14 @@ module DB
         @success.new(authenticators)
       end
 
+      def count_all(account:, type: nil, repo: nil)
+        authenticator_webservices(
+          type: type,
+          account: account,
+          resource_repo: repo
+        ).count
+      end
+
       def find(type:, account:, service_id:)
         search_service_id = service_id
         # GCP has no service ID because there is only one GCP authenticator allowed per account
@@ -185,8 +193,9 @@ module DB
       # @param [symbol] account is required
       # 
       # Webservices are then filtered to remove any that end in status
-      def authenticator_webservices(type:, account:, service_id: nil)
-        @resource_repository.where(
+      def authenticator_webservices(type:, account:, service_id: nil, resource_repo: nil)
+        repo = resource_repo || @resource_repository
+        repo.where(
           Sequel.like(
             Sequel.qualify(:resources, :resource_id),
             resource_description(type: type, account: account, service_id: service_id)
