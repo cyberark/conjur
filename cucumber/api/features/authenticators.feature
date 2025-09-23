@@ -73,7 +73,7 @@ Scenario: list authenticators using the V2 Api.
   When I successfully GET "authenticators/cucumber"
   Then I receive a count of 3
   When I successfully GET "authenticators/cucumber?limit=2"
-  Then I receive a count of 2
+  Then I receive a count of 3
   And the authenticators list should include "test-jwt1"
   And the authenticators list should include "test-jwt2"
 
@@ -302,3 +302,23 @@ Scenario: Authenticator access control
   """
   cucumber:user:alice failed to delete authn-jwt test-jwt2 with URI path: '/authenticators/cucumber/jwt/test-jwt2': Authenticator: test-jwt2 not found in account 'cucumber'
   """
+
+  Scenario: Total count works properly
+    When I successfully GET "authenticators/cucumber"
+    Then I receive a count of 3
+    When I successfully GET "authenticators/cucumber?limit=2"
+    Then I receive a count of 3
+    When I successfully GET "authenticators/cucumber?offset=4"
+    Then I receive a count of 3
+    When I successfully GET "authenticators/cucumber?limit=2&offset=4"
+    Then I receive a count of 3
+    When I successfully GET "authenticators/cucumber?type=oidc"
+    Then I receive a count of 1
+
+    When I login as "alice"
+    When I successfully GET "authenticators/cucumber"
+    Then I receive a count of 2
+    When I successfully GET "authenticators/cucumber?limit=1&offset=4"
+    Then I receive a count of 2
+    When I successfully GET "authenticators/cucumber?type=oidc"
+    Then I receive a count of 1

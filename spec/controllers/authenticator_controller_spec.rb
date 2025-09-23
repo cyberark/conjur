@@ -110,6 +110,20 @@ describe AuthenticatorController, type: :request do
           resource: !webservice
 
       - !policy
+        id: conjur/authn-jwt/test-jwt2
+        body:
+        - !webservice
+          annotations:
+            test: 456
+            environment: staging
+        - !variable jwks-uri
+        - !group users
+        - !permit
+          role: !group users
+          privilege: [ update, authenticate ]
+          resource: !webservice
+
+      - !policy
         id: conjur/authn-oidc/keycloak
         body:
         - !webservice
@@ -130,6 +144,7 @@ describe AuthenticatorController, type: :request do
       - !user bob
       - !user grant
       - !user tester
+      - !user restricted_user
 
       - !grant
         role: !group conjur/authn-oidc/keycloak/users
@@ -138,16 +153,30 @@ describe AuthenticatorController, type: :request do
         role: !group conjur/authn-jwt/test-jwt1/users
         member: !user alice
       - !grant
+        role: !group conjur/authn-jwt/test-jwt2/users
+        member: !user alice
+      - !grant
         role: !group conjur/authn-oidc/keycloak/users
         member: !user tester
       - !grant
         role: !group conjur/authn-jwt/test-jwt1/users
         member: !user tester
+      - !grant
+        role: !group conjur/authn-jwt/test-jwt2/users
+        member: !user tester
+      - !grant
+        role: !group conjur/authn-jwt/test-jwt1/users
+        member: !user restricted_user
 
       - !permit
         role: !user alice
         privilege: [ read ]
         resource: !policy conjur/authn-jwt
+
+      - !permit
+        role: !user restricted_user
+        privilege: [ read ]
+        resource: !policy conjur/authn-jwt/test-jwt1
 
       - !permit
         role: !user tester
@@ -158,6 +187,11 @@ describe AuthenticatorController, type: :request do
         role: !user tester
         privilege: [ create, read, update, delete, authenticate ]
         resource: !policy conjur/authn-jwt/test-jwt1
+
+      - !permit
+        role: !user tester
+        privilege: [ create, read, update, delete, authenticate ]
+        resource: !policy conjur/authn-jwt/test-jwt2
 
       - !permit
         role: !user tester
@@ -234,7 +268,7 @@ describe AuthenticatorController, type: :request do
         it "returns the authenticators" do
           retrieve_authenticators('/authenticators/rspec/', current_user)
           expect(response.code).to eq('200')
-          expect(JSON.parse(response.body)["count"]).to eql(2)
+          expect(JSON.parse(response.body)["count"]).to eql(3)
           expect(log_output.string).to include("conjur: rspec:user:tester successfully listed authenticators with URI path: '/authenticators/rspec'\n")
         end
         context 'When you filter for oidc' do
@@ -566,6 +600,91 @@ describe AuthenticatorController, type: :request do
           enable_request(test_case[:body], current_user)
           expect(response.code).to eq(test_case[:expected_code])
           expect(JSON.parse(response.body)["message"]).to eq(test_case[:expected_response])
+        end
+      end
+    end
+  end
+
+  describe '#total_count' do
+    before do
+      apply_root_policy("rspec", policy_content: test_policy, expect_success: true)
+    end
+
+    it "preserves total count with limit parameter" do
+      retrieve_authenticators('/authenticators/rspec?limit=1', current_user)
+      expect(response.code).to eq('200')
+      body = JSON.parse(response.body)
+      expect(body["authenticators"].length).to eq(1)
+      expect(body["count"]).to eq(3)
+    end
+
+    it "preserves total count with offset parameter" do
+      retrieve_authenticators('/authenticators/rspec?offset=1', current_user)
+      expect(response.code).to eq('200')
+      body = JSON.parse(response.body)
+      expect(body["authenticators"].length).to eq(2)
+      expect(body["count"]).to eq(3)
+    end
+
+    it "preserves total count with both limit and offset parameters" do
+      retrieve_authenticators('/authenticators/rspec?limit=1&offset=1', current_user)
+      expect(response.code).to eq('200')
+      body = JSON.parse(response.body)
+      expect(body["authenticators"].length).to eq(1)
+      expect(body["count"]).to eq(3)
+    end
+
+    context 'with type filtering' do
+      it "preserves type count with limit parameter" do
+        retrieve_authenticators('/authenticators/rspec?type=jwt&limit=1', current_user)
+        expect(response.code).to eq('200')
+        body = JSON.parse(response.body)
+        expect(body["authenticators"].length).to eq(1)
+        expect(body["count"]).to eq(2)
+        expect(body["authenticators"].first["type"]).to eq("jwt")
+      end
+
+      it "preserves type count with offset parameter" do
+        retrieve_authenticators('/authenticators/rspec?type=jwt&offset=1', current_user)
+        expect(response.code).to eq('200')
+        body = JSON.parse(response.body)
+        expect(body["authenticators"].length).to eq(1)
+        expect(body["count"]).to eq(2)
+        expect(body["authenticators"].first["type"]).to eq("jwt")
+      end
+
+      context 'and user restricions' do
+        context 'user with limited access' do
+          let(:current_user) { Role.find_or_create(role_id: 'rspec:user:restricted_user') }
+
+          it "count reflects only authenticators user can access" do
+            retrieve_authenticators('/authenticators/rspec', current_user)
+            expect(response.code).to eq('200')
+            body = JSON.parse(response.body)
+            expect(body["authenticators"].length).to eq(1)
+            expect(body["count"]).to eq(1)
+            expect(body["authenticators"].first["name"]).to eq("test-jwt1")
+          end
+
+          it "type filtering with restrictions may show zero results" do
+            retrieve_authenticators('/authenticators/rspec?type=oidc', current_user)
+            expect(response.code).to eq('200')
+            body = JSON.parse(response.body)
+            expect(body["authenticators"].length).to eq(0)
+            expect(body["count"]).to eq(0)
+          end
+        end
+
+        context 'user with no access' do
+          let(:current_user) { Role.find_or_create(role_id: 'rspec:user:bob') }
+
+          it "count shows zero when user has no authenticator access" do
+            retrieve_authenticators('/authenticators/rspec', current_user)
+            expect(response.code).to eq('200')
+            body = JSON.parse(response.body)
+            expect(body["authenticators"].length).to eq(0)
+            expect(body["count"]).to eq(0)
+          end
         end
       end
     end

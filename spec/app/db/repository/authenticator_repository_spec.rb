@@ -267,6 +267,75 @@ RSpec.describe(DB::Repository::AuthenticatorRepository) do
     end
   end
 
+  describe('#count_all') do
+    before do
+      mock_webservice = double('Webservice')
+      allow(mock_webservice).to receive(:id).and_return('test:webservice:conjur/authn-oidc/service1')
+
+      allow(resource_repository).to receive_message_chain(:where, :left_join, :left_join, :select, :group, :order, :all).and_return([mock_webservice, mock_webservice, mock_webservice])
+    end
+
+    context 'when counting all authenticators' do
+      it 'uses default repository when not provided' do
+        expect(resource_repository).to receive(:where)
+
+        result = repo.count_all(
+          account: 'test',
+          type: nil
+        )
+        expect(result).to eq(3)
+      end
+
+      it 'uses provided repository when provided' do
+        provided_repo = double('ProvidedRepo')
+        mock_single_webservice = double('Webservice')
+        allow(mock_single_webservice).to receive(:id).and_return('test:webservice:conjur/authn-oidc/service1')
+        allow(provided_repo).to receive_message_chain(:where, :left_join, :left_join, :select, :group, :order, :all).and_return([mock_single_webservice])
+
+        expect(provided_repo).to receive(:where)
+        expect(resource_repository).not_to receive(:where)
+
+        result = repo.count_all(
+          account: 'test',
+          type: nil,
+          repo: provided_repo
+        )
+        expect(result).to eq(1)
+      end
+
+      it 'respects type filtering' do
+        expect(resource_repository).to receive(:where).with(
+          Sequel.like(
+            Sequel.qualify(:resources, :resource_id),
+            "test:webservice:conjur/authn-oidc/%"
+          )
+        )
+
+        repo.count_all(
+          account: 'test',
+          type: 'authn-oidc'
+        )
+      end
+
+      it 'ignores offset and limit parameters' do
+        repo = described_class.new(
+          resource_repository: resource_repository.limit(1).offset(20),
+          logger: logger,
+          auth_type_factory: auth_type_factory
+        )
+
+        expect(resource_repository).to receive(:where)
+
+        result = repo.count_all(
+          account: 'test',
+          type: nil,
+          repo: resource_repository
+        )
+        expect(result).to eq(3)
+      end
+    end
+  end
+
   describe('#find') do
     let(:authenticator) { {} }
  
