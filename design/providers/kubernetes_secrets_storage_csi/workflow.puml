@@ -1,0 +1,44 @@
+@startuml
+
+skin rose
+
+title Secrets Store CSI Volume Workflow
+
+!define OBJECTS https://raw.githubusercontent.com/awslabs/aws-icons-for-plantuml/v14.0/dist
+
+actor User
+participant "SecretProviderClass" as SecretProviderClass
+participant "Deployment" as Deployment
+participant "Pod" as Pod
+participant "App" as App
+participant "Secrets Store CSI Driver" as Driver
+participant "Cyberark Conjur Provider" as Provider
+database "Secrets Store" as Store
+database "tmpfs Volume" as Volume
+
+User -> Driver: Create, using Helm Chart
+User -> Provider: Create, using Helm Chart
+User -> SecretProviderClass: Create
+SecretProviderClass -> SecretProviderClass: Define Provider parameters \nincluding Conjur Configuration \nand Secrets Specification
+User -> Deployment: Create
+Deployment -> SecretProviderClass: Reference
+Deployment -> Pod: Start/Restart
+Driver -> SecretProviderClass: Read
+Driver -> Provider: Issue gRPC MountRequest for Secret Content
+Provider -> Provider: Parse Paramaters (or Error)
+Provider -> Provider: Extract Conjur Configuration
+Provider -> Provider: Extract Secrets Specification
+Provider -> Provider: Extract Pod Service Account Token 
+Provider -> Store: Authenticate to (or Error), using authn-jwt 
+Provider -> Store: Fetch Secrets from (or Error), based on Secrets Specification 
+Provider -> Provider: Generate MountResponse
+Provider -> Driver: Respond with gRPC MountResponse containing Secret Content or Error
+Driver -> Volume: Write Secret Content
+
+Pod -> Volume: Attach (or Error)
+Pod -> App: Run
+App -> Volume: Read Secret Content
+Pod -> Driver: Trigger Termination Event
+Driver -> Volume: Cleanup
+
+@enduml
