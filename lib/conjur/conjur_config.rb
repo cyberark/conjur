@@ -40,7 +40,6 @@ module Conjur
       authenticators: [],
       extensions: [],
       telemetry_enabled: false,
-      policy_factories_path: 'conjur/factories',
       effective_policy_max_depth: 64,
       effective_policy_max_limit: 100000,
       authn_jwt_ignore_missing_issuer_claim: false,
