@@ -49,7 +49,7 @@ gem 'base32-crockford'
 gem 'bcrypt'
 gem 'gli', require: false
 gem 'listen'
-gem 'rexml', '~> 3.3.9'
+gem 'rexml', '~> 3.4.2'
 gem 'slosilo', '~> 3.0'
 
 # Explicitly required as there are vulnerabilities in older versions
@@ -137,16 +137,16 @@ group :development, :test do
   gem 'spring-commands-rspec'
   gem 'table_print'
   gem 'vcr'
-  gem 'webmock'
+  gem 'webmock', '>= 3.19.0'
   gem 'webrick'
 end
 
 group :development do
   # NOTE: minor version of this needs to match codeclimate channel
-  gem 'rubocop', '>= 1.4.0', require: false
+  gem 'rubocop', '>= 1.57.0', require: false
 
   gem 'reek', require: false
-  gem 'rubocop-checkstyle_formatter', require: false # for Jenkins
+  gem 'rubocop-checkstyle_formatter', '>= 0.5.0', require: false # for Jenkins
 end
 
 group :test do

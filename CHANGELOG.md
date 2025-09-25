@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   anyone being able to call these endpoints and trigger the marshal.load call. CONJSE-2038
 - Fix unsafe shell command executions. CONJSE-2039. CONJSE-2041-2046.
 - Remove vulnerable activestorage gem from the dependencies to address CVE-2025-24293. CONJSE-2050
+- Bump rexml gem to 3.4.2 to resolve CVE-2025-58767. CONJSE-2056
 
 ### Added
 - Added the list authenticators endpoint for the V2 API's. CNJR-9137
