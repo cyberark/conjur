@@ -252,7 +252,7 @@ GEM
       http-form_data (~> 2.0)
       http-parser (~> 1.2.0)
     http-accept (1.7.0)
-    http-cookie (1.0.8)
+    http-cookie (1.1.0)
       domain_name (~> 0.5)
     http-form_data (2.3.0)
     http-parser (1.2.3)
@@ -310,7 +310,7 @@ GEM
     mime-types (3.7.0)
       logger
       mime-types-data (~> 3.2025, >= 3.2025.0507)
-    mime-types-data (3.2025.0916)
+    mime-types-data (3.2025.0924)
     mini_mime (1.1.5)
     minitest (5.25.5)
     multi_json (1.15.0)
@@ -373,7 +373,7 @@ GEM
     puma (6.5.0)
       nio4r (~> 2.0)
     racc (1.8.1)
-    rack (2.2.14)
+    rack (2.2.18)
     rack-oauth2 (2.2.1)
       activesupport
       attr_required
@@ -611,7 +611,7 @@ DEPENDENCIES
   pry-rails
   psych (= 3.3.2)
   puma (~> 6, >= 6.4.3)
-  rack (>= 2.2.14)
+  rack (>= 2.2.18)
   rack-rewrite
   rails (~> 6.1, >= 6.1.7.9)
   rails-controller-testing
