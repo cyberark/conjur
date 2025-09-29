@@ -244,9 +244,9 @@ describe PoliciesController, type: :request do
         POLICY
       end
 
-      it "returns error, including advice" do
+      it "returns error, including advice and context" do
         allow(Audit.logger).to receive(:log)
-    
+
         validate_policy(policy: policy_with_missing_colon)
         expect(response.status).to eq(422)
         msg = "could not find expected ':' while scanning a simple key"
@@ -254,6 +254,12 @@ describe PoliciesController, type: :request do
         expect(error_msg_for_validate(response)).to include(msg)
         expect(advice_msg_for_validate(response)).to include(advice)
         expect(Audit.logger).to have_received(:log)
+        
+        # Check for extra error context
+        body = parsed_body(response)
+        context = body.dig('errors', 0, 'context') || {}
+        expect(context['policy_id']).to eq('root')
+        expect(context['offending_lines']).to eq([5])
       end
     end
 
@@ -268,13 +274,19 @@ describe PoliciesController, type: :request do
         POLICY
       end
 
-      it "returns error, including advice" do
+      it "returns error, including advice and context" do
         validate_policy(policy: policy_with_bad_tags)
         expect(response.status).to eq(422)
         msg = "Unrecognized data type '!key1:'"
         advice = "The tag must be one of the following: !delete, !deny, !grant, !group, !host, !host-factory, !layer, !permit, !policy, !revoke, !user, !variable, !webservice"
         expect(error_msg_for_validate(response)).to include(msg)
         # expect(advice_msg_for_validate(response)).to include(advice)
+
+        # Check for extra error context
+        body = parsed_body(response)
+        context = body.dig('errors', 0, 'context') || {}
+        expect(context['policy_id']).to eq('root')
+        expect(context['offending_lines']).to eq([4])
       end
     end
     context 'with a policy containing the include type' do
@@ -289,6 +301,11 @@ describe PoliciesController, type: :request do
         expect(response.status).to eq(422)
         msg = "Unrecognized data type '!include'"
         expect(error_msg_for_validate(response)).to include(msg)
+        body = parsed_body(response)
+        context = body.dig('errors', 0, 'context') || {}
+        expect(context['policy_id']).to eq('root')
+        expect(context['offending_lines']).to eq([1])
+      
       end
     end
   end
@@ -475,6 +492,36 @@ describe PoliciesController, type: :request do
         a_string_matching(/Annotation 'owner'/)
       )
       expect(body["warnings"].length).to eq(2)
+    end
+  end
+
+  describe '#post', type: :controller do
+    let(:mock_policy) { double('Policy', identifier: 'test-policy') }
+
+    it 'extracts offending_lines from Conjur::PolicyParser::Invalid error' do
+      controller = PoliciesController.new
+      allow(controller).to receive(:resource).and_return(mock_policy)
+      error = Class.new(StandardError) do
+        attr_reader :line
+        def initialize(msg, line)
+          super(msg)
+          @line = line
+        end
+      end.new('Parse error at line', 42)
+      enhanced = controller.send(:enhance_error, error)
+      expect(enhanced).to be_a(Exceptions::EnhancedPolicyError)
+      expect(enhanced.additional_context[:offending_lines]).to eq([42])
+      expect(enhanced.additional_context[:policy_id]).to eq('test-policy')
+    end
+
+    it 'includes policy_id and offending_lines in error context' do
+      controller = PoliciesController.new
+      allow(controller).to receive(:resource).and_return(mock_policy)
+      error = StandardError.new('Test error')
+      enhanced = controller.send(:enhance_error, error)
+      expect(enhanced).to be_a(Exceptions::EnhancedPolicyError)
+      expect(enhanced.additional_context[:policy_id]).to eq('test-policy')
+      expect(enhanced.additional_context[:offending_lines]).to be_an(Array)
     end
   end
 end

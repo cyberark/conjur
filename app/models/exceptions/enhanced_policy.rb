@@ -12,9 +12,9 @@
 module Exceptions
   class EnhancedPolicyError < RuntimeError
 
-    attr_reader :original_error, :detail_message, :advice
+    attr_reader :original_error, :detail_message, :advice, :additional_context
 
-    def initialize(original_error: nil, detail_message: '')
+    def initialize(original_error: nil, detail_message: '', additional_context: nil)
       super(original_error)
       @original_error = original_error
       @detail_message = if detail_message.present?
@@ -24,6 +24,7 @@ module Exceptions
       end
       explainer = Commands::Policy::ExplainError.new
       @advice = explainer.call(self)
+      @additional_context = additional_context
     end
 
     def original_message
@@ -94,11 +95,15 @@ module Exceptions
     end
 
     def as_validation
-      {
+      hash = {
         line: line,
         column: column,
         message: enhanced_message
       }
+      if additional_context && !additional_context.empty?
+        hash[:context] = additional_context
+      end
+      hash
     end
   end
 end
