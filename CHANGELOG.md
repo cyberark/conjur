@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Remove vulnerable activestorage gem from the dependencies to address CVE-2025-24293. CONJSE-2050
 - Bump rexml gem to 3.4.2 to resolve CVE-2025-58767. CONJSE-2056
 - Remove the policy factory code. CONJSE-2047
+- Bump rack gem to 2.2.18 to resolve CVE-2025-59830. CONJSE-2058
 
 ### Added
 - Added extra context (policy ID and offending lines) for API error responses caused by policy updates. CNJR-2571
