@@ -21,7 +21,7 @@ class HostFactoryTokensController < RestController
     raise ArgumentError, "Invalid value for parameter 'count': #{countParam}" unless count&.positive?
 
     expiration = parse_iso8601(expiration)
-    raise(ArgumentError, "Value for parameter expiration must be in the future: #{expiration}") unless expiration > Time.now
+    raise(ArgumentError, "Value for parameter expiration must be in the future: #{expiration}") unless expiration > DateTime.now
 
     cidr = params.delete(:cidr)
 
@@ -67,8 +67,8 @@ class HostFactoryTokensController < RestController
   end
 
   def parse_iso8601(str)
-    Time.iso8601(str)
+    DateTime.iso8601(str)
   rescue
-    raise(ArgumentError, "Input is invalid ISO8601 string: #{str}")
+    raise(ArgumentError, "Input is invalid ISO8601 datetime string: #{str}")
   end
 end

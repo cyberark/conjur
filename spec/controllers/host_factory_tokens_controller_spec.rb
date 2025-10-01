@@ -142,6 +142,18 @@ describe HostFactoryTokensController, type: :request do
         end
       end
 
+      context "when specifying expiration with just a date" do
+        # Formats just the date portion into a string to be parsed
+        let(:expiration) { tomorrow.to_date.iso8601 }
+
+        it "creates an array of host factory tokens" do
+          create_token
+          expect(response.code).to eq("200")
+          array = JSON.parse(response.body)
+          expect(DateTime.iso8601(array.first["expiration"])).to eq(DateTime.iso8601(expiration))
+        end
+      end
+
       context "when the specified host factory does not exist" do
         let(:host_factory_resource_id) { "rspec:host_factory:non_existent" }
 
@@ -201,7 +213,7 @@ describe HostFactoryTokensController, type: :request do
             it "raises an argument error" do
               create_token
               expect(response.code).to eq("422")
-              expect(JSON.parse(response.body)).to eq({ "error"=> { "code"=>"argument_error", "message"=>"Input is invalid ISO8601 string: #{expiration}" } })
+              expect(JSON.parse(response.body)).to eq({ "error"=> { "code"=>"argument_error", "message"=>"Input is invalid ISO8601 datetime string: #{expiration}" } })
             end
           end
 
@@ -211,7 +223,7 @@ describe HostFactoryTokensController, type: :request do
             it "raises an argument error" do
               create_token
               expect(response.code).to eq("422")
-              expect(JSON.parse(response.body)).to eq({ "error"=> { "code"=>"argument_error", "message"=>"Value for parameter expiration must be in the future: #{Time.iso8601(expiration)}" } })
+              expect(JSON.parse(response.body)).to eq({ "error"=> { "code"=>"argument_error", "message"=>"Value for parameter expiration must be in the future: #{DateTime.iso8601(expiration)}" } })
             end
           end
 
@@ -221,7 +233,7 @@ describe HostFactoryTokensController, type: :request do
             it "raises an argument error" do
               create_token
               expect(response.code).to eq("422")
-              expect(JSON.parse(response.body)).to eq({ "error"=> { "code"=>"argument_error", "message"=>"Input is invalid ISO8601 string: #{expiration}" } })
+              expect(JSON.parse(response.body)).to eq({ "error"=> { "code"=>"argument_error", "message"=>"Input is invalid ISO8601 datetime string: #{expiration}" } })
             end
           end
         end
