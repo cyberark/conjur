@@ -29,8 +29,17 @@ module DB
         @failure = ::FailureResponse
       end
 
+      # Querying for the authenticator webservice above includes the webservices
+      # for the authenticator status. The filter below removes webservices that
+      # don't match the authenticator policy.
+      AUTHN_FILTER = %r{
+        ^(conjur/authn-gcp # Capture GCP authenticators which don't include a service_id
+        | # Negative lookahead (?!gcp) prevents picking up conjur/authn-gcp/status w/this rx
+        conjur/authn-(?!gcp)[\w-]+/[\w-]+)$ 
+      }x.freeze
+
       def find_all(account:, type: nil)
-        authenticators = authenticator_webservices(type: type, account: account).map do |webservice|
+        authenticators = authenticators(type: type, account: account).map do |webservice|
           identifier = id_array(webservice[:resource_id])
           begin
             auth = map_authenticator(identifier: identifier, webservice: webservice, account: account)
@@ -48,12 +57,14 @@ module DB
         @success.new(authenticators)
       end
 
-      def count_all(account:, type: nil, repo: nil)
-        authenticator_webservices(
-          type: type,
-          account: account,
-          resource_repo: repo
-        ).count
+      def count_all(account:, type: nil)
+        webservices = authenticator_weservices(account: account, type: type, service_id: nil)
+          .limit(nil).offset(nil)
+          .all.select do |webservice|
+            webservice.id.split(':', 3).last.match?(AUTHN_FILTER)
+          end
+
+        webservices.count
       end
 
       def find(type:, account:, service_id:)
@@ -61,7 +72,7 @@ module DB
         # GCP has no service ID because there is only one GCP authenticator allowed per account
         search_service_id = nil if type == "authn-gcp"
 
-        webservice = authenticator_webservices(type: type, account: account, service_id: search_service_id).first
+        webservice = authenticators(type: type, account: account, service_id: search_service_id).first
         unless webservice
           resource_id = [type, service_id].compact.join('/')
           return @failure.new(
@@ -181,7 +192,7 @@ module DB
         "#{base}#{resource_type_filter(type)}"
       end
 
-      # authenticator_webservices takes a service_id, authn type and account 
+      # authenticators takes a service_id, authn type and account 
       # to retrieve all the requested authenticators including their 
       # annotations and enabled status.
       # 
@@ -193,15 +204,25 @@ module DB
       # @param [symbol] account is required
       # 
       # Webservices are then filtered to remove any that end in status
-      def authenticator_webservices(type:, account:, service_id: nil, resource_repo: nil)
-        repo = resource_repo || @resource_repository
-        repo.where(
+      def authenticators(type:, account:, service_id: nil)
+        authenticator_details(
+          resources: authenticator_weservices(type: type, account: account, service_id: service_id)
+        ).order(:resource_id).all.select do |webservice|
+          webservice.id.split(':', 3).last.match?(AUTHN_FILTER)
+        end
+      end
+
+      def authenticator_weservices(type:, account:, service_id:)
+        @resource_repository.where(
           Sequel.like(
             Sequel.qualify(:resources, :resource_id),
             resource_description(type: type, account: account, service_id: service_id)
           )
         )
-          .left_join(:authenticator_configs, Sequel.qualify(:resources, :resource_id) => Sequel.qualify(:authenticator_configs, :resource_id))
+      end
+
+      def authenticator_details(resources:)
+        resources.left_join(:authenticator_configs, Sequel.qualify(:resources, :resource_id) => Sequel.qualify(:authenticator_configs, :resource_id))
           .left_join(:annotations, Sequel.qualify(:resources, :resource_id) => Sequel.qualify(:annotations, :resource_id))
           .select(
             Sequel.qualify(:resources, :resource_id),
@@ -219,17 +240,7 @@ module DB
             Sequel.qualify(:resources, :resource_id),
             Sequel.qualify(:resources, :owner_id),
             Sequel.qualify(:authenticator_configs, :enabled)
-          ).order(:resource_id).all.select do |webservice|
-            # Querying for the authenticator webservice above includes the webservices
-            # for the authenticator status. The filter below removes webservices that
-            # don't match the authenticator policy.
-            regexp = %r{
-              ^(conjur/authn-gcp # Capture GCP authenticators which don't include a service_id
-              | # Negative lookahead (?!gcp) prevents picking up conjur/authn-gcp/status w/this rx
-              conjur/authn-(?!gcp)[\w-]+/[\w-]+)$ 
-            }x
-            webservice.id.split(':', 3).last.match?(regexp)
-          end
+          )
       end
 
       def load_authenticator_variables(type:, account:, service_id:)
