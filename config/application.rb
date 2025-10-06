@@ -21,9 +21,6 @@ Bundler.require(*Rails.groups)
 $LOAD_PATH.push(File.expand_path("../../engines/conjur_audit/lib", __FILE__))
 require 'conjur_audit'
 
-# Must require because lib folder hasn't been loaded yet
-require './lib/conjur/conjur_config'
-
 module Conjur
   class Application < Rails::Application
     # Settings in config/environments/* take precedence over those specified here.
@@ -41,7 +38,10 @@ module Conjur
     # Replace md5 with sha for FIPS compliance
     config.active_support.hash_digest_class = ::Digest::SHA1
 
-    config.autoload_paths << Rails.root.join('lib')
+    ['lib', 'app/domain'].each do |path|
+      config.eager_load_paths << Rails.root.join(path)
+      config.autoload_paths << Rails.root.join(path)
+    end
 
     config.encoding = "utf-8"
     config.active_support.escape_html_entities_in_json = true

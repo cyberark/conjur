@@ -4,7 +4,7 @@ module Authentication
 
   module Security
 
-    ValidateAccountExists ||= CommandClass.new(
+    ValidateAccountExists = CommandClass.new(
       dependencies: {
         role_class: ::Role
       },

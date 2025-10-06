@@ -10,7 +10,7 @@ module Commands
     # to this operation, and B) those audit events including the requestor's
     # client IP address, which will be an input to this CommandClass, rather than
     # to the Credential model's method.
-    RotateApiKey ||= CommandClass.new(
+    RotateApiKey = CommandClass.new(
       dependencies: {
         audit_log: ::Audit.logger
       },

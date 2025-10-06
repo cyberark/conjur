@@ -3,6 +3,7 @@
 require 'spec_helper'
 require 'parallel'
 
+DatabaseCleaner.allow_remote_database_url = true
 DatabaseCleaner.strategy = :truncation
 
 describe SecretsController, type: :request do

@@ -3,6 +3,9 @@
 require 'logger'
 require 'logger/formatter/rfc5424_formatter'
 
+require Rails.root.join('app/models/audit')
+require Rails.root.join('app/models/audit/log/syslog_adapter')
+
 # A lot is happening in this small snippet:
 #
 # 1. The Audit logger is being changed to our custom RFC5424 compliant logger IF

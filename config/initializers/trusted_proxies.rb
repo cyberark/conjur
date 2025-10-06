@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require Rails.root.join('lib/conjur/is_ip_trusted')
+
 Rails.application.configure do
   # Only disable the trusted proxies cache if the config attribute exists and is
   # truthy.

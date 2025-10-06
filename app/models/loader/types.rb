@@ -331,7 +331,7 @@ module Loader
             end
 
             begin
-              IssuerTypeFactory.new
+              Issuers::IssuerTypes::IssuerTypeFactory.new
                 .create_issuer_type(issuer.issuer_type)
                 .validate_variable(
                   id,

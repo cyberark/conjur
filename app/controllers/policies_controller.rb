@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'exceptions/enhanced_policy'
-
 class PoliciesController < RestController
   include FindResource
   include AuthorizeResource
@@ -158,7 +156,7 @@ class PoliciesController < RestController
         current_user
       )
     }
-  
+
     # We wrap policy operations (parsing, loading, applying business rules)
     # in rescue blocks and capture the exceptions as the error results.
     # This prevents exceptions from rising uncontrollably (which would be a

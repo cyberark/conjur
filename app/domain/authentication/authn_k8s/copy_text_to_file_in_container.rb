@@ -6,7 +6,7 @@ require 'command_class'
 module Authentication
   module AuthnK8s
 
-    CopyTextToFileInContainer ||= CommandClass.new(
+    CopyTextToFileInContainer = CommandClass.new(
       dependencies: {
         execute_command_in_container: ExecuteCommandInContainer.new,
         k8s_object_lookup: K8sObjectLookup,

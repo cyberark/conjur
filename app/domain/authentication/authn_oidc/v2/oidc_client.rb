@@ -19,8 +19,8 @@ module Authentication
             ca_certificate: @authenticator.ca_cert
           )
 
-          @success = ::SuccessResponse
-          @failure = ::FailureResponse
+          @success = Responses::Success
+          @failure = Responses::Failure
         end
 
         # 'jwks_uri' - GET

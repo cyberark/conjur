@@ -3,8 +3,8 @@ require 'command_class'
 module Authentication
   module AuthnJwt
     module RestrictionValidation
-      # Fetch the enforced claims from the JWT authenticator policy which enforce 
-      # definition of annotations keys on JWT hosts 
+      # Fetch the enforced claims from the JWT authenticator policy which enforce
+      # definition of annotations keys on JWT hosts
       FetchEnforcedClaims = CommandClass.new(
         dependencies: {
           fetch_authenticator_secrets: Authentication::Util::FetchAuthenticatorSecrets.new,
@@ -19,7 +19,7 @@ module Authentication
 
         def call
           @logger.debug(LogMessages::Authentication::AuthnJwt::FetchingEnforcedClaims.new)
-          
+
           return empty_enforced_claims unless enforced_claims_resource_exists?
 
           fetch_enforced_claims_secret_value
@@ -27,7 +27,7 @@ module Authentication
         end
 
         private
-        
+
         def enforced_claims_resource_exists?
           return @enforced_claims_resource_exists if defined?(@enforced_claims_resource_exists)
 
@@ -35,15 +35,15 @@ module Authentication
             conjur_account: account,
             authenticator_name: authenticator_name,
             service_id: service_id,
-            var_name: ENFORCED_CLAIMS_RESOURCE_NAME
+            var_name: AuthnJwt::ENFORCED_CLAIMS_RESOURCE_NAME
           )
         end
-        
+
         def empty_enforced_claims
           @logger.debug(LogMessages::Authentication::AuthnJwt::NotConfiguredEnforcedClaims.new)
           @empty_enforced_claims ||= []
         end
-        
+
         def fetch_enforced_claims_secret_value
           enforced_claims_secret_value
         end
@@ -53,16 +53,16 @@ module Authentication
             conjur_account: account,
             authenticator_name: authenticator_name,
             service_id: service_id,
-            required_variable_names: [ENFORCED_CLAIMS_RESOURCE_NAME]
-          )[ENFORCED_CLAIMS_RESOURCE_NAME]
+            required_variable_names: [AuthnJwt::ENFORCED_CLAIMS_RESOURCE_NAME]
+          )[AuthnJwt::ENFORCED_CLAIMS_RESOURCE_NAME]
         end
-        
+
         def parse_enforced_claims_secret_value
           return @parse_enforced_claims_secret_value if @parse_enforced_claims_secret_value
 
           @parse_enforced_claims_secret_value ||= @parse_enforced_claims.call(enforced_claims: enforced_claims_secret_value)
           @logger.info(LogMessages::Authentication::AuthnJwt::FetchedEnforcedClaims.new(@parse_enforced_claims_secret_value))
-          
+
           @parse_enforced_claims_secret_value
         end
       end

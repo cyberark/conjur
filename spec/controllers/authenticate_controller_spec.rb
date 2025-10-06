@@ -2,6 +2,7 @@
 
 require 'spec_helper'
 
+DatabaseCleaner.allow_remote_database_url = true
 DatabaseCleaner.strategy = :truncation
 
 describe AuthenticateController, :type => :request do
@@ -118,7 +119,7 @@ describe AuthenticateController, :type => :request do
       payload = { 'RAW_POST_DATA' => the_user.credentials.api_key }
 
       expect do
-      get(authenticate_url, env: payload)
+        get(authenticate_url, env: payload)
       end.to raise_error(ActionController::RoutingError, /No route matches \[GET\]/)
     end
 
@@ -153,7 +154,7 @@ describe AuthenticateController, :type => :request do
           id: conjur/authn/db
           body:
           - !webservice
-  
+
         - !policy
           id: conjur/authn-k8s/db
           body:

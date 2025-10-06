@@ -3,7 +3,9 @@
 require 'spec_helper'
 require 'time'
 
+DatabaseCleaner.allow_remote_database_url = true
 DatabaseCleaner.strategy = :truncation
+
 CREATE_ISSUER_TIMEOUT = 10 # To test created_at
 VALID_AWS_KEY = 'AKIAIOSFODNN7EXAMPLE'
 VALID_AWS_SECRET = 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY'
@@ -826,7 +828,7 @@ describe IssuersController, type: :request do
 
       context "when an unexpected error occurs during creation of issuers base policy" do
         let(:failure_response) do
-          ::FailureResponse.new(
+          Responses::Failure.new(
             "Unspecified error",
             exception: ApplicationController::InternalServerError.new
           )
@@ -855,7 +857,7 @@ describe IssuersController, type: :request do
 
       context "when you do not have write privileges to the database" do
         let(:failure_response) do
-          ::FailureResponse.new(
+          Responses::Failure.new(
             "ERROR: permission denied for table policy_versions",
             exception: PG::InsufficientPrivilege.new
           )
@@ -1032,7 +1034,7 @@ describe IssuersController, type: :request do
 
       context "when you do not have write privileges to the database" do
         let(:failure_response) do
-          ::FailureResponse.new(
+          Responses::Failure.new(
             "ERROR: permission denied for table policy_versions",
             exception: PG::InsufficientPrivilege.new
           )
@@ -1058,7 +1060,7 @@ describe IssuersController, type: :request do
 
       context "when an unexpected error occurs during policy load" do
         let(:failure_response) do
-          ::FailureResponse.new(
+          Responses::Failure.new(
             "Unspecified error",
             exception: ApplicationController::InternalServerError.new
           )

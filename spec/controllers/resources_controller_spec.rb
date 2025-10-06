@@ -2,6 +2,7 @@
 
 require 'spec_helper'
 
+DatabaseCleaner.allow_remote_database_url = true
 DatabaseCleaner.strategy = :truncation
 
 describe ResourcesController, type: :request do
@@ -58,8 +59,8 @@ describe ResourcesController, type: :request do
     post("/policies/#{account}/policy/root", env: admin_request_env.merge({ 'RAW_POST_DATA' => policy_content }))
     return unless expect_success
 
-    expect(response.code).to eq("201") 
-  end 
+    expect(response.code).to eq("201")
+  end
 
   let(:admin_request_env) do
     token = Base64.strict_encode64(Slosilo["authn:rspec"].signed_token("admin").to_json)

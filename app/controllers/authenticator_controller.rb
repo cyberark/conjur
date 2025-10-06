@@ -26,7 +26,7 @@ class AuthenticatorController < V2RestController
     )
     response = authn_repo.find_all(**relevant_params.slice(:type, :account)).bind do |res|
       count = authn_repo.count_all(**relevant_params.slice(:type, :account))
-      ::SuccessResponse.new({ authenticators: res.map(&:to_h), count: count })
+      Responses::Success.new({ authenticators: res.map(&:to_h), count: count })
     end
 
     response_audit('list', 'authenticators', response)
@@ -94,7 +94,7 @@ class AuthenticatorController < V2RestController
 
     response_audit('enable', relevant_params[:type], response, resource_id: relevant_params[:service_id])
     return render(json: response.result.to_h) if response.success?
-  
+
     handle_failure_response(response)
   rescue => e
     failure_audit('enable', relevant_params[:type], e.message, resource_id: relevant_params[:service_id])
@@ -123,10 +123,10 @@ class AuthenticatorController < V2RestController
 
   def handle_failure_response(response)
     render(
-      json: { 
-        code: Rack::Utils.status_code(response.status).to_s, 
-        message: response.message 
-      }, 
+      json: {
+        code: Rack::Utils.status_code(response.status).to_s,
+        message: response.message
+      },
       status: response.status
     )
   end
@@ -147,10 +147,10 @@ class AuthenticatorController < V2RestController
 
   def request_body
     return missing_request_body unless req.present?
-    
-    ::SuccessResponse.new(
+
+    Responses::Success.new(
       JSON.parse(
-        req,       
+        req,
         {
           symbolize_names: true,
           create_additions: false
@@ -158,7 +158,7 @@ class AuthenticatorController < V2RestController
       )
     )
   rescue
-    ::FailureResponse.new(
+    Responses::Failure.new(
       "Request JSON is malformed",
       status: :bad_request,
       exception: BadRequestWithBody
@@ -166,7 +166,7 @@ class AuthenticatorController < V2RestController
   end
 
   def missing_request_body
-    ::FailureResponse.new(
+    Responses::Failure.new(
       "Request body is empty",
       status: :bad_request
     )

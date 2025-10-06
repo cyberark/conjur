@@ -5,7 +5,6 @@
 require 'openssl'
 require 'securerandom'
 require 'active_support/time'
-require_relative 'x509/certificate'
 
 module Util
   module OpenSsl

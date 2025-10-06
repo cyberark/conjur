@@ -5,7 +5,7 @@ require 'command_class'
 module Authentication
   module AuthnK8s
 
-    InjectClientCert ||= CommandClass.new(
+    InjectClientCert = CommandClass.new(
       dependencies: {
         logger: Rails.logger,
         resource_class: Resource,

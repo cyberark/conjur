@@ -1,12 +1,10 @@
 # frozen_string_literal: true
 
-require 'logs'
-
 module Authentication
 
   module Security
 
-    ValidateRoleCanAccessWebservice ||= CommandClass.new(
+    ValidateRoleCanAccessWebservice = CommandClass.new(
       dependencies: {
         role_class: ::Role,
         resource_class: ::Resource,

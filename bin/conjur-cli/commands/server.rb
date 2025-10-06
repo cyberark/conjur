@@ -10,7 +10,7 @@ require_relative 'db/migrate'
 require_relative 'connect_database'
 
 module Commands
-  Server ||= CommandClass.new(
+  Server = CommandClass.new(
     dependencies: {
       migrate_database: DB::Migrate.new,
       connect_database: ConnectDatabase.new

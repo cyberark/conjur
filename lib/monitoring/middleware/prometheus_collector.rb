@@ -1,5 +1,4 @@
 require 'benchmark'
-require_relative '../operations'
 
 module Monitoring
   module Middleware
@@ -31,7 +30,7 @@ module Monitoring
         response
       rescue => e
         @pubsub.publish(
-          "conjur.request_exception", 
+          "conjur.request_exception",
           operation: operation,
           exception: e.class.name,
           message: e
@@ -41,7 +40,7 @@ module Monitoring
 
       def record(_env, code, duration, operation)
         @pubsub.publish(
-          "conjur.request", 
+          "conjur.request",
           code: code,
           operation: operation,
           duration: duration

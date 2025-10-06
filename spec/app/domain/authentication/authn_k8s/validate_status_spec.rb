@@ -511,7 +511,7 @@ describe(Authentication::AuthnK8s::ValidateStatus) do
     end
 
     it 'loads the additional certificates' do
-      expect(::Conjur::CertUtils).to receive(:load_certificates)
+      expect(Conjur::Certificates::CertUtils).to receive(:load_certificates)
         .with(anything, '/path/to/cert/directory/ca')
 
       subject.call(account: account, service_id: service_id)

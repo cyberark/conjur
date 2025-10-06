@@ -77,7 +77,7 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::FetchIdentityPath')
     end
 
     it "returns identity path value" do
-      expect(subject).to eql(::Authentication::AuthnJwt::IDENTITY_PATH_DEFAULT_VALUE)
+      expect(subject).to eql(Authentication::AuthnJwt::AuthnJwt::IDENTITY_PATH_DEFAULT_VALUE)
     end
   end
 

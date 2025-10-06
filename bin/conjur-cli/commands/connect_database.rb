@@ -4,7 +4,7 @@ require 'command_class'
 require 'sequel'
 
 module Commands
-  ConnectDatabase ||= CommandClass.new(
+  ConnectDatabase = CommandClass.new(
     dependencies: {
       database_url: -> { ENV['DATABASE_URL'] } # runtime for testing purposes
     },

@@ -28,7 +28,7 @@ RSpec.describe('Authentication::AuthnJwt::RestrictionValidation::FetchClaimAlias
     )
   }
 
-  let(:claim_aliases_resource_name) {Authentication::AuthnJwt::CLAIM_ALIASES_RESOURCE_NAME}
+  let(:claim_aliases_resource_name) {Authentication::AuthnJwt::AuthnJwt::CLAIM_ALIASES_RESOURCE_NAME}
   let(:claim_aliases_valid_secret_value) {'name1:name2,name2:name3,name3:name1'}
   let(:claim_aliases_valid_parsed_secret_value) {{"name1"=>"name2", "name2"=>"name3", "name3"=>"name1"}}
 
@@ -113,7 +113,7 @@ RSpec.describe('Authentication::AuthnJwt::RestrictionValidation::FetchClaimAlias
         expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::ClaimAliasesBlankOrEmpty)
       end
     end
-    
+
     context "with valid variable value" do
       subject do
         ::Authentication::AuthnJwt::RestrictionValidation::FetchClaimAliases.new(

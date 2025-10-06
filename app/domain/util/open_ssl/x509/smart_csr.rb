@@ -1,8 +1,6 @@
 # A CSR decorator that allows reading of the spiffe id and common name.
 #
 require 'openssl'
-require_relative 'extension_request_attribute_value'
-require_relative 'smart_subject'
 
 module Util
   module OpenSsl

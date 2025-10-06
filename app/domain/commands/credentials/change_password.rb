@@ -5,7 +5,7 @@ require 'command_class'
 module Commands
   module Credentials
 
-    ChangePassword ||= CommandClass.new(
+    ChangePassword = CommandClass.new(
       dependencies: {
         audit_log: ::Audit.logger
       },

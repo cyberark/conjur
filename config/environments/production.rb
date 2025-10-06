@@ -30,7 +30,7 @@ Rails.application.configure do
 
   # Use log level "warn" in prod to avoid logging parameters.
   config.log_level = ENV['CONJUR_LOG_LEVEL'] || :info
-  config.log_formatter = ConjurFormatter.new
+  config.log_formatter = Logger::Formatter::ConjurFormatter.new
 
   # Specifies the header that your server uses for sending files.
   # config.action_dispatch.x_sendfile_header = 'X-Sendfile' # for Apache

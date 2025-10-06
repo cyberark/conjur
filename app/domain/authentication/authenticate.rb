@@ -4,7 +4,7 @@ require 'command_class'
 
 module Authentication
 
-  Authenticate ||= CommandClass.new(
+  Authenticate = CommandClass.new(
     dependencies: {
       token_factory: TokenFactory.new,
       validate_webservice_is_whitelisted: ::Authentication::Security::ValidateWebserviceIsWhitelisted.new,

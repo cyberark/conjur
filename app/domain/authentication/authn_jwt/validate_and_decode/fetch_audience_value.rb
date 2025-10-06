@@ -37,7 +37,7 @@ module Authentication
             conjur_account: account,
             authenticator_name: authenticator_name,
             service_id: service_id,
-            var_name: AUDIENCE_RESOURCE_NAME
+            var_name: AuthnJwt::AUDIENCE_RESOURCE_NAME
           )
         end
 
@@ -55,8 +55,8 @@ module Authentication
             conjur_account: account,
             authenticator_name: authenticator_name,
             service_id: service_id,
-            required_variable_names: [AUDIENCE_RESOURCE_NAME]
-          )[AUDIENCE_RESOURCE_NAME]
+            required_variable_names: [AuthnJwt::AUDIENCE_RESOURCE_NAME]
+          )[AuthnJwt::AUDIENCE_RESOURCE_NAME]
         end
 
         def validate_audience_secret_has_value

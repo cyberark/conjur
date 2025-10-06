@@ -22,7 +22,7 @@ if Bundler::Plugin.installed?('bundler-override')
   override 'rails', drop: 'activestorage'
   override 'actionmailbox', drop: 'activestorage'
   override 'actiontext', drop: 'activestorage'
-  override 'conjur-cli', drop: 'activestorage'
+  # override 'conjur-cli', drop: 'activestorage'
 end
 
 gem 'base58'
@@ -30,7 +30,6 @@ gem 'command_class'
 gem 'concurrent-ruby', '!= 1.3.5'
 gem 'http', '~> 4.2.0'
 gem 'iso8601'
-gem 'jbuilder', '~> 2.7.0'
 gem 'mustache'
 gem 'nokogiri', '>= 1.18.9'
 gem 'net-imap', '>= 0.5.8'
@@ -58,7 +57,7 @@ gem "loofah", ">= 2.2.3"
 
 # Pinned to update for role member search, using ref so merging and removing
 # the branch doesn't immediately break this link
-gem 'conjur-api', '~> 5.pre'
+# gem 'conjur-api', '~> 5.pre' # TODO: Needs to be upgraded.
 gem 'conjur-policy-parser', path: 'gems/policy-parser'
 gem 'conjur-rack', path: 'gems/conjur-rack'
 gem 'conjur-rack-heartbeat'
@@ -105,7 +104,7 @@ gem 'sigdump', require: 'sigdump/setup'
 group :development, :test do
   gem 'aruba'
   gem 'ci_reporter_rspec'
-  gem 'conjur-cli', '~> 6.2'
+  # gem 'conjur-cli', '~> 6.2' # TODO: Needs to be upgraded to support the latest Active support
   gem 'conjur-debify', require: false
   gem 'csr'
   gem 'cucumber', '~> 7.1'

@@ -18,7 +18,7 @@ module Authentication
           extract_resource_restrictions_class: Authentication::ResourceRestrictions::ExtractResourceRestrictions,
           extract_token_from_credentials: Authentication::AuthnJwt::InputValidation::ExtractTokenFromCredentials.new,
           create_identity_provider: Authentication::AuthnJwt::IdentityProviders::CreateIdentityProvider.new,
-          create_constraints: Authentication::AuthnJwt::RestrictionValidation::CreateConstrains.new,
+          create_constraints: Authentication::AuthnJwt::RestrictionValidation::CreateConstraints.new,
           fetch_claim_aliases: Authentication::AuthnJwt::RestrictionValidation::FetchClaimAliases.new,
           validate_and_decode_token: Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeToken.new,
           restrictions_from_annotations: Authentication::ResourceRestrictions::GetServiceSpecificRestrictionFromAnnotation.new,
@@ -111,7 +111,7 @@ module Authentication
         def constraints
           @constraints ||= @create_constraints.call(
             jwt_authenticator_input: @jwt_authenticator_input,
-            base_non_permitted_annotations: CLAIMS_DENY_LIST
+            base_non_permitted_annotations: AuthnJwt::CLAIMS_DENY_LIST
           )
         end
 

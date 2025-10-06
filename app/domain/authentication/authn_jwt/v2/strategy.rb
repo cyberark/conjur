@@ -20,8 +20,8 @@ module Authentication
           @cache = cache
           @digest = digest
 
-          @success = ::SuccessResponse
-          @failure = ::FailureResponse
+          @success = Responses::Success
+          @failure = Responses::Failure
         end
 
         # rubocop:disable Lint/UnusedMethodArgument

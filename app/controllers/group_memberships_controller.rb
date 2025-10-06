@@ -4,7 +4,7 @@ class GroupMembershipsController < V2RestController
 
   def initialize(
     *args,
-    membership_service: MembershipService.instance,
+    membership_service: Memberships::MembershipService.instance,
     **kwargs
   )
     super(*args, **kwargs)
@@ -19,7 +19,7 @@ class GroupMembershipsController < V2RestController
 
     read_and_auth_parent_branch(:create, path_identifier)
 
-    member = Member.from_input(input)
+    member = Memberships::Member.from_input(input)
     log_debug("member = #{member}")
 
     render(json: add_member(path_identifier, member), status: :created)
@@ -35,7 +35,7 @@ class GroupMembershipsController < V2RestController
 
     read_and_auth_parent_branch(:update, path_identifier)
 
-    member = Member.from_input(url_params)
+    member = Memberships::Member.from_input(url_params)
     log_debug("member = #{member}")
 
     remove_member(path_identifier, member)

@@ -16,7 +16,7 @@ module Authentication
         def call
           @logger.debug(
             LogMessages::Authentication::AuthnJwt::FetchingIdentityByInterface.new(
-              URL_IDENTITY_PROVIDER_INTERFACE_NAME
+              AuthnJwt::URL_IDENTITY_PROVIDER_INTERFACE_NAME
             )
           )
           raise Errors::Authentication::AuthnJwt::IdentityMisconfigured unless username_exists?
@@ -24,7 +24,7 @@ module Authentication
           @logger.info(
             LogMessages::Authentication::AuthnJwt::FetchedIdentityByInterface.new(
               username,
-              URL_IDENTITY_PROVIDER_INTERFACE_NAME
+              AuthnJwt::URL_IDENTITY_PROVIDER_INTERFACE_NAME
             )
           )
 

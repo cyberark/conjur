@@ -2,8 +2,8 @@
 
 require 'spec_helper'
 
-describe AwsIssuerType do
-  subject { AwsIssuerType.new }
+describe Issuers::IssuerTypes::AwsIssuerType do
+  subject { Issuers::IssuerTypes::AwsIssuerType.new }
 
   let(:params) do
     ActionController::Parameters.new(

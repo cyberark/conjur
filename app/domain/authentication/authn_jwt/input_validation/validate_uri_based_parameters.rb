@@ -1,7 +1,7 @@
 module Authentication
   module AuthnJwt
     module InputValidation
-      ValidateUriBasedParameters ||= CommandClass.new(
+      ValidateUriBasedParameters = CommandClass.new(
         dependencies: {
           # ValidateWebserviceIsWhitelisted calls ValidateAccountExists
           # we call ValidateAccountExists for better readability and safety

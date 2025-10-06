@@ -12,12 +12,6 @@ namespace :role do
     ENV['RAILS_ENV'] ||= 'appliance'
     require 'config/environment'
 
-    # Load audit data model
-    $LOAD_PATH << 'app/models'
-    require 'audit'
-    require 'audit/event'
-    require 'audit/attempted_action'
-
     # For each failure, print an error explanation to stderr and a
     # blank line to stdout so that a script using conjurctl always
     # gets one line of output per role.

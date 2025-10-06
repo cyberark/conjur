@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_relative '../../domain/logging/logging'
-
 module LoggingConcern
   extend ActiveSupport::Concern
   include Logging

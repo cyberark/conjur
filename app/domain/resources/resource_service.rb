@@ -1,9 +1,8 @@
 # frozen_string_literal: true
 
 require 'singleton'
-# require_relative '../domain'
 
-module Domain
+module Resources
   class ResourceService
     include Singleton
     include Domain

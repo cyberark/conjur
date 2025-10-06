@@ -1,11 +1,5 @@
 # frozen_string_literal: true
 
-require './app/controllers/concerns/validators/api_validator'
-require './app/controllers/concerns/logging_concern'
-require_relative '../domain/domain'
-require_relative '../domain/validation'
-require_relative '../domain/logging//logging'
-
 class V2RestController < RestController
   include APIValidator
   include Domain
@@ -23,7 +17,7 @@ class V2RestController < RestController
 
   def initialize(
     *args,
-    branch_service: BranchService.instance,
+    branch_service: Branches::BranchService.instance,
     logger: Rails.logger,
 
     **kwargs
@@ -110,7 +104,7 @@ class V2RestController < RestController
   end
 
   def handle_parameters(required_params, optional_params, params_keys, parameters)
-    pwr = ParametersWithRise.new(parameters)
+    pwr = Wrappers::ParametersWithRise.new(parameters)
     allowed_params = required_params.union(optional_params)
     return pwr.permit if allowed_params.empty?
 

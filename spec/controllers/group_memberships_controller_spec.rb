@@ -1,5 +1,6 @@
 require 'spec_helper'
 
+DatabaseCleaner.allow_remote_database_url = true
 DatabaseCleaner.strategy = :truncation
 
 describe GroupMembershipsController, type: :request do
@@ -25,9 +26,9 @@ describe GroupMembershipsController, type: :request do
       - !group admins
       - !grant
          role: !group admins
-         member:          
+         member:
            - !user rita
-      
+
       - !policy
         id: data
 
@@ -35,16 +36,16 @@ describe GroupMembershipsController, type: :request do
         body:
         - !host host2
         - !host host3
-        - !user user1      
+        - !user user1
         - !policy
           id: delegation
           body:
           - !host host1
-          - !group consumers   
+          - !group consumers
         - !grant
            role: !group delegation/consumers
-           member:          
-             - !host host3 
+           member:
+             - !host host3
 
       - !permit
         resource: !policy data/delegation
@@ -317,8 +318,8 @@ describe GroupMembershipsController, type: :request do
         <<~POLICY
           - !grant
              role: !group delegation/consumers
-             member:          
-               - !host delegation/host1      
+             member:
+               - !host delegation/host1
         POLICY
       end
       it 'on root policy' do

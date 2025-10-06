@@ -4,6 +4,7 @@ require 'spec_helper'
 require 'spec_helper_policy'
 require 'parallel'
 
+DatabaseCleaner.allow_remote_database_url = true
 DatabaseCleaner.strategy = :truncation
 
 describe PoliciesController, type: :request do
@@ -22,6 +23,7 @@ describe PoliciesController, type: :request do
     end
 
     after(:all) do
+      # DatabaseCleaner.allow_remote_database_url = true
       DatabaseCleaner.strategy = @original_database_cleaner_strategy
     end
 

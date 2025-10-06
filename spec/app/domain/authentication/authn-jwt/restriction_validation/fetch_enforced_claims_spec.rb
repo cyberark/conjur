@@ -28,7 +28,7 @@ RSpec.describe('Authentication::AuthnJwt::RestrictionValidation::FetchEnforcedCl
     )
   }
 
-  let(:enforced_claims_resource_name) {Authentication::AuthnJwt::ENFORCED_CLAIMS_RESOURCE_NAME}
+  let(:enforced_claims_resource_name) {Authentication::AuthnJwt::AuthnJwt::ENFORCED_CLAIMS_RESOURCE_NAME}
   let(:enforced_claims_valid_secret_value) {'claim1 , claim2'}
   let(:enforced_claims_valid_parsed_secret_value) {%w[claim1 claim2]}
 
@@ -41,7 +41,7 @@ RSpec.describe('Authentication::AuthnJwt::RestrictionValidation::FetchEnforcedCl
   let(:mocked_fetch_authenticator_secrets_valid_values)  {  double("MochedFetchAuthenticatorSecrets") }
   let(:mocked_fetch_authenticator_secrets_invalid_values)  {  double("MochedFetchAuthenticatorSecrets") }
   let(:mocked_fetch_authenticator_secrets_empty_values)  {  double("MochedFetchAuthenticatorSecrets") }
-  
+
   let(:mocked_valid_secrets) {
     {
       enforced_claims_resource_name => enforced_claims_valid_secret_value
@@ -113,7 +113,7 @@ RSpec.describe('Authentication::AuthnJwt::RestrictionValidation::FetchEnforcedCl
         expect { subject }.to raise_error(Errors::Authentication::AuthnJwt::InvalidEnforcedClaimsFormat)
       end
     end
-    
+
     context "with valid variable value" do
       subject do
         ::Authentication::AuthnJwt::RestrictionValidation::FetchEnforcedClaims.new(

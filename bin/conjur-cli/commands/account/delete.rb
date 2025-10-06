@@ -6,7 +6,7 @@ require_relative '../connect_database'
 
 module Commands
   module Account
-    Delete ||= CommandClass.new(
+    Delete = CommandClass.new(
       dependencies: {
         connect_database: ConnectDatabase.new
       },

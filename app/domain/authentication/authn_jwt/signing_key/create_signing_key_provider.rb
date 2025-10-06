@@ -2,16 +2,16 @@ module Authentication
   module AuthnJwt
     module SigningKey
       # Factory that returns the interface implementation of FetchSigningKey
-      CreateSigningKeyProvider ||= CommandClass.new(
+      CreateSigningKeyProvider = CommandClass.new(
         dependencies: {
           fetch_signing_key: ::Util::ConcurrencyLimitedCache.new(
             ::Util::RateLimitedCache.new(
               ::Authentication::AuthnJwt::SigningKey::FetchCachedSigningKey.new,
-              refreshes_per_interval: CACHE_REFRESHES_PER_INTERVAL,
-              rate_limit_interval: CACHE_RATE_LIMIT_INTERVAL,
+              refreshes_per_interval: AuthnJwt::CACHE_REFRESHES_PER_INTERVAL,
+              rate_limit_interval: AuthnJwt::CACHE_RATE_LIMIT_INTERVAL,
               logger: Rails.logger
             ),
-            max_concurrent_requests: CACHE_MAX_CONCURRENT_REQUESTS,
+            max_concurrent_requests: AuthnJwt::CACHE_MAX_CONCURRENT_REQUESTS,
             logger: Rails.logger
           ),
           fetch_signing_key_parameters: Authentication::AuthnJwt::SigningKey::FetchSigningKeyParametersFromVariables.new,
@@ -49,11 +49,11 @@ module Authentication
 
         def create_signing_key_provider
           case signing_key_settings.type
-          when JWKS_URI_INTERFACE_NAME
+          when AuthnJwt::JWKS_URI_INTERFACE_NAME
             fetch_jwks_uri_signing_key
-          when PROVIDER_URI_INTERFACE_NAME
+          when AuthnJwt::PROVIDER_URI_INTERFACE_NAME
             fetch_provider_uri_signing_key
-          when PUBLIC_KEYS_INTERFACE_NAME
+          when AuthnJwt::PUBLIC_KEYS_INTERFACE_NAME
             fetch_public_keys_signing_key
           else
             raise Errors::Authentication::AuthnJwt::InvalidSigningKeyType, signing_key_settings.type
@@ -62,7 +62,7 @@ module Authentication
 
         def fetch_provider_uri_signing_key
           @logger.info(
-            LogMessages::Authentication::AuthnJwt::SelectedSigningKeyInterface.new(PROVIDER_URI_INTERFACE_NAME)
+            LogMessages::Authentication::AuthnJwt::SelectedSigningKeyInterface.new(AuthnJwt::PROVIDER_URI_INTERFACE_NAME)
           )
           @fetch_provider_uri_signing_key ||= @fetch_provider_uri_signing_key_class.new(
             provider_uri: signing_key_settings.uri,
@@ -73,7 +73,7 @@ module Authentication
 
         def fetch_jwks_uri_signing_key
           @logger.info(
-            LogMessages::Authentication::AuthnJwt::SelectedSigningKeyInterface.new(JWKS_URI_INTERFACE_NAME)
+            LogMessages::Authentication::AuthnJwt::SelectedSigningKeyInterface.new(AuthnJwt::JWKS_URI_INTERFACE_NAME)
           )
           @fetch_jwks_uri_signing_key ||= @fetch_jwks_uri_signing_key_class.new(
             jwks_uri: signing_key_settings.uri,
@@ -84,7 +84,7 @@ module Authentication
 
         def fetch_public_keys_signing_key
           @logger.info(
-            LogMessages::Authentication::AuthnJwt::SelectedSigningKeyInterface.new(PUBLIC_KEYS_INTERFACE_NAME)
+            LogMessages::Authentication::AuthnJwt::SelectedSigningKeyInterface.new(AuthnJwt::PUBLIC_KEYS_INTERFACE_NAME)
           )
           @fetch_public_keys_signing_key ||= @fetch_public_keys_signing_key_class.new(
             signing_keys: signing_key_settings.signing_keys

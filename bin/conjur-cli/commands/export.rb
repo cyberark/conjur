@@ -5,7 +5,7 @@ require 'command_class'
 require_relative './connect_database'
 
 module Commands
-  Export ||= CommandClass.new(
+  Export = CommandClass.new(
     dependencies: {
       connect_database: ConnectDatabase.new
     },

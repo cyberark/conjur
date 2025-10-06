@@ -3,6 +3,7 @@
 require 'spec_helper'
 require 'spec_helper_policy'
 
+DatabaseCleaner.allow_remote_database_url = true
 DatabaseCleaner.strategy = :truncation
 
 describe(BranchesController, type: :request) do

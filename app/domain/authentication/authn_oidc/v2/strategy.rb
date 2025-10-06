@@ -17,8 +17,8 @@ module Authentication
           @oidc_client = oidc_client.new(authenticator: authenticator)
           @logger = logger
 
-          @success = ::SuccessResponse
-          @failure = ::FailureResponse
+          @success = Responses::Success
+          @failure = Responses::Failure
 
           # Initialize JWT Strategy which will be used to validate the JWT
           # after code exchange.

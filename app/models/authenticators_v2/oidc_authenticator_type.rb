@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_relative './authenticator_base_type'
-
 module AuthenticatorsV2
   class OidcAuthenticatorType < AuthenticatorBaseType
 
@@ -28,7 +26,7 @@ module AuthenticatorsV2
       @client_id = variables[:client_id]
       @client_secret = variables[:client_secret]
       @claim_mapping = variables[:claim_mapping]
-      @name = variables[:name].present? ? variables[:name] : @service_id.titleize 
+      @name = variables[:name].present? ? variables[:name] : @service_id.titleize
       @response_type = variables[:response_type].present? ? variables[:response_type] : 'code'
       @provider_scope = variables[:provider_scope].present? ? variables[:provider_scope] : nil
       @redirect_uri = variables[:redirect_uri].present? ? variables[:redirect_uri] : nil

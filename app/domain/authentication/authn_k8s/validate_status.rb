@@ -225,7 +225,7 @@ module Authentication
 
       def k8s_ca_certificate
         # This value may contain multiple certificates or certificate chains
-        @k8s_ca_certificate ||= ::Conjur::CertUtils.parse_certs(
+        @k8s_ca_certificate ||= ::Conjur::Certificates::CertUtils.parse_certs(
           k8s_ca_certificate_input
         )
       end
@@ -264,7 +264,7 @@ module Authentication
 
       def conjur_ca_certificate
         @conjur_ca_certificate ||= begin
-          certs = ::Conjur::CertUtils.parse_certs(
+          certs = Conjur::Certificates::CertUtils.parse_certs(
             authenticator_secrets['ca/cert']
           )
 
@@ -297,7 +297,7 @@ module Authentication
           end
 
           if ENV.key?('SSL_CERT_DIRECTORY')
-            ::Conjur::CertUtils.load_certificates(
+            Conjur::Certificates::CertUtils.load_certificates(
               store,
               File.join(ENV['SSL_CERT_DIRECTORY'], 'ca')
             )

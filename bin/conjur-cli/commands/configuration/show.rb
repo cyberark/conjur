@@ -5,7 +5,7 @@ require 'json'
 
 module Commands
   module Configuration
-    Show ||= CommandClass.new(
+    Show = CommandClass.new(
       dependencies: {
         output_stream: $stdout
       },

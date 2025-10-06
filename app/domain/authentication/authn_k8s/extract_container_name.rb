@@ -5,7 +5,7 @@ require 'command_class'
 module Authentication
   module AuthnK8s
 
-    ExtractContainerName ||= CommandClass.new(
+    ExtractContainerName = CommandClass.new(
       dependencies: {
         logger: Rails.logger
       },

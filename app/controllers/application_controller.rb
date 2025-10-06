@@ -1,10 +1,7 @@
 # frozen_string_literal: true
 
-require 'exceptions/enhanced_policy'
-
 class ApplicationController < ActionController::API
   include Authenticates
-  include ::ActionView::Layouts
 
   class Unauthorized < RuntimeError
     attr_reader :return_message_in_response

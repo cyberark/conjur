@@ -65,8 +65,8 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::ValidateIdentityCon
     }
   }
 
-  let(:token_app_property_resource_name) { ::Authentication::AuthnJwt::TOKEN_APP_PROPERTY_VARIABLE }
-  let(:identity_path_resource_name) { ::Authentication::AuthnJwt::IDENTITY_PATH_RESOURCE_NAME }
+  let(:token_app_property_resource_name) { Authentication::AuthnJwt::AuthnJwt::TOKEN_APP_PROPERTY_VARIABLE }
+  let(:identity_path_resource_name) { Authentication::AuthnJwt::AuthnJwt::IDENTITY_PATH_RESOURCE_NAME }
   let(:mocked_authenticator_secret_not_exists) { double("Mocked authenticator secret not exists")  }
   let(:mocked_authenticator_secret_exists) { double("Mocked authenticator secret exists") }
   let(:mocked_resource) { double("MockedResource") }
@@ -84,19 +84,19 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::ValidateIdentityCon
   let(:mocked_fetch_identity_path_failed) { double("MockedFetchIdentityPathFailed") }
   let(:fetch_identity_path_missing_error) { "fetch identity fetch missing error" }
   let(:mocked_fetch_identity_path_valid_empty_path) { double("MockedFetchIdentityPathValid") }
-  let(:identity_path_valid_empty_path) { ::Authentication::AuthnJwt::IDENTITY_PATH_DEFAULT_VALUE }
+  let(:identity_path_valid_empty_path) { Authentication::AuthnJwt::AuthnJwt::IDENTITY_PATH_DEFAULT_VALUE }
   let(:mocked_fetch_identity_path_valid_value) { double("MockedFetchIdentityPathValid") }
   let(:identity_path_valid_value) { "apps/sub-apps" }
   let(:valid_jwt_identity_without_path) {
-    ::Authentication::AuthnJwt::IDENTITY_TYPE_HOST +
-      ::Authentication::AuthnJwt::PATH_DELIMITER +
+    Authentication::AuthnJwt::AuthnJwt::IDENTITY_TYPE_HOST +
+      Authentication::AuthnJwt::AuthnJwt::PATH_DELIMITER +
       token_identity
   }
   let(:valid_jwt_identity_with_path) {
-    ::Authentication::AuthnJwt::IDENTITY_TYPE_HOST +
-      ::Authentication::AuthnJwt::PATH_DELIMITER +
+    Authentication::AuthnJwt::AuthnJwt::IDENTITY_TYPE_HOST +
+      Authentication::AuthnJwt::AuthnJwt::PATH_DELIMITER +
       identity_path_valid_value +
-      ::Authentication::AuthnJwt::PATH_DELIMITER +
+      Authentication::AuthnJwt::AuthnJwt::PATH_DELIMITER +
       token_identity
   }
 

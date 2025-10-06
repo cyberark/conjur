@@ -2,7 +2,7 @@ module Authentication
   module AuthnJwt
     module SigningKey
       # CreateJwksFromHttpResponse command class is responsible to create jwks object from http response
-      CreateJwksFromHttpResponse ||= CommandClass.new(
+      CreateJwksFromHttpResponse = CommandClass.new(
         dependencies: {
           logger: Rails.logger,
           jwk_set_class: JSON::JWK::Set

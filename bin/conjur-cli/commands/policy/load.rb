@@ -6,7 +6,7 @@ require_relative '../connect_database'
 
 module Commands
   module Policy
-    Load ||= CommandClass.new(
+    Load = CommandClass.new(
       dependencies: {
         connect_database: ConnectDatabase.new
       },

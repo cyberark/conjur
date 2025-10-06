@@ -3,8 +3,8 @@
 module AuthenticatorsV2
   class AuthenticatorTypeFactory
     def initialize
-      @success = ::SuccessResponse
-      @failure = ::FailureResponse
+      @success = Responses::Success
+      @failure = Responses::Failure
     end
 
     # A hash that maps types to their respective classes

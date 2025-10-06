@@ -1,9 +1,5 @@
 # frozen_string_literal: true
 
-require_relative '../controllers/wrappers/templates_renderer'
-
-require_relative '../domain/issuers/issuer_types/issuer_type_factory'
-
 class IssuersController < RestController
   include AuthorizeResource
   include PolicyTemplates::TemplatesRenderer
@@ -47,7 +43,7 @@ class IssuersController < RestController
       )
     end
 
-    issuer_type = IssuerTypeFactory.new.create_issuer_type(issuer.issuer_type)
+    issuer_type = Issuers::IssuerTypes::IssuerTypeFactory.new.create_issuer_type(issuer.issuer_type)
     issuer_type.validate_update(body_params)
 
     update_issuer_ttl(params, issuer)
@@ -87,7 +83,7 @@ class IssuersController < RestController
     action = :create
     authorize(action, resource)
 
-    issuer_type = IssuerTypeFactory.new.create_issuer_type(params[:type])
+    issuer_type = Issuers::IssuerTypes::IssuerTypeFactory.new.create_issuer_type(params[:type])
     issuer_type.validate(body_params)
 
     issuer_resource = Issuer.find(issuer_id: params[:id])
@@ -230,7 +226,7 @@ class IssuersController < RestController
 
     issuer = get_issuer_from_db(params[:account], params[:identifier])
     if issuer
-      issuer_type = IssuerTypeFactory.new.create_issuer_type(issuer.issuer_type)
+      issuer_type = Issuers::IssuerTypes::IssuerTypeFactory.new.create_issuer_type(issuer.issuer_type)
 
       if minimum_request?(params)
         operation, result =  issuer_type.handle_minimum(issuer)
@@ -302,7 +298,7 @@ class IssuersController < RestController
 
     results = []
     issuers.each do |item|
-      issuer_type = IssuerTypeFactory.new.create_issuer_type(item.issuer_type)
+      issuer_type = Issuers::IssuerTypes::IssuerTypeFactory.new.create_issuer_type(item.issuer_type)
       results.push(issuer_type.mask_sensitive_data_in_response(item.as_json))
     end
     results = params[:sort] ? sort_by_key(results, params[:sort]) : results
@@ -360,7 +356,7 @@ def create_issuer_base_policy(account)
   @policy.call(
     target_policy_id: "#{account}:policy:root",
     context: context,
-    policy: renderer(PolicyTemplates::IssuerBase.new),
+    policy: renderer(PolicyTemplates::Issuers::IssuerBase.new),
     loader: Loader::CreatePolicy,
     request_type: 'POST'
   ).bind!
@@ -371,7 +367,7 @@ def create_issuer_policy(policy_fields)
   @policy.call(
     target_policy_id: resource.resource_id,
     context: context,
-    policy: renderer(PolicyTemplates::CreateIssuer.new, policy_fields),
+    policy: renderer(PolicyTemplates::Issuers::CreateIssuer.new, policy_fields),
     loader: Loader::CreatePolicy,
     request_type: 'POST'
   ).bind!
@@ -382,7 +378,7 @@ def delete_issuer_policy(policy_fields)
   @policy.call(
     target_policy_id: resource.resource_id,
     context: context,
-    policy: renderer(PolicyTemplates::DeleteIssuer.new, policy_fields),
+    policy: renderer(PolicyTemplates::Issuers::DeleteIssuer.new, policy_fields),
     loader: Loader::ModifyPolicy,
     request_type: 'PATCH'
   ).bind!

@@ -2,8 +2,8 @@
 
 require 'spec_helper'
 
-describe IssuerBaseType do
-  subject { IssuerBaseType.new }
+describe Issuers::IssuerTypes::IssuerBaseType do
+  subject { Issuers::IssuerTypes::IssuerBaseType.new }
 
   let(:id) { 'aws_issuer-1' }
   let(:max_ttl) { 2000 }
