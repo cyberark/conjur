@@ -35,7 +35,7 @@ gem 'mustache'
 gem 'nokogiri', '>= 1.18.9'
 gem 'net-imap', '>= 0.5.8'
 gem 'puma', '~> 6', '>= 6.4.3'
-gem 'rack', '>= 2.2.18'
+gem 'rack', '>= 2.2.19'
 gem 'rails', '~> 6.1', '>= 6.1.7.9'
 gem 'rake'
 
