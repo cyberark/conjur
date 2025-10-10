@@ -23,13 +23,13 @@ class CredentialsController < ApplicationController
 
   # Users can update their own record, and +update+ privilege on the authn service enables a superuser
   # to update any user's record.
-  before_action :authorize_self_or_update, only: [ :rotate_api_key ]
+  before_action :authorize_self_or_update, only: [ :rotate_api_key, :api_key_last_rotated ]
 
   # Users are always permitted to perform some operations on their own record.
-  before_action :authorize_self, except: [ :rotate_api_key ]
+  before_action :authorize_self, except: [ :rotate_api_key, :api_key_last_rotated ]
 
   # Ensure the credentials exist if they will be accessed or modified.
-  before_action :ensure_credentials, only: [ :update_password, :rotate_api_key, :login ]
+  before_action :ensure_credentials, only: [ :update_password, :rotate_api_key, :login, :api_key_last_rotated ]
 
   # Update the authenticated user's password. The implication of this is that if you can login as a user, you can change
   # that user's password.
@@ -58,6 +58,12 @@ class CredentialsController < ApplicationController
       client_ip: request.ip
     )
     render(plain: @role.credentials.api_key)
+  end
+
+  # Get the last rotation date for a user's API key.
+  def api_key_last_rotated
+    timestamp = @role.credentials.updated_at
+    render(json: { role: @role.id, timestamp: timestamp ? timestamp.utc.iso8601 : "" })
   end
 
   protected
@@ -95,14 +101,14 @@ class CredentialsController < ApplicationController
 
   # Ensure that the current role has credentials.
   def ensure_credentials
-    unless @role.credentials
-      Rails.logger.info(
-        Errors::Authentication::RoleHasNoCredentials.new(
-          @role.id
-        ).message
-      )
-      raise Errors::Authentication::RoleNotApplicableForKeyRotation, @role.id
-    end
+    return if @role.credentials
+
+    Rails.logger.info(
+      Errors::Authentication::RoleHasNoCredentials.new(
+        @role.id
+      ).message
+    )
+    raise Errors::Authentication::RoleNotApplicableForKeyRotation, @role.id
   end
 
   # Don't permit token auth when manipulating 'self' record.
@@ -136,11 +142,11 @@ class CredentialsController < ApplicationController
     raise Unauthorized, "Insufficient privilege" unless authentication.authenticated_role
     raise Unauthorized, "Insufficient privilege" unless resource = @role.resource
 
-    validate_resource_is_visible_to_role resource
+    validate_resource_is_visible_to_role(resource)
 
     # Non actor roles (resource kind other than user/host) do not have credentials
     # If the authenticated role has ONLY read privilege return forbidden
-    if not @role.credentials and role_allowed_to?("read", resource)
+    if !@role.credentials && role_allowed_to?("read", resource)
       raise Errors::Authorization::AccessToResourceIsForbiddenForRole.new(
         authenticated_role_id,
         resource.resource_id
@@ -149,30 +155,31 @@ class CredentialsController < ApplicationController
 
     # The below validation will pass even if the resource has no credentials
     # but it will eventually fail in @ensure_credentials
-    unless role_allowed_to?("update", resource)
-      raise Errors::Authorization::InsufficientResourcePrivileges.new(
-        authenticated_role_id,
-        resource.resource_id
-      )
-    end
+    return if role_allowed_to?("update", resource)
+
+    raise Errors::Authorization::InsufficientResourcePrivileges.new(
+      authenticated_role_id,
+      resource.resource_id
+    )
+    
   end
 
   def validate_resource_is_visible_to_role(resource)
-    unless resource.visible_to?(authenticated_role)
-      # Print informative log message this is for
-      # internal use only and should not be raised as an error
-      # to the user not to expose the exact error
-      Rails.logger.info(
-        Errors::Authorization::ResourceNotVisibleToRole.new(
-          resource.resource_id, authenticated_role_id
-        ).message
-      )
+    return if resource.visible_to?(authenticated_role)
 
-      # Raise a general record not found error
-      raise Errors::Conjur::RequestedResourceNotFound.new(
+    # Print informative log message this is for
+    # internal use only and should not be raised as an error
+    # to the user not to expose the exact error
+    Rails.logger.info(
+      Errors::Authorization::ResourceNotVisibleToRole.new(
         resource.resource_id, authenticated_role_id
-      )
-    end
+      ).message
+    )
+
+    # Raise a general record not found error
+    raise Errors::Conjur::RequestedResourceNotFound.new(
+      resource.resource_id, authenticated_role_id
+    )
   end
 
   def authenticated_role_id
