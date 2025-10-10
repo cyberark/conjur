@@ -9,11 +9,11 @@ module Authentication
                    :username, :webservice, :status_webservice, :role, :client_ip)
 
     def initialize(
-      validate_webservice_is_whitelisted:,
-      validate_role_can_access_webservice:,
-      validate_webservice_exists:,
-      role_class:,
-      implemented_authenticators:
+      validate_webservice_is_whitelisted: Security::ValidateWebserviceIsWhitelisted.new,
+      validate_role_can_access_webservice: ::Authentication::Security::ValidateRoleCanAccessWebservice.new,
+      validate_webservice_exists: ::Authentication::Security::ValidateWebserviceExists.new,
+      role_class: ::Role,
+      implemented_authenticators: Authentication::ImplementedAuthenticators.authenticators(ENV)
     )
       @validate_webservice_is_whitelisted = validate_webservice_is_whitelisted
       @validate_role_can_access_webservice = validate_role_can_access_webservice
