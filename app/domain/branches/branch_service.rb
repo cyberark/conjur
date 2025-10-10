@@ -169,7 +169,7 @@ module Branches
     end
 
     def get_saved_annotations(policy)
-      Annotations.from_model(policy.annotations)
+      Annotations::Annotations.from_model(policy.annotations)
         .to_h
         .deep_transform_keys(&:to_sym)
     end
