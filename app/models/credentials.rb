@@ -16,6 +16,7 @@ class Credentials < Sequel::Model
   BCRYPT_COST = 12
 
   plugin :validation_helpers
+  plugin :timestamps, update_on_create: true
 
   unrestrict_primary_key
 
