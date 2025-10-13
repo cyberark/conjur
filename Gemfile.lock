@@ -504,7 +504,7 @@ GEM
     simplecov_json_formatter (0.1.4)
     simpleidn (0.2.3)
     slosilo (3.0.1)
-    spring (2.1.0)
+    spring (4.4.0)
     spring-commands-cucumber (1.0.1)
       spring (>= 0.9.1)
     spring-commands-rspec (1.0.4)

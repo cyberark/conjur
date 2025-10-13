@@ -71,4 +71,7 @@ Rails.application.configure do
 
   config.ephemeral_secrets_service_address = 'dynamic-secrets'
   config.ephemeral_secrets_service_port = 8080
+
+  # Spring requires Rails reloading to be enabled.
+  config.enable_reloading = true
 end
