@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [1.24.0] - 2025-10-03
 
 ### Security
-- Bumped rack to 2.2.19 to resolve CVE-2025-61770, CVE-2025-61771, CVE-2025-61772. CONJSE-2064
+- Bumped rack to 2.2.19 to resolve CVE-2025-61770, CVE-2025-61771, CVE-2025-61772, CVE-2025-61919. CONJSE-2064, CONJSE-2065
 
 ## [1.23.0] - 2025-09-23
 
