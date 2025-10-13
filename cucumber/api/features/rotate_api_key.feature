@@ -406,3 +406,45 @@ Feature: Rotate the API key of a role
     """
     CONJ00123E Resource 'nonexistent_account:user:bob' requested by role 'cucumber:user:bob' not found
     """
+
+  @acceptance
+  Scenario: API key rotation updates the last rotation timestamp
+    # Business workflow: Check initial timestamp -> Rotate key -> Verify timestamp updated
+    When I can GET "/authn/cucumber/api_key" with username "bob" and password ":cucumber:user:bob_api_key"
+    Then the HTTP response status code is 200
+    And the response body is a valid timestamp
+    And I save the response body as "initial_timestamp"
+    
+    # Wait a moment to ensure timestamp will be different  
+    And I wait for 1 second
+    
+    When I can PUT "/authn/cucumber/api_key" with username "bob" and password ":cucumber:user:bob_api_key"
+    Then the HTTP response status code is 200
+    And I save the response body as "new_api_key"
+    
+    When I can GET "/authn/cucumber/api_key" with username "bob" and saved password "new_api_key"
+    Then the HTTP response status code is 200
+    And the response body is a valid timestamp
+    And the response body is newer than "initial_timestamp"
+
+  @acceptance
+  Scenario: Privileged user can get another user's API key rotation timestamp
+    Given I login as "privileged_user"
+    And I save my place in the audit log file
+    When I PUT "/authn/cucumber/api_key?role=user:bob"
+    Then the HTTP response status code is 200
+    And I save the response body as "bob_new_api_key"
+    And The following appears in the audit log after my savepoint:
+    """
+    cucumber:user:privileged_user successfully rotated the api key for cucumber:user:bob
+    """
+    
+    When I GET "/authn/cucumber/api_key?role=user:bob"
+    Then the HTTP response status code is 200
+    And the response body is a valid timestamp
+
+  @negative @acceptance
+  Scenario: Unprivileged user CANNOT read another user's API key rotation timestamp using token auth
+    Given I login as "unprivileged_user"
+    When I GET "/authn/cucumber/api_key?role=user:bob"
+    Then the HTTP response status code is 404

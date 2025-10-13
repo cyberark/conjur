@@ -64,6 +64,7 @@ Rails.application.routes.draw do
           # other authenticators will return this at login (e.g. LDAP), we want
           # this to be accessible when using other authenticators to login.
           put  '/:authenticator/:account/api_key'  => 'credentials#rotate_api_key'
+          get  '/:authenticator/:account/api_key'  => 'credentials#api_key_last_rotated'
 
           post '/authn-k8s/:service_id/inject_client_cert' => 'authenticate#k8s_inject_client_cert'
         end
