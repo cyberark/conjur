@@ -6,7 +6,10 @@ describe ::Authenticator::Create do
   let(:subject) do
     ::Authenticator::Create.new(
       authn_repo: authn_repo,
-      factory: factory
+      factory: factory,
+      request_mapper: ::Authenticator::RequestMapper.new(
+        validator: validator
+      )
     )
   end
   let(:branch){conjur/authn-jwt}
@@ -38,7 +41,13 @@ describe ::Authenticator::Create do
 
   let(:factory) do
     instance_double(AuthenticatorsV2::AuthenticatorTypeFactory).tap do |double|
-      allow(double).to receive(:create_authenticator_from_json).and_return(::SuccessResponse.new(authenticators))
+      allow(double).to receive(:call).and_return(::SuccessResponse.new(authenticators))
+    end
+  end
+
+  let(:validator) do
+    instance_double(::Authenticator::Validator).tap do |double|
+      allow(double).to receive(:call).and_return(nil)
     end
   end
 
