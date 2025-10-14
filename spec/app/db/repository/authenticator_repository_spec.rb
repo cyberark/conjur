@@ -160,7 +160,7 @@ RSpec.describe(DB::Repository::AuthenticatorRepository) do
       context 'When there is an error retriving authenticator variables' do
         let(:auth_facotory) do
           instance_double(AuthenticatorsV2::AuthenticatorTypeFactory).tap do |double|
-            allow(double).to receive(:create_authenticator_type).and_raise("test error")
+            allow(double).to receive(:call).and_raise("test error")
           end
         end
 
@@ -438,7 +438,7 @@ RSpec.describe(DB::Repository::AuthenticatorRepository) do
 
         context 'auth_type_factory Returns an error' do
           before do
-            allow(auth_type_factory).to receive(:create_authenticator_type)
+            allow(auth_type_factory).to receive(:call)
               .and_raise("repo error")
           end
       

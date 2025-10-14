@@ -150,7 +150,7 @@ module DB
       def map_authenticator(identifier:,  webservice:, account:)
         annotations =  webservice[:annotations].is_a?(String) ? JSON.parse(webservice[:annotations]) : webservice[:annotations]
 
-        @auth_type_factory.create_authenticator_type({
+        @auth_type_factory.call({
           type: identifier[1],
           service_id: identifier[2],
           account: account,
