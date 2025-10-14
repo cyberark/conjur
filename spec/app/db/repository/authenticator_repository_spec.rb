@@ -268,77 +268,73 @@ RSpec.describe(DB::Repository::AuthenticatorRepository) do
   end
 
   describe('#count_all') do
-    before do
-      mock_webservice = double('Webservice')
-      allow(mock_webservice).to receive(:id).and_return('test:webservice:conjur/authn-oidc/service1')
-
-      allow(resource_repository).to receive_message_chain(:where, :left_join, :left_join, :select, :group, :order, :all).and_return([mock_webservice, mock_webservice, mock_webservice])
-    end
-
     context 'when counting all authenticators' do
-      it 'uses default repository when not provided' do
-        expect(resource_repository).to receive(:where)
-
-        result = repo.count_all(
-          account: 'test',
-          type: nil
-        )
-        expect(result).to eq(3)
+      before(:each) do
+        services.each do |service|
+          ::Role.create(
+            role_id: "rspec:policy:conjur/authn-oidc/#{service}"
+          )
+          # Webservice for authenticator
+          ::Annotation.create(
+            resource: ::Resource.create(
+              resource_id: "rspec:webservice:conjur/authn-oidc/#{service}",
+              owner_id: 'rspec:user:admin'
+            ),
+            name: "test",
+            value: service.to_s
+          )
+          ::AuthenticatorConfig.create(
+            resource_id: "rspec:webservice:conjur/authn-oidc/#{service}",
+            enabled: "true"
+          )
+          # Webservice for authenticator status
+          ::Resource.create(
+            resource_id: "rspec:webservice:conjur/authn-oidc/#{service}/status",
+            owner_id: 'rspec:user:admin'
+          )
+        end
       end
 
-      it 'uses provided repository when provided' do
-        provided_repo = double('ProvidedRepo')
-        mock_single_webservice = double('Webservice')
-        allow(mock_single_webservice).to receive(:id).and_return('test:webservice:conjur/authn-oidc/service1')
-        allow(provided_repo).to receive_message_chain(:where, :left_join, :left_join, :select, :group, :order, :all).and_return([mock_single_webservice])
-
-        expect(provided_repo).to receive(:where)
-        expect(resource_repository).not_to receive(:where)
-
+      it 'uses default repository when not provided' do
         result = repo.count_all(
-          account: 'test',
-          type: nil,
-          repo: provided_repo
+          account: 'rspec',
+          type: nil
         )
-        expect(result).to eq(1)
+        expect(result).to eq(2)
       end
 
       it 'respects type filtering' do
-        expect(resource_repository).to receive(:where).with(
-          Sequel.like(
-            Sequel.qualify(:resources, :resource_id),
-            "test:webservice:conjur/authn-oidc/%"
-          )
+        result = repo.count_all(
+          account: 'rspec',
+          type: 'authn-jwt'
         )
-
-        repo.count_all(
-          account: 'test',
-          type: 'authn-oidc'
-        )
+        expect(result).to eq(0)
       end
 
-      it 'ignores offset and limit parameters' do
-        repo = described_class.new(
-          resource_repository: resource_repository.limit(1).offset(20),
-          logger: logger,
-          auth_type_factory: auth_type_factory
-        )
+      context "When Resource model has an offself and limit" do
+        let(:resource_repository) do
+          ::Resource.limit(1).offset(20)
+        end
+        it 'ignores offset and limit parameters' do
+          result = repo.count_all(
+            account: 'rspec',
+            type: nil
+          )
+          expect(result).to eq(2)
+        end
+      end
 
-        expect(resource_repository).to receive(:where)
-
-        result = repo.count_all(
-          account: 'test',
-          type: nil,
-          repo: resource_repository
-        )
-        expect(result).to eq(3)
+      after(:each) do
+        services.each do |service|
+          ::Resource["rspec:webservice:conjur/authn-oidc/#{service}"].destroy
+          ::Role["rspec:policy:conjur/authn-oidc/#{service}"].destroy
+        end
       end
     end
   end
 
   describe('#find') do
     let(:authenticator) { {} }
- 
     context 'when webservice is not present' do
       it 'is unsuccessful' do
         response = repo.find(type: 'authn-oidc', account: 'rspec', service_id: 'abc123')
