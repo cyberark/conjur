@@ -46,7 +46,7 @@ describe AuthenticatorsV2::K8sAuthenticatorType, type: :model do
           owner_id: "#{account}:policy:conjur/authn-k8s",
           annotations: { description: "this is my k8s authenticator" },
           variables: {
-            "#{account}:variable:conjur/authn-k8s/auth1/ca/cert" => "some-data".bytes
+            "ca/cert": "some-data".bytes
           }
         }
       end
@@ -66,7 +66,6 @@ describe AuthenticatorsV2::K8sAuthenticatorType, type: :model do
         }
         expect(json).to eq(expected_json)
       end
-
     end
 
     context "when extra unknown variables exist in data" do
@@ -78,8 +77,8 @@ describe AuthenticatorsV2::K8sAuthenticatorType, type: :model do
           owner_id: "#{account}:policy:conjur/authn-k8s",
           annotations: { description: "this is my k8s authenticator" },
           variables: {
-            "#{account}:variable:conjur/authn-k8s/auth1/unknown-key" => "random_value",
-            "#{account}:variable:conjur/authn-k8s/auth1/ca/cert" => "CERT_DATA_1"
+            "unknown-key": "random_value",
+            "ca/cert": "CERT_DATA_1"
           }
         }
       end
@@ -110,11 +109,11 @@ describe AuthenticatorsV2::K8sAuthenticatorType, type: :model do
           owner_id: "#{account}:policy:conjur/authn-k8s",
           annotations: { description: "this is my k8s authenticator" },
           variables: {
-            "#{account}:variable:conjur/authn-k8s/auth1/ca/key" => "CERT_KEY",
-            "#{account}:variable:conjur/authn-k8s/auth1/ca/cert" => "CERT_DATA_1",
-            "#{account}:variable:conjur/authn-k8s/auth1/kubernetes/ca-cert" => "CERT_DATA_2",
-            "#{account}:variable:conjur/authn-k8s/auth1/kubernetes/api-url" => "http://api",
-            "#{account}:variable:conjur/authn-k8s/auth1/kubernetes/service-account-token" => "token"
+            "ca/key": "CERT_KEY",
+            "ca/cert": "CERT_DATA_1",
+            "kubernetes/ca_cert": "CERT_DATA_2",
+            "kubernetes/api_url": "http://api",
+            "kubernetes/service_account_token": "token"
           }
         }
       end

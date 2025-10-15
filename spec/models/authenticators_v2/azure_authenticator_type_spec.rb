@@ -50,8 +50,8 @@ describe AuthenticatorsV2::AzureAuthenticatorType, type: :model do
           owner_id: "#{account}:policy:conjur/authn-azure",
           annotations: { description: "this is my azure authenticator" },
           variables: {
-            "#{account}:variable:conjur/authn-azure/auth1/unknown-key" => "random_value",
-            "#{account}:variable:conjur/authn-azure/auth1/provider-uri" => "https://provider-uri"
+            "unknown-key" => "random_value",
+            provider_uri: "https://provider-uri"
           }
         }
       end
@@ -83,7 +83,7 @@ describe AuthenticatorsV2::AzureAuthenticatorType, type: :model do
           owner_id: "#{account}:policy:conjur/authn-azure",
           annotations: { description: "this is my azure authenticator" },
           variables: {
-            "#{account}:variable:conjur/authn-azure/auth1/provider-uri" => "https://provider-uri"
+            provider_uri: "https://provider-uri"
           }
         }
       end

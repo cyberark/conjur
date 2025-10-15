@@ -9,14 +9,10 @@ module AuthenticatorsV2
     #
     # @param [Hash] authenticator_params - Hash containing authentication parameters.
     # @return [Hash, nil] - Returns a structured hash of relevant parameters or `nil` if none exist.
-    def add_data_params(authenticator_params)
-      data_section = {}
-      azure_authentication_param = :provider_uri
-      # Add provider_uri if it exists in `authenticator_params`
-      value = retrieve_authenticator_variable(authenticator_params, azure_authentication_param)
-      data_section[azure_authentication_param] = value if value
-
-      data_section
+    def data
+      return {} if @variables.blank?
+        
+      { provider_uri: format_field(@variables[:provider_uri]) }.compact
     end
   end
 end

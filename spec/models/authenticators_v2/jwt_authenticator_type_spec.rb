@@ -48,7 +48,7 @@ describe AuthenticatorsV2::JwtAuthenticatorType, type: :model do
           annotations: { description: "this is my jwt authenticator" },
           variables: {
             public_keys: "{\"type\": \"jwks\",\"value\": {\"keys\": [{\"e\": \"AQAB\", \"kid\": \"CNv0OI3RwqlHFEVnaoMAshCH2XE\",\"x5t\": \"CNv0OI3RwqlHFEVnaoMAshCH2XE\"}]}}",
-            "#{account}:variable:conjur/authn-jwt/auth1/ca-cert" => "CERT_DATA_1"
+            ca_cert: "CERT_DATA_1"
           } # No identity variables
         }
       end
@@ -81,8 +81,8 @@ describe AuthenticatorsV2::JwtAuthenticatorType, type: :model do
           owner_id: "#{account}:policy:conjur/authn-jwt",
           annotations: { description: "this is my jwt authenticator" },
           variables: {
-            "#{account}:variable:conjur/authn-jwt/auth1/unknown-key" => "random_value",
-            "#{account}:variable:conjur/authn-jwt/auth1/ca-cert" => "CERT_DATA_1"
+            unknown_key: "random_value",
+            ca_cert: "CERT_DATA_1"
           }
         }
       end
@@ -113,9 +113,9 @@ describe AuthenticatorsV2::JwtAuthenticatorType, type: :model do
           owner_id: "#{account}:policy:conjur/authn-jwt",
           annotations: { description: "this is my jwt authenticator" },
           variables: {
-            "#{account}:variable:conjur/authn-jwt/auth1/ca-cert" => "CERT_DATA_1",
-            "#{account}:variable:conjur/authn-jwt/auth1/jwks-uri" => "https://example.com/jwks",
-            "#{account}:variable:conjur/authn-jwt/auth1/token-app-property" => "app_property"
+            ca_cert: "CERT_DATA_1",
+            jwks_uri: "https://example.com/jwks",
+            token_app_property: "app_property"
           }
         }
       end
@@ -151,7 +151,7 @@ describe AuthenticatorsV2::JwtAuthenticatorType, type: :model do
           owner_id: "#{account}:policy:conjur/authn-jwt",
           annotations: { description: "this is my jwt authenticator" },
           variables: {
-            "#{account}:variable:conjur/authn-jwt/auth1/enforced-claims" => "" # Empty string
+            enforced_claims: "" # Empty string
           }
         }
       end
@@ -184,7 +184,7 @@ describe AuthenticatorsV2::JwtAuthenticatorType, type: :model do
           owner_id: "#{account}:policy:conjur/authn-jwt",
           annotations: { name: "description", value: "this is my jwt authenticator" },
           variables: {
-            "#{account}:variable:conjur/authn-jwt/auth1/claim-aliases" => "" # ✅ Empty string
+            claim_aliases: "" # ✅ Empty string
           }
         }
       end
@@ -204,7 +204,7 @@ describe AuthenticatorsV2::JwtAuthenticatorType, type: :model do
           owner_id: "#{account}:policy:conjur/authn-jwt",
           annotations: { name: "description", value: "this is my jwt authenticator" },
           variables: {
-            "#{account}:variable:conjur/authn-jwt/auth1/enforced-claims" => "sub,sub,exp,iss,exp"
+            enforced_claims: "sub,sub,exp,iss,exp"
           }
         }
       end
@@ -224,7 +224,7 @@ describe AuthenticatorsV2::JwtAuthenticatorType, type: :model do
           owner_id: "#{account}:policy:conjur/authn-jwt",
           annotations: { name: "description", value: "this is my jwt authenticator" },
           variables: {
-            "#{account}:variable:conjur/authn-jwt/auth1/claim-aliases" => "role:admin,group:devs,empty:"
+            claim_aliases: "role:admin,group:devs,empty:"
           }
         }
       end
@@ -249,7 +249,7 @@ describe AuthenticatorsV2::JwtAuthenticatorType, type: :model do
           owner_id: "#{account}:policy:conjur/authn-jwt",
           annotations: { name: "description", value: "this is my jwt authenticator" },
           variables: {
-            "#{account}:variable:conjur/authn-jwt/auth1/claim-aliases" => "role"
+            claim_aliases: "role"
           }
         }
       end

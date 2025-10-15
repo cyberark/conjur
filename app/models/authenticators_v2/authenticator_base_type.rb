@@ -16,17 +16,15 @@ module AuthenticatorsV2
     end
 
     def to_h
-      res = {
+      {
         type: format_type(type),
         branch: branch,
         name: authenticator_name,
         enabled: enabled,
-        owner: parse_owner(owner)
-      }
-      res[:data] = add_data_params(@variables) if respond_to?(:add_data_params)
-      res[:annotations] = @annotations if @annotations.present?
-
-      res.compact
+        owner: parse_owner(owner),
+        data: data, 
+        annotations: @annotations.present? ? annotations : nil
+      }.compact
     end
 
     def format_type(authn_type)
@@ -77,7 +75,7 @@ module AuthenticatorsV2
       true
     end
 
-    def webservice_branch
+    def id
       "conjur/#{type}/#{@service_id}"
     end
 
@@ -93,26 +91,20 @@ module AuthenticatorsV2
 
     private
 
-    # Extracts a parameter from `authenticator_params` if it exists and
-    # ensures it is UTF-8 encoded if it is a string
-    #
-    # @param [Hash] authenticator_params - Hash containing all authentication parameters.
-    # @param [Symbol] key - The key to extract.
-    # @return [String, Hash, nil] - Extracted value, processed if applicable, or `nil` if key is missing.
-    def retrieve_authenticator_variable(authenticator_params, key)
-      key_suffix = key.to_s.gsub('_', '-')  # Convert key to expected format
-      matched_key = authenticator_params.keys.find { |param_key| param_key.end_with?(key.to_s) || param_key.end_with?(key_suffix) }
-      return unless matched_key
+    def data 
+      nil
+    end
 
-      value = authenticator_params[matched_key].dup
+    def filter_variables(fields)
+      @variables.select { |k, _| fields.include?(k) }.transform_values { |v| format_field(v) }
+    end
 
-      # Convert to UTF-8 only if it's a String
-      # If it is string it means we get the params from db and we need to process them
-      if value.is_a?(String)
-        value.force_encoding('UTF-8')
-      end
+    def format_field(value)
+      return nil if value.nil?
+      
+      value = value.dup.force_encoding('UTF-8') if value.is_a?(String)
 
-      value
+      value  
     end
 
     # Parses owner string into a structured hash

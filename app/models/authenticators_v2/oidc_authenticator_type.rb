@@ -38,10 +38,12 @@ module AuthenticatorsV2
       @token_ttl = variables[:token_ttl].present? ? variables[:token_ttl] : 'PT60M'
     end
 
-    def add_data_params(variables)
-      return {} if variables.blank?
+    def data
+      return {} if @variables.blank?
 
       fields = %i[
+        ca_cert 
+        token_ttl
         provider_uri
         id_token_user_property
         client_id
@@ -51,13 +53,9 @@ module AuthenticatorsV2
         name
         response_type
         redirect_uri
-        ca_cert
-        token_ttl
       ]
 
-      fields.each_with_object({}) do |key, data_field|
-        data_field[key] = retrieve_authenticator_variable(variables, key)
-      end.compact
+      filter_variables(fields)
     end
 
     def scope
