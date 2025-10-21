@@ -2,11 +2,11 @@
 
 require 'spec_helper'
 
-describe ::Authenticator::Enablement do
+describe Authenticators::Enablement do
   let(:enabled_status){ false }
 
   let(:subject) do
-    ::Authenticator::Enablement.new(
+    Authenticators::Enablement.new(
       enabled: enabled_status
     )
   end
@@ -63,9 +63,9 @@ describe ::Authenticator::Enablement do
 
     context "with valid body" do
       it "returns an Enablement class" do
-        res = ::Authenticator::Enablement.from_input(body)
+        res = Authenticators::Enablement.from_input(body)
         puts res.result
-        expect(res.result.instance_of?(::Authenticator::Enablement)).to be_truthy
+        expect(res.result.instance_of?(Authenticators::Enablement)).to be_truthy
       end
     end
   end
@@ -93,7 +93,7 @@ describe ::Authenticator::Enablement do
     ].each do |test_case|
       context test_case[:case].to_s do
         it "returns the response" do
-          response = ::Authenticator::Enablement.parse_input(test_case[:body])
+          response = Authenticators::Enablement.parse_input(test_case[:body])
           expect(response.status).to eq(test_case[:expected_code])
           expect(response.message).to eq(test_case[:expected_response])
         end

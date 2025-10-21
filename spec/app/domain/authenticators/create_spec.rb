@@ -2,12 +2,12 @@
 
 require 'spec_helper'
 
-describe ::Authenticator::Create do
+describe Authenticators::Create do
   let(:subject) do
-    ::Authenticator::Create.new(
+    Authenticators::Create.new(
       authn_repo: authn_repo,
       factory: factory,
-      request_mapper: ::Authenticator::RequestMapper.new(
+      request_mapper: Authenticators::RequestMapper.new(
         validator: validator
       )
     )
@@ -41,12 +41,12 @@ describe ::Authenticator::Create do
 
   let(:factory) do
     instance_double(AuthenticatorsV2::AuthenticatorTypeFactory).tap do |double|
-      allow(double).to receive(:call).and_return(::SuccessResponse.new(authenticators))
+      allow(double).to receive(:call).and_return(Responses::Success.new(authenticators))
     end
   end
 
   let(:validator) do
-    instance_double(::Authenticator::Validator).tap do |double|
+    instance_double(Authenticators::Validator).tap do |double|
       allow(double).to receive(:call).and_return(nil)
     end
   end
@@ -63,7 +63,7 @@ describe ::Authenticator::Create do
   end
 
   let(:response) do
-    ::SuccessResponse.new(authenticators)
+    Responses::Success.new(authenticators)
   end
 
   let(:authn_repo) do

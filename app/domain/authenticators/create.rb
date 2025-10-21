@@ -1,4 +1,4 @@
-module Authenticator
+module Authenticators
   class Create
     include AuthorizeResource
     
@@ -6,12 +6,12 @@ module Authenticator
       factory: AuthenticatorsV2::AuthenticatorTypeFactory.new,
       resource_repository: ::Resource,
       logger: Rails.logger,
-      request_mapper: ::Authenticator::RequestMapper.new,
+      request_mapper: Authenticators::RequestMapper.new,
       authn_repo: DB::Repository::AuthenticatorRepository
     )  
       @factory = factory
-      @success = ::SuccessResponse
-      @failure = ::FailureResponse
+      @success = Responses::Success
+      @failure = Responses::Failure
       @logger = logger
       @request_mapper = request_mapper
       @context = AuthenticatorController::Current

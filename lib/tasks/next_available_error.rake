@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'error/conjur_code'
+
 # error_code:next is used to find the next available error or log code ID for
 # Conjur standard logging.
 namespace :error_code do

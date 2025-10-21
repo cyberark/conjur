@@ -1,12 +1,12 @@
-module Authenticator
+module Authenticators
   class Enablement
 
     def initialize(
       enabled:
     )
       @enabled = enabled
-      @success = ::SuccessResponse
-      @failure = ::FailureResponse
+      @success = Responses::Success
+      @failure = Responses::Failure
       @context = AuthenticatorController::Current
     end
 
@@ -48,7 +48,7 @@ module Authenticator
     class << self
       def from_input(input)
         parse_input(input).bind do |enablement|
-          ::SuccessResponse.new(
+          Responses::Success.new(
             new(enabled: enablement)
           )
         end
@@ -80,12 +80,12 @@ module Authenticator
         elsif !bool?(input[:enabled])
           mismatch_type("enabled", "boolean")
         else
-          ::SuccessResponse.new(input[:enabled])
+          Responses::Success.new(input[:enabled])
         end
       end
 
       def missing_param(param)
-        ::FailureResponse.new(
+        Responses::Failure.new(
           "Missing required parameter: #{param}",
           status: :unprocessable_entity
         )
@@ -94,14 +94,14 @@ module Authenticator
       def extra_keys(keys, required)
         extra_keys = collect_extra_keys(keys, required).compact.join(', ')
         
-        ::FailureResponse.new(
+        Responses::Failure.new(
           "The following parameters were not expected: '#{extra_keys}'",
           status: :unprocessable_entity
         )
       end
 
       def mismatch_type(param, type)
-        ::FailureResponse.new(
+        Responses::Failure.new(
           "The #{param} parameter must be of type=#{type}",
           status: :unprocessable_entity
         )

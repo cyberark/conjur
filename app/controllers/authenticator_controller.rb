@@ -45,7 +45,7 @@ class AuthenticatorController < V2RestController
 
     response = request_body.bind do |body|
       valid_body = body
-      ::Authenticator::Create.new.call(body, relevant_params[:account])
+      Authenticators::Create.new.call(body, relevant_params[:account])
     end
 
     type = valid_body&.dig(:type) || 'authenticator'
@@ -64,7 +64,7 @@ class AuthenticatorController < V2RestController
   def find_authenticator
     relevant_params = parse_params(%i[type account service_id])
 
-    response = ::DB::Repository::AuthenticatorRepository.new(
+    response = DB::Repository::AuthenticatorRepository.new(
       resource_repository: ::Resource.visible_to(current_user)
     ).find(**relevant_params)
 
@@ -85,7 +85,7 @@ class AuthenticatorController < V2RestController
     )
 
     response = request_body.bind do |body|
-      ::Authenticator::Enablement.from_input(body).bind do |enablement|
+      Authenticators::Enablement.from_input(body).bind do |enablement|
         enablement.update_enablement_status(**relevant_params).bind do
           authn_repo.find(**relevant_params)
         end
@@ -105,7 +105,7 @@ class AuthenticatorController < V2RestController
   def delete_authenticator
     relevant_params = parse_params(%i[type account service_id])
 
-    response = ::Authenticator::Delete.new(
+    response = Authenticators::Delete.new(
       resource_repository: ::Resource.visible_to(current_user)
     ).call(**relevant_params)
 
