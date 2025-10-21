@@ -580,13 +580,7 @@ describe IssuersController, type: :request do
 
         it 'returns not found' do
           expect do
-            post(
-              "/issuers/rspec",
-              env: token_auth_header(role: admin_user).merge(
-                'RAW_POST_DATA' => payload_create_issuers_complete_input,
-                'CONTENT_TYPE' => "application/json"
-              )
-            )
+            Rails.application.routes.recognize_path("issuers/rspec", method: :post)
           end.to raise_error(ActionController::RoutingError, /No route matches/)
         end
       end

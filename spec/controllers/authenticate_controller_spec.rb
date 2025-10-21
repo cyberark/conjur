@@ -116,11 +116,9 @@ describe AuthenticateController, :type => :request do
     include_context "create user"
 
     it "does not route" do
-      payload = { 'RAW_POST_DATA' => the_user.credentials.api_key }
-
       expect do
-        get(authenticate_url, env: payload)
-      end.to raise_error(ActionController::RoutingError, /No route matches \[GET\]/)
+        Rails.application.routes.recognize_path(authenticate_url, method: :get)
+      end.to raise_error(ActionController::RoutingError, /No route matches/)
     end
 
     it "does not log that the authenticator is not enabled" do

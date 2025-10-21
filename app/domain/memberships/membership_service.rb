@@ -29,7 +29,7 @@ module Memberships
     end
 
     def add_member(role, account, group_identifier, member)
-      log_debug({role:, account:, group_identifier:, member:})
+      log_debug({ role: role, account: account, group_identifier: group_identifier, member: member })
       check_group_is_not_own_member(group_identifier, member)
 
       group_res = @res_service.read_res(role, account, 'group', group_identifier)
@@ -44,7 +44,7 @@ module Memberships
     end
 
     def remove_member(role, account, group_identifier, member)
-      log_debug({role:, account:, group_identifier:, member:})
+      log_debug({ role: role, account: account, group_identifier: group_identifier, member: member })
 
       group_res = @res_service.read_res(role, account, 'group', group_identifier)
       member_res = read_member_res(role, account, member)
@@ -62,7 +62,7 @@ module Memberships
     def read_member_res(role, account, member)
       @res_service.read_res(role, account, member.kind, member.id)
     rescue Exceptions::RecordNotFound => e
-      raise ApplicationController::InvalidParameter.new(e.message)
+      raise ApplicationController::InvalidParameter, e.message
     end
 
     def check_group_is_not_own_member(group_identifier, member)

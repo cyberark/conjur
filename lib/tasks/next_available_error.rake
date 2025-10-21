@@ -8,7 +8,7 @@ namespace :error_code do
   task :next do
     error_code = Error::ConjurCode.new(
       './app/domain/errors.rb',
-      './app/domain/logs.rb'
+      './app/domain/log_messages.rb'
     )
     error_code.print_next_available
   end

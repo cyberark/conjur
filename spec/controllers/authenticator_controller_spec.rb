@@ -242,9 +242,9 @@ describe AuthenticatorController, type: :request do
       before do
         allow_any_instance_of(DB::Repository::AuthenticatorRepository).to receive(:find).and_raise("test error")
       end
-      # TODO: Not that the server runs in a separate thread, this test does not pass as the mocking does not apply as desired.
-      xit 'creates an audit log for that error' do
-        expect {  retrieve_authenticators('/authenticators/rspec/jwt/test-jwt1', current_user) }.to raise_error('test error')
+      it 'creates an audit log for that error' do
+        retrieve_authenticators('/authenticators/rspec/jwt/test-jwt1', current_user)
+        expect(response.code).to eq('500')
         expect(log_output.string).to include("conjur: rspec:user:tester failed to retrieve authn-jwt test-jwt1 with URI path: '/authenticators/rspec/jwt/test-jwt1': test error\n")
       end
     end
@@ -287,9 +287,9 @@ describe AuthenticatorController, type: :request do
       before do
         allow_any_instance_of(DB::Repository::AuthenticatorRepository).to receive(:find_all).and_raise("test error")
       end
-      # TODO: Not that the server runs in a separate thread, this test does not pass as the mocking does not apply as desired.
-      xit 'creates an audit log for that error' do
-        expect {  retrieve_authenticators('/authenticators/rspec?type=authn-oidc', current_user) }.to raise_error('test error')
+      it 'creates an audit log for that error' do
+        retrieve_authenticators('/authenticators/rspec?type=authn-oidc', current_user)
+        expect(response.code).to eq('500')
         expect(log_output.string).to include("conjur: rspec:user:tester failed to list authenticators with URI path: '/authenticators/rspec': test error\n")
       end
     end
@@ -333,9 +333,9 @@ describe AuthenticatorController, type: :request do
           before do
             allow_any_instance_of(DB::Repository::AuthenticatorRepository).to receive(:find).and_raise("test error")
           end
-          # TODO: Not that the server runs in a separate thread, this test does not pass as the mocking does not apply as desired.
-          xit 'creates an audit log for that error' do
-            expect {  enable_request("{ \"enabled\": true }", current_user) }.to raise_error('test error')
+          it 'creates an audit log for that error' do
+            enable_request("{ \"enabled\": true }", current_user)
+            expect(response.code).to eq('500')
             expect(log_output.string).to include(
               "conjur: rspec:user:tester failed to enable authn-jwt test-jwt1 with URI path: '/authenticators/rspec/jwt/test-jwt1' " \
               "and JSON object: { \"enabled\": true }: test error\n"
@@ -518,9 +518,9 @@ describe AuthenticatorController, type: :request do
       before do
         allow_any_instance_of(DB::Repository::AuthenticatorRepository).to receive(:create).and_raise("test error")
       end
-      # TODO: Not that the server runs in a separate thread, this test does not pass as the mocking does not apply as desired.
-      xit 'creates an audit log for that error' do
-        expect {  create_request(current_user, id: 'test-jwt1') }.to raise_error('test error')
+      it 'creates an audit log for that error' do
+        create_request(current_user, id: 'test-jwt1')
+        expect(response.code).to eq('500')
         expect(log_output.string).to include("conjur: rspec:user:tester failed to create authenticator with URI path: '/authenticators/rspec'")
       end
     end
@@ -550,9 +550,9 @@ describe AuthenticatorController, type: :request do
         before do
           allow_any_instance_of(DB::Repository::AuthenticatorRepository).to receive(:delete).and_raise("test error")
         end
-        # TODO: Not that the server runs in a separate thread, this test does not pass as the mocking does not apply as desired.
-        xit 'creates an audit log for that error' do
-          expect {  delete_authenticator('jwt', 'test-jwt1', current_user) }.to raise_error('test error')
+        it 'creates an audit log for that error' do
+          delete_authenticator('jwt', 'test-jwt1', current_user)
+          expect(response.code).to eq('500')
           expect(log_output.string).to include("conjur: rspec:user:tester failed to delete authn-jwt test-jwt1 with URI path: '/authenticators/rspec/jwt/test-jwt1'")
         end
       end
