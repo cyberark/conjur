@@ -45,7 +45,7 @@ class AuthenticatorController < V2RestController
 
     response = request_body.bind do |body|
       valid_body = body
-      ::Authenticator::Create.new.call(req, relevant_params[:account])
+      ::Authenticator::Create.new.call(body, relevant_params[:account])
     end
 
     type = valid_body&.dig(:type) || 'authenticator'

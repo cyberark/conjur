@@ -6,12 +6,14 @@ module Authenticator
       factory: AuthenticatorsV2::AuthenticatorTypeFactory.new,
       resource_repository: ::Resource,
       logger: Rails.logger,
+      request_mapper: ::Authenticator::RequestMapper.new,
       authn_repo: DB::Repository::AuthenticatorRepository
     )  
-      @facotry = factory
-      @logger = logger
+      @factory = factory
       @success = ::SuccessResponse
       @failure = ::FailureResponse
+      @logger = logger
+      @request_mapper = request_mapper
       @context = AuthenticatorController::Current
       @resource_repository = resource_repository
       @authn_repo = authn_repo.new(
@@ -20,13 +22,15 @@ module Authenticator
     end
 
     def call(auth_dict, account)
-      @facotry.create_authenticator_from_json(auth_dict, account).bind do |auth| 
-        validate_create_permissions(auth).bind do |permitted_auth|
-          verify_owner(permitted_auth).bind do |auth_with_owner|
-            @authn_repo.create(authenticator: auth_with_owner).bind do |created_auth|
-              @success.new(created_auth.to_h)
-            end
-          end 
+      @request_mapper.call(auth_dict, account).bind do |auth|
+        @factory.call(auth).bind do |auth_model| 
+          validate_create_permissions(auth_model).bind do |permitted_auth|
+            verify_owner(permitted_auth).bind do |auth_with_owner|
+              @authn_repo.create(authenticator: auth_with_owner).bind do |created_auth|
+                @success.new(created_auth.to_h)
+              end
+            end 
+          end
         end
       end
     end
