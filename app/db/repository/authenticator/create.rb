@@ -3,10 +3,9 @@
 module DB
   module Repository
     module Authenticator
-      class CreateAuthenticator
+      class Create
         def initialize(authenticator:)
           @authenticator = authenticator
-          @service_id = authenticator.authenticator_name
 
           @success = ::SuccessResponse
           @failure = ::FailureResponse
@@ -39,15 +38,15 @@ module DB
         private
 
         def add_authenticator_role
-          Role.find_or_create(role_id: webservice_branch)
+          Role.find_or_create(role_id: webservice_policy_id)
         end
 
         def enable_authenticator
-          AuthenticatorConfig.find_or_create(resource_id: webservice, enabled: @authenticator.enabled)
+          AuthenticatorConfig.find_or_create(resource_id: webservice_id, enabled: @authenticator.enabled)
         end
 
-        def webservice_branch
-          "#{@authenticator.account}:policy:#{@authenticator.webservice_branch}"
+        def webservice_policy_id
+          "#{@authenticator.account}:policy:#{@authenticator.id}"
         end
 
         def policy_branch
@@ -55,7 +54,7 @@ module DB
         end
 
         def authn_variables
-          "#{@authenticator.account}:variable:#{@authenticator.webservice_branch}"
+          "#{@authenticator.account}:variable:#{@authenticator.id}"
         end
 
         def owner_id
@@ -65,11 +64,11 @@ module DB
         end
 
         def group
-          "#{@authenticator.account}:group:#{@authenticator.webservice_branch}"
+          "#{@authenticator.account}:group:#{@authenticator.id}"
         end
 
-        def webservice
-          "#{@authenticator.account}:webservice:#{@authenticator.webservice_branch}"
+        def webservice_id
+          "#{@authenticator.account}:webservice:#{@authenticator.id}"
         end
 
         def add_permission(resource, permissions_map)
@@ -86,7 +85,7 @@ module DB
             else
               Resource.create(
                 resource_id: "#{authn_variables}/#{key.to_s.dasherize}",
-                owner_id: webservice_branch,
+                owner_id: webservice_policy_id,
                 policy_id: policy_branch
               )
               unless value.nil?
@@ -102,8 +101,8 @@ module DB
         def add_annotations
           @authenticator.annotations&.each do |name, value|
             Annotation.create(
-              resource_id: webservice,
-              policy_id: webservice_branch,
+              resource_id: webservice_id,
+              policy_id: webservice_policy_id,
               name: name,
               value: value
             )
@@ -116,7 +115,7 @@ module DB
           return if @authenticator.type == "authn-gcp"
 
           Resource.create(
-            resource_id: webservice_branch,
+            resource_id: webservice_policy_id,
             owner_id: owner_id,
             policy_id: policy_branch
           )
@@ -127,25 +126,25 @@ module DB
           [
             {
               id: "#{group}/operators",
-              owner: webservice_branch,
+              owner: webservice_policy_id,
               permissions: nil
             },
             {
               id: "#{group}/apps",
-              owner: webservice_branch,
+              owner: webservice_policy_id,
               permissions: nil
             },
             {
-              id: webservice,
-              owner: webservice_branch,
+              id: webservice_id,
+              owner: webservice_policy_id,
               permissions: {
                 "#{group}/operators": %w[read],
                 "#{group}/apps": %w[read authenticate]
               } 
             },
             {
-              id: "#{webservice}/status",
-              owner: webservice_branch,
+              id: "#{webservice_id}/status",
+              owner: webservice_policy_id,
               permissions: { "#{group}/operators": ["read"] } 
             }
           ].each do |resource|

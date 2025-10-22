@@ -1,20 +1,20 @@
 require 'spec_helper'
 
 describe AuthenticatorsV2::AuthenticatorTypeFactory do
-  describe "#create_authenticator_type" do
+  describe "#call" do
     let(:factory) { described_class.new }
     let(:type) { "jwt" }
     let(:authenticator_dict) do
-      OpenStruct.new(
+      {
         type: "authn-#{type}",
         service_id: "auth1",
         enabled: true,
         owner_id: "rspec:policy:conjur/base",
-        annotations: `{ "name": "description", "value": "this is my #{type} authenticator" }`,
+        annotations: "{ \"name\": \"description\", \"value\": \"this is my #{type} authenticator\" }",
         variables: {
           ca_cert: "CERT_DATA_1"
         }
-      )
+      }
     end
 
     context "when type is 'jwt'" do
@@ -95,15 +95,15 @@ describe AuthenticatorsV2::AuthenticatorTypeFactory do
     context "when type is not valid" do
       context "missing auth type" do
         let(:authenticator_dict) do
-          OpenStruct.new(           
+          {
             service_id: "auth1",
             enabled: true,
             owner_id: "rspec:policy:conjur/base",
-            annotations: `{ "name": "description", "value": "this is my #{type} authenticator" }`,
+            annotations: "{ \"name\": \"description\", \"value\": \"this is my #{type} authenticator\" }",
             variables: {
               ca_cert: "CERT_DATA_1"
             }
-          )
+          }
         end
 
         it "returns an error" do

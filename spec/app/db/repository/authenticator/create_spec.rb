@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe(DB::Repository::Authenticator::CreateAuthenticator) do
+RSpec.describe(DB::Repository::Authenticator::Create) do
   let(:subject) do
     described_class.new(
       authenticator: create_authenticator_model(auth: authenticator_dict)

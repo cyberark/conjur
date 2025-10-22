@@ -13,17 +13,10 @@ module AuthenticatorsV2
       @tls_ca_cert = variables&.fetch(:tls_ca_cert, nil)
     end
 
-    def add_data_params(variables)
-      return nil if variables.blank?
+    def data
+      return {} if @variables.blank?
 
-      fields = %i[
-        bind_password
-        tls_ca_cert
-      ]
-
-      fields.each_with_object({}) do |key, data_field|
-        data_field[key] = retrieve_authenticator_variable(variables, key)
-      end.compact
+      filter_variables(%i[bind_password tls_ca_cert])
     end
 
   end
