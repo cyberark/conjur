@@ -1,3 +1,7 @@
+# frozen_string_literal: true
+
+require Rails.root.join('lib/conjur/feature_flags')
+
 Rails.application.configure do
   # Loads Feature Flag configuration.
   #

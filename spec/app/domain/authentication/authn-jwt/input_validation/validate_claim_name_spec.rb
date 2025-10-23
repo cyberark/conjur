@@ -9,12 +9,12 @@ RSpec.describe('Authentication::AuthnJwt::InputValidation::ValidateClaimName') d
   #  (__) (_) (_)(____)   (__) (____)(___/ (__) (___/
 
   let(:claim_name_validator) {
-    ::Authentication::AuthnJwt::InputValidation::ValidateClaimName.new
+    Authentication::AuthnJwt::InputValidation::ValidateClaimName.new
   }
 
   let(:deny_list_claim_name_validator) {
-    ::Authentication::AuthnJwt::InputValidation::ValidateClaimName.new(
-      deny_claims_list_value: ::Authentication::AuthnJwt::CLAIMS_DENY_LIST
+    Authentication::AuthnJwt::InputValidation::ValidateClaimName.new(
+      deny_claims_list_value: Authentication::AuthnJwt::AuthnJwt::CLAIMS_DENY_LIST
     )
   }
 

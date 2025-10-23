@@ -1,4 +1,4 @@
-module Authenticator
+module Authenticators
   class Delete
     include AuthorizeResource
     
@@ -6,8 +6,8 @@ module Authenticator
       resource_repository: ::Resource,
       authn_repo: DB::Repository::AuthenticatorRepository
     )  
-      @success = ::SuccessResponse
-      @failure = ::FailureResponse
+      @success = Responses::Success
+      @failure = Responses::Failure
       @context = AuthenticatorController::Current
       @resource_repository = resource_repository
       @authn_repo = authn_repo.new(

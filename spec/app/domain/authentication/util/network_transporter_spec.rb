@@ -90,7 +90,7 @@ RSpec.describe(Authentication::Util::NetworkTransporter) do
         end
         it 'correctly parses the response' do
           # Spy to ensure expected certificate is used
-          certificate_utilities = double(Conjur::CertUtils)
+          certificate_utilities = double(Conjur::Certificates::CertUtils)
           expect(certificate_utilities).to receive(:add_chained_cert).with(
             an_instance_of(OpenSSL::X509::Store),
             certificate.to_s

@@ -1,12 +1,6 @@
 # frozen_string_literal: true
 
 require 'json'
-require 'logs'
-require 'app/db/repository/policy_repository'
-require 'app/domain/data_objects/primitive_factory'
-require 'app/domain/responses'
-require 'app/models/loader/orchestrate'
-require 'app/domain/logs'
 
 # BootstrapLoader is used to load an initial "root" policy when the database is completely empty.
 class RootLoader

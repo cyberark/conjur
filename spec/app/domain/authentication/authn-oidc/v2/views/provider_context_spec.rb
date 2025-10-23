@@ -15,7 +15,7 @@ RSpec.describe(Authentication::AuthnOidc::V2::Views::ProviderContext) do
     end
   end
 
-  let(:endpoint) { SuccessResponse.new({ 'authorization_endpoint' => 'http://test' }) }
+  let(:endpoint) { Responses::Success.new({ 'authorization_endpoint' => 'http://test' }) }
 
   let(:foo) do
     Authentication::AuthnOidc::V2::DataObjects::Authenticator.new(
@@ -101,8 +101,8 @@ RSpec.describe(Authentication::AuthnOidc::V2::Views::ProviderContext) do
 
     context 'when provider context is given no authenticators ' do
       it 'returns an empty array' do
-        # The empty response from AuthenticatorRepository is a FailureResponse
-        expect(provider_context.call(authenticators: FailureResponse.new("failure")))
+        # The empty response from AuthenticatorRepository is a Responses::Failure
+        expect(provider_context.call(authenticators: Responses::Failure.new("failure")))
           .to eq([])
       end
     end
@@ -110,7 +110,7 @@ RSpec.describe(Authentication::AuthnOidc::V2::Views::ProviderContext) do
     context 'when authenticator discovery endpoint is unreachable' do
       let(:current_client) do
         instance_double(::Authentication::AuthnOidc::V2::OidcClient).tap do |double|
-          allow(double).to receive(:oidc_configuration).and_return(FailureResponse.new('bad provider'))
+          allow(double).to receive(:oidc_configuration).and_return(Responses::Failure.new('bad provider'))
         end
       end
       it 'does not cause an exception' do

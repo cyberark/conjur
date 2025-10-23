@@ -9,8 +9,8 @@ module CommandHandler
       @logger = logger
 
       # Defined here for visibility. We shouldn't need to mock these.
-      @success = ::SuccessResponse
-      @failure = ::FailureResponse
+      @success = Responses::Success
+      @failure = Responses::Failure
     end
 
     def call(created:, deleted:, original:)
@@ -36,7 +36,7 @@ module CommandHandler
       # Filter out any duplicates that are present in all three states.
       # This is necessary to prevent duplicates from appearing where they should
       # not when these diff results are mapped later by the DataObjects::Mapper.
-      # 
+      #
       # Note: the resources field is used to derive roles/resources since a
       # role is a resource. Therefore we only need to filter resources.
       # Attributes that are not referenced by a resource are simply ignored by
@@ -69,7 +69,7 @@ module CommandHandler
         updated_filtered = Set.new(filter_elements(updated.send(accessor_method), updated_resource_ids))
         created_filtered = Set.new(filter_elements(created.send(accessor_method), updated_resource_ids))
         deleted_filtered = Set.new(filter_elements(deleted.send(accessor_method), updated_resource_ids))
-        
+
         # Since it is possible for two with the same primary keys but with
         # different fields (columns) to exist across either set. As we're
         # building the final state, we prefer the record from the "created"

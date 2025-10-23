@@ -2,6 +2,7 @@
 
 require 'spec_helper'
 
+DatabaseCleaner.allow_remote_database_url = true
 DatabaseCleaner.strategy = :truncation
 
 describe HostFactoriesController, type: :request do

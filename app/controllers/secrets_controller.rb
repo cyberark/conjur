@@ -255,7 +255,7 @@ class SecretsController < RestController
       data: JSON.parse(issuer.data)
     }
 
-    ConjurDynamicEngineClient.new(
+    Issuers::EphemeralEngines::ConjurDynamicEngineClient.new(
       logger: logger,
       request_id: request_id,
       http_client: ephemeral_secrets_service_http_client

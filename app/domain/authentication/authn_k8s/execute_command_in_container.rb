@@ -11,7 +11,7 @@ require 'timeout'
 module Authentication
   module AuthnK8s
 
-    ExecuteCommandInContainer ||= CommandClass.new(
+    ExecuteCommandInContainer = CommandClass.new(
       dependencies: {
         timeout: ENV['KUBE_EXEC_COMMAND_TIMEOUT'],
         websocket_client: WebSocketClient,

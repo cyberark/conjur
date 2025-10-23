@@ -2,7 +2,7 @@
 
 require 'singleton'
 
-module Domain
+module Resources
   class ResourceScopesService
     include Singleton
     include Domain

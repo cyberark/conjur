@@ -4,7 +4,7 @@ require 'command_class'
 
 module Authentication
 
-  Login ||= CommandClass.new(
+  Login = CommandClass.new(
     dependencies: {
       validate_webservice_is_whitelisted:
         ::Authentication::Security::ValidateWebserviceIsWhitelisted.new,

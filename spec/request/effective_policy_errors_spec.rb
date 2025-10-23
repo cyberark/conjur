@@ -20,6 +20,7 @@ describe PoliciesController, type: :request do
         .class.name.downcase[/[^:]+$/].intern
 
     # we need truncation here because the tests span many transactions
+    DatabaseCleaner.allow_remote_database_url = true
     DatabaseCleaner.strategy = :truncation
 
     Slosilo["authn:rspec"] ||= Slosilo::Key.new
@@ -48,20 +49,20 @@ describe PoliciesController, type: :request do
           - !user ale
           - !user alo
           - !user aly
-      
+
           - !grant
             role: !user ali
             members:
               - !user ../../rot
-      
+
           - !policy
             id: outer-adm
             owner: !user ali
             body:
               - !user bob
-      
+
               - !group grp-outer-adm
-      
+
               - !grant
                 role: !group grp-outer-adm
                 members:
@@ -70,27 +71,27 @@ describe PoliciesController, type: :request do
                   - !user ../ale
                   - !user ../alo
                   - !user ../aly
-      
+
               - !grant
                 role: !user bob
                 members:
                   - !user ../ali
-      
+
               - !permit
                 role: !group grp-outer-adm
                 privileges: [ read, execute ]
                 resource: !policy inner-adm
-      
+
               - !permit
                 role: !user bob
                 privileges: [read, update, create]
                 resource: !policy inner-adm
-      
+
               - !policy
                 id: root
                 body:
                   - !user usr
-      
+
               - !policy
                 id: inner-adm
                 owner: !user bob
@@ -107,9 +108,9 @@ describe PoliciesController, type: :request do
                     mime_type: text/plain
                     annotations:
                       description: Desc for var 2 in inner-adm
-      
+
                   - !user cac
-      
+
                   - !policy
                     id: data-adm
                     body:
@@ -120,7 +121,7 @@ describe PoliciesController, type: :request do
                         mime_type: text/plain
                         annotations:
                           description: Desc for var 2 in inner-adm
-      
+
                       - !webservice inner-data-adm-ws1
                       - !webservice
                         id: inner-data-adm-ws2
@@ -129,33 +130,33 @@ describe PoliciesController, type: :request do
                       - !webservice
                         id: inner-data-adm-ws3
                         owner: !policy /rootpolicy/acme-adm/outer-adm/inner-adm/data-adm
-      
+
                       - !layer data-adm-lyr1
                       - !layer
                         id: data-adm-lyr2
-      
+
                       - !host data-adm-hst1
                       - !host
                         id: data-adm-hst2
-      
+
                       - !host-factory
                         id: data-adm-hf1
                         layers: [ !layer data-adm-lyr1 ]
-      
+
                       - !host-factory
                         id: data-adm-hf2
                         owner: !host data-adm-hst2
                         layers: [ !layer data-adm-lyr1, !layer data-adm-lyr2 ]
                         annotations:
                           description: annotation description
-      
+
                       - !group data-adm-grp1
                       - !group
                         id: data-adm-grp2
                         owner: !host-factory data-adm-hf2
                         annotations:
                           description: annotation description
-      
+
           - !policy
             id: outer-adm-inner-adm
             body:
@@ -163,11 +164,11 @@ describe PoliciesController, type: :request do
               - !variable hole/nope/nope/hnn-var2
               - !variable hole/nope/nope/nope/hnnn-var3
               - !policy hole/nope/hn-pol1
-      
+
           - !host
             id: outer-host
             owner: !policy outer-adm-inner-adm
-      
+
           - !policy
             id: outer
             body:

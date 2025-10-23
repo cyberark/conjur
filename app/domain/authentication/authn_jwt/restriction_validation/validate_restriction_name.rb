@@ -7,7 +7,7 @@ module Authentication
       class ValidateRestrictionName
         def call(restriction:)
           restriction_name = restriction.name
-          if restriction_name.empty? || !restriction_name.match?(PURE_NESTED_CLAIM_NAME_REGEX)
+          if restriction_name.empty? || !restriction_name.match?(AuthnJwt::PURE_NESTED_CLAIM_NAME_REGEX)
             raise Errors::Authentication::AuthnJwt::InvalidRestrictionName, restriction_name
           end
         end

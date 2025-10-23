@@ -5,7 +5,7 @@ require 'open3'
 
 module Commands
   module Configuration
-    Apply ||= CommandClass.new(
+    Apply = CommandClass.new(
       dependencies: {
         command_runner: Open3,
         process_manager: Process,

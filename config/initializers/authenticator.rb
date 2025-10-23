@@ -4,7 +4,6 @@ require 'slosilo'
 require 'slosilo/adapters/sequel_adapter'
 
 require 'sequel'
-require 'patches/core_ext'
 
 Sequel.extension(:migration)
 

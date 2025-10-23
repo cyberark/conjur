@@ -384,7 +384,7 @@ requirements.
 
      ```ruby
      ca_cert = OpenSSL::X509::Store.new
-     ::Conjur::CertUtils.add_chained_cert(ca_cert, <VARIABLE_VALUE>)
+     Conjur::Certificates::CertUtils.add_chained_cert(ca_cert, <VARIABLE_VALUE>)
      ```
 
    Add new `signing_key_type` - `STATIC`. The provider type static when `public-keys`

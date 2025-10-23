@@ -1,7 +1,7 @@
 module Authentication
   module AuthnOidc
 
-    UpdateInputWithUsernameFromIdToken ||= CommandClass.new(
+    UpdateInputWithUsernameFromIdToken = CommandClass.new(
       dependencies: {
         validate_account_exists: ::Authentication::Security::ValidateAccountExists.new,
         verify_and_decode_token: ::Authentication::OAuth::VerifyAndDecodeToken.new,

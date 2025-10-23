@@ -7,7 +7,7 @@ module Authentication
       # validate, according to the following logic:
       # For each optional claim (iss, exp, nbf, iat) that exists in the token - add to mandatory list
       # Note: the list also contains the value to validate if necessary (for example iss: cyberark.com)
-      FetchJwtClaimsToValidate ||= CommandClass.new(
+      FetchJwtClaimsToValidate = CommandClass.new(
         dependencies: {
           fetch_issuer_value: ::Authentication::AuthnJwt::ValidateAndDecode::FetchIssuerValue.new,
           fetch_audience_value: ::Authentication::AuthnJwt::ValidateAndDecode::FetchAudienceValue.new,
@@ -41,13 +41,13 @@ module Authentication
         end
 
         def add_mandatory_claims_to_jwt_claims_list
-          MANDATORY_CLAIMS.each do |mandatory_claim|
+          AuthnJwt::MANDATORY_CLAIMS.each do |mandatory_claim|
             add_to_jwt_claims_list(mandatory_claim)
           end
-          add_to_jwt_claims_list(AUD_CLAIM_NAME) unless audience_value.blank?
+          add_to_jwt_claims_list(AuthnJwt::AUD_CLAIM_NAME) unless audience_value.blank?
           return if Rails.application.config.conjur_config.authn_jwt_ignore_missing_issuer_claim
 
-          add_to_jwt_claims_list(ISS_CLAIM_NAME) unless issuer_value.blank?
+          add_to_jwt_claims_list(AuthnJwt::ISS_CLAIM_NAME) unless issuer_value.blank?
         end
 
         def audience_value
@@ -63,11 +63,11 @@ module Authentication
         end
 
         def add_optional_claims_to_jwt_claims_list
-          optional_claims = OPTIONAL_CLAIMS.dup
+          optional_claims = AuthnJwt::OPTIONAL_CLAIMS.dup
           if Rails.application.config.conjur_config.authn_jwt_ignore_missing_issuer_claim
-            optional_claims.push(ISS_CLAIM_NAME)
+            optional_claims.push(AuthnJwt::ISS_CLAIM_NAME)
           end
-          OPTIONAL_CLAIMS.each do |optional_claim|
+          AuthnJwt::OPTIONAL_CLAIMS.each do |optional_claim|
             @logger.debug(LogMessages::Authentication::AuthnJwt::CheckingJwtClaimToValidate.new(optional_claim))
 
             add_to_jwt_claims_list(optional_claim) if @decoded_token[optional_claim]
@@ -91,9 +91,9 @@ module Authentication
 
         def claim_value(claim)
           case claim
-          when ISS_CLAIM_NAME
+          when AuthnJwt::ISS_CLAIM_NAME
             issuer_value
-          when AUD_CLAIM_NAME
+          when AuthnJwt::AUD_CLAIM_NAME
             audience_value
           else
             # Claims that do not need an additional value to be validated will be set with nil value

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Paging
-  include Domain::Validation
+  include Validation
   include ActiveModel::Validations
 
   PAGING_URL_PARAMS = %i[offset limit].freeze

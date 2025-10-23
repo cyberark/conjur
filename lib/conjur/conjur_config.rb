@@ -8,7 +8,7 @@ require 'anyway_config'
 # errors, we should move those classes into `/lib` from `app/domain`. However,
 # that change greatly expands the scope of this PR and so, instead, I used a
 # relative require to include the log definitions here.
-require_relative '../../app/domain/logs'
+require_relative '../../app/domain/log_messages'
 
 module Conjur
   # We are temporarily avoiding hooking into the application error system
@@ -51,7 +51,7 @@ module Conjur
       host_factories_enabled: true
     )
 
-    AUTHENTICATORS = %w[authn authn-k8s authn-oidc authn-iam 
+    AUTHENTICATORS = %w[authn authn-k8s authn-oidc authn-iam
         authn-ldap authn-gcp authn-jwt authn-azure].freeze
 
     def initialize(
@@ -246,7 +246,7 @@ module Conjur
         suggestion = [authen_checker.correct(auth_type)[0], service_id].join("/")
         unless AUTHENTICATORS.include?(auth_type.strip)
           "'#{auth}' is not a valid authenticator type. "\
-          "Did you mean '#{suggestion}'?"   
+          "Did you mean '#{suggestion}'?"
         end
         }
     rescue

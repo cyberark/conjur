@@ -17,7 +17,7 @@ module Authentication
         def call
           @logger.debug(
             LogMessages::Authentication::AuthnJwt::FetchingIdentityByInterface.new(
-              TOKEN_IDENTITY_PROVIDER_INTERFACE_NAME
+              AuthnJwt::TOKEN_IDENTITY_PROVIDER_INTERFACE_NAME
             )
           )
 
@@ -30,7 +30,7 @@ module Authentication
           )
 
           # Create final id by joining "host", <path>, and <id>.
-          host_prefix = IDENTITY_TYPE_HOST
+          host_prefix = AuthnJwt::IDENTITY_TYPE_HOST
 
           # File.join handles duplicate `/` for us.  Eg:
           #     File.join('/a/b/', '/c/d/', '/e') => "/a/b/c/d/e"
@@ -39,7 +39,7 @@ module Authentication
           @logger.info(
             LogMessages::Authentication::AuthnJwt::FetchedIdentityByInterface.new(
               full_host_id,
-              TOKEN_IDENTITY_PROVIDER_INTERFACE_NAME
+              AuthnJwt::TOKEN_IDENTITY_PROVIDER_INTERFACE_NAME
             )
           )
 
@@ -78,8 +78,8 @@ module Authentication
             conjur_account: @jwt_authenticator_input.account,
             authenticator_name: @jwt_authenticator_input.authenticator_name,
             service_id: @jwt_authenticator_input.service_id,
-            required_variable_names: [TOKEN_APP_PROPERTY_VARIABLE]
-          )[TOKEN_APP_PROPERTY_VARIABLE]
+            required_variable_names: [AuthnJwt::TOKEN_APP_PROPERTY_VARIABLE]
+          )[AuthnJwt::TOKEN_APP_PROPERTY_VARIABLE]
         end
 
         def id_claim_value

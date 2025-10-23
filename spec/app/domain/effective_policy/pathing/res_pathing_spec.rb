@@ -1,7 +1,7 @@
 require 'spec_helper'
 
-RSpec.describe(EffectivePolicy::ResPathing) do
-  let(:pathing) { Class.new { include EffectivePolicy::ResPathing }.new }
+RSpec.describe(EffectivePolicy::Pathing::ResPathing) do
+  let(:pathing) { Class.new { include EffectivePolicy::Pathing::ResPathing }.new }
 
   describe '#kind' do
     context 'when resource full id is provided' do

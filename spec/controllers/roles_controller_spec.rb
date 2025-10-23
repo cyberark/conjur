@@ -2,6 +2,7 @@
 
 require 'spec_helper'
 
+DatabaseCleaner.allow_remote_database_url = true
 DatabaseCleaner.strategy = :truncation
 
 NONEXISTING_GROUP_URL = '/roles/rspec/group/none'

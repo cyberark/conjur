@@ -5,8 +5,6 @@
 #
 # I (Jonah) plan to pull this out into a gem soon.
 
-require_relative 'deep_double/lookup_return_value'
-
 module Util
   module Stubs
     class DeepDouble

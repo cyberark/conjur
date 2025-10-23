@@ -8,7 +8,7 @@ module Authentication
       #   * RequiredConstraint - Checks all the claims in "enforced_claims" variable are in host annotations. If there
       #     is alias for this claim it will convert it to relevant name
       #   * NonPermittedConstraint - Checks there are no standard claims [exp,iat,nbf,iss] in the host annotations
-      CreateConstrains = CommandClass.new(
+      CreateConstraints = CommandClass.new(
         dependencies: {
           non_permitted_constraint_class: Authentication::Constraints::NonPermittedConstraint,
           required_constraint_class: Authentication::Constraints::RequiredConstraint,

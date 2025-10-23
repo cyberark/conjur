@@ -21,7 +21,7 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::FetchAudienceValue'
     )
   }
 
-  let(:audience_resource_name) {Authentication::AuthnJwt::AUDIENCE_RESOURCE_NAME}
+  let(:audience_resource_name) {Authentication::AuthnJwt::AuthnJwt::AUDIENCE_RESOURCE_NAME}
   let(:audience_valid_secret_value) {'valid-string-value'}
 
   let(:mocked_resource) { double("MockedResource") }

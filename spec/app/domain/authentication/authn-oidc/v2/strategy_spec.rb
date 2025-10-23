@@ -29,8 +29,8 @@ RSpec.describe(Authentication::AuthnOidc::V2::Strategy) do
 
   let(:instantiated_oidc_client) do
     instance_double(::Authentication::AuthnOidc::V2::OidcClient).tap do |double|
-      allow(double).to receive(:exchange_code_for_token).and_return(SuccessResponse.new(jwt))
-      allow(double).to receive(:oidc_configuration).and_return(SuccessResponse.new({ 'jwks_uri' => 'http://foo.bar.com' }))
+      allow(double).to receive(:exchange_code_for_token).and_return(Responses::Success.new(jwt))
+      allow(double).to receive(:oidc_configuration).and_return(Responses::Success.new({ 'jwks_uri' => 'http://foo.bar.com' }))
     end
   end
 
@@ -79,7 +79,7 @@ RSpec.describe(Authentication::AuthnOidc::V2::Strategy) do
       context 'when code is not successfully exchanged for a validated token' do
         let(:instantiated_oidc_client) do
           instance_double(::Authentication::AuthnOidc::V2::OidcClient).tap do |double|
-            allow(double).to receive(:exchange_code_for_token).and_return(FailureResponse.new('no dice'))
+            allow(double).to receive(:exchange_code_for_token).and_return(Responses::Failure.new('no dice'))
           end
         end
         it 'is unsuccessful' do

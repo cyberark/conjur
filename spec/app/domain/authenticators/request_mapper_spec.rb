@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe ::Authenticator::RequestMapper do
+describe Authenticators::RequestMapper do
   let(:account) {"rspec"}
   let(:type) {"jwt"}
   let(:data) do

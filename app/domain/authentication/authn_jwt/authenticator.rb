@@ -57,7 +57,7 @@ module Authentication
           webservice: webservice,
           account: account,
           user_id: jwt_identity,
-          privilege: PRIVILEGE_AUTHENTICATE
+          privilege: AuthnJwt::PRIVILEGE_AUTHENTICATE
         )
       end
 

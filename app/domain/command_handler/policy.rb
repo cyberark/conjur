@@ -12,8 +12,8 @@ module CommandHandler
       @resource_repository = resource_repository
 
       # Defined here for visibility. We shouldn't need to mock these.
-      @success = ::SuccessResponse
-      @failure = ::FailureResponse
+      @success = Responses::Success
+      @failure = Responses::Failure
     end
 
     def call(target_policy_id:, context:, policy:, loader:, request_type:)

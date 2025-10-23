@@ -1,12 +1,10 @@
 # frozen_string_literal: true
 
-require 'authentication/webservices'
-
 module Authentication
 
   module Security
 
-    ValidateWebserviceIsWhitelisted ||= CommandClass.new(
+    ValidateWebserviceIsWhitelisted = CommandClass.new(
       dependencies: {
         role_class: ::Role,
         webservices_class: ::Authentication::Webservices,

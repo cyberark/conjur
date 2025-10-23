@@ -4,7 +4,7 @@ module Authentication
   module AuthnJwt
     module RestrictionValidation
       # Fetch the claim aliases from the JWT authenticator policy which enforce
-      # definition of annotations keys on JWT hosts 
+      # definition of annotations keys on JWT hosts
       FetchClaimAliases = CommandClass.new(
         dependencies: {
           check_authenticator_secret_exists: Authentication::Util::CheckAuthenticatorSecretExists.new,
@@ -19,7 +19,7 @@ module Authentication
 
         def call
           @logger.debug(LogMessages::Authentication::AuthnJwt::FetchingClaimAliases.new)
-          
+
           return empty_claim_aliases unless claim_aliases_resource_exists?
 
           fetch_claim_aliases_secret_value
@@ -40,7 +40,7 @@ module Authentication
             conjur_account: account,
             authenticator_name: authenticator_name,
             service_id: service_id,
-            var_name: CLAIM_ALIASES_RESOURCE_NAME
+            var_name: AuthnJwt::CLAIM_ALIASES_RESOURCE_NAME
           )
         end
 
@@ -53,10 +53,10 @@ module Authentication
             conjur_account: account,
             authenticator_name: authenticator_name,
             service_id: service_id,
-            required_variable_names: [CLAIM_ALIASES_RESOURCE_NAME]
-          )[CLAIM_ALIASES_RESOURCE_NAME]
+            required_variable_names: [AuthnJwt::CLAIM_ALIASES_RESOURCE_NAME]
+          )[AuthnJwt::CLAIM_ALIASES_RESOURCE_NAME]
         end
-        
+
         def parse_claim_aliases_secret_value
           claim_aliases
         end

@@ -3,7 +3,7 @@ module Authentication
     module SigningKey
       # This class is responsible for fetching values of all variables related
       # to signing key settings area
-      FetchSigningKeyParametersFromVariables ||= CommandClass.new(
+      FetchSigningKeyParametersFromVariables = CommandClass.new(
         dependencies: {
           check_authenticator_secret_exists: Authentication::Util::CheckAuthenticatorSecretExists.new,
           fetch_authenticator_secrets: Authentication::Util::FetchAuthenticatorSecrets.new
@@ -21,7 +21,7 @@ module Authentication
         private
 
         def fetch_variables_values
-          SIGNING_KEY_RESOURCES_NAMES.each do |name|
+          AuthnJwt::SIGNING_KEY_RESOURCES_NAMES.each do |name|
             variables_values[name] = secret_value(secret_name: name)
           end
         end

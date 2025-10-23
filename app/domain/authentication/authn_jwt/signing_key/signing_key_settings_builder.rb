@@ -2,13 +2,13 @@ module Authentication
   module AuthnJwt
     module SigningKey
 
-      NO_SIGNING_KEYS_SOURCE = "One of the following must be defined: #{JWKS_URI_RESOURCE_NAME}, #{PUBLIC_KEYS_RESOURCE_NAME}, or #{PROVIDER_URI_RESOURCE_NAME}".freeze
-      ALL_SIGNING_KEYS_SOURCES = "#{JWKS_URI_RESOURCE_NAME}, #{PUBLIC_KEYS_RESOURCE_NAME}, and #{PROVIDER_URI_RESOURCE_NAME} cannot be defined simultaneously".freeze
-      JWKS_PROVIDER_URI_SIGNING_PAIR = "#{JWKS_URI_RESOURCE_NAME} and #{PROVIDER_URI_RESOURCE_NAME} cannot be defined simultaneously".freeze
-      JWKS_URI_PUBLIC_KEYS_PAIR = "#{JWKS_URI_RESOURCE_NAME} and #{PUBLIC_KEYS_RESOURCE_NAME} cannot be defined simultaneously".freeze
-      PUBLIC_KEYS_PROVIDER_URI_PAIR = "#{PUBLIC_KEYS_RESOURCE_NAME} and #{PROVIDER_URI_RESOURCE_NAME} cannot be defined simultaneously".freeze
-      CERT_STORE_ONLY_WITH_JWKS_URI_OR_PROVIDER_URI = "#{CA_CERT_RESOURCE_NAME} can only be defined together with #{JWKS_URI_RESOURCE_NAME} or #{PROVIDER_URI_RESOURCE_NAME}".freeze
-      PUBLIC_KEYS_HAVE_ISSUER = "#{ISSUER_RESOURCE_NAME} is mandatory when #{PUBLIC_KEYS_RESOURCE_NAME} is defined".freeze
+      NO_SIGNING_KEYS_SOURCE = "One of the following must be defined: #{AuthnJwt::JWKS_URI_RESOURCE_NAME}, #{AuthnJwt::PUBLIC_KEYS_RESOURCE_NAME}, or #{AuthnJwt::PROVIDER_URI_RESOURCE_NAME}".freeze
+      ALL_SIGNING_KEYS_SOURCES = "#{AuthnJwt::JWKS_URI_RESOURCE_NAME}, #{AuthnJwt::PUBLIC_KEYS_RESOURCE_NAME}, and #{AuthnJwt::PROVIDER_URI_RESOURCE_NAME} cannot be defined simultaneously".freeze
+      JWKS_PROVIDER_URI_SIGNING_PAIR = "#{AuthnJwt::JWKS_URI_RESOURCE_NAME} and #{AuthnJwt::PROVIDER_URI_RESOURCE_NAME} cannot be defined simultaneously".freeze
+      JWKS_URI_PUBLIC_KEYS_PAIR = "#{AuthnJwt::JWKS_URI_RESOURCE_NAME} and #{AuthnJwt::PUBLIC_KEYS_RESOURCE_NAME} cannot be defined simultaneously".freeze
+      PUBLIC_KEYS_PROVIDER_URI_PAIR = "#{AuthnJwt::PUBLIC_KEYS_RESOURCE_NAME} and #{AuthnJwt::PROVIDER_URI_RESOURCE_NAME} cannot be defined simultaneously".freeze
+      CERT_STORE_ONLY_WITH_JWKS_URI_OR_PROVIDER_URI = "#{AuthnJwt::CA_CERT_RESOURCE_NAME} can only be defined together with #{AuthnJwt::JWKS_URI_RESOURCE_NAME} or #{AuthnJwt::PROVIDER_URI_RESOURCE_NAME}".freeze
+      PUBLIC_KEYS_HAVE_ISSUER = "#{AuthnJwt::ISSUER_RESOURCE_NAME} is mandatory when #{AuthnJwt::PUBLIC_KEYS_RESOURCE_NAME} is defined".freeze
 
       # fetches signing key settings, validates and builds SigningKeysSettings object
       SigningKeySettingsBuilder = CommandClass.new(
@@ -96,37 +96,37 @@ module Authentication
         end
 
         def signing_key_settings_type
-          return JWKS_URI_INTERFACE_NAME if jwks_uri
-          return PROVIDER_URI_INTERFACE_NAME if provider_uri
-          return PUBLIC_KEYS_INTERFACE_NAME if public_keys
+          return AuthnJwt::JWKS_URI_INTERFACE_NAME if jwks_uri
+          return AuthnJwt::PROVIDER_URI_INTERFACE_NAME if provider_uri
+          return AuthnJwt::PUBLIC_KEYS_INTERFACE_NAME if public_keys
         end
 
         def signing_key_settings_cert_store
           return unless ca_cert
 
           cert_store = OpenSSL::X509::Store.new
-          Conjur::CertUtils.add_chained_cert(cert_store, ca_cert)
+          Conjur::Certificates::CertUtils.add_chained_cert(cert_store, ca_cert)
           cert_store
         end
 
         def jwks_uri
-          @signing_key_parameters[JWKS_URI_RESOURCE_NAME]
+          @signing_key_parameters[AuthnJwt::JWKS_URI_RESOURCE_NAME]
         end
 
         def provider_uri
-          @signing_key_parameters[PROVIDER_URI_RESOURCE_NAME]
+          @signing_key_parameters[AuthnJwt::PROVIDER_URI_RESOURCE_NAME]
         end
 
         def public_keys
-          @signing_key_parameters[PUBLIC_KEYS_RESOURCE_NAME]
+          @signing_key_parameters[AuthnJwt::PUBLIC_KEYS_RESOURCE_NAME]
         end
 
         def ca_cert
-          @signing_key_parameters[CA_CERT_RESOURCE_NAME]
+          @signing_key_parameters[AuthnJwt::CA_CERT_RESOURCE_NAME]
         end
 
         def issuer
-          @signing_key_parameters[ISSUER_RESOURCE_NAME]
+          @signing_key_parameters[AuthnJwt::ISSUER_RESOURCE_NAME]
         end
       end
     end

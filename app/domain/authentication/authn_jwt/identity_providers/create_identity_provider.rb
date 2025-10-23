@@ -45,14 +45,14 @@ module Authentication
             conjur_account: account,
             authenticator_name: authenticator_name,
             service_id: service_id,
-            var_name: TOKEN_APP_PROPERTY_VARIABLE
+            var_name: AuthnJwt::TOKEN_APP_PROPERTY_VARIABLE
           )
         end
 
         def identity_from_decoded_token_provider
           @logger.info(
             LogMessages::Authentication::AuthnJwt::SelectedIdentityProviderInterface.new(
-              TOKEN_IDENTITY_PROVIDER_INTERFACE_NAME
+              AuthnJwt::TOKEN_IDENTITY_PROVIDER_INTERFACE_NAME
             )
           )
 
@@ -68,7 +68,7 @@ module Authentication
         def identity_from_url_provider
           @logger.info(
             LogMessages::Authentication::AuthnJwt::SelectedIdentityProviderInterface.new(
-              URL_IDENTITY_PROVIDER_INTERFACE_NAME
+              AuthnJwt::URL_IDENTITY_PROVIDER_INTERFACE_NAME
             )
           )
 

@@ -16,8 +16,8 @@ module Authentication
           @credentials = credentials
           @role = role
 
-          @success = ::SuccessResponse
-          @failure = ::FailureResponse
+          @success = Responses::Success
+          @failure = Responses::Failure
         end
 
         # Parameter `id` is guaranteed to be present based on the

@@ -6,7 +6,7 @@ module Authentication
       # FetchIssuerValue command class is responsible to fetch the issuer secret value,
       # in order to validate it later against the JWT token claim
       # rubocop:disable Metrics/BlockLength
-      FetchIssuerValue ||= CommandClass.new(
+      FetchIssuerValue = CommandClass.new(
         dependencies: {
           fetch_authenticator_secrets: Authentication::Util::FetchAuthenticatorSecrets.new,
           check_authenticator_secret_exists: Authentication::Util::CheckAuthenticatorSecretExists.new,
@@ -38,18 +38,18 @@ module Authentication
         # In case the resource is configured but the not initialized with secret, throw an error
         def fetch_issuer_value
           if issuer_resource_exists?
-            @logger.info(LogMessages::Authentication::AuthnJwt::IssuerResourceNameConfiguration.new(ISSUER_RESOURCE_NAME))
+            @logger.info(LogMessages::Authentication::AuthnJwt::IssuerResourceNameConfiguration.new(AuthnJwt::ISSUER_RESOURCE_NAME))
 
             @issuer_value = issuer_secret_value
           else
             validate_issuer_configuration
 
             if provider_uri_resource_exists?
-              @logger.info(LogMessages::Authentication::AuthnJwt::IssuerResourceNameConfiguration.new(PROVIDER_URI_RESOURCE_NAME))
+              @logger.info(LogMessages::Authentication::AuthnJwt::IssuerResourceNameConfiguration.new(AuthnJwt::PROVIDER_URI_RESOURCE_NAME))
 
               @issuer_value = provider_uri_secret_value
             elsif jwks_uri_resource_exists?
-              @logger.info(LogMessages::Authentication::AuthnJwt::IssuerResourceNameConfiguration.new(JWKS_URI_RESOURCE_NAME))
+              @logger.info(LogMessages::Authentication::AuthnJwt::IssuerResourceNameConfiguration.new(AuthnJwt::JWKS_URI_RESOURCE_NAME))
 
               @issuer_value = fetch_issuer_from_jwks_uri_secret
             end
@@ -63,7 +63,7 @@ module Authentication
             conjur_account: account,
             authenticator_name: authenticator_name,
             service_id: service_id,
-            var_name: ISSUER_RESOURCE_NAME
+            var_name: AuthnJwt::ISSUER_RESOURCE_NAME
           )
         end
 
@@ -76,17 +76,17 @@ module Authentication
             conjur_account: account,
             authenticator_name: authenticator_name,
             service_id: service_id,
-            required_variable_names: [ISSUER_RESOURCE_NAME]
-          )[ISSUER_RESOURCE_NAME]
+            required_variable_names: [AuthnJwt::ISSUER_RESOURCE_NAME]
+          )[AuthnJwt::ISSUER_RESOURCE_NAME]
         end
 
         def validate_issuer_configuration
           if (provider_uri_resource_exists? && jwks_uri_resource_exists?) ||
               (!provider_uri_resource_exists? && !jwks_uri_resource_exists?)
             raise Errors::Authentication::AuthnJwt::InvalidIssuerConfiguration.new(
-              ISSUER_RESOURCE_NAME,
-              PROVIDER_URI_RESOURCE_NAME,
-              JWKS_URI_RESOURCE_NAME
+              AuthnJwt::ISSUER_RESOURCE_NAME,
+              AuthnJwt::PROVIDER_URI_RESOURCE_NAME,
+              AuthnJwt::JWKS_URI_RESOURCE_NAME
             )
           end
         end
@@ -96,7 +96,7 @@ module Authentication
             conjur_account: account,
             authenticator_name: authenticator_name,
             service_id: service_id,
-            var_name: PROVIDER_URI_RESOURCE_NAME
+            var_name: AuthnJwt::PROVIDER_URI_RESOURCE_NAME
           )
         end
 
@@ -105,16 +105,16 @@ module Authentication
             conjur_account: account,
             authenticator_name: authenticator_name,
             service_id: service_id,
-            var_name: JWKS_URI_RESOURCE_NAME
+            var_name: AuthnJwt::JWKS_URI_RESOURCE_NAME
           )
         end
 
         def provider_uri_resource
-          @provider_uri_resource ||= resource(PROVIDER_URI_RESOURCE_NAME)
+          @provider_uri_resource ||= resource(AuthnJwt::PROVIDER_URI_RESOURCE_NAME)
         end
 
         def jwks_uri_resource
-          @jwks_uri_resource ||= resource(JWKS_URI_RESOURCE_NAME)
+          @jwks_uri_resource ||= resource(AuthnJwt::JWKS_URI_RESOURCE_NAME)
         end
 
         def provider_uri_secret_value
@@ -126,8 +126,8 @@ module Authentication
             conjur_account: account,
             authenticator_name: authenticator_name,
             service_id: service_id,
-            required_variable_names: [PROVIDER_URI_RESOURCE_NAME]
-          )[PROVIDER_URI_RESOURCE_NAME]
+            required_variable_names: [AuthnJwt::PROVIDER_URI_RESOURCE_NAME]
+          )[AuthnJwt::PROVIDER_URI_RESOURCE_NAME]
         end
 
         def fetch_issuer_from_jwks_uri_secret
@@ -158,8 +158,8 @@ module Authentication
             conjur_account: account,
             authenticator_name: authenticator_name,
             service_id: service_id,
-            required_variable_names: [JWKS_URI_RESOURCE_NAME]
-          )[JWKS_URI_RESOURCE_NAME]
+            required_variable_names: [AuthnJwt::JWKS_URI_RESOURCE_NAME]
+          )[AuthnJwt::JWKS_URI_RESOURCE_NAME]
         end
       end
       # rubocop:enable Metrics/BlockLength

@@ -35,8 +35,8 @@ module Authentication
         @authenticator_klass = klass_loader.data_object
         @authenticator_validation = klass_loader.authenticator_validation
 
-        @success = ::SuccessResponse
-        @failure = ::FailureResponse
+        @success = Responses::Success
+        @failure = Responses::Failure
       end
       # rubocop:enable Metrics/ParameterLists
 
@@ -179,7 +179,7 @@ module Authentication
               return @success.new(authenticator)
             end
           end
-        
+
           case authn.exception
           when Errors::Authentication::Security::WebserviceNotFound
             authn.status = :unauthorized

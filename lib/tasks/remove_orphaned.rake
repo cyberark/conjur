@@ -1,4 +1,4 @@
-require_relative '../../app/db/preview/roles_without_resources_recursive'
+# frozen_string_literal: true
 
 namespace :db do
   desc "Preview the role records that will be deleted as part of the db:remove-orphaned task"

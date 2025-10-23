@@ -24,11 +24,11 @@ module Authentication
         @webservice = webservice
         @cert_store = OpenSSL::X509::Store.new
         @cert_store.set_default_paths
-        ::Conjur::CertUtils.add_chained_cert(@cert_store, ca_cert)
+        Conjur::Certificates::CertUtils.add_chained_cert(@cert_store, ca_cert)
 
         return unless ENV.key?('SSL_CERT_DIRECTORY')
 
-        ::Conjur::CertUtils.load_certificates(
+        Conjur::Certificates::CertUtils.load_certificates(
           @cert_store,
           File.join(ENV['SSL_CERT_DIRECTORY'], 'ca')
         )

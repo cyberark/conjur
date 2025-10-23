@@ -1,9 +1,9 @@
-module Authenticator
+module Authenticators
   class RequestMapper 
-    def initialize(validator: ::Authenticator::Validator.new)
+    def initialize(validator: Authenticators::Validator.new)
       @validator = validator
-      @success = ::SuccessResponse
-      @failure = ::FailureResponse
+      @success = Responses::Success
+      @failure = Responses::Failure
     end
 
     def call(request_body, account)

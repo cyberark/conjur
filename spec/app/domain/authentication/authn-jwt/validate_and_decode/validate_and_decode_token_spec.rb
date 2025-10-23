@@ -53,14 +53,14 @@ RSpec.describe('Authentication::AuthnJwt::ValidateAndDecode::ValidateAndDecodeTo
   let(:jwks_from_2nd_call) { " jwks from 2nd call "}
   let(:verification_options_for_signature_only_1st_call) {
     {
-      algorithms: Authentication::AuthnJwt::SUPPORTED_ALGORITHMS,
+      algorithms: Authentication::AuthnJwt::AuthnJwt::SUPPORTED_ALGORITHMS,
       jwks: jwks_from_1st_call
     }
   }
 
   let(:verification_options_for_signature_only_2nd_call) {
     {
-      algorithms: Authentication::AuthnJwt::SUPPORTED_ALGORITHMS,
+      algorithms: Authentication::AuthnJwt::AuthnJwt::SUPPORTED_ALGORITHMS,
       jwks: jwks_from_2nd_call
     }
   }

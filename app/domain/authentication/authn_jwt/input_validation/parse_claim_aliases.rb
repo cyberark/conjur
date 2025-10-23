@@ -3,10 +3,10 @@ module Authentication
     # Validate claim-aliases input
     module InputValidation
       # Parse claim-aliases secret value and return a validated alias hashtable
-      ParseClaimAliases ||= CommandClass.new(
+      ParseClaimAliases = CommandClass.new(
         dependencies: {
           validate_claim_name: ValidateClaimName.new(
-            deny_claims_list_value: CLAIMS_DENY_LIST
+            deny_claims_list_value: AuthnJwt::CLAIMS_DENY_LIST
           ),
           logger: Rails.logger
         },
@@ -37,7 +37,7 @@ module Authentication
           # split ignores empty values at the end of string
           # ",,ddd,,,,,".split(",") == ["", "", "ddd"]
           raise Errors::Authentication::AuthnJwt::ClaimAliasesBlankOrEmpty, @claim_aliases if
-            claim_aliases_last_character == CLAIMS_CHARACTER_DELIMITER
+            claim_aliases_last_character == AuthnJwt::CLAIMS_CHARACTER_DELIMITER
         end
 
         def claim_aliases_last_character
@@ -51,7 +51,7 @@ module Authentication
 
         def alias_tuples_list
           @alias_tuples_list ||= @claim_aliases
-            .split(CLAIMS_CHARACTER_DELIMITER)
+            .split(AuthnJwt::CLAIMS_CHARACTER_DELIMITER)
             .map(&:strip)
         end
 
@@ -67,7 +67,7 @@ module Authentication
 
         def alias_tuple_values(tuple)
           values = tuple
-            .split(TUPLE_CHARACTER_DELIMITER)
+            .split(AuthnJwt::TUPLE_CHARACTER_DELIMITER)
             .map(&:strip)
           raise Errors::Authentication::AuthnJwt::ClaimAliasInvalidFormat, tuple unless values.length == 2
 
@@ -76,7 +76,7 @@ module Authentication
         end
 
         def valid_claim_name(value, tuple)
-          raise Errors::Authentication::AuthnJwt::ClaimAliasNameInvalidCharacter, value if value.include?(PATH_DELIMITER)
+          raise Errors::Authentication::AuthnJwt::ClaimAliasNameInvalidCharacter, value if value.include?(AuthnJwt::PATH_DELIMITER)
 
           valid_claim_value(value, tuple)
         end

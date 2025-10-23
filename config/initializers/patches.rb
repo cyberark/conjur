@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'patches/delegator_encoding'
-
 class TrueClass
   def to_bool
     self

@@ -4,7 +4,7 @@ require 'command_class'
 
 module Authentication
 
-  LogAuditEvent ||= CommandClass.new(
+  LogAuditEvent = CommandClass.new(
     dependencies: {
       audit_logger: Audit.logger,
       audit_role_id_class: ::Audit::Event::Authn::RoleId

@@ -6,7 +6,7 @@ require_relative '../connect_database'
 
 module Commands
   module Role
-    RetrieveKey ||= CommandClass.new(
+    RetrieveKey = CommandClass.new(
       dependencies: {
         connect_database: ConnectDatabase.new
       },

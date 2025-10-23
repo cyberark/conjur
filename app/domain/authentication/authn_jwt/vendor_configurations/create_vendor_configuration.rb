@@ -3,7 +3,7 @@ module Authentication
     module VendorConfigurations
       # Factory that receives an authenticator name and returns the appropriate JWT vendor configuration class
 
-      CreateVendorConfiguration ||= CommandClass.new(
+      CreateVendorConfiguration = CommandClass.new(
         dependencies: {
           configuration_jwt_generic_vendor_class: ConfigurationJWTGenericVendor
         },

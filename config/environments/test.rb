@@ -34,7 +34,7 @@ Rails.application.configure do
   config.static_cache_control = 'public, max-age=3600'
 
   # Show full error reports and disable caching.
-  config.consider_all_requests_local       = true
+  config.consider_all_requests_local       = false
   config.action_controller.perform_caching = false
 
   # Raise exceptions instead of rendering exception templates.
@@ -57,7 +57,7 @@ Rails.application.configure do
   # Use the lowest log level to ensure availability of diagnostic information
   # when problems arise.
   config.log_level = ENV['CONJUR_LOG_LEVEL'] || :debug
-  config.log_formatter = ConjurFormatter.new
+  config.log_formatter = Logger::Formatter::ConjurFormatter.new
 
   # Raises error for missing translations
   # config.action_view.raise_on_missing_translations = true
@@ -71,4 +71,7 @@ Rails.application.configure do
 
   config.ephemeral_secrets_service_address = 'dynamic-secrets'
   config.ephemeral_secrets_service_port = 8080
+
+  # Spring requires Rails reloading to be enabled.
+  config.enable_reloading = true
 end

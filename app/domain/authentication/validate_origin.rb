@@ -2,7 +2,7 @@
 
 module Authentication
 
-  ValidateOrigin ||= CommandClass.new(
+  ValidateOrigin = CommandClass.new(
     dependencies: {
       role_cls: ::Role,
       logger: Rails.logger

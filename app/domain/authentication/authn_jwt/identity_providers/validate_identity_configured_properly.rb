@@ -40,7 +40,7 @@ module Authentication
             conjur_account: account,
             authenticator_name: authenticator_name,
             service_id: service_id,
-            var_name: TOKEN_APP_PROPERTY_VARIABLE
+            var_name: AuthnJwt::TOKEN_APP_PROPERTY_VARIABLE
           )
         end
 
@@ -51,8 +51,8 @@ module Authentication
             conjur_account: account,
             authenticator_name: authenticator_name,
             service_id: service_id,
-            required_variable_names: [TOKEN_APP_PROPERTY_VARIABLE]
-          )[TOKEN_APP_PROPERTY_VARIABLE]
+            required_variable_names: [AuthnJwt::TOKEN_APP_PROPERTY_VARIABLE]
+          )[AuthnJwt::TOKEN_APP_PROPERTY_VARIABLE]
         end
 
         def validate_token_app_property_configured_properly

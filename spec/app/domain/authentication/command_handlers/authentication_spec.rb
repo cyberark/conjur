@@ -91,7 +91,7 @@ RSpec.describe(Authentication::CommandHandlers::Authentication) do
       before do
         allow_any_instance_of(Authentication::AuthnJwt::V2::Strategy)
           .to receive(:callback).and_return(
-            SuccessResponse.new(
+            Responses::Success.new(
               Authentication::RoleIdentifier.new(identifier: 'rspec:user:foo-bar')
             )
           )
@@ -187,25 +187,25 @@ RSpec.describe(Authentication::CommandHandlers::Authentication) do
         let(:authenticator_repository) do
           instance_double(DB::Repository::AuthenticatorRepository).tap do |double|
             allow(double).to receive(:find).with(type: 'authn-jwt', account: 'rspec', service_id: 'foo')
-              .and_return(SuccessResponse.new(AuthenticatorsV2::JwtAuthenticatorType.new({ account: 'rspec', service_id: 'foo', variables: {} })))
+              .and_return(Responses::Success.new(AuthenticatorsV2::JwtAuthenticatorType.new({ account: 'rspec', service_id: 'foo', variables: {} })))
           end
         end
 
         let(:rbac) do
           instance_double(RBAC::Permission).tap do |double|
-            allow(double).to receive(:permitted?).and_return(SuccessResponse.new(role))
+            allow(double).to receive(:permitted?).and_return(Responses::Success.new(role))
           end
         end
-        context 'When role is not authorized to retrieve authenticator' do  
+        context 'When role is not authorized to retrieve authenticator' do
           let(:authenticator_repository) do
             instance_double(DB::Repository::AuthenticatorRepository).tap do |double|
               allow(double).to receive(:find).with(type: 'authn-jwt', account: 'rspec', service_id: 'foo')
                 .and_return(
-                  FailureResponse.new(
+                  Responses::Failure.new(
                     "Authenticator not found",
                     status: :not_found,
                     exception: Errors::Authentication::Security::WebserviceNotFound.new('foo')
-                  ) 
+                  )
                 )
             end
           end
@@ -278,7 +278,7 @@ module Authentication
         def initialize(authenticator:); end
 
         def callback(*)
-          SuccessResponse.new(
+          Responses::Success.new(
             Authentication::RoleIdentifier.new(
               identifier: 'rspec:user:foo-bar'
             )
@@ -304,7 +304,7 @@ module Authentication
         def initialize(authenticator:); end
 
         def callback(*)
-          SuccessResponse.new(
+          Responses::Success.new(
             Authentication::RoleIdentifier.new(
               identifier: 'rspec:user:foo-bar'
             )
@@ -331,7 +331,7 @@ module Authentication
         def initialize(authenticator:); end
 
         def callback(*)
-          SuccessResponse.new(
+          Responses::Success.new(
             Authentication::RoleIdentifier.new(
               identifier: 'rspec:user:foo-bar'
             )

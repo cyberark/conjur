@@ -6,8 +6,8 @@ module RBAC
       @resource_library = resource_library
       @role_library = role_library
 
-      @success = ::SuccessResponse
-      @failure = ::FailureResponse
+      @success = Responses::Success
+      @failure = Responses::Failure
     end
 
     # Accepts both `role` and `role_id` to provide flexibility of lookup.

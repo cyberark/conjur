@@ -8,7 +8,7 @@
 # The main feature we need here not available in that gem is altname extensions.
 
 require 'openssl'
-require_relative 'extension_request_attribute_value'
+# require_relative 'extension_request_attribute_value'
 
 module Util
   module OpenSsl
@@ -17,7 +17,7 @@ module Util
 
         # Creates a basic CSR with with alt_names extensions.
         #
-        # @param common_name [String] eg, 'example.com' 
+        # @param common_name [String] eg, 'example.com'
         # @param rsa_key [OpenSSL::PKey::RSA]
         # @param alt_names [Array<String>] eg, ['URI:spiffe://cluster.local/foo']
         #

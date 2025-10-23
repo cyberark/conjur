@@ -3,8 +3,6 @@
 # Parses a policy -- from a YAML file -- into records using Conjur::PolicyParser.
 # Versioning, storage in DB, and results presentation are left for the caller.
 
-require 'exceptions/enhanced_policy'
-
 module Commands
   module Policy
     class Parse

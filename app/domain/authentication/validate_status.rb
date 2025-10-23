@@ -3,22 +3,30 @@
 require 'command_class'
 
 module Authentication
-
-  ValidateStatus ||= CommandClass.new(
-    dependencies: {
-      validate_webservice_is_whitelisted: ::Authentication::Security::ValidateWebserviceIsWhitelisted.new,
-      validate_role_can_access_webservice: ::Authentication::Security::ValidateRoleCanAccessWebservice.new,
-      validate_webservice_exists: ::Authentication::Security::ValidateWebserviceExists.new,
-      role_class: ::Role,
-      implemented_authenticators: Authentication::ImplementedAuthenticators.authenticators(ENV)
-    },
-    inputs: %i[authenticator_status_input enabled_authenticators]
-  ) do
+  class ValidateStatus
     extend(Forwardable)
     def_delegators(:@authenticator_status_input, :authenticator_name, :account,
                    :username, :webservice, :status_webservice, :role, :client_ip)
 
-    def call
+    def initialize(
+      validate_webservice_is_whitelisted: Security::ValidateWebserviceIsWhitelisted.new,
+      validate_role_can_access_webservice: ::Authentication::Security::ValidateRoleCanAccessWebservice.new,
+      validate_webservice_exists: ::Authentication::Security::ValidateWebserviceExists.new,
+      role_class: ::Role,
+      implemented_authenticators: Authentication::ImplementedAuthenticators.authenticators(ENV)
+    )
+      @validate_webservice_is_whitelisted = validate_webservice_is_whitelisted
+      @validate_role_can_access_webservice = validate_role_can_access_webservice
+      @validate_webservice_exists = validate_webservice_exists
+      @role_class = role_class
+      @implemented_authenticators = implemented_authenticators
+      @logger = Rails.logger
+    end
+
+    def call(authenticator_status_input:, enabled_authenticators:)
+      @authenticator_status_input = authenticator_status_input
+      @enabled_authenticators = enabled_authenticators
+
       validate_authenticator_exists
       validate_authenticator_implements_status_check
 

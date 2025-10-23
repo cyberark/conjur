@@ -1,4 +1,4 @@
-module Authenticator
+module Authenticators
   class Validator 
     def call(params, account)
       validate_basic_structure(params)

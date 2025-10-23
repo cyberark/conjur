@@ -4,7 +4,7 @@ module Authentication
 
   module Security
 
-    ValidateWebserviceExists ||= CommandClass.new(
+    ValidateWebserviceExists = CommandClass.new(
       dependencies: {
         role_class: ::Role,
         resource_class: ::Resource,

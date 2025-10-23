@@ -7,14 +7,14 @@ describe BodyParser do
     context "with an unrecognized content type" do
       let(:media_type) { 'application/octet-stream' }
       it "returns an empty hash" do
-        expect(controller.body_params).to eq({})
+        expect(controller.body_params.to_h).to eq({})
       end
     end
 
     shared_context "urlencoded form data" do
       let(:body_data) { "id=foo&test=bar%20baz&plus=one+two" }
       it "parses the body parameters" do
-        expect(controller.body_params).to eq(\
+        expect(controller.body_params.to_h).to eq(\
           'id' => 'foo',
           'test' => 'bar baz',
           'plus' => 'one two'
@@ -36,7 +36,7 @@ describe BodyParser do
       let(:media_type) { 'application/json' }
       let(:body_data) { '{"foo": "bar" }' }
       it "attempts to parse as JSON" do
-        expect(controller.body_params).to eq("foo" => "bar")
+        expect(controller.body_params.to_h).to eq("foo" => "bar")
       end
     end
 

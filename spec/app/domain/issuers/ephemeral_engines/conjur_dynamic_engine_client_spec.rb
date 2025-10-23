@@ -2,9 +2,9 @@
 
 require 'spec_helper'
 
-describe ConjurDynamicEngineClient do
+describe Issuers::EphemeralEngines::ConjurDynamicEngineClient do
   subject do
-    ConjurDynamicEngineClient.new(
+    Issuers::EphemeralEngines::ConjurDynamicEngineClient.new(
       logger: logger,
       request_id: request_id,
       http_client: http_client_double
@@ -140,7 +140,7 @@ describe ConjurDynamicEngineClient do
       end
 
       it "then they are trimmed and turned to upper case" do
-        result = ConjurDynamicEngineClient.normalize_hash_keys(hash)
+        result = Issuers::EphemeralEngines::ConjurDynamicEngineClient.normalize_hash_keys(hash)
 
         expected_result = {
           "key_one" => "value-one",
@@ -165,7 +165,7 @@ describe ConjurDynamicEngineClient do
       end
 
       it "then the sub hash is transformed as well" do
-        result = ConjurDynamicEngineClient.normalize_hash_keys(hash)
+        result = Issuers::EphemeralEngines::ConjurDynamicEngineClient.normalize_hash_keys(hash)
 
         expected_result = {
           "key_one" => "value-one",
@@ -190,7 +190,7 @@ describe ConjurDynamicEngineClient do
       end
 
       it "then they are transformed ok" do
-        result = ConjurDynamicEngineClient.normalize_hash_keys(hash)
+        result = Issuers::EphemeralEngines::ConjurDynamicEngineClient.normalize_hash_keys(hash)
 
         expected_result = {
           "key_one" => "value-one",
@@ -212,7 +212,7 @@ describe ConjurDynamicEngineClient do
       end
 
       it "then they are normalized" do
-        result = ConjurDynamicEngineClient.normalize_hash_keys(hash)
+        result = Issuers::EphemeralEngines::ConjurDynamicEngineClient.normalize_hash_keys(hash)
 
         expected_result = {
           "key_one" => "value-one",
@@ -234,7 +234,7 @@ describe ConjurDynamicEngineClient do
       end
 
       it "then they are normalized" do
-        result = ConjurDynamicEngineClient.normalize_hash_keys(hash)
+        result = Issuers::EphemeralEngines::ConjurDynamicEngineClient.normalize_hash_keys(hash)
 
         expected_result = {
           "key_one#" => "value-one",
@@ -250,7 +250,7 @@ describe ConjurDynamicEngineClient do
       let(:hash) { {} }
 
       it "then the result is empty as well" do
-        result = ConjurDynamicEngineClient.normalize_hash_keys(hash)
+        result = Issuers::EphemeralEngines::ConjurDynamicEngineClient.normalize_hash_keys(hash)
 
         expected_result = {}
 

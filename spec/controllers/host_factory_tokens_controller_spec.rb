@@ -3,6 +3,7 @@
 require 'spec_helper'
 require 'time'
 
+DatabaseCleaner.allow_remote_database_url = true
 DatabaseCleaner.strategy = :truncation
 
 describe HostFactoryTokensController, type: :request do
@@ -23,7 +24,7 @@ describe HostFactoryTokensController, type: :request do
 
   def create_token
     post(
-      "/host_factory_tokens", 
+      "/host_factory_tokens",
       env: token_auth_header(role: current_user).merge(
         'RAW_POST_DATA' => create_token_payload,
         'ACCEPT' => "application/x.secretsmgr.v2beta+json",
@@ -45,8 +46,8 @@ describe HostFactoryTokensController, type: :request do
     post("/policies/#{account}/policy/root", env: admin_request_env.merge({ 'RAW_POST_DATA' => policy_content }))
     return unless expect_success
 
-    expect(response.code).to eq("201") 
-  end  
+    expect(response.code).to eq("201")
+  end
 
   let(:test_policy) do
     <<~POLICY
@@ -82,7 +83,7 @@ describe HostFactoryTokensController, type: :request do
       host_factory: host_factory_resource_id,
       cidr: cidr,
       count: count
-    }.to_json 
+    }.to_json
   end
 
   let(:host_factory_token) do
@@ -171,7 +172,7 @@ describe HostFactoryTokensController, type: :request do
               user: host_factory_resource_id,
               cidr: cidr,
               count: count
-            }.to_json 
+            }.to_json
           end
 
           it "raises an argument error" do
@@ -181,12 +182,12 @@ describe HostFactoryTokensController, type: :request do
         end
 
         context "when expiration parameter is missing" do
-          let(:create_token_payload) do 
+          let(:create_token_payload) do
             {
               host_factory: host_factory_resource_id,
               cidr: cidr,
               count: count
-            }.to_json 
+            }.to_json
           end
 
           it "returns a 422 code" do
@@ -306,7 +307,7 @@ describe HostFactoryTokensController, type: :request do
       end
     end
   end
-  
+
   describe '#destroy' do
     before(:each) do
       apply_root_policy("rspec", policy_content: test_policy, expect_success: true)

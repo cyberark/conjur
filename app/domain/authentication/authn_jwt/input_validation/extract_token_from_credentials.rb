@@ -1,7 +1,7 @@
 module Authentication
   module AuthnJwt
     module InputValidation
-      ExtractTokenFromCredentials ||= CommandClass.new(
+      ExtractTokenFromCredentials = CommandClass.new(
         dependencies: {
           decoded_credentials_class: Authentication::Jwt::DecodedCredentials
         },

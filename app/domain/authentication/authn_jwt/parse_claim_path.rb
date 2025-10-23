@@ -9,11 +9,11 @@ module Authentication
         @logger = logger
       end
 
-      def call(claim:, parts_separator: PATH_DELIMITER)
+      def call(claim:, parts_separator: AuthnJwt::PATH_DELIMITER)
         @logger.debug(LogMessages::Authentication::AuthnJwt::ClaimPathParsingStart.new(claim))
 
-        raise Errors::Authentication::AuthnJwt::InvalidClaimPath.new(claim, PURE_NESTED_CLAIM_NAME_REGEX) if
-          claim.nil? || !claim.match?(PURE_NESTED_CLAIM_NAME_REGEX)
+        raise Errors::Authentication::AuthnJwt::InvalidClaimPath.new(claim, AuthnJwt::PURE_NESTED_CLAIM_NAME_REGEX) if
+          claim.nil? || !claim.match?(AuthnJwt::PURE_NESTED_CLAIM_NAME_REGEX)
 
         result = claim
           .split(parts_separator)

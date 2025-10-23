@@ -17,8 +17,8 @@ module Authentication
             @digest = digest
             @random = random
 
-            @success = SuccessResponse
-            @failure = FailureResponse
+            @success = Responses::Success
+            @failure = Responses::Failure
           end
 
           def call(authenticators:)

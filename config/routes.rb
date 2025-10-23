@@ -23,7 +23,7 @@ end
 Rails.application.routes.draw do
   scope format: false do
     get '/' => 'status#index'
-    get '/whoami' => 'status#whoami'
+    get '/whoami' => 'whoami#show'
     get '/authenticators' => 'authenticate#index'
 
     constraints id: /[^\/?]+/ do

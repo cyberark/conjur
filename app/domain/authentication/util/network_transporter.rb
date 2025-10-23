@@ -8,7 +8,7 @@ module Authentication
         ca_certificate: nil,
         proxy: nil,
         http: Net::HTTP,
-        certificate_utilities: Conjur::CertUtils,
+        certificate_utilities: Conjur::Certificates::CertUtils,
         http_post: Net::HTTP::Post
       )
         # Set the default hostname
@@ -25,8 +25,8 @@ module Authentication
         # Find and set the proxy
         @proxy = identify_proxy(proxy)
 
-        @success = ::SuccessResponse
-        @failure = ::FailureResponse
+        @success = Responses::Success
+        @failure = Responses::Failure
       end
 
       def get(path)

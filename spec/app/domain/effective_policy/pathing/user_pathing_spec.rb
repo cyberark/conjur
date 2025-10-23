@@ -1,7 +1,7 @@
 require 'spec_helper'
 
-RSpec.describe(EffectivePolicy::UserPathing) do
-  let(:pathing) { Class.new { include EffectivePolicy::UserPathing }.new }
+RSpec.describe(EffectivePolicy::Pathing::UserPathing) do
+  let(:pathing) { Class.new { include EffectivePolicy::Pathing::UserPathing }.new }
   let(:res) do
     double(
       "Resource",

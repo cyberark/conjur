@@ -33,17 +33,17 @@ module Authentication
             @logger.info(
               LogMessages::Authentication::AuthnJwt::RetrievedResourceValue.new(
                 identity_path_secret_value,
-                IDENTITY_PATH_RESOURCE_NAME
+                AuthnJwt::IDENTITY_PATH_RESOURCE_NAME
               )
             )
             @identity_path = identity_path_secret_value
           else
             @logger.debug(
               LogMessages::Authentication::AuthnJwt::IdentityPathNotConfigured.new(
-                IDENTITY_PATH_RESOURCE_NAME
+                AuthnJwt::IDENTITY_PATH_RESOURCE_NAME
               )
             )
-            @identity_path = IDENTITY_PATH_DEFAULT_VALUE
+            @identity_path = AuthnJwt::IDENTITY_PATH_DEFAULT_VALUE
           end
 
           @logger.info(LogMessages::Authentication::AuthnJwt::FetchedIdentityPath.new(@identity_path))
@@ -57,7 +57,7 @@ module Authentication
             conjur_account: account,
             authenticator_name: authenticator_name,
             service_id: service_id,
-            var_name: IDENTITY_PATH_RESOURCE_NAME
+            var_name: AuthnJwt::IDENTITY_PATH_RESOURCE_NAME
           )
         end
 
@@ -66,8 +66,8 @@ module Authentication
             conjur_account: account,
             authenticator_name: authenticator_name,
             service_id: service_id,
-            required_variable_names: [IDENTITY_PATH_RESOURCE_NAME]
-          )[IDENTITY_PATH_RESOURCE_NAME]
+            required_variable_names: [AuthnJwt::IDENTITY_PATH_RESOURCE_NAME]
+          )[AuthnJwt::IDENTITY_PATH_RESOURCE_NAME]
         end
       end
     end

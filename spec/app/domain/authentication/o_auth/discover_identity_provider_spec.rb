@@ -20,11 +20,11 @@ RSpec.describe(Authentication::OAuth::DiscoverIdentityProvider) do
     before do
       transport.tap do |double|
         allow(double).to receive(:get).with('http://test-provider-uri/.well-known/openid-configuration').and_return(
-          SuccessResponse.new({ 'jwks_uri' => 'http://test-provider-uri/jwks' })
+          Responses::Success.new({ 'jwks_uri' => 'http://test-provider-uri/jwks' })
         )
         allow(double).to receive(:get).with('http://test-provider-uri/jwks').and_return(
           # rubocop:disable Layout:LineLength
-          SuccessResponse.new(
+          Responses::Success.new(
             {
               'keys' => [
                 {
@@ -64,7 +64,7 @@ RSpec.describe(Authentication::OAuth::DiscoverIdentityProvider) do
         end
       end
 
-      let(:error_response) { FailureResponse.new('error', exception: Errno::ETIMEDOUT.new) }
+      let(:error_response) { Responses::Failure.new('error', exception: Errno::ETIMEDOUT.new) }
       subject { Authentication::OAuth::DiscoverIdentityProvider.new(client: transporter).call(provider_uri: test_provider_uri, ca_cert: nil) }
 
       it "returns a ProviderDiscoveryTimeout error" do
@@ -74,7 +74,7 @@ RSpec.describe(Authentication::OAuth::DiscoverIdentityProvider) do
       end
 
       context "that fails on a general error" do
-        let(:error_response) { FailureResponse.new(Net::HTTPNotFound) }
+        let(:error_response) { Responses::Failure.new(Net::HTTPNotFound) }
         subject { Authentication::OAuth::DiscoverIdentityProvider.new(client: transporter).call(provider_uri: test_provider_uri, ca_cert: nil) }
 
         it "returns a ProviderDiscoveryFailed error" do

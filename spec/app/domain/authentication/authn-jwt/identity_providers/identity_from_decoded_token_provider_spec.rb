@@ -122,34 +122,34 @@ RSpec.describe('Authentication::AuthnJwt::IdentityProviders::IdentityFromDecoded
   let(:mocked_fetch_identity_path_failed) { double("MockedFetchIdentityPathFailed") }
   let(:fetch_identity_path_missing_error) { "fetch identity fetch missing error" }
   let(:mocked_fetch_identity_path_valid_empty_path) { double("MockedFetchIdentityPathValid") }
-  let(:identity_path_valid_empty_path) { ::Authentication::AuthnJwt::IDENTITY_PATH_DEFAULT_VALUE }
+  let(:identity_path_valid_empty_path) { Authentication::AuthnJwt::AuthnJwt::IDENTITY_PATH_DEFAULT_VALUE }
   let(:mocked_fetch_identity_path_valid_value) { double("MockedFetchIdentityPathValid") }
   let(:identity_path_valid_value) { "apps/sub-apps" }
   let(:valid_jwt_identity_without_path) {
-    ::Authentication::AuthnJwt::IDENTITY_TYPE_HOST +
-      ::Authentication::AuthnJwt::PATH_DELIMITER +
+    Authentication::AuthnJwt::AuthnJwt::IDENTITY_TYPE_HOST +
+      Authentication::AuthnJwt::AuthnJwt::PATH_DELIMITER +
       token_identity
   }
   let(:valid_jwt_identity_from_hash) {
-    ::Authentication::AuthnJwt::IDENTITY_TYPE_HOST +
-      ::Authentication::AuthnJwt::PATH_DELIMITER +
+    Authentication::AuthnJwt::AuthnJwt::IDENTITY_TYPE_HOST +
+      Authentication::AuthnJwt::AuthnJwt::PATH_DELIMITER +
       "n_value"
   }
   let(:valid_jwt_identity_from_array) {
-    ::Authentication::AuthnJwt::IDENTITY_TYPE_HOST +
-      ::Authentication::AuthnJwt::PATH_DELIMITER +
+    Authentication::AuthnJwt::AuthnJwt::IDENTITY_TYPE_HOST +
+      Authentication::AuthnJwt::AuthnJwt::PATH_DELIMITER +
       "a_value_1"
   }
   let(:valid_jwt_identity_from_namespaced_claim) {
-    ::Authentication::AuthnJwt::IDENTITY_TYPE_HOST +
-      ::Authentication::AuthnJwt::PATH_DELIMITER +
+    Authentication::AuthnJwt::AuthnJwt::IDENTITY_TYPE_HOST +
+      Authentication::AuthnJwt::AuthnJwt::PATH_DELIMITER +
       "namespaced-value"
   }
   let(:valid_jwt_identity_with_path) {
-    ::Authentication::AuthnJwt::IDENTITY_TYPE_HOST +
-      ::Authentication::AuthnJwt::PATH_DELIMITER +
+    Authentication::AuthnJwt::AuthnJwt::IDENTITY_TYPE_HOST +
+      Authentication::AuthnJwt::AuthnJwt::PATH_DELIMITER +
       identity_path_valid_value +
-      ::Authentication::AuthnJwt::PATH_DELIMITER +
+      Authentication::AuthnJwt::AuthnJwt::PATH_DELIMITER +
       token_identity
   }
 

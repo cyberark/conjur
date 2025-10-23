@@ -4,7 +4,7 @@ require 'command_class'
 module Authentication
   module AuthnJwt
 
-    OrchestrateAuthentication ||= CommandClass.new(
+    OrchestrateAuthentication = CommandClass.new(
       dependencies: {
         validate_uri_based_parameters: Authentication::AuthnJwt::InputValidation::ValidateUriBasedParameters.new,
         create_vendor_configuration: Authentication::AuthnJwt::VendorConfigurations::CreateVendorConfiguration.new,

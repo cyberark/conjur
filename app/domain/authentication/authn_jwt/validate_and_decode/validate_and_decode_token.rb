@@ -5,7 +5,7 @@ module Authentication
       # 1st we are validating only the signature.
       # 2nd we are validating the claims, by checking the token content to decide which claims are enforced
       # for the 2nd validation
-      ValidateAndDecodeToken ||= CommandClass.new(
+      ValidateAndDecodeToken = CommandClass.new(
         dependencies: {
           verify_and_decode_token: ::Authentication::Jwt::VerifyAndDecodeToken.new,
           fetch_jwt_claims_to_validate: ::Authentication::AuthnJwt::ValidateAndDecode::FetchJwtClaimsToValidate.new,
@@ -75,7 +75,7 @@ module Authentication
 
         def verification_options_for_signature_only
           @verification_options_for_signature_only = {
-            algorithms: SUPPORTED_ALGORITHMS,
+            algorithms: AuthnJwt::SUPPORTED_ALGORITHMS,
             jwks: @jwks
           }
         end

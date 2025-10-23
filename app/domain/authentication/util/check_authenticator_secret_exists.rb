@@ -1,5 +1,4 @@
 require 'command_class'
-require 'conjur/fetch_required_secrets'
 
 module Authentication
   module Util

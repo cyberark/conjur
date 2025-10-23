@@ -2,6 +2,7 @@
 
 require 'spec_helper'
 
+DatabaseCleaner.allow_remote_database_url = true
 DatabaseCleaner.strategy = :truncation
 
 describe AccountsController, type: :request do
@@ -34,7 +35,7 @@ describe AccountsController, type: :request do
     post("/policies/#{account}/policy/root", env: admin_request_env.merge({ 'RAW_POST_DATA' => policy_content }))
     return unless expect_success
 
-    expect(response.code).to eq("201") 
+    expect(response.code).to eq("201")
   end
 
   def retrieve_accounts
@@ -112,7 +113,7 @@ describe AccountsController, type: :request do
 
     context 'user does not have update permissions' do
       let(:current_user) { Role.find_or_create(role_id: 'rspec:user:alice') }
-      
+
       it 'returns a 403' do
         delete_account
         expect(response.code).to eq('403')

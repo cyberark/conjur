@@ -11,7 +11,7 @@ module Authentication
       #    Output: {} // verification option dictionary
       # 4. Input: {name: nbf, value: } // jwt claim
       #    Output: {} // verification option dictionary
-      GetVerificationOptionByJwtClaim ||= CommandClass.new(
+      GetVerificationOptionByJwtClaim = CommandClass.new(
         dependencies: {
           logger: Rails.logger
         },
@@ -32,15 +32,15 @@ module Authentication
           @logger.debug(LogMessages::Authentication::AuthnJwt::ConvertingJwtClaimToVerificationOption.new(claim_name))
 
           case claim_name
-          when EXP_CLAIM_NAME, NBF_CLAIM_NAME
+          when AuthnJwt::EXP_CLAIM_NAME, AuthnJwt::NBF_CLAIM_NAME
             @verification_option = {}
-          when ISS_CLAIM_NAME
+          when AuthnJwt::ISS_CLAIM_NAME
             validate_claim_has_value
 
             @verification_option = { iss: claim_value, verify_iss: true }
-          when IAT_CLAIM_NAME
+          when AuthnJwt::IAT_CLAIM_NAME
             @verification_option = { verify_iat: true }
-          when AUD_CLAIM_NAME
+          when AuthnJwt::AUD_CLAIM_NAME
             validate_claim_has_value
 
             @verification_option = { aud: claim_value, verify_aud: true }

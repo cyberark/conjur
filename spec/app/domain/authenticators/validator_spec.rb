@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe ::Authenticator::Validator do
+describe Authenticators::Validator do
   let(:account) { "cucumber" }
   let(:branch) do
     if type == "aws"
@@ -36,7 +36,7 @@ describe ::Authenticator::Validator do
 
   describe "#call" do
     subject do
-      ::Authenticator::Validator.new.call(authenticator_hash, account)
+      Authenticators::Validator.new.call(authenticator_hash, account)
     end
 
     context "invalid values" do 

@@ -6,8 +6,8 @@ class BranchesController < V2RestController
 
   def initialize(
     *args,
-    branch_service: BranchService.instance,
-    owner_service: OwnerService.instance,
+    branch_service: Branches::BranchService.instance,
+    owner_service: Branches::OwnerService.instance,
     **kwargs
   )
     super(*args, **kwargs)
@@ -21,7 +21,7 @@ class BranchesController < V2RestController
     input = permit_create_body_params
     log_debug("url_params = #{url_params}, input = #{input}")
 
-    branch = Branch.from_input(input)
+    branch = Branches::Branch.from_input(input)
     log_debug("branch = #{branch}")
 
     authorize_create_in_parent(branch)
@@ -73,7 +73,7 @@ class BranchesController < V2RestController
 
     authorize_update(path_identifier)
 
-    branch_up = BranchUpPart.from_input(input)
+    branch_up = Branches::BranchUpPart.from_input(input)
     log_debug("branch_up = #{branch_up}")
 
     check_owner_exists_if_set(branch_up)

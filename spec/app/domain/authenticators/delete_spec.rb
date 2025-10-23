@@ -2,9 +2,9 @@
 
 require 'spec_helper'
 
-describe ::Authenticator::Delete do
+describe Authenticators::Delete do
   let(:subject) do
-    ::Authenticator::Delete.new(
+    Authenticators::Delete.new(
       authn_repo: authn_repo
     )
   end
@@ -34,7 +34,7 @@ describe ::Authenticator::Delete do
   end
 
   let(:response) do
-    ::SuccessResponse.new(authenticators)
+    Responses::Success.new(authenticators)
   end
 
   let(:authn_repo) do
@@ -74,7 +74,7 @@ describe ::Authenticator::Delete do
     end
     context 'When the authenticator is not found' do
       let(:response) do
-        ::FailureResponse.new(
+        Responses::Failure.new(
           "Authenticator: 'test-service' not found in account 'rspec'",
           status: :not_found,
           exception: Errors::Authentication::Security::WebserviceNotFound.new(webservice_id)
