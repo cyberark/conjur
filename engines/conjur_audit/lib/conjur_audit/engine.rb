@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative '../../app/models/conjur_audit/message'
+
 module ConjurAudit
   class Engine < ::Rails::Engine
     isolate_namespace ConjurAudit
