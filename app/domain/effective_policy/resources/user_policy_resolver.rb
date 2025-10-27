@@ -10,7 +10,7 @@ module EffectivePolicy
         @user_to_policy_identifier_cache = {}
       end
 
-      include(EffectivePolicy::Pathing::ResPathing)
+      include(Domain)
       include(EffectivePolicy::Pathing::UserPathing)
 
       def resolve_and_filter(resources = [])
@@ -71,7 +71,13 @@ module EffectivePolicy
 
       def policy_for_user(user)
         user_path = user_path(user.identifier)
-        return '' if user_path.nil?
+        owner = user.values[:owner_id]
+
+        account = account_of(user.id)
+        admin = "#{account}:user:admin"
+        root_pol = "#{account}:policy:root"
+
+        return '/' if user_path.nil? || owner == admin || owner == root_pol
 
         if policy?(kind(user.owner_id))
           owner_identifier = identifier(user.owner_id)
@@ -79,19 +85,24 @@ module EffectivePolicy
           return owner_identifier if user_path == owner_identifier_dashed
         end
 
-        find_policy_identifier_for_user(user_path)
+        determine_policy_identifier_for_user(user_path)
+      end
+
+      def determine_policy_identifier_for_user(user_path)
+        @user_to_policy_identifier_cache[user_path] ||= find_policy_identifier_for_user(user_path)
+      end
+
+      def find_policy_identifier_for_user(user_path)
+        possible_policies = find_possible_policies(user_path)
+        return '/' if possible_policies.empty?
+
+        filter_possible_policies_by_depth(possible_policies).first[:values][:identifier]
       end
 
       def filter_possible_policies_by_depth(policy_identifiers)
         policy_identifiers.filter do |policy_identifier|
-          policy_identifier.values[:identifier].count('/') <= @absolute_depth
+          policy_identifier[:values][:identifier].count('/') <= @absolute_depth
         end
-      end
-
-      def find_policy_identifier_for_user(user_path)
-        @user_to_policy_identifier_cache[user_path] ||= filter_possible_policies_by_depth(
-          find_possible_policies(user_path)
-        ).first.values[:identifier]
       end
 
       def find_possible_policies(user_path)

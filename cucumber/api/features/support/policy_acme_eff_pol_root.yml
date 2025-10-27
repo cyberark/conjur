@@ -1,3 +1,4 @@
+---
 - !user rot
 - !policy
   id: pol-root

@@ -81,6 +81,7 @@ Feature: Fetching effective policy
     And the HTTP response content type is "application/x-yaml"
     Then the yaml result is:
     """
+    ---
     - !policy
       id: rootpolicy
       body: []
@@ -93,6 +94,7 @@ Feature: Fetching effective policy
     And the HTTP response content type is "application/x-yaml"
     Then the yaml result is:
     """
+    ---
     - !policy
       id: outer
       body:
@@ -132,6 +134,7 @@ Feature: Fetching effective policy
     And I can GET "/policies/cucumber/policy/rootpolicy/acme-adm/outer?depth=1;limit=10"
     Then the yaml result is:
     """
+    ---
     - !policy
       id: outer
       body:

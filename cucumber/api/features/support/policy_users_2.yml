@@ -1,0 +1,9 @@
+- !user alice@rootpolicy.net
+- !user alice@rootpolicy.net@conjur.net
+
+- !user
+  id: bob@rootpolicy.net
+  owner: !user /admin
+- !user
+  id: bob@rootpolicy.net@conjur.net
+  owner: !user /admin

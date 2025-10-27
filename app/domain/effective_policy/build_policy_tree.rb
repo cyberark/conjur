@@ -2,10 +2,17 @@
 
 module EffectivePolicy
   class BuildPolicyTree
-    include(EffectivePolicy::Pathing::ResPathing)
+    include(Domain)
+    include(Logging)
     include(EffectivePolicy::PolicyTree::Permit)
     include(EffectivePolicy::PolicyTree::Tagging)
     include(EffectivePolicy::PolicyTree::TagMaking)
+
+    def initialize(
+      logger: Rails.logger
+    )
+      @logger = logger
+    end
 
     def call(pol_identifier = "", resources = [])
       root_pol_par_identifier = par_pol_identifier(pol_identifier)
@@ -107,6 +114,9 @@ module EffectivePolicy
         make_variable(res_with_id)
       when 'webservice'
         make_webservice(res_with_id)
+      when 'public-key', 'configuration'
+        log_info("unsupported kind #{res.kind} for #{res.identifier}")
+        return
       else
         raise("unsupported kind #{res.kind} for #{res.identifier}")
       end

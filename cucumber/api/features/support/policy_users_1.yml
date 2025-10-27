@@ -1,0 +1,30 @@
+- !policy
+  id: rootpolicy
+  body:
+    []
+
+- !policy
+  id: rootpolicy.net
+  body:
+    - !user alice
+    - !user
+      id: bob
+      owner: !user /admin
+    - !policy
+      id: conjur.net
+      body:
+        - !user alice
+        - !user
+          id: bob
+          owner: !user /admin
+        - !user
+          id: cecil
+          public_keys:
+          - ssh-rsa test-key laptop
+        - !resource
+          id: 'conjur/ldap-sync/default'
+          kind: 'configuration'
+          annotations:
+            ldap-sync/user-searches/0/scope: "subtree"
+            ldap-sync/user-searches/0/base-dn: "OU=Engineering, DC=MyCompany, DC=com"
+            ldap-sync/user-searches/0/filter: "(objectClass=person)"

@@ -3,7 +3,7 @@
 module EffectivePolicy
   module PolicyTree
     class GrantCache
-      include(EffectivePolicy::Pathing::ResPathing)
+      include(Domain)
       include(EffectivePolicy::PolicyTree::Tagging)
       include(EffectivePolicy::PolicyTree::TagMaking)
 
