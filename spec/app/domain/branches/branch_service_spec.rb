@@ -6,9 +6,9 @@ RSpec.describe(Branches::BranchService) do
   let(:annotation_service) { instance_double(Annotations::AnnotationService) }
   let(:res_service) { instance_double(Resources::ResourceService) }
   let(:res_scopes_service) { instance_double(Resources::ResourceScopesService) }
-  let(:role_repo) { class_double('Role') }
-  let(:role_membership_repo) { class_double('RoleMembership') }
-  let(:secret_repo) { class_double('Secret') }
+  let(:role_repo) { class_double(Role) }
+  let(:role_membership_repo) { class_double(RoleMembership) }
+  let(:secret_repo) { class_double(Secret) }
   let(:logger) { instance_double(Logger, debug?: true, debug: nil) }
 
   let(:service) do
@@ -159,7 +159,6 @@ RSpec.describe(Branches::BranchService) do
         allow(service).to receive(:parent_identifier).with(identifier).and_return('data')
 
         expect(service).to receive(:get_branch).with(account, 'data')
-
         service.check_parent_branch_exists(account, identifier)
       end
     end
@@ -323,6 +322,7 @@ RSpec.describe(Branches::BranchService) do
     let(:secrets) { [instance_double('Secret', delete: true)] }
     let(:annotations_list) { [instance_double('Annotation', delete: true)] }
     let(:base_scope) { instance_double('Sequel::Dataset') }
+    let(:role) { instance_double('Sequel::Role') }
 
     before do
       allow(res_scopes_service).to receive(:resources_to_del_scope)
@@ -336,6 +336,12 @@ RSpec.describe(Branches::BranchService) do
       allow(policy).to receive(:kind).and_return('policy')
       allow(policy).to receive(:annotations).and_return(annotations_list)
       allow(policy).to receive(:destroy).and_return(true)
+
+      allow(role).to receive(:id).and_return("rspec:policy:data/branch1")
+      allow(role).to receive(:destroy).and_return(true)
+      allow(role).to receive(:allowed_to?).with(:update, policy).and_return(true)
+
+      allow(role_repo).to receive(:[]).with("rspec:policy:data/branch1").and_return(role)
     end
 
     it 'deletes the branch and associated resources' do
@@ -344,6 +350,7 @@ RSpec.describe(Branches::BranchService) do
       expect(secrets.first).to have_received(:delete)
       expect(annotations_list.first).to have_received(:delete)
       expect(policy).to have_received(:destroy)
+      expect(role).to have_received(:destroy)
     end
 
     context 'when user is not allowed to update' do
@@ -377,6 +384,12 @@ RSpec.describe(Branches::BranchService) do
       allow(policy).to receive(:kind).and_return('policy')
       allow(policy).to receive(:annotations).and_return(annotations_list)
       allow(policy).to receive(:destroy).and_return(true)
+
+      allow(role).to receive(:id).and_return("rspec:policy:data/branch1")
+      allow(role).to receive(:destroy).and_return(true)
+      allow(role).to receive(:allowed_to?).with(:update, policy).and_return(true)
+
+      allow(role_repo).to receive(:[]).with("rspec:policy:data/branch1").and_return(role)
     end
 
     it 'deletes the branch and associated resources' do
@@ -385,6 +398,7 @@ RSpec.describe(Branches::BranchService) do
       expect(secrets.first).to have_received(:delete)
       expect(annotations_list.first).to have_received(:delete)
       expect(policy).to have_received(:destroy)
+      expect(role).to have_received(:destroy)
     end
 
     context 'when user is not allowed to update' do

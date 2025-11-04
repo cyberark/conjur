@@ -146,6 +146,7 @@ module Branches
         res.secrets.each(&:delete)
         res.annotations.each(&:delete)
         res.destroy
+        @role_repo[res.id]&.destroy
       end
     end
 
