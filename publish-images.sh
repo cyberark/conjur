@@ -15,7 +15,6 @@ function print_help() {
   echo " --internal: publish SHA tagged images internally"
   echo " --edge: publish images as edge versions to registry.tld and dockerhub"
   echo " --promote: publish images as a promotion (latest and less specific versions) to registry.tld and dockerhub"
-  echo " --redhat: publish image to redhat registry"
   echo " --version=VERSION: specify version number to use"
   echo " --base-version=VERSION: specify base image version number to use to apply tags to"
   echo " --arch=ARCH: specify architecture for tagging an image (default 'amd64'). Possible values are: amd64,arm64"
@@ -25,7 +24,6 @@ PUBLISH_EDGE=false
 PUBLISH_RELEASE=false
 PUBLISH_INTERNAL=false
 PROMOTE=false
-REDHAT=false
 DOCKERHUB=false
 VERSION=$(<VERSION)
 ARCH="amd64"
@@ -52,10 +50,6 @@ for arg in "$@"; do
       ;;
     --dockerhub )
       DOCKERHUB=true
-      shift
-      ;;
-    --redhat )
-      REDHAT=true
       shift
       ;;
     --version=* )
