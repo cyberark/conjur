@@ -15,6 +15,7 @@ function print_help() {
   echo " --internal: publish SHA tagged manifests internally"
   echo " --edge: publish manifests as edge versions to registry.tld"
   echo " --promote: publish manifests as a promotion (latest and less specific versions) to registry.tld"
+  echo " --redhat: publish image to redhat registry"
   echo " --version=VERSION: specify version number to use"
   echo " --base-version=VERSION: specify base image version number to use to apply tags to"
 }
@@ -22,6 +23,7 @@ function print_help() {
 PUBLISH_EDGE=false
 PUBLISH_INTERNAL=false
 PROMOTE=false
+REDHAT=false
 DOCKERHUB=false
 VERSION=$(<VERSION)
 
@@ -45,6 +47,10 @@ for arg in "$@"; do
       ;;
     --promote )
       PROMOTE=true
+      shift
+      ;;
+    --redhat )
+      REDHAT=true
       shift
       ;;
     --dockerhub )
