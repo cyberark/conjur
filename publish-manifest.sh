@@ -29,7 +29,7 @@ VERSION=$(<VERSION)
 
 LOCAL_TAG="$(version_tag)"
 
-RH_LOCAL_IMAGE="registry.tld/conjur-ubi:${LOCAL_TAG}"
+RH_LOCAL_IMAGE="registry.tld/conjur-ubi:latest"
 REDHAT_CERT_PID="5f905d433a93dc782c77a0f9"
 REDHAT_REGISTRY="quay.io"
 REDHAT_REMOTE_IMAGE="${REDHAT_REGISTRY}/redhat-isv-containers/${REDHAT_CERT_PID}"
