@@ -50,4 +50,16 @@ module Domain
   def root?(identifier)
     %w[/ /root root].include?(identifier)
   end
+
+  def not_root?(identifier)
+    !root?(identifier)
+  end
+
+  def policy?(kind)
+    kind == 'policy'
+  end
+  #
+  def user?(kind)
+    kind == 'user'
+  end
 end

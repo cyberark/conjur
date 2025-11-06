@@ -3,7 +3,7 @@
 module EffectivePolicy
   module PolicyTree
     class PolicyCache
-      include(EffectivePolicy::Pathing::ResPathing)
+      include(Domain)
       include(EffectivePolicy::PolicyTree::Tagging)
       include(EffectivePolicy::PolicyTree::TagMaking)
 
