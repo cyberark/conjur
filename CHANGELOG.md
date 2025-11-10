@@ -9,21 +9,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
-## [1.24.0] - 2025-10-10
-
-### Security
-- Bumped rack to 2.2.19 to resolve CVE-2025-61770, CVE-2025-61771, CVE-2025-61772, CVE-2025-61919. CONJSE-2064, CONJSE-2065
-
-### Added
-- Added endpoint to retrieve last API key rotation timestamp. CNJR-11385
-- Added timestamp of the last API key rotation. CNJR-11384
-
-## [1.23.0] - 2025-09-23
+## [1.24.0] - 2025-11-10
 
 ### Changed
 - Updated documentation to align with Conjur Enterprise name change to Secrets Manager. (CNJR-10965)
 
 ### Security
+- Upgrade Rails to v7 (CNJR-11466)
+- Bumped rack to 2.2.19 to resolve CVE-2025-61770, CVE-2025-61771, CVE-2025-61772, CVE-2025-61919. CONJSE-2064, CONJSE-2065
 - Remove the policy factory API endpoints from the config/routes.rb file to prevent
   anyone being able to call these endpoints and trigger the marshal.load call. CONJSE-2038
 - Fix unsafe shell command executions. CONJSE-2039. CONJSE-2041-2046.
@@ -33,6 +26,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Bump rack gem to 2.2.18 to resolve CVE-2025-59830. CONJSE-2058
 
 ### Added
+- Added endpoint to retrieve last API key rotation timestamp. CNJR-11385
+- Added timestamp of the last API key rotation. CNJR-11384
 - Added extra context (policy ID and offending lines) for API error responses caused by policy updates. CNJR-2571
 - Added the list authenticators endpoint for the V2 API's. CNJR-9137
 - Added the show authenticator endpoint for the V2 API's. CNJR-9133
@@ -1392,8 +1387,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - The first tagged version.
 
-[Unreleased]: https://github.com/cyberark/conjur/compare/v1.23.0...HEAD
-[1.23.0]: https://github.com/cyberark/conjur/compare/v1.22.2...v1.23.0
+[Unreleased]: https://github.com/cyberark/conjur/compare/v1.24.0...HEAD
+[1.24.0]: https://github.com/cyberark/conjur/compare/v1.22.2...v1.24.0
 [1.22.2]: https://github.com/cyberark/conjur/compare/v1.22.1...v1.22.2
 [1.22.1]: https://github.com/cyberark/conjur/compare/v1.22.0...v1.22.1
 [1.22.0]: https://github.com/cyberark/conjur/compare/v1.21.3...v1.22.0
