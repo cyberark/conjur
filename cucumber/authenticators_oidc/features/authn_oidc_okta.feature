@@ -1,4 +1,6 @@
 @authenticators_oidc
+# Skip this while we wait for our Okta environment to be fixed
+@skip
 Feature: OIDC Authenticator V2 - Users can authenticate with Okta using OIDC
 
   Background:
