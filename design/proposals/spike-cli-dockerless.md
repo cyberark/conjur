@@ -141,7 +141,7 @@ conjur-cli policy delete root ./path_to_policy.yml*
 | ---------- | ------------------------------------------------------------ |
 | Ruby CLI   | Currently, the Ruby CLI can be deployed in the following ways:<br />1. Deploy to Docker container (**not** applicable for our use-case)<br />2. Deploy with specific Ruby version (`gem install conjur-cli`)<br />Which means that the CLI is not plug-and-play and has prerequisites |
 | Go CLI     | The CLI is compiled down to a binary. A different binary is need to be compiled for each platform but no other requirements or installers are needed to launch the Go CLI. |
-| Python CLI | The Python CLI can deployed in the following ways:<br />1. Install CLI via PIP (Python **is** required on machine)<br />2. Runnable executable (Python **is** **not** required on the machine)<br />The CLI is delivered as a [standalone executable](https://github.com/cyberark/conjur-api-python3/releases/tag/v0.0.5), packed with the required runtime and dependencies. For this option there is no need for Python or other prerequisites to be installed on machine. |
+| Python CLI | The Python CLI can be deployed in the following ways:<br />1. Install CLI via PIP (Python **is** required on machine)<br />2. Runnable executable (Python **is** **not** required on the machine)<br />The CLI is delivered as a [standalone executable](https://github.com/cyberark/conjur-api-python3/releases/tag/v0.0.5), packed with the required runtime and dependencies. For this option there is no need for Python or other prerequisites to be installed on machine. |
 
 #### Deployment of Ruby CLI
 
