@@ -3,10 +3,7 @@ module Monitoring
     class AuthenticatorGauge
       attr_reader :registry, :pubsub, :metric_name, :docstring, :labels, :sub_event_name
 
-      def initialize(
-        installed_authenticators: DB::Repository::AuthenticatorConfigRepository.new,
-        implemented_authenticators: Authentication::ImplementedAuthenticators
-      )
+      def initialize(installed_authenticators: nil, implemented_authenticators: nil)
         @metric_name = :conjur_server_authenticator
         @docstring = 'Number of authenticators enabled'
         @labels = %i[type status]
@@ -19,7 +16,7 @@ module Monitoring
       def setup(registry, pubsub)
         @registry = registry
         @pubsub = pubsub
-        
+
         # Create/register the metric
         Metrics.create_metric(self, :gauge)
 
@@ -28,6 +25,13 @@ module Monitoring
       end
 
       def update(*_payload)
+        # Resolve application constants lazily: this class is instantiated from
+        # config/initializers/prometheus.rb, before app constants under
+        # app/db and app/domain are autoloadable. By the time update runs
+        # (first request, via the initializer's lazy_init), autoloading is ready.
+        @installed_authenticators ||= DB::Repository::AuthenticatorConfigRepository.new
+        @implemented_authenticators ||= Authentication::ImplementedAuthenticators
+
         metric = registry.get(metric_name)
         update_enabled_authenticators(metric)
         update_installed_authenticators(metric)

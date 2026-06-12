@@ -9,6 +9,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Nothing should go in this section, please add to the latest unreleased version
   (and update the corresponding date), or add a new version.
 
+## [1.24.1] - 2026-06-11
+
+### Fixed
+- Fixed the server failing to boot when telemetry is enabled
+  (`CONJUR_TELEMETRY_ENABLED=true`): `Monitoring::Metrics::AuthenticatorGauge`
+  no longer resolves autoloaded application constants
+  (`DB::Repository::AuthenticatorConfigRepository`,
+  `Authentication::ImplementedAuthenticators`) during Rails initialization;
+  they are now resolved lazily on the first metrics update.
+  [cyberark/conjur#3026](https://github.com/cyberark/conjur/issues/3026)
+
 ## [1.24.0] - 2025-11-10
 
 ### Changed
